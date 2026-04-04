@@ -711,6 +711,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                 const score = p.winning_score ?? 0;
                 const tier = getScoreTier(score);
                 const cat = p.category ?? 'General';
+                const cs = getCategoryStyle(cat);
                 const truncTitle = (p.product_title || '').length > 32 ? (p.product_title || '').slice(0, 32) + '...' : (p.product_title || '');
                 return (
                   <tr key={p.id} style={{ borderBottom: i < leaderboard.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer', transition: 'background 120ms' }}
@@ -731,7 +732,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                       </div>
                     </td>
                     <td style={{ padding: '10px 16px' }}>
-                      <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 20, background: 'rgba(99,102,241,0.15)', color: '#818CF8', fontWeight: 600, border: '1px solid rgba(99,102,241,0.25)' }}>{cat}</span>
+                      <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 20, background: cs.background, color: cs.color, fontWeight: 600, border: cs.border }}>{cat}</span>
                     </td>
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
