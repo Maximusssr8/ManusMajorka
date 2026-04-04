@@ -94,7 +94,7 @@ interface Product {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 function slugify(text: string): string {
@@ -226,7 +226,7 @@ function ScoreBadge({ score }: { score: number }) {
     <div title={`Dropship Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
       style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', cursor: 'help', flexShrink: 0 }}>
       <div style={{ padding: '4px 10px', borderRadius: 20, background: tier.bg, border: `1px solid ${tier.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score || '—'}</span>
+        <span style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score || '—'}</span>
       </div>
       <span style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>Dropship</span>
     </div>
@@ -799,10 +799,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {!canSeeFinancials && !isAdmin && (
           <div style={{background:'linear-gradient(135deg,#EEF2FF,#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
             <div>
-              <div style={{fontFamily:brico,fontWeight:800,fontSize:15,color:'#E2E8F0'}}>Showing 10 of {filteredProducts.length} products</div>
+              <div style={{fontFamily: "'Inter', -apple-system, sans-serif",fontWeight:800,fontSize:15,color:'#E2E8F0'}}>Showing 10 of {filteredProducts.length} products</div>
               <div style={{fontSize:13,color:'#4B5563',marginTop:2}}>Unlock full database, margins, and revenue data on Builder plan</div>
             </div>
-            <button onClick={()=>setShowUpgrade(true)} style={{padding:'10px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:brico,whiteSpace:'nowrap' as const}}>
+            <button onClick={()=>setShowUpgrade(true)} style={{padding:'10px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily: "'Inter', -apple-system, sans-serif",whiteSpace:'nowrap' as const}}>
               Unlock All {filteredProducts.length} →
             </button>
           </div>
@@ -1126,7 +1126,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     ) : (
                       <>
                         <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uD83D\uDD0D'}</div>
-                        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F8FAFC', marginBottom: 6 }}>No products found</div>
+                        <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 700, fontSize: 18, color: '#F8FAFC', marginBottom: 6 }}>No products found</div>
                         <div style={{ fontSize: 14, color: '#94A3B8', marginBottom: 16 }}>Try clearing filters or searching a different keyword</div>
                       </>
                     )}
@@ -1228,7 +1228,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               if (realOrd && realOrd > 0) {
                                 return (
                                   <>
-                                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: '#22C55E' }}>
+                                    <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: '#22C55E' }}>
                                       {realOrd >= 1000 ? `${(realOrd / 1000).toFixed(1)}k` : realOrd.toLocaleString()}
                                     </div>
                                     <div style={{ fontSize: 10, color: '#22C55E' }}>real orders</div>
@@ -1237,7 +1237,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               }
                               return (
                                 <>
-                                  <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: aeOrd >= 1000 ? '#f4f4f5' : '#71717a' }}>
+                                  <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: aeOrd >= 1000 ? '#f4f4f5' : '#71717a' }}>
                                     {aeOrd >= 1000 ? `${(aeOrd / 1000).toFixed(1)}k` : aeOrd > 0 ? aeOrd.toLocaleString() : '—'}
                                   </div>
                                   <div style={{ fontSize: 10, color: '#9CA3AF' }}>AE orders</div>
@@ -1294,7 +1294,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <td style={tdStyle('center')}>
                           {canSeeFinancials ? (
                             <>
-                              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: margin === null ? '#6B7280' : (margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444') }}>
+                              <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: margin === null ? '#6B7280' : (margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444') }}>
                                 {margin !== null ? `${margin}%` : '—'}
                               </div>
                               {margin !== null && (
@@ -1396,7 +1396,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <button
             onClick={() => { const next = offset + 50; setOffset(next); loadProducts(next, true); }}
-            style={{ padding: '10px 32px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: brico }}
+            style={{ padding: '10px 32px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', -apple-system, sans-serif" }}
           >
             Load More ({totalCount - allProducts.length} remaining)
           </button>
@@ -1650,7 +1650,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
         <span style={{ padding: '0 8px', fontSize: 12, color: '#6366F1', fontWeight: 700, flexShrink: 0 }}>{prefix}</span>
         <input type="number" min={0} step={step} value={val}
           onChange={e => set(parseFloat(e.target.value) || 0)}
-          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: 'var(--input-text, #111827)', fontFamily: brico, background: 'transparent', padding: '0 6px 0 0', minWidth: 0 }}
+          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: 'var(--input-text, #111827)', fontFamily: "'Inter', -apple-system, sans-serif", background: 'transparent', padding: '0 6px 0 0', minWidth: 0 }}
         />
       </div>
       {hint && <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{hint}</div>}
@@ -1661,7 +1661,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
   const metric = (label: string, val: string, color: string, bg: string) => (
     <div style={{ background: isDark ? `${color}15` : bg, borderRadius: 10, padding: '10px 12px', textAlign: 'center' as const }}>
       <div style={{ fontSize: 9, color, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>{label}</div>
-      <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 17, color, lineHeight: 1 }}>{val}</div>
+      <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 900, fontSize: 17, color, lineHeight: 1 }}>{val}</div>
     </div>
   );
 
@@ -1670,7 +1670,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
       {/* Collapsible header */}
       <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
         <div>
-          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: isDark ? '#C7D2FE' : '#1E1B4B' }}>💰 Profit Analysis</div>
+          <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 14, color: isDark ? '#C7D2FE' : '#1E1B4B' }}>💰 Profit Analysis</div>
           <div style={{ fontSize: 11, color: '#6366F1', marginTop: 1 }}>Auto-filled from product · all values editable</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1722,7 +1722,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           </div>
           <div style={{ background: isDark ? 'rgba(99,102,241,0.08)' : '#EEF2FF', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
             <div style={{ fontSize: 9, color: '#6366F1', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
-            <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
+            <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
             <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
           </div>
 
@@ -1741,7 +1741,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
                 return (
                   <div key={proj.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: isDark ? (pos ? 'rgba(5,150,105,0.1)' : 'rgba(220,38,38,0.1)') : (pos ? '#F0FDF4' : '#FEF2F2'), borderRadius: 8, border: `1px solid ${isDark ? (pos ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.2)') : (pos ? '#BBF7D0' : '#FECACA')}` }}>
                     <span style={{ fontSize: 12, color: 'var(--cell-text, #374151)', fontWeight: 500 }}>{proj.label}</span>
-                    <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: pos ? '#059669' : '#DC2626' }}>{fmtAUD(proj.monthly)}/mo</span>
+                    <span style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 14, color: pos ? '#059669' : '#DC2626' }}>{fmtAUD(proj.monthly)}/mo</span>
                   </div>
                 );
               })}
@@ -1754,7 +1754,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setLocation(`/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}`)}
-              style={{ flex: 1, height: 40, background: '#6366F1', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: brico }}>
+              style={{ flex: 1, height: 40, background: '#6366F1', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', -apple-system, sans-serif" }}>
               Open Full Calculator →
             </button>
             <button onClick={handleShare}
@@ -1860,13 +1860,13 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
       <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: Math.min(600, typeof window !== 'undefined' ? window.innerWidth : 600), background: '#0E1420', zIndex: 1000, overflowY: 'auto', boxShadow: '-4px 0 40px rgba(0,0,0,0.4)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky' as const, top: 0, background: '#0E1420', zIndex: 10 }}>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#71717a', padding: '4px 8px' }}>{'\u2190'}</button>
-          <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#f4f4f5' }}>Product Details</span>
+          <span style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 700, fontSize: 14, color: '#f4f4f5' }}>Product Details</span>
         </div>
         <div style={{ width: '100%', height: 180, background: '#131929', overflow: 'hidden' }}>
           <ProductImage src={p.image_url} alt={name} size={180} style={{ width: '100%', height: 180, borderRadius: 0 }} />
         </div>
         <div style={{ padding: 20 }}>
-          <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#f4f4f5', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
+          <h2 style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 700, fontSize: 17, color: '#f4f4f5', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
           <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>
             {p.niche || p.category}
             {orders > 0 && <> &middot; <span style={hasRealData ? { color: '#22C55E', fontWeight: 600 } : {}}>{orders.toLocaleString()} {hasRealData ? 'real' : 'AE'} orders</span></>}
@@ -1944,7 +1944,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             })().map(({ label, val, color: valColor }) => (
               <div key={label} style={{ padding: '12px 16px', background: '#0E1420' }}>
                 <div style={{ fontSize: 10, color: '#71717a', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 3 }}>{label}</div>
-                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: valColor }}>{val}</div>
+                <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: valColor }}>{val}</div>
               </div>
             ))}
           </div>
@@ -2006,7 +2006,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Dropship Score</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: tier.color }}>{s}/100</span>
+                  <span style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 22, color: tier.color }}>{s}/100</span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: tier.color, background: tier.bg, padding: '3px 10px', borderRadius: 12 }}>{tier.label}</span>
                 </div>
                 <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
@@ -2058,7 +2058,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 <p style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>{p.why_trending}</p>
               ) : briefLoading ? (
                 <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
-                  <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+                  <h4 style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
                     {[1, 2, 3].map(i => (
                       <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, #EEF2FF 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
@@ -2067,7 +2067,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 </div>
               ) : trendBrief ? (
                 <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
-                  <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+                  <h4 style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
                   <p style={{ fontFamily: dm, fontSize: 13, color: '#CBD5E1', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
                 </div>
               ) : null}
@@ -2126,7 +2126,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             }
             return (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 10 }}>🎯 Creator Types to Target</div>
+                <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 10 }}>🎯 Creator Types to Target</div>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 7 }}>
                   {archetypes.map(({ type, desc, search }) => (
                     <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: '#131929', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }}>
@@ -2187,7 +2187,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(p.niche || p.category || '')}`)}
-              style={{ width: '100%', height: 46, background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: brico }}>
+              style={{ width: '100%', height: 46, background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', -apple-system, sans-serif" }}>
               Build Store for This Product →
             </button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>

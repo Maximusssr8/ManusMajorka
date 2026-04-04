@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../../lib/supabase';
 import { TrendingTodayTab } from './tabs/TrendingTodayTab';
 import { FullDatabaseTab } from './tabs/FullDatabaseTab';
 import { ScoutTab } from './tabs/ScoutTab';
@@ -22,7 +23,11 @@ export function ProductIntelligencePage() {
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<StatsData>({
     queryKey: ['product-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/products/stats');
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch('/api/products/stats', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       return res.json();
     },
     refetchInterval: 5 * 60 * 1000,
