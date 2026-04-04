@@ -152,7 +152,8 @@ function getProductPrice(p: Product) {
   return p.estimated_retail_aud || p.price_aud || 0;
 }
 function getSupplierUrl(p: Product) {
-  return p.aliexpress_url || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(getProductName(p))}&shipCountry=au`;
+  // Prefer affiliate_url (promotion link — works globally), then aliexpress_url, then search fallback
+  return (p as any).affiliate_url || p.aliexpress_url || p.source_url || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(getProductName(p))}&shipCountry=au`;
 }
 function getGrowthRate(p: Product): number {
   if (p.growth_rate_pct !== null && p.growth_rate_pct !== undefined) return p.growth_rate_pct;
@@ -990,9 +991,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       >
                         View Details →
                       </button>
-                      {product.aliexpress_url && (
+                      {((product as any).affiliate_url || product.aliexpress_url) && (
                         <a
-                          href={product.aliexpress_url}
+                          href={(product as any).affiliate_url || product.aliexpress_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
