@@ -127,11 +127,13 @@ function getProductNiche(p: Product) {
   return p.niche || p.category || p.search_keyword || 'General';
 }
 function getProductRevenue(p: Product) {
-  // Prefer DB-stored est_monthly_revenue_aud (now clean: orders_count × price_aud)
-  // Fall back to orders_count/30 × price × 30 = orders_count × price, or units_per_day × price × 30
+  // Prefer DB-stored est_monthly_revenue_aud
   if (p.est_monthly_revenue_aud && p.est_monthly_revenue_aud > 0) return p.est_monthly_revenue_aud;
-  const price = p.price_aud || 0;
-  if (p.orders_count && p.orders_count > 0) return Math.round(p.orders_count * price * 100) / 100;
+  const price = p.real_price_aud || p.price_aud || 0;
+  // Use MONTHLY orders estimate (total orders / 12 as proxy), not all-time × price
+  // This prevents AliExpress products with 100k+ lifetime orders from inflating revenue
+  const orders = p.real_orders_count || p.orders_count || 0;
+  if (orders > 0 && price > 0) return Math.round((orders / 12) * price * 100) / 100;
   const upd = p.units_per_day || Math.max(1, Math.round((p.winning_score || 50) / 12));
   return Math.round(price * upd * 30 * 100) / 100;
 }

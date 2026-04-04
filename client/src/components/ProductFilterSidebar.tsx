@@ -12,7 +12,7 @@ export interface FilterState {
 export const DEFAULT_FILTERS: FilterState = {
   categories: [],
   revenueMin: 0,
-  revenueMax: 200000,
+  revenueMax: 999999999, // no upper cap by default — AliExpress products have high order counts
   growthFilter: 'all',
   scoreMin: 0,
   marginFilter: [],
