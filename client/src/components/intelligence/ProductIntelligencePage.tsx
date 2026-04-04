@@ -19,7 +19,7 @@ export function ProductIntelligencePage() {
   const [activeTab, setActiveTab] = useState<'trending' | 'database' | 'scout'>('trending');
   const [refreshing, setRefreshing] = useState(false);
 
-  const { data: stats, refetch: refetchStats } = useQuery<StatsData>({
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<StatsData>({
     queryKey: ['product-stats'],
     queryFn: async () => {
       const res = await fetch('/api/products/stats');
@@ -97,7 +97,7 @@ export function ProductIntelligencePage() {
             </button>
           </div>
         </div>
-        <StatsBar stats={stats} />
+        <StatsBar stats={stats} isLoading={statsLoading} />
       </div>
 
       {/* TAB BAR */}

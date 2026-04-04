@@ -494,7 +494,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
           search_keyword: query,
           image_url: top.image,
           price_aud: top.price_aud,
-          profit_margin: 55,
+          // profit_margin intentionally omitted — no real cost data available
           winning_score: 75 + Math.min(20, Math.floor((count ?? 3) * 2)),
           tags: ['TRENDING'],
           source: 'user_search',

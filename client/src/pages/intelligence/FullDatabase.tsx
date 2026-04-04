@@ -137,7 +137,7 @@ function getProductRevenue(p: Product) {
 }
 function getProductMargin(p: Product): number | null {
   if (p.estimated_margin_pct && p.estimated_margin_pct > 0) return p.estimated_margin_pct;
-  if (p.profit_margin && p.profit_margin > 0) return p.profit_margin;
+  // p.profit_margin intentionally excluded — it contains hardcoded fake data
   return calculateMargin(p.price_aud, (p as any).original_price || (p as any).sale_price);
 }
 function getProductOrders(p: Product) {
@@ -213,17 +213,17 @@ const TAG_STYLE: Record<string, { color: string; bg: string }> = {
 
 function ScoreBadge({ score }: { score: number }) {
   const tier = score >= 80
-    ? { bg: '#ECFDF5', color: '#059669', prefix: '🔥 ' }
+    ? { bg: 'rgba(52,211,153,0.08)', color: '#34d399', border: 'rgba(52,211,153,0.2)', prefix: '🔥 ' }
     : score >= 60
-    ? { bg: '#EEF2FF', color: '#6366F1', prefix: '' }
+    ? { bg: 'rgba(99,102,241,0.08)', color: '#818CF8', border: 'rgba(99,102,241,0.2)', prefix: '' }
     : score >= 40
-    ? { bg: '#FFFBEB', color: '#D97706', prefix: '' }
-    : { bg: '#FEF2F2', color: '#DC2626', prefix: '' };
+    ? { bg: 'rgba(245,158,11,0.08)', color: '#F59E0B', border: 'rgba(245,158,11,0.2)', prefix: '' }
+    : { bg: 'rgba(255,255,255,0.04)', color: '#9CA3AF', border: 'rgba(255,255,255,0.1)', prefix: '' };
   return (
     <div title={`Dropship Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
       style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', cursor: 'help', flexShrink: 0 }}>
-      <div style={{ padding: '4px 10px', borderRadius: 20, background: tier.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score}</span>
+      <div style={{ padding: '4px 10px', borderRadius: 20, background: tier.bg, border: `1px solid ${tier.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score || '—'}</span>
       </div>
       <span style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>Dropship</span>
     </div>
@@ -632,15 +632,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       />
       {/* ── PAGE HEADER ── */}
       <div style={{ padding: isMobile ? '16px 16px 0' : '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-          <div>
-            <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#f4f4f5', margin: 0 }}>
-              Product Intelligence
-            </h1>
-            <p style={{ fontSize: 13, color: '#6B7280', marginTop: 4, marginBottom: 0 }}>
-              AI-scored products for AU dropshippers — sorted by opportunity
-            </p>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 6 }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {!isMobile && <DateRangeSelector value={dateRange} onChange={handleDateRange} />}
             {!isMobile && (
@@ -661,7 +653,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
         {/* Freshness bar */}
         {lastUpdated && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, fontSize: 12, color: '#9CA3AF' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
             <span>Showing {displayProducts.length} of {totalCount > 0 ? totalCount : filteredProducts.length} products</span>
             <span>&middot;</span>
@@ -670,10 +662,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <span>Auto-refreshes every 6h</span>
           </div>
         )}
-        {/* Live data banner */}
-        <div style={{ fontSize: 12, color: '#71717a', marginBottom: isMobile ? 12 : 16, padding: '8px 14px', background: 'rgba(34,197,94,0.08)', borderRadius: 6, border: '1px solid rgba(34,197,94,0.2)', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ color: '#22C55E' }}>●</span>
-          <span><strong style={{ color: '#22C55E' }}>Live data from AliExpress</strong> — real order counts, prices, and ratings. Updated every 6 hours.</span>
+        {/* Live data pill */}
+        <div style={{ marginBottom: isMobile ? 12 : 16 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: 'rgba(52,211,153,0.08)', color: '#34d399', border: '1px solid rgba(52,211,153,0.15)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+            Live AliExpress data
+          </span>
         </div>
 
         {refreshMsg && (
@@ -1999,12 +1993,12 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           {(() => {
             const s = score;
             const tier = s >= 80
-              ? { bg: '#DCFCE7', color: '#059669', label: '🔥 Hot' }
+              ? { bg: 'rgba(52,211,153,0.08)', color: '#34d399', label: '🔥 Hot' }
               : s >= 60
-              ? { bg: '#FEF9C3', color: '#D97706', label: '📈 Rising' }
+              ? { bg: 'rgba(245,158,11,0.08)', color: '#F59E0B', label: '📈 Rising' }
               : s >= 40
               ? { bg: 'rgba(255,255,255,0.06)', color: '#9CA3AF', label: '➡️ Steady' }
-              : { bg: '#FEF2F2', color: '#DC2626', label: '⚠️ Risky' };
+              : { bg: 'rgba(239,68,68,0.08)', color: '#f87171', label: '⚠️ Risky' };
             return (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Dropship Score</div>
@@ -2022,7 +2016,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           {(() => {
             const sb = p.score_breakdown;
-            const margin = typeof p.profit_margin === 'number' ? p.profit_margin : 50;
+            const margin = getProductMargin(p) ?? 50;
             const orders = typeof p.orders_count === 'number' ? p.orders_count : (typeof (p as any).sold_count === 'number' ? (p as any).sold_count : 500);
             const totalScore = p.winning_score ?? p.opportunity_score ?? 70;
             // Derive sub-scores from available data when breakdown is null

@@ -297,9 +297,10 @@ const PIP_CSS = `
 }
 
 .pip-trend-EXPLODING {
-  background: rgba(239,68,68,0.15);
-  color: #f87171;
-  border: 1px solid rgba(239,68,68,0.25);
+  background: rgba(251,146,60,0.12);
+  color: #fb923c;
+  border: 1px solid rgba(251,146,60,0.2);
+  border-radius: 9999px;
 }
 .pip-trend-RISING {
   background: rgba(245,158,11,0.12);

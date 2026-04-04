@@ -62,7 +62,7 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
   const originalPrice = product.original_price || 0;
   const rating = product.rating || product.real_rating;
   const reviewCount = product.review_count || product.real_review_count;
-  const score = product.winning_score || 0;
+  const score = product.winning_score ?? null;
   const productUrl = product.product_url || product.source_url || '#';
   const rawTrend = product.trend_direction || 'stable';
   const trend: TrendKey = (rawTrend in trendPoints) ? rawTrend as TrendKey : 'stable';
@@ -171,9 +171,14 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
 
       {/* Score */}
       <td className="px-4 py-3.5">
-        <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-[12px] font-bold tabular-nums ${score >= 70 ? 'text-emerald-400' : score >= 55 ? 'text-amber-400' : 'text-slate-500'}`}
-          style={{ borderColor: score >= 70 ? 'rgba(52,211,153,0.25)' : score >= 55 ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.1)', background: score >= 70 ? 'rgba(52,211,153,0.08)' : score >= 55 ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)' }}>
-          {score}
+        <div
+          className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-[12px] font-bold tabular-nums ${score !== null && score >= 70 ? 'text-emerald-400' : score !== null && score >= 55 ? 'text-amber-400' : 'text-slate-500'}`}
+          style={{
+            borderColor: score !== null && score >= 70 ? 'rgba(52,211,153,0.25)' : score !== null && score >= 55 ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.1)',
+            background: score !== null && score >= 70 ? 'rgba(52,211,153,0.08)' : score !== null && score >= 55 ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)',
+          }}
+        >
+          {score !== null ? score : '—'}
         </div>
       </td>
 

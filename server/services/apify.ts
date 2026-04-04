@@ -20,6 +20,7 @@ export interface ApifyProduct {
   productId: string;
   title: string;
   priceUsd: number;
+  originalPriceUsd?: number; // AliExpress list/crossed-out price; undefined if no discount
   imageUrl: string;
   productUrl: string;
   orders: number;
@@ -178,10 +179,17 @@ export function mapToApifyProduct(item: Record<string, unknown>, category: strin
   let orders = parseInt(ordersRaw.replace(/[^0-9]/g, ''), 10) || 0;
   if (ordersRaw.toLowerCase().includes('k')) orders = Math.round(parseFloat(ordersRaw) * 1000);
 
+  // Capture original/list price (shown as crossed-out on AliExpress)
+  const rawOriginal = item.originalPrice || item.original_price || item.listPrice || item.marketPrice;
+  const originalPriceUsd = rawOriginal
+    ? parseFloat(String(rawOriginal).replace(/[^0-9.]/g, ''))
+    : undefined;
+
   return {
     productId: String(item.id || item.productId || item.itemId || `ae-${Date.now()}`).slice(0, 50),
     title: title.slice(0, 255),
     priceUsd,
+    originalPriceUsd: originalPriceUsd && originalPriceUsd > priceUsd ? originalPriceUsd : undefined,
     imageUrl: String(item.image || item.imageUrl || item.mainImage || item.thumbnail || ''),
     productUrl: String(item.url || item.link || item.productUrl || ''),
     orders,
