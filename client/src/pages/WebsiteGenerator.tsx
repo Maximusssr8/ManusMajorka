@@ -859,7 +859,7 @@ function FileTree({
           {folder !== '.' && (
             <button
               onClick={() => setExpanded((p) => ({ ...p, [folder]: !p[folder] }))}
-              className="flex items-center gap-1.5 w-full px-3 py-1 text-xs hover:bg-white/5 transition-colors"
+              className="flex items-center gap-1.5 w-full px-3 py-1 text-xs hover:bg-[#0C1120]/5 transition-colors"
               style={{ color: 'rgba(240,237,232,0.55)', cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'DM Sans, sans-serif' }}
             >
               <FolderOpen size={12} style={{ color: '#6366F1' }} />

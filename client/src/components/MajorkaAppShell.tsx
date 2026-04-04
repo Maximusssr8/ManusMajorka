@@ -82,29 +82,47 @@ interface NavSection {
   items: NavItem[];
 }
 
+// ── Inline SVG icons (15×15, no emoji, no Lucide dep for nav) ─────────────────
+const SvgHome = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const SvgProducts = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>;
+const SvgMarket = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
+const SvgCreators = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>;
+const SvgAdBrief = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const SvgCompetitor = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+const SvgAlerts = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>;
+const SvgMaya = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+const SvgStore = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>;
+const SvgAdsStudio = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5"/><path d="M11 13l9-9"/><path d="M15 3h6v6"/></svg>;
+const SvgAdsManager = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const SvgProfit = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>;
+const SvgRevenue = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+const SvgAcademy = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
+const SvgSettings = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+const SvgAdmin = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+
 // ── Flat sidebar — 9 items, no section labels, merged overlapping tools ───────
 const NAV_SECTIONS: NavSection[] = [
   {
     items: [
-      { label: 'Home', path: '/app', exact: true, icon: Home, tooltip: 'Your dashboard — activity, top products, quick access.' },
-      { label: 'Products', path: '/app/product-intelligence', icon: Search, tooltip: 'Find winning products — trending, database, AI scout.' },
-      { label: 'Market', path: '/app/market', icon: BarChart3, tooltip: 'Category trends, niche demand data, and market-level signals.' },
-      { label: 'Creators & Video', path: '/app/creators', icon: Play, tooltip: 'Top TikTok creators and highest-performing product videos.' },
-      { label: 'Ad Brief Generator', path: '/app/ad-spy', icon: Eye, tooltip: 'Generate ad briefs and discover winning ad angles.' },
-      { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Radio, tooltip: 'Analyse competitor stores, pricing strategy, and product selection.' },
-      { label: 'Alerts', path: '/app/alerts', icon: Bell, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
-      { label: 'Maya AI', path: '/app/ai-chat', icon: Sparkles, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },
-      { label: 'Store Builder', path: '/app/store-builder', icon: Store, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
-      { label: 'Ads Studio', path: '/app/ads-studio', icon: Megaphone, badge: 'AI', tooltip: 'Generate Meta and TikTok ad creatives with Maya.' },
-      { label: 'Ads Manager', path: '/app/ads-manager', icon: Target, badge: 'SOON', tooltip: 'Create and manage Meta ad campaigns, pixel, and CAPI.' },
-      { label: 'Profit Calc', path: '/app/profit', icon: DollarSign, tooltip: 'Model unit economics, margins and break-even CPA.' },
+      { label: 'Home', path: '/app', exact: true, icon: SvgHome, tooltip: 'Your dashboard — activity, top products, quick access.' },
+      { label: 'Products', path: '/app/product-intelligence', icon: SvgProducts, tooltip: 'Find winning products — trending, database, AI scout.' },
+      { label: 'Market', path: '/app/market', icon: SvgMarket, tooltip: 'Category trends, niche demand data, and market-level signals.' },
+      { label: 'Creators & Video', path: '/app/creators', icon: SvgCreators, tooltip: 'Top TikTok creators and highest-performing product videos.' },
+      { label: 'Ad Brief Generator', path: '/app/ad-spy', icon: SvgAdBrief, tooltip: 'Generate ad briefs and discover winning ad angles.' },
+      { label: 'Competitor Spy', path: '/app/competitor-spy', icon: SvgCompetitor, tooltip: 'Analyse competitor stores, pricing strategy, and product selection.' },
+      { label: 'Alerts', path: '/app/alerts', icon: SvgAlerts, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
+      { label: 'Maya AI', path: '/app/ai-chat', icon: SvgMaya, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },
+      { label: 'Store Builder', path: '/app/store-builder', icon: SvgStore, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
+      { label: 'Ads Studio', path: '/app/ads-studio', icon: SvgAdsStudio, badge: 'AI', tooltip: 'Generate Meta and TikTok ad creatives with Maya.' },
+      { label: 'Ads Manager', path: '/app/ads-manager', icon: SvgAdsManager, badge: 'SOON', tooltip: 'Create and manage Meta ad campaigns, pixel, and CAPI.' },
+      { label: 'Profit Calc', path: '/app/profit', icon: SvgProfit, tooltip: 'Model unit economics, margins and break-even CPA.' },
     ],
   },
   {
     items: [
-      { label: 'Revenue', path: '/app/revenue', icon: Wallet, tooltip: 'Track your store earnings and order revenue.' },
-      { label: 'Academy', path: '/app/learn', icon: BookOpen, tooltip: 'Dropshipping courses and tutorials.' },
-      { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
+      { label: 'Revenue', path: '/app/revenue', icon: SvgRevenue, tooltip: 'Track your store earnings and order revenue.' },
+      { label: 'Academy', path: '/app/learn', icon: SvgAcademy, tooltip: 'Dropshipping courses and tutorials.' },
+      { label: 'Settings', path: '/app/settings', icon: SvgSettings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
 ];
@@ -113,11 +131,11 @@ const NAV_SECTIONS: NavSection[] = [
 const PHASE_SECTIONS: PhaseSection[] = [];
 
 const MOBILE_TABS: NavItem[] = [
-  { label: 'Home', path: '/app', icon: Home, exact: true },
-  { label: 'Products', path: '/app/trend-signals', icon: TrendingUp },
-  { label: 'Maya', path: '/app/ai-chat', icon: MessageSquare },
-  { label: 'Revenue', path: '/app/revenue', icon: Wallet },
-  { label: 'Account', path: '/account', icon: User },
+  { label: 'Home', path: '/app', icon: SvgHome, exact: true },
+  { label: 'Products', path: '/app/trend-signals', icon: SvgProducts },
+  { label: 'Maya', path: '/app/ai-chat', icon: SvgMaya },
+  { label: 'Revenue', path: '/app/revenue', icon: SvgRevenue },
+  { label: 'Account', path: '/account', icon: SvgAdmin },
 ];
 
 // Beginner mode labels for the new sidebar items
@@ -592,10 +610,9 @@ export default function MajorkaAppShell({ children }: Props) {
             }
           }}
         >
-          {createElement(item.icon, {
-            size: 14,
-            style: { flexShrink: 0, opacity: active ? 1 : 0.8, color: active ? '#6366F1' : undefined },
-          })}
+          <span style={{ flexShrink: 0, opacity: active ? 1 : 0.7, color: active ? '#6366F1' : 'currentColor', display: 'flex', alignItems: 'center' }}>
+            {createElement(item.icon)}
+          </span>
           <span className="flex-1 text-left truncate text-sm">
             {displayLabel}
             {badge && (() => {
@@ -734,7 +751,7 @@ export default function MajorkaAppShell({ children }: Props) {
           navItem({
             label: 'Admin',
             path: '/app/admin',
-            icon: Shield,
+            icon: SvgAdmin,
             tooltip: 'Admin panel — user management, stats, quick actions.',
           })}
       </div>
@@ -1217,7 +1234,6 @@ export default function MajorkaAppShell({ children }: Props) {
           <div className="flex items-center justify-around" style={{ paddingTop: 8, paddingBottom: 10 }}>
             {MOBILE_TABS.map((tab) => {
               const active = tab.exact ? location === tab.path : location.startsWith(tab.path);
-              const Icon = tab.icon;
               return (
                 <button
                   key={tab.label}
@@ -1234,7 +1250,9 @@ export default function MajorkaAppShell({ children }: Props) {
                     minWidth: 56,
                   }}
                 >
-                  <Icon size={18} strokeWidth={active ? 2.5 : 1.75} />
+                  <span style={{ display: 'flex', alignItems: 'center', opacity: active ? 1 : 0.75 }}>
+                    {createElement(tab.icon)}
+                  </span>
                   <span
                     style={{
                       fontSize: 9,

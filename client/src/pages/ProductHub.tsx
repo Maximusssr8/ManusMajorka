@@ -136,7 +136,7 @@ export default function ProductHub() {
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate('/app/my-products')}
-            className="p-2 rounded-lg hover:bg-white/5 transition-all"
+            className="p-2 rounded-lg hover:bg-[#0C1120]/5 transition-all"
             style={{ cursor: 'pointer', color: '#6B7280' }}
           >
             <ArrowLeft size={16} />
@@ -172,7 +172,7 @@ export default function ProductHub() {
               >
                 <button
                   onClick={() => setExpandedStage(isExpanded ? null : stage)}
-                  className="w-full flex items-center justify-between p-4 transition-all hover:bg-white/3"
+                  className="w-full flex items-center justify-between p-4 transition-all hover:bg-[#0C1120]/3"
                   style={{ cursor: 'pointer' }}
                 >
                   <div className="flex items-center gap-3">
@@ -241,7 +241,7 @@ export default function ProductHub() {
                                       navigator.clipboard.writeText(output.outputJson);
                                       toast.success('Copied JSON!');
                                     }}
-                                    className="p-1 rounded hover:bg-white/5 transition-all"
+                                    className="p-1 rounded hover:bg-[#0C1120]/5 transition-all"
                                     style={{ cursor: 'pointer', color: '#9CA3AF' }}
                                   >
                                     <Copy size={11} />
@@ -252,7 +252,7 @@ export default function ProductHub() {
                                       if (confirm('Delete this output?'))
                                         deleteMut.mutate({ id: output.id });
                                     }}
-                                    className="p-1 rounded hover:bg-white/5 transition-all"
+                                    className="p-1 rounded hover:bg-[#0C1120]/5 transition-all"
                                     style={{ cursor: 'pointer', color: 'rgba(255,100,100,0.5)' }}
                                   >
                                     <Trash2 size={11} />

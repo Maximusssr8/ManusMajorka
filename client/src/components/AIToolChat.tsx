@@ -499,7 +499,7 @@ export default function AIToolChat({
                   <div className="flex justify-center pt-1 pb-2">
                     <button
                       onClick={handleRegenerate}
-                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-white/5"
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-[#0C1120]/5"
                       style={{
                         color: '#9CA3AF',
                         cursor: 'pointer',
@@ -600,7 +600,7 @@ export default function AIToolChat({
                 </span>
                 <button
                   onClick={() => setShowPreview(!showPreview)}
-                  className="text-xs px-2 py-1 rounded hover:bg-white/5 transition-colors"
+                  className="text-xs px-2 py-1 rounded hover:bg-[#0C1120]/5 transition-colors"
                   style={{ color: '#6366F1' }}
                 >
                   {showPreview ? 'Code' : 'Preview'}

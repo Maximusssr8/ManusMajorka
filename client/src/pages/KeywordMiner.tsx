@@ -436,7 +436,7 @@ export default function KeywordMiner() {
                   {sortedKeywords.map((kw, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-[#0C1120]/[0.02] transition-colors"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold" style={{ color: '#374151' }}>

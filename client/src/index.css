@@ -1,7 +1,188 @@
-/* ── Dark mode forced globals ── */
+/* ══════════════════════════════════════════════════
+   MAJORKA DESIGN SYSTEM — CSS TOKENS + COMPONENTS
+══════════════════════════════════════════════════ */
+
+/* ── Design tokens ─────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
+
+  /* Backgrounds */
+  --bg-page:     #05070F;
+  --bg-card:     #0C1120;
+  --bg-elevated: #111827;
+  --bg-sidebar:  #05070F;
+  --bg-input:    rgba(255,255,255,0.04);
+  --bg-hover:    rgba(255,255,255,0.03);
+
+  /* Borders */
+  --border-subtle:  rgba(255,255,255,0.04);
+  --border-default: rgba(255,255,255,0.08);
+  --border-strong:  rgba(255,255,255,0.12);
+  --border-focus:   #6366F1;
+
+  /* Text */
+  --text-primary:   #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted:     rgba(255,255,255,0.35);
+  --text-disabled:  rgba(255,255,255,0.2);
+
+  /* Accent — indigo only */
+  --accent:        #6366F1;
+  --accent-hover:  #5558E8;
+  --accent-subtle: rgba(99,102,241,0.1);
+
+  /* Semantic */
+  --positive: #10B981;
+  --warning:  #F59E0B;
+  --danger:   #EF4444;
+  --hot:      #F97316;
+  --gold:     #D4AF37;
+
+  /* Typography */
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-lg:   18px;
+  --text-xl:   22px;
 }
+
+/* Numbers: always tabular */
+.tabular, [data-numeric] { font-variant-numeric: tabular-nums; }
+
+/* ── Component classes ─────────────────────────────────────────── */
+
+/* Cards */
+.mkr-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.mkr-card:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+}
+
+/* Inputs */
+.mkr-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+.mkr-input:focus {
+  border-color: var(--border-focus);
+  background: rgba(255,255,255,0.06);
+  outline: none;
+}
+.mkr-input::placeholder { color: var(--text-muted); }
+
+/* Primary button */
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Ghost button */
+.btn-ghost {
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* Filter pills */
+.mkr-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.mkr-pill:hover { color: var(--text-secondary); border-color: var(--border-strong); }
+.mkr-pill.active, .mkr-pill[data-active="true"] {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Badge system — subtle rectangle, not fully rounded */
+.mkr-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+  line-height: 1.4;
+}
+.mkr-badge-emerald { background: rgba(16,185,129,0.1); color: #10B981; border-color: rgba(16,185,129,0.2); }
+.mkr-badge-orange  { background: rgba(249,115,22,0.1);  color: #F97316; border-color: rgba(249,115,22,0.2); }
+.mkr-badge-gold    { background: rgba(212,175,55,0.1);  color: #D4AF37; border-color: rgba(212,175,55,0.2); }
+.mkr-badge-amber   { background: rgba(245,158,11,0.1);  color: #F59E0B; border-color: rgba(245,158,11,0.2); }
+.mkr-badge-red     { background: rgba(239,68,68,0.1);   color: #EF4444; border-color: rgba(239,68,68,0.2); }
+.mkr-badge-indigo  { background: rgba(99,102,241,0.1);  color: #818CF8; border-color: rgba(99,102,241,0.2); }
+.mkr-badge-muted   { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.08); }
+
+/* Table rows */
+.mkr-table-row {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.1s;
+  height: 44px;
+}
+.mkr-table-row:hover { background: var(--bg-hover); }
+
+/* Skeleton shimmer */
+@keyframes mkr-shimmer {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+.skeleton {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  animation: mkr-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ══ END DESIGN SYSTEM ══════════════════════════════════════════ */
+
+/* ── Dark mode forced globals ── */
 
 * {
   scrollbar-width: thin;
@@ -522,11 +703,11 @@ textarea {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E5E7EB;
+  background: rgba(255,255,255,0.1);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D1D5DB;
+  background: rgba(255,255,255,0.18);
 }
 
 /* ── Driver.js Product Tour Overrides ── */

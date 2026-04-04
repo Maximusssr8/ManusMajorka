@@ -112,7 +112,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
       case 'completed':
         return 'text-white bg-black border-white';
       case 'in-progress':
-        return 'text-black bg-white border-black';
+        return 'text-black bg-[#0C1120] border-black';
       case 'pending':
         return 'text-white bg-black/40 border-white/50';
       default:

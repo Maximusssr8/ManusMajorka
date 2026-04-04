@@ -98,7 +98,7 @@ export default function StoreSetup() {
               </span>
               {i < steps.length - 1 && (
                 <div
-                  className={`h-px flex-1 mx-2 ${step > s.id ? 'bg-emerald-500' : 'bg-white/[0.08]'}`}
+                  className={`h-px flex-1 mx-2 ${step > s.id ? 'bg-emerald-500' : 'bg-[#0C1120]/[0.08]'}`}
                 />
               )}
             </div>
@@ -170,7 +170,7 @@ export default function StoreSetup() {
               </div>
               <p className="text-gray-500 text-sm mb-4">
                 Stripe processes your payments securely. Add your{' '}
-                <code className="bg-white/[0.08] px-1 rounded text-xs">STRIPE_SECRET_KEY</code> to
+                <code className="bg-[#0C1120]/[0.08] px-1 rounded text-xs">STRIPE_SECRET_KEY</code> to
                 your Vercel environment variables to enable live checkout.
               </p>
               <div className="flex items-center gap-2 text-sm text-emerald-400">

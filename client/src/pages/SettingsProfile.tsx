@@ -345,7 +345,7 @@ export default function SettingsProfile() {
   }
 
   const inputClass =
-    'w-full rounded-lg px-4 py-3 text-sm bg-white/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
+    'w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
   const sectionCard = 'rounded-xl p-5' as const;
   const sectionCardStyle = { background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' };
 
@@ -678,11 +678,11 @@ export default function SettingsProfile() {
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12, maxWidth: 420 }}>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(99,102,241,0.7)' }}>New Password</label>
-                    <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-white/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                    <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(99,102,241,0.7)' }}>Confirm New Password</label>
-                    <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-white/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                    <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                   </div>
                   <button onClick={handlePasswordChange} disabled={changingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
                     className="rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"

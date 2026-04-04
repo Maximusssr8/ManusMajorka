@@ -75,20 +75,15 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
     ? new Date(product.updated_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     : false;
 
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(productUrl).then(() => toast.success('Link copied'));
-  };
-
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     toast.success('Saved to watchlist');
   };
 
-  const rowStyle = { borderBottom: '1px solid rgba(255,255,255,0.04)' };
+  const rowStyle: React.CSSProperties = { borderBottom: '1px solid rgba(255,255,255,0.04)', height: 44 };
 
   return (
-    <tr onClick={onClick} className="group cursor-pointer transition-colors" style={rowStyle}
+    <tr onClick={onClick} className="group cursor-pointer transition-colors mkr-table-row" style={rowStyle}
       onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
 
@@ -115,7 +110,7 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-medium text-slate-200 group-hover:text-white transition-colors leading-snug truncate">{title}</div>
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              {product.hot_product_flag && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-red-400" style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.15)' }}>🔥 Hot</span>}
+              {product.hot_product_flag && <span className="text-[13px]" title="Hot product" style={{ lineHeight: 1 }}>🔥</span>}
               {isNew && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-indigo-400" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.15)' }}>New</span>}
               {product.category && <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>{product.category}</span>}
             </div>
@@ -172,8 +167,9 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
       {/* Score */}
       <td className="px-4 py-3.5">
         <div
-          className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-[12px] font-bold tabular-nums ${score !== null && score >= 70 ? 'text-emerald-400' : score !== null && score >= 55 ? 'text-amber-400' : 'text-slate-500'}`}
+          className={`rounded-full border-2 flex items-center justify-center text-[12px] font-bold tabular-nums ${score !== null && score >= 70 ? 'text-emerald-400' : score !== null && score >= 55 ? 'text-amber-400' : 'text-slate-500'}`}
           style={{
+            width: 34, height: 34, flexShrink: 0,
             borderColor: score !== null && score >= 70 ? 'rgba(52,211,153,0.25)' : score !== null && score >= 55 ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.1)',
             background: score !== null && score >= 70 ? 'rgba(52,211,153,0.08)' : score !== null && score >= 55 ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)',
           }}
@@ -192,15 +188,27 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
 
       {/* Actions */}
       <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-1.5">
-          <a href={productUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold py-2 px-2.5 rounded-lg transition-colors text-center whitespace-nowrap">
+        <div className="flex items-center gap-3">
+          <a
+            href={productUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="text-[12px] font-medium transition-colors whitespace-nowrap"
+            style={{ color: '#818CF8', textDecoration: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#A5B4FC')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#818CF8')}
+          >
             View ↗
           </a>
-          <button onClick={handleSave} className="text-slate-400 hover:text-slate-300 text-[11px] py-2 px-2 rounded-lg transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} title="Save to watchlist">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </button>
-          <button onClick={handleCopy} className="text-slate-400 hover:text-slate-300 text-[11px] py-2 px-2 rounded-lg transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} title="Copy link">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <button
+            onClick={handleSave}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center' }}
+            title="Save to watchlist"
+            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.6)')}
+            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.25)')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
       </td>

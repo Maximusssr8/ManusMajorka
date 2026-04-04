@@ -215,7 +215,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
         {/* Close button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-white/5 transition-all"
+          className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-[#0C1120]/5 transition-all"
           style={{
             cursor: 'pointer',
             color: '#9CA3AF',

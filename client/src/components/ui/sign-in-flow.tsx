@@ -225,7 +225,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               </span>
             </div>
             <span
-              className="text-gray-900 font-bold text-xl"
+              className="text-slate-100 font-bold text-xl"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Majorka
@@ -325,7 +325,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               M
             </span>
           </div>
-          <span className="text-gray-900 font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <span className="text-slate-100 font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Majorka
           </span>
         </div>

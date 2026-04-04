@@ -183,7 +183,7 @@ export default function ProfitCalculator() {
           {prefix && <span>{prefix}</span>}
           <input type="number" min={0} max={999999} step={step} value={value}
             onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.min(999999, Math.max(0, v))); }}
-            className="bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            className="bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
             style={{ width: 90, fontSize: 14 }} />
           {suffix && <span>{suffix}</span>}
         </div>
@@ -250,7 +250,7 @@ export default function ProfitCalculator() {
             <div style={{ marginBottom: 20 }}>
               <label style={labelStyle}>Shipping (AusPost)</label>
               <select value={shippingOption} onChange={e => setShippingOption(e.target.value as 'standard' | 'express' | 'free')}
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+                className="w-full bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
                 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
                 <option value="standard">Standard — $9.99</option>
                 <option value="express">Express — $13.99</option>
@@ -263,7 +263,7 @@ export default function ProfitCalculator() {
               <label style={labelStyle}>Platform Fees</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <select value={platformKey} onChange={e => setPlatformKey(e.target.value)}
-                  className="bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+                  className="bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
                   style={{ flex: 1, fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
                   {PLATFORM_OPTIONS.map(o => <option key={o.label} value={o.label}>{o.label}{o.value > 0 ? ` (${o.value}%)` : ''}</option>)}
                 </select>
@@ -271,7 +271,7 @@ export default function ProfitCalculator() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#6B7280', fontSize: 14 }}>
                     <input type="number" min={0} max={100} step={0.5} value={customPlatformFee}
                       onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) setCustomPlatformFee(Math.min(100, Math.max(0, v))); }}
-                      className="bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                      className="bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                       style={{ width: 70, fontSize: 14 }} />
                     <span>%</span>
                   </div>
@@ -317,7 +317,7 @@ export default function ProfitCalculator() {
                   <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A' }}>Return Rate ({returnRate}%)</div>
                   <input type="number" value={returnRate} min={0} max={50}
                     onChange={e => setReturnRate(Math.min(50, Math.max(0, Number(e.target.value))))}
-                    className="bg-white/[0.05] border border-white/[0.08] rounded-lg px-2 py-1 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+                    className="bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-2 py-1 text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                     style={{ width: 64, height: 28, fontSize: 13, textAlign: 'right' as const }} />
                 </div>
                 <input type="range" min={0} max={30} step={1} value={returnRate} onChange={e => setReturnRate(Number(e.target.value))}
