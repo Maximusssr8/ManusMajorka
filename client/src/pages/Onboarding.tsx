@@ -371,14 +371,14 @@ export default function Onboarding() {
             style={{ background: GOLD }}
           >
             <span
-              className="text-black font-bold text-xs"
+              className="text-slate-100 font-bold text-xs"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               M
             </span>
           </div>
           <span
-            className="text-gray-900 font-semibold text-sm"
+            className="text-slate-100 font-semibold text-sm"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Majorka

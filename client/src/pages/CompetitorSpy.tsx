@@ -64,9 +64,9 @@ function CompetitorQuickActions({ query }: { query: string }) {
   return (
     <div
       className="rounded-xl p-4 mb-4"
-      style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
+      style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
     >
-      <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#64748b' }}>
+      <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#94A3B8' }}>
         Attack Plan — Jump to Tool
       </p>
       <div className="flex flex-wrap gap-2">
@@ -261,7 +261,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               const match = line.match(/^- \*\*(.+?)\*\*(.*)$/);
               if (match) {
                 return (
-                  <div key={j} className="flex gap-2 text-sm" style={{ color: '#111111', fontFamily: 'DM Sans, sans-serif' }}>
+                  <div key={j} className="flex gap-2 text-sm" style={{ color: '#F1F5F9', fontFamily: 'DM Sans, sans-serif' }}>
                     <span style={{ color: '#6366F1', flexShrink: 0 }}>·</span>
                     <span>
                       <span className="font-semibold" style={{ color: '#6366F1' }}>{match[1]}</span>
@@ -275,7 +275,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               return (
                 <div key={j} className="flex gap-2 text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
                   <span style={{ color: '#475569', flexShrink: 0 }}>·</span>
-                  <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>')) }} />
+                  <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#F1F5F9">$1</strong>')) }} />
                 </div>
               );
             }
@@ -283,13 +283,13 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               return (
                 <div key={j} className="flex gap-2 text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
                   <span className="font-mono flex-shrink-0" style={{ color: '#475569', minWidth: 20 }}>{line.match(/^\d+/)?.[0]}.</span>
-                  <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>')) }} />
+                  <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#F1F5F9">$1</strong>')) }} />
                 </div>
               );
             }
             return (
               <p key={j} className="text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>')) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#F1F5F9">$1</strong>')) }}
               />
             );
           })}
@@ -307,10 +307,10 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
   }
 
   return (
-    <div className="min-h-full" style={{ background: 'var(--content-bg, #FAFAFA)', color: 'var(--cell-text, #0A0A0A)' }}>
+    <div className="min-h-full" style={{ background: 'var(--content-bg, #060A12)', color: 'var(--cell-text, #F1F5F9)' }}>
       {/* Header */}
-      <div className="px-6 py-5 border-b" style={{ borderColor: 'var(--border-color, #E5E7EB)' }}>
-        <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--cell-text, #0A0A0A)' }}>Competitor Spy</h1>
+      <div className="px-6 py-5 border-b" style={{ borderColor: 'var(--border-color, rgba(255,255,255,0.08))' }}>
+        <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--cell-text, #F1F5F9)' }}>Competitor Spy</h1>
         <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
           Research any TikTok Shop competitor — products, strategy, weaknesses, how to beat them
         </p>
@@ -321,11 +321,11 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         {user && (
           <aside
             className="hidden lg:flex flex-col w-56 flex-shrink-0 p-4 border-r"
-            style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}
+            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0B0F1E' }}
           >
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Watchlist</p>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#94A3B8' }}>Watchlist</p>
             {watchlist.length === 0 ? (
-              <p className="text-xs" style={{ color: '#334155' }}>Save competitors to track them</p>
+              <p className="text-xs" style={{ color: '#94A3B8' }}>Save competitors to track them</p>
             ) : (
               <div className="space-y-1">
                 {watchlist.map((w) => (
@@ -336,9 +336,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     <button
                       onClick={() => { setQuery(w.query); inputRef.current?.focus(); }}
                       className="flex-1 text-left text-xs px-2 py-1.5 rounded transition-colors truncate"
-                      style={{ color: '#94a3b8' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                      style={{ color: '#94A3B8' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#818CF8')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
                     >
                       {w.query}
                     </button>
@@ -370,9 +370,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 placeholder="Enter a TikTok Shop name, URL, or niche (e.g. 'PetLover AU' or 'pet water fountains')"
                 className="w-full pl-11 pr-32 py-4 rounded-xl text-sm"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#111111',
+                  background: '#111B2E',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F1F5F9',
                   outline: 'none',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
@@ -391,14 +391,14 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             {/* Example queries */}
             {!result && !loading && (
               <div className="flex flex-wrap gap-2 mt-3">
-                <span className="text-xs" style={{ color: '#475569' }}>Try:</span>
+                <span className="text-xs" style={{ color: '#94A3B8' }}>Try:</span>
                 {['PetLover AU TikTok shop', 'scalp brush competitors', 'dog lick mat sellers AU', 'mushroom coffee Australia'].map((ex) => (
                   <button
                     key={ex}
                     type="button"
                     onClick={() => setQuery(ex)}
                     className="text-xs px-2.5 py-1 rounded-lg transition-colors"
-                    style={{ background: '#F5F5F5', color: '#64748b', border: '1px solid #E5E7EB' }}
+                    style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = '#94a3b8')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
                   >
@@ -413,25 +413,25 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           {loading && (
             <div
               className="rounded-xl p-8 text-center"
-              style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
+              style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
             >
               <div className="flex justify-center mb-4">
                 <Eye size={28} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
-              <p className="text-sm font-medium mb-2" style={{ color: '#111111' }}>Researching: <span style={{ color: '#6366F1' }}>"{query}"</span></p>
+              <p className="text-sm font-medium mb-2" style={{ color: '#F1F5F9' }}>Researching: <span style={{ color: '#6366F1' }}>"{query}"</span></p>
               <div className="space-y-2 max-w-xs mx-auto">
                 {PROGRESS_STEPS.map((step, i) => (
                   <div key={step} className="flex items-center gap-3">
                     <div
                       className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
                       style={{
-                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : '#F9FAFB',
-                        border: `1px solid ${i <= progressStep ? 'rgba(99,102,241,0.4)' : '#E5E7EB'}`,
+                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                        border: `1px solid ${i <= progressStep ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
                       }}
                     >
                       {i < progressStep ? '✓' : i === progressStep ? <Loader2 size={10} className="animate-spin" style={{ color: '#6366F1' }} /> : ''}
                     </div>
-                    <span className="text-xs text-left" style={{ color: i <= progressStep ? '#94a3b8' : '#334155' }}>{step}</span>
+                    <span className="text-xs text-left" style={{ color: i <= progressStep ? '#94A3B8' : '#64748B' }}>{step}</span>
                   </div>
                 ))}
               </div>
@@ -453,20 +453,20 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           {result && !loading && (
             <div>
               {/* AI disclaimer */}
-              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 12px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 8, padding: '8px 12px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 14 }}>{'\u26A0\uFE0F'}</span>
-                <span style={{ fontSize: 11, color: '#92400E', lineHeight: 1.4 }}>
+                <span style={{ fontSize: 11, color: '#FDE68A', lineHeight: 1.4 }}>
                   <strong>AI-generated estimate</strong> — This analysis is synthesised by AI and may not reflect real competitor data. Verify key figures independently before making business decisions.
                 </span>
               </div>
               {/* Result header */}
               <div
                 className="flex items-center justify-between mb-4 px-4 py-3 rounded-xl"
-                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
+                style={{ background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#111111' }}>Analysis: <span style={{ color: '#6366F1' }}>{result.query}</span></p>
-                  <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
+                  <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Analysis: <span style={{ color: '#6366F1' }}>{result.query}</span></p>
+                  <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
                     {new Date(result.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' })}
                   </p>
                 </div>
@@ -501,7 +501,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* Analysis content */}
               <div
                 className="rounded-xl p-6"
-                style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
+                style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
               >
                 {renderMarkdown(result.reply)}
               </div>
@@ -510,7 +510,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               <button
                 onClick={() => { setResult(null); setQuery(''); inputRef.current?.focus(); }}
                 className="mt-4 text-sm transition-colors"
-                style={{ color: '#64748b' }}
+                style={{ color: '#94A3B8' }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#94a3b8')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
               >

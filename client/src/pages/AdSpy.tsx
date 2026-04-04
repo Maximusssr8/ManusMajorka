@@ -542,9 +542,9 @@ function AdSpyContent() {
             className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-extrabold transition-all disabled:opacity-60"
             style={{
               background: (isLoading || cooldown > 0)
-                ? 'rgba(245,158,11,0.25)'
-                : 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: (isLoading || cooldown > 0) ? '#6B7280' : '#FAFAFA',
+                ? 'rgba(99,102,241,0.3)'
+                : '#6366F1',
+              color: (isLoading || cooldown > 0) ? '#94A3B8' : '#fff',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: (isLoading || cooldown > 0) ? 'not-allowed' : 'pointer',
               border: 'none',

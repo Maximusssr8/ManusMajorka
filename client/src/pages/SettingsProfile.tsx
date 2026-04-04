@@ -313,7 +313,7 @@ export default function SettingsProfile() {
 
   if ((loading && !loadingTimedOut) || (!user && !loadingTimedOut)) {
     return (
-      <div className="flex h-screen items-center justify-center" style={{ background: '#FAFAFA' }}>
+      <div className="flex h-screen items-center justify-center" style={{ background: '#060A12' }}>
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm animate-pulse"
           style={{
@@ -331,12 +331,12 @@ export default function SettingsProfile() {
   // If timed out with no user, redirect to login
   if (!user && loadingTimedOut) {
     return (
-      <div className="flex h-screen items-center justify-center flex-col gap-4" style={{ background: '#FAFAFA' }}>
-        <p className="text-sm" style={{ color: '#6B7280' }}>Unable to load your profile. Please sign in again.</p>
+      <div className="flex h-screen items-center justify-center flex-col gap-4" style={{ background: '#060A12' }}>
+        <p className="text-sm" style={{ color: '#94A3B8' }}>Unable to load your profile. Please sign in again.</p>
         <button
           onClick={() => setLocation('/login')}
           className="px-4 py-2 rounded-lg text-sm font-bold"
-          style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#FAFAFA', border: 'none', cursor: 'pointer' }}
+          style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', border: 'none', cursor: 'pointer' }}
         >
           Sign In
         </button>
@@ -347,7 +347,7 @@ export default function SettingsProfile() {
   const inputClass =
     'w-full rounded-lg px-4 py-3 text-sm bg-white/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
   const sectionCard = 'rounded-xl p-5' as const;
-  const sectionCardStyle = { background: 'white', border: '1px solid #E5E7EB' };
+  const sectionCardStyle = { background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' };
 
   const TABS: { id: SettingsTab; label: string; icon: typeof User }[] = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -359,7 +359,7 @@ export default function SettingsProfile() {
 
   return (
     <>
-      <div className="h-full overflow-auto" style={{ background: '#FAFAFA' }}>
+      <div className="h-full overflow-auto" style={{ background: '#060A12' }}>
         <div className="max-w-3xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
@@ -378,7 +378,7 @@ export default function SettingsProfile() {
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9' }}
               >
                 Settings
               </h1>
@@ -462,11 +462,11 @@ export default function SettingsProfile() {
 
               {/* Onboarding prompt when profile is empty */}
               {!form.businessName && !form.targetNiche && (
-                <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: '14px 16px', marginBottom: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '14px 16px', marginBottom: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 20, flexShrink: 0 }}>✏️</span>
                   <div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#4338CA', marginBottom: 3 }}>Complete your business profile</div>
-                    <div style={{ fontSize: 12, color: '#6366F1', lineHeight: 1.5 }}>Maya AI and Market Intel use your niche &amp; business details to personalise results. Fill in the fields below to get better recommendations.</div>
+                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#818CF8', marginBottom: 3 }}>Complete your business profile</div>
+                    <div style={{ fontSize: 12, color: '#A5B4FC', lineHeight: 1.5 }}>Maya AI and Market Intel use your niche &amp; business details to personalise results. Fill in the fields below to get better recommendations.</div>
                   </div>
                 </div>
               )}
@@ -572,13 +572,13 @@ export default function SettingsProfile() {
                             background:
                               form.experienceLevel === level
                                 ? 'rgba(99,102,241,0.15)'
-                                : '#FAFAFA',
+                                : 'rgba(255,255,255,0.04)',
                             borderColor:
                               form.experienceLevel === level
                                 ? 'rgba(99,102,241,0.4)'
-                                : '#E5E7EB',
+                                : 'rgba(255,255,255,0.08)',
                             color:
-                              form.experienceLevel === level ? '#6366F1' : '#6B7280',
+                              form.experienceLevel === level ? '#6366F1' : '#94A3B8',
                             cursor: 'pointer',
                           }}
                         >
@@ -604,12 +604,12 @@ export default function SettingsProfile() {
                             background:
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.15)'
-                                : '#FAFAFA',
+                                : 'rgba(255,255,255,0.04)',
                             borderColor:
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.4)'
-                                : '#E5E7EB',
-                            color: form.mainGoal === goal ? '#6366F1' : '#6B7280',
+                                : 'rgba(255,255,255,0.08)',
+                            color: form.mainGoal === goal ? '#6366F1' : '#94A3B8',
                             cursor: 'pointer',
                           }}
                         >
@@ -662,7 +662,7 @@ export default function SettingsProfile() {
                 className="w-full rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                  color: '#FAFAFA',
+                  color: '#fff',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
@@ -672,7 +672,7 @@ export default function SettingsProfile() {
               </button>
 
               {/* ── Change Password ── */}
-              <div style={{ marginTop: 16, background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20 }}>
+              <div style={{ marginTop: 16, background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20 }}>
                 <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Change Password</div>
                 <div className="text-xs mb-4" style={{ color: '#9CA3AF' }}>Must be at least 8 characters.</div>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12, maxWidth: 420 }}>
@@ -735,10 +735,10 @@ export default function SettingsProfile() {
                   <div
                     key={key}
                     className="flex items-center justify-between py-3 px-4 rounded-lg"
-                    style={{ background: '#FAFAFA' }}
+                    style={{ background: 'rgba(255,255,255,0.04)' }}
                   >
                     <div>
-                      <div className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
+                      <div className="text-sm font-medium" style={{ color: '#F1F5F9' }}>
                         {label}
                       </div>
                       <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -771,7 +771,7 @@ export default function SettingsProfile() {
                 className="mt-4 w-full rounded-lg py-3 font-bold text-sm"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                  color: '#FAFAFA',
+                  color: '#fff',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
                   cursor: 'pointer',
@@ -786,17 +786,17 @@ export default function SettingsProfile() {
           {/* ── Billing Tab ─────────────────────────────────────────────── */}
           {activeTab === 'billing' && (
             <div className="space-y-4">
-              <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
+              <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>Current Plan</div>
                 {!subInfo ? (
                   <div className="animate-pulse" style={{ height: 48, background: 'rgba(99,102,241,0.08)', borderRadius: 8 }} />
                 ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 22, color: '#0A0A0A' }}>
+                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 22, color: '#F1F5F9' }}>
                       {subInfo.plan === 'scale' ? 'Scale' : subInfo.plan === 'builder' ? 'Builder' : subInfo.plan === 'pro' ? 'Pro' : 'Free'}
                     </div>
-                    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>
+                    <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>
                       {subInfo.plan === 'free' || !subInfo.plan
                         ? 'Free tier — upgrade to unlock all features'
                         : `Renews ${subInfo.renewalDate || 'monthly'} · ${subInfo.status === 'active' ? 'Active' : subInfo.status || 'Active'}`}
@@ -815,10 +815,10 @@ export default function SettingsProfile() {
                 onClick={openBillingPortal}
                 className="w-full flex items-center justify-between rounded-xl p-4 transition-all"
                 style={{
-                  background: 'white',
-                  border: '1px solid #E5E7EB',
+                  background: '#0D1424',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   cursor: 'pointer',
-                  color: '#374151',
+                  color: '#F1F5F9',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E7EB')}
@@ -846,11 +846,11 @@ export default function SettingsProfile() {
                 </div>
                 <div className="space-y-0">
                   {/* Shopify */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #F0F0F0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#95BF47', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🛍️</div>
                       <div>
-                        <div style={{ fontWeight: 600, color: '#0A0A0A', fontSize: 14 }}>Shopify</div>
+                        <div style={{ fontWeight: 600, color: '#F1F5F9', fontSize: 14 }}>Shopify</div>
                         <div style={{ fontSize: 12, color: '#9CA3AF' }}>Sync products, orders, and inventory</div>
                       </div>
                     </div>
@@ -859,11 +859,11 @@ export default function SettingsProfile() {
                     </button>
                   </div>
                   {/* Meta Ads */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #F0F0F0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📘</div>
                       <div>
-                        <div style={{ fontWeight: 600, color: '#0A0A0A', fontSize: 14 }}>Meta Ads</div>
+                        <div style={{ fontWeight: 600, color: '#F1F5F9', fontSize: 14 }}>Meta Ads</div>
                         <div style={{ fontSize: 12, color: '#9CA3AF' }}>Connect Facebook & Instagram ad accounts</div>
                       </div>
                     </div>
@@ -876,11 +876,11 @@ export default function SettingsProfile() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#010101', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🎵</div>
                       <div>
-                        <div style={{ fontWeight: 600, color: '#0A0A0A', fontSize: 14 }}>TikTok Shop</div>
+                        <div style={{ fontWeight: 600, color: '#F1F5F9', fontSize: 14 }}>TikTok Shop</div>
                         <div style={{ fontSize: 12, color: '#9CA3AF' }}>Connect TikTok Shop for product sync</div>
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, color: '#9CA3AF', padding: '6px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontWeight: 600 }}>Coming Soon</span>
+                    <span style={{ fontSize: 11, color: '#94A3B8', padding: '6px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontWeight: 600 }}>Coming Soon</span>
                   </div>
                 </div>
               </div>
@@ -891,8 +891,8 @@ export default function SettingsProfile() {
                 </div>
                 <div className="space-y-2">
                   {(Object.keys(INTEGRATION_LABELS) as (keyof HealthStatus)[]).map((key) => (
-                    <div key={key} className="flex items-center justify-between px-4 py-3 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}>
-                      <span className="text-sm" style={{ color: '#374151' }}>{INTEGRATION_LABELS[key]}</span>
+                    <div key={key} className="flex items-center justify-between px-4 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span className="text-sm" style={{ color: '#F1F5F9' }}>{INTEGRATION_LABELS[key]}</span>
                       <div className="flex items-center gap-1.5">
                         <div className="w-2 h-2 rounded-full" style={{ background: healthStatus?.[key] ? '#10b981' : '#ef4444' }} />
                         <span className="text-xs" style={{ color: healthStatus?.[key] ? '#10b981' : '#ef4444' }}>{healthStatus?.[key] ? 'Connected' : 'Disconnected'}</span>

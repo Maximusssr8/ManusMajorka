@@ -637,7 +637,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
   };
 
   const getScoreTier = (score: number) => {
-    if (score >= 80) return { bg: 'rgba(34,197,94,0.15)', color: '#22C55E', label: '🔥 Hot' };
+    if (score >= 65) return { bg: 'rgba(34,197,94,0.15)', color: '#22C55E', label: '🔥 Hot' };
     if (score >= 60) return { bg: 'rgba(245,158,11,0.15)', color: '#F59E0B', label: '📈 Rising' };
     return { bg: 'rgba(255,255,255,0.06)', color: '#6B7280', label: '' };
   };
@@ -1040,7 +1040,7 @@ function DashboardHome() {
             { label: 'Products in DB', value: totalProducts !== null ? totalProducts.toString() : '—', delta: 'Total tracked products', icon: Package, path: '/app/intelligence' },
             { label: 'Best Est. Revenue', value: bestRevenue, delta: 'Highest in DB / month', icon: TrendingUp, path: '/app/intelligence' },
             { label: 'Avg Margin', value: avgMargin, delta: 'Across top 5 products', icon: Percent, path: '/app/intelligence' },
-            { label: 'Hot Products', value: loading ? '—' : products.filter((p: any) => (p.winning_score || 0) >= 80).length.toString(), delta: 'Dropship Score 80+', icon: Zap, path: '/app/intelligence' },
+            { label: 'Hot Products', value: loading ? '—' : products.filter((p: any) => (p.winning_score || 0) >= 65).length.toString(), delta: 'Dropship Score 65+', icon: Zap, path: '/app/intelligence' },
           ]).map((card, i) => {
             const hotCount = card.label === 'Hot Products' ? parseInt(card.value) || 0 : -1;
             return (

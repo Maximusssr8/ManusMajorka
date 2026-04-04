@@ -600,14 +600,14 @@ export default function MajorkaAppShell({ children }: Props) {
             {displayLabel}
             {badge && (() => {
               const bs = badge === 'PRO'
-                ? { background: '#6366F1', color: 'white' }
+                ? { background: '#6366F1', color: 'white', border: '1px solid rgba(99,102,241,0.4)' }
                 : badge === 'LIVE'
-                ? { background: '#ECFDF5', color: '#059669' }
+                ? { background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.25)' }
                 : badge === 'SOON'
-                ? { background: 'rgba(255,255,255,0.08)', color: '#CBD5E1' }
+                ? { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.08)' }
                 : item.path === '/app/learn' && badge !== 'HOT'
-                ? { background: 'rgba(16,185,129,0.12)', color: '#6EE7B7' }
-                : { background: 'rgba(99,102,241,0.12)', color: '#A5B4FC' };
+                ? { background: 'rgba(16,185,129,0.12)', color: '#6EE7B7', border: '1px solid rgba(16,185,129,0.2)' }
+                : { background: 'rgba(99,102,241,0.15)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.25)' };
               return (
                 <span
                   className="ml-1.5"

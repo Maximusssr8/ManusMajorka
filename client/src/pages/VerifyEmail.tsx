@@ -56,13 +56,13 @@ export default function VerifyEmail() {
             style={{ background: '#6366F1' }}
           >
             <span
-              className="text-black font-bold text-sm"
+              className="text-slate-100 font-bold text-sm"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               M
             </span>
           </div>
-          <span className="text-gray-900 font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <span className="text-slate-100 font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Majorka
           </span>
         </div>
@@ -91,7 +91,7 @@ export default function VerifyEmail() {
 
         <div>
           <h1
-            className="text-2xl font-bold mb-2 text-gray-900"
+            className="text-2xl font-bold mb-2 text-slate-100"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Check your inbox

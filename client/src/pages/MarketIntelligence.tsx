@@ -492,7 +492,7 @@ Generate a full competitive intelligence report as JSON.`;
       {/* ── Right Panel ── */}
       <div
         className="flex-1 overflow-y-auto"
-        style={{ scrollbarWidth: 'thin', scrollbarColor: '#F0F0F0 transparent' }}
+        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}
       >
         {!result && !isGenerating && (
           <div className="flex flex-col items-center justify-center h-full px-8 text-center">
@@ -757,7 +757,7 @@ Generate a full competitive intelligence report as JSON.`;
                           key={ch}
                           className="text-xs px-2 py-0.5 rounded-full"
                           style={{
-                            background: '#F0F0F0',
+                            background: 'rgba(255,255,255,0.08)',
                             color: '#94A3B8',
                             border: '1px solid rgba(255,255,255,0.1)',
                           }}

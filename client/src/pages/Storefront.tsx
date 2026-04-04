@@ -165,14 +165,14 @@ export default function Storefront() {
             {products.map((sfp) => (
               <div
                 key={sfp.id}
-                className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-white/20 transition-all"
+                className="group bg-[#0D1424] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all"
               >
                 {/* Product image placeholder */}
-                <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                <div className="aspect-square bg-[#111B2E] flex items-center justify-center">
                   <ShoppingBag className="w-16 h-16 text-neutral-700" />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-gray-900 font-semibold text-lg mb-1 line-clamp-2">
+                  <h3 className="text-slate-100 font-semibold text-lg mb-1 line-clamp-2">
                     {sfp.product?.name || 'Product'}
                   </h3>
                   {sfp.product?.description && (
@@ -181,7 +181,7 @@ export default function Storefront() {
                     </p>
                   )}
                   <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-2xl font-bold text-gray-900">${sfp.price || '—'}</span>
+                    <span className="text-2xl font-bold text-slate-100">${sfp.price || '—'}</span>
                     {sfp.comparePrice && (
                       <span className="text-neutral-500 line-through text-sm">
                         ${sfp.comparePrice}
@@ -228,18 +228,18 @@ export default function Storefront() {
       {/* Checkout modal */}
       {showCheckout && selectedProduct && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-md p-6">
+          <div className="bg-[#0D1424] border border-white/[0.08] rounded-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-gray-900 font-bold text-xl">Complete Order</h3>
+              <h3 className="text-slate-100 font-bold text-xl">Complete Order</h3>
               <button
                 onClick={() => setShowCheckout(false)}
-                className="text-gray-400 hover:text-gray-900"
+                className="text-gray-400 hover:text-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <p className="text-gray-900 font-medium">{selectedProduct.product?.name}</p>
+            <div className="bg-[#111B2E] rounded-xl p-4 mb-6">
+              <p className="text-slate-100 font-medium">{selectedProduct.product?.name}</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-xl font-bold">${selectedProduct.price}</span>
                 {selectedProduct.comparePrice && (
@@ -251,31 +251,31 @@ export default function Storefront() {
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-gray-700 mb-1 block text-sm">Full Name *</Label>
+                <Label className="text-slate-300 mb-1 block text-sm">Full Name *</Label>
                 <Input
                   value={checkoutForm.name}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="John Smith"
-                  className="bg-white border-gray-300 text-gray-900"
+                  className="bg-[#0D1424] border-white/[0.08] text-slate-100"
                 />
               </div>
               <div>
-                <Label className="text-gray-700 mb-1 block text-sm">Email *</Label>
+                <Label className="text-slate-300 mb-1 block text-sm">Email *</Label>
                 <Input
                   value={checkoutForm.email}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, email: e.target.value }))}
                   type="email"
                   placeholder="john@example.com"
-                  className="bg-white border-gray-300 text-gray-900"
+                  className="bg-[#0D1424] border-white/[0.08] text-slate-100"
                 />
               </div>
               <div>
-                <Label className="text-gray-700 mb-1 block text-sm">Shipping Address</Label>
+                <Label className="text-slate-300 mb-1 block text-sm">Shipping Address</Label>
                 <Input
                   value={checkoutForm.address}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, address: e.target.value }))}
                   placeholder="123 Main St, Sydney NSW 2000"
-                  className="bg-white border-gray-300 text-gray-900"
+                  className="bg-[#0D1424] border-white/[0.08] text-slate-100"
                 />
               </div>
               <Button

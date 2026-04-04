@@ -86,19 +86,19 @@ export default function StoreSetup() {
                     ? 'bg-emerald-500 border-emerald-500 text-white'
                     : active
                       ? 'border-indigo-500 text-indigo-600'
-                      : 'border-gray-300 text-gray-400'
+                      : 'border-white/[0.08] text-gray-400'
                 }`}
               >
                 {done ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
               </div>
               <span
-                className={`text-sm hidden sm:block ${active ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`text-sm hidden sm:block ${active ? 'text-slate-100' : 'text-gray-400'}`}
               >
                 {s.label}
               </span>
               {i < steps.length - 1 && (
                 <div
-                  className={`h-px flex-1 mx-2 ${step > s.id ? 'bg-emerald-500' : 'bg-gray-200'}`}
+                  className={`h-px flex-1 mx-2 ${step > s.id ? 'bg-emerald-500' : 'bg-white/[0.08]'}`}
                 />
               )}
             </div>
@@ -106,19 +106,19 @@ export default function StoreSetup() {
         })}
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-8">
+      <div className="bg-[#0D1424] border border-white/[0.08] rounded-xl p-8">
         {/* Step 1: Store Info */}
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Name your store</h2>
+              <h2 className="text-2xl font-bold text-slate-100">Name your store</h2>
               <p className="text-gray-500 mt-1">
                 This is what customers will see when they shop with you.
               </p>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-gray-700 mb-1 block">Store Name</Label>
+                <Label className="text-slate-300 mb-1 block">Store Name</Label>
                 <Input
                   value={form.storeName}
                   onChange={(e) => {
@@ -126,11 +126,11 @@ export default function StoreSetup() {
                     set('storeSlug', slugify(e.target.value));
                   }}
                   placeholder="e.g. Luxe Wellness"
-                  className="bg-gray-50 border-gray-300 text-gray-900"
+                  className="bg-[#111B2E] border-white/[0.08] text-slate-100"
                 />
               </div>
               <div>
-                <Label className="text-gray-700 mb-1 block">Store URL</Label>
+                <Label className="text-slate-300 mb-1 block">Store URL</Label>
                 <div className="flex items-center gap-2">
                   <span className="text-gray-500 text-sm whitespace-nowrap">
                     {window.location.origin}/store/
@@ -139,17 +139,17 @@ export default function StoreSetup() {
                     value={form.storeSlug}
                     onChange={(e) => set('storeSlug', slugify(e.target.value))}
                     placeholder="luxe-wellness"
-                    className="bg-gray-50 border-gray-300 text-gray-900"
+                    className="bg-[#111B2E] border-white/[0.08] text-slate-100"
                   />
                 </div>
               </div>
               <div>
-                <Label className="text-gray-700 mb-1 block">Niche / Category</Label>
+                <Label className="text-slate-300 mb-1 block">Niche / Category</Label>
                 <Input
                   value={form.niche}
                   onChange={(e) => set('niche', e.target.value)}
                   placeholder="e.g. Home & Wellness"
-                  className="bg-gray-50 border-gray-300 text-gray-900"
+                  className="bg-[#111B2E] border-white/[0.08] text-slate-100"
                 />
               </div>
             </div>
@@ -160,17 +160,17 @@ export default function StoreSetup() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Connect Payments</h2>
+              <h2 className="text-2xl font-bold text-slate-100">Connect Payments</h2>
               <p className="text-gray-500 mt-1">Get paid directly to your bank via Stripe.</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="bg-[#111B2E] rounded-lg p-6 border border-white/[0.08]">
               <div className="flex items-center gap-3 mb-4">
                 <CreditCard className="w-6 h-6 text-[#6366F1]" />
-                <span className="text-gray-900 font-medium">Stripe Payments</span>
+                <span className="text-slate-100 font-medium">Stripe Payments</span>
               </div>
               <p className="text-gray-500 text-sm mb-4">
                 Stripe processes your payments securely. Add your{' '}
-                <code className="bg-gray-200 px-1 rounded text-xs">STRIPE_SECRET_KEY</code> to
+                <code className="bg-white/[0.08] px-1 rounded text-xs">STRIPE_SECRET_KEY</code> to
                 your Vercel environment variables to enable live checkout.
               </p>
               <div className="flex items-center gap-2 text-sm text-emerald-400">
@@ -185,35 +185,35 @@ export default function StoreSetup() {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Meta Ads Setup</h2>
+              <h2 className="text-2xl font-bold text-slate-100">Meta Ads Setup</h2>
               <p className="text-gray-500 mt-1">
                 Connect Meta to track conversions and run ads.
               </p>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-gray-700 mb-1 block">
+                <Label className="text-slate-300 mb-1 block">
                   Meta Ad Account ID <span className="text-gray-400">(optional)</span>
                 </Label>
                 <Input
                   value={form.metaAdAccountId}
                   onChange={(e) => set('metaAdAccountId', e.target.value)}
                   placeholder="act_XXXXXXXXXXXXXXX"
-                  className="bg-gray-50 border-gray-300 text-gray-900"
+                  className="bg-[#111B2E] border-white/[0.08] text-slate-100"
                 />
                 <p className="text-gray-400 text-xs mt-1">
                   Find this in Meta Business Manager → Ad Accounts
                 </p>
               </div>
               <div>
-                <Label className="text-gray-700 mb-1 block">
+                <Label className="text-slate-300 mb-1 block">
                   Meta Pixel ID <span className="text-gray-400">(optional)</span>
                 </Label>
                 <Input
                   value={form.metaPixelId}
                   onChange={(e) => set('metaPixelId', e.target.value)}
                   placeholder="1234567890"
-                  className="bg-gray-50 border-gray-300 text-gray-900"
+                  className="bg-[#111B2E] border-white/[0.08] text-slate-100"
                 />
                 <p className="text-gray-400 text-xs mt-1">
                   Tracks ViewContent, AddToCart, Purchase events automatically
@@ -235,13 +235,13 @@ export default function StoreSetup() {
         {step === 4 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Ready to launch!</h2>
+              <h2 className="text-2xl font-bold text-slate-100">Ready to launch!</h2>
               <p className="text-gray-500 mt-1">Your store details:</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-6 space-y-3">
+            <div className="bg-[#111B2E] rounded-lg p-6 space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-500">Store Name</span>
-                <span className="text-gray-900 font-medium">{form.storeName}</span>
+                <span className="text-slate-100 font-medium">{form.storeName}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Store URL</span>
@@ -250,14 +250,14 @@ export default function StoreSetup() {
               {form.metaPixelId && (
                 <div className="flex justify-between">
                   <span className="text-gray-500">Meta Pixel</span>
-                  <span className="text-gray-900">{form.metaPixelId}</span>
+                  <span className="text-slate-100">{form.metaPixelId}</span>
                 </div>
               )}
             </div>
             <Button
               onClick={handleLaunch}
               disabled={createStore.isPending}
-              className="w-full py-3 text-lg font-semibold text-black"
+              className="w-full py-3 text-lg font-semibold text-slate-100"
               style={{ background: '#6366F1' }}
             >
               {createStore.isPending ? 'Launching...' : '🚀 Launch My Store'}
@@ -272,7 +272,7 @@ export default function StoreSetup() {
               variant="ghost"
               onClick={() => setStep((s) => s - 1)}
               disabled={step === 1}
-              className="text-gray-400 hover:text-gray-900"
+              className="text-gray-400 hover:text-slate-100"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -280,7 +280,7 @@ export default function StoreSetup() {
             <Button
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
-              className="text-black font-semibold"
+              className="text-slate-100 font-semibold"
               style={{ background: '#6366F1' }}
             >
               Continue
