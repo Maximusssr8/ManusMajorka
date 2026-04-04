@@ -145,12 +145,12 @@ export default function ScalingPlaybook() {
   return (
     <div
       className="h-full flex"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       {/* LEFT */}
       <div
         className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4"
-        style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', scrollbarWidth: 'thin' }}
       >
         <div className="flex items-center gap-2.5 mb-1">
           <div
@@ -220,9 +220,9 @@ export default function ScalingPlaybook() {
               placeholder={placeholder}
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 border: '1.5px solid #F5F5F5',
-                color: '#374151',
+                color: '#CBD5E1',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(124,106,245,0.45)')}
               onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -271,9 +271,9 @@ export default function ScalingPlaybook() {
               placeholder="your@email.com"
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 border: '1.5px solid #F5F5F5',
-                color: '#374151',
+                color: '#CBD5E1',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
               onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -316,9 +316,9 @@ export default function ScalingPlaybook() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#374151',
+                  color: '#CBD5E1',
                   cursor: 'pointer',
                 }}
               >
@@ -334,7 +334,7 @@ export default function ScalingPlaybook() {
                   border: '1px solid rgba(124,106,245,0.2)',
                 }}
               >
-                <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {summary}
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function ScalingPlaybook() {
                     <div
                       className="flex-1 rounded-xl p-4 mb-2"
                       style={{
-                        background: '#FAFAFA',
+                        background: '#05070F',
                         border: `1px solid ${color}20`,
                       }}
                     >
@@ -405,7 +405,7 @@ export default function ScalingPlaybook() {
                           <div
                             key={j}
                             className="flex items-start gap-2 text-xs"
-                            style={{ color: '#374151' }}
+                            style={{ color: '#CBD5E1' }}
                           >
                             <ChevronRight
                               size={10}
@@ -422,7 +422,7 @@ export default function ScalingPlaybook() {
                         style={{ background: `${color}08`, border: `1px solid ${color}15` }}
                       >
                         <Target size={11} style={{ color }} />
-                        <span style={{ color: '#6B7280' }}>KPI:</span>
+                        <span style={{ color: '#94A3B8' }}>KPI:</span>
                         <span style={{ color, fontWeight: 600 }}>{m.kpi}</span>
                       </div>
                     </div>

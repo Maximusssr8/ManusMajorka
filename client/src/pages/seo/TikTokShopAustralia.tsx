@@ -119,7 +119,7 @@ export default function TikTokShopAustralia() {
 
         {/* ── HERO ── */}
         <section style={{ padding: '80px 0 60px', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#F9FAFB', border: `1px solid #F0F0F0`, borderRadius: 100, padding: '6px 16px', marginBottom: 24, fontSize: 13, color: '#fff', fontWeight: 600 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.03)', border: `1px solid #F0F0F0`, borderRadius: 100, padding: '6px 16px', marginBottom: 24, fontSize: 13, color: '#fff', fontWeight: 600 }}>
             ♪ TikTok Shop AU · Launched 2024
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>

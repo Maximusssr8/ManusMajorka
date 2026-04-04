@@ -270,12 +270,12 @@ export default function VideoIntelligence() {
   }
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
+    <div style={{ background: '#05070F', minHeight: '100vh' }}>
 
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Video Intelligence</h1>
+          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', margin: 0 }}>Video Intelligence</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>
             {loading ? 'Loading...' : `${allVideos.length} videos tracked`}
             {lastSynced && !loading && (() => {
@@ -288,7 +288,7 @@ export default function VideoIntelligence() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <DateRangeSelector value={dateRange} onChange={handleDateRange} />
           <button onClick={() => exportCSV(videos.map(v => ({ title: v.product_mentioned, niche: v.niche, format: v.format, engagement_signal: v.engagement_signal, hook_text: v.hook_text || '', url: v.url, region: v.region_code })), 'videos')}
-            style={{ border: '1px solid #E5E7EB', background: 'white', color: '#374151', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
+            style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0C1120', color: '#CBD5E1', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
             ⬇ Export CSV
           </button>
           <button onClick={triggerRefresh} disabled={refreshing}
@@ -304,7 +304,7 @@ export default function VideoIntelligence() {
       </div>
 
       {/* ── Search Bar ─────────────────────────────────────────────── */}
-      <div style={{ padding: '12px 28px', background: '#FAFAFA', borderBottom: '1px solid #F3F4F6' }}>
+      <div style={{ padding: '12px 28px', background: '#05070F', borderBottom: '1px solid #F3F4F6' }}>
         <div style={{ maxWidth: 680, display: 'flex', gap: 8, alignItems: 'center' }}>
           <div style={{ flex: 1, position: 'relative' as const }}>
             <span style={{ position: 'absolute' as const, left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: '#9CA3AF', pointerEvents: 'none' as const }}>🔍</span>
@@ -313,7 +313,7 @@ export default function VideoIntelligence() {
               onChange={e => handleSearchInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && searchInput.trim() && runSearch(searchInput.trim())}
               placeholder="Search product videos… e.g. 'dog cooling mat', 'LED face mask', 'posture corrector'"
-              style={{ width: '100%', height: 40, paddingLeft: 38, paddingRight: searchInput ? 36 : 12, border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, color: '#0A0A0A', background: 'white', outline: 'none', boxSizing: 'border-box' as const, fontFamily: '-apple-system, sans-serif' }}
+              style={{ width: '100%', height: 40, paddingLeft: 38, paddingRight: searchInput ? 36 : 12, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, color: '#F8FAFC', background: '#0C1120', outline: 'none', boxSizing: 'border-box' as const, fontFamily: '-apple-system, sans-serif' }}
             />
             {searchInput && (
               <button onClick={clearSearch} style={{ position: 'absolute' as const, right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#9CA3AF', padding: 2 }}>✕</button>
@@ -340,7 +340,7 @@ export default function VideoIntelligence() {
             <div style={{ fontSize: 13, color: '#6366F1', fontWeight: 600, marginBottom: 12 }}>Searching TikTok for "{searchInput}"…</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ height: 140, background: 'linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
                   <div style={{ padding: 10 }}>
                     <div style={{ height: 10, borderRadius: 5, background: 'linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', marginBottom: 6 }} />
@@ -355,14 +355,14 @@ export default function VideoIntelligence() {
         {/* ── Search results grid ───────────────────────────────────── */}
         {!searchLoading && searchQuery && searchResults.length > 0 && (
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A', marginBottom: 14 }}>Results for "{searchQuery}"</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#F8FAFC', marginBottom: 14 }}>Results for "{searchQuery}"</div>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
               {searchResults.map((v, i) => (
               <a key={i} href={v.url || v.creatorProfileUrl || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
+                style={{ display: 'block', background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
                 {v.thumbnail && <img src={v.thumbnail} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' as const }} onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
                 <div style={{ padding: '10px 12px' }}>
-                  <div style={{ fontSize: 12, color: '#0A0A0A', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
+                  <div style={{ fontSize: 12, color: '#F8FAFC', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>
                     <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600 }}>▶ {(v.playCount ?? 0) >= 1000000 ? `${((v.playCount ?? 0)/1000000).toFixed(1)}M` : (v.playCount ?? 0) >= 1000 ? `${((v.playCount ?? 0)/1000).toFixed(0)}K` : v.playCount ?? 0}</span>
                     <span style={{ fontSize: 10, color: '#9CA3AF' }}>{v.creator || v.creatorHandle}</span>
@@ -381,7 +381,7 @@ export default function VideoIntelligence() {
         {/* ── Niche pills ─────────────────────────────────────────── */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 18 }}>
           <button onClick={() => setSelectedNiche('')}
-            style={{ height: 30, padding: '0 14px', background: selectedNiche === '' ? '#0A0A0A' : 'white', color: selectedNiche === '' ? 'white' : '#374151', border: '1px solid #E5E7EB', borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+            style={{ height: 30, padding: '0 14px', background: selectedNiche === '' ? '#0A0A0A' : 'white', color: selectedNiche === '' ? 'white' : '#374151', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
             All ({allVideos.length})
           </button>
           {NICHES.map(n => {
@@ -422,16 +422,16 @@ export default function VideoIntelligence() {
             {loading ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, height: 140, animation: 'pulse 1.5s infinite' }} />
+                  <div key={i} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, height: 140, animation: 'pulse 1.5s infinite' }} />
                 ))}
               </div>
             ) : videos.length === 0 ? (
               <div style={{ textAlign: 'center' as const, padding: '60px 20px', maxWidth: 480, margin: '0 auto' }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>🎬</div>
-                <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', marginBottom: 8 }}>
+                <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#F8FAFC', marginBottom: 8 }}>
                   {selectedNiche ? `No videos for "${selectedNiche}" yet` : 'No videos loaded yet'}
                 </div>
-                <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, marginBottom: 24 }}>
+                <div style={{ fontSize: 14, color: '#94A3B8', lineHeight: 1.6, marginBottom: 24 }}>
                   {selectedNiche
                     ? 'Try a different niche or click All to see all videos'
                     : <>Click <strong>Scrape Now</strong> to pull the latest TikTok product videos from our data pipeline. Takes ~20 seconds.</>}
@@ -460,13 +460,13 @@ export default function VideoIntelligence() {
                   const sig = SIGNAL_META[v.engagement_signal] || SIGNAL_META.MEDIUM;
                   return (
                     <div key={v.id || i}
-                      style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', transition: 'box-shadow 150ms', cursor: 'pointer' }}
+                      style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', transition: 'box-shadow 150ms', cursor: 'pointer' }}
                       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB')}
                       onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
 
                       {/* Thumbnail */}
                       {v.thumbnail ? (
-                        <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: '#F3F4F6' }}>
+                        <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' }}>
                           <img src={v.thumbnail} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                         </div>
                       ) : (
@@ -485,13 +485,13 @@ export default function VideoIntelligence() {
                         </div>
 
                         {/* Product name */}
-                        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#0A0A0A', marginBottom: 5, lineHeight: 1.3 }}>
+                        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#F8FAFC', marginBottom: 5, lineHeight: 1.3 }}>
                           {v.product_mentioned || 'Unknown Product'}
                         </div>
 
                         {/* Hook text */}
                         {v.hook_text && (
-                          <div style={{ fontSize: 11, color: '#6B7280', fontStyle: 'italic', lineHeight: 1.5, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                          <div style={{ fontSize: 11, color: '#94A3B8', fontStyle: 'italic', lineHeight: 1.5, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                             "{v.hook_text}"
                           </div>
                         )}
@@ -508,7 +508,7 @@ export default function VideoIntelligence() {
                         {/* Footer */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', gap: 4 }}>
-                            <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F5F5F5', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
+                            <span style={{ fontSize: 9, color: '#9CA3AF', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
                             {v.creatorHandle && <span style={{ fontSize: 9, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
                           </div>
                           <a href={v.url || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
@@ -526,9 +526,9 @@ export default function VideoIntelligence() {
           </div>
 
           {/* ── MIDDLE: Hook Library ──────────────────────────────── */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>🎣 Hook Library</div>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#F8FAFC' }}>🎣 Hook Library</div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Top opening lines that convert</div>
             </div>
             {hooks.length === 0 ? (
@@ -541,14 +541,14 @@ export default function VideoIntelligence() {
                   <div key={i} style={{ padding: '10px 14px', borderBottom: '1px solid #F9FAFB' }}>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6 }}>
                       <span style={{ fontSize: 10, fontWeight: 800, color: '#9CA3AF', minWidth: 18, marginTop: 2 }}>#{i+1}</span>
-                      <div style={{ flex: 1, fontSize: 12, color: '#374151', lineHeight: 1.5, fontStyle: 'italic' }}>
+                      <div style={{ flex: 1, fontSize: 12, color: '#CBD5E1', lineHeight: 1.5, fontStyle: 'italic' }}>
                         "{v.hook_text}"
                       </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 26 }}>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <span style={{ fontSize: 9, color: (FORMAT_META[v.format] || FORMAT_META.LIFESTYLE).color, background: (FORMAT_META[v.format] || FORMAT_META.LIFESTYLE).bg, padding: '1px 6px', borderRadius: 8, fontWeight: 600 }}>{v.format}</span>
-                        <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F5F5F5', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
+                        <span style={{ fontSize: 9, color: '#9CA3AF', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
                       </div>
                       <button onClick={() => copyText(v.hook_text!, `hook-${i}`)}
                         style={{ fontSize: 10, fontWeight: 700, color: copied === `hook-${i}` ? '#059669' : '#6366F1', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -562,14 +562,14 @@ export default function VideoIntelligence() {
           </div>
 
           {/* ── RIGHT: AI Generator ───────────────────────────────── */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>🤖 AI Content Generator</div>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#F8FAFC' }}>🤖 AI Content Generator</div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Scripts, hooks & livestream outlines</div>
             </div>
             <div style={{ padding: 14 }}>
               {/* Tabs */}
-              <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 8, padding: 3, marginBottom: 12 }}>
+              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: 3, marginBottom: 12 }}>
                 {(['hooks', 'script', 'live'] as const).map(t => (
                   <button key={t} onClick={() => setAiTab(t)}
                     style={{ flex: 1, height: 28, background: aiTab === t ? 'white' : 'transparent', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, color: aiTab === t ? '#0A0A0A' : '#9CA3AF', cursor: 'pointer', boxShadow: aiTab === t ? '0 1px 4px #E5E7EB' : 'none', transition: 'all 150ms', textTransform: 'capitalize' as const }}>
@@ -580,14 +580,14 @@ export default function VideoIntelligence() {
 
               {/* Product input */}
               <div style={{ marginBottom: 8 }}>
-                <label style={{ fontSize: 10, fontWeight: 600, color: '#6B7280', display: 'block', marginBottom: 4 }}>PRODUCT NAME</label>
+                <label style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', display: 'block', marginBottom: 4 }}>PRODUCT NAME</label>
                 <input value={aiProduct} onChange={e => setAiProduct(e.target.value)}
                   placeholder={`e.g. ${selectedNiche === 'beauty' ? 'LED Face Mask' : selectedNiche === 'fitness' ? 'Resistance Bands' : 'viral product'}`}
-                  style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 7, fontSize: 12, background: '#FAFAFA', boxSizing: 'border-box' as const, color: '#0A0A0A' }} />
+                  style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, fontSize: 12, background: '#05070F', boxSizing: 'border-box' as const, color: '#F8FAFC' }} />
               </div>
 
               {/* Context note */}
-              <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 12, background: '#F9FAFB', borderRadius: 6, padding: '6px 8px' }}>
+              <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 6, padding: '6px 8px' }}>
                 {aiTab === 'hooks' && '3 opening lines proven to stop the scroll in the first 3 seconds'}
                 {aiTab === 'script' && '60-second script with hook → demo → CTA structure'}
                 {aiTab === 'live' && 'Livestream outline with opening hook, demo points, urgency + CTA'}
@@ -600,7 +600,7 @@ export default function VideoIntelligence() {
 
               {aiOutput && (
                 <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const, maxHeight: 280, overflowY: 'auto' as const }}>{aiOutput}</div>
+                  <div style={{ fontSize: 11, color: '#CBD5E1', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const, maxHeight: 280, overflowY: 'auto' as const }}>{aiOutput}</div>
                   <button onClick={() => copyText(aiOutput, 'ai-out')}
                     style={{ marginTop: 8, fontSize: 10, color: copied === 'ai-out' ? '#059669' : '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, padding: 0 }}>
                     {copied === 'ai-out' ? '✓ Copied!' : 'Copy all →'}

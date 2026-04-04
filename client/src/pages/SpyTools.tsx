@@ -132,7 +132,7 @@ function CompetitorSpy() {
       {/* Header */}
       <div style={{ padding: '0 0 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <p style={{ fontSize: 13, color: '#6B7280', marginTop: 0, marginBottom: 0 }}>
+          <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 0, marginBottom: 0 }}>
             Track what 20 AU stores are selling — find winners before they peak
           </p>
         </div>
@@ -153,7 +153,7 @@ function CompetitorSpy() {
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 280px', gap: 16, flex: 1 }}>
 
         {/* LEFT — Store Selector */}
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
+        <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '12px 14px', borderBottom: '1px solid #F3F4F6', fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
             20 AU Stores
           </div>
@@ -174,7 +174,7 @@ function CompetitorSpy() {
         </div>
 
         {/* CENTER — Product Feed */}
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
               {selectedStore ? `${stores.find(s => s.domain === selectedStore)?.name || selectedStore}` : 'All Stores'} · {products.length} products
@@ -191,12 +191,12 @@ function CompetitorSpy() {
           ) : products.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center' as const }}>
               <div style={{ fontSize: 36, marginBottom: 12 }}>🕵️</div>
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 6 }}>Competitor data pipeline warming up</div>
-              <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 8, lineHeight: 1.6 }}>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#F8FAFC', marginBottom: 6 }}>Competitor data pipeline warming up</div>
+              <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 8, lineHeight: 1.6 }}>
                 We're building live store tracking for 20 AU competitor stores.<br />
                 Data is collected nightly — check back tomorrow for your first snapshot.
               </div>
-              <div style={{ fontSize: 11, color: '#9CA3AF', padding: '8px 16px', background: '#F9FAFB', borderRadius: 8, display: 'inline-block', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: 11, color: '#9CA3AF', padding: '8px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, display: 'inline-block', border: '1px solid rgba(255,255,255,0.08)' }}>
                 🔄 Next data refresh: tonight at 00:00 AEST
               </div>
             </div>
@@ -208,11 +208,11 @@ function CompetitorSpy() {
                   onMouseLeave={e => e.currentTarget.style.background = 'white'}>
                   <img src={`https://www.google.com/s2/favicons?domain=${p.store_domain}&sz=32`} alt="" style={{ width: 18, height: 18, borderRadius: 3, marginTop: 2, flexShrink: 0 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: '#0A0A0A', lineHeight: 1.4, marginBottom: 3 }}>{p.product_name}</div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: '#F8FAFC', lineHeight: 1.4, marginBottom: 3 }}>{p.product_name}</div>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>
                       <span style={{ fontSize: 10, color: '#9CA3AF' }}>{p.store_domain}</span>
                       {p.price_aud && <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>${p.price_aud}</span>}
-                      {p.category && <span style={{ fontSize: 9, color: '#6B7280', background: '#F5F5F5', padding: '1px 6px', borderRadius: 10 }}>{p.category}</span>}
+                      {p.category && <span style={{ fontSize: 9, color: '#94A3B8', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 10 }}>{p.category}</span>}
                       {isNewProduct(p) && (
                         <span style={{ fontSize: 9, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>NEW TODAY</span>
                       )}
@@ -225,19 +225,19 @@ function CompetitorSpy() {
         </div>
 
         {/* RIGHT — Trend Crossovers */}
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
+        <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '12px 14px', borderBottom: '1px solid #F3F4F6', fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
             Confirmed Winners
           </div>
           <div style={{ padding: '12px 14px' }}>
-            <p style={{ fontSize: 12, color: '#6B7280', marginTop: 0, marginBottom: 12, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 0, marginBottom: 12, lineHeight: 1.5 }}>
               Products trending in competitor stores <strong>AND</strong> Majorka's database — confirmed market demand.
             </p>
             {products.filter(p => p.category).slice(0, 8).map((p: any, i: number) => (
               <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid #F9FAFB', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 14, flexShrink: 0, color: '#6366F1' }}>●</span>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0A', lineHeight: 1.3, marginBottom: 2 }}>{p.product_name?.slice(0, 60)}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#F8FAFC', lineHeight: 1.3, marginBottom: 2 }}>{p.product_name?.slice(0, 60)}</div>
                   <div style={{ fontSize: 10, color: '#9CA3AF' }}>{p.store_domain} · {p.category}</div>
                 </div>
               </div>
@@ -279,8 +279,8 @@ export default function SpyTools() {
 
       {/* Header */}
       <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
-        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: '#0A0A0A', marginBottom: 4, margin: 0 }}>Spy Tools</h1>
-        <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20, marginTop: 4 }}>See exactly what ads your competitors are running</p>
+        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: '#F8FAFC', marginBottom: 4, margin: 0 }}>Spy Tools</h1>
+        <p style={{ fontSize: 14, color: '#94A3B8', marginBottom: 20, marginTop: 4 }}>See exactly what ads your competitors are running</p>
 
         {/* Main tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
@@ -343,7 +343,7 @@ export default function SpyTools() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
               {sortedAds.map(ad => (
                 <div key={ad.id} style={{
-                  background: 'white', borderRadius: 12, border: '1px solid #F0F0F0', overflow: 'hidden',
+                  background: '#0C1120', borderRadius: 12, border: '1px solid #F0F0F0', overflow: 'hidden',
                   boxShadow: '0 2px 8px #F5F5F5', transition: 'transform 150ms, box-shadow 150ms',
                 }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px #E5E7EB'; }}
@@ -351,7 +351,7 @@ export default function SpyTools() {
                 >
                   <div style={{ height: 180, background: ad.bg || '#F9FAFB', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: 16, flexDirection: 'column', gap: 8 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: ad.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.4, maxWidth: '100%' }}>{ad.hook || ad.product}</div>
-                    <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.5 }}>{ad.body ? ad.body.slice(0,80) + '…' : ''}</div>
+                    <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.5 }}>{ad.body ? ad.body.slice(0,80) + '…' : ''}</div>
                     <div style={{ marginTop: 'auto', display: 'inline-block', background: ad.accent || '#6366F1', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 99 }}>{ad.cta || 'Shop Now'}</div>
                     <span style={{ display: 'none' }}>📦</span>
                     <div style={{
@@ -365,7 +365,7 @@ export default function SpyTools() {
                     </div>
                     <div style={{
                       position: 'absolute', top: 10, right: 10,
-                      background: 'white', color: '#0A0A0A',
+                      background: '#0C1120', color: '#F8FAFC',
                       padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
                     }}>
                       RUNNING {ad.runningDays} DAYS
@@ -373,12 +373,12 @@ export default function SpyTools() {
                   </div>
 
                   <div style={{ padding: 16 }}>
-                    <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#0A0A0A', margin: '0 0 6px' }}>
+                    <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#F8FAFC', margin: '0 0 6px' }}>
                       {ad.product}
                     </h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontSize: 12, color: '#6B7280' }}>Est. spend/day:</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#0A0A0A' }}>${ad.spendPerDay} AUD</span>
+                      <span style={{ fontSize: 12, color: '#94A3B8' }}>Est. spend/day:</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#F8FAFC' }}>${ad.spendPerDay} AUD</span>
                     </div>
                     <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12 }}>{ad.niche}</div>
 
@@ -449,12 +449,12 @@ export default function SpyTools() {
           zIndex: 1000, padding: 24,
         }} onClick={() => setViewAd(null)}>
           <div style={{
-            background: 'white', borderRadius: 16, maxWidth: 480, width: '100%', overflow: 'hidden',
+            background: '#0C1120', borderRadius: 16, maxWidth: 480, width: '100%', overflow: 'hidden',
             boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
           }} onClick={e => e.stopPropagation()}>
             <div style={{ height: 300, background: viewAd.bg || '#F9FAFB', position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, padding: 24, justifyContent: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: viewAd.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.5 }}>{viewAd.hook || viewAd.product}</div>
-              <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>{viewAd.body || ''}</div>
+              <div style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.6 }}>{viewAd.body || ''}</div>
               <div style={{ display: 'inline-block', background: viewAd.accent || '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 99, alignSelf: 'flex-start' }}>{viewAd.cta || 'Shop Now'}</div>
               <div style={{
                 position: 'absolute', top: 14, left: 14,
@@ -465,29 +465,29 @@ export default function SpyTools() {
               </div>
               <div style={{
                 position: 'absolute', top: 14, right: 14,
-                background: 'white', color: '#0A0A0A',
+                background: '#0C1120', color: '#F8FAFC',
                 padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700,
               }}>
                 Running {viewAd.runningDays} days
               </div>
               <button onClick={() => setViewAd(null)} style={{
                 position: 'absolute', bottom: 14, right: 14,
-                width: 32, height: 32, borderRadius: '50%', background: '#FAFAFA', border: 'none',
+                width: 32, height: 32, borderRadius: '50%', background: '#05070F', border: 'none',
                 cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>×</button>
             </div>
 
             <div style={{ padding: 24 }}>
-              <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', margin: '0 0 4px' }}>
+              <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#F8FAFC', margin: '0 0 4px' }}>
                 {viewAd.product}
               </h2>
-              <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 16 }}>
-                Est. spend/day: <strong style={{ color: '#0A0A0A' }}>${viewAd.spendPerDay} AUD</strong> · {viewAd.niche}
+              <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16 }}>
+                Est. spend/day: <strong style={{ color: '#F8FAFC' }}>${viewAd.spendPerDay} AUD</strong> · {viewAd.niche}
               </div>
 
-              <div style={{ background: '#F9FAFB', borderRadius: 10, padding: 16, marginBottom: 20, border: '1px solid #F0F0F0' }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 16, marginBottom: 20, border: '1px solid #F0F0F0' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ad Copy Preview</div>
-                <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.6 }}>
+                <p style={{ fontSize: 14, color: '#CBD5E1', margin: 0, lineHeight: 1.6 }}>
                   Australians are going crazy for {viewAd.product}. Limited stock available. Free AU shipping. Order now →
                 </p>
               </div>

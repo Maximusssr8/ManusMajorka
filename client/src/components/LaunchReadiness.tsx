@@ -351,7 +351,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
           <Rocket size={16} style={{ color: allDone ? '#10b981' : '#6366F1', flexShrink: 0 }} />
           <div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#0A0A0A' }}>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#F8FAFC' }}>
               Launch Readiness
             </span>
             <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>
@@ -381,7 +381,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: '#10b981' }}>
               You're launch-ready 🚀
             </span>
-            <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>
+            <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>
               All checklist items complete. Time to go live.
             </p>
           </motion.div>
@@ -403,7 +403,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             <div
               key={col.key}
               style={{
-                background: '#FAFAFA',
+                background: '#05070F',
                 border: `1px solid #F9FAFB`,
                 borderRadius: 10,
                 padding: 10,
@@ -439,7 +439,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                     fontSize: 9,
                     color: '#9CA3AF',
                     fontWeight: 600,
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     borderRadius: 100,
                     padding: '1px 6px',
                   }}
@@ -529,7 +529,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                       justifyContent: 'center',
                     }}
                   >
-                    <span style={{ fontSize: 10, color: '#6B7280', fontStyle: 'italic' }}>
+                    <span style={{ fontSize: 10, color: '#94A3B8', fontStyle: 'italic' }}>
                       {col.key === 'done'
                         ? 'Nothing done yet'
                         : col.key === 'inprogress'
@@ -552,14 +552,14 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
           marginTop: 12,
         }}
       >
-        <p style={{ fontSize: 10, color: '#6B7280' }}>
+        <p style={{ fontSize: 10, color: '#94A3B8' }}>
           Click any card to cycle it through the columns
         </p>
         <button
           onClick={resetBoard}
           style={{
             fontSize: 10,
-            color: '#6B7280',
+            color: '#94A3B8',
             background: 'none',
             border: '1px solid #F9FAFB',
             borderRadius: 6,

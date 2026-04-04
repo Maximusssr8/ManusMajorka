@@ -127,14 +127,14 @@ export default function PublicProfitCalculator() {
   const labelStyle: React.CSSProperties = {
     fontFamily: dm,
     fontSize: 13,
-    color: '#6B7280',
+    color: '#94A3B8',
     marginBottom: 8,
     display: 'block',
   };
 
   const numberInputStyle: React.CSSProperties = {
     fontFamily: dm,
-    background: '#FFFFFF',
+    background: '#0C1120',
     border: '1px solid #F5F5F5',
     borderRadius: 8,
     color: C.text,
@@ -179,7 +179,7 @@ export default function PublicProfitCalculator() {
             alignItems: 'center',
             gap: 4,
             fontFamily: dm,
-            color: '#6B7280',
+            color: '#94A3B8',
             fontSize: 14,
           }}
         >
@@ -210,7 +210,7 @@ export default function PublicProfitCalculator() {
         {value}
       </div>
       {sub && (
-        <div style={{ fontFamily: dm, fontSize: 13, color: '#6B7280', marginTop: 4 }}>{sub}</div>
+        <div style={{ fontFamily: dm, fontSize: 13, color: '#94A3B8', marginTop: 4 }}>{sub}</div>
       )}
     </div>
   );
@@ -381,7 +381,7 @@ export default function PublicProfitCalculator() {
                 style={{
                   width: '100%',
                   fontFamily: dm,
-                  background: '#FFFFFF',
+                  background: '#0C1120',
                   border: '1px solid #F5F5F5',
                   borderRadius: 8,
                   color: C.text,
@@ -459,7 +459,7 @@ export default function PublicProfitCalculator() {
               </span>
             </div>
             <p
-              style={{ fontFamily: dm, fontSize: 14, color: '#6B7280', margin: 0, lineHeight: 1.6 }}
+              style={{ fontFamily: dm, fontSize: 14, color: '#94A3B8', margin: 0, lineHeight: 1.6 }}
             >
               {calc.verdictReason}
             </p>
@@ -540,7 +540,7 @@ export default function PublicProfitCalculator() {
                     <td
                       style={{
                         padding: 12,
-                        color: '#6B7280',
+                        color: '#94A3B8',
                         borderBottom: `1px solid #F9FAFB`,
                       }}
                     >

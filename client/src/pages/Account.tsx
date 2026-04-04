@@ -156,7 +156,7 @@ export default function Account() {
       {/* ── NAV ── */}
       <nav
         className="relative z-10 border-b sticky top-0 backdrop-blur-md"
-        style={{ background: 'rgba(255,255,255,0.9)', borderColor: '#E5E7EB' }}
+        style={{ background: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.08)' }}
       >
         <div className="container flex items-center justify-between h-14">
           <button
@@ -206,7 +206,7 @@ export default function Account() {
         {/* Profile card */}
         <div
           className="rounded-2xl p-6 border mb-5"
-          style={{ background: '#FAFAFA', borderColor: '#E5E7EB' }}
+          style={{ background: '#05070F', borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="flex items-center gap-4">
             <div
@@ -234,14 +234,14 @@ export default function Account() {
         <div
           className="rounded-2xl border overflow-hidden mb-5"
           style={{
-            background: '#FAFAFA',
+            background: '#05070F',
             borderColor: isActive ? 'rgba(99,102,241,0.25)' : '#E5E7EB',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-6 py-4 border-b"
-            style={{ borderColor: '#E5E7EB' }}
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4" style={{ color: '#6366F1' }} />
@@ -354,7 +354,7 @@ export default function Account() {
           {/* Actions */}
           <div
             className="px-6 py-4 border-t flex flex-col sm:flex-row gap-3"
-            style={{ borderColor: '#E5E7EB' }}
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
             {!isActive ? (
               <Button
@@ -424,7 +424,7 @@ export default function Account() {
         {/* Info card */}
         <div
           className="rounded-2xl p-5 border text-sm text-muted-foreground"
-          style={{ background: '#FAFAFA', borderColor: '#E5E7EB' }}
+          style={{ background: '#05070F', borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <p className="flex items-start gap-2">
             <Calendar className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#6366F1' }} />

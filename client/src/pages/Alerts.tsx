@@ -135,7 +135,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
         {/* Alert List */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
-            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 12, background: '#F3F4F6', animation: 'shimmer 1.5s infinite' }} />)}
+            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 12, background: 'rgba(255,255,255,0.05)', animation: 'shimmer 1.5s infinite' }} />)}
           </div>
         ) : tab === 'history' && history.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 20px' }}>

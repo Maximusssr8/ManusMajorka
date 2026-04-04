@@ -36,7 +36,7 @@ export default function UpgradeModalB({
       <div
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: 'white',
+          background: '#0C1120',
           border: '1px solid rgba(99,102,241,0.15)',
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
@@ -61,11 +61,11 @@ export default function UpgradeModalB({
           </div>
           <h2
             className="text-xl font-extrabold mb-2"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
           >
             Less than your morning coffee
           </h2>
-          <p className="text-sm mb-1" style={{ color: '#6B7280' }}>
+          <p className="text-sm mb-1" style={{ color: '#94A3B8' }}>
             For <span style={{ color: '#6366F1', fontWeight: 700 }}>$1.63/day</span>, get an entire
             AI ecommerce team working for you.
           </p>
@@ -82,7 +82,7 @@ export default function UpgradeModalB({
               <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 Flat white in Sydney
               </span>
-              <span className="text-sm font-bold" style={{ color: '#374151' }}>
+              <span className="text-sm font-bold" style={{ color: '#CBD5E1' }}>
                 ~$5.50/day
               </span>
             </div>
@@ -90,7 +90,7 @@ export default function UpgradeModalB({
               <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 Hiring a VA
               </span>
-              <span className="text-sm font-bold" style={{ color: '#374151' }}>
+              <span className="text-sm font-bold" style={{ color: '#CBD5E1' }}>
                 ~$30/day
               </span>
             </div>
@@ -98,7 +98,7 @@ export default function UpgradeModalB({
               <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 Freelance copywriter
               </span>
-              <span className="text-sm font-bold" style={{ color: '#374151' }}>
+              <span className="text-sm font-bold" style={{ color: '#CBD5E1' }}>
                 ~$150/task
               </span>
             </div>
@@ -149,8 +149,8 @@ export default function UpgradeModalB({
             onClick={() => handleUpgrade('scale')}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all"
             style={{
-              background: '#F9FAFB',
-              color: '#374151',
+              background: 'rgba(255,255,255,0.03)',
+              color: '#CBD5E1',
               border: '1px solid #F5F5F5',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',

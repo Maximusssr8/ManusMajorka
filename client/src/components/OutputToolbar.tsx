@@ -78,9 +78,9 @@ export default function OutputToolbar({
         onClick={handleExportTxt}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
-          background: '#F9FAFB',
+          background: 'rgba(255,255,255,0.03)',
           border: '1px solid #F5F5F5',
-          color: '#6B7280',
+          color: '#94A3B8',
           cursor: 'pointer',
           fontFamily: "'Bricolage Grotesque', sans-serif",
           fontWeight: 600,
@@ -92,9 +92,9 @@ export default function OutputToolbar({
         onClick={handleSave}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
-          background: '#F9FAFB',
+          background: 'rgba(255,255,255,0.03)',
           border: '1px solid #F5F5F5',
-          color: '#6B7280',
+          color: '#94A3B8',
           cursor: 'pointer',
           fontFamily: "'Bricolage Grotesque', sans-serif",
           fontWeight: 600,

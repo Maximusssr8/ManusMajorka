@@ -169,7 +169,7 @@ function StatCard({
               style={{ color: iconColor }}
             />
           </div>
-          <span className="text-xs font-medium" style={{ color: '#6B7280' }}>
+          <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
             {label}
           </span>
         </div>
@@ -272,7 +272,7 @@ function PersonalisedFeed() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {products.map((p, i) => (
           <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8 }}>
-            <span style={{ fontSize: 11, color: '#6B7280', width: 20 }}>#{i+1}</span>
+            <span style={{ fontSize: 11, color: '#94A3B8', width: 20 }}>#{i+1}</span>
             <ProductImage src={p.image_url ? String(p.image_url) : undefined} alt="" size={32} />
             <span style={{ flex: 1, fontSize: 13, color: '#E5E7EB', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#22C55E' }}>
@@ -286,7 +286,7 @@ function PersonalisedFeed() {
       </div>
       {!userNiche && (
         <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10 }}>
-          <span style={{ fontSize: 12, color: '#6B7280' }}>
+          <span style={{ fontSize: 12, color: '#94A3B8' }}>
             💡 Set your niche in <a href="/app/settings" style={{ color: '#6366F1' }}>Settings</a> to see personalised product recommendations
           </span>
         </div>
@@ -422,7 +422,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             📊 Showing sample data — orders from your store will appear here automatically
           </span>
           <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', opacity: 0.5 }}>
-            <X size={11} style={{ color: '#6B7280' }} />
+            <X size={11} style={{ color: '#94A3B8' }} />
           </button>
         </div>
       )}
@@ -561,7 +561,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#E2E8F0' }}>{o.customer}</span>
-                    <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 400 }}>{o.id}</span>
+                    <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 400 }}>{o.id}</span>
                   </div>
                   <span style={{ fontSize: 11, color: '#94A3B8', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
                 </div>
@@ -639,7 +639,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
   const getScoreTier = (score: number) => {
     if (score >= 65) return { bg: 'rgba(34,197,94,0.15)', color: '#22C55E', label: '🔥 Hot' };
     if (score >= 60) return { bg: 'rgba(245,158,11,0.15)', color: '#F59E0B', label: '📈 Rising' };
-    return { bg: 'rgba(255,255,255,0.06)', color: '#6B7280', label: '' };
+    return { bg: 'rgba(255,255,255,0.06)', color: '#94A3B8', label: '' };
   };
 
   return (
@@ -744,13 +744,13 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                       </div>
                     </td>
                     <td style={{ padding: '10px 16px', fontSize: 13, fontWeight: 600 }}>
-                      {p.est_daily_revenue_aud ? <span style={{ color: '#22C55E' }}>${p.est_daily_revenue_aud.toFixed(0)}</span> : <span style={{ color: '#6B7280' }}>—</span>}
+                      {p.est_daily_revenue_aud ? <span style={{ color: '#22C55E' }}>${p.est_daily_revenue_aud.toFixed(0)}</span> : <span style={{ color: '#94A3B8' }}>—</span>}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
                       {(p.trend === 'rising' || p.trend === 'exploding') ? (
                         <span style={{ fontSize: 12, color: '#22C55E', fontWeight: 600 }}>↑ Rising</span>
                       ) : (
-                        <span style={{ fontSize: 12, color: '#6B7280' }}>→ Steady</span>
+                        <span style={{ fontSize: 12, color: '#94A3B8' }}>→ Steady</span>
                       )}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
@@ -913,7 +913,7 @@ function GettingStartedChecklist({ userId, userCreatedAt, setLocation }: { userI
                 </div>
                 <div style={{ fontSize: 11, color: '#9CA3AF' }}>{step.desc}</div>
               </div>
-              <span style={{ color: '#6B7280', fontSize: 14, flexShrink: 0 }}>›</span>
+              <span style={{ color: '#94A3B8', fontSize: 14, flexShrink: 0 }}>›</span>
             </div>
           ))}
         </div>
@@ -1063,7 +1063,7 @@ function DashboardHome() {
               </div>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 30, color: '#FFFFFF', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
               <div style={{ fontSize: 12, color: '#9CA3AF' }}>
-                {hotCount === 0 ? <span style={{ color: '#6B7280' }}>— {card.delta}</span> : hotCount > 0 ? <span style={{ color: '#22C55E' }}>↑ {card.delta}</span> : card.delta}
+                {hotCount === 0 ? <span style={{ color: '#94A3B8' }}>— {card.delta}</span> : hotCount > 0 ? <span style={{ color: '#22C55E' }}>↑ {card.delta}</span> : card.delta}
               </div>
             </div>
             );

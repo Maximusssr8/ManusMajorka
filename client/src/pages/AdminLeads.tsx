@@ -44,12 +44,12 @@ export default function AdminLeads() {
   // Gate access
   if (user?.email !== ADMIN_EMAIL && user?.role !== 'admin') {
     return (
-      <div className="h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
+      <div className="h-full flex items-center justify-center" style={{ background: '#05070F' }}>
         <div className="text-center">
           <div className="text-4xl mb-3">🔒</div>
           <h2
             className="text-lg font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
           >
             Admin Only
           </h2>
@@ -151,7 +151,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
   return (
     <div
       className="h-full overflow-y-auto p-6"
-      style={{ background: '#FAFAFA', scrollbarWidth: 'thin' }}
+      style={{ background: '#05070F', scrollbarWidth: 'thin' }}
     >
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
@@ -159,7 +159,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
           <div>
             <h1
               className="text-xl font-extrabold flex items-center gap-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
             >
               <Users size={20} style={{ color: '#6366F1' }} />
               Lead Intelligence
@@ -206,8 +206,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               <div
                 className="rounded-xl p-5"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <h2
@@ -238,9 +238,9 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         borderRadius: 8,
                         fontSize: 12,
                       }}
-                      labelStyle={{ color: '#0A0A0A' }}
+                      labelStyle={{ color: '#F8FAFC' }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12, color: '#374151' }} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: '#CBD5E1' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -250,8 +250,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
             <div
               className="rounded-xl overflow-hidden"
               style={{
-                background: '#FAFAFA',
-                border: '1px solid #E5E7EB',
+                background: '#05070F',
+                border: '1px solid rgba(255,255,255,0.08)',
               }}
             >
               <div
@@ -303,10 +303,10 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                               i < leads.length - 1 ? '1px solid #F9FAFB' : 'none',
                           }}
                         >
-                          <td className="px-4 py-2.5" style={{ color: '#0A0A0A' }}>
+                          <td className="px-4 py-2.5" style={{ color: '#F8FAFC' }}>
                             {lead.email ?? '—'}
                           </td>
-                          <td className="px-4 py-2.5" style={{ color: '#6B7280' }}>
+                          <td className="px-4 py-2.5" style={{ color: '#94A3B8' }}>
                             {lead.createdAt
                               ? new Date(lead.createdAt).toLocaleDateString('en-AU')
                               : '—'}
@@ -340,7 +340,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                               {lead.market ?? 'AU'}
                             </span>
                           </td>
-                          <td className="px-4 py-2.5" style={{ color: '#6B7280' }}>
+                          <td className="px-4 py-2.5" style={{ color: '#94A3B8' }}>
                             {lead.targetNiche ?? '—'}
                           </td>
                         </tr>
@@ -380,9 +380,9 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 placeholder="Keywords your ideal customers use..."
                 className="flex-1 px-4 py-3 rounded-xl text-sm outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1.5px solid #F5F5F5',
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                 }}
               />
               <button
@@ -408,8 +408,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <div
                   className="rounded-xl p-5"
                   style={{
-                    background: '#FAFAFA',
-                    border: '1px solid #E5E7EB',
+                    background: '#05070F',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <h2
@@ -424,9 +424,9 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         key={i}
                         className="text-xs p-2 rounded-lg"
                         style={{
-                          background: '#FAFAFA',
+                          background: '#05070F',
                           border: '1px solid #F9FAFB',
-                          color: '#374151',
+                          color: '#CBD5E1',
                         }}
                       >
                         {i + 1}. {place}
@@ -439,8 +439,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <div
                   className="rounded-xl p-5"
                   style={{
-                    background: '#FAFAFA',
-                    border: '1px solid #E5E7EB',
+                    background: '#05070F',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <h2
@@ -455,7 +455,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         key={key}
                         className="rounded-lg p-3"
                         style={{
-                          background: '#FAFAFA',
+                          background: '#05070F',
                           border: '1px solid #F9FAFB',
                         }}
                       >
@@ -463,7 +463,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                           <span
                             className="text-xs font-bold uppercase"
                             style={{
-                              color: '#6B7280',
+                              color: '#94A3B8',
                               fontFamily: "'Bricolage Grotesque', sans-serif",
                               letterSpacing: '0.05em',
                             }}
@@ -485,7 +485,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         </div>
                         <p
                           className="text-xs leading-relaxed whitespace-pre-wrap"
-                          style={{ color: '#374151' }}
+                          style={{ color: '#CBD5E1' }}
                         >
                           {template}
                         </p>
@@ -498,8 +498,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <div
                   className="rounded-xl p-5"
                   style={{
-                    background: '#FAFAFA',
-                    border: '1px solid #E5E7EB',
+                    background: '#05070F',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -524,7 +524,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   </div>
                   <pre
                     className="text-xs leading-relaxed whitespace-pre-wrap"
-                    style={{ color: '#374151' }}
+                    style={{ color: '#CBD5E1' }}
                   >
                     {result.weeklySchedule}
                   </pre>

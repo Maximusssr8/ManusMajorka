@@ -170,7 +170,7 @@ export default function ShopIntelligence() {
           ))}
         </div>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '40px 48px', maxWidth: 420, width: '90%', textAlign: 'center' }}>
+          <div style={{ background: '#0C1120', border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '40px 48px', maxWidth: 420, width: '90%', textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>🔒</div>
             <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 8 }}>Pro Feature</div>
             <div style={{ fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 1.6 }}>
@@ -272,7 +272,7 @@ export default function ShopIntelligence() {
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       >
                         <td style={{ padding: '12px 14px', fontWeight: 600, color: C.text, fontSize: 14 }}>{n.niche}</td>
-                        <td style={{ padding: '12px 14px', color: '#374151', fontSize: 13 }}>{n.searches.toLocaleString()}</td>
+                        <td style={{ padding: '12px 14px', color: '#CBD5E1', fontSize: 13 }}>{n.searches.toLocaleString()}</td>
                         <td style={{ padding: '12px 14px' }}>
                           <span style={{ background: '#ECFDF5', color: '#059669', fontWeight: 700, fontSize: 12, padding: '3px 8px', borderRadius: 4 }}>{n.trend}</span>
                         </td>
@@ -282,7 +282,7 @@ export default function ShopIntelligence() {
                         <td style={{ padding: '12px 14px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${oppColor(n.opp)}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: oppColor(n.opp) }}>{n.opp}</div>
-                            <div style={{ flex: 1, height: 4, borderRadius: 2, background: '#F3F4F6', overflow: 'hidden' }}>
+                            <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
                               <div style={{ width: `${n.opp}%`, height: '100%', borderRadius: 2, background: oppColor(n.opp) }} />
                             </div>
                           </div>
@@ -336,7 +336,7 @@ export default function ShopIntelligence() {
                       {trendData.map(t => (
                         <div key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <div style={{ width: 12, height: 3, borderRadius: 2, background: t.color }} />
-                          <span style={{ fontSize: 12, color: '#374151' }}>{t.name}</span>
+                          <span style={{ fontSize: 12, color: '#CBD5E1' }}>{t.name}</span>
                         </div>
                       ))}
                     </div>
@@ -358,7 +358,7 @@ export default function ShopIntelligence() {
                   { season: 'Winter', months: 'Jun – Aug', emoji: '❄️', categories: ['Weighted Blankets', 'Indoor Fitness', 'Heating & Warmth', 'Hot Beverages'], color: '#6366F1' },
                   { season: 'Spring', months: 'Sep – Nov', emoji: '🌸', categories: ['Garden & Plants', 'Fitness Restart', 'Beauty & Self-Care', 'Cleaning & Organisation'], color: '#059669' },
                 ].map(s => (
-                  <div key={s.season} style={{ background: '#FAFAFA', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+                  <div key={s.season} style={{ background: '#05070F', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                       <span style={{ fontSize: 24 }}>{s.emoji}</span>
                       <div>
@@ -368,7 +368,7 @@ export default function ShopIntelligence() {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
                       {s.categories.map(cat => (
-                        <span key={cat} style={{ fontSize: 13, color: '#374151' }}>• {cat}</span>
+                        <span key={cat} style={{ fontSize: 13, color: '#CBD5E1' }}>• {cat}</span>
                       ))}
                     </div>
                     <button
@@ -395,7 +395,7 @@ export default function ShopIntelligence() {
                   { label: 'Avg AU Order Value', value: '$87', sub: 'AUD', trend: '+5% YoY', icon: '💳' },
                   { label: 'Mobile Commerce Share', value: '68%', sub: '', trend: '+8% YoY', icon: '📱' },
                 ].map(stat => (
-                  <div key={stat.label} style={{ background: '#FAFAFA', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+                  <div key={stat.label} style={{ background: '#05070F', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                       <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.muted }}>{stat.label}</span>
                       <span style={{ fontSize: 20 }}>{stat.icon}</span>
@@ -407,8 +407,8 @@ export default function ShopIntelligence() {
                   </div>
                 ))}
               </div>
-              <div style={{ background: '#F9FAFB', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
-                <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, margin: 0 }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+                <p style={{ fontSize: 14, color: '#CBD5E1', lineHeight: 1.7, margin: 0 }}>
                   Australia's ecommerce market is projected to reach <strong>$62 billion AUD</strong> in 2026, with dropshipping accounting for a growing <strong>$8.4 billion</strong> segment.
                   With 68% of purchases now happening on mobile, the opportunity for AU-focused stores is massive. The average order value of <strong>$87 AUD</strong> is significantly higher than
                   global averages, making Australia one of the most profitable markets for DTC brands. Key growth drivers include Afterpay adoption (40%+ of online shoppers), same-day delivery
@@ -423,12 +423,12 @@ export default function ShopIntelligence() {
       {/* Filter Bar */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20, padding: '16px', background: C.surface, borderRadius: 12, border: `1px solid ${C.border}` }}>
         <select value={niche} onChange={e => setNiche(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: 7, background: 'white', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
+          style={{ padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
           {NICHES.map(n => <option key={n}>{n}</option>)}
         </select>
 
         <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: 7, background: 'white', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
+          style={{ padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
           <option value="est_revenue_aud">Sort: Revenue</option>
           <option value="growth_rate_pct">Sort: Growth Rate</option>
           <option value="items_sold_est">Sort: Items Sold</option>
@@ -439,7 +439,7 @@ export default function ShopIntelligence() {
           const [mn, mx] = e.target.value.split('-');
           setMinRevenue(mn === '0' ? '' : mn);
           setMaxRevenue(mx === '0' ? '' : mx);
-        }} style={{ padding: '8px 12px', borderRadius: 7, background: 'white', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
+        }} style={{ padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
           <option value="0-0">Any Revenue</option>
           <option value="1000-10000">$1k–$10k/mo</option>
           <option value="10000-100000">$10k–$100k/mo</option>
@@ -451,7 +451,7 @@ export default function ShopIntelligence() {
           onChange={e => setSearch(e.target.value)}
           placeholder="Search shop name..."
           onKeyDown={e => e.key === 'Enter' && fetchShops(1)}
-          style={{ flex: 1, minWidth: 160, padding: '8px 12px', borderRadius: 7, background: 'white', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, outline: 'none' }}
+          style={{ flex: 1, minWidth: 160, padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, outline: 'none' }}
         />
 
         <button onClick={() => fetchShops(1)}

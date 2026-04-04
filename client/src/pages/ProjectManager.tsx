@@ -128,11 +128,11 @@ export default function ProjectManager() {
   return (
     <div
       className="h-full flex"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4"
-        style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', scrollbarWidth: 'thin' }}
       >
         <div className="flex items-center gap-2.5 mb-1">
           <div
@@ -168,9 +168,9 @@ export default function ProjectManager() {
             rows={3}
             className="w-full text-xs px-3 py-2.5 rounded-lg outline-none resize-none"
             style={{
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               border: '1.5px solid #F5F5F5',
-              color: '#374151',
+              color: '#CBD5E1',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'rgba(156,95,255,0.45)')}
             onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -200,9 +200,9 @@ export default function ProjectManager() {
               placeholder={placeholder}
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 border: '1.5px solid #F5F5F5',
-                color: '#374151',
+                color: '#CBD5E1',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(156,95,255,0.45)')}
               onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -257,9 +257,9 @@ export default function ProjectManager() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#374151',
+                  color: '#CBD5E1',
                   cursor: 'pointer',
                 }}
               >
@@ -288,7 +288,7 @@ export default function ProjectManager() {
               </div>
               <div
                 className="w-full h-2 rounded-full overflow-hidden"
-                style={{ background: '#F9FAFB' }}
+                style={{ background: 'rgba(255,255,255,0.03)' }}
               >
                 <div
                   className="h-full rounded-full transition-all duration-300"
@@ -303,9 +303,9 @@ export default function ProjectManager() {
             <div
               className="text-xs leading-relaxed rounded-xl p-4"
               style={{
-                background: '#FAFAFA',
-                border: '1px solid #E5E7EB',
-                color: '#374151',
+                background: '#05070F',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#CBD5E1',
               }}
             >
               {result.summary}
@@ -317,13 +317,13 @@ export default function ProjectManager() {
                 key={pi}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <div
                   className="px-4 py-3 border-b flex items-center justify-between"
-                  style={{ borderColor: '#E5E7EB' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.08)' }}
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"

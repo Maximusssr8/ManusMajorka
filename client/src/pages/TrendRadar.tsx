@@ -104,7 +104,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#F9FAFB', border: '1px solid #F0F0F0' }}
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0' }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
@@ -124,7 +124,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
           >
             {trend.name}
           </div>
@@ -156,25 +156,25 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
         <div className="px-4 pb-4 space-y-3">
           <div style={{ height: 1, background: '#F0F0F0' }} />
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Key Drivers
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
                 {trend.keyDrivers}
               </div>
             </div>
-            <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Target Demographic
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
                 {trend.targetDemographic}
               </div>
             </div>
@@ -197,7 +197,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
                 <div
                   key={i}
                   className="text-xs flex items-center gap-2"
-                  style={{ color: '#374151' }}
+                  style={{ color: '#CBD5E1' }}
                 >
                   <span style={{ color: '#4ab8f5' }}>→</span>
                   {opp}
@@ -219,7 +219,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
               >
                 Risk Factors
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
                 {trend.riskFactors}
               </div>
             </div>
@@ -318,11 +318,11 @@ export default function TrendRadar() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: '#E5E7EB', background: 'white' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -349,9 +349,9 @@ export default function TrendRadar() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: '#F9FAFB',
-              border: '1px solid #E5E7EB',
-              color: '#6B7280',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -363,13 +363,13 @@ export default function TrendRadar() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="space-y-3">
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Category *
               </label>
@@ -385,16 +385,16 @@ export default function TrendRadar() {
                 placeholder="e.g. Health & Wellness, Beauty…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                 }}
               />
             </div>
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Region
               </label>
@@ -403,13 +403,13 @@ export default function TrendRadar() {
                 onChange={(e) => setRegion(e.target.value)}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                 }}
               >
                 {['Australia', 'United States', 'United Kingdom', 'Global'].map((r) => (
-                  <option key={r} value={r} style={{ background: 'white' }}>
+                  <option key={r} value={r} style={{ background: '#0C1120' }}>
                     {r}
                   </option>
                 ))}
@@ -418,7 +418,7 @@ export default function TrendRadar() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Timeframe
               </label>
@@ -427,13 +427,13 @@ export default function TrendRadar() {
                 onChange={(e) => setTimeframe(e.target.value)}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                 }}
               >
                 {['Last month', 'Last 3 months', 'Last 6 months', 'Last year'].map((t) => (
-                  <option key={t} value={t} style={{ background: 'white' }}>
+                  <option key={t} value={t} style={{ background: '#0C1120' }}>
                     {t}
                   </option>
                 ))}
@@ -544,7 +544,7 @@ export default function TrendRadar() {
                   </div>
                   <CopyBtn text={result.overview} />
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {result.overview}
                 </div>
               </div>
@@ -562,7 +562,7 @@ export default function TrendRadar() {
                 >
                   🔥 Hottest Right Now
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {result.hottest}
                 </div>
               </div>
@@ -594,7 +594,7 @@ export default function TrendRadar() {
                 >
                   Actionable Insight
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {result.actionableInsight}
                 </div>
               </div>

@@ -86,7 +86,7 @@ function getSection(header: string) {
   for (const [key, val] of Object.entries(SECTION_CONFIG)) {
     if (header.includes(key.replace(/[()]/g, '').trim().slice(0, 20))) return val;
   }
-  return { color: '#374151', bg: '#F9FAFB', border: '#E5E7EB', type: 'copy' as const };
+  return { color: '#CBD5E1', bg: '#F9FAFB', border: '#E5E7EB', type: 'copy' as const };
 }
 
 // ── Output card parser ───────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ function CharCounter({ text }: { text: string }) {
       <div style={{ fontSize: 10, fontWeight: 600, color: overLimit ? '#DC2626' : '#059669' }}>
         Preview: {len}/125 chars {overLimit ? '⚠️ too long for mobile preview' : '✓ fits mobile preview'}
       </div>
-      <div style={{ fontSize: 11, color: '#374151', marginTop: 3, fontStyle: 'italic' }}>"{preview.slice(0, 125)}{len > 125 ? '…' : ''}"</div>
+      <div style={{ fontSize: 11, color: '#CBD5E1', marginTop: 3, fontStyle: 'italic' }}>"{preview.slice(0, 125)}{len > 125 ? '…' : ''}"</div>
     </div>
   );
 }
@@ -150,9 +150,9 @@ function SectionCard({ header, body, onCopy, copied }: {
       </div>
       {/* Body */}
       {!collapsed && (
-        <div style={{ padding: '10px 12px', background: 'white' }}>
+        <div style={{ padding: '10px 12px', background: '#0C1120' }}>
           {isCopySection && <CharCounter text={body} />}
-          <pre style={{ whiteSpace: 'pre-wrap' as const, fontFamily: dm, fontSize: 12, color: '#374151', lineHeight: 1.75, margin: isCopySection ? '8px 0 0' : 0 }}>{body}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap' as const, fontFamily: dm, fontSize: 12, color: '#CBD5E1', lineHeight: 1.75, margin: isCopySection ? '8px 0 0' : 0 }}>{body}</pre>
         </div>
       )}
     </div>
@@ -301,12 +301,12 @@ Generate the full output following your exact format with all sections.`;
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F9FAFB', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: 'rgba(255,255,255,0.03)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Ads Studio</h1>
+          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', margin: 0 }}>Ads Studio</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>Meta-focused ad creative generator — Facebook, Instagram & beyond</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -323,7 +323,7 @@ Generate the full output following your exact format with all sections.`;
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr 260px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
 
         {/* ── LEFT: Input Panel ────────────────────────────────────────── */}
-        <div style={{ background: 'white', borderRight: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 18 }}>
+        <div style={{ background: '#0C1120', borderRight: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 18 }}>
 
           {/* Product details */}
           <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 10 }}>Product Details</div>
@@ -335,30 +335,30 @@ Generate the full output following your exact format with all sections.`;
             { label: 'Price Point', value: price, set: setPrice, placeholder: 'e.g. $49.99 AUD' },
           ].map(({ label, value, set, placeholder, required }) => (
             <div key={label} style={{ marginBottom: 10 }}>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 3 }}>{label}</label>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 3 }}>{label}</label>
               <input value={value} onChange={e => set(e.target.value)} placeholder={placeholder}
-                style={{ width: '100%', height: 34, padding: '0 10px', border: `1px solid ${required && !value ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: 7, fontSize: 12, color: '#0A0A0A', background: '#FAFAFA', outline: 'none', boxSizing: 'border-box' as const }} />
+                style={{ width: '100%', height: 34, padding: '0 10px', border: `1px solid ${required && !value ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: 7, fontSize: 12, color: '#F8FAFC', background: '#05070F', outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
           ))}
 
           <div style={{ marginBottom: 10 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 3 }}>Key Benefit / USP</label>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 3 }}>Key Benefit / USP</label>
             <textarea value={benefit} onChange={e => setBenefit(e.target.value)} placeholder="e.g. reduces back pain in 10 minutes, visible results in 7 days"
-              rows={2} style={{ width: '100%', padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 7, fontSize: 12, color: '#0A0A0A', background: '#FAFAFA', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const }} />
+              rows={2} style={{ width: '100%', padding: '6px 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, fontSize: 12, color: '#F8FAFC', background: '#05070F', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const }} />
           </div>
 
           <div style={{ marginBottom: 10 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 3 }}>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 3 }}>
               Competitor URL <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span>
             </label>
             <input value={competitorUrl} onChange={e => setCompetitorUrl(e.target.value)} placeholder="https://competitor.com/product"
-              style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 7, fontSize: 12, color: '#0A0A0A', background: '#FAFAFA', outline: 'none', boxSizing: 'border-box' as const }} />
+              style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, fontSize: 12, color: '#F8FAFC', background: '#05070F', outline: 'none', boxSizing: 'border-box' as const }} />
             <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3 }}>We'll analyse their angle and differentiate</div>
           </div>
 
           {/* Funnel stage */}
           <div style={{ marginBottom: 10 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Funnel Stage</label>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 5 }}>Funnel Stage</label>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
               {FUNNEL_STAGES.map(s => (
                 <button key={s} onClick={() => setFunnelStage(s)}
@@ -371,7 +371,7 @@ Generate the full output following your exact format with all sections.`;
 
           {/* Ad objective */}
           <div style={{ marginBottom: 10 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Ad Objective</label>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 5 }}>Ad Objective</label>
             <div style={{ display: 'flex', gap: 4 }}>
               {AD_OBJECTIVES.map(o => (
                 <button key={o} onClick={() => setAdObjective(o)}
@@ -384,7 +384,7 @@ Generate the full output following your exact format with all sections.`;
 
           {/* Platforms */}
           <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Platforms</label>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 5 }}>Platforms</label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
               {PLATFORMS.map(p => (
                 <button key={p.id} onClick={() => togglePlatform(p.id)}
@@ -399,7 +399,7 @@ Generate the full output following your exact format with all sections.`;
 
           {/* Creative type */}
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#6B7280', marginBottom: 5 }}>Creative Type</label>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#94A3B8', marginBottom: 5 }}>Creative Type</label>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
               {CREATIVE_TYPES.map(ct => (
                 <button key={ct.id} onClick={() => setCreativeType(ct.id)}
@@ -422,7 +422,7 @@ Generate the full output following your exact format with all sections.`;
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', height: '60%', gap: 14 }}>
               <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #2563EB, #6366F1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
-              <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800, color: '#0A0A0A' }}>Maya is crafting your Meta ads…</div>
+              <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800, color: '#F8FAFC' }}>Maya is crafting your Meta ads…</div>
               <div style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center' as const, maxWidth: 300 }}>
                 Writing {CREATIVE_TYPES.find(t => t.id === creativeType)?.label} for <strong>{productName}</strong>
                 <br />{funnelStage} · {adObjective} · {platforms.join(' + ')}
@@ -438,12 +438,12 @@ Generate the full output following your exact format with all sections.`;
               {/* Output header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontFamily: brico, fontSize: 15, fontWeight: 800, color: '#0A0A0A' }}>{CREATIVE_TYPES.find(t => t.id === creativeType)?.label}</div>
+                  <div style={{ fontFamily: brico, fontSize: 15, fontWeight: 800, color: '#F8FAFC' }}>{CREATIVE_TYPES.find(t => t.id === creativeType)?.label}</div>
                   <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{productName} · {funnelStage} · {platforms.join(' + ')}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button onClick={generate} style={{ height: 30, padding: '0 12px', background: 'white', color: '#2563EB', border: '1px solid #BFDBFE', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>↻ Regenerate</button>
-                  <button onClick={() => copyText(output, 'all')} style={{ height: 30, padding: '0 12px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{copied === 'all' ? '✓ Copied' : 'Copy All'}</button>
+                  <button onClick={generate} style={{ height: 30, padding: '0 12px', background: '#0C1120', color: '#2563EB', border: '1px solid #BFDBFE', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>↻ Regenerate</button>
+                  <button onClick={() => copyText(output, 'all')} style={{ height: 30, padding: '0 12px', background: '#0C1120', color: '#CBD5E1', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{copied === 'all' ? '✓ Copied' : 'Copy All'}</button>
                   <button onClick={saveOutput} disabled={saving || saved} style={{ height: 30, padding: '0 12px', background: saved ? '#ECFDF5' : '#EFF6FF', color: saved ? '#059669' : '#2563EB', border: `1px solid ${saved ? '#6EE7B7' : '#BFDBFE'}`, borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: saving || saved ? 'default' : 'pointer' }}>
                     {saved ? '✓ Saved' : saving ? 'Saving…' : '💾 Save'}
                   </button>
@@ -475,7 +475,7 @@ Generate the full output following your exact format with all sections.`;
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 8, maxWidth: 360 }}>
                 {['🎯 AU-specific angles', '📝 125-char preview', '🔄 Split test ideas', '💡 5 headlines', '🎬 VSL scripts', '🇦🇺 Local language'].map(t => (
-                  <div key={t} style={{ fontSize: 10, color: '#6B7280', background: '#F3F4F6', padding: '5px 8px', borderRadius: 6, textAlign: 'center' as const }}>{t}</div>
+                  <div key={t} style={{ fontSize: 10, color: '#94A3B8', background: 'rgba(255,255,255,0.05)', padding: '5px 8px', borderRadius: 6, textAlign: 'center' as const }}>{t}</div>
                 ))}
               </div>
             </div>
@@ -483,7 +483,7 @@ Generate the full output following your exact format with all sections.`;
         </div>
 
         {/* ── RIGHT: Saved Outputs ─────────────────────────────────────── */}
-        <div style={{ background: 'white', borderLeft: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 14 }}>
+        <div style={{ background: '#0C1120', borderLeft: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 14 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 10 }}>Saved Creatives</div>
           {savedOutputs.length === 0 ? (
             <div>
@@ -497,8 +497,8 @@ Generate the full output following your exact format with all sections.`;
                 { product: 'Posture Corrector Belt', type: 'TikTok Hook Pack', date: 'Example' },
                 { product: 'Portable Blender', type: 'UGC Brief', date: 'Example' },
               ].map((ex, i) => (
-                <div key={i} style={{ padding: '8px 10px', background: '#F9FAFB', border: '1px dashed #E5E7EB', borderRadius: 7, marginBottom: 6, opacity: 0.7 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 2 }}>{ex.product}</div>
+                <div key={i} style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.03)', border: '1px dashed #E5E7EB', borderRadius: 7, marginBottom: 6, opacity: 0.7 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#CBD5E1', marginBottom: 2 }}>{ex.product}</div>
                   <div style={{ fontSize: 10, color: '#6366F1' }}>{ex.type}</div>
                   <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{ex.date}</div>
                 </div>
@@ -509,10 +509,10 @@ Generate the full output following your exact format with all sections.`;
               {savedOutputs.map(s => (
                 <button key={s.id}
                   onClick={() => { setOutput(s.output); setSections(parseOutputSections(s.output)); setProductName(s.product_name); setCreativeType(s.creative_type); setSaved(true); }}
-                  style={{ textAlign: 'left' as const, padding: '8px 10px', background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 7, cursor: 'pointer' }}
+                  style={{ textAlign: 'left' as const, padding: '8px 10px', background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, cursor: 'pointer' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#EFF6FF')}
                   onMouseLeave={e => (e.currentTarget.style.background = '#FAFAFA')}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#0A0A0A', marginBottom: 2 }}>{s.product_name}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#F8FAFC', marginBottom: 2 }}>{s.product_name}</div>
                   <div style={{ fontSize: 10, color: '#2563EB' }}>{CREATIVE_TYPES.find(t => t.id === s.creative_type)?.label || s.creative_type}</div>
                   <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{new Date(s.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
                 </button>

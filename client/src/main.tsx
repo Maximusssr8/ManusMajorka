@@ -123,14 +123,14 @@ class ErrorBoundary extends React.Component<
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: '100vh',
-            background: '#FAFAFA',
+            background: '#05070F',
             color: '#6366F1',
             fontFamily: "'Bricolage Grotesque', sans-serif",
             gap: 16,
           }}
         >
           <h1>Something went wrong</h1>
-          <p style={{ color: '#6B7280', fontSize: 14 }}>
+          <p style={{ color: '#94A3B8', fontSize: 14 }}>
             {this.state.error?.message}
           </p>
           <button

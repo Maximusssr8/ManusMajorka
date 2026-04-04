@@ -132,7 +132,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       <div className="flex items-center justify-between mb-1">
         <span
           className="text-xs"
-          style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           {label}
         </span>
@@ -243,11 +243,11 @@ export default function NicheScorer() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: '#E5E7EB', background: 'white' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -274,9 +274,9 @@ export default function NicheScorer() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: '#F9FAFB',
-              border: '1px solid #E5E7EB',
-              color: '#6B7280',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -288,13 +288,13 @@ export default function NicheScorer() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="space-y-3">
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Niche to Score *
               </label>
@@ -310,16 +310,16 @@ export default function NicheScorer() {
                 placeholder="e.g. Posture correctors, Yoga mats…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
               />
             </div>
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Additional Context
               </label>
@@ -330,9 +330,9 @@ export default function NicheScorer() {
                 rows={3}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
               />
             </div>
@@ -455,7 +455,7 @@ export default function NicheScorer() {
                 </div>
                 <div
                   className="text-sm mt-3 leading-relaxed"
-                  style={{ color: '#374151' }}
+                  style={{ color: '#CBD5E1' }}
                 >
                   {result.summary}
                 </div>
@@ -465,8 +465,8 @@ export default function NicheScorer() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <div
@@ -502,7 +502,7 @@ export default function NicheScorer() {
                       <div
                         key={i}
                         className="text-xs flex items-start gap-1.5"
-                        style={{ color: '#374151' }}
+                        style={{ color: '#CBD5E1' }}
                       >
                         <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
                         {s}
@@ -528,7 +528,7 @@ export default function NicheScorer() {
                       <div
                         key={i}
                         className="text-xs flex items-start gap-1.5"
-                        style={{ color: '#374151' }}
+                        style={{ color: '#CBD5E1' }}
                       >
                         <span style={{ color: '#e05c7a', flexShrink: 0 }}>−</span>
                         {w}
@@ -543,8 +543,8 @@ export default function NicheScorer() {
                 <div
                   className="p-3 rounded-xl text-center"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -563,8 +563,8 @@ export default function NicheScorer() {
                 <div
                   className="p-3 rounded-xl text-center"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -583,8 +583,8 @@ export default function NicheScorer() {
                 <div
                   className="p-3 rounded-xl text-center"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -593,7 +593,7 @@ export default function NicheScorer() {
                   >
                     Ideal Customer
                   </div>
-                  <div className="text-xs" style={{ color: '#6B7280' }}>
+                  <div className="text-xs" style={{ color: '#94A3B8' }}>
                     {result.idealCustomer.slice(0, 40)}…
                   </div>
                 </div>
@@ -603,8 +603,8 @@ export default function NicheScorer() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <div
@@ -621,7 +621,7 @@ export default function NicheScorer() {
                       style={{
                         background: 'rgba(99,102,241,0.08)',
                         border: '1px solid rgba(99,102,241,0.15)',
-                        color: '#374151',
+                        color: '#CBD5E1',
                       }}
                     >
                       {p}
@@ -649,7 +649,7 @@ export default function NicheScorer() {
                     <div
                       key={i}
                       className="flex items-start gap-2 text-xs"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#CBD5E1' }}
                     >
                       <span
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"

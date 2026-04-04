@@ -26,16 +26,16 @@ export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps
       <div style={{
         position: 'fixed' as const, top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        background: 'white', borderRadius: 20, padding: '40px 48px',
+        background: '#0C1120', borderRadius: 20, padding: '40px 48px',
         zIndex: 1001, maxWidth: 600, width: '90vw',
         boxShadow: '0 32px 80px rgba(0,0,0,0.2)',
       }}>
         <div style={{ textAlign: 'center' as const, marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>&#127758;</div>
-          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: '#0A0A0A', margin: '0 0 8px' }}>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: '#F8FAFC', margin: '0 0 8px' }}>
             Welcome to Majorka
           </h2>
-          <p style={{ fontSize: 14, color: '#6B7280', margin: 0 }}>Which market are you selling into?</p>
+          <p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>Which market are you selling into?</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>

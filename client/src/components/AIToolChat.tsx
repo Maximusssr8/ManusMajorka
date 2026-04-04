@@ -360,14 +360,14 @@ export default function AIToolChat({
                         ? {
                             background: 'rgba(99,102,241,0.06)',
                             border: '1px solid rgba(99,102,241,0.2)',
-                            color: '#0A0A0A',
+                            color: '#F8FAFC',
                           }
                         : msg.isError
                           ? {
                               background: 'rgba(255,100,100,0.12)',
                               border: '1px solid rgba(255,100,100,0.2)',
                             }
-                          : { background: 'white', border: '1px solid #E5E7EB' }
+                          : { background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)' }
                     }
                   >
                     <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -394,7 +394,7 @@ export default function AIToolChat({
                   </div>
                   <div
                     className="rounded-lg px-4 py-3"
-                    style={{ background: 'white', border: '1px solid #E5E7EB' }}
+                    style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     <div className="flex items-center gap-2">
                       {/* Pulsing gold dot */}
@@ -424,8 +424,8 @@ export default function AIToolChat({
                   <div
                     className="flex gap-3 mt-2 p-4 rounded-2xl"
                     style={{
-                      background: '#FAFAFA',
-                      border: '1px solid #E5E7EB',
+                      background: '#05070F',
+                      border: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
                     <div className="flex-1">
@@ -539,7 +539,7 @@ export default function AIToolChat({
                 className="resize-none text-sm"
                 rows={1}
                 style={{
-                  background: 'white',
+                  background: '#0C1120',
                   borderColor: '#F0F0F0',
                   overflowY: 'auto',
                   maxHeight: '200px',

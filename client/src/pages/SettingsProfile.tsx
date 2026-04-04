@@ -367,10 +367,10 @@ export default function SettingsProfile() {
               onClick={() => setLocation('/app')}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
-                background: '#F9FAFB',
-                border: '1px solid #E5E7EB',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
                 cursor: 'pointer',
-                color: '#6B7280',
+                color: '#94A3B8',
               }}
             >
               <ArrowLeft size={14} />
@@ -630,7 +630,7 @@ export default function SettingsProfile() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
+                    <div className="text-sm font-medium" style={{ color: '#F8FAFC' }}>
                       Product Tour
                     </div>
                     <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -914,7 +914,7 @@ export default function SettingsProfile() {
                 >
                   Your Data
                 </div>
-                <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
+                <p className="text-sm mb-4" style={{ color: '#94A3B8' }}>
                   Export all your data including profile, activity history, and saved products.
                 </p>
                 <button
@@ -941,7 +941,7 @@ export default function SettingsProfile() {
                 >
                   Danger Zone
                 </div>
-                <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
+                <p className="text-sm mb-4" style={{ color: '#94A3B8' }}>
                   Permanently delete your account and all associated data. This action cannot be
                   undone.
                 </p>

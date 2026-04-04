@@ -1,7 +1,7 @@
 const gold = '#6366F1';
 const syne = "'Bricolage Grotesque', sans-serif";
 const card: React.CSSProperties = {
-  background: '#FAFAFA',
+  background: '#05070F',
   border: '1px solid #F9FAFB',
   borderRadius: 12, padding: 20,
 };
@@ -22,7 +22,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
   return (
     <div>
       <h2 style={{ fontFamily: syne, fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>Your Blueprint</h2>
-      <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15 }}>Review your brand strategy. Select a store name and connect Shopify to go live.</p>
+      <p style={{ color: '#94A3B8', marginBottom: 32, fontSize: 15 }}>Review your brand strategy. Select a store name and connect Shopify to go live.</p>
 
       {/* Store name picker */}
       <div style={{ marginBottom: 24 }}>
@@ -36,7 +36,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
               background: selectedStoreName === n ? 'rgba(99,102,241,0.06)' : '#FAFAFA',
             }}>
               <input type="radio" checked={selectedStoreName === n} onChange={() => onSelectStoreName(n)} style={{ accentColor: gold }} />
-              <span style={{ fontWeight: 600, color: '#374151' }}>{n}</span>
+              <span style={{ fontWeight: 600, color: '#CBD5E1' }}>{n}</span>
             </label>
           ))}
         </div>
@@ -46,9 +46,9 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
       {brief && (
         <div style={{ ...card, marginBottom: 20 }}>
           <span style={labelStyle}>Brand Copy</span>
-          <p style={{ fontFamily: syne, fontSize: 18, fontWeight: 700, color: '#374151', marginBottom: 6 }}>{brief.heroHeadline}</p>
-          <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 10, lineHeight: 1.6 }}>{brief.heroSubheadline}</p>
-          <p style={{ color: '#6B7280', fontSize: 13, fontStyle: 'italic' }}>"{brief.tagline}"</p>
+          <p style={{ fontFamily: syne, fontSize: 18, fontWeight: 700, color: '#CBD5E1', marginBottom: 6 }}>{brief.heroHeadline}</p>
+          <p style={{ color: '#94A3B8', fontSize: 14, marginBottom: 10, lineHeight: 1.6 }}>{brief.heroSubheadline}</p>
+          <p style={{ color: '#94A3B8', fontSize: 13, fontStyle: 'italic' }}>"{brief.tagline}"</p>
         </div>
       )}
 
@@ -72,8 +72,8 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
       {themeRecommendation && (
         <div style={{ ...card, marginBottom: 20 }}>
           <span style={labelStyle}>Recommended Theme</span>
-          <p style={{ fontWeight: 600, color: '#374151', marginBottom: 4 }}>{themeRecommendation.name}</p>
-          <p style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.55 }}>{themeRecommendation.reason}</p>
+          <p style={{ fontWeight: 600, color: '#CBD5E1', marginBottom: 4 }}>{themeRecommendation.name}</p>
+          <p style={{ color: '#94A3B8', fontSize: 13, lineHeight: 1.55 }}>{themeRecommendation.reason}</p>
         </div>
       )}
 
@@ -86,8 +86,8 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
               <div key={app.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', ...card }}>
                 <span style={{ fontSize: 22, flexShrink: 0 }}>{app.icon}</span>
                 <div>
-                  <p style={{ fontWeight: 600, color: '#374151', marginBottom: 2, fontSize: 14 }}>{app.name}</p>
-                  <p style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.5 }}>{app.reason}</p>
+                  <p style={{ fontWeight: 600, color: '#CBD5E1', marginBottom: 2, fontSize: 14 }}>{app.name}</p>
+                  <p style={{ color: '#94A3B8', fontSize: 13, lineHeight: 1.5 }}>{app.reason}</p>
                 </div>
               </div>
             ))}
@@ -96,7 +96,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
       )}
 
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={onBack} style={{ flex: 1, padding: 14, borderRadius: 8, border: '1px solid #F0F0F0', background: 'transparent', color: '#6B7280', cursor: 'pointer', fontFamily: syne, fontWeight: 600 }}>
+        <button onClick={onBack} style={{ flex: 1, padding: 14, borderRadius: 8, border: '1px solid #F0F0F0', background: 'transparent', color: '#94A3B8', cursor: 'pointer', fontFamily: syne, fontWeight: 600 }}>
           ← Back
         </button>
         <button onClick={onNext} style={{ flex: 2, padding: 14, borderRadius: 8, border: 'none', background: gold, color: '#FAFAFA', cursor: 'pointer', fontFamily: syne, fontWeight: 700, fontSize: 15 }}>

@@ -209,14 +209,14 @@ Return ONLY the updated JSON. Same structure, better content.`,
 
   // ── Input field style helper ─────────────────────────────────────────────────
   const inputStyle = {
-    background: '#F9FAFB',
+    background: 'rgba(255,255,255,0.03)',
     border: '1.5px solid #F5F5F5',
-    color: '#0A0A0A',
+    color: '#F8FAFC',
     fontFamily: 'DM Sans, sans-serif',
   };
 
   const labelStyle = {
-    color: '#6B7280',
+    color: '#94A3B8',
     fontFamily: "'Bricolage Grotesque', sans-serif",
     fontSize: 11,
     fontWeight: 700 as const,
@@ -225,19 +225,19 @@ Return ONLY the updated JSON. Same structure, better content.`,
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#FAFAFA' }}>
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#05070F' }}>
       <ActiveProductBanner />
 
       <div className="flex-1 flex overflow-hidden">
         {/* ── LEFT PANEL: Inputs ── */}
         <div
           className="w-80 flex-shrink-0 border-r overflow-y-auto p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)', scrollbarWidth: 'thin' }}
         >
           <div>
             <h1
               className="text-lg font-extrabold flex items-center gap-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
             >
               <Smartphone size={18} style={{ color: '#6366F1' }} />
               TikTok Slides
@@ -367,7 +367,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
           {result && (
             <div
               className="space-y-2 pt-2"
-              style={{ borderTop: '1px solid #E5E7EB' }}
+              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
             >
               <button
                 onClick={handleCopyAll}
@@ -437,7 +437,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 <div className="space-y-1.5">
                   <span
                     className="text-xs font-bold"
-                    style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     STOCK BACKGROUNDS
                   </span>
@@ -449,7 +449,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block rounded-lg overflow-hidden"
-                        style={{ border: '1px solid #E5E7EB' }}
+                        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
                       >
                         <img
                           src={photo.src.tiny}
@@ -484,7 +484,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
               {/* Slide preview */}
               <div
                 className="flex-1 flex items-center justify-center p-6"
-                style={{ background: '#FAFAFA' }}
+                style={{ background: '#05070F' }}
               >
                 <div className="relative flex flex-col items-center">
                   {/* Toggle 9:16 preview */}
@@ -492,9 +492,9 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     onClick={() => setPreviewMode(!previewMode)}
                     className="mb-3 text-xs px-3 py-1 rounded-full transition-all"
                     style={{
-                      background: '#F9FAFB',
+                      background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       cursor: 'pointer',
                     }}
                   >
@@ -564,8 +564,8 @@ Return ONLY the updated JSON. Same structure, better content.`,
                       disabled={currentSlide === 0}
                       className="p-2 rounded-full transition-all disabled:opacity-20"
                       style={{
-                        background: '#F9FAFB',
-                        color: '#0A0A0A',
+                        background: 'rgba(255,255,255,0.03)',
+                        color: '#F8FAFC',
                         cursor: 'pointer',
                         border: 'none',
                       }}
@@ -598,8 +598,8 @@ Return ONLY the updated JSON. Same structure, better content.`,
                       disabled={currentSlide === result.slides.length - 1}
                       className="p-2 rounded-full transition-all disabled:opacity-20"
                       style={{
-                        background: '#F9FAFB',
-                        color: '#0A0A0A',
+                        background: 'rgba(255,255,255,0.03)',
+                        color: '#F8FAFC',
                         cursor: 'pointer',
                         border: 'none',
                       }}
@@ -623,14 +623,14 @@ Return ONLY the updated JSON. Same structure, better content.`,
               {/* Bottom panel: Captions + extras */}
               <div
                 className="flex-shrink-0 border-t p-4 overflow-y-auto"
-                style={{ borderColor: '#E5E7EB', maxHeight: 220 }}
+                style={{ borderColor: 'rgba(255,255,255,0.08)', maxHeight: 220 }}
               >
                 <div className="grid grid-cols-2 gap-4">
                   {/* Captions */}
                   <div>
                     <h3
                       className="text-xs font-bold mb-2"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                     >
                       CAPTIONS
                     </h3>
@@ -640,13 +640,13 @@ Return ONLY the updated JSON. Same structure, better content.`,
                           key={i}
                           className="flex items-start gap-2 p-2 rounded-lg"
                           style={{
-                            background: '#FAFAFA',
+                            background: '#05070F',
                             border: '1px solid #F9FAFB',
                           }}
                         >
                           <span
                             className="flex-1 text-xs"
-                            style={{ color: '#374151', lineHeight: 1.5 }}
+                            style={{ color: '#CBD5E1', lineHeight: 1.5 }}
                           >
                             {cap}
                           </span>
@@ -654,7 +654,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                             onClick={() => handleCopyCaption(cap)}
                             className="flex-shrink-0 p-1 rounded transition-all"
                             style={{
-                              background: '#F9FAFB',
+                              background: 'rgba(255,255,255,0.03)',
                               color: '#9CA3AF',
                               cursor: 'pointer',
                               border: 'none',
@@ -672,29 +672,29 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     <div>
                       <h3
                         className="text-xs font-bold mb-1"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                       >
                         AUDIO STYLE
                       </h3>
-                      <p className="text-xs" style={{ color: '#6B7280' }}>
+                      <p className="text-xs" style={{ color: '#94A3B8' }}>
                         {result.audioStyle}
                       </p>
                     </div>
                     <div>
                       <h3
                         className="text-xs font-bold mb-1"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                       >
                         POSTING TIMES (AEST)
                       </h3>
-                      <p className="text-xs" style={{ color: '#6B7280' }}>
+                      <p className="text-xs" style={{ color: '#94A3B8' }}>
                         {result.postingTimes}
                       </p>
                     </div>
                     <div>
                       <h3
                         className="text-xs font-bold mb-1"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                       >
                         COLOR SCHEMES
                       </h3>
@@ -729,7 +729,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 </div>
                 <h2
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   No slideshow yet
                 </h2>

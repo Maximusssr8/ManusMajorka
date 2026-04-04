@@ -35,8 +35,8 @@ export default function UsageMeter({ feature, limit, label, compact }: UsageMete
   if (compact) {
     return (
       <>
-        <div style={{ fontSize: 11, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ flex: 1, height: 4, background: '#F3F4F6', borderRadius: 2, overflow: 'hidden' }}>
+        <div style={{ fontSize: 11, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 2, transition: 'width 300ms' }} />
           </div>
           <span style={{ fontWeight: 600, fontSize: 10, color, whiteSpace: 'nowrap' as const }}>{count}/{limit}</span>
@@ -51,7 +51,7 @@ export default function UsageMeter({ feature, limit, label, compact }: UsageMete
       <div style={{ background: atLimit ? '#FEF2F2' : '#F9FAFB', border: `1px solid ${atLimit ? '#FECACA' : '#E5E7EB'}`, borderRadius: 10, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{count} / {limit} {label} this month</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#CBD5E1' }}>{count} / {limit} {label} this month</span>
             {atLimit && (
               <button onClick={() => setShowUpgrade(true)} style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
                 Upgrade →

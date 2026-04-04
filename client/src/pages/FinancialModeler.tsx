@@ -149,7 +149,7 @@ export default function FinancialModeler() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <ActiveProductBanner
         ctaLabel="Load into tool"
@@ -166,7 +166,7 @@ export default function FinancialModeler() {
         {/* LEFT PANEL — Inputs */}
         <div
           className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4"
-          style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)', scrollbarWidth: 'thin' }}
         >
           <div className="flex items-center gap-2.5 mb-1">
             <div
@@ -257,9 +257,9 @@ export default function FinancialModeler() {
                 placeholder={placeholder}
                 className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1.5px solid #F5F5F5',
-                  color: '#374151',
+                  color: '#CBD5E1',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.68)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -311,9 +311,9 @@ export default function FinancialModeler() {
                   onClick={copyTable}
                   className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1px solid #F0F0F0',
-                    color: '#374151',
+                    color: '#CBD5E1',
                     cursor: 'pointer',
                   }}
                 >
@@ -372,13 +372,13 @@ export default function FinancialModeler() {
               <div
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <div
                   className="px-4 py-3 border-b"
-                  style={{ borderColor: '#E5E7EB' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.08)' }}
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"
@@ -405,7 +405,7 @@ export default function FinancialModeler() {
                         className={`text-xs flex-1 ${isTotal ? 'font-bold' : ''}`}
                         style={{
                           fontFamily: isTotal ? "'Bricolage Grotesque', sans-serif" : undefined,
-                          color: '#374151',
+                          color: '#CBD5E1',
                         }}
                       >
                         {row.label}
@@ -438,13 +438,13 @@ export default function FinancialModeler() {
               <div
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <div
                   className="px-4 py-3 border-b"
-                  style={{ borderColor: '#E5E7EB' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.08)' }}
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"
@@ -459,7 +459,7 @@ export default function FinancialModeler() {
                       <div className="flex items-center justify-between mb-1">
                         <span
                           className="text-xs font-semibold"
-                          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                         >
                           {f.month}
                         </span>
@@ -475,7 +475,7 @@ export default function FinancialModeler() {
                       </div>
                       <div
                         className="w-full h-2 rounded-full overflow-hidden"
-                        style={{ background: '#F9FAFB' }}
+                        style={{ background: 'rgba(255,255,255,0.03)' }}
                       >
                         <div
                           className="h-full rounded-full"

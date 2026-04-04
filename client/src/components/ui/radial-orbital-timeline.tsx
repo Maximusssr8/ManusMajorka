@@ -148,7 +148,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
               className="absolute w-24 h-24 rounded-full border border-yellow-400/10 animate-ping opacity-50"
               style={{ animationDelay: '0.5s' }}
             />
-            <div className="w-8 h-8 rounded-full" style={{ background: '#FAFAFA' }} />
+            <div className="w-8 h-8 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
           </div>
 
           {/* Orbit ring */}

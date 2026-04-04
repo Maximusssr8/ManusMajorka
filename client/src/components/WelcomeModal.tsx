@@ -191,7 +191,7 @@ export default function WelcomeModal({ userName }: Props) {
                         {selected && (
                           <div
                             className="w-1.5 h-1.5 rounded-full"
-                            style={{ background: '#FAFAFA' }}
+                            style={{ background: '#0C1120' }}
                           />
                         )}
                       </div>

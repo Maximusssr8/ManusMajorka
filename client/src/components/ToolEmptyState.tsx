@@ -44,11 +44,11 @@ export default function ToolEmptyState({
       {/* Text */}
       <h3
         className="text-lg font-bold mb-2"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
       >
         Ready when you are
       </h3>
-      <p className="text-sm mb-6 max-w-sm" style={{ color: '#6B7280', lineHeight: 1.6 }}>
+      <p className="text-sm mb-6 max-w-sm" style={{ color: '#94A3B8', lineHeight: 1.6 }}>
         {toolDescription}
       </p>
 
@@ -60,7 +60,7 @@ export default function ToolEmptyState({
           background: 'rgba(99,102,241,0.06)',
           border: '1px solid rgba(99,102,241,0.15)',
           cursor: 'pointer',
-          color: '#0A0A0A',
+          color: '#F8FAFC',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)';

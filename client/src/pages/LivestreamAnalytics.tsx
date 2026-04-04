@@ -15,17 +15,17 @@ export default function LivestreamAnalytics() {
   const [activeNiche, setActiveNiche] = useState('All');
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh', padding: '24px' }}>
+    <div style={{ background: '#05070F', minHeight: '100vh', padding: '24px' }}>
       {/* Header */}
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', margin: 0 }}>
+            <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#F8FAFC', margin: 0 }}>
               Livestream Analytics
             </h1>
             <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '3px 8px', borderRadius: 20 }}>DEMO</span>
           </div>
-          <p style={{ fontSize: 13, color: '#6B7280', margin: 0 }}>
+          <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>
             Track trending niches, top products, and GMV across TikTok Live sessions globally
           </p>
         </div>
@@ -38,8 +38,8 @@ export default function LivestreamAnalytics() {
             { label: 'Avg Viewers/Stream', value: '3,200', icon: 'eye', color: '#FEF3C7' },
             { label: 'Top Niche GMV Today', value: '$9,700', icon: 'dollar', color: '#FEE2E2' },
           ].map(s => (
-            <div key={s.label} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
-              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A' }}>{s.value}</div>
+            <div key={s.label} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
+              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#F8FAFC' }}>{s.value}</div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>{s.label}</div>
             </div>
           ))}
@@ -53,9 +53,9 @@ export default function LivestreamAnalytics() {
         {/* Niche grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {LIVE_NICHES.map(n => (
-            <div key={n.niche} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20 }}>
+            <div key={n.niche} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>{n.niche}</span>
+                <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#F8FAFC' }}>{n.niche}</span>
                 <span style={{ fontSize: 9, fontWeight: 700, color: '#DC2626', background: '#FEF2F2', padding: '2px 8px', borderRadius: 10 }}>DEMO</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -65,9 +65,9 @@ export default function LivestreamAnalytics() {
                   { label: 'Top Product', value: n.top_product },
                   { label: 'Avg GMV', value: n.avg_gmv },
                 ].map(s => (
-                  <div key={s.label} style={{ background: '#FAFAFA', borderRadius: 8, padding: '8px 10px' }}>
+                  <div key={s.label} style={{ background: '#05070F', borderRadius: 8, padding: '8px 10px' }}>
                     <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{s.label}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A' }}>{s.value}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#F8FAFC' }}>{s.value}</div>
                   </div>
                 ))}
               </div>

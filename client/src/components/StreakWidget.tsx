@@ -142,7 +142,7 @@ export default function StreakWidget() {
         >
           <div
             style={{
-              background: 'white',
+              background: '#0C1120',
               border: `1px solid ${C.goldBorder}`,
               borderRadius: 20,
               padding: '40px 48px',
@@ -244,7 +244,7 @@ export default function StreakWidget() {
         {/* Progress bar */}
         <div
           style={{
-            background: '#F9FAFB',
+            background: 'rgba(255,255,255,0.03)',
             borderRadius: 6,
             height: 6,
             marginBottom: 8,

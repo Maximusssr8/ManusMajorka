@@ -84,7 +84,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}
+      style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
@@ -104,7 +104,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
           >
             {competitor.name}
           </div>
@@ -148,7 +148,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
                   <div
                     key={i}
                     className="text-xs flex items-start gap-1.5"
-                    style={{ color: '#374151' }}
+                    style={{ color: '#CBD5E1' }}
                   >
                     <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
                     {s}
@@ -174,7 +174,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
                   <div
                     key={i}
                     className="text-xs flex items-start gap-1.5"
-                    style={{ color: '#374151' }}
+                    style={{ color: '#CBD5E1' }}
                   >
                     <span style={{ color: '#e05c7a', flexShrink: 0 }}>−</span>
                     {w}
@@ -184,18 +184,18 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Target Audience
               </div>
-              <div className="text-xs" style={{ color: '#374151' }}>
+              <div className="text-xs" style={{ color: '#CBD5E1' }}>
                 {competitor.targetAudience}
               </div>
             </div>
-            <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
@@ -228,7 +228,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             >
               Key Differentiator
             </div>
-            <div className="text-xs" style={{ color: '#374151' }}>
+            <div className="text-xs" style={{ color: '#CBD5E1' }}>
               {competitor.keyDifferentiator}
             </div>
           </div>
@@ -309,11 +309,11 @@ export default function CompetitorBreakdown() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: '#E5E7EB', background: 'white' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -340,9 +340,9 @@ export default function CompetitorBreakdown() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: '#F9FAFB',
-              border: '1px solid #E5E7EB',
-              color: '#6B7280',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -359,13 +359,13 @@ export default function CompetitorBreakdown() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="space-y-3">
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Product / Niche *
               </label>
@@ -381,16 +381,16 @@ export default function CompetitorBreakdown() {
                 placeholder="e.g. Posture corrector, Yoga mats…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                 }}
               />
             </div>
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Competitor URLs (optional)
               </label>
@@ -401,9 +401,9 @@ export default function CompetitorBreakdown() {
                 rows={4}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                 }}
               />
               <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -489,7 +489,7 @@ export default function CompetitorBreakdown() {
                   </div>
                   <CopyBtn text={result.marketSummary} />
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {result.marketSummary}
                 </div>
               </div>
@@ -529,7 +529,7 @@ export default function CompetitorBreakdown() {
                     <div
                       key={i}
                       className="flex items-start gap-2 text-xs"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#CBD5E1' }}
                     >
                       <span
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"
@@ -551,8 +551,8 @@ export default function CompetitorBreakdown() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -563,7 +563,7 @@ export default function CompetitorBreakdown() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: '#374151' }}
+                    style={{ color: '#CBD5E1' }}
                   >
                     {result.entryStrategy}
                   </div>
@@ -571,8 +571,8 @@ export default function CompetitorBreakdown() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -583,7 +583,7 @@ export default function CompetitorBreakdown() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: '#374151' }}
+                    style={{ color: '#CBD5E1' }}
                   >
                     {result.pricingIntel}
                   </div>

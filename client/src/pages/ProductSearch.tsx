@@ -189,7 +189,7 @@ export default function ProductSearch() {
                     onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
                   >
                     {/* Product image */}
-                    <div style={{ position: 'relative', height: 220, background: '#F3F4F6' }}>
+                    <div style={{ position: 'relative', height: 220, background: 'rgba(255,255,255,0.05)' }}>
                       {product.image ? (
                         <img
                           src={product.image}
@@ -242,7 +242,7 @@ export default function ProductSearch() {
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            flex: 1, background: '#F9FAFB', color: '#374151', border: `1px solid ${C.border}`,
+                            flex: 1, background: 'rgba(255,255,255,0.03)', color: '#CBD5E1', border: `1px solid ${C.border}`,
                             padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600,
                             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                             textDecoration: 'none',

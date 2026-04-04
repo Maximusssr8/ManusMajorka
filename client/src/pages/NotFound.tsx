@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center"
-      style={{ background: '#FAFAFA' }}
+      style={{ background: '#05070F' }}
     >
       <div className="text-center px-6 max-w-md animate-fade-in">
         {/* Logo */}
@@ -29,7 +29,7 @@ export default function NotFound() {
         {/* 404 */}
         <h1
           className="text-6xl font-extrabold mb-3"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-2px' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', letterSpacing: '-2px' }}
         >
           404
         </h1>
@@ -37,7 +37,7 @@ export default function NotFound() {
         {/* Witty AU message */}
         <p
           className="text-base font-semibold mb-2"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
         >
           Yeah nah, this page doesn't exist.
         </p>
@@ -51,9 +51,9 @@ export default function NotFound() {
             onClick={() => window.history.back()}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               border: '1px solid #F0F0F0',
-              color: '#374151',
+              color: '#CBD5E1',
               fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
             aria-label="Go back to previous page"

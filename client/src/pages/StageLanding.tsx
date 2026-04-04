@@ -14,7 +14,7 @@ export default function StageLanding({ stage }: Props) {
     <div
       className="h-full overflow-auto"
       style={{
-        background: '#FAFAFA',
+        background: '#05070F',
         scrollbarWidth: 'thin',
         scrollbarColor: '#F0F0F0 transparent',
       }}
@@ -35,13 +35,13 @@ export default function StageLanding({ stage }: Props) {
             className="text-2xl font-extrabold mb-2"
             style={{
               fontFamily: "'Bricolage Grotesque', sans-serif",
-              color: '#374151',
+              color: '#CBD5E1',
               letterSpacing: '-0.02em',
             }}
           >
             {stage.stage}
           </h1>
-          <p className="text-sm" style={{ color: '#6B7280' }}>
+          <p className="text-sm" style={{ color: '#94A3B8' }}>
             {stage.tools.length} tools available in this stage. Pick one to get started.
           </p>
         </div>
@@ -54,8 +54,8 @@ export default function StageLanding({ stage }: Props) {
               onClick={() => setLocation(tool.path)}
               className="text-left rounded-xl p-4 transition-all duration-150 group"
               style={{
-                background: '#FAFAFA',
-                border: '1px solid #E5E7EB',
+                background: '#05070F',
+                border: '1px solid rgba(255,255,255,0.08)',
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
@@ -85,14 +85,14 @@ export default function StageLanding({ stage }: Props) {
                     className="text-sm font-bold mb-1"
                     style={{
                       fontFamily: "'Bricolage Grotesque', sans-serif",
-                      color: '#374151',
+                      color: '#CBD5E1',
                     }}
                   >
                     {tool.label}
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: '#6B7280' }}
+                    style={{ color: '#94A3B8' }}
                   >
                     {tool.description}
                   </div>

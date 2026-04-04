@@ -42,8 +42,8 @@ export default function CommandPalette() {
       <div
         className="w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
-          background: '#FFFFFF',
-          border: '1px solid #E5E7EB',
+          background: '#0C1120',
+          border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 14,
           boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
         }}
@@ -52,7 +52,7 @@ export default function CommandPalette() {
         <Command label="Command palette" loop>
           <div
             className="flex items-center gap-3 px-4 py-3"
-            style={{ borderBottom: '1px solid #E5E7EB' }}
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
           >
             <Search size={16} style={{ color: '#9CA3AF', flexShrink: 0 }} />
             <Command.Input
@@ -87,7 +87,7 @@ export default function CommandPalette() {
                   value={a.label}
                   onSelect={() => navigate(a.path)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-sm"
-                  style={{ color: '#111827' }}
+                  style={{ color: '#F8FAFC' }}
                   data-cmdk-item=""
                 >
                   <div
@@ -113,14 +113,14 @@ export default function CommandPalette() {
                   value={`${tool.label} ${tool.description}`}
                   onSelect={() => navigate(tool.path)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-sm"
-                  style={{ color: '#111827' }}
+                  style={{ color: '#F8FAFC' }}
                   data-cmdk-item=""
                 >
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: '#F9FAFB' }}
+                    style={{ background: 'rgba(255,255,255,0.03)' }}
                   >
-                    {createElement(tool.icon, { size: 12, style: { color: '#6B7280' } })}
+                    {createElement(tool.icon, { size: 12, style: { color: '#94A3B8' } })}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div

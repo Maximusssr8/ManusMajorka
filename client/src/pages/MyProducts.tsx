@@ -200,7 +200,7 @@ export default function MyProducts() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
+        style={{ background: '#05070F', color: '#F8FAFC' }}
       >
         <Loader2 className="animate-spin" size={24} style={{ color: '#9CA3AF' }} />
       </div>
@@ -211,7 +211,7 @@ export default function MyProducts() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
+        style={{ background: '#05070F', color: '#F8FAFC' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
@@ -227,8 +227,8 @@ export default function MyProducts() {
     <div
       className="h-full overflow-y-auto p-6"
       style={{
-        background: '#FAFAFA',
-        color: '#0A0A0A',
+        background: '#05070F',
+        color: '#F8FAFC',
         fontFamily: 'DM Sans, sans-serif',
         scrollbarWidth: 'thin',
       }}
@@ -288,9 +288,9 @@ export default function MyProducts() {
               }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all"
               style={{
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 border: '1px solid #F5F5F5',
-                color: '#6B7280',
+                color: '#94A3B8',
                 cursor: 'pointer',
               }}
             >
@@ -300,7 +300,7 @@ export default function MyProducts() {
             <div
               className="rounded-xl p-5 mb-2"
               style={{
-                background: '#FAFAFA',
+                background: '#05070F',
                 border: '1px solid #F5F5F5',
               }}
             >
@@ -331,9 +331,9 @@ export default function MyProducts() {
                   placeholder="https://aliexpress.com/item/... or any product URL"
                   className="flex-1 text-xs px-3 py-2.5 rounded-lg outline-none"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1.5px solid #F5F5F5',
-                    color: '#374151',
+                    color: '#CBD5E1',
                   }}
                   onKeyDown={(e) => e.key === 'Enter' && handleImport()}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
@@ -400,7 +400,7 @@ export default function MyProducts() {
                   <div className="mb-2">
                     <div
                       className="text-sm font-extrabold mb-1"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                     >
                       {importedProduct.productTitle || 'Product'}
                     </div>
@@ -413,7 +413,7 @@ export default function MyProducts() {
                   {importedProduct.description && (
                     <div
                       className="text-xs mb-3 line-clamp-3"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#CBD5E1' }}
                     >
                       {importedProduct.description}
                     </div>
@@ -421,7 +421,7 @@ export default function MyProducts() {
                   {importedProduct.bulletPoints.length > 0 && (
                     <ul
                       className="text-xs mb-3 space-y-1"
-                      style={{ color: '#6B7280' }}
+                      style={{ color: '#94A3B8' }}
                     >
                       {importedProduct.bulletPoints.slice(0, 4).map((bp, i) => (
                         <li key={i} className="flex items-start gap-1.5">
@@ -475,7 +475,7 @@ export default function MyProducts() {
           <div
             className="rounded-xl p-5 mb-6"
             style={{
-              background: '#FAFAFA',
+              background: '#05070F',
               border: '1px solid #F5F5F5',
             }}
           >
@@ -524,9 +524,9 @@ export default function MyProducts() {
                     placeholder={placeholder}
                     className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
                     style={{
-                      background: '#F9FAFB',
+                      background: 'rgba(255,255,255,0.03)',
                       border: '1.5px solid #F5F5F5',
-                      color: '#374151',
+                      color: '#CBD5E1',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                     onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -607,8 +607,8 @@ export default function MyProducts() {
                   key={p.id}
                   className="rounded-xl p-4 transition-all hover:border-white/10 cursor-pointer"
                   style={{
-                    background: '#FAFAFA',
-                    border: '1px solid #E5E7EB',
+                    background: '#05070F',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                   onClick={() => navigate(`/app/product-hub/${p.id}`)}
                 >
@@ -657,7 +657,7 @@ export default function MyProducts() {
                   {p.description && (
                     <div
                       className="text-xs mb-3 line-clamp-2"
-                      style={{ color: '#6B7280' }}
+                      style={{ color: '#94A3B8' }}
                     >
                       {p.description}
                     </div>

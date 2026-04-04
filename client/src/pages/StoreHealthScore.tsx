@@ -81,7 +81,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       </div>
       <div
         style={{
-          background: '#F9FAFB',
+          background: 'rgba(255,255,255,0.03)',
           borderRadius: 6,
           height: 8,
           overflow: 'hidden',
@@ -155,7 +155,7 @@ function LoadingAnimation({ storeUrl }: { storeUrl: string }) {
               </div>
               <div
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   borderRadius: 6,
                   height: 6,
                   overflow: 'hidden',
@@ -501,7 +501,7 @@ function ResultsScreen({ result, storeUrl }: { result: HealthScoreResult; storeU
         <button
           onClick={() => window.location.reload()}
           style={{
-            background: '#F9FAFB',
+            background: 'rgba(255,255,255,0.03)',
             border: `1px solid ${C.border}`,
             color: C.secondary,
             borderRadius: 10,

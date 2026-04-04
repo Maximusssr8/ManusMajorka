@@ -58,7 +58,7 @@ export default function ProductHub() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ background: '#FAFAFA' }}>
+      <div className="flex items-center justify-center h-full" style={{ background: '#05070F' }}>
         <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
       </div>
     );
@@ -68,7 +68,7 @@ export default function ProductHub() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
+        style={{ background: '#05070F', color: '#F8FAFC' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
@@ -82,7 +82,7 @@ export default function ProductHub() {
 
   if (loadingProduct || loadingOutputs) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ background: '#FAFAFA' }}>
+      <div className="flex items-center justify-center h-full" style={{ background: '#05070F' }}>
         <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
       </div>
     );
@@ -92,7 +92,7 @@ export default function ProductHub() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
+        style={{ background: '#05070F', color: '#F8FAFC' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">📦</div>
@@ -125,8 +125,8 @@ export default function ProductHub() {
     <div
       className="h-full overflow-y-auto p-6"
       style={{
-        background: '#FAFAFA',
-        color: '#0A0A0A',
+        background: '#05070F',
+        color: '#F8FAFC',
         fontFamily: 'DM Sans, sans-serif',
         scrollbarWidth: 'thin',
       }}
@@ -137,7 +137,7 @@ export default function ProductHub() {
           <button
             onClick={() => navigate('/app/my-products')}
             className="p-2 rounded-lg hover:bg-[#0C1120]/5 transition-all"
-            style={{ cursor: 'pointer', color: '#6B7280' }}
+            style={{ cursor: 'pointer', color: '#94A3B8' }}
           >
             <ArrowLeft size={16} />
           </button>
@@ -166,8 +166,8 @@ export default function ProductHub() {
                 key={stage}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <button
@@ -216,7 +216,7 @@ export default function ProductHub() {
                               key={output.id}
                               className="rounded-lg"
                               style={{
-                                background: '#FAFAFA',
+                                background: '#05070F',
                                 border: '1px solid #F9FAFB',
                               }}
                             >
@@ -265,7 +265,7 @@ export default function ProductHub() {
                                     className="text-xs p-3 rounded-lg overflow-x-auto"
                                     style={{
                                       background: 'rgba(0,0,0,0.3)',
-                                      color: '#374151',
+                                      color: '#CBD5E1',
                                       maxHeight: 300,
                                       scrollbarWidth: 'thin',
                                     }}

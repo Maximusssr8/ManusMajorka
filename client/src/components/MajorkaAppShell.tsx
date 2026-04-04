@@ -208,9 +208,9 @@ function NotificationBell() {
           width: 32,
           height: 32,
           borderRadius: 8,
-          background: open ? 'rgba(99,102,241,0.1)' : '#F9FAFB',
+          background: open ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.04)',
           border: open ? '1px solid rgba(99,102,241,0.3)' : '1px solid #F9FAFB',
-          color: '#6B7280',
+          color: '#94A3B8',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -378,7 +378,7 @@ function PWAInstallBanner() {
       <p style={{ flex: 1, fontSize: 13, color: '#CBD5E1', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
         <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>Install</button>
-        <button onClick={handleDismiss} style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
+        <button onClick={handleDismiss} style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
       </div>
     </div>
   );
@@ -698,7 +698,7 @@ export default function MajorkaAppShell({ children }: Props) {
             borderRadius: 8,
             background: 'var(--search-bg, rgba(255,255,255,0.05))',
             border: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
-            color: '#6B7280',
+            color: '#94A3B8',
             cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif',
           }}
@@ -916,7 +916,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     }}
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
                     style={{
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       cursor: 'pointer',
                       background: 'transparent',
                       border: 'none',
@@ -935,7 +935,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     }}
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
                     style={{
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       cursor: 'pointer',
                       background: 'transparent',
                       border: 'none',
@@ -954,7 +954,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     }}
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
                     style={{
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       cursor: 'pointer',
                       background: 'transparent',
                       border: 'none',
@@ -1129,8 +1129,8 @@ export default function MajorkaAppShell({ children }: Props) {
             onClick={() => setMobileOpen(false)}
             className="absolute top-3 right-3 z-50 w-7 h-7 rounded-md flex items-center justify-center lg:hidden"
             style={{
-              background: '#F5F5F5',
-              color: '#0A0A0A',
+              background: 'rgba(255,255,255,0.04)',
+              color: '#F8FAFC',
               border: 'none',
               cursor: 'pointer',
             }}
@@ -1208,7 +1208,7 @@ export default function MajorkaAppShell({ children }: Props) {
               aria-label="Toggle dark mode"
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               style={{ width: 36, height: 36, borderRadius: '50%', border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : '#F0F0F0'}`, background: theme === 'dark' ? '#0E1420' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme === 'dark' ? '#94A3B8' : '#6B7280', transition: 'background 150ms', marginRight: 4 }}
-              onMouseEnter={e => (e.currentTarget.style.background = theme === 'dark' ? '#1E293B' : '#F5F5F5')}
+              onMouseEnter={e => (e.currentTarget.style.background = '#1E293B')}
               onMouseLeave={e => (e.currentTarget.style.background = theme === 'dark' ? '#0E1420' : 'white')}
             >
               {theme === 'light' ? createElement(Moon, { size: 16 }) : createElement(Sun, { size: 16 })}

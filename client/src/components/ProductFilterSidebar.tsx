@@ -91,7 +91,7 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
           {(['all', 'growing', 'rapid', 'declining'] as const).map(g => (
             <label key={g} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', cursor: 'pointer' }}>
               <input type="radio" checked={filters.growthFilter === g} onChange={() => update({ growthFilter: g })} style={{ accentColor: '#6366F1', cursor: 'pointer' }} />
-              <span style={{ fontSize: 12, color: '#374151' }}>
+              <span style={{ fontSize: 12, color: '#CBD5E1' }}>
                 {g === 'all' ? 'All rates' : g === 'growing' ? 'Growing (>0%)' : g === 'rapid' ? 'Rapid (>20%)' : 'Declining (<0%)'}
               </span>
             </label>
@@ -118,12 +118,12 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 3 }}>Min</div>
               <input type="number" value={filters.revenueMin} onChange={e => update({ revenueMin: +e.target.value })}
-                style={{ width: '100%', height: 30, padding: '0 8px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, outline: 'none' }} placeholder="$0" />
+                style={{ width: '100%', height: 30, padding: '0 8px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, fontSize: 12, outline: 'none' }} placeholder="$0" />
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 3 }}>Max</div>
               <input type="number" value={filters.revenueMax} onChange={e => update({ revenueMax: +e.target.value })}
-                style={{ width: '100%', height: 30, padding: '0 8px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, outline: 'none' }} placeholder="$200k" />
+                style={{ width: '100%', height: 30, padding: '0 8px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, fontSize: 12, outline: 'none' }} placeholder="$200k" />
             </div>
           </div>
         </div>

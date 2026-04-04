@@ -207,7 +207,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
       <div
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: 'white',
+          background: '#0C1120',
           border: '1px solid #F0F0F0',
           boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
         }}
@@ -228,7 +228,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
         </button>
 
         {/* Progress bar */}
-        <div className="h-1 w-full" style={{ background: '#F9FAFB' }}>
+        <div className="h-1 w-full" style={{ background: 'rgba(255,255,255,0.03)' }}>
           <div
             className="h-full transition-all duration-500"
             style={{
@@ -245,11 +245,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">👋</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   Welcome{userName ? `, ${userName}` : ''}!
                 </h2>
-                <p className="text-xs" style={{ color: '#6B7280' }}>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>
                   Let's personalise your experience. What's your e-commerce level?
                 </p>
               </div>
@@ -321,11 +321,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">🎯</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   What's your priority?
                 </h2>
-                <p className="text-xs" style={{ color: '#6B7280' }}>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>
                   We'll take you straight to the right tool.
                 </p>
               </div>
@@ -375,9 +375,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={() => setStep(1)}
                   className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1px solid #F0F0F0',
-                    color: '#6B7280',
+                    color: '#94A3B8',
                     cursor: 'pointer',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
@@ -415,11 +415,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">💰</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   Starting budget?
                 </h2>
-                <p className="text-xs" style={{ color: '#6B7280' }}>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>
                   This helps us tailor realistic strategies and expectations.
                 </p>
               </div>
@@ -463,9 +463,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={() => setStep(2)}
                   className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1px solid #F0F0F0',
-                    color: '#6B7280',
+                    color: '#94A3B8',
                     cursor: 'pointer',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
@@ -499,11 +499,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">📦</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   Import your first product to get started
                 </h2>
-                <p className="text-xs" style={{ color: '#6B7280' }}>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>
                   Paste any AliExpress, Amazon, or store URL and Majorka will analyse it instantly.
                 </p>
               </div>
@@ -521,9 +521,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     placeholder="https://aliexpress.com/item/... or any product URL"
                     className="flex-1 text-xs px-3 py-2.5 rounded-xl outline-none"
                     style={{
-                      background: '#F9FAFB',
+                      background: 'rgba(255,255,255,0.03)',
                       border: `1.5px solid ${importError ? 'rgba(224,92,122,0.5)' : '#F5F5F5'}`,
-                      color: '#0A0A0A',
+                      color: '#F8FAFC',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                     onBlur={(e) =>
@@ -588,9 +588,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={() => setStep(3)}
                   className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1px solid #F0F0F0',
-                    color: '#6B7280',
+                    color: '#94A3B8',
                     cursor: 'pointer',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}

@@ -106,10 +106,10 @@ export default function SocialProofTicker() {
         <div
           key={index}
           style={{
-            background: '#FFFFFF',
+            background: '#0C1120',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid #E5E7EB',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderLeft: '3px solid #6366F1',
             borderRadius: 10,
             padding: '12px 14px',
@@ -136,11 +136,11 @@ export default function SocialProofTicker() {
 
           {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, lineHeight: 1.45, color: '#0A0A0A' }}>
-              <strong style={{ color: '#0A0A0A' }}>{notif.name}</strong>{' '}
-              <span style={{ color: '#6B7280', fontSize: 11 }}>from {notif.city}</span>
+            <div style={{ fontSize: 12, lineHeight: 1.45, color: '#F8FAFC' }}>
+              <strong style={{ color: '#F8FAFC' }}>{notif.name}</strong>{' '}
+              <span style={{ color: '#94A3B8', fontSize: 11 }}>from {notif.city}</span>
             </div>
-            <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.45, marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.45, marginTop: 2 }}>
               {notif.icon} {notif.action}
             </div>
           </div>

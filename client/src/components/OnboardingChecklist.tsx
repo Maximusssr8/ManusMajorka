@@ -138,7 +138,7 @@ export default function OnboardingChecklist() {
         <div className="flex items-center gap-3">
           <h3
             className="text-sm font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
           >
             Getting Started
           </h3>
@@ -161,7 +161,7 @@ export default function OnboardingChecklist() {
       {/* Progress bar */}
       <div
         className="w-full h-1.5 rounded-full overflow-hidden mb-4"
-        style={{ background: '#F9FAFB' }}
+        style={{ background: 'rgba(255,255,255,0.03)' }}
       >
         <div
           className="h-full rounded-full transition-all duration-700"

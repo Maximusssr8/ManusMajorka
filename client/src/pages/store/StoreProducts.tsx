@@ -40,7 +40,7 @@ export default function StoreProducts() {
         >
           No store yet
         </h2>
-        <p className="mb-6" style={{ color: '#6B7280' }}>
+        <p className="mb-6" style={{ color: '#94A3B8' }}>
           Set up your store first to start selling.
         </p>
         <Button
@@ -80,7 +80,7 @@ export default function StoreProducts() {
             Storefront
           </h1>
           {store.data && (
-            <p className="text-sm mt-1" style={{ color: '#6B7280' }}>
+            <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
               {store.data.storeName}
             </p>
           )}
@@ -118,7 +118,7 @@ export default function StoreProducts() {
             <div
               key={i}
               className="h-20 rounded-xl animate-pulse"
-              style={{ background: '#F9FAFB' }}
+              style={{ background: 'rgba(255,255,255,0.03)' }}
             />
           ))}
         </div>
@@ -128,7 +128,7 @@ export default function StoreProducts() {
           <p className="font-semibold text-slate-100 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             No products yet
           </p>
-          <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
+          <p className="text-sm mb-4" style={{ color: '#94A3B8' }}>
             Add products in{' '}
             <button
               onClick={() => navigate('/app/my-products')}
@@ -152,7 +152,7 @@ export default function StoreProducts() {
                 key={product.id}
                 className="rounded-xl p-5 transition-colors"
                 style={{
-                  background: '#FAFAFA',
+                  background: '#05070F',
                   border: published
                     ? '1px solid rgba(99,102,241,0.3)'
                     : '1px solid #E5E7EB',
@@ -197,7 +197,7 @@ export default function StoreProducts() {
                     <div>
                       <Label
                         className="text-xs mb-1 block"
-                        style={{ color: '#6B7280' }}
+                        style={{ color: '#94A3B8' }}
                       >
                         Price (AUD)
                       </Label>
@@ -219,13 +219,13 @@ export default function StoreProducts() {
                         }
                         placeholder="49.00"
                         className="border-white/[0.08] text-slate-100 w-32 h-8 text-sm"
-                        style={{ background: '#F9FAFB' }}
+                        style={{ background: 'rgba(255,255,255,0.03)' }}
                       />
                     </div>
                     <div>
                       <Label
                         className="text-xs mb-1 block"
-                        style={{ color: '#6B7280' }}
+                        style={{ color: '#94A3B8' }}
                       >
                         Compare at (crossed out)
                       </Label>
@@ -247,7 +247,7 @@ export default function StoreProducts() {
                         }
                         placeholder="99.00"
                         className="border-white/[0.08] text-slate-100 w-32 h-8 text-sm"
-                        style={{ background: '#F9FAFB' }}
+                        style={{ background: 'rgba(255,255,255,0.03)' }}
                       />
                     </div>
                   </div>

@@ -10,13 +10,13 @@ export function NoImage({ size = 48, className }: NoImageProps) {
       style={{
         width: size,
         height: size,
-        background: '#F9FAFB',
+        background: 'rgba(255,255,255,0.03)',
         borderRadius: 8,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        border: '1px solid #E5E7EB',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       <svg

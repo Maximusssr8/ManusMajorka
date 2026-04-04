@@ -31,13 +31,13 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
       padding: 16,
     }} onClick={onClose}>
       <div style={{
-        background: 'white', borderRadius: 20, padding: 32,
+        background: '#0C1120', borderRadius: 20, padding: 32,
         maxWidth: 480, width: '100%', position: 'relative',
         boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
       }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} style={{
           position: 'absolute', top: 16, right: 16,
-          background: '#F3F4F6', border: 'none', borderRadius: 8,
+          background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 8,
           width: 32, height: 32, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
@@ -49,24 +49,24 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
             <Zap size={20} color="white" />
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {scaleOnly ? 'Scale Plan Required' : 'Limit Reached'}
             </div>
-            <div style={{ fontSize: 13, color: '#6B7280' }}>
+            <div style={{ fontSize: 13, color: '#94A3B8' }}>
               {reason || (feature ? `You've hit the limit for ${feature}` : 'Upgrade to continue')}
             </div>
           </div>
         </div>
 
-        <div style={{ height: 1, background: '#F3F4F6', margin: '20px 0' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '20px 0' }} />
 
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>Scale includes everything:</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#CBD5E1', marginBottom: 10 }}>Scale includes everything:</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {SCALE_FEATURES.map(f => (
               <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Check size={14} color="#6366F1" />
-                <span style={{ fontSize: 13, color: '#374151' }}>{f}</span>
+                <span style={{ fontSize: 13, color: '#CBD5E1' }}>{f}</span>
               </div>
             ))}
           </div>

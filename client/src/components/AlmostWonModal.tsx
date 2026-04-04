@@ -104,8 +104,8 @@ export default function AlmostWonModal() {
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: '#FFFFFF',
-            border: '1px solid #E5E7EB',
+            background: '#0C1120',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 20,
             padding: '40px 36px',
             maxWidth: 480,
@@ -133,7 +133,7 @@ export default function AlmostWonModal() {
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 26,
               fontWeight: 800,
-              color: '#0A0A0A',
+              color: '#F8FAFC',
               margin: '0 0 8px',
               letterSpacing: '-0.02em',
             }}
@@ -196,7 +196,7 @@ export default function AlmostWonModal() {
           <p
             style={{
               fontSize: 14,
-              color: '#6B7280',
+              color: '#94A3B8',
               lineHeight: 1.6,
               margin: '0 0 24px',
             }}

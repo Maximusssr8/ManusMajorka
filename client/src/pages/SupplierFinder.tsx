@@ -99,14 +99,14 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
+      style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div>
             <div
               className="text-sm font-extrabold"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
             >
               {supplier.name}
             </div>
@@ -149,7 +149,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
               </div>
               <div
                 className="text-xs font-extrabold"
-                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {value}
               </div>
@@ -188,7 +188,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 <div
                   key={i}
                   className="text-xs flex items-start gap-1.5 mb-1"
-                  style={{ color: '#374151' }}
+                  style={{ color: '#CBD5E1' }}
                 >
                   <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
                   {p}
@@ -206,7 +206,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 <div
                   key={i}
                   className="text-xs flex items-start gap-1.5 mb-1"
-                  style={{ color: '#374151' }}
+                  style={{ color: '#CBD5E1' }}
                 >
                   <span style={{ color: '#e05c7a', flexShrink: 0 }}>−</span>
                   {c}
@@ -230,7 +230,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 className="flex items-center justify-between gap-2 p-2 rounded-lg"
                 style={{ background: 'rgba(0,0,0,0.2)' }}
               >
-                <span className="text-xs font-mono" style={{ color: '#374151' }}>
+                <span className="text-xs font-mono" style={{ color: '#CBD5E1' }}>
                   "{term}"
                 </span>
                 <div className="flex items-center gap-1">
@@ -258,7 +258,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             >
               Contact Approach
             </div>
-            <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
+            <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
               {supplier.contactApproach}
             </div>
           </div>
@@ -373,11 +373,11 @@ export default function SupplierFinder() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: '#E5E7EB', background: 'white' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -404,9 +404,9 @@ export default function SupplierFinder() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               border: '1px solid #F5F5F5',
-              color: '#6B7280',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -423,13 +423,13 @@ export default function SupplierFinder() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="space-y-3">
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Product to Source *
               </label>
@@ -440,9 +440,9 @@ export default function SupplierFinder() {
                 placeholder="e.g. Posture corrector belt…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#374151',
+                  color: '#CBD5E1',
                 }}
               />
             </div>
@@ -450,7 +450,7 @@ export default function SupplierFinder() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Target Retail ($AUD)
                 </label>
@@ -460,16 +460,16 @@ export default function SupplierFinder() {
                   placeholder="e.g. 79"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1px solid #F0F0F0',
-                    color: '#374151',
+                    color: '#CBD5E1',
                   }}
                 />
               </div>
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Order Qty
                 </label>
@@ -479,9 +479,9 @@ export default function SupplierFinder() {
                   placeholder="e.g. 100"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: '#F9FAFB',
+                    background: 'rgba(255,255,255,0.03)',
                     border: '1px solid #F0F0F0',
-                    color: '#374151',
+                    color: '#CBD5E1',
                   }}
                 />
               </div>
@@ -593,7 +593,7 @@ export default function SupplierFinder() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#CBD5E1' }}
                     >
                       <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
                       {p}
@@ -617,7 +617,7 @@ export default function SupplierFinder() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#CBD5E1' }}
                     >
                       <span style={{ color: '#e05c7a', flexShrink: 0 }}>!</span>
                       {f}
@@ -650,7 +650,7 @@ export default function SupplierFinder() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: '#374151' }}
+                      style={{ color: '#CBD5E1' }}
                     >
                       <span style={{ color: '#6366F1', flexShrink: 0 }}>{i + 1}.</span>
                       {tip}
@@ -672,7 +672,7 @@ export default function SupplierFinder() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: '#6B7280' }}
+                    style={{ color: '#94A3B8' }}
                   >
                     {result.sampleOrderAdvice}
                   </div>

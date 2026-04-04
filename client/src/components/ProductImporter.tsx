@@ -222,9 +222,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         placeholder="Paste AliExpress, Amazon, or any product URL..."
         className="flex-1 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
         style={{
-          background: '#F9FAFB',
+          background: 'rgba(255,255,255,0.03)',
           border: '1px solid #F0F0F0',
-          color: '#0A0A0A',
+          color: '#F8FAFC',
           fontFamily: 'DM Sans, sans-serif',
         }}
         onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
@@ -312,7 +312,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         }}
       >
         <X size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
-        <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
+        <span className="text-sm flex-1" style={{ color: '#F8FAFC' }}>
           Failed to import product. Check the URL and try again.
         </span>
         <button
@@ -336,13 +336,13 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        background: '#0C1120',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       {/* Hero image */}
       {result.imageUrls.length > 0 ? (
-        <div className="w-full overflow-hidden" style={{ height: 160, background: '#F9FAFB' }}>
+        <div className="w-full overflow-hidden" style={{ height: 160, background: 'rgba(255,255,255,0.03)' }}>
           <img
             src={proxyImage(result.imageUrls[0])}
             alt={result.cleanTitle || result.productTitle}
@@ -355,7 +355,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       ) : (
         <div
           className="w-full flex items-center justify-center"
-          style={{ height: 160, background: '#F9FAFB' }}
+          style={{ height: 160, background: 'rgba(255,255,255,0.03)' }}
         >
           <Package size={48} style={{ color: '#E5E7EB' }} />
         </div>
@@ -366,7 +366,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         <div className="flex items-start gap-2 flex-wrap">
           <h3
             className="text-sm font-extrabold flex-1 min-w-0"
-            style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
+            style={{ color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
           >
             {result.cleanTitle || result.productTitle}
           </h3>
@@ -388,7 +388,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
               className="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
               style={{
                 background: '#E5E7EB',
-                color: '#6B7280',
+                color: '#94A3B8',
                 border: '1px solid #F0F0F0',
               }}
             >
@@ -399,7 +399,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
 
         {/* Description */}
         {result.description && (
-          <p className="text-xs leading-relaxed" style={{ color: '#6B7280' }}>
+          <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
             {result.description.length > 120
               ? result.description.slice(0, 117) + '...'
               : result.description}
@@ -412,7 +412,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             {result.bulletPoints.slice(0, 3).map((bp, i) => (
               <li key={i} className="flex items-start gap-2">
                 <Check size={11} style={{ color: '#6366F1', flexShrink: 0, marginTop: 2 }} />
-                <span className="text-xs" style={{ color: '#6B7280' }}>
+                <span className="text-xs" style={{ color: '#94A3B8' }}>
                   {bp}
                 </span>
               </li>
@@ -430,8 +430,8 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 style={{
                   width: 48,
                   height: 48,
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <img
@@ -457,15 +457,15 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
               🧠 AI Product Intelligence
             </div>
             <div className="space-y-1">
-              <div className="text-xs" style={{ color: '#374151' }}>
+              <div className="text-xs" style={{ color: '#CBD5E1' }}>
                 <span style={{ color: '#9CA3AF' }}>Audience: </span>
                 {result.intelligence.primaryAudience}
               </div>
-              <div className="text-xs" style={{ color: '#374151' }}>
+              <div className="text-xs" style={{ color: '#CBD5E1' }}>
                 <span style={{ color: '#9CA3AF' }}>Hero angle: </span>
                 {result.intelligence.heroAngle}
               </div>
-              <div className="text-xs" style={{ color: '#374151' }}>
+              <div className="text-xs" style={{ color: '#CBD5E1' }}>
                 <span style={{ color: '#9CA3AF' }}>Best season: </span>
                 {result.intelligence.seasonality}
               </div>
@@ -495,7 +495,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             style={{
               background: 'transparent',
               border: '1px solid #F0F0F0',
-              color: '#6B7280',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#D1D5DB')}
@@ -517,7 +517,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       }}
     >
       <Check size={14} style={{ color: '#6366F1', flexShrink: 0 }} />
-      <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
+      <span className="text-sm flex-1" style={{ color: '#F8FAFC' }}>
         <span style={{ color: '#6366F1', fontWeight: 700 }}>
           {result.cleanTitle || result.productTitle}
         </span>{' '}
@@ -564,18 +564,18 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="rounded-2xl p-5 space-y-4"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        background: '#0C1120',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
       <div>
         <h3
           className="text-sm font-extrabold mb-0.5"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
         >
           Import Product
         </h3>
-        <p className="text-xs" style={{ color: '#6B7280' }}>
+        <p className="text-xs" style={{ color: '#94A3B8' }}>
           Paste any product URL to auto-fill details
         </p>
       </div>
@@ -599,8 +599,8 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             className="w-full py-2 rounded-xl text-xs font-semibold transition-all"
             style={{
               background: 'transparent',
-              border: '1px solid #E5E7EB',
-              color: '#6B7280',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -616,7 +616,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-xs transition-all"
-          style={{ color: '#6B7280' }}
+          style={{ color: '#94A3B8' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')}
           onMouseLeave={(e) => (e.currentTarget.style.color = '#6B7280')}
         >

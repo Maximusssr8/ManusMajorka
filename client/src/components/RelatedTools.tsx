@@ -96,7 +96,7 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
               onClick={() => setLocation(tool.path)}
               className="flex-1 text-left rounded-xl p-3 transition-all group"
               style={{
-                background: '#FAFAFA',
+                background: '#05070F',
                 border: '1px solid #F9FAFB',
                 cursor: 'pointer',
               }}
@@ -120,7 +120,7 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
                 </div>
                 <div
                   className="text-xs font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                 >
                   {tool.label}
                 </div>

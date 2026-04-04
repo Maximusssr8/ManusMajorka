@@ -180,11 +180,11 @@ export default function StoreSpy() {
   // ── Styles ───────────────────────────────────────────────────────────────
 
   const pageStyle: React.CSSProperties = {
-    background: '#FAFAFA',
+    background: '#05070F',
     minHeight: '100vh',
     padding: '32px 16px 80px',
     fontFamily: 'DM Sans, sans-serif',
-    color: '#0A0A0A',
+    color: '#F8FAFC',
   };
 
   const containerStyle: React.CSSProperties = {
@@ -193,7 +193,7 @@ export default function StoreSpy() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: 'white',
+    background: '#0C1120',
     border: '1px solid #F9FAFB',
     borderRadius: 12,
     padding: 24,
@@ -213,7 +213,7 @@ export default function StoreSpy() {
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 36,
               fontWeight: 700,
-              color: '#0A0A0A',
+              color: '#F8FAFC',
               margin: 0,
             }}
           >
@@ -221,7 +221,7 @@ export default function StoreSpy() {
           </h1>
           <p
             style={{
-              color: '#6B7280',
+              color: '#94A3B8',
               fontSize: 16,
               marginTop: 8,
               lineHeight: 1.6,
@@ -256,12 +256,12 @@ export default function StoreSpy() {
                 disabled={loading}
                 style={{
                   width: '100%',
-                  background: '#FAFAFA',
+                  background: '#05070F',
                   border: '1px solid #F9FAFB',
                   borderRadius: 10,
                   padding: '14px 14px 14px 42px',
                   fontSize: 15,
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                   fontFamily: 'DM Sans, sans-serif',
                   outline: 'none',
                   transition: 'border-color 0.2s',
@@ -376,7 +376,7 @@ export default function StoreSpy() {
             >
               Analysis failed
             </p>
-            <p style={{ color: '#6B7280', fontSize: 14, margin: 0 }}>{error}</p>
+            <p style={{ color: '#94A3B8', fontSize: 14, margin: 0 }}>{error}</p>
           </div>
         )}
 
@@ -397,7 +397,7 @@ export default function StoreSpy() {
                   {section.title}
                 </h2>
                 <div
-                  style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}
+                  style={{ color: '#94A3B8', fontSize: 14, lineHeight: 1.7 }}
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(md(section.body)) }}
                 />
               </div>
@@ -424,7 +424,7 @@ export default function StoreSpy() {
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 16,
                       fontWeight: 600,
-                      color: '#0A0A0A',
+                      color: '#F8FAFC',
                       margin: '0 0 8px',
                     }}
                   >
@@ -432,7 +432,7 @@ export default function StoreSpy() {
                   </h3>
                   <p
                     style={{
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       fontSize: 13,
                       lineHeight: 1.6,
                       margin: 0,

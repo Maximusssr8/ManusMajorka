@@ -338,7 +338,7 @@ export default function MarketDashboard() {
       {/* Header */}
       <div
         className="px-6 py-5 border-b"
-        style={{ borderColor: '#E5E7EB' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)' }}
       >
         <div className="flex items-center justify-between">
           <div>
@@ -366,7 +366,7 @@ export default function MarketDashboard() {
             <span className="text-xs" style={{ color: '#64748b' }}>Live</span>
             {isScale && (
               <button onClick={triggerProductRefresh} disabled={refreshingProducts}
-                style={{ height: 30, padding: '0 10px', background: refreshingProducts ? '#9CA3AF' : 'white', color: refreshingProducts ? 'white' : '#6366F1', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: refreshingProducts ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                style={{ height: 30, padding: '0 10px', background: refreshingProducts ? '#9CA3AF' : 'white', color: refreshingProducts ? 'white' : '#6366F1', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: refreshingProducts ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {refreshingProducts ? (
                   <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>{'\u21BB'}</span> Refreshing...</>
                 ) : (
@@ -379,7 +379,7 @@ export default function MarketDashboard() {
       </div>
 
       {/* Region switcher */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6B7280' }}>
+      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94A3B8' }}>
         <span>Viewing:</span>
         {['\u{1F30D} Global', '\u{1F1E6}\u{1F1FA} AU', '\u{1F1FA}\u{1F1F8} US', '\u{1F1EC}\u{1F1E7} UK'].map(r => {
           const isActive = r === activeMarket;
@@ -404,10 +404,10 @@ export default function MarketDashboard() {
             <div
               key={s.label}
               className="rounded-xl p-4"
-              style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
+              style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
             >
               <p className="text-xs mb-1" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{s.label}</p>
-              <p className="text-2xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}>{s.value}</p>
+              <p className="text-2xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}>{s.value}</p>
               <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{s.sub}</p>
             </div>
           ))}
@@ -422,7 +422,7 @@ export default function MarketDashboard() {
                 key={c.path}
                 onClick={() => nav(c.path)}
                 className="rounded-xl p-4 text-left transition-all duration-150 hover:scale-[1.02] hover:border-opacity-30"
-                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
+                style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
               >
                 <c.icon size={18} style={{ color: c.color }} className="mb-2" />
                 <p className="text-sm font-semibold leading-tight" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
@@ -440,7 +440,7 @@ export default function MarketDashboard() {
           </div>
           <div
             className="rounded-xl overflow-hidden"
-            style={{ border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
+            style={{ border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
           >
             {loading ? (
               <div className="p-6 text-center text-sm" style={{ color: '#475569' }}>Loading…</div>
@@ -449,7 +449,7 @@ export default function MarketDashboard() {
             ) : (
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                     {['#', 'Product', 'Category', 'Rev/day', 'Dropship Score', 'Trend'].map((h) => (
                       <th key={h} className="text-left px-4 py-2.5 text-xs font-medium" style={{ color: '#475569' }}>{h}</th>
                     ))}
@@ -472,7 +472,7 @@ export default function MarketDashboard() {
                             src={p.image_url || p.product_main_image_url || '/placeholder-product.png'}
                             alt={p.product_title}
                             onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=📦'; }}
-                            style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid #E5E7EB' }}
+                            style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }}
                           />
                           <div>
                             <p className="text-sm font-medium" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
@@ -514,7 +514,7 @@ export default function MarketDashboard() {
               ) : categories.length === 0 ? (
                 <div style={{ textAlign: 'center' as const, padding: '32px 16px' }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>No category data yet</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#F8FAFC', marginBottom: 4 }}>No category data yet</div>
                   <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>Category rankings update nightly. Check back tomorrow.</div>
                 </div>
               ) : (
@@ -522,7 +522,7 @@ export default function MarketDashboard() {
                   <div
                     key={cat.id}
                     className="rounded-xl p-4 flex items-center justify-between"
-                    style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
+                    style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -555,11 +555,11 @@ export default function MarketDashboard() {
               <button onClick={() => nav('/app/creators')} className="text-xs" style={{ color: '#6366F1' }}>All →</button>
             </div>
             {loading ? (
-              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>Loading…</div>
+              <div className="rounded-xl p-4 text-sm" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>Loading…</div>
             ) : topCreator && (topCreator.username || topCreator.display_name) ? (
               <div
                 className="rounded-xl p-5"
-                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
+                style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div
@@ -606,7 +606,7 @@ export default function MarketDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>
+              <div className="rounded-xl p-4 text-sm" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>
                 No creator data yet
               </div>
             )}

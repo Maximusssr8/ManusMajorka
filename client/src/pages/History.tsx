@@ -88,7 +88,7 @@ export default function History() {
     <div
       className="h-full overflow-auto"
       style={{
-        background: '#FAFAFA',
+        background: '#05070F',
         scrollbarWidth: 'thin',
         scrollbarColor: '#F5F5F5 transparent',
       }}
@@ -101,10 +101,10 @@ export default function History() {
               onClick={() => setLocation('/app')}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
-                background: '#F9FAFB',
-                border: '1px solid #E5E7EB',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
                 cursor: 'pointer',
-                color: '#6B7280',
+                color: '#94A3B8',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#D1D5DB')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#F9FAFB')}
@@ -114,7 +114,7 @@ export default function History() {
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
               >
                 History
               </h1>
@@ -157,9 +157,9 @@ export default function History() {
                 placeholder="Search history..."
                 className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
-                  color: '#374151',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#CBD5E1',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.3)')}
@@ -172,9 +172,9 @@ export default function History() {
                 onChange={(e) => setFilterType(e.target.value)}
                 className="px-3 py-2 rounded-lg text-sm outline-none appearance-none pr-8"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
-                  color: '#374151',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#CBD5E1',
                   fontFamily: 'DM Sans, sans-serif',
                   minWidth: 120,
                 }}
@@ -206,7 +206,7 @@ export default function History() {
             </div>
             <h2
               className="text-base font-bold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
             >
               No history yet
             </h2>
@@ -250,7 +250,7 @@ export default function History() {
                       <div
                         key={idx}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group"
-                        style={{ background: '#FAFAFA' }}
+                        style={{ background: '#05070F' }}
                         onMouseEnter={(e) =>
                           (e.currentTarget.style.background = '#F9FAFB')
                         }
@@ -271,7 +271,7 @@ export default function History() {
                         <div className="flex-1 min-w-0">
                           <div
                             className="text-sm font-medium truncate"
-                            style={{ color: '#374151' }}
+                            style={{ color: '#CBD5E1' }}
                           >
                             {entry.label}
                           </div>

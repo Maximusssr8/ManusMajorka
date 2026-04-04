@@ -37,7 +37,7 @@ export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: 
         </div>
         <h3
           className="text-base font-extrabold mb-2"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
         >
           {title}
         </h3>

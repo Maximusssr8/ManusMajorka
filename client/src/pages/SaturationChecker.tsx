@@ -212,9 +212,9 @@ export default function SaturationChecker() {
 
   const pageStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: '#FAFAFA',
+    background: '#05070F',
     fontFamily: 'DM Sans, sans-serif',
-    color: '#374151',
+    color: '#CBD5E1',
     padding: '1.5rem 1rem 5rem',
   };
 
@@ -224,8 +224,8 @@ export default function SaturationChecker() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: 'white',
-    border: '1px solid #E5E7EB',
+    background: '#0C1120',
+    border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 16,
     padding: '1.5rem',
     marginBottom: '1.25rem',
@@ -246,11 +246,11 @@ export default function SaturationChecker() {
 
   const inputStyle: React.CSSProperties = {
     flex: 1,
-    background: '#F9FAFB',
+    background: 'rgba(255,255,255,0.03)',
     border: '1px solid #F9FAFB',
     borderRadius: 12,
     padding: '0.75rem 1rem',
-    color: '#374151',
+    color: '#CBD5E1',
     fontFamily: 'DM Sans, sans-serif',
     fontSize: '0.95rem',
     outline: 'none',
@@ -302,7 +302,7 @@ export default function SaturationChecker() {
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 'clamp(1.75rem, 5vw, 2.25rem)',
               fontWeight: 800,
-              color: '#374151',
+              color: '#CBD5E1',
               margin: '0.5rem 0 0.75rem',
               lineHeight: 1.15,
             }}
@@ -311,7 +311,7 @@ export default function SaturationChecker() {
           </h1>
           <p
             style={{
-              color: '#6B7280',
+              color: '#94A3B8',
               fontSize: '1.05rem',
               maxWidth: 520,
               margin: '0 auto',
@@ -406,7 +406,7 @@ export default function SaturationChecker() {
             <div
               style={{
                 height: 4,
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 borderRadius: 2,
                 overflow: 'hidden',
                 maxWidth: 320,
@@ -534,7 +534,7 @@ export default function SaturationChecker() {
                   {levelConf.label}
                 </span>
               </div>
-              <p style={{ color: '#6B7280', fontSize: '0.95rem', margin: '0.5rem 0 0' }}>
+              <p style={{ color: '#94A3B8', fontSize: '0.95rem', margin: '0.5rem 0 0' }}>
                 {levelConf.desc}
               </p>
 
@@ -601,7 +601,7 @@ export default function SaturationChecker() {
                   Window of Opportunity
                 </div>
                 <div
-                  style={{ color: '#6B7280', lineHeight: 1.7, fontSize: '0.95rem' }}
+                  style={{ color: '#94A3B8', lineHeight: 1.7, fontSize: '0.95rem' }}
                   dangerouslySetInnerHTML={{ __html: safeHtml(renderMarkdown(result.opportunity)) }}
                 />
               </div>
@@ -616,7 +616,7 @@ export default function SaturationChecker() {
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontWeight: 700,
                       fontSize: '1.1rem',
-                      color: '#374151',
+                      color: '#CBD5E1',
                       margin: '0 0 0.75rem',
                     }}
                   >
@@ -673,13 +673,13 @@ export default function SaturationChecker() {
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: '#374151',
+                    color: '#CBD5E1',
                     marginBottom: '0.5rem',
                   }}
                 >
                   {card.title}
                 </h3>
-                <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ color: '#94A3B8', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>
                   {card.desc}
                 </p>
               </div>

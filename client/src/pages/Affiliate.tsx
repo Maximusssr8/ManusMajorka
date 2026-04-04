@@ -144,7 +144,7 @@ export default function Affiliate() {
                 Your referral link
               </label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, background: '#FFFFFF', border: `1px solid ${C.goldBorder}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: C.gold, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
+                <div style={{ flex: 1, background: '#0C1120', border: `1px solid ${C.goldBorder}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: C.gold, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
                   {referralLink}
                 </div>
                 <button
@@ -299,7 +299,7 @@ export default function Affiliate() {
           {LEADERBOARD.map((entry) => (
             <div
               key={entry.name}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 10, marginBottom: 8, background: '#FAFAFA', border: `1px solid ${C.border}` }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 10, marginBottom: 8, background: '#05070F', border: `1px solid ${C.border}` }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>{entry.rank}</span>

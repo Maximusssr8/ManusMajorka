@@ -94,7 +94,7 @@ function EmotionalComparisonTable() {
               fontFamily: syne,
               fontWeight: 700,
               fontSize: 18,
-              color: '#6B7280',
+              color: '#94A3B8',
               marginBottom: 8,
             }}
           >
@@ -124,7 +124,7 @@ function EmotionalComparisonTable() {
               AUD/mo
             </span>
           </div>
-          <p style={{ color: '#6B7280', fontSize: 15, marginTop: 8 }}>
+          <p style={{ color: '#94A3B8', fontSize: 15, marginTop: 8 }}>
             You pay for everything. On one platform.
           </p>
         </div>
@@ -132,7 +132,7 @@ function EmotionalComparisonTable() {
         {/* Table */}
         <div
           style={{
-            border: '1px solid #E5E7EB',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 16,
             overflow: 'hidden',
           }}
@@ -142,9 +142,9 @@ function EmotionalComparisonTable() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 140px 130px',
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               padding: '12px 20px',
-              borderBottom: '1px solid #E5E7EB',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
             }}
           >
             <span
@@ -198,8 +198,8 @@ function EmotionalComparisonTable() {
                 background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
               }}
             >
-              <span style={{ fontSize: 13, color: '#6B7280' }}>{tool.name}</span>
-              <span style={{ textAlign: 'center', fontSize: 13, color: '#6B7280' }}>
+              <span style={{ fontSize: 13, color: '#94A3B8' }}>{tool.name}</span>
+              <span style={{ textAlign: 'center', fontSize: 13, color: '#94A3B8' }}>
                 ${tool.cost}/mo
               </span>
               <span
@@ -213,7 +213,7 @@ function EmotionalComparisonTable() {
           {/* Totals row */}
           <div
             style={{
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               borderTop: '1px solid rgba(99,102,241,0.2)',
               padding: '16px 20px',
             }}
@@ -221,7 +221,7 @@ function EmotionalComparisonTable() {
             <div
               style={{ display: 'grid', gridTemplateColumns: '1fr 140px 130px', marginBottom: 10 }}
             >
-              <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: '#6B7280' }}>
+              <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: '#94A3B8' }}>
                 Total if bought separately
               </span>
               <span style={{ textAlign: 'center' }}>
@@ -307,7 +307,7 @@ function EmotionalComparisonTable() {
                 boxShadow: '0 0 6px #6366F1',
               }}
             />
-            <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
+            <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 500 }}>
               2,847 sellers already made the switch
             </span>
           </div>
@@ -395,7 +395,7 @@ function SavingsCalculator() {
       <div style={{
         maxWidth: 860,
         margin: '0 auto',
-        background: 'white',
+        background: '#0C1120',
         border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: 20,
         padding: '40px 36px',
@@ -405,16 +405,16 @@ function SavingsCalculator() {
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #6366F1, transparent)' }} />
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 24, marginBottom: 8 }}>💸</div>
-          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#374151', letterSpacing: '-0.02em', marginBottom: 6 }}>
+          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#CBD5E1', letterSpacing: '-0.02em', marginBottom: 6 }}>
             HOW MUCH IS ONE BAD PRODUCT DECISION COSTING YOU?
           </h2>
-          <p style={{ fontSize: 14, color: '#6B7280' }}>Drag the slider to see your real numbers</p>
+          <p style={{ fontSize: 14, color: '#94A3B8' }}>Drag the slider to see your real numbers</p>
         </div>
 
         {/* Slider */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, color: '#6B7280' }}>Your monthly ad spend:</span>
+            <span style={{ fontSize: 13, color: '#94A3B8' }}>Your monthly ad spend:</span>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: '#6366F1' }}>{fmt(adSpend)}/month</span>
           </div>
           <input
@@ -450,7 +450,7 @@ function SavingsCalculator() {
               `❌ ${fmt(wastedSpend)} lost/month`,
               `❌ 15h researching manually`,
             ].map((item) => (
-              <div key={item} style={{ fontSize: 13, color: '#6B7280', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
+              <div key={item} style={{ fontSize: 13, color: '#94A3B8', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
             ))}
           </div>
           <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '20px 18px' }}>
@@ -460,7 +460,7 @@ function SavingsCalculator() {
               `✅ Save ~${fmt(savings)}/month`,
               `✅ 15min automated`,
             ].map((item) => (
-              <div key={item} style={{ fontSize: 13, color: '#6B7280', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
+              <div key={item} style={{ fontSize: 13, color: '#94A3B8', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
             ))}
           </div>
         </div>
@@ -470,7 +470,7 @@ function SavingsCalculator() {
           <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#6366F1', marginBottom: 4, transition: 'all 0.3s' }}>
             💰 Majorka Pro pays for itself in {paybackDays} day{paybackDays !== 1 ? 's' : ''}
           </div>
-          <div style={{ fontSize: 13, color: '#6B7280' }}>
+          <div style={{ fontSize: 13, color: '#94A3B8' }}>
             ($99/mo vs {fmt(wastedSpend)} in wasted ad spend)
           </div>
         </div>
@@ -687,7 +687,7 @@ export default function Pricing() {
             >
               M
             </div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#0A0A0A' }}>MAJORKA</span>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#F8FAFC' }}>MAJORKA</span>
           </div>
         </div>
       </nav>
@@ -816,13 +816,13 @@ export default function Pricing() {
               <div key={m.label} style={{ background: m.bg, border: `1px solid ${m.border}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' as const }}>
                 <div style={{ fontSize: 22, marginBottom: 6 }}>{m.icon}</div>
                 <div style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 900, fontSize: 28, color: m.color, lineHeight: 1, marginBottom: 6 }}>{m.stat}</div>
-                <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 500 }}>{m.label}</div>
+                <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 500 }}>{m.label}</div>
               </div>
             ))}
           </div>
           <div className="pricing-trust-badges" style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
             {['Secure checkout', '14-day money-back guarantee', 'Australian Consumer Law', 'Cancel anytime'].map(badge => (
-              <span key={badge} style={{ fontSize: 12, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
+              <span key={badge} style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
             ))}
           </div>
         </div>
@@ -974,7 +974,7 @@ export default function Pricing() {
                   <span
                     style={{
                       background: '#b2fce4',
-                      color: '#0A0A0A',
+                      color: '#F8FAFC',
                       borderRadius: 4,
                       padding: '2px 6px',
                       fontSize: 10,

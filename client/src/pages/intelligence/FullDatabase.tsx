@@ -267,7 +267,7 @@ function SourceBadges({ sources, isChoice }: { sources?: string[]; isChoice?: bo
   const src = sources || [];
   return (
     <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' as const }}>
-      {src.includes('tiktok') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(0,0,0,0.06)', color: '#374151', fontWeight: 700 }}>TT</span>}
+      {src.includes('tiktok') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(0,0,0,0.06)', color: '#CBD5E1', fontWeight: 700 }}>TT</span>}
       {src.includes('amazon') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,153,0,0.12)', color: '#B45309', fontWeight: 700 }}>AMZ</span>}
       {src.includes('aliexpress') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,106,0,0.12)', color: '#C2410C', fontWeight: 700 }}>AE</span>}
       {isChoice && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,106,0,0.12)', color: '#C2410C', fontWeight: 700 }}>AE Choice</span>}
@@ -713,7 +713,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </div>
 
           {/* 500+ orders toggle */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#6B7280', cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#94A3B8', cursor: 'pointer' }}>
             <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)} style={{ accentColor: '#6366F1', width: 14, height: 14 }} />
             500+ orders only
           </label>
@@ -850,7 +850,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               ))
             ) : displayProducts.length === 0 ? (
               search ? (
-                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6B7280' }}>
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
                   <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
                   <div style={{ fontSize: 16, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>
                     No results for &ldquo;{search}&rdquo;
@@ -1116,7 +1116,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <div style={{ fontSize: 16, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>
                           No results for &ldquo;{search}&rdquo;
                         </div>
-                        <div style={{ fontSize: 13, marginBottom: 20, lineHeight: 1.6, color: '#6B7280' }}>
+                        <div style={{ fontSize: 13, marginBottom: 20, lineHeight: 1.6, color: '#94A3B8' }}>
                           Try searching: <span style={{ color: '#6366F1' }}>dog harness</span> · <span style={{ color: '#6366F1' }}>gua sha</span> · <span style={{ color: '#6366F1' }}>fridge organiser</span> · <span style={{ color: '#6366F1' }}>resistance bands</span> · <span style={{ color: '#6366F1' }}>cold brew</span>
                         </div>
                         <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>
@@ -1126,8 +1126,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     ) : (
                       <>
                         <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uD83D\uDD0D'}</div>
-                        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 6 }}>No products found</div>
-                        <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Try clearing filters or searching a different keyword</div>
+                        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F8FAFC', marginBottom: 6 }}>No products found</div>
+                        <div style={{ fontSize: 14, color: '#94A3B8', marginBottom: 16 }}>Try clearing filters or searching a different keyword</div>
                       </>
                     )}
                     <button onClick={() => { setSearchInput(''); setOpportunityFilter('All'); setNiche('All Niches'); setVerifiedOnly(false); }}
@@ -1507,7 +1507,7 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
 
   return (
     <div style={{ marginBottom: 20 }}>
-      <div style={{ fontWeight: 700, fontSize: 13, color: '#374151', marginBottom: 4 }}>Suggested Meta Audiences</div>
+      <div style={{ fontWeight: 700, fontSize: 13, color: '#CBD5E1', marginBottom: 4 }}>Suggested Meta Audiences</div>
       <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 10 }}>Based on product category · click to copy</div>
       <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8 }}>
         {audiences.map(audience => {
@@ -1696,7 +1696,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           {/* Return rate slider */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 10, color: '#4B5563', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.04em' }}>Return Rate</span>
+              <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.04em' }}>Return Rate</span>
               <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700 }}>{returnRate}%</span>
             </div>
             <input type="range" min={0} max={25} step={1} value={returnRate} onChange={e => setReturnRate(+e.target.value)}
@@ -1707,7 +1707,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           </div>
 
           {/* Auto-calculated fixed costs */}
-          <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 8, padding: '8px 12px', marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, fontSize: 10, color: '#374151' }}>
+          <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 8, padding: '8px 12px', marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, fontSize: 10, color: '#CBD5E1' }}>
             <div><span style={{ color: '#9CA3AF' }}>Shipping</span><br /><strong>${shipping.toFixed(2)}</strong></div>
             <div><span style={{ color: '#9CA3AF' }}>Shopify fee</span><br /><strong>{PLATFORM_FEE}% = ${platformCost.toFixed(2)}</strong></div>
             <div><span style={{ color: '#9CA3AF' }}>Stripe fee</span><br /><strong>{PAYMENT_FEE}% = ${paymentCost.toFixed(2)}</strong></div>
@@ -1723,7 +1723,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           <div style={{ background: isDark ? 'rgba(99,102,241,0.08)' : '#EEF2FF', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
             <div style={{ fontSize: 9, color: '#6366F1', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
             <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
-            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
+            <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
           </div>
 
           {/* What this means */}
@@ -2068,7 +2068,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               ) : trendBrief ? (
                 <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
                   <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
-                  <p style={{ fontFamily: dm, fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
+                  <p style={{ fontFamily: dm, fontSize: 13, color: '#CBD5E1', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
                 </div>
               ) : null}
             </div>
@@ -2178,7 +2178,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 { field: 'Dropship score', source: 'Composite formula', real: true },
               ].map(({ field, source, real }) => (
                 <div key={field} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: '#6B7280', flex: 1 }}>{field}</span>
+                  <span style={{ fontSize: 11, color: '#94A3B8', flex: 1 }}>{field}</span>
                   <span style={{ fontSize: 10, fontWeight: 600, color: real ? '#34D399' : '#9CA3AF', background: real ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' as const }}>{source}</span>
                 </div>
               ))}

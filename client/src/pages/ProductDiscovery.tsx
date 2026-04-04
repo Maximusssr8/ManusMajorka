@@ -141,7 +141,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
@@ -167,7 +167,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
           >
             {product.name}
           </div>
@@ -213,7 +213,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               >
                 Problem Solved
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
                 {product.problemSolved}
               </div>
             </div>
@@ -224,7 +224,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               >
                 Target Audience
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
                 {product.targetAudience}
               </div>
             </div>
@@ -249,7 +249,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               >
                 Suppliers
               </div>
-              <div className="text-xs" style={{ color: '#4B5563' }}>
+              <div className="text-xs" style={{ color: '#94A3B8' }}>
                 {product.suppliers}
               </div>
             </div>
@@ -267,7 +267,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             >
               Why Now
             </div>
-            <div className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
+            <div className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
               {product.whyNow}
             </div>
           </div>
@@ -279,7 +279,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                   src={url}
                   alt={product.name}
                   className="w-24 h-16 object-cover rounded-lg flex-shrink-0"
-                  style={{ border: '1px solid #E5E7EB' }}
+                  style={{ border: '1px solid rgba(255,255,255,0.08)' }}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.display = 'none';
                   }}
@@ -289,7 +289,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           )}
           <div
             className="flex gap-2 pt-2 mt-1"
-            style={{ borderTop: '1px solid #E5E7EB' }}
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
           >
             <button
               onClick={() => {
@@ -502,7 +502,7 @@ export default function ProductDiscovery() {
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: '#E5E7EB', background: 'white' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -529,9 +529,9 @@ export default function ProductDiscovery() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: '#F9FAFB',
-              border: '1px solid #E5E7EB',
-              color: '#6B7280',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -549,7 +549,7 @@ export default function ProductDiscovery() {
         {/* LEFT: Input panel */}
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div>
             <div
@@ -562,7 +562,7 @@ export default function ProductDiscovery() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Niche / Category *
                 </label>
@@ -578,16 +578,16 @@ export default function ProductDiscovery() {
                   placeholder="e.g. Pet accessories, Home gym…"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
-                    color: '#374151',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: '#CBD5E1',
                   }}
                 />
               </div>
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Price Range (AUD)
                 </label>
@@ -597,16 +597,16 @@ export default function ProductDiscovery() {
                   placeholder="e.g. 20-80"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
-                    color: '#374151',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: '#CBD5E1',
                   }}
                 />
               </div>
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Target Market
                 </label>
@@ -615,13 +615,13 @@ export default function ProductDiscovery() {
                   onChange={(e) => setTargetMarket(e.target.value)}
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
-                    color: '#374151',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: '#CBD5E1',
                   }}
                 >
                   {['Australia', 'United States', 'United Kingdom', 'Canada', 'Global'].map((m) => (
-                    <option key={m} value={m} style={{ background: 'white' }}>
+                    <option key={m} value={m} style={{ background: '#0C1120' }}>
                       {m}
                     </option>
                   ))}
@@ -728,7 +728,7 @@ export default function ProductDiscovery() {
                   </div>
                   <CopyBtn text={result.summary} />
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {result.summary}
                 </div>
               </div>
@@ -750,7 +750,7 @@ export default function ProductDiscovery() {
                     Top Pick
                   </div>
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#CBD5E1' }}>
                   {result.topPick}
                 </div>
               </div>
@@ -778,8 +778,8 @@ export default function ProductDiscovery() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -790,7 +790,7 @@ export default function ProductDiscovery() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: '#374151' }}
+                    style={{ color: '#CBD5E1' }}
                   >
                     {result.marketContext}
                   </div>
@@ -852,12 +852,12 @@ export default function ProductDiscovery() {
                     transition={{ delay: 0.2 + i * 0.1, duration: 0.35 }}
                     className="flex items-center gap-2 p-3 rounded-xl"
                     style={{
-                      background: '#F9FAFB',
-                      border: '1px solid #E5E7EB',
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
                     <span style={{ color: '#6366F1' }}>{icon}</span>
-                    <span className="text-xs" style={{ color: '#6B7280' }}>
+                    <span className="text-xs" style={{ color: '#94A3B8' }}>
                       {label}
                     </span>
                   </motion.div>

@@ -711,7 +711,7 @@ function PlaylistDrawer({
                       key={id}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 group transition-all"
                       style={{
-                        background: '#FAFAFA',
+                        background: '#05070F',
                         border: '1px solid #F9FAFB',
                       }}
                       onMouseEnter={(e) =>
@@ -1035,7 +1035,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
           >
             {lesson.title}
           </DialogTitle>
-          <p className="text-sm mt-1" style={{ color: '#6B7280' }}>
+          <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
             {lesson.description}
           </p>
         </DialogHeader>
@@ -1083,8 +1083,8 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   onClick={() => onNavigate(prevLesson)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: '#F9FAFB',
-                    color: '#6B7280',
+                    background: 'rgba(255,255,255,0.03)',
+                    color: '#94A3B8',
                     border: 'none',
                     cursor: 'pointer',
                   }}
@@ -1107,8 +1107,8 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   onClick={() => onNavigate(nextLesson)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: '#F9FAFB',
-                    color: '#6B7280',
+                    background: 'rgba(255,255,255,0.03)',
+                    color: '#94A3B8',
                     border: 'none',
                     cursor: 'pointer',
                   }}
@@ -1225,7 +1225,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
           >
             Builder Plan Required
           </DialogTitle>
-          <p className="text-sm" style={{ color: '#6B7280' }}>
+          <p className="text-sm" style={{ color: '#94A3B8' }}>
             Unlock all 20 lessons + AI personalisation to accelerate your dropshipping journey.
           </p>
           <button
@@ -1322,7 +1322,7 @@ function TrackCard({
                 </span>
               )}
             </div>
-            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#6B7280' }}>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#94A3B8' }}>
               {track.description}
             </p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -1347,7 +1347,7 @@ function TrackCard({
         {/* Progress bar */}
         <div
           className="mt-4 w-full rounded-full overflow-hidden"
-          style={{ height: 3, background: '#F9FAFB' }}
+          style={{ height: 3, background: 'rgba(255,255,255,0.03)' }}
         >
           <motion.div
             className="h-full rounded-full"
@@ -1719,7 +1719,7 @@ export default function LearnHub() {
             >
               Majorka Academy
             </h1>
-            <p className="text-sm mt-2" style={{ color: '#6B7280' }}>
+            <p className="text-sm mt-2" style={{ color: '#94A3B8' }}>
               From zero to your first $10K month — step by step.
             </p>
           </div>
@@ -1731,9 +1731,9 @@ export default function LearnHub() {
               onClick={() => setPlaylistOpen(true)}
               className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
               style={{
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 border: '1px solid #F5F5F5',
-                color: '#6B7280',
+                color: '#94A3B8',
                 cursor: 'pointer',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 fontSize: 13,

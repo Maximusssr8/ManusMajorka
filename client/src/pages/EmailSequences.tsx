@@ -75,12 +75,12 @@ function EmailCard({ email }: { email: Email }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ border: '1px solid #E5E7EB' }}
+      style={{ border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 p-4 text-left"
-        style={{ cursor: 'pointer', background: '#FAFAFA' }}
+        style={{ cursor: 'pointer', background: '#05070F' }}
       >
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm flex-shrink-0"
@@ -93,7 +93,7 @@ function EmailCard({ email }: { email: Email }) {
           {email.emailNumber}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold truncate" style={{ color: '#374151' }}>
+          <div className="text-sm font-semibold truncate" style={{ color: '#CBD5E1' }}>
             {email.subject}
           </div>
           <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
@@ -122,7 +122,7 @@ function EmailCard({ email }: { email: Email }) {
               >
                 Subject Line
               </div>
-              <div className="text-sm font-semibold" style={{ color: '#374151' }}>
+              <div className="text-sm font-semibold" style={{ color: '#CBD5E1' }}>
                 {email.subject}
               </div>
               <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -143,7 +143,7 @@ function EmailCard({ email }: { email: Email }) {
             </div>
             <div
               className="text-sm leading-relaxed whitespace-pre-line"
-              style={{ color: '#374151' }}
+              style={{ color: '#CBD5E1' }}
             >
               {email.body}
             </div>
@@ -241,11 +241,11 @@ export default function EmailSequences() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: '#E5E7EB', background: 'white' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -272,9 +272,9 @@ export default function EmailSequences() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               border: '1px solid #F5F5F5',
-              color: '#6B7280',
+              color: '#94A3B8',
               cursor: 'pointer',
             }}
           >
@@ -291,13 +291,13 @@ export default function EmailSequences() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: '#E5E7EB' }}
+          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="space-y-3">
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Product / Brand *
               </label>
@@ -308,16 +308,16 @@ export default function EmailSequences() {
                 placeholder="Describe your product and brand…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#374151',
+                  color: '#CBD5E1',
                 }}
               />
             </div>
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Sequence Type
               </label>
@@ -343,7 +343,7 @@ export default function EmailSequences() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Brand Voice
               </label>
@@ -353,9 +353,9 @@ export default function EmailSequences() {
                 placeholder="e.g. Friendly, expert, no-fluff…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#374151',
+                  color: '#CBD5E1',
                 }}
               />
             </div>
@@ -431,13 +431,13 @@ export default function EmailSequences() {
               >
                 <div
                   className="text-sm font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
                 >
                   {result.sequenceName}
                 </div>
                 <div
                   className="text-xs leading-relaxed"
-                  style={{ color: '#6B7280' }}
+                  style={{ color: '#94A3B8' }}
                 >
                   {result.overview}
                 </div>
@@ -453,8 +453,8 @@ export default function EmailSequences() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: '#FAFAFA',
-                    border: '1px solid #E5E7EB',
+                    background: '#05070F',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -467,7 +467,7 @@ export default function EmailSequences() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: '#6B7280' }}
+                      style={{ color: '#94A3B8' }}
                     >
                       <span style={{ color: '#4ab8f5', flexShrink: 0 }}>→</span>
                       {tip}
@@ -477,8 +477,8 @@ export default function EmailSequences() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: '#FAFAFA',
-                    border: '1px solid #E5E7EB',
+                    background: '#05070F',
+                    border: '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
                   <div
@@ -489,7 +489,7 @@ export default function EmailSequences() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: '#6B7280' }}
+                    style={{ color: '#94A3B8' }}
                   >
                     {result.segmentationAdvice}
                   </div>

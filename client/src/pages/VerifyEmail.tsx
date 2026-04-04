@@ -33,7 +33,7 @@ export default function VerifyEmail() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: '#FAFAFA' }}
+      style={{ background: '#05070F' }}
     >
       {/* Background glow */}
       <div
@@ -97,14 +97,14 @@ export default function VerifyEmail() {
             Check your inbox
           </h1>
           {email ? (
-            <p className="text-sm" style={{ color: '#6B7280' }}>
+            <p className="text-sm" style={{ color: '#94A3B8' }}>
               We sent a verification link to{' '}
               <span className="font-medium" style={{ color: '#6366F1' }}>
                 {email}
               </span>
             </p>
           ) : (
-            <p className="text-sm" style={{ color: '#6B7280' }}>
+            <p className="text-sm" style={{ color: '#94A3B8' }}>
               We sent a verification link to your email address.
             </p>
           )}
@@ -113,25 +113,25 @@ export default function VerifyEmail() {
         <div
           className="rounded-xl p-4 text-left space-y-2"
           style={{
-            background: '#FAFAFA',
+            background: '#05070F',
             border: '1px solid #F9FAFB',
           }}
         >
           <div
             className="flex items-center gap-2 text-xs"
-            style={{ color: '#6B7280' }}
+            style={{ color: '#94A3B8' }}
           >
             <span style={{ color: '#6366F1' }}>1.</span> Open the email from Majorka
           </div>
           <div
             className="flex items-center gap-2 text-xs"
-            style={{ color: '#6B7280' }}
+            style={{ color: '#94A3B8' }}
           >
             <span style={{ color: '#6366F1' }}>2.</span> Click the verification link
           </div>
           <div
             className="flex items-center gap-2 text-xs"
-            style={{ color: '#6B7280' }}
+            style={{ color: '#94A3B8' }}
           >
             <span style={{ color: '#6366F1' }}>3.</span> You'll be taken to your dashboard
           </div>

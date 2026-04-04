@@ -120,7 +120,7 @@ function UsersTab() {
                         disabled={updatingId === u.id}
                         style={{ padding: '4px 6px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 5, color: C.text, fontSize: 11, cursor: 'pointer' }}
                       >
-                        {['free','pro','builder','scale'].map(p => <option key={p} value={p} style={{ background: 'white' }}>{p}</option>)}
+                        {['free','pro','builder','scale'].map(p => <option key={p} value={p} style={{ background: '#0C1120' }}>{p}</option>)}
                       </select>
                       <button
                         onClick={() => updatePlan(u.id, 'pro', 'active')}
@@ -209,14 +209,14 @@ function TrendsTab() {
               <div key={k}>
                 <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{label}</div>
                 <input value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', background: 'white', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12, boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '6px 10px', background: '#0C1120', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12, boxSizing: 'border-box' as const }} />
               </div>
             ))}
           </div>
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>Why Trending</div>
             <input value={form.trend_reason} onChange={e => setForm(f => ({ ...f, trend_reason: e.target.value }))}
-              style={{ width: '100%', padding: '6px 10px', background: 'white', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
+              style={{ width: '100%', padding: '6px 10px', background: '#0C1120', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={addProduct} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#FAFAFA', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Add</button>
@@ -290,12 +290,12 @@ function SubscriptionsTab() {
               <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{label}</div>
               {k === 'plan' ? (
                 <select value={addForm.plan} onChange={e => setAddForm(f => ({ ...f, plan: e.target.value }))}
-                  style={{ width: '100%', padding: '7px 10px', background: 'white', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }}>
-                  {['pro','builder','scale','free'].map(p => <option key={p} value={p} style={{ background: 'white' }}>{p}</option>)}
+                  style={{ width: '100%', padding: '7px 10px', background: '#0C1120', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }}>
+                  {['pro','builder','scale','free'].map(p => <option key={p} value={p} style={{ background: '#0C1120' }}>{p}</option>)}
                 </select>
               ) : (
                 <input value={(addForm as any)[k]} onChange={e => setAddForm(f => ({ ...f, [k]: e.target.value }))}
-                  style={{ width: '100%', padding: '7px 10px', background: 'white', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
+                  style={{ width: '100%', padding: '7px 10px', background: '#0C1120', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
               )}
             </div>
           ))}
@@ -579,7 +579,7 @@ export default function AdminControlPanel() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#FAFAFA', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#05070F', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, width: 'fit-content' }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: "'Bricolage Grotesque', sans-serif",

@@ -203,14 +203,14 @@ function ResultSection({ step }: { step: LaunchKitStep }) {
         <div className="flex items-center gap-2">
           <CopyBtn text={step.result} small />
           {open ? (
-            <ChevronUp size={14} style={{ color: '#6B7280' }} />
+            <ChevronUp size={14} style={{ color: '#94A3B8' }} />
           ) : (
-            <ChevronDown size={14} style={{ color: '#6B7280' }} />
+            <ChevronDown size={14} style={{ color: '#94A3B8' }} />
           )}
         </div>
       </button>
       {open && (
-        <div className="px-5 py-4" style={{ borderTop: '1px solid #E5E7EB' }}>
+        <div className="px-5 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <Markdown className="text-sm" shikiTheme={['github-dark', 'github-dark']}>
             {step.result}
           </Markdown>
@@ -254,7 +254,7 @@ function StepIcon({ status, index }: { status: StepStatus; index: number }) {
     <div
       className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-extrabold"
       style={{
-        background: '#F9FAFB',
+        background: 'rgba(255,255,255,0.03)',
         color: '#D1D5DB',
         fontFamily: "'Bricolage Grotesque', sans-serif",
       }}
@@ -280,7 +280,7 @@ function LaunchKitContent() {
     style.textContent = `@media print {
       body > * { display: none !important; }
       #launchkit-printable { display: block !important; }
-      #launchkit-printable { background: white; color: black; padding: 24px; }
+      #launchkit-printable { background: #05070F; color: black; padding: 24px; }
       button, .no-print { display: none !important; }
     }`;
     document.head.appendChild(style);
@@ -382,7 +382,7 @@ function LaunchKitContent() {
   const hasAnyDone = completedCount > 0;
 
   return (
-    <div className="flex h-full overflow-hidden" style={{ background: '#FAFAFA' }}>
+    <div className="flex h-full overflow-hidden" style={{ background: '#05070F' }}>
       {/* ── Left Panel ── */}
       <div
         className="flex flex-col flex-shrink-0 overflow-y-auto"
@@ -397,7 +397,7 @@ function LaunchKitContent() {
         {/* Header */}
         <div
           className="px-5 pt-6 pb-4"
-          style={{ borderBottom: '1px solid #E5E7EB' }}
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
         >
           <div className="flex items-center gap-2 mb-1">
             <Rocket size={14} style={{ color: '#f59e0b' }} />
@@ -410,17 +410,17 @@ function LaunchKitContent() {
           </div>
           <h1
             className="text-lg font-extrabold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1', letterSpacing: '-0.02em' }}
           >
             Launch Kit
           </h1>
-          <p className="text-xs mt-1" style={{ color: '#6B7280' }}>
+          <p className="text-xs mt-1" style={{ color: '#94A3B8' }}>
             Generate a complete launch package from your active product in one click.
           </p>
         </div>
 
         {/* Active product status */}
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           {activeProduct ? (
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-xl"
@@ -432,7 +432,7 @@ function LaunchKitContent() {
               <Package size={12} style={{ color: '#f59e0b', flexShrink: 0 }} />
               <span
                 className="text-xs font-bold truncate"
-                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {activeProduct.name}
               </span>
@@ -445,7 +445,7 @@ function LaunchKitContent() {
                 border: '1px solid rgba(239,68,68,0.18)',
               }}
             >
-              <span className="text-xs" style={{ color: '#6B7280' }}>
+              <span className="text-xs" style={{ color: '#94A3B8' }}>
                 No active product.
               </span>
               <button
@@ -503,7 +503,7 @@ function LaunchKitContent() {
           <div className="px-4 pb-2">
             <div
               className="rounded-full overflow-hidden"
-              style={{ height: 3, background: '#F9FAFB' }}
+              style={{ height: 3, background: 'rgba(255,255,255,0.03)' }}
             >
               <div
                 className="h-full transition-all duration-500"
@@ -514,7 +514,7 @@ function LaunchKitContent() {
                 }}
               />
             </div>
-            <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>
+            <p className="text-xs mt-1.5" style={{ color: '#94A3B8' }}>
               {completedCount}/{steps.length} steps complete
             </p>
           </div>
@@ -557,17 +557,17 @@ function LaunchKitContent() {
         {/* Top bar */}
         <div
           className="flex items-center justify-between px-6 py-3.5 flex-shrink-0"
-          style={{ borderBottom: '1px solid #E5E7EB', background: '#FAFAFA' }}
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#05070F' }}
         >
           <div>
             <h2
               className="text-base font-extrabold"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
             >
               {activeProduct ? `Launch Kit — ${activeProduct.name}` : 'Launch Kit'}
             </h2>
             {activeProduct?.niche && (
-              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+              <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
                 {activeProduct.niche}
               </p>
             )}
@@ -595,9 +595,9 @@ function LaunchKitContent() {
               onClick={() => window.print()}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all no-print"
               style={{
-                background: '#F9FAFB',
+                background: 'rgba(255,255,255,0.03)',
                 border: '1px solid #F0F0F0',
-                color: '#6B7280',
+                color: '#94A3B8',
                 cursor: 'pointer',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
@@ -633,11 +633,11 @@ function LaunchKitContent() {
               </div>
               <h3
                 className="text-2xl font-extrabold mb-2"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
               >
                 Your Launch Kit awaits
               </h3>
-              <p className="text-sm max-w-md mb-8" style={{ color: '#6B7280' }}>
+              <p className="text-sm max-w-md mb-8" style={{ color: '#94A3B8' }}>
                 {activeProduct
                   ? `Click "Generate Launch Kit" to create a complete brand, copy, website, ads, email and financial package for ${activeProduct.name}.`
                   : 'Import a product first, then generate your complete launch package in seconds.'}
@@ -670,12 +670,12 @@ function LaunchKitContent() {
                     key={label}
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                     style={{
-                      background: '#FAFAFA',
-                      border: '1px solid #E5E7EB',
+                      background: '#05070F',
+                      border: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
                     <span className="text-base">{icon}</span>
-                    <span className="text-xs font-medium" style={{ color: '#6B7280' }}>
+                    <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
                       {label}
                     </span>
                   </div>
@@ -713,7 +713,7 @@ function LaunchKitContent() {
                         >
                           {step.label}
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                        <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
                           Generating...
                         </p>
                       </div>
@@ -731,7 +731,7 @@ function LaunchKitContent() {
                       }}
                     >
                       <X size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
-                      <p className="text-xs" style={{ color: '#6B7280' }}>
+                      <p className="text-xs" style={{ color: '#94A3B8' }}>
                         <span style={{ color: '#ef4444', fontWeight: 700 }}>{step.label}</span>{' '}
                         failed. Try regenerating.
                       </p>
@@ -753,7 +753,7 @@ function LaunchKitContent() {
                   <Check size={16} style={{ color: '#f59e0b' }} />
                   <p
                     className="text-sm font-bold"
-                    style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Launch Kit complete! Click "Copy All" to export.
                   </p>

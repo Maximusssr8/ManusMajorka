@@ -43,7 +43,7 @@ export function AILoadingState({
                 className="rounded-xl animate-pulse"
                 style={{
                   height: 100,
-                  background: '#FAFAFA',
+                  background: '#05070F',
                   border: '1px solid #F9FAFB',
                   animationDelay: `${i * 0.2}s`,
                 }}
@@ -60,7 +60,7 @@ export function AILoadingState({
                 style={{
                   height: 12,
                   width: `${w}%`,
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   animationDelay: `${i * 0.15}s`,
                 }}
               />
@@ -79,7 +79,7 @@ export function AILoadingState({
                 className="rounded-lg animate-pulse"
                 style={{
                   height: 24,
-                  background: '#FAFAFA',
+                  background: '#05070F',
                   animationDelay: `${i * 0.15}s`,
                 }}
               />

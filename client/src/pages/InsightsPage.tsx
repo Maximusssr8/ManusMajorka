@@ -34,7 +34,7 @@ export default function InsightsPage() {
     <div
       className="h-full overflow-auto"
       style={{
-        background: '#FAFAFA',
+        background: '#05070F',
         scrollbarWidth: 'thin',
         scrollbarColor: '#F0F0F0 transparent',
       }}
@@ -54,7 +54,7 @@ export default function InsightsPage() {
                 className="text-2xl font-extrabold"
                 style={{
                   fontFamily: "'Bricolage Grotesque', sans-serif",
-                  color: '#0A0A0A',
+                  color: '#F8FAFC',
                   letterSpacing: '-0.02em',
                 }}
               >
@@ -62,7 +62,7 @@ export default function InsightsPage() {
               </h1>
             </div>
           </div>
-          <p className="text-sm mt-2" style={{ color: '#6B7280' }}>
+          <p className="text-sm mt-2" style={{ color: '#94A3B8' }}>
             Analyse your business, decode your data, and uncover growth opportunities with these
             tools.
           </p>
@@ -100,8 +100,8 @@ export default function InsightsPage() {
                       onClick={() => setLocation(tool.path)}
                       className="text-left rounded-xl p-4 transition-all duration-150 group"
                       style={{
-                        background: '#FAFAFA',
-                        border: '1px solid #E5E7EB',
+                        background: '#05070F',
+                        border: '1px solid rgba(255,255,255,0.08)',
                         cursor: 'pointer',
                       }}
                       onMouseEnter={(e) => {
@@ -134,14 +134,14 @@ export default function InsightsPage() {
                             className="text-sm font-bold mb-1"
                             style={{
                               fontFamily: "'Bricolage Grotesque', sans-serif",
-                              color: '#0A0A0A',
+                              color: '#F8FAFC',
                             }}
                           >
                             {tool.label}
                           </div>
                           <div
                             className="text-xs leading-relaxed"
-                            style={{ color: '#6B7280' }}
+                            style={{ color: '#94A3B8' }}
                           >
                             {tool.description}
                           </div>

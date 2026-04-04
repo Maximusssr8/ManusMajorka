@@ -107,11 +107,11 @@ export default function AutomationBuilder() {
   return (
     <div
       className="h-full flex"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4"
-        style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', scrollbarWidth: 'thin' }}
       >
         <div className="flex items-center gap-2.5 mb-1">
           <div
@@ -179,9 +179,9 @@ export default function AutomationBuilder() {
                 rows={2}
                 className="w-full text-xs px-3 py-2.5 rounded-lg outline-none resize-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1.5px solid #F5F5F5',
-                  color: '#374151',
+                  color: '#CBD5E1',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(255,180,0,0.45)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -193,9 +193,9 @@ export default function AutomationBuilder() {
                 placeholder={placeholder}
                 className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1.5px solid #F5F5F5',
-                  color: '#374151',
+                  color: '#CBD5E1',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(255,180,0,0.45)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
@@ -254,9 +254,9 @@ export default function AutomationBuilder() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: '#F9FAFB',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F0F0F0',
-                  color: '#374151',
+                  color: '#CBD5E1',
                   cursor: 'pointer',
                 }}
               >
@@ -271,7 +271,7 @@ export default function AutomationBuilder() {
                 border: '1px solid rgba(255,180,0,0.2)',
               }}
             >
-              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
                 {result.summary}
               </div>
             </div>
@@ -281,13 +281,13 @@ export default function AutomationBuilder() {
                 key={i}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: '#FAFAFA',
-                  border: '1px solid #E5E7EB',
+                  background: '#05070F',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 <div
                   className="px-4 py-3 border-b flex items-center justify-between"
-                  style={{ borderColor: '#E5E7EB' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.08)' }}
                 >
                   <div>
                     <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
@@ -321,7 +321,7 @@ export default function AutomationBuilder() {
                         <div
                           className="rounded-lg px-3 py-2"
                           style={{
-                            background: '#F9FAFB',
+                            background: 'rgba(255,255,255,0.03)',
                             border: '1px solid #F5F5F5',
                           }}
                         >
@@ -330,7 +330,7 @@ export default function AutomationBuilder() {
                           </div>
                           <div
                             className="text-xs mt-0.5"
-                            style={{ color: '#6B7280' }}
+                            style={{ color: '#94A3B8' }}
                           >
                             {step.action}
                           </div>

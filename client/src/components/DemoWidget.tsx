@@ -158,7 +158,7 @@ function renderLine(line: string, idx: number) {
         key={idx}
         style={{
           fontSize: 12,
-          color: '#6B7280',
+          color: '#94A3B8',
           lineHeight: 1.65,
           paddingLeft: 4,
           marginBottom: 1,
@@ -174,7 +174,7 @@ function renderLine(line: string, idx: number) {
         key={idx}
         style={{
           fontSize: 12,
-          color: '#6B7280',
+          color: '#94A3B8',
           lineHeight: 1.7,
           marginBottom: 1,
           fontFamily: mono,
@@ -205,7 +205,7 @@ function renderLine(line: string, idx: number) {
   const parts = line.split(/(\*\*[^*]+\*\*)/g);
   const rendered = parts.map((p, j) =>
     p.startsWith('**') && p.endsWith('**') ? (
-      <strong key={j} style={{ color: '#0A0A0A', fontWeight: 700 }}>
+      <strong key={j} style={{ color: '#F8FAFC', fontWeight: 700 }}>
         {p.replace(/\*\*/g, '')}
       </strong>
     ) : (
@@ -214,7 +214,7 @@ function renderLine(line: string, idx: number) {
   );
 
   return (
-    <div key={idx} style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7, marginBottom: 2 }}>
+    <div key={idx} style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.7, marginBottom: 2 }}>
       {rendered}
     </div>
   );
@@ -424,7 +424,7 @@ export default function DemoWidget() {
                 <div className="thinking-dot" />
                 <div className="thinking-dot" />
               </div>
-              <span style={{ fontFamily: dm, fontSize: 12, color: '#6B7280' }}>
+              <span style={{ fontFamily: dm, fontSize: 12, color: '#94A3B8' }}>
                 Analysing market data...
               </span>
             </div>
@@ -447,7 +447,7 @@ export default function DemoWidget() {
                   background: 'rgba(99,102,241,0.3)',
                 }}
               />
-              <span style={{ fontSize: 12, color: '#6B7280', fontFamily: dm }}>
+              <span style={{ fontSize: 12, color: '#94A3B8', fontFamily: dm }}>
                 Waiting for your prompt...
               </span>
             </div>

@@ -120,7 +120,7 @@ const C = {
 const TREND_MAP: Record<Trend, { emoji: string; label: string; color: string }> = {
   exploding: { emoji: '🔥', label: 'Exploding', color: '#ef4444' },
   growing:   { emoji: '📈', label: 'Growing',   color: '#22c55e' },
-  stable:    { emoji: '➡️', label: 'Stable',    color: '#6B7280' },
+  stable:    { emoji: '➡️', label: 'Stable',    color: '#94A3B8' },
   declining: { emoji: '📉', label: 'Declining', color: '#f59e0b' },
 };
 
@@ -1621,7 +1621,7 @@ function FullReportModal({
         width: 'min(780px, 96vw)',
         maxHeight: '92vh',
         overflowY: 'auto',
-        background: '#FAFAFA',
+        background: '#05070F',
         border: `1px solid ${C.goldBorder}`,
         borderRadius: 24,
         zIndex: 1001,
@@ -2387,7 +2387,7 @@ function MarketSignalsBar({ products }: { products: WinningProduct[] }) {
 
   return (
     <div style={{
-      marginBottom: 20, background: '#F9FAFB', border: `1px solid ${C.border}`,
+      marginBottom: 20, background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}`,
       borderRadius: 12, padding: '10px 16px', overflowX: 'auto', display: 'flex', gap: isMobile ? 12 : 24, alignItems: 'center',
     }}>
       <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>Signals</span>
@@ -2600,7 +2600,7 @@ function TableView({
                   <tr key={i}>
                     {[40, 220, 100, 90, 80, 80, 80, 80, 50].map((w, j) => (
                       <td key={j} style={{ padding: '14px 12px' }}>
-                        <div style={{ height: 14, width: w, maxWidth: '100%', background: '#F9FAFB', borderRadius: 6, animation: 'shimmer 1.8s ease-in-out infinite' }} />
+                        <div style={{ height: 14, width: w, maxWidth: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: 6, animation: 'shimmer 1.8s ease-in-out infinite' }} />
                       </td>
                     ))}
                   </tr>
@@ -2802,7 +2802,7 @@ function CardGrid({
           }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
             <p style={{
-              color: '#0A0A0A',
+              color: '#F8FAFC',
               fontSize: 15,
               fontWeight: 700,
               marginBottom: 8,
@@ -3541,8 +3541,8 @@ function WinningProducts() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 14 }}>📅</span>
-              <span style={{ color: '#6B7280' }}>
-                Showing data from: <strong style={{ color: '#0A0A0A' }}>Last 30 days</strong>
+              <span style={{ color: '#94A3B8' }}>
+                Showing data from: <strong style={{ color: '#F8FAFC' }}>Last 30 days</strong>
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3924,8 +3924,8 @@ function WinningProducts() {
                     if (!isPro) {
                       toast(
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <span style={{ fontWeight: 700, color: '#0A0A0A' }}>🔒 Pro feature</span>
-                          <span style={{ fontSize: 12, color: '#6B7280' }}>
+                          <span style={{ fontWeight: 700, color: '#F8FAFC' }}>🔒 Pro feature</span>
+                          <span style={{ fontSize: 12, color: '#94A3B8' }}>
                             Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.
                           </span>
                           <button
@@ -4398,7 +4398,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
             color: '#6366F1',
             fontFamily: "'Bricolage Grotesque', sans-serif",
             minHeight: '100vh',
-            background: '#FAFAFA',
+            background: '#05070F',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -4406,10 +4406,10 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
           }}
         >
           <div style={{ fontSize: 32, marginBottom: 16 }}>⚠️</div>
-          <div style={{ fontSize: 18, marginBottom: 8, color: '#0A0A0A' }}>
+          <div style={{ fontSize: 18, marginBottom: 8, color: '#F8FAFC' }}>
             Something went wrong loading products
           </div>
-          <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 24 }}>
+          <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 24 }}>
             Check your connection and try reloading.
           </div>
           <button

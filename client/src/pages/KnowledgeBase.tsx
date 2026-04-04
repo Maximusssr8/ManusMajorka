@@ -438,7 +438,7 @@ export default function KnowledgeBase() {
   return (
     <div
       className="flex h-full overflow-hidden"
-      style={{ background: 'var(--surface-0, #FAFAFA)', color: '#0A0A0A' }}
+      style={{ background: 'var(--surface-0, #FAFAFA)', color: '#F8FAFC' }}
     >
       {/* Left sidebar nav */}
       <aside
@@ -462,7 +462,7 @@ export default function KnowledgeBase() {
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '0.1em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', letterSpacing: '0.1em' }}
           >
             Knowledge Base
           </span>
@@ -540,7 +540,7 @@ export default function KnowledgeBase() {
               style={{
                 background: 'var(--surface-1, #FFFFFF)',
                 border: '1px solid var(--surface-border, rgba(99,102,241,0.12))',
-                color: '#0A0A0A',
+                color: '#F8FAFC',
                 fontFamily: 'DM Sans, sans-serif',
               }}
             >
@@ -570,7 +570,7 @@ export default function KnowledgeBase() {
             </div>
             <h1
               className="text-2xl font-extrabold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1.2 }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', lineHeight: 1.2 }}
             >
               {activeSection.title}
             </h1>
@@ -599,11 +599,11 @@ export default function KnowledgeBase() {
             <div>
               <p
                 className="text-sm font-bold mb-0.5"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
               >
                 Have questions about {activeSection.title.toLowerCase()}?
               </p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>
+              <p className="text-xs" style={{ color: '#94A3B8' }}>
                 Ask Majorka AI for personalised guidance on your specific situation.
               </p>
             </div>
@@ -654,7 +654,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {prev.title}
                         </span>
@@ -673,7 +673,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {next.title}
                         </span>
@@ -708,7 +708,7 @@ function ArticleContent({ content }: { content: string }) {
         <h2
           key={i}
           className="text-xl font-extrabold mt-8 mb-3"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
         >
           {line.slice(3)}
         </h2>
@@ -753,7 +753,7 @@ function ArticleContent({ content }: { content: string }) {
       elements.push(
         <ul key={`ul-${i}`} className="list-disc pl-5 mb-4 space-y-1">
           {listLines.map((l, li) => (
-            <li key={li} className="text-sm leading-relaxed" style={{ color: '#6B7280' }}>
+            <li key={li} className="text-sm leading-relaxed" style={{ color: '#94A3B8' }}>
               <InlineMarkdown text={l} />
             </li>
           ))}
@@ -772,7 +772,7 @@ function ArticleContent({ content }: { content: string }) {
       elements.push(
         <ol key={`ol-${i}`} className="list-decimal pl-5 mb-4 space-y-1">
           {listLines.map((l, li) => (
-            <li key={li} className="text-sm leading-relaxed" style={{ color: '#6B7280' }}>
+            <li key={li} className="text-sm leading-relaxed" style={{ color: '#94A3B8' }}>
               <InlineMarkdown text={l} />
             </li>
           ))}
@@ -789,7 +789,7 @@ function ArticleContent({ content }: { content: string }) {
 
     // Regular paragraph
     elements.push(
-      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#374151' }}>
+      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#CBD5E1' }}>
         <InlineMarkdown text={line} />
       </p>
     );

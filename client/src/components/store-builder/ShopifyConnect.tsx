@@ -106,7 +106,7 @@ export default function ShopifyConnect({
       <h2 style={{ fontFamily: syne, fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>
         Connect Your Store
       </h2>
-      <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15 }}>
+      <p style={{ color: '#94A3B8', marginBottom: 32, fontSize: 15 }}>
         Connect your Shopify store to push the blueprint live in one click.
       </p>
 
@@ -120,7 +120,7 @@ export default function ShopifyConnect({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
             <CheckCircle size={16} style={{ color: '#22c55e', flexShrink: 0 }} />
-            <span style={{ fontWeight: 600, color: '#374151', fontSize: 14 }}>
+            <span style={{ fontWeight: 600, color: '#CBD5E1', fontSize: 14 }}>
               {connectedShop ? `Connected to ${connectedShop}` : 'Shopify store connected ✓'}
             </span>
           </div>
@@ -133,7 +133,7 @@ export default function ShopifyConnect({
         </div>
       ) : (
         <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>
             Shopify Store Domain
           </label>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -145,7 +145,7 @@ export default function ShopifyConnect({
               style={{
                 flex: 1, padding: '12px 14px', borderRadius: 8,
                 border: '1px solid #F0F0F0',
-                background: '#F9FAFB', color: '#374151',
+                background: 'rgba(255,255,255,0.03)', color: '#CBD5E1',
                 fontSize: 14, outline: 'none', minHeight: 44,
               }}
               onFocus={e => (e.target.style.borderColor = gold)}
@@ -176,7 +176,7 @@ export default function ShopifyConnect({
           style={{
             flex: 1, padding: 14, borderRadius: 8,
             border: '1px solid #F0F0F0',
-            background: 'transparent', color: '#6B7280',
+            background: 'transparent', color: '#94A3B8',
             cursor: 'pointer', fontFamily: syne, fontWeight: 600,
           }}
         >

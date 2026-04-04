@@ -20,7 +20,7 @@ export default function PushSuccess({ result, onReset }: {
       <h2 style={{ fontFamily: syne, fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>
         {allSuccess ? 'Store Launched!' : 'Partially Pushed'}
       </h2>
-      <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15 }}>
+      <p style={{ color: '#94A3B8', marginBottom: 32, fontSize: 15 }}>
         {allSuccess ? 'Your blueprint has been pushed to Shopify successfully.' : 'Some steps completed. Check below for details.'}
       </p>
 
@@ -39,7 +39,7 @@ export default function PushSuccess({ result, onReset }: {
               {ok
                 ? <CheckCircle size={16} style={{ color: '#22c55e', flexShrink: 0 }} />
                 : <XCircle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />}
-              <span style={{ fontWeight: 600, color: '#374151', fontSize: 14, flex: 1 }}>{s.label}</span>
+              <span style={{ fontWeight: 600, color: '#CBD5E1', fontSize: 14, flex: 1 }}>{s.label}</span>
               <span style={{ fontSize: 12, color: ok ? '#22c55e' : '#ef4444' }}>
                 {ok ? '✓ Done' : err ? `✗ ${String(err).slice(0, 40)}` : '✗ Failed'}
               </span>
@@ -72,7 +72,7 @@ export default function PushSuccess({ result, onReset }: {
 
       <button onClick={onReset} style={{
         padding: '12px 24px', borderRadius: 8, border: '1px solid #F0F0F0',
-        background: 'transparent', color: '#6B7280', cursor: 'pointer', fontFamily: syne, fontWeight: 600,
+        background: 'transparent', color: '#94A3B8', cursor: 'pointer', fontFamily: syne, fontWeight: 600,
       }}>
         Build Another Store
       </button>

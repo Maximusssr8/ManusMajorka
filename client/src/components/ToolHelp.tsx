@@ -96,7 +96,7 @@ export default function ToolHelp({
                 className="text-xs px-2.5 py-1.5 rounded-lg"
                 style={{
                   color: 'rgba(245,245,245,0.5)',
-                  background: '#FAFAFA',
+                  background: 'rgba(255,255,255,0.03)',
                   border: '1px solid #F9FAFB',
                   fontStyle: 'italic',
                 }}

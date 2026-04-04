@@ -84,7 +84,7 @@ export default function UsageCounter({ feature }: UsageCounterProps) {
           {used} / {limit}
         </span>
       </div>
-      <div style={{ height: 6, background: '#F5F5F5', borderRadius: 3, overflow: 'hidden' }}>
+      <div style={{ height: 6, background: 'rgba(255,255,255,0.04)', borderRadius: 3, overflow: 'hidden' }}>
         <div
           style={{
             width: `${pct}%`,

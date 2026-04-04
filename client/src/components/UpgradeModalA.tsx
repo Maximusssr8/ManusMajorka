@@ -70,7 +70,7 @@ export default function UpgradeModalA({
       <div
         className="relative w-full max-w-lg mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: 'white',
+          background: '#0C1120',
           border: '1px solid rgba(99,102,241,0.15)',
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
@@ -104,11 +104,11 @@ export default function UpgradeModalA({
           </div>
           <h2
             className="text-xl font-extrabold mb-2"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
           >
             You've hit a limit
           </h2>
-          <p className="text-sm mb-1" style={{ color: '#6B7280' }}>
+          <p className="text-sm mb-1" style={{ color: '#94A3B8' }}>
             Upgrade to unlock unlimited access to all Majorka AI tools.
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function UpgradeModalA({
               <div className="mb-3">
                 <div
                   className="text-xs font-bold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   {plan.name}
                 </div>
@@ -166,7 +166,7 @@ export default function UpgradeModalA({
                       className="mt-0.5 flex-shrink-0"
                       style={{ color: plan.popular ? '#6366F1' : '#4ade80' }}
                     />
-                    <span className="text-xs" style={{ color: '#374151' }}>
+                    <span className="text-xs" style={{ color: '#CBD5E1' }}>
                       {f}
                     </span>
                   </div>

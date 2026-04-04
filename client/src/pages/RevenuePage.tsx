@@ -109,7 +109,7 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: Pt }[
   const { day, revenue } = payload[0].payload;
   return (
     <div style={{ background: '#0A0F1E', border: '1px solid rgba(99,102,241,0.4)', borderRadius: 12, padding: '12px 18px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)' }}>
-      <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>{day}</div>
+      <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>{day}</div>
       <div style={{ fontSize: 22, fontWeight: 900, color: G, fontFamily: brico, letterSpacing: '-0.02em' }}>${revenue.toLocaleString()}</div>
     </div>
   );

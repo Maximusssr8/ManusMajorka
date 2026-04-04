@@ -89,8 +89,8 @@ function GlassCard({
     <div
       className={className}
       style={{
-        background: '#FAFAFA',
-        border: '1px solid #E5E7EB',
+        background: '#05070F',
+        border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: 12,
         backdropFilter: 'blur(12px)',
       }}
@@ -104,7 +104,7 @@ function GlassCard({
 
 function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, React.CSSProperties> = {
-    starter: { background: 'rgba(113,113,122,0.2)', color: '#6B7280' },
+    starter: { background: 'rgba(113,113,122,0.2)', color: '#94A3B8' },
     builder: { background: 'rgba(99,102,241,0.15)', color: '#6366F1' },
     scale: { background: 'rgba(124,90,245,0.2)', color: '#a78bfa' },
     pro: { background: 'rgba(99,102,241,0.30)', color: '#6366F1' },
@@ -167,7 +167,7 @@ function ConfirmDialog({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         style={{
-          background: 'white',
+          background: '#0C1120',
           border: '1px solid #F0F0F0',
           borderRadius: 16,
           padding: 32,
@@ -179,22 +179,22 @@ function ConfirmDialog({
         <h3
           style={{
             fontFamily: "'Bricolage Grotesque', sans-serif",
-            color: '#0A0A0A',
+            color: '#F8FAFC',
             fontSize: 18,
             marginBottom: 12,
           }}
         >
           {title}
         </h3>
-        <p style={{ color: '#374151', fontSize: 14, marginBottom: 24 }}>{message}</p>
+        <p style={{ color: '#CBD5E1', fontSize: 14, marginBottom: 24 }}>{message}</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button
             onClick={onCancel}
             style={{
               padding: '8px 16px',
               borderRadius: 8,
-              background: '#F9FAFB',
-              color: '#374151',
+              background: 'rgba(255,255,255,0.03)',
+              color: '#CBD5E1',
               border: '1px solid #F0F0F0',
               cursor: 'pointer',
               fontSize: 14,
@@ -297,7 +297,7 @@ export default function AdminPanel() {
   // Gate access
   if (!user) {
     return (
-      <div className="h-screen flex items-center justify-center" style={{ background: '#FAFAFA' }}>
+      <div className="h-screen flex items-center justify-center" style={{ background: '#05070F' }}>
         <Loader2 className="animate-spin" size={24} style={{ color: '#6366F1' }} />
       </div>
     );
@@ -413,11 +413,11 @@ export default function AdminPanel() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#FAFAFA',
+        background: '#05070F',
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'DM Sans, sans-serif',
-        color: '#0A0A0A',
+        color: '#F8FAFC',
       }}
     >
       {/* Top Nav */}
@@ -460,7 +460,7 @@ export default function AdminPanel() {
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontWeight: 700,
               fontSize: 15,
-              color: '#0A0A0A',
+              color: '#F8FAFC',
             }}
           >
             Majorka Admin
@@ -490,9 +490,9 @@ export default function AdminPanel() {
               gap: 6,
               padding: '6px 12px',
               borderRadius: 8,
-              background: '#F9FAFB',
+              background: 'rgba(255,255,255,0.03)',
               border: '1px solid #F5F5F5',
-              color: '#374151',
+              color: '#CBD5E1',
               cursor: 'pointer',
               fontSize: 13,
               transition: 'all 200ms ease',
@@ -609,10 +609,10 @@ export default function AdminPanel() {
                         style={{
                           width: '100%',
                           padding: '9px 12px 9px 34px',
-                          background: '#F9FAFB',
+                          background: 'rgba(255,255,255,0.03)',
                           border: '1px solid #F5F5F5',
                           borderRadius: 8,
-                          color: '#0A0A0A',
+                          color: '#F8FAFC',
                           fontSize: 13,
                           outline: 'none',
                           transition: 'border-color 200ms ease',
@@ -630,25 +630,25 @@ export default function AdminPanel() {
                       onChange={(e) => setPlanFilter(e.target.value)}
                       style={{
                         padding: '9px 12px',
-                        background: '#F9FAFB',
+                        background: 'rgba(255,255,255,0.03)',
                         border: '1px solid #F5F5F5',
                         borderRadius: 8,
-                        color: '#0A0A0A',
+                        color: '#F8FAFC',
                         fontSize: 13,
                         cursor: 'pointer',
                         outline: 'none',
                       }}
                     >
-                      <option value="all" style={{ background: 'white' }}>
+                      <option value="all" style={{ background: '#0C1120' }}>
                         All Plans
                       </option>
-                      <option value="starter" style={{ background: 'white' }}>
+                      <option value="starter" style={{ background: '#0C1120' }}>
                         Starter
                       </option>
-                      <option value="builder" style={{ background: 'white' }}>
+                      <option value="builder" style={{ background: '#0C1120' }}>
                         Builder
                       </option>
-                      <option value="scale" style={{ background: 'white' }}>
+                      <option value="scale" style={{ background: '#0C1120' }}>
                         Scale
                       </option>
                     </select>
@@ -771,7 +771,7 @@ export default function AdminPanel() {
                                       >
                                         {initials}
                                       </div>
-                                      <span style={{ fontSize: 13, color: '#0A0A0A' }}>{name}</span>
+                                      <span style={{ fontSize: 13, color: '#F8FAFC' }}>{name}</span>
                                     </div>
                                   </td>
                                   {/* Email */}
@@ -779,7 +779,7 @@ export default function AdminPanel() {
                                     style={{
                                       padding: '10px 16px',
                                       fontSize: 12,
-                                      color: '#374151',
+                                      color: '#CBD5E1',
                                       fontFamily: 'Fira Code, monospace',
                                     }}
                                   >
@@ -811,10 +811,10 @@ export default function AdminPanel() {
                                           alignItems: 'center',
                                           gap: 4,
                                           padding: '5px 10px',
-                                          background: '#F9FAFB',
+                                          background: 'rgba(255,255,255,0.03)',
                                           border: '1px solid #F5F5F5',
                                           borderRadius: 6,
-                                          color: '#374151',
+                                          color: '#CBD5E1',
                                           cursor: 'pointer',
                                           fontSize: 12,
                                           transition: 'all 200ms ease',
@@ -837,7 +837,7 @@ export default function AdminPanel() {
                                             position: 'absolute',
                                             top: 'calc(100% + 4px)',
                                             left: 0,
-                                            background: 'white',
+                                            background: '#0C1120',
                                             border: '1px solid #F0F0F0',
                                             borderRadius: 8,
                                             zIndex: 100,
@@ -857,7 +857,7 @@ export default function AdminPanel() {
                                                 padding: '8px 12px',
                                                 background: 'transparent',
                                                 border: 'none',
-                                                color: '#374151',
+                                                color: '#CBD5E1',
                                                 cursor: 'pointer',
                                                 fontSize: 13,
                                                 textAlign: 'left',
@@ -952,7 +952,7 @@ export default function AdminPanel() {
                               <span
                                 style={{
                                   fontSize: 12,
-                                  color: '#6B7280',
+                                  color: '#94A3B8',
                                 }}
                               >
                                 {card.label}
@@ -989,7 +989,7 @@ export default function AdminPanel() {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: '#374151',
+                          color: '#CBD5E1',
                           marginBottom: 16,
                         }}
                       >
@@ -1016,10 +1016,10 @@ export default function AdminPanel() {
                           <YAxis hide />
                           <Tooltip
                             contentStyle={{
-                              background: 'white',
+                              background: '#0C1120',
                               border: '1px solid #F0F0F0',
                               borderRadius: 8,
-                              color: '#0A0A0A',
+                              color: '#F8FAFC',
                               fontSize: 12,
                             }}
                           />
@@ -1075,7 +1075,7 @@ export default function AdminPanel() {
                           <div
                             style={{
                               fontSize: 12,
-                              color: '#6B7280',
+                              color: '#94A3B8',
                               marginBottom: 10,
                             }}
                           >
@@ -1129,7 +1129,7 @@ export default function AdminPanel() {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: '#374151',
+                          color: '#CBD5E1',
                           marginBottom: 16,
                         }}
                       >
@@ -1150,7 +1150,7 @@ export default function AdminPanel() {
                               }}
                             >
                               <div>
-                                <div style={{ fontSize: 13, color: '#0A0A0A', marginBottom: 2 }}>
+                                <div style={{ fontSize: 13, color: '#F8FAFC', marginBottom: 2 }}>
                                   {flag.label}
                                 </div>
                                 <div
@@ -1217,7 +1217,7 @@ export default function AdminPanel() {
                           style={{
                             fontSize: 14,
                             fontWeight: 600,
-                            color: '#374151',
+                            color: '#CBD5E1',
                             marginBottom: 4,
                           }}
                         >
@@ -1265,10 +1265,10 @@ export default function AdminPanel() {
                               style={{
                                 width: '100%',
                                 padding: '10px 12px',
-                                background: '#FAFAFA',
+                                background: '#05070F',
                                 border: '1px solid #F5F5F5',
                                 borderRadius: 8,
-                                color: '#0A0A0A',
+                                color: '#F8FAFC',
                                 fontSize: 13,
                                 resize: 'vertical',
                                 outline: 'none',
@@ -1385,7 +1385,7 @@ export default function AdminPanel() {
                             alignItems: 'center',
                             gap: 12,
                             padding: '16px 20px',
-                            background: '#FAFAFA',
+                            background: '#05070F',
                             border: `1px solid ${action.danger ? 'rgba(239,68,68,0.2)' : '#E5E7EB'}`,
                             borderRadius: 12,
                             color: action.color,
@@ -1456,7 +1456,7 @@ export default function AdminPanel() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               style={{
-                background: 'white',
+                background: '#0C1120',
                 border: '1px solid #F0F0F0',
                 borderRadius: 16,
                 padding: 32,
@@ -1478,7 +1478,7 @@ export default function AdminPanel() {
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontSize: 18,
                     fontWeight: 700,
-                    color: '#0A0A0A',
+                    color: '#F8FAFC',
                   }}
                 >
                   Broadcast Email
@@ -1505,7 +1505,7 @@ export default function AdminPanel() {
                     style={{
                       display: 'block',
                       fontSize: 12,
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       marginBottom: 6,
                     }}
                   >
@@ -1518,10 +1518,10 @@ export default function AdminPanel() {
                     style={{
                       width: '100%',
                       padding: '10px 14px',
-                      background: '#F9FAFB',
+                      background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
                       borderRadius: 8,
-                      color: '#0A0A0A',
+                      color: '#F8FAFC',
                       fontSize: 14,
                       outline: 'none',
                       transition: 'border-color 200ms ease',
@@ -1535,7 +1535,7 @@ export default function AdminPanel() {
                     style={{
                       display: 'block',
                       fontSize: 12,
-                      color: '#6B7280',
+                      color: '#94A3B8',
                       marginBottom: 6,
                     }}
                   >
@@ -1549,10 +1549,10 @@ export default function AdminPanel() {
                     style={{
                       width: '100%',
                       padding: '10px 14px',
-                      background: '#F9FAFB',
+                      background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
                       borderRadius: 8,
-                      color: '#0A0A0A',
+                      color: '#F8FAFC',
                       fontSize: 14,
                       resize: 'vertical',
                       outline: 'none',

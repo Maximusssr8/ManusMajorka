@@ -37,7 +37,7 @@ function Output({ text, label }: { text: string; label?: string }) {
   return (
     <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 10, padding: 14, marginTop: 10 }}>
       {label && <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 6 }}>{label}</div>}
-      <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const }}>{text}</div>
+      <div style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const }}>{text}</div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
         <CopyBtn text={text} />
       </div>
@@ -93,7 +93,7 @@ function LaunchPack() {
   const hasPack = Object.keys(pack).length > 0;
 
   return (
-    <div style={{ background: 'white', border: '1.5px solid #6366F1', borderRadius: 16, overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(99,102,241,0.08)' }}>
+    <div style={{ background: '#0C1120', border: '1.5px solid #6366F1', borderRadius: 16, overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(99,102,241,0.08)' }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
@@ -122,18 +122,18 @@ function LaunchPack() {
             <input value={product} onChange={e => setProduct(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && generate()}
               placeholder="e.g. LED Face Mask Pro"
-              style={{ width: '100%', height: 40, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', boxSizing: 'border-box' as const, color: '#0A0A0A' }} />
+              style={{ width: '100%', height: 40, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', boxSizing: 'border-box' as const, color: '#F8FAFC' }} />
           </div>
           <div>
             <label style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', display: 'block', marginBottom: 4, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Niche</label>
             <input value={niche} onChange={e => setNiche(e.target.value)}
               placeholder="e.g. Beauty & Skincare"
-              style={{ width: '100%', height: 40, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', boxSizing: 'border-box' as const, color: '#0A0A0A' }} />
+              style={{ width: '100%', height: 40, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', boxSizing: 'border-box' as const, color: '#F8FAFC' }} />
           </div>
           <div>
             <label style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', display: 'block', marginBottom: 4, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Market</label>
             <select value={region} onChange={e => setRegion(e.target.value)}
-              style={{ height: 40, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: 'white', cursor: 'pointer' }}>
+              style={{ height: 40, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#0C1120', cursor: 'pointer' }}>
               {[['AU','🇦🇺 AU'],['US','🇺🇸 US'],['UK','🇬🇧 UK'],['CA','🇨🇦 CA']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
@@ -154,13 +154,13 @@ function LaunchPack() {
         {hasPack && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {sections.map(s => (
-              <div key={s.key} style={{ background: '#FAFAFA', border: `1px solid ${pack[s.key] ? '#E0E7FF' : '#F3F4F6'}`, borderRadius: 10, padding: 14 }}>
+              <div key={s.key} style={{ background: '#05070F', border: `1px solid ${pack[s.key] ? '#E0E7FF' : '#F3F4F6'}`, borderRadius: 10, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: pack[s.key] ? '#6366F1' : '#9CA3AF' }}>{s.label}</div>
                   {pack[s.key] && <CopyBtn text={pack[s.key]} small />}
                 </div>
                 {pack[s.key] ? (
-                  <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap' as const, maxHeight: 120, overflowY: 'auto' as const }}>{pack[s.key]}</div>
+                  <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.6, whiteSpace: 'pre-wrap' as const, maxHeight: 120, overflowY: 'auto' as const }}>{pack[s.key]}</div>
                 ) : (
                   <div style={{ fontSize: 11, color: '#D1D5DB', fontStyle: 'italic' }}>
                     {loading ? '✍️ Generating…' : 'Not generated'}
@@ -185,12 +185,12 @@ function LaunchPack() {
 // ── Individual tool card ───────────────────────────────────────────────────
 function ToolCard({ icon, title, desc, children }: { icon: string; title: string; desc: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, overflow: 'hidden' }}>
+    <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 20 }}>{icon}</span>
           <div>
-            <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>{title}</div>
+            <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#F8FAFC' }}>{title}</div>
             <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{desc}</div>
           </div>
         </div>
@@ -219,7 +219,7 @@ function AdCopyTool() {
     <ToolCard icon="📣" title="Ad Copy Generator" desc="Meta, TikTok & Google ad copy in seconds">
       <div style={{ display: 'grid', gap: 8 }}>
         <input value={product} onChange={e => setProduct(e.target.value)} placeholder="Product name (e.g. Posture Corrector)"
-          style={{ height: 38, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', color: '#0A0A0A' }} />
+          style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <div style={{ display: 'flex', gap: 6 }}>
           {['Meta', 'TikTok', 'Google'].map(p => (
             <button key={p} onClick={() => setPlatform(p)}
@@ -265,11 +265,11 @@ function DescriptionTool() {
     <ToolCard icon="✍️" title="Product Description" desc="SEO-optimised copy for your store">
       <div style={{ display: 'grid', gap: 8 }}>
         <input value={product} onChange={e => setProduct(e.target.value)} placeholder="Product name"
-          style={{ height: 38, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', color: '#0A0A0A' }} />
+          style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <textarea value={features} onChange={e => setFeatures(e.target.value)} rows={2} placeholder="Key features (2-3 bullet points)"
-          style={{ padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, background: '#FAFAFA', color: '#0A0A0A', resize: 'none' as const, fontFamily: 'inherit' }} />
+          style={{ padding: '10px 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12, background: '#05070F', color: '#F8FAFC', resize: 'none' as const, fontFamily: 'inherit' }} />
         <select value={audience} onChange={e => setAudience(e.target.value)}
-          style={{ height: 38, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: 'white', cursor: 'pointer', color: '#374151' }}>
+          style={{ height: 38, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#0C1120', cursor: 'pointer', color: '#CBD5E1' }}>
           {['US Shoppers (General)','AU Shoppers (General)','Beauty Enthusiasts','Fitness & Health','Pet Owners','Tech Lovers','Home Improvers'].map(a => <option key={a}>{a}</option>)}
         </select>
         <button onClick={run} disabled={loading || !product.trim()}
@@ -299,7 +299,7 @@ function EmailTool() {
     <ToolCard icon="📧" title="Email Templates" desc="Abandoned cart, welcome, win-back & launch">
       <div style={{ display: 'grid', gap: 8 }}>
         <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="Brand name (e.g. PureGlow AU)"
-          style={{ height: 38, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', color: '#0A0A0A' }} />
+          style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
           {(['Abandoned Cart', 'Welcome', 'Win-Back', 'Launch'] as const).map(t => (
             <button key={t} onClick={() => setType(t)}
@@ -336,7 +336,7 @@ function TikTokTool() {
     <ToolCard icon="🎵" title="TikTok Script" desc="Hook → demo → CTA in 60 seconds">
       <div style={{ display: 'grid', gap: 8 }}>
         <input value={product} onChange={e => setProduct(e.target.value)} placeholder="Product name"
-          style={{ height: 38, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', color: '#0A0A0A' }} />
+          style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <div style={{ display: 'flex', gap: 6 }}>
           {['POV', 'Review', 'Demo', 'Unboxing'].map(f => (
             <button key={f} onClick={() => setFormat(f)}
@@ -372,7 +372,7 @@ function NameTool() {
     <ToolCard icon="✨" title="Store Name Generator" desc="Brand name ideas for your niche">
       <div style={{ display: 'grid', gap: 8 }}>
         <input value={niche} onChange={e => setNiche(e.target.value)} placeholder="Niche (e.g. pet accessories)"
-          style={{ height: 38, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', color: '#0A0A0A' }} />
+          style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <button onClick={run} disabled={loading || !niche.trim()}
           style={{ height: 38, background: loading ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Names →'}
@@ -400,7 +400,7 @@ function HashtagTool() {
     <ToolCard icon="#️⃣" title="Hashtag Research" desc="TikTok & Instagram hashtag packs">
       <div style={{ display: 'grid', gap: 8 }}>
         <input value={product} onChange={e => setProduct(e.target.value)} placeholder="Product or niche"
-          style={{ height: 38, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: '#FAFAFA', color: '#0A0A0A' }} />
+          style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <button onClick={run} disabled={loading || !product.trim()}
           style={{ height: 38, background: loading ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Hashtags →'}
@@ -430,10 +430,10 @@ export default function GrowthTools() {
   React.useEffect(() => { document.title = 'Growth Tools | Majorka'; }, []);
   const isMobile = useIsMobile();
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
+    <div style={{ background: '#05070F', minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '16px 28px' }}>
-        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Growth Tools</h1>
+      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px' }}>
+        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', margin: 0 }}>Growth Tools</h1>
         <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>AI-powered marketing tools — from one product to a full launch kit</p>
       </div>
 

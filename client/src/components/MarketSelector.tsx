@@ -26,7 +26,7 @@ export default function MarketSelector() {
           borderRadius: 8,
           background: open ? '#F9FAFB' : 'transparent',
           border: '1px solid #F9FAFB',
-          color: '#6B7280',
+          color: '#94A3B8',
           cursor: 'pointer',
           fontFamily: 'DM Sans, sans-serif',
         }}
@@ -55,8 +55,8 @@ export default function MarketSelector() {
         <div
           className="absolute bottom-full left-0 mb-1 w-full overflow-hidden"
           style={{
-            background: '#FFFFFF',
-            border: '1px solid #E5E7EB',
+            background: '#0C1120',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 10,
             boxShadow: '0 -8px 32px rgba(0,0,0,0.1)',
             zIndex: 100,

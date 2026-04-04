@@ -75,7 +75,7 @@ function ScoreBar({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Icon size={12} color={color} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280', fontFamily: 'DM Sans, sans-serif' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', fontFamily: 'DM Sans, sans-serif' }}>
             {label}
             {inverted && <span style={{ fontSize: 10, color: '#9CA3AF', marginLeft: 4 }}>(lower = better)</span>}
           </span>
@@ -88,7 +88,7 @@ function ScoreBar({
       <div
         style={{
           height: 6, borderRadius: 3,
-          background: '#F9FAFB',
+          background: 'rgba(255,255,255,0.03)',
           overflow: 'hidden',
         }}
       >
@@ -241,7 +241,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
           </span>
         </div>
         {[0, 1, 2, 3, 4].map(i => (
-          <div key={i} style={{ height: 6, background: '#F9FAFB', borderRadius: 3, marginBottom: 16, width: `${70 + i * 6}%` }} />
+          <div key={i} style={{ height: 6, background: 'rgba(255,255,255,0.03)', borderRadius: 3, marginBottom: 16, width: `${70 + i * 6}%` }} />
         ))}
       </div>
     );
@@ -278,7 +278,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
             AI Opportunity Score
           </div>
           {score.productName && (
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {score.productName}
             </div>
           )}
@@ -300,7 +300,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       {score.demand != null ? <ScoreBar label="Market Demand" icon={TrendingUp} score={score.demand} delay={0} /> : (
         <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <TrendingUp size={12} color="#9CA3AF" />
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280' }}>Market Demand</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>Market Demand</span>
           <span style={{ marginLeft: 'auto', fontSize: 13, color: '#9CA3AF' }}>&mdash;</span>
         </div>
       )}
@@ -309,7 +309,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       {score.timing != null ? <ScoreBar label="Market Timing" icon={Clock} score={score.timing} delay={300} /> : (
         <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Clock size={12} color="#9CA3AF" />
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280' }}>Market Timing</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8' }}>Market Timing</span>
           <span style={{ marginLeft: 'auto', fontSize: 13, color: '#9CA3AF' }}>&mdash;</span>
         </div>
       )}

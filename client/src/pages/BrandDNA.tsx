@@ -93,7 +93,7 @@ function SectionCard({
   return (
     <div
       className="rounded-2xl overflow-hidden mb-4"
-      style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <button
         onClick={() => setOpen(!open)}
@@ -142,7 +142,7 @@ function TextRow({ label, value }: { label: string; value: string }) {
       >
         {label}
       </span>
-      <span className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
+      <span className="text-sm leading-relaxed flex-1" style={{ color: '#F8FAFC' }}>
         {value}
       </span>
       <CopyBtn text={value} />
@@ -295,7 +295,7 @@ Generate a comprehensive brand identity document as JSON.`;
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#FAFAFA' }}>
+    <div className="flex flex-col h-full" style={{ background: '#05070F' }}>
       <ActiveProductBanner
         ctaLabel="Load into tool"
         onUseProduct={(summary) => setProductType(summary)}
@@ -307,7 +307,7 @@ Generate a comprehensive brand identity document as JSON.`;
           style={{
             width: '320px',
             borderRight: '1px solid #E5E7EB',
-            background: 'white',
+            background: '#0C1120',
             scrollbarWidth: 'thin',
             scrollbarColor: '#F0F0F0 transparent',
           }}
@@ -315,7 +315,7 @@ Generate a comprehensive brand identity document as JSON.`;
           {/* Header */}
           <div
             className="px-5 pt-6 pb-4"
-            style={{ borderBottom: '1px solid #E5E7EB' }}
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
           >
             <div className="flex items-center gap-2 mb-1">
               <div
@@ -331,7 +331,7 @@ Generate a comprehensive brand identity document as JSON.`;
             </div>
             <h1
               className="text-lg font-extrabold"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-0.02em' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', letterSpacing: '-0.02em' }}
             >
               Brand DNA Analyzer
             </h1>
@@ -345,7 +345,7 @@ Generate a comprehensive brand identity document as JSON.`;
             <div>
               <label
                 className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: '#6B7280' }}
+                style={{ color: '#94A3B8' }}
               >
                 Brand Name *
               </label>
@@ -355,9 +355,9 @@ Generate a comprehensive brand identity document as JSON.`;
                 placeholder="e.g. Lumière Skin"
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
@@ -367,7 +367,7 @@ Generate a comprehensive brand identity document as JSON.`;
             <div>
               <label
                 className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: '#6B7280' }}
+                style={{ color: '#94A3B8' }}
               >
                 Product / Niche *
               </label>
@@ -377,9 +377,9 @@ Generate a comprehensive brand identity document as JSON.`;
                 placeholder="e.g. Premium skincare for women 30-45"
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
@@ -389,7 +389,7 @@ Generate a comprehensive brand identity document as JSON.`;
             <div>
               <label
                 className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: '#6B7280' }}
+                style={{ color: '#94A3B8' }}
               >
                 Target Market
               </label>
@@ -399,9 +399,9 @@ Generate a comprehensive brand identity document as JSON.`;
                 placeholder="e.g. Professional women, health-conscious, 30-45"
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
@@ -411,7 +411,7 @@ Generate a comprehensive brand identity document as JSON.`;
             <div>
               <label
                 className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: '#6B7280' }}
+                style={{ color: '#94A3B8' }}
               >
                 Brand Vibe / Aesthetic
               </label>
@@ -422,9 +422,9 @@ Generate a comprehensive brand identity document as JSON.`;
                 rows={2}
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all resize-none"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
@@ -434,7 +434,7 @@ Generate a comprehensive brand identity document as JSON.`;
             <div>
               <label
                 className="block text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: '#6B7280' }}
+                style={{ color: '#94A3B8' }}
               >
                 Competitors / Inspiration
               </label>
@@ -444,9 +444,9 @@ Generate a comprehensive brand identity document as JSON.`;
                 placeholder="e.g. The Ordinary, Drunk Elephant, Tatcha"
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
                 style={{
-                  background: '#F9FAFB',
-                  border: '1px solid #E5E7EB',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#F8FAFC',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
@@ -489,7 +489,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 className="w-full py-2 rounded-xl text-xs font-semibold transition-all duration-150"
                 style={{
                   background: 'transparent',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   color: '#9CA3AF',
                 }}
               >
@@ -517,7 +517,7 @@ Generate a comprehensive brand identity document as JSON.`;
               </div>
               <h2
                 className="text-xl font-extrabold mb-2"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
               >
                 Discover Your Brand DNA
               </h2>
@@ -538,14 +538,14 @@ Generate a comprehensive brand identity document as JSON.`;
                     key={label}
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                     style={{
-                      background: '#F9FAFB',
-                      border: '1px solid #E5E7EB',
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
                     <span className="text-base">{icon}</span>
                     <span
                       className="text-xs font-medium"
-                      style={{ color: '#6B7280' }}
+                      style={{ color: '#94A3B8' }}
                     >
                       {label}
                     </span>
@@ -586,7 +586,7 @@ Generate a comprehensive brand identity document as JSON.`;
               {/* Brand Header */}
               <div
                 className="mb-8 pb-6"
-                style={{ borderBottom: '1px solid #E5E7EB' }}
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#6366F1' }} />
@@ -599,14 +599,14 @@ Generate a comprehensive brand identity document as JSON.`;
                 </div>
                 <h2
                   className="text-3xl font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
                 >
                   {result.brandName}
                 </h2>
                 <div className="flex items-start gap-3">
                   <p
                     className="text-sm leading-relaxed flex-1"
-                    style={{ color: '#6B7280', fontStyle: 'italic' }}
+                    style={{ color: '#94A3B8', fontStyle: 'italic' }}
                   >
                     "{result.missionStatement}"
                   </p>
@@ -660,7 +660,7 @@ Generate a comprehensive brand identity document as JSON.`;
                               className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                               style={{ background: '#6366F1' }}
                             />
-                            <span className="text-sm" style={{ color: '#0A0A0A' }}>
+                            <span className="text-sm" style={{ color: '#F8FAFC' }}>
                               {item}
                             </span>
                           </li>
@@ -681,7 +681,7 @@ Generate a comprehensive brand identity document as JSON.`;
                               className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                               style={{ background: '#ef4444' }}
                             />
-                            <span className="text-sm" style={{ color: '#0A0A0A' }}>
+                            <span className="text-sm" style={{ color: '#F8FAFC' }}>
                               {item}
                             </span>
                           </li>
@@ -709,7 +709,7 @@ Generate a comprehensive brand identity document as JSON.`;
                     >
                       Customer Persona
                     </span>
-                    <div className="text-sm font-semibold mb-1" style={{ color: '#0A0A0A' }}>
+                    <div className="text-sm font-semibold mb-1" style={{ color: '#F8FAFC' }}>
                       {result.targetAudience.personaName}
                       {result.targetAudience.personaAge
                         ? ` · ${result.targetAudience.personaAge}`
@@ -719,7 +719,7 @@ Generate a comprehensive brand identity document as JSON.`;
                         : ''}
                     </div>
                     {result.targetAudience.personaJob && (
-                      <div className="text-xs mb-2" style={{ color: '#6B7280' }}>
+                      <div className="text-xs mb-2" style={{ color: '#94A3B8' }}>
                         {result.targetAudience.personaJob}
                       </div>
                     )}
@@ -769,7 +769,7 @@ Generate a comprehensive brand identity document as JSON.`;
                               className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                               style={{ background: accent }}
                             />
-                            <span className="text-sm" style={{ color: '#0A0A0A' }}>
+                            <span className="text-sm" style={{ color: '#F8FAFC' }}>
                               {item}
                             </span>
                           </li>
@@ -792,7 +792,7 @@ Generate a comprehensive brand identity document as JSON.`;
                     Brand Story
                   </span>
                   <div className="flex items-start gap-3">
-                    <p className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
+                    <p className="text-sm leading-relaxed flex-1" style={{ color: '#F8FAFC' }}>
                       {result.brandStory}
                     </p>
                     <CopyBtn text={result.brandStory} />
@@ -819,9 +819,9 @@ Generate a comprehensive brand identity document as JSON.`;
                         <div key={color} className="flex items-center gap-3">
                           <div
                             className="w-8 h-8 rounded-lg flex-shrink-0"
-                            style={{ background: hex, border: '1px solid #D1D5DB' }}
+                            style={{ background: hex, border: '1px solid rgba(255,255,255,0.08)' }}
                           />
-                          <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
+                          <span className="text-sm flex-1" style={{ color: '#F8FAFC' }}>
                             {color}
                           </span>
                           <CopyBtn text={hex} />
@@ -859,7 +859,7 @@ Generate a comprehensive brand identity document as JSON.`;
                         </span>
                         <span
                           className="text-sm font-semibold flex-1"
-                          style={{ color: '#0A0A0A', fontStyle: 'italic' }}
+                          style={{ color: '#F8FAFC', fontStyle: 'italic' }}
                         >
                           "{tagline}"
                         </span>
@@ -882,7 +882,7 @@ Generate a comprehensive brand identity document as JSON.`;
                           className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
                           style={{ background: '#06b6d4' }}
                         />
-                        <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
+                        <span className="text-sm flex-1" style={{ color: '#F8FAFC' }}>
                           {msg}
                         </span>
                         <CopyBtn text={msg} />
@@ -905,11 +905,11 @@ Generate a comprehensive brand identity document as JSON.`;
                           >
                             {String(i + 1).padStart(2, '0')}
                           </span>
-                          <span className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
+                          <span className="text-sm font-semibold" style={{ color: '#F8FAFC' }}>
                             {pillar.pillar}
                           </span>
                         </div>
-                        <p className="text-xs mb-2 ml-7" style={{ color: '#6B7280' }}>
+                        <p className="text-xs mb-2 ml-7" style={{ color: '#94A3B8' }}>
                           {pillar.description}
                         </p>
                         <div className="flex flex-wrap gap-1.5 ml-7">

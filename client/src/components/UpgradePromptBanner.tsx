@@ -40,9 +40,9 @@ export default function UpgradePromptBanner() {
         flexWrap: 'wrap',
       }}
     >
-      <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5, flex: 1, minWidth: 200 }}>
+      <span style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.5, flex: 1, minWidth: 200 }}>
         ⚡ <strong style={{ color: '#6366F1' }}>Only {remaining} searches left today.</strong>{' '}
-        Pro users found <strong style={{ color: '#0A0A0A' }}>47 winning products</strong> today.
+        Pro users found <strong style={{ color: '#F8FAFC' }}>47 winning products</strong> today.
       </span>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>

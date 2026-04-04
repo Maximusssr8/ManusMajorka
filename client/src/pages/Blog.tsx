@@ -54,7 +54,7 @@ const POSTS = [
 
 export default function Blog() {
   return (
-    <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: dm }}>
+    <div style={{ minHeight: '100vh', background: '#05070F', fontFamily: dm }}>
       <SEO
         title="Blog — Majorka"
         description="Ecommerce insights, product research guides, and dropshipping strategies. Learn how to find winning products and scale your online store."
@@ -68,7 +68,7 @@ export default function Blog() {
             <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: '#0F172A' }}>Majorka</span>
           </a>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <a href="/" style={{ fontSize: 14, color: '#6B7280', textDecoration: 'none' }}>← Home</a>
+            <a href="/" style={{ fontSize: 14, color: '#94A3B8', textDecoration: 'none' }}>← Home</a>
             <Link href="/sign-up" style={{ background: '#6366F1', color: 'white', borderRadius: 8, padding: '7px 16px', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
               Get Started →
             </Link>
@@ -82,10 +82,10 @@ export default function Blog() {
           <span style={{ fontSize: 12, fontWeight: 700, color: '#6366F1', letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>Blog</span>
           <span style={{ fontSize: 11, background: 'rgba(99,102,241,0.15)', color: '#818CF8', borderRadius: 6, padding: '2px 8px', fontWeight: 700 }}>Content Coming Soon</span>
         </div>
-        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px, 5vw, 48px)', color: '#0A0A0A', marginBottom: 16, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px, 5vw, 48px)', color: '#F8FAFC', marginBottom: 16, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
           Ecommerce Intelligence.<br />Built for Sellers.
         </h1>
-        <p style={{ fontSize: 18, color: '#6B7280', maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>
+        <p style={{ fontSize: 18, color: '#94A3B8', maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>
           Product research guides, supplier comparisons, and market insights to help you sell smarter.
         </p>
       </div>
@@ -94,11 +94,11 @@ export default function Blog() {
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 24px 80px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 24 }}>
           {POSTS.map((post, idx) => (
-            <article key={post.slug} style={{ background: 'white', borderRadius: 16, border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E5E7EB'}`, padding: '28px 32px', transition: 'box-shadow 200ms, transform 200ms', position: 'relative' as const }}
+            <article key={post.slug} style={{ background: '#0C1120', borderRadius: 16, border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E5E7EB'}`, padding: '28px 32px', transition: 'box-shadow 200ms, transform 200ms', position: 'relative' as const }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.08)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}>
               {/* Coming soon badge */}
-              <div style={{ position: 'absolute' as const, top: 20, right: 24, fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#F3F4F6', borderRadius: 6, padding: '2px 8px', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Coming Soon</div>
+              <div style={{ position: 'absolute' as const, top: 20, right: 24, fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: 'rgba(255,255,255,0.05)', borderRadius: 6, padding: '2px 8px', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Coming Soon</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' as const }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', borderRadius: 6, padding: '2px 8px', letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>{post.category}</span>
                 {post.badge && <span style={{ fontSize: 11, fontWeight: 700, color: '#D97706', background: '#FEF3C7', borderRadius: 6, padding: '2px 8px' }}>{post.badge}</span>}
@@ -106,8 +106,8 @@ export default function Blog() {
                 <span style={{ fontSize: 12, color: '#9CA3AF' }}>·</span>
                 <span style={{ fontSize: 12, color: '#9CA3AF' }}>{post.readTime}</span>
               </div>
-              <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', marginBottom: 10, lineHeight: 1.3, letterSpacing: '-0.01em' }}>{post.title}</h2>
-              <p style={{ fontSize: 15, color: '#6B7280', lineHeight: 1.6, marginBottom: 20 }}>{post.excerpt}</p>
+              <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#F8FAFC', marginBottom: 10, lineHeight: 1.3, letterSpacing: '-0.01em' }}>{post.title}</h2>
+              <p style={{ fontSize: 15, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>{post.excerpt}</p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: '#9CA3AF', cursor: 'default' }}>
                 Full article coming soon →
               </div>
@@ -116,10 +116,10 @@ export default function Blog() {
         </div>
 
         {/* Coming soon */}
-        <div style={{ textAlign: 'center', marginTop: 48, padding: '32px', background: 'white', borderRadius: 16, border: '1px solid #E5E7EB' }}>
+        <div style={{ textAlign: 'center', marginTop: 48, padding: '32px', background: '#0C1120', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>✍️</div>
-          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 8 }}>More guides coming soon</div>
-          <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Weekly product research, supplier insights, and market data — straight to your inbox.</p>
+          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F8FAFC', marginBottom: 8 }}>More guides coming soon</div>
+          <p style={{ fontSize: 14, color: '#94A3B8', marginBottom: 20 }}>Weekly product research, supplier insights, and market data — straight to your inbox.</p>
           <Link href="/sign-up" style={{ background: '#6366F1', color: 'white', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
             Join Majorka →
           </Link>

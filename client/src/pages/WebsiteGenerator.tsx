@@ -904,7 +904,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
-      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: 'white', border: '1px solid #F0F0F0' }} onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: '#0C1120', border: '1px solid #F0F0F0' }} onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4" style={{ color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}>
           <X size={18} />
         </button>
@@ -1035,19 +1035,19 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
                     <span className="font-bold text-sm" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Sell on Majorka</span>
                     <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: 'rgba(99,102,241,0.2)', color: '#6366F1' }}>Recommended</span>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: '#6B7280', lineHeight: 1.5 }}>Your store is hosted here. Add Stripe and start selling in minutes. Free.</p>
+                  <p className="text-xs mt-1" style={{ color: '#94A3B8', lineHeight: 1.5 }}>Your store is hosted here. Add Stripe and start selling in minutes. Free.</p>
                 </div>
                 <div className="text-xs font-bold flex items-center gap-1" style={{ color: '#6366F1' }}>Set Up Store <ChevronRight size={12} /></div>
               </div>
             </button>
-            <button onClick={handleShopifyExport} className="group relative text-left p-6 rounded-2xl transition-all duration-200" style={{ background: '#FAFAFA', border: '1px solid #F5F5F5', cursor: 'pointer' }} onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.18)'; (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB'; }} onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid #F5F5F5'; (e.currentTarget as HTMLButtonElement).style.background = '#FAFAFA'; }}>
+            <button onClick={handleShopifyExport} className="group relative text-left p-6 rounded-2xl transition-all duration-200" style={{ background: '#05070F', border: '1px solid #F5F5F5', cursor: 'pointer' }} onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.18)'; (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB'; }} onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid #F5F5F5'; (e.currentTarget as HTMLButtonElement).style.background = '#FAFAFA'; }}>
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#F9FAFB' }}><ShoppingBag size={20} style={{ color: '#374151' }} /></div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.03)' }}><ShoppingBag size={20} style={{ color: '#CBD5E1' }} /></div>
                 <div>
                   <span className="font-bold text-sm" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Export to Shopify</span>
-                  <p className="text-xs mt-1" style={{ color: '#6B7280', lineHeight: 1.5 }}>Download a Shopify-ready product CSV and import it to your Shopify store in one click.</p>
+                  <p className="text-xs mt-1" style={{ color: '#94A3B8', lineHeight: 1.5 }}>Download a Shopify-ready product CSV and import it to your Shopify store in one click.</p>
                 </div>
-                <div className="text-xs font-bold flex items-center gap-1" style={{ color: '#6B7280' }}><Download size={12} /> Export CSV</div>
+                <div className="text-xs font-bold flex items-center gap-1" style={{ color: '#94A3B8' }}><Download size={12} /> Export CSV</div>
               </div>
             </button>
           </div>
@@ -1078,13 +1078,13 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
             <div className="space-y-5">
               <div className="text-center space-y-1">
                 <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Connect Stripe</h3>
-                <p className="text-xs" style={{ color: '#6B7280' }}>Required to accept payments on your store.</p>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>Required to accept payments on your store.</p>
               </div>
               <div className="space-y-3">
                 {[{ label: 'Publishable Key', value: stripePublishable, setter: setStripePublishable, placeholder: 'pk_live_...', type: 'text' }, { label: 'Secret Key', value: stripeSecret, setter: setStripeSecret, placeholder: 'sk_live_...', type: 'password' }].map(({ label, value, setter, placeholder, type }) => (
                   <div key={label} className="space-y-1.5">
-                    <label className="text-xs font-medium" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</label>
-                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#111827', fontFamily: 'monospace' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
+                    <label className="text-xs font-medium" style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</label>
+                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#F8FAFC', fontFamily: 'monospace' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
                   </div>
                 ))}
               </div>
@@ -1102,18 +1102,18 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
             <div className="space-y-5">
               <div className="text-center space-y-1">
                 <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>What are you selling?</h3>
-                <p className="text-xs" style={{ color: '#6B7280' }}>Pre-filled from your generated store. Edit as needed.</p>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>Pre-filled from your generated store. Edit as needed.</p>
               </div>
               <div className="space-y-3">
                 {[{ label: 'Product Name', value: productName, setter: setProductName, placeholder: 'e.g. Bondi Glow Supplement', type: 'text' }, { label: 'Price (AUD)', value: productPrice, setter: setProductPrice, placeholder: '49.00', type: 'text' }, { label: 'Product Image URL (optional)', value: productImageUrl, setter: setProductImageUrl, placeholder: 'https://...', type: 'text' }].map(({ label, value, setter, placeholder, type }) => (
                   <div key={label} className="space-y-1.5">
-                    <label className="text-xs font-medium" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</label>
-                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#111827' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
+                    <label className="text-xs font-medium" style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</label>
+                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#F8FAFC' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
                   </div>
                 ))}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Description</label>
-                  <textarea value={productDesc} onChange={(e) => setProductDesc(e.target.value)} placeholder="Describe your product..." rows={3} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all resize-none" style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#111827' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
+                  <label className="text-xs font-medium" style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Description</label>
+                  <textarea value={productDesc} onChange={(e) => setProductDesc(e.target.value)} placeholder="Describe your product..." rows={3} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all resize-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#F8FAFC' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
                 </div>
               </div>
               <button onClick={handleGoLive} disabled={createStoreMutation.isPending || createProductMutation.isPending} className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: createStoreMutation.isPending || createProductMutation.isPending ? 'not-allowed' : 'pointer', opacity: createStoreMutation.isPending || createProductMutation.isPending ? 0.7 : 1 }}>
@@ -1127,7 +1127,7 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
               <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)', border: '2px solid #6366F1' }}><Check size={28} style={{ color: '#6366F1' }} /></div>
               <div className="space-y-1">
                 <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Your store is live!</h3>
-                <p className="text-xs" style={{ color: '#6B7280' }}>Share this link to start selling immediately.</p>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>Share this link to start selling immediately.</p>
               </div>
               <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.35)' }}>
                 <p className="text-xs" style={{ color: 'rgba(99,102,241,0.8)' }}>Your store URL</p>
@@ -1142,11 +1142,11 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
                 <a href={`https://majorka.io/store/${liveSlug || slug}`} target="_blank" rel="noopener noreferrer" className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                   <ExternalLink size={12} /> Open My Store
                 </a>
-                <button onClick={() => navigate('/app/store/products')} className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#F9FAFB', color: '#1F2937', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer', border: '1px solid #F0F0F0' }}>
+                <button onClick={() => navigate('/app/store/products')} className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: 'rgba(255,255,255,0.03)', color: '#E2E8F0', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer', border: '1px solid #F0F0F0' }}>
                   <Package size={12} /> Manage Store
                 </button>
               </div>
-              <button onClick={() => { const text = `Check out my new store: https://majorka.io/store/${liveSlug || slug}`; navigator.clipboard.writeText(text); toast.success('Link copied — paste it anywhere to share!'); }} className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#F9FAFB', color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer', border: '1px solid #E5E7EB' }}>
+              <button onClick={() => { const text = `Check out my new store: https://majorka.io/store/${liveSlug || slug}`; navigator.clipboard.writeText(text); toast.success('Link copied — paste it anywhere to share!'); }} className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: 'rgba(255,255,255,0.03)', color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <Share2 size={12} /> Share
               </button>
             </div>
@@ -2638,7 +2638,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
   #majorka-toolbar .tb-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
   #majorka-toolbar .tb-edit { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: #6366F1; }
   #majorka-toolbar .tb-edit.active { background: rgba(99,102,241,0.22); border-color: #6366F1; }
-  #majorka-toolbar .tb-save { background: #F9FAFB; border: 1px solid #F0F0F0; color: #374151; }
+  #majorka-toolbar .tb-save { background: #0C1120; border: 1px solid #F0F0F0; color: #374151; }
   #majorka-toolbar .tb-save:hover { background: #F0F0F0; color: #fff; }
   #majorka-toolbar .tb-color-wrap { display: flex; align-items: center; gap: 6px; }
   #majorka-toolbar .tb-color-label { font-size: 11px; color: #9CA3AF; }
@@ -2833,7 +2833,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
   ];
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="h-full flex flex-col" style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}>
       {/* Demo mode banner */}
       {demoMode && demoBannerVisible && (
         <div style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 0, padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexShrink: 0 }}>
@@ -2845,7 +2845,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       )}
 
       {/* Top bar */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
+      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
           <Globe size={15} style={{ color: '#6366F1' }} />
         </div>
@@ -2856,7 +2856,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       </div>
 
       {/* Mobile panel toggle */}
-      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
+      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
         {(['form','preview'] as const).map((p) => (
           <button key={p} onClick={() => setMobilePanel(p)}
             className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
@@ -2869,7 +2869,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       {/* Body */}
       <div className="flex-1 overflow-auto flex flex-col md:flex-row">
         {/* ── LEFT PANEL ── */}
-        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid #F0F0F0', borderBottom: '1px solid #F0F0F0', scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.1) transparent', background: '#FFFFFF' }}>
+        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid #F0F0F0', borderBottom: '1px solid #F0F0F0', scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.1) transparent', background: '#0C1120' }}>
 
           {/* 3-Step Wizard Indicator */}
           <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 24, padding: "0 4px" }}>
@@ -2895,7 +2895,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* Design Template Selector */}
-          <div className="rounded-xl p-4" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0', position: 'relative' as const }}>
+          <div className="rounded-xl p-4" style={{ background: '#0C1120', border: '1px solid #F0F0F0', position: 'relative' as const }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Design Template</div>
             <div style={isMobile ? { display: 'flex', gap: 8, overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: 4, scrollbarWidth: 'none' } : { display: 'flex', flexDirection: 'column', gap: 6 }}>
               {WEBSITE_TEMPLATES.map((t) => {
@@ -2935,9 +2935,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     {/* Colour palette dots */}
                     <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.bg, border: '1px solid #E5E7EB' }} />
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.accent, border: '1px solid #E5E7EB' }} />
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.text, border: '1px solid #E5E7EB' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.bg, border: '1px solid rgba(255,255,255,0.08)' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.accent, border: '1px solid rgba(255,255,255,0.08)' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.text, border: '1px solid rgba(255,255,255,0.08)' }} />
                     </div>
                   </button>
                 );
@@ -2948,11 +2948,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               const ht = WEBSITE_TEMPLATES.find(t => t.id === hoveredTemplate);
               if (!ht) return null;
               return (
-                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}>{ht.name}</div>
+                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}>{ht.name}</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
                     {[ht.palette.bg, ht.palette.accent, ht.palette.text].map((c, i) => (
-                      <div key={i} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: '1px solid #D1D5DB' }} />
+                      <div key={i} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: '1px solid rgba(255,255,255,0.08)' }} />
                     ))}
                   </div>
                   {/* Mini wireframe */}
@@ -2978,7 +2978,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             {importedProduct ? (
               <div>
                 <div className="flex gap-2.5 items-start mb-2">
-                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg" style={{ background: '#F9FAFB' }}>
+                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
                     {importedProduct.images && importedProduct.images.length > 0 ? (
                       <img src={proxyImage(importedProduct.images[0])} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                     ) : '📦'}
@@ -2994,7 +2994,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {importedProduct.features && importedProduct.features.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                     {importedProduct.features.slice(0, 2).map((f, i) => (
-                      <span key={i} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#F9FAFB', border: '1px solid #F5F5F5', color: '#6B7280' }}>{typeof f === 'string' ? f.slice(0, 50) : f}</span>
+                      <span key={i} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid #F5F5F5', color: '#94A3B8' }}>{typeof f === 'string' ? f.slice(0, 50) : f}</span>
                     ))}
                   </div>
                 )}
@@ -3006,13 +3006,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             ) : (
               <div>
                 <div className="flex gap-1.5">
-                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F0F0F0', color: '#0A0A0A' }} />
+                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F0F0F0', color: '#F8FAFC' }} />
                   <button onClick={handleImport} disabled={importing || !importUrl.trim()} className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50" style={{ background: 'rgba(99,102,241,0.18)', border: '1.5px solid rgba(99,102,241,0.52)', color: 'rgba(99,102,241,1.00)', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                     {importing ? <Loader2 size={10} className="animate-spin" /> : null}{importing ? '…' : 'Import'}
                   </button>
                 </div>
                 {/* Task 3A — Better loading state */}
-                {importing && <span style={{ fontSize: 11, color: '#6B7280', marginTop: 4, display: 'block' }}>Analyzing product...</span>}
+                {importing && <span style={{ fontSize: 11, color: '#94A3B8', marginTop: 4, display: 'block' }}>Analyzing product...</span>}
                 {importError && (
                   <div>
                     <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>{importError}</div>
@@ -3066,7 +3066,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAnalyzeProduct(); } }}
                 placeholder="https://aliexpress.com/item/..."
                 className="flex-1 text-sm rounded-lg outline-none"
-                style={{ height: 44, padding: '0 16px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, color: '#0A0A0A' }}
+                style={{ height: 44, padding: '0 16px', background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#F8FAFC' }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
               />
@@ -3085,13 +3085,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             {/* Product Summary Card */}
             {analysisResult && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(99,102,241,0.15)', marginBottom: 8 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {((analysisResult.product_images as string[]) || []).length > 0 ? (
                     <img src={proxyImage((analysisResult.product_images as string[])[0])} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   ) : <span style={{ fontSize: 20 }}>📦</span>}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {analysisResult.product_title || analysisResult.suggested_title || 'Product'}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
@@ -3114,7 +3114,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <div className="mt-3 rounded-xl p-4 space-y-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(99,102,241,0.25)' }}>
                 {/* Score badge */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-wider" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  <span className="text-xs font-black uppercase tracking-wider" style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     🔍 Product Analysis
                   </span>
                   <div className="flex items-center justify-center w-10 h-10 rounded-full font-black text-sm" style={{
@@ -3129,7 +3129,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
                 {/* Supplier badge */}
                 {analysisResult.supplier && (
-                  <div className="text-xs px-2 py-0.5 inline-flex rounded-full" style={{ background: '#F9FAFB', color: '#6B7280', border: '1px solid #F5F5F5' }}>
+                  <div className="text-xs px-2 py-0.5 inline-flex rounded-full" style={{ background: 'rgba(255,255,255,0.03)', color: '#94A3B8', border: '1px solid #F5F5F5' }}>
                     {analysisResult.supplier}
                   </div>
                 )}
@@ -3145,7 +3145,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     <div key={signal}>
                       <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color }}>
                         <span>{icon}</span>
-                        <span style={{ color: '#374151' }}>{label}:</span>
+                        <span style={{ color: '#CBD5E1' }}>{label}:</span>
                         <span>{quality === 'good' ? 'Looks good' : quality === 'bad' ? 'Needs fixing' : 'Issues found'}</span>
                       </div>
                       {issues && issues.length > 0 && (
@@ -3165,23 +3165,23 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     {(analysisResult.au_suggested_title || analysisResult.suggested_title) && (
                       <div>
                         <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>💡 AU Title:</div>
-                        <div className="text-xs italic" style={{ color: '#374151', lineHeight: 1.5 }}>"{analysisResult.au_suggested_title || analysisResult.suggested_title}"</div>
+                        <div className="text-xs italic" style={{ color: '#CBD5E1', lineHeight: 1.5 }}>"{analysisResult.au_suggested_title || analysisResult.suggested_title}"</div>
                       </div>
                     )}
                     {analysisResult.hero_headline && (
                       <div>
                         <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>🎯 Hero Headline:</div>
-                        <div className="text-xs italic" style={{ color: '#374151', lineHeight: 1.5 }}>"{analysisResult.hero_headline}"</div>
+                        <div className="text-xs italic" style={{ color: '#CBD5E1', lineHeight: 1.5 }}>"{analysisResult.hero_headline}"</div>
                       </div>
                     )}
                     {analysisResult.hero_benefit && (
-                      <div className="text-xs" style={{ color: '#6B7280' }}>⚡ Hero benefit: <span style={{ color: '#6366F1' }}>{analysisResult.hero_benefit}</span></div>
+                      <div className="text-xs" style={{ color: '#94A3B8' }}>⚡ Hero benefit: <span style={{ color: '#6366F1' }}>{analysisResult.hero_benefit}</span></div>
                     )}
                     {((analysisResult.sizes as string[]) || []).length > 0 && (
-                      <div className="text-xs" style={{ color: '#6B7280' }}>📐 Sizes: {((analysisResult.sizes as string[]) || []).join(', ')}</div>
+                      <div className="text-xs" style={{ color: '#94A3B8' }}>📐 Sizes: {((analysisResult.sizes as string[]) || []).join(', ')}</div>
                     )}
                     {((analysisResult.colors as string[]) || []).length > 0 && (
-                      <div className="text-xs" style={{ color: '#6B7280' }}>🎨 Colours: {((analysisResult.colors as string[]) || []).join(', ')}</div>
+                      <div className="text-xs" style={{ color: '#94A3B8' }}>🎨 Colours: {((analysisResult.colors as string[]) || []).join(', ')}</div>
                     )}
                     {((analysisResult.product_images as string[]) || []).length > 0 && (
                       <div className="text-xs" style={{ color: 'rgba(99,102,241,1.00)' }}>✓ {((analysisResult.product_images as string[]) || []).length} product image(s) extracted</div>
@@ -3217,7 +3217,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       toast.info('URL moved to Import — click Import to load product data');
                     }}
                     className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
-                    style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#6B7280', cursor: 'pointer' }}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#94A3B8', cursor: 'pointer' }}
                   >
                     Import Anyway
                   </button>
@@ -3272,19 +3272,19 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       toast.success(`"${ex.label}" example loaded — generating…`);
                       setTimeout(() => handleGenerate(), 200);
                     }}
-                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#374151', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
+                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#CBD5E1', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = ex.color; e.currentTarget.style.color = ex.color; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#F0F0F0'; e.currentTarget.style.color = '#374151'; }}
                   >
                     {ex.emoji} {ex.label}
-                    <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 10, background: '#F5F5F5', color: '#9CA3AF' }}>EXAMPLE</span>
+                    <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', color: '#9CA3AF' }}>EXAMPLE</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          <div style={{ height: 1, background: '#F9FAFB' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.03)' }} />
 
           {/* From Database banner — shows immediately on arrival from Intelligence */}
           {(fromDatabaseBanner || (fromDatabase && urlProductName)) && (
@@ -3323,13 +3323,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Supplier panel — shows when arriving from Intelligence with supplier URL */}
           {urlSupplierUrl && (
-            <div style={{ background: '#FAFAFA', border: '1px solid #1e1e1e', borderRadius: 8, padding: 16, marginBottom: 4 }}>
+            <div style={{ background: '#05070F', border: '1px solid #1e1e1e', borderRadius: 8, padding: 16, marginBottom: 4 }}>
               <div style={{ fontSize: 10, letterSpacing: '2px', color: '#9CA3AF', marginBottom: 8, fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, textTransform: 'uppercase' as const }}>
                 Supplier &amp; Fulfilment
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                 <div>
-                  <div style={{ color: '#0A0A0A', fontSize: 14, fontWeight: 600 }}>{urlSupplierName || 'AliExpress'}</div>
+                  <div style={{ color: '#F8FAFC', fontSize: 14, fontWeight: 600 }}>{urlSupplierName || 'AliExpress'}</div>
                   <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 2 }}>Source · dropship · fulfil orders</div>
                 </div>
                 <a href={urlSupplierUrl} target="_blank" rel="noopener noreferrer"
@@ -3343,13 +3343,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Store Name */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Store Name</label>
-            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
+            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
           </div>
 
           {/* Niche */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Niche <span style={{ color: '#6366F1', fontWeight: 700 }}>*</span></label>
-            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
+            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
             <datalist id="niche-list">
               {['Beauty & Skincare','Fitness & Gym','Home & Living','Pet Accessories','Tech Gadgets','Outdoor & Adventure','Women\'s Fashion','Men\'s Fashion','Baby & Kids','Health Supplements','Jewellery','Coffee & Tea'].map(n => (
                 <option key={n} value={n} />
@@ -3380,20 +3380,20 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Target Audience */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Target Audience</label>
-            <input value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="e.g. AU men 18-35" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
+            <input value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="e.g. AU men 18-35" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
           </div>
 
           {/* Tagline + Price */}
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Tagline <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
-              <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Made for Aussies" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
+              <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Made for Aussies" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Price AUD <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
               <div style={{ position: 'relative' }}>
               <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#9CA3AF' }}>$</span>
-              <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => { e.target.style.borderColor = '#F5F5F5'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
+              <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => { e.target.style.borderColor = '#F5F5F5'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
             </div>
             </div>
           </div>
@@ -3403,10 +3403,10 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Platform */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Platform</label>
-            <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A', cursor: 'pointer' }}>
-              <option value="shopify" style={{ background: 'white' }}>Shopify</option>
-              <option value="nextjs" style={{ background: 'white' }}>Next.js</option>
-              <option value="react" style={{ background: 'white' }}>React</option>
+            <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC', cursor: 'pointer' }}>
+              <option value="shopify" style={{ background: '#0C1120' }}>Shopify</option>
+              <option value="nextjs" style={{ background: '#0C1120' }}>Next.js</option>
+              <option value="react" style={{ background: '#0C1120' }}>React</option>
             </select>
           </div>
 
@@ -3418,7 +3418,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               onChange={(e) => setRawDesc(e.target.value)}
               placeholder="Paste your raw product description here..."
               rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
             />
             <div className="flex items-center gap-2" style={{ marginTop: 6 }}>
               <button
@@ -3469,7 +3469,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {siteHistory.length === 0 ? (
             <div style={{
               padding: '16px',
-              background: '#FAFAFA',
+              background: '#05070F',
               border: '1px solid #F9FAFB',
               borderRadius: 10,
               textAlign: 'center'
@@ -3483,7 +3483,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               {siteHistory.map(item => (
                 <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', borderBottom: '1px solid #F9FAFB' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1F2937', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.storeName}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#E2E8F0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.storeName}</div>
                     <div style={{ fontSize: 11, color: '#9CA3AF' }}>{item.direction} · {new Date(item.timestamp).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
                   </div>
                   {/* Load — restore preview */}
@@ -3511,7 +3511,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                       toast('Loaded into editor — tweak and regenerate ✏️');
                     }}
-                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: '#F9FAFB', border: '1px solid #F5F5F5', color: '#374151', cursor: 'pointer', flexShrink: 0 }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid #F5F5F5', color: '#CBD5E1', cursor: 'pointer', flexShrink: 0 }}
                   >✏️</button>
                   {/* Delete */}
                   <button
@@ -3520,14 +3520,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       setSiteHistory(next);
                       localStorage.setItem('majorka_site_history', JSON.stringify(next));
                     }}
-                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#9CA3AF', cursor: 'pointer', flexShrink: 0 }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', color: '#9CA3AF', cursor: 'pointer', flexShrink: 0 }}
                   >✕</button>
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{ height: 1, background: '#F9FAFB' }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.03)' }} />
 
           {/* Generate Button */}
           <style>{`
@@ -3600,7 +3600,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     onChange={(e) => setShopifyDomainInput(e.target.value)}
                     placeholder="mystore.myshopify.com"
                     onKeyDown={(e) => { if (e.key === 'Enter') { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; } }}
-                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid #F0F0F0', background: '#F9FAFB', color: '#0A0A0A', fontSize: 11, outline: 'none' }}
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid #F0F0F0', background: 'rgba(255,255,255,0.03)', color: '#F8FAFC', fontSize: 11, outline: 'none' }}
                   />
                   <button
                     onClick={() => { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; else toast.error('Enter a valid .myshopify.com domain'); }}
@@ -3611,7 +3611,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               ) : (
                 <button
                   onClick={() => setShowShopifyInput(true)}
-                  style={{ width: '100%', padding: '8px 14px', borderRadius: 8, border: '1px solid #F0F0F0', background: '#FAFAFA', color: '#6B7280', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}
+                  style={{ width: '100%', padding: '8px 14px', borderRadius: 8, border: '1px solid #F0F0F0', background: '#05070F', color: '#94A3B8', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   🔗 Connect Shopify store
                 </button>
@@ -3646,7 +3646,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {hasOutput ? (
             <>
               {/* Tab bar */}
-              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
+              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -3680,7 +3680,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {activeTab === 'preview' && (
                   <div className="relative h-full flex flex-col overflow-hidden">
                     {/* Toolbar */}
-                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
+                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
                       <button onClick={handleOpenPreviewNewTab} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                         <ExternalLink size={11} /> Open in new tab
                       </button>
@@ -3701,7 +3701,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             <button key={t} onClick={() => applyTheme(t)} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", background: activeTheme === t ? 'rgba(99,102,241,0.15)' : '#F9FAFB', border: `1px solid ${activeTheme === t ? 'rgba(99,102,241,0.4)' : '#F5F5F5'}`, color: activeTheme === t ? '#6366F1' : '#6B7280', cursor: 'pointer', textTransform: 'capitalize' as const }}>{t}</button>
                           ))}
                           <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 4 }}>theme</span>
-                          <div style={{ width: 1, height: 18, background: '#F5F5F5', margin: '0 6px' }} />
+                          <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.04)', margin: '0 6px' }} />
                           <button
                             onClick={handleToggleEdit}
                             title="Click text to edit, click images to upload your own"
@@ -3721,7 +3721,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       )}
                     </div>
                     {(generatedData || directHtml) ? (
-                      <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#FAFAFA', padding: previewDevice !== 'desktop' ? '20px 0' : 0, display: 'flex', flexDirection: 'column' }}>
+                      <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#05070F', padding: previewDevice !== 'desktop' ? '20px 0' : 0, display: 'flex', flexDirection: 'column' }}>
                         {/* Quick action bar */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid #F9FAFB', flexShrink: 0 }}>
                           <button
@@ -3733,7 +3733,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           </button>
                           <button
                             onClick={handleDownloadHTML}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: '#F9FAFB', border: '1px solid #F0F0F0', borderRadius: 6, color: '#374151', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', borderRadius: 6, color: '#CBD5E1', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Download
@@ -3749,10 +3749,10 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           height: window.innerWidth < 768 ? '75vh' : '70vh',
                           minHeight: window.innerWidth < 768 ? 400 : 500,
                           margin: previewDevice !== 'desktop' ? '0 auto' : undefined,
-                          border: '1px solid #E5E7EB',
+                          border: '1px solid rgba(255,255,255,0.08)',
                           borderRadius: previewDevice !== 'desktop' ? 20 : 0,
                           overflow: 'hidden',
-                          background: '#FAFAFA',
+                          background: '#05070F',
                           flexShrink: 0,
                         }}>
                           <iframe
@@ -3781,7 +3781,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                                 <button key={key} onClick={() => {
                                   const newHtml = directHtml.replace(/<h1[^>]*>[\s\S]*?<\/h1>/, `<h1 style="font-size:clamp(44px,7vw,72px);font-weight:900;color:#fff;margin:0 0 24px;line-height:1.08">${value}</h1>`);
                                   setDirectHtml(newHtml);
-                                }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: '#FAFAFA', border: '1px solid #E5E7EB', cursor: 'pointer', color: 'rgba(240,237,232,0.75)', fontSize: 13 }}>
+                                }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', color: 'rgba(240,237,232,0.75)', fontSize: 13 }}>
                                   <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, display: 'block', marginBottom: 3 }}>{label}</span>
                                   {value}
                                 </button>
@@ -3801,12 +3801,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {/* ── CODE TAB ── */}
                 {activeTab === 'code' && (
                   <div className="h-full flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>
-                      <span className="text-xs font-mono" style={{ color: '#374151' }}>store-preview.html</span>
+                    <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#05070F' }}>
+                      <span className="text-xs font-mono" style={{ color: '#CBD5E1' }}>store-preview.html</span>
                       <button
                         onClick={() => { copy(previewHTML, 'html-source'); toast.success('HTML copied!'); }}
                         className="text-xs flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all"
-                        style={{ color: copiedKey === 'html-source' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}
+                        style={{ color: copiedKey === 'html-source' ? '#6366F1' : '#9CA3AF', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', border: 'none' }}
                       >
                         {copiedKey === 'html-source' ? <Check size={10} /> : <Copy size={10} />}
                         {copiedKey === 'html-source' ? 'Copied!' : 'Copy HTML'}
@@ -3814,7 +3814,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
                       {(directHtml || rawResponse || generatedData) ? (
-                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: '#374151', fontFamily: 'monospace', background: '#FAFAFA', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
+                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: '#CBD5E1', fontFamily: 'monospace', background: '#05070F', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
                           <SyntaxHighlighter
                             language="html"
                             style={vscDarkPlus ?? {}}
@@ -3855,7 +3855,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           <div key={key}>
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</span>
-                              <button onClick={() => copy(value, key)} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === key ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
+                              <button onClick={() => copy(value, key)} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === key ? '#6366F1' : '#9CA3AF', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === key ? <Check size={10} /> : <Copy size={10} />}{copiedKey === key ? 'Copied' : 'Copy'}
                               </button>
                             </div>
@@ -3870,7 +3870,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Features</span>
-                              <button onClick={() => copy(generatedData.features!.map(featureToStr).join('\n'), 'feats')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'feats' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
+                              <button onClick={() => copy(generatedData.features!.map(featureToStr).join('\n'), 'feats')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'feats' ? '#6366F1' : '#9CA3AF', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === 'feats' ? <Check size={10} /> : <Copy size={10} />}{copiedKey === 'feats' ? 'Copied' : 'Copy All'}
                               </button>
                             </div>
@@ -3879,11 +3879,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                                 const title = typeof f === 'string' ? f : f.title;
                                 const desc = typeof f === 'string' ? '' : f.description;
                                 return (
-                                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}>
+                                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)' }}>
                                     <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black" style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}>{i + 1}</div>
                                     <div className="flex-1">
                                       <div className="text-sm font-semibold" style={{ color: 'rgba(240,237,232,0.85)' }}>{title}</div>
-                                      {desc && <div className="text-xs mt-0.5" style={{ color: '#6B7280' }}>{desc}</div>}
+                                      {desc && <div className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>{desc}</div>}
                                     </div>
                                     <button onClick={() => copy(featureToStr(f), `feat-${i}`)} style={{ color: copiedKey === `feat-${i}` ? '#6366F1' : '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                                       {copiedKey === `feat-${i}` ? <Check size={10} /> : <Copy size={10} />}
@@ -3900,15 +3900,15 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>FAQs</span>
-                              <button onClick={() => copy(generatedData.faqs!.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n\n'), 'faqs')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'faqs' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
+                              <button onClick={() => copy(generatedData.faqs!.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n\n'), 'faqs')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'faqs' ? '#6366F1' : '#9CA3AF', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === 'faqs' ? <Check size={10} /> : <Copy size={10} />}{copiedKey === 'faqs' ? 'Copied' : 'Copy All'}
                               </button>
                             </div>
                             <div className="space-y-2">
                               {generatedData.faqs.map((f, i) => (
-                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}>
+                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)' }}>
                                   <div className="text-xs font-bold mb-1" style={{ color: 'rgba(240,237,232,0.85)' }}>{f.question}</div>
-                                  <div className="text-xs" style={{ color: '#6B7280' }}>{f.answer}</div>
+                                  <div className="text-xs" style={{ color: '#94A3B8' }}>{f.answer}</div>
                                 </div>
                               ))}
                             </div>
@@ -3920,14 +3920,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Testimonials</span>
-                              <button onClick={() => copy(generatedData.testimonials!.map(t => `"${t.text}" — ${t.name}, ${t.location}`).join('\n\n'), 'tests')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'tests' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
+                              <button onClick={() => copy(generatedData.testimonials!.map(t => `"${t.text}" — ${t.name}, ${t.location}`).join('\n\n'), 'tests')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'tests' ? '#6366F1' : '#9CA3AF', background: 'rgba(255,255,255,0.03)', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === 'tests' ? <Check size={10} /> : <Copy size={10} />}Copy All
                               </button>
                             </div>
                             <div className="space-y-2">
                               {generatedData.testimonials.map((t, i) => (
-                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', borderLeft: '3px solid #6366F1' }}>
-                                  <div className="text-xs italic mb-1" style={{ color: '#374151' }}>"{t.text}"</div>
+                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', borderLeft: '3px solid #6366F1' }}>
+                                  <div className="text-xs italic mb-1" style={{ color: '#CBD5E1' }}>"{t.text}"</div>
                                   <div className="text-xs font-bold" style={{ color: '#9CA3AF' }}>— {t.name}, {t.location}</div>
                                 </div>
                               ))}
@@ -3952,7 +3952,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     ) : rawResponse ? (
                       <div>
                         <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Raw AI Output</div>
-                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#374151', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', color: '#CBD5E1', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                           {rawResponse}
                         </pre>
                       </div>
@@ -3973,16 +3973,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             onClick={handleVercelDeploy}
                             disabled={!generatedData || vercelDeploying}
                             className="w-full p-4 rounded-xl text-left transition-all disabled:opacity-40 flex flex-col gap-2"
-                            style={{ background: '#000', border: '1px solid #D1D5DB', cursor: (!generatedData || vercelDeploying) ? 'not-allowed' : 'pointer' }}
+                            style={{ background: '#000', border: '1px solid rgba(255,255,255,0.08)', cursor: (!generatedData || vercelDeploying) ? 'not-allowed' : 'pointer' }}
                           >
                             <div className="flex items-center gap-2">
                               <span className="font-black text-base">▲</span>
                               <span className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>
                                 {vercelDeploying ? 'Deploying…' : vercelResult ? 'Re-deploy' : 'Deploy to Vercel'}
                               </span>
-                              {vercelDeploying && <Loader2 size={13} className="animate-spin ml-auto" style={{ color: '#374151' }} />}
+                              {vercelDeploying && <Loader2 size={13} className="animate-spin ml-auto" style={{ color: '#CBD5E1' }} />}
                             </div>
-                            <div className="text-xs" style={{ color: '#6B7280' }}>Live in ~30 seconds</div>
+                            <div className="text-xs" style={{ color: '#94A3B8' }}>Live in ~30 seconds</div>
                           </button>
                         </div>
                         {/* Netlify — Available Soon */}
@@ -4035,7 +4035,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             <button
                               onClick={() => { navigator.clipboard.writeText(vercelResult.url); toast.success('URL copied!'); }}
                               className="text-xs px-3 py-2 rounded-lg flex items-center gap-1"
-                              style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#374151', cursor: 'pointer' }}
+                              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#CBD5E1', cursor: 'pointer' }}
                             >
                               <Copy size={10} /> Copy URL
                             </button>
@@ -4054,7 +4054,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       )}
                     </div>
 
-                    <div style={{ height: 1, background: '#F9FAFB' }} />
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.03)' }} />
 
                     {/* Download Options */}
                     <div>
@@ -4068,7 +4068,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       </button>
 
                       {/* Download ZIP */}
-                      <button onClick={handleDownloadZip} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                      <button onClick={handleDownloadZip} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#05070F', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)' }}><FileArchive size={20} style={{ color: '#6366F1' }} /></div>
                         <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download ZIP</div>
                         <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Download all generated files as a ZIP archive with folder structure preserved.</div>
@@ -4084,36 +4084,36 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       )}
 
                       {/* B5a — Copy Embed Code */}
-                      <button onClick={() => { navigator.clipboard.writeText(`<iframe src="your-store-url" width="100%" height="800" frameborder="0" style="border:none;border-radius:12px;"></iframe>`); toast.success('Embed code copied!'); }} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                      <button onClick={() => { navigator.clipboard.writeText(`<iframe src="your-store-url" width="100%" height="800" frameborder="0" style="border:none;border-radius:12px;"></iframe>`); toast.success('Embed code copied!'); }} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#05070F', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)' }}><Code2 size={20} style={{ color: '#6366F1' }} /></div>
                         <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Copy Embed Code</div>
                         <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Embed your store in Shopify, Wix, or any website via iframe.</div>
                       </button>
 
                       {/* B5b — Download Bundle */}
-                      <button onClick={handleDownloadFullBundle} disabled={!directHtml} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                      <button onClick={handleDownloadFullBundle} disabled={!directHtml} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#05070F', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)' }}><Package size={20} style={{ color: '#6366F1' }} /></div>
                         <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download Bundle (3 files)</div>
                         <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>HTML + manifest.json + README — everything to deploy.</div>
                       </button>
 
                       {/* Open in Cursor */}
-                      <button onClick={handleOpenCursor} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                      <button onClick={handleOpenCursor} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#05070F', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(156,95,255,0.12)' }}><Terminal size={20} style={{ color: '#9c5fff' }} /></div>
                         <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Open in Cursor</div>
                         <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Download ZIP + get step-by-step instructions to customise with Cursor AI.</div>
                       </button>
 
                       {/* Export to Shopify */}
-                      <button onClick={handleShopifyExport} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                      <button onClick={handleShopifyExport} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#05070F', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.18)' }}><ShoppingBag size={20} style={{ color: '#6366F1' }} /></div>
                         <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Export to Shopify</div>
                         <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Download Shopify-compatible theme ZIP with layout, sections, and config included.</div>
                       </button>
 
                       {/* Copy to Notion */}
-                      <button onClick={handleCopyNotion} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: '#F5F5F5' }}><StickyNote size={20} style={{ color: '#374151' }} /></div>
+                      <button onClick={handleCopyNotion} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#05070F', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}><StickyNote size={20} style={{ color: '#CBD5E1' }} /></div>
                         <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Copy to Notion</div>
                         <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Copy headline, features, CTAs, and brand story as clean Markdown for Notion.</div>
                       </button>
@@ -4139,14 +4139,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               {generating ? (
                 /* Task 5 — Progress overlay */
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 520, gap: 20 }}>
-                  <div style={{ width: '100%', background: '#FAFAFA', borderRadius: 12, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
-                    <div style={{ height: 3, background: '#F9FAFB', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', background: '#05070F', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ height: 3, background: 'rgba(255,255,255,0.03)', position: 'relative', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', background: '#6366F1', width: `${genProgress}%`, transition: 'width 0.6s ease', borderRadius: 2 }} />
                     </div>
                     <div style={{ padding: '28px 32px', textAlign: 'center' }}>
                       <div style={{ fontSize: 32, marginBottom: 12 }}>&#9889;</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', marginBottom: 8 }}>{genProgress}%</div>
-                      <div style={{ fontSize: 14, color: '#374151', marginBottom: 20 }}>
+                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', marginBottom: 8 }}>{genProgress}%</div>
+                      <div style={{ fontSize: 14, color: '#CBD5E1', marginBottom: 20 }}>
                         {(() => {
                           const PM: Record<number, string> = { 5: 'Fetching product images...', 10: 'Building your brand brief...', 15: 'Warming up the AI...', 20: 'Writing your store copy...', 30: 'Crafting the hero section...', 50: 'Designing your layout...', 70: 'Adding product pages...', 90: 'Finishing touches...', 98: 'Assembling final store...', 100: 'Your store is ready!' };
                           const keys = Object.keys(PM).map(Number).sort((a, b) => b - a);
@@ -4187,11 +4187,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   return (
                     <div style={{ width: '100%', maxWidth: 520, animation: 'mjk-fadeIn 0.4s ease' }}>
                       <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #F0F0F0', background: skBg }}>
-                        <div style={{ height: 28, background: '#F9FAFB', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px' }}>
+                        <div style={{ height: 28, background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px' }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff5f56' }} />
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffbd2e' }} />
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#27c93f' }} />
-                          <div style={{ flex: 1, height: 14, borderRadius: 4, background: '#F9FAFB', marginLeft: 12 }} />
+                          <div style={{ flex: 1, height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.03)', marginLeft: 12 }} />
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: `1px solid ${skAccent}20` }}>
                           <div style={{ fontSize: 13, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: skAccent }}>{skName}</div>
@@ -4269,9 +4269,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <div className="text-xs" style={{ color: '#9CA3AF' }}>Your ZIP has been downloaded</div>
             </div>
           </div>
-          <pre className="text-xs rounded-xl p-4 leading-relaxed" style={{ background: 'rgba(0,0,0,0.3)', color: '#374151', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>{cursorInstructions}</pre>
+          <pre className="text-xs rounded-xl p-4 leading-relaxed" style={{ background: 'rgba(0,0,0,0.3)', color: '#CBD5E1', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>{cursorInstructions}</pre>
           <div className="flex gap-2">
-            <button onClick={() => { copy(cursorInstructions, 'cursor-inst'); }} className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5" style={{ background: '#F9FAFB', color: '#374151', cursor: 'pointer', border: 'none' }}>
+            <button onClick={() => { copy(cursorInstructions, 'cursor-inst'); }} className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5" style={{ background: 'rgba(255,255,255,0.03)', color: '#CBD5E1', cursor: 'pointer', border: 'none' }}>
               {copiedKey === 'cursor-inst' ? <Check size={11} /> : <Clipboard size={11} />}{copiedKey === 'cursor-inst' ? 'Copied!' : 'Copy Instructions'}
             </button>
             <a href="https://cursor.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5" style={{ background: 'rgba(156,95,255,0.15)', color: '#9c5fff', border: '1px solid rgba(156,95,255,0.3)', textDecoration: 'none' }}>
@@ -4291,7 +4291,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <div className="text-xs" style={{ color: '#9CA3AF' }}>Upload the ZIP to your Shopify store</div>
             </div>
           </div>
-          <ol className="space-y-2 text-xs" style={{ color: '#374151' }}>
+          <ol className="space-y-2 text-xs" style={{ color: '#CBD5E1' }}>
             {['Log into your Shopify Admin', 'Go to Online Store → Themes', 'Click "Add theme" → "Upload zip file"', 'Select the downloaded ZIP file', 'Preview, then click "Publish"'].map((step, i) => (
               <li key={i} className="flex gap-2">
                 <span className="font-black flex-shrink-0" style={{ color: '#6366F1' }}>{i + 1}.</span>
@@ -4318,8 +4318,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
         return (
           <div style={{
-            height: 44, borderTop: '1px solid #E5E7EB',
-            background: 'white', display: 'flex', alignItems: 'center',
+            height: 44, borderTop: '1px solid rgba(255,255,255,0.06)',
+            background: '#0C1120', display: 'flex', alignItems: 'center',
             paddingLeft: 16, paddingRight: 16, gap: 10, flexShrink: 0,
             boxShadow: '0 -1px 4px #F9FAFB',
           }}>

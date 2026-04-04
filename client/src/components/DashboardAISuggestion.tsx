@@ -228,14 +228,14 @@ export function DashboardAISuggestion({ userProfile }: Props) {
         {loading
           ? [0, 1, 2].map((i) => (
               <div key={i} style={{
-                background: '#FAFAFA',
+                background: '#05070F',
                 border: '1px solid #F9FAFB',
                 borderRadius: 12, padding: '16px 18px',
                 minHeight: 100,
               }}>
-                <div style={{ height: 10, background: '#F9FAFB', borderRadius: 5, width: '60%', marginBottom: 10, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                <div style={{ height: 8, background: '#F9FAFB', borderRadius: 4, width: '80%', marginBottom: 16, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                <div style={{ height: 8, background: '#F9FAFB', borderRadius: 4, width: '40%', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 10, background: 'rgba(255,255,255,0.03)', borderRadius: 5, width: '60%', marginBottom: 10, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 4, width: '80%', marginBottom: 16, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 4, width: '40%', animation: 'pulse 1.5s ease-in-out infinite' }} />
               </div>
             ))
           : (displayCards || FALLBACK_CARDS).map((card, i) => {
@@ -249,7 +249,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1, duration: 0.4, ease: 'easeOut' }}
                   style={{
-                    background: '#FAFAFA',
+                    background: '#05070F',
                     border: `1px solid #E5E7EB`,
                     borderRadius: 12,
                     padding: '16px 18px',
@@ -298,7 +298,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   <div style={{
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700, fontSize: 13,
-                    color: '#0A0A0A', marginBottom: 4, lineHeight: 1.3,
+                    color: '#F8FAFC', marginBottom: 4, lineHeight: 1.3,
                   }}>
                     {card.title}
                   </div>
