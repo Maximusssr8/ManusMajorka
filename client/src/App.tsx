@@ -256,7 +256,7 @@ function Router() {
             <Route path="/app/market">{() => <ProtectedRoute><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/market-intel">{() => { window.location.replace('/app/market'); return null; }}</Route>
             <Route path="/app/market-dashboard">{() => { window.location.replace('/app/market'); return null; }}</Route>
-            <Route path="/app/creators">{() => <ProtectedRoute><AppLayout><CreatorIntelligence /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/creators">{() => <ProtectedRoute><AppLayout><ErrorBoundary><CreatorIntelligence /></ErrorBoundary></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/videos">{() => <ProtectedRoute><AppLayout><VideoIntelligence /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/copywriter">{() => { window.location.replace('/app/growth'); return null; }}</Route>

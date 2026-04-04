@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '@/lib/supabase';
 import { DateRangeSelector, DateRange, getDateRangeStart } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
+import { calculateMargin, getMarginColour } from '@/lib/calculations';
 import { toast } from 'sonner';
 import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
@@ -134,15 +135,10 @@ function getProductRevenue(p: Product) {
   const upd = p.units_per_day || Math.max(1, Math.round((p.winning_score || 50) / 12));
   return Math.round(price * upd * 30 * 100) / 100;
 }
-function calculateMargin(price: number | undefined, originalPrice: number | undefined): number | null {
-  if (!originalPrice || !price || originalPrice <= price) return null;
-  return Math.round(((originalPrice - price) / originalPrice) * 100);
-}
-function getProductMargin(p: Product) {
+function getProductMargin(p: Product): number | null {
   if (p.estimated_margin_pct && p.estimated_margin_pct > 0) return p.estimated_margin_pct;
   if (p.profit_margin && p.profit_margin > 0) return p.profit_margin;
-  const calc = calculateMargin(p.price_aud, (p as any).original_price || (p as any).sale_price);
-  return calc ?? 0;
+  return calculateMargin(p.price_aud, (p as any).original_price || (p as any).sale_price);
 }
 function getProductOrders(p: Product) {
   return p.orders_count || p.items_sold_monthly || 0;
@@ -543,7 +539,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const growth = getGrowthRate(p);
       const nStr = getProductNiche(p).toLowerCase();
       if (opportunityFilter === 'Viral' && !(getGrowthRate(p) > 25 || (p.tags || []).includes('VIRAL'))) return false;
-      if (opportunityFilter === 'High Margin' && !(margin >= 50 || (p.profit_margin || 0) >= 50)) return false;
+      if (opportunityFilter === 'High Margin' && !((margin ?? 0) >= 50 || (p.profit_margin || 0) >= 50)) return false;
       if (opportunityFilter === 'AU Best Sellers' && orders < 50) return false;
       if (opportunityFilter === 'TikTok' && !p.tiktok_signal && !nStr.includes('tiktok')) return false;
       if (opportunityFilter === 'New Today') {
@@ -563,7 +559,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     if (rev < advancedFilters.revenueMin || rev > advancedFilters.revenueMax) return false;
     if (advancedFilters.marginFilter.length > 0) {
       const m = getProductMargin(p);
-      const tier = m >= 50 ? 'high' : m >= 30 ? 'medium' : 'low';
+      const tier = (m ?? 0) >= 50 ? 'high' : (m ?? 0) >= 30 ? 'medium' : 'low';
       if (!advancedFilters.marginFilter.includes(tier)) return false;
     }
     if (advancedFilters.growthFilter !== 'all') {
@@ -965,7 +961,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                             { label: realOrders ? '📦 Real Orders' : '📦 AE Orders', value: realOrders ? realOrders.toLocaleString() : aeOrders > 0 ? aeOrders.toLocaleString() : '—', highlight: !!realOrders },
                             { label: '🏷 Sell', value: sellPrice > 0 ? `$${sellPrice.toFixed(0)}` : '—', highlight: false },
                             { label: '💰 Cost', value: costPrice > 0 ? `$${costPrice.toFixed(2)}` : '—', highlight: false },
-                            { label: '📊 Margin', value: margin > 0 ? `${Math.round(margin)}%` : '—', highlight: false },
+                            { label: '📊 Margin', value: margin !== null && margin > 0 ? `${Math.round(margin)}%` : '—', highlight: false },
                           ].map(m => (
                             <div key={m.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 7, padding: '7px 10px' }}>
                               <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 2 }}>{m.label}</div>
@@ -1159,7 +1155,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     ? p.revenue_growth_pct >= 0
                     : growth >= 0;
                   const tags = (p.tags && p.tags.length > 0) ? p.tags : (
-                    [growth > 25 ? 'VIRAL' : null, margin >= 50 ? 'HIGH MARGIN' : null, orders >= 2000 ? 'AU BEST SELLERS' : null, 'TRENDING']
+                    [growth > 25 ? 'VIRAL' : null, (margin ?? 0) >= 50 ? 'HIGH MARGIN' : null, orders >= 2000 ? 'AU BEST SELLERS' : null, 'TRENDING']
                       .filter(Boolean) as string[]
                   ).slice(0, 3);
                   const isExpanded = expandedProduct === (p.id || idx);
@@ -1301,12 +1297,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <td style={tdStyle('center')}>
                           {canSeeFinancials ? (
                             <>
-                              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444' }}>
-                                {margin}%
+                              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: margin === null ? '#6B7280' : (margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444') }}>
+                                {margin !== null ? `${margin}%` : '—'}
                               </div>
-                              <div style={{ height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 2, marginTop: 4, width: 48, margin: '4px auto 0' }}>
-                                <div style={{ height: '100%', width: `${Math.min(100, margin)}%`, background: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444', borderRadius: 2 }} />
-                              </div>
+                              {margin !== null && (
+                                <div style={{ height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 2, marginTop: 4, width: 48, margin: '4px auto 0' }}>
+                                  <div style={{ height: '100%', width: `${Math.min(100, margin)}%`, background: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444', borderRadius: 2 }} />
+                                </div>
+                              )}
                             </>
                           ) : (
                             <span style={{ filter: 'blur(5px)', userSelect: 'none' as const, cursor: 'pointer', display: 'inline-block' }} title="Upgrade to see margin data" onClick={e => { e.stopPropagation(); setLocation('/pricing'); }}>

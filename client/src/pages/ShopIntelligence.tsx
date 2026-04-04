@@ -43,7 +43,7 @@ const CATEGORY_RANKINGS = [
   { name: 'Pet Accessories', size: 9800000, sellers: 2100, growth: 18, competition: 'Low', score: 82 },
   { name: 'Beauty & Skincare', size: 8200000, sellers: 2800, growth: 45, competition: 'High', score: 76 },
   { name: 'Tech & Gadgets', size: 7600000, sellers: 1600, growth: -5, competition: 'High', score: 61 },
-  { name: 'Home & Kitchen', size: 6900000, sellers: 1400, growth: 12, competition: 'Medium', score: 74 },
+  { name: 'Home & Kitchen', size: 6900000, sellers: 1400, growth: 12, competition: 'Medium', score: 71 },
   { name: 'Outdoor & Sports', size: 5800000, sellers: 980, growth: 22, competition: 'Low', score: 84 },
   { name: 'Sleep & Wellness', size: 4200000, sellers: 620, growth: 28, competition: 'Low', score: 86 },
   { name: 'Automotive', size: 3800000, sellers: 540, growth: 15, competition: 'Medium', score: 78 },

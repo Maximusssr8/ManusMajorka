@@ -123,6 +123,7 @@ export default function CreatorIntelligence() {
   const isMobile = useIsMobile();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [selected, setSelected] = useState<Creator | null>(null);
   const [outreach, setOutreach] = useState('');
   const [outreachLoading, setOutreachLoading] = useState(false);
@@ -166,13 +167,14 @@ export default function CreatorIntelligence() {
   };
 
   const fetchCreators = useCallback(async (_niche = '', _region = '') => {
-    if (creators.length === 0) setCreators(FALLBACK_CREATORS as any);
     setLoading(true);
+    setError(false);
     try {
       const r = await fetch('/api/creators/real');
+      if (!r.ok) throw new Error(`API returned ${r.status}`);
       const data = await r.json();
-      if (data.last_synced) setCachedAt(data.last_synced);
-      const mapped: Creator[] = (data.creators || []).map((c: any) => ({
+      if (data?.last_synced) setCachedAt(data.last_synced);
+      const mapped: Creator[] = (data?.creators || []).map((c: any) => ({
         handle: c.handle ? `@${c.handle}` : '',
         display_name: c.nickname || c.handle || '',
         profile_url: c.profileUrl || '',
@@ -185,8 +187,13 @@ export default function CreatorIntelligence() {
         image_url: c.avatarUrl || null,
       }));
       setCreators(mapped.length > 0 ? mapped : FALLBACK_CREATORS as any);
-    } catch { setCreators(FALLBACK_CREATORS as any); }
-    setLoading(false);
+    } catch (err) {
+      console.error('[CreatorIntelligence] Failed to load creator data:', err);
+      setError(true);
+      setCreators(FALLBACK_CREATORS as any);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchCreators(filterNiche, filterRegion); }, [filterNiche, filterRegion, fetchCreators]);
@@ -431,12 +438,6 @@ export default function CreatorIntelligence() {
     );
   };
 
-  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
-  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
-  if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Creator Intelligence" reason="Discover top creators and influencers" />;
-  }
-
   const errorFallback = (
     <div className="flex flex-col items-center justify-center h-full py-24 gap-6" style={{ background: '#080808' }}>
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)' }}>
@@ -455,6 +456,14 @@ export default function CreatorIntelligence() {
       </button>
     </div>
   );
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Creator Intelligence" reason="Discover top creators and influencers" />;
+  }
+
+  if (error) return errorFallback;
 
   return (
     <ErrorBoundary fallback={errorFallback}>
