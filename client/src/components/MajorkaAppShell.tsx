@@ -235,15 +235,15 @@ function NotificationBell() {
           top: 'calc(100% + 8px)',
           right: 0,
           width: 320,
-          background: 'white',
-          border: '1px solid #E5E7EB',
+          background: '#0E1420',
+          border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 14,
-          boxShadow: '0 16px 48px rgba(0,0,0,0.1)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
           zIndex: 500,
           overflow: 'hidden',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #E5E7EB' }}>
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>Notifications</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#F1F5F9' }}>Notifications</span>
             {unread > 0 && (
               <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
                 Mark all read
@@ -254,16 +254,16 @@ function NotificationBell() {
             {INITIAL_NOTIFICATIONS.map((n) => (
               <div key={n.id} style={{
                 padding: '12px 16px',
-                borderBottom: '1px solid #F3F4F6',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
                 display: 'flex',
                 gap: 10,
                 alignItems: 'flex-start',
-                background: readIds.has(n.id) ? 'transparent' : 'rgba(99,102,241,0.03)',
+                background: readIds.has(n.id) ? 'transparent' : 'rgba(99,102,241,0.08)',
               }}>
                 {!readIds.has(n.id) && (
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', flexShrink: 0, marginTop: 5 }} />
                 )}
-                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#9CA3AF' : '#6B7280', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
+                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#6B7280' : '#CBD5E1', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
                   {n.text}
                 </p>
               </div>
@@ -355,9 +355,9 @@ function PWAInstallBanner() {
   if (!show) return null;
 
   return (
-    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
+    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#0E1420', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
       <img src="/majorka-logo.jpg" alt="Majorka" width={32} height={32} style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 8, flexShrink: 0, display: 'block' }} draggable={false} />
-      <p style={{ flex: 1, fontSize: 13, color: '#374151', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
+      <p style={{ flex: 1, fontSize: 13, color: '#CBD5E1', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
         <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>Install</button>
         <button onClick={handleDismiss} style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
@@ -604,10 +604,10 @@ export default function MajorkaAppShell({ children }: Props) {
                 : badge === 'LIVE'
                 ? { background: '#ECFDF5', color: '#059669' }
                 : badge === 'SOON'
-                ? { background: '#F3F4F6', color: '#9CA3AF' }
+                ? { background: 'rgba(255,255,255,0.08)', color: '#CBD5E1' }
                 : item.path === '/app/learn' && badge !== 'HOT'
-                ? { background: 'rgba(16,185,129,0.12)', color: '#059669' }
-                : { background: '#EEF2FF', color: '#6366F1' };
+                ? { background: 'rgba(16,185,129,0.12)', color: '#6EE7B7' }
+                : { background: 'rgba(99,102,241,0.12)', color: '#A5B4FC' };
               return (
                 <span
                   className="ml-1.5"
@@ -693,8 +693,8 @@ export default function MajorkaAppShell({ children }: Props) {
           <kbd
             className="px-1.5 py-0.5 rounded text-xs"
             style={{
-              background: '#F9FAFB',
-              color: '#9CA3AF',
+              background: 'rgba(255,255,255,0.1)',
+              color: '#CBD5E1',
               fontSize: 9,
               fontFamily: 'DM Mono, monospace',
             }}
@@ -993,16 +993,16 @@ export default function MajorkaAppShell({ children }: Props) {
           <div
             className="w-full max-w-lg mx-4 overflow-hidden"
             style={{
-              background: 'white',
-              border: '1px solid #E5E7EB',
+              background: '#0E1420',
+              border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: 12,
-              boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div
               className="flex items-center gap-3 px-4 py-3"
-              style={{ borderBottom: '1px solid #E5E7EB' }}
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
             >
               <Search size={16} style={{ color: '#9CA3AF', flexShrink: 0 }} />
               <input
@@ -1010,8 +1010,8 @@ export default function MajorkaAppShell({ children }: Props) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tools..."
-                className="flex-1 bg-transparent outline-none text-sm text-gray-900 caret-gray-900 placeholder:text-gray-400"
-                style={{ color: '#111827', caretColor: '#111827', fontFamily: 'DM Sans, sans-serif' }}
+                className="flex-1 bg-transparent outline-none text-sm text-slate-100 caret-slate-100 placeholder:text-slate-500"
+                style={{ color: '#F1F5F9', caretColor: '#F1F5F9', fontFamily: 'DM Sans, sans-serif' }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
@@ -1027,7 +1027,7 @@ export default function MajorkaAppShell({ children }: Props) {
               />
               <kbd
                 className="px-1.5 py-0.5 rounded text-xs"
-                style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10 }}
+                style={{ background: 'rgba(255,255,255,0.1)', color: '#CBD5E1', fontSize: 10 }}
               >
                 ESC
               </kbd>
@@ -1047,10 +1047,10 @@ export default function MajorkaAppShell({ children }: Props) {
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#111827',
+                      color: '#F1F5F9',
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')
+                      (e.currentTarget.style.background = 'rgba(99,102,241,0.1)')
                     }
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                   >

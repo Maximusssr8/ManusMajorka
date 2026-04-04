@@ -730,8 +730,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <button
               onClick={() => { setSearchInput(''); setNiche('All Niches'); setOpportunityFilter('All'); setVerifiedOnly(false); }}
               style={{ height: 32, padding: '0 12px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FECACA', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 150ms' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#FEE2E2'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#FEF2F2'; }}>
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}>
               ✕ Clear filters
             </button>
           )}
@@ -806,7 +806,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {!canSeeFinancials && !isAdmin && (
           <div style={{background:'linear-gradient(135deg,#EEF2FF,#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
             <div>
-              <div style={{fontFamily:brico,fontWeight:800,fontSize:15,color:'#1E1B4B'}}>Showing 10 of {filteredProducts.length} products</div>
+              <div style={{fontFamily:brico,fontWeight:800,fontSize:15,color:'#E2E8F0'}}>Showing 10 of {filteredProducts.length} products</div>
               <div style={{fontSize:13,color:'#4B5563',marginTop:2}}>Unlock full database, margins, and revenue data on Builder plan</div>
             </div>
             <button onClick={()=>setShowUpgrade(true)} style={{padding:'10px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:brico,whiteSpace:'nowrap' as const}}>
@@ -967,9 +967,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                             { label: '💰 Cost', value: costPrice > 0 ? `$${costPrice.toFixed(2)}` : '—', highlight: false },
                             { label: '📊 Margin', value: margin > 0 ? `${Math.round(margin)}%` : '—', highlight: false },
                           ].map(m => (
-                            <div key={m.label} style={{ background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 7, padding: '7px 10px' }}>
-                              <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{m.label}</div>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: m.highlight ? '#22C55E' : 'var(--cell-text, #111827)' }}>{m.value}</div>
+                            <div key={m.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 7, padding: '7px 10px' }}>
+                              <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 2 }}>{m.label}</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: m.highlight ? '#22C55E' : '#F1F5F9' }}>{m.value}</div>
                             </div>
                           ))}
                         </div>
@@ -983,7 +983,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {tierConfig.label}
                       </span>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        {sources.includes('tiktok') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(0,0,0,0.06)', color: '#374151', fontWeight: 700 }}>TT</span>}
+                        {sources.includes('tiktok') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,255,255,0.08)', color: '#CBD5E1', fontWeight: 700 }}>TT</span>}
                         {sources.includes('amazon') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,153,0,0.12)', color: '#D97706', fontWeight: 700 }}>AMZ</span>}
                         {sources.includes('aliexpress') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,106,0,0.10)', color: '#EA580C', fontWeight: 700 }}>AE</span>}
                         {product.tags?.includes('aliexpress_choice') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,106,0,0.10)', color: '#EA580C', fontWeight: 700 }}>✅</span>}

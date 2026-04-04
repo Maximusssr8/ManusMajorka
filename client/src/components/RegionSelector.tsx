@@ -35,26 +35,26 @@ export function RegionSelector() {
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             height: 34, padding: '0 10px',
-            background: open ? '#EEF2FF' : 'white',
-            border: '1px solid #E5E7EB',
+            background: open ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.12)',
             borderRadius: 8, cursor: 'pointer',
-            fontSize: 12, fontWeight: 600, color: '#374151',
+            fontSize: 12, fontWeight: 600, color: '#CBD5E1',
             transition: 'all 150ms',
           }}
         >
           <span style={{ fontSize: 16 }}>{region.flag}</span>
           <span>{region.currency}</span>
-          <span style={{ fontSize: 9, color: '#9CA3AF', marginLeft: 2 }}>&#9662;</span>
+          <span style={{ fontSize: 9, color: '#94A3B8', marginLeft: 2 }}>&#9662;</span>
         </button>
 
         {open && (
           <div style={{
             position: 'absolute' as const, top: '100%', right: 0, zIndex: 200,
-            background: 'white', border: '1px solid #E5E7EB', borderRadius: 10,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)', overflow: 'hidden',
+            background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)', overflow: 'hidden',
             minWidth: 200, marginTop: 6,
           }}>
-            <div style={{ padding: '8px 12px 6px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
+            <div style={{ padding: '8px 12px 6px', fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
               Select Market
             </div>
             {REGION_LIST.map(r => (
@@ -64,18 +64,18 @@ export function RegionSelector() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   width: '100%', padding: '8px 14px',
-                  background: regionCode === r.code ? '#EEF2FF' : 'white',
+                  background: regionCode === r.code ? 'rgba(99,102,241,0.15)' : 'transparent',
                   border: 'none', cursor: 'pointer', textAlign: 'left' as const,
                   transition: 'background 100ms',
                   borderLeft: regionCode === r.code ? '3px solid #6366F1' : '3px solid transparent',
                 }}
-                onMouseEnter={e => { if (regionCode !== r.code) e.currentTarget.style.background = '#FAFAFF'; }}
-                onMouseLeave={e => { if (regionCode !== r.code) e.currentTarget.style.background = 'white'; }}
+                onMouseEnter={e => { if (regionCode !== r.code) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                onMouseLeave={e => { if (regionCode !== r.code) e.currentTarget.style.background = 'transparent'; }}
               >
                 <span style={{ fontSize: 20 }}>{r.flag}</span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: regionCode === r.code ? '#6366F1' : '#0A0A0A' }}>{r.name}</div>
-                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{r.currency} · ~{r.avg_shipping_days}d shipping</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: regionCode === r.code ? '#A5B4FC' : '#E2E8F0' }}>{r.name}</div>
+                  <div style={{ fontSize: 10, color: '#64748B' }}>{r.currency} · ~{r.avg_shipping_days}d shipping</div>
                 </div>
                 {regionCode === r.code && <span style={{ marginLeft: 'auto', color: '#6366F1', fontSize: 14 }}>&#10003;</span>}
               </button>

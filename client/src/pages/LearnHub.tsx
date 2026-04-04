@@ -693,11 +693,11 @@ function PlaylistDrawer({
             >
               {playlist.length === 0 ? (
                 <div className="text-center py-12">
-                  <BookOpen size={32} style={{ color: '#3f3f46', margin: '0 auto 12px' }} />
+                  <BookOpen size={32} style={{ color: '#94A3B8', margin: '0 auto 12px' }} />
                   <p className="text-sm" style={{ color: '#9CA3AF' }}>
                     Your playlist is empty
                   </p>
-                  <p className="text-xs mt-1" style={{ color: '#3f3f46' }}>
+                  <p className="text-xs mt-1" style={{ color: '#94A3B8' }}>
                     Add free lessons to build your queue
                   </p>
                 </div>
@@ -736,7 +736,7 @@ function PlaylistDrawer({
                         >
                           {lesson.title}
                         </div>
-                        <div className="text-xs" style={{ color: '#3f3f46' }}>
+                        <div className="text-xs" style={{ color: '#94A3B8' }}>
                           {lesson.readTime}
                         </div>
                       </div>
@@ -1303,7 +1303,7 @@ function TrackCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3
-                className="font-bold text-gray-900 text-base leading-tight"
+                className="font-bold text-slate-100 text-base leading-tight"
                 style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {track.title}
@@ -1437,7 +1437,7 @@ function TrackCard({
                     {/* Lesson number */}
                     <span
                       className="text-xs font-bold flex-shrink-0 w-7 text-center"
-                      style={{ color: '#3f3f46', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       {num}
                     </span>
@@ -1449,7 +1449,7 @@ function TrackCard({
                       ) : lesson.free ? (
                         <BookOpen size={15} style={{ color: '#6366F1' }} />
                       ) : (
-                        <Lock size={14} style={{ color: '#3f3f46' }} />
+                        <Lock size={14} style={{ color: '#94A3B8' }} />
                       )}
                     </div>
 
@@ -1476,7 +1476,7 @@ function TrackCard({
                           Free
                         </span>
                       )}
-                      <span className="text-xs hidden sm:block" style={{ color: '#3f3f46' }}>
+                      <span className="text-xs hidden sm:block" style={{ color: '#94A3B8' }}>
                         {lesson.readTime}
                       </span>
                       <span
@@ -1781,7 +1781,7 @@ export default function LearnHub() {
                 </div>
                 <div>
                   <div
-                    className="font-bold text-gray-900 text-sm"
+                    className="font-bold text-slate-100 text-sm"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {completedCount} of {TOTAL_LESSONS}
@@ -1833,17 +1833,17 @@ export default function LearnHub() {
                       ? pill === 'All'
                         ? 'rgba(99,102,241,0.15)'
                         : `${difficultyStyle(pill).bg}`
-                      : '#F9FAFB',
-                    color: active ? col : '#9CA3AF',
-                    border: active ? `1px solid ${col}40` : '1px solid #E5E7EB',
+                      : 'rgba(255,255,255,0.06)',
+                    color: active ? col : '#CBD5E1',
+                    border: active ? `1px solid ${col}40` : '1px solid rgba(255,255,255,0.1)',
                     cursor: 'pointer',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
+                    if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)';
                   }}
                   onMouseLeave={(e) => {
-                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF';
+                    if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
                   }}
                 >
                   {pill}
@@ -1856,7 +1856,7 @@ export default function LearnHub() {
         {/* Track grid */}
         {filteredTracks.length === 0 ? (
           <div className="text-center py-16">
-            <BookOpen size={36} style={{ color: '#3f3f46', margin: '0 auto 12px' }} />
+            <BookOpen size={36} style={{ color: '#94A3B8', margin: '0 auto 12px' }} />
             <p className="text-sm font-medium" style={{ color: '#9CA3AF' }}>
               No lessons match your search
             </p>
@@ -1880,7 +1880,7 @@ export default function LearnHub() {
 
         {/* Footer */}
         <div className="mt-10 text-center">
-          <p className="text-xs" style={{ color: '#3f3f46' }}>
+          <p className="text-xs" style={{ color: '#94A3B8' }}>
             Free lessons open to all · Locked lessons require Builder Plan
           </p>
         </div>

@@ -91,27 +91,27 @@ interface WinningProduct {
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const C = {
-  bg: '#FAFAFA',
-  card: '#FFFFFF',
-  cardHover: '#F9FAFB',
-  surface: '#FFFFFF',
-  border: '#F0F0F0',
-  gold: '#6366F1',
-  goldHover: '#4F46E5',
-  goldBg: 'rgba(99,102,241,0.08)',
-  goldBorder: 'rgba(99,102,241,0.2)',
-  text: '#0A0A0A',
-  sub: '#6B7280',
-  muted: '#9CA3AF',
-  border2: '#F0F0F0',
-  borderHover: '#E5E7EB',
-  green: '#22c55e',
-  amber: '#f59e0b',
-  red: '#ef4444',
-  glass: '#F9FAFB',
-  glassBorder: '#F0F0F0',
-  silver: '#c0c0c0',
-  bronze: '#cd7f32',
+  bg: '#060A12',
+  card: '#0E1420',
+  cardHover: 'rgba(255,255,255,0.05)',
+  surface: '#0E1420',
+  border: 'rgba(255,255,255,0.08)',
+  gold: '#818CF8',
+  goldHover: '#6366F1',
+  goldBg: 'rgba(99,102,241,0.1)',
+  goldBorder: 'rgba(99,102,241,0.25)',
+  text: '#F1F5F9',
+  sub: '#94A3B8',
+  muted: '#64748B',
+  border2: 'rgba(255,255,255,0.08)',
+  borderHover: 'rgba(255,255,255,0.15)',
+  green: '#4ade80',
+  amber: '#fbbf24',
+  red: '#f87171',
+  glass: 'rgba(255,255,255,0.04)',
+  glassBorder: 'rgba(255,255,255,0.08)',
+  silver: '#94A3B8',
+  bronze: '#d97706',
 } as const;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -567,7 +567,7 @@ function Top5Rankings({
                   width: 40,
                   height: 40,
                   borderRadius: 8,
-                  background: '#FFFFFF',
+                  background: '#0E1420',
                   border: `1px solid ${C.border}`,
                   flexShrink: 0,
                   display: 'flex',
@@ -779,7 +779,7 @@ Be specific, opinionated, use AUD figures.`;
           right: 0,
           bottom: 0,
           width: 'min(480px, 100vw)',
-          background: 'white',
+          background: '#0E1420',
           borderLeft: `1px solid ${C.glassBorder}`,
           zIndex: 999,
           overflowY: 'auto',
@@ -802,7 +802,7 @@ Be specific, opinionated, use AUD figures.`;
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to bottom, transparent 40%, white 100%)',
+                background: 'linear-gradient(to bottom, transparent 40%, #0E1420 100%)',
               }}
             />
             <button
@@ -1081,7 +1081,7 @@ Be specific, opinionated, use AUD figures.`;
                   />
                   <RechartTooltip
                     contentStyle={{
-                      background: 'white',
+                      background: '#0E1420',
                       border: `1px solid ${C.goldBorder}`,
                       borderRadius: 8,
                       fontSize: 12,
@@ -1320,7 +1320,7 @@ Be specific, opinionated, use AUD figures.`;
 
           {/* Platform Breakdown */}
           <div>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
               Platform Signals
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -1344,7 +1344,7 @@ Be specific, opinionated, use AUD figures.`;
 
           {/* Supplier links */}
           <div>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
               Find Suppliers
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -1363,7 +1363,7 @@ Be specific, opinionated, use AUD figures.`;
 
           {/* Quick Actions */}
           <div>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
               Quick Actions
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -1506,7 +1506,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
         width: 'min(560px, 96vw)',
         maxHeight: '85vh',
         overflowY: 'auto',
-        background: 'white',
+        background: '#0E1420',
         border: `1px solid ${C.goldBorder}`,
         borderRadius: 20,
         zIndex: 1001,
@@ -1528,7 +1528,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
 
           {/* Platform links */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Find Active Ads</div>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Find Active Ads</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <a
                 href={`https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en?keyword=${encodeURIComponent(product.product_title)}`}
@@ -1561,11 +1561,11 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
 
           {/* Ad Angles */}
           <div>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>3 Proven Ad Angles</div>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>3 Proven Ad Angles</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {angles.map((angle, idx) => (
                 <div key={idx} style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
-                  <div style={{ fontSize: 10, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Angle {idx + 1}</div>
+                  <div style={{ fontSize: 11, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Angle {idx + 1}</div>
                   <p style={{ margin: 0, fontSize: 13, color: 'rgba(245,245,245,0.85)', lineHeight: 1.5, fontStyle: 'italic' }}>"{angle}"</p>
                 </div>
               ))}
@@ -1674,7 +1674,7 @@ function FullReportModal({
               { label: 'Units/Day', value: product.units_per_day?.toFixed(0) ?? '—' },
             ].map(({ label, value, highlight, color }) => (
               <div key={label} style={{ background: highlight ? C.goldBg : C.glass, border: `1px solid ${highlight ? C.goldBorder : C.border}`, borderRadius: 14, padding: '14px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</div>
                 <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 20, fontWeight: 800, color: color ?? (highlight ? C.gold : C.text) }}>{value}</div>
               </div>
             ))}
@@ -1695,7 +1695,7 @@ function FullReportModal({
                   <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} width={44} />
-                  <RechartTooltip contentStyle={{ background: 'white', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
+                  <RechartTooltip contentStyle={{ background: '#0D1117', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
                   <Area type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={2} fill="url(#revGrad2)" dot={{ fill: C.gold, r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: C.gold }} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -1706,13 +1706,13 @@ function FullReportModal({
           {product.why_winning && (
             <div style={{ background: C.goldBg, border: `1px solid ${C.goldBorder}`, borderRadius: 14, padding: '16px 18px', marginBottom: 20 }}>
               <div style={{ fontSize: 10, color: C.gold, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>💡 Why It's Winning</div>
-              <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{product.why_winning}</p>
+              <p style={{ margin: 0, fontSize: 14, color: '#CBD5E1', lineHeight: 1.6 }}>{product.why_winning}</p>
             </div>
           )}
 
           {/* Ad angles */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Top 3 Ad Angles</div>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Top 3 Ad Angles</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {adAngles.map((angle, idx) => (
                 <div key={idx} style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -1726,7 +1726,7 @@ function FullReportModal({
           {/* Profit calculator quick view */}
           {product.price_aud != null && costEstimate != null && (
             <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 14, padding: '16px 18px', marginBottom: 20 }}>
-              <div style={{ fontSize: 10, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>💰 Profit Snapshot (3× markup)</div>
+              <div style={{ fontSize: 11, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>💰 Profit Snapshot (3× markup)</div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: 10 }}>
                 {[
                   { label: 'Sell Price', value: fmtAUD(product.price_aud) },
@@ -1744,7 +1744,7 @@ function FullReportModal({
 
           {/* Supplier links */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>📦 Supplier Recommendations</div>
+            <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>📦 Supplier Recommendations</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {[
                 { label: 'Search Suppliers →', url: `/app/suppliers?q=${encodeURIComponent(product.product_title)}`, color: C.gold, bg: C.goldBg, border: C.goldBorder },
@@ -1761,7 +1761,7 @@ function FullReportModal({
           {/* Similar products */}
           {similar.length > 0 && (
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Similar {product.category} Products</div>
+              <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Similar {product.category} Products</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {similar.map(p => (
                   <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 10 }}>
@@ -1899,7 +1899,7 @@ function ProductCard({
         style={{
           position: 'relative',
           height: 160,
-          background: '#FFFFFF',
+          background: '#0E1420',
           overflow: 'hidden',
         }}
       >
@@ -2793,7 +2793,7 @@ function CardGrid({
           <div style={{
             padding: '48px 24px',
             textAlign: 'center',
-            background: '#FFFFFF',
+            background: '#0E1420',
             border: '1px solid #F0F0F0',
             borderRadius: 16,
             marginBottom: 24,
@@ -3305,7 +3305,7 @@ function WinningProducts() {
   const showExportLockedToast = () => {
     toast('🔒 Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.', {
       duration: 5000,
-      style: { background: 'white', border: '1px solid #E5E7EB', color: '#374151', fontSize: 13 },
+      style: { background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', color: '#CBD5E1', fontSize: 13 },
       action: { label: 'Upgrade Now →', onClick: () => window.location.assign('/pricing') },
     });
   };
@@ -3934,7 +3934,7 @@ function WinningProducts() {
                             Upgrade Now →
                           </button>
                         </div>,
-                        { duration: 5000, style: { background: 'white', border: '1px solid #E5E7EB', color: '#374151' } }
+                        { duration: 5000, style: { background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', color: '#CBD5E1' } }
                       );
                       return;
                     }
@@ -4301,7 +4301,7 @@ function WinningProducts() {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 990,
-            background: 'linear-gradient(135deg, #EEF2FF, white)',
+            background: 'linear-gradient(135deg, rgba(99,102,241,0.1), #0E1420)',
             border: `1px solid ${C.goldBorder}`,
             borderRadius: 16,
             padding: '14px 24px',

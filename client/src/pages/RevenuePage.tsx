@@ -249,7 +249,7 @@ export default function RevenuePage() {
               </div>
 
               {/* Sub label */}
-              <div style={{ fontSize:11,color:'rgba(255,255,255,.25)',letterSpacing:'.14em',textTransform:'uppercase' as const,marginBottom:10,fontWeight:700 }}>
+              <div style={{ fontSize:11,color:'#94A3B8',letterSpacing:'.14em',textTransform:'uppercase' as const,marginBottom:10,fontWeight:700 }}>
                 Est. Lifetime Earnings
               </div>
 
@@ -300,7 +300,7 @@ export default function RevenuePage() {
                       boxShadow:`0 0 16px rgba(99,102,241,.6)`,
                     }} />
                   </div>
-                  <div style={{ fontSize:12,color:'rgba(255,255,255,.3)' }}>
+                  <div style={{ fontSize:12,color:'#94A3B8' }}>
                     {stats.goalRemaining} to go
                   </div>
                 </div>
@@ -312,7 +312,7 @@ export default function RevenuePage() {
               <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18 }}>
                 <div>
                   <div style={{ fontSize:15,fontWeight:800,color:'#fff',fontFamily:brico }}>Revenue Trend</div>
-                  <div style={{ fontSize:11,color:'rgba(255,255,255,.3)',marginTop:3 }}>Daily earnings · {range === '7D' ? 'Last 7 days' : 'Last 30 days'}</div>
+                  <div style={{ fontSize:11,color:'#94A3B8',marginTop:3 }}>Daily earnings · {range === '7D' ? 'Last 7 days' : 'Last 30 days'}</div>
                 </div>
                 <div style={{ display:'flex',gap:3,background:'rgba(0,0,0,.4)',borderRadius:10,padding:4 }}>
                   {(['7D','30D'] as Range[]).map(r => (
@@ -330,8 +330,8 @@ export default function RevenuePage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize:10,fill:'rgba(255,255,255,.25)' }} axisLine={false} tickLine={false} interval={range==='7D' ? 0 : 4} />
-                  <YAxis tick={{ fontSize:10,fill:'rgba(255,255,255,.25)' }} axisLine={false} tickLine={false} tickFormatter={(v:number) => `$${(v/1000).toFixed(0)}k`} />
+                  <XAxis dataKey="day" tick={{ fontSize:10,fill:'#64748B' }} axisLine={false} tickLine={false} interval={range==='7D' ? 0 : 4} />
+                  <YAxis tick={{ fontSize:10,fill:'#64748B' }} axisLine={false} tickLine={false} tickFormatter={(v:number) => `$${(v/1000).toFixed(0)}k`} />
                   <Tooltip content={<Tip />} cursor={{ stroke:'rgba(99,102,241,.3)',strokeWidth:1,strokeDasharray:'4 4' }} />
                   <Area type="monotone" dataKey="revenue" stroke={G} strokeWidth={3} fill="url(#chartGrad)" dot={false} activeDot={{ r:6,fill:G,stroke:'#030608',strokeWidth:2.5 }} />
                 </AreaChart>
@@ -339,7 +339,7 @@ export default function RevenuePage() {
               {/* Peak day callout */}
               {isMarketing && (
                 <div style={{ marginTop:14, padding:'10px 14px', background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.12)', borderRadius:10, display:'flex',alignItems:'center',justifyContent:'space-between' }}>
-                  <span style={{ fontSize:12,color:'rgba(255,255,255,.4)' }}>Peak day</span>
+                  <span style={{ fontSize:12,color:'#9CA3AF' }}>Peak day</span>
                   <span style={{ fontSize:14,fontWeight:800,color:G,fontFamily:brico }}>$10,480 · Mar 25</span>
                 </div>
               )}
@@ -366,7 +366,7 @@ export default function RevenuePage() {
           >
             Connect Shopify Store →
           </button>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
+          <div style={{ fontSize: 13, color: '#94A3B8' }}>
             Or connect Shopify in Settings → Integrations
           </div>
         </div>
@@ -403,7 +403,7 @@ export default function RevenuePage() {
               <div style={{ fontSize: isMobile ? 26 : 34, fontWeight:900, color:'#FFFFFF', fontFamily:brico, lineHeight:1, letterSpacing:'-0.02em', marginBottom:6 }}>
                 {s.value}
               </div>
-              <div style={{ fontSize:12,color:'rgba(255,255,255,.3)',fontWeight:600 }}>{s.label}</div>
+              <div style={{ fontSize:12,color:'#94A3B8',fontWeight:600 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -433,8 +433,8 @@ export default function RevenuePage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" vertical={false} />
-                <XAxis dataKey="day" tick={{ fontSize:9,fill:'rgba(255,255,255,.25)' }} axisLine={false} tickLine={false} interval={range==='7D' ? 0 : 4} />
-                <YAxis tick={{ fontSize:9,fill:'rgba(255,255,255,.25)' }} axisLine={false} tickLine={false} tickFormatter={(v:number) => `$${(v/1000).toFixed(0)}k`} />
+                <XAxis dataKey="day" tick={{ fontSize:9,fill:'#64748B' }} axisLine={false} tickLine={false} interval={range==='7D' ? 0 : 4} />
+                <YAxis tick={{ fontSize:9,fill:'#64748B' }} axisLine={false} tickLine={false} tickFormatter={(v:number) => `$${(v/1000).toFixed(0)}k`} />
                 <Tooltip content={<Tip />} />
                 <Area type="monotone" dataKey="revenue" stroke={G} strokeWidth={2.5} fill="url(#mobileGrad)" dot={false} activeDot={{ r:5,fill:G,stroke:'#030608',strokeWidth:2 }} />
               </AreaChart>
@@ -458,7 +458,7 @@ export default function RevenuePage() {
                 </div>
                 <span style={{ fontSize:16,fontWeight:900,color:'#fff',fontFamily:brico }}>Top Products</span>
               </div>
-              <span style={{ fontSize:11,color:'rgba(255,255,255,.3)',fontWeight:600 }}>by revenue</span>
+              <span style={{ fontSize:11,color:'#94A3B8',fontWeight:600 }}>by revenue</span>
             </div>
             <div style={{ display:'flex',flexDirection:'column' as const,gap:6 }}>
               {TOP_PRODUCTS.map((p, i) => (
@@ -503,7 +503,7 @@ export default function RevenuePage() {
                 </div>
                 <span style={{ fontSize:16,fontWeight:900,color:'#fff',fontFamily:brico }}>Global Revenue</span>
               </div>
-              <span style={{ fontSize:11,color:'rgba(255,255,255,.3)',fontWeight:600 }}>4 markets</span>
+              <span style={{ fontSize:11,color:'#94A3B8',fontWeight:600 }}>4 markets</span>
             </div>
             <div style={{ display:'flex',flexDirection:'column' as const,gap:16 }}>
               {COUNTRIES.map((c, i) => (
@@ -513,7 +513,7 @@ export default function RevenuePage() {
                     <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6 }}>
                       <div>
                         <span style={{ fontSize:13,fontWeight:700,color:'#E5E7EB' }}>{c.name}</span>
-                        <span style={{ fontSize:11,color:'rgba(255,255,255,.3)',marginLeft:8 }}>{c.pct}%</span>
+                        <span style={{ fontSize:11,color:'#94A3B8',marginLeft:8 }}>{c.pct}%</span>
                       </div>
                       <span style={{ fontSize:14,fontWeight:900,color:'#fff',fontFamily:brico }}>${(c.amount/1000).toFixed(0)}k</span>
                     </div>
@@ -525,7 +525,7 @@ export default function RevenuePage() {
               ))}
             </div>
             <div style={{ marginTop:20,paddingTop:16,borderTop:'1px solid rgba(255,255,255,.06)',display:'flex',justifyContent:'space-between',alignItems:'center' }}>
-              <span style={{ fontSize:12,color:'rgba(255,255,255,.3)' }}>Lifetime total</span>
+              <span style={{ fontSize:12,color:'#94A3B8' }}>Lifetime total</span>
               <span style={{ fontSize:15,fontWeight:900,color:G,fontFamily:brico }}>$247,831.40</span>
             </div>
           </div>
@@ -543,7 +543,7 @@ export default function RevenuePage() {
             <div style={{ fontSize: isMobile ? 16 : 20,fontWeight:900,color:'#fff',fontFamily:brico,letterSpacing:'-0.01em' }}>
               Recent Orders
             </div>
-            <div style={{ fontSize:11,color:'rgba(255,255,255,.3)',marginTop:3 }}>
+            <div style={{ fontSize:11,color:'#94A3B8',marginTop:3 }}>
               {isMarketing ? `${MAX_ORDERS.length} transactions · today + yesterday` : 'No orders yet'}
             </div>
           </div>
@@ -565,7 +565,7 @@ export default function RevenuePage() {
           <div style={{ ...glass,borderRadius:24,padding:'52px 24px',textAlign:'center' as const,boxShadow:'0 4px 32px rgba(0,0,0,.3)' }}>
             <div style={{ fontSize:48,marginBottom:16 }}>🛍️</div>
             <div style={{ fontSize:17,fontWeight:800,color:'#fff',marginBottom:8,fontFamily:brico }}>No orders yet</div>
-            <div style={{ fontSize:13,color:'rgba(255,255,255,.3)',marginBottom:24 }}>Connect a Shopify store to see real orders here</div>
+            <div style={{ fontSize:13,color:'#94A3B8',marginBottom:24 }}>Connect a Shopify store to see real orders here</div>
             <button onClick={() => nav('/app/store-builder')} style={{ padding:'11px 22px',borderRadius:12,background:I,color:'#fff',border:'none',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:brico,boxShadow:'0 4px 16px rgba(99,102,241,.35)' }}>
               Connect Store
             </button>
@@ -616,7 +616,7 @@ export default function RevenuePage() {
                         {o.product}
                       </div>
                       <div style={{ display:'flex',alignItems:'center',gap:8,flexWrap:'wrap' as const }}>
-                        <span style={{ fontSize:11,color:'rgba(255,255,255,.25)',fontFamily:"'DM Mono',monospace" }}>#{o.id}</span>
+                        <span style={{ fontSize:11,color:'#64748B',fontFamily:"'DM Mono',monospace" }}>#{o.id}</span>
                         <span style={{ fontSize:10,color:'rgba(255,255,255,.15)' }}>·</span>
                         <span style={{ fontSize:11,color:'rgba(255,255,255,.35)' }}>{o.time}</span>
                         <span style={{ fontSize:15 }}>{o.flag}</span>
@@ -679,7 +679,7 @@ export default function RevenuePage() {
               {TARGET > 0 ? TARGET.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '0.00'}
             </div>
           </div>
-          <button disabled title="Connect Shopify to enable" style={{ padding:'13px 22px',borderRadius:14,border:'1px solid rgba(255,255,255,.08)',background:'rgba(255,255,255,.04)',color:'rgba(255,255,255,.3)',fontSize:14,fontWeight:700,cursor:'not-allowed',fontFamily:brico,opacity:0.55,display:'flex',alignItems:'center',gap:7,maxWidth:'fit-content' }}>
+          <button disabled title="Connect Shopify to enable" style={{ padding:'13px 22px',borderRadius:14,border:'1px solid rgba(255,255,255,.08)',background:'rgba(255,255,255,.04)',color:'#94A3B8',fontSize:14,fontWeight:700,cursor:'not-allowed',fontFamily:brico,opacity:0.55,display:'flex',alignItems:'center',gap:7,maxWidth:'fit-content' }}>
             <DollarSign size={15} /> Request Withdrawal
           </button>
         </div>

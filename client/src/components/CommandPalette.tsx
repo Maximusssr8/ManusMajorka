@@ -58,12 +58,12 @@ export default function CommandPalette() {
             <Command.Input
               placeholder="Search tools or jump to..."
               className="flex-1 bg-transparent outline-none text-sm"
-              style={{ color: '#111827', fontFamily: 'DM Sans, sans-serif' }}
+              style={{ color: '#F1F5F9', fontFamily: 'DM Sans, sans-serif' }}
               autoFocus
             />
             <kbd
               className="px-1.5 py-0.5 rounded text-xs"
-              style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10 }}
+              style={{ background: 'rgba(255,255,255,0.1)', color: '#CBD5E1', fontSize: 10 }}
             >
               ESC
             </kbd>

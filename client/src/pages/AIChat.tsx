@@ -406,7 +406,7 @@ export default function AIChat() {
                   <Sparkles size={28} color="white" />
                 </div>
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "white", marginBottom: 8 }}>How can I help you win today?</div>
-                <div style={{ fontFamily: dm, fontSize: 14, color: "#6B7280" }}>Ask me anything about products, marketing, or your Shopify store</div>
+                <div style={{ fontFamily: dm, fontSize: 14, color: "#94A3B8" }}>Ask me anything about products, marketing, or your Shopify store</div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", maxWidth: 520 }}>
                 {suggestedPrompts.map(prompt => (
@@ -448,7 +448,7 @@ export default function AIChat() {
                 {msg.role === "assistant" && msg.content && (
                   <CopyMsgButton text={msg.content} />
                 )}
-                <span style={{ fontFamily: dm, fontSize: 11, color: "#374151", marginTop: 4 }}>{fmtTime(msg.ts)}</span>
+                <span style={{ fontFamily: dm, fontSize: 11, color: "#64748B", marginTop: 4 }}>{fmtTime(msg.ts)}</span>
               </div>
             </div>
           ))}
@@ -485,7 +485,7 @@ export default function AIChat() {
               <Send size={15} color="white" />
             </button>
           </div>
-          <div style={{ fontFamily: dm, fontSize: 11, color: "#374151", textAlign: "center" as const, marginTop: 8 }}>
+          <div style={{ fontFamily: dm, fontSize: 11, color: "#64748B", textAlign: "center" as const, marginTop: 8 }}>
             Enter to send · Shift+Enter for new line
           </div>
         </div>

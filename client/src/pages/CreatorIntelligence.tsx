@@ -310,8 +310,8 @@ export default function CreatorIntelligence() {
         onMouseEnter={() => setHoveredCard(c.handle)}
         onMouseLeave={() => setHoveredCard(null)}
         style={{
-          background: isSelected ? '#F5F3FF' : 'white',
-          border: `1px solid ${isSelected ? '#6366F1' : '#F0F0F0'}`,
+          background: isSelected ? 'rgba(99,102,241,0.15)' : isHovered ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${isSelected ? 'rgba(99,102,241,0.5)' : isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
           borderRadius: 16,
           padding,
           cursor: 'pointer',
@@ -366,10 +366,10 @@ export default function CreatorIntelligence() {
           }}>{c.niche}</span>
 
           {/* Handle */}
-          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 2, textAlign: 'center' as const }}>
+          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#F1F5F9', marginBottom: 2, textAlign: 'center' as const }}>
             {c.display_name || c.handle}
           </div>
-          <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 10, background: '#F3F4F6', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
+          <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 10, background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
             {followerTier}
           </div>
         </div>
@@ -380,7 +380,7 @@ export default function CreatorIntelligence() {
             <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600 }}>Engagement</span>
             <span style={{ fontSize: 10, color: ENGAGEMENT_BAR_COLOR[c.engagement_signal] || '#D1D5DB', fontWeight: 700 }}>{c.engagement_signal}</span>
           </div>
-          <div style={{ height: 4, borderRadius: 2, background: '#F3F4F6', overflow: 'hidden' }}>
+          <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
             <div style={{
               height: '100%', borderRadius: 2,
               width: `${engPercent}%`,
@@ -394,7 +394,7 @@ export default function CreatorIntelligence() {
         {c.promoting_products.length > 0 && (
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 12 }}>
             {c.promoting_products.map((p, i) => (
-              <span key={i} style={{ fontSize: 9, color: '#6B7280', background: '#F5F5F5', padding: '2px 7px', borderRadius: 10 }}>#{p.slice(0, 20)}</span>
+              <span key={i} style={{ fontSize: 9, color: '#94A3B8', background: 'rgba(255,255,255,0.06)', padding: '2px 7px', borderRadius: 10 }}>#{p.slice(0, 20)}</span>
             ))}
           </div>
         )}
@@ -419,8 +419,8 @@ export default function CreatorIntelligence() {
             onClick={e => e.stopPropagation()}
             style={{
               width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: '#F3F4F6', border: 'none', borderRadius: 8, cursor: 'pointer',
-              textDecoration: 'none', color: '#374151',
+              background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 8, cursor: 'pointer',
+              textDecoration: 'none', color: '#CBD5E1',
             }}
           >
             <Play size={14} />
@@ -545,8 +545,8 @@ export default function CreatorIntelligence() {
               onChange={e => setSearchQ(e.target.value)}
               placeholder="Search creators..."
               style={{
-                width: '100%', height: 36, padding: '0 12px 0 32px', border: '1px solid #E5E7EB',
-                borderRadius: 10, fontSize: 13, color: '#374151', background: 'white',
+                width: '100%', height: 36, padding: '0 12px 0 32px', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 10, fontSize: 13, color: '#CBD5E1', background: '#0E1420',
                 boxSizing: 'border-box' as const, outline: 'none', fontFamily: dmSans,
               }}
             />
@@ -563,8 +563,8 @@ export default function CreatorIntelligence() {
                   style={{
                     padding: '5px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
                     fontSize: 12, fontWeight: 600, fontFamily: dmSans,
-                    background: isActive ? '#6366F1' : '#F3F4F6',
-                    color: isActive ? 'white' : '#6B7280',
+                    background: isActive ? '#6366F1' : 'rgba(255,255,255,0.08)',
+                    color: isActive ? 'white' : '#CBD5E1',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -584,22 +584,22 @@ export default function CreatorIntelligence() {
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #F0F0F0' }}>
+                <div key={i} style={{ background: '#0E1420', borderRadius: 12, padding: 20, border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#F0F0F0', animation: 'pulse 1.5s ease-in-out infinite' }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ height: 14, width: '60%', background: '#F0F0F0', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                      <div style={{ height: 10, width: '40%', background: '#F5F5F5', borderRadius: 4 }} />
+                      <div style={{ height: 10, width: '40%', background: 'rgba(255,255,255,0.06)', borderRadius: 4 }} />
                     </div>
                   </div>
-                  <div style={{ height: 12, width: '100%', background: '#F5F5F5', borderRadius: 4, marginBottom: 8 }} />
-                  <div style={{ height: 12, width: '80%', background: '#F5F5F5', borderRadius: 4 }} />
+                  <div style={{ height: 12, width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: 4, marginBottom: 8 }} />
+                  <div style={{ height: 12, width: '80%', background: 'rgba(255,255,255,0.06)', borderRadius: 4 }} />
                 </div>
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 8 }}>Creator data refreshing</div>
+            <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F1F5F9', marginBottom: 8 }}>Creator data refreshing</div>
               <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 20, maxWidth: 380, margin: '0 auto 20px' }}>Our system syncs TikTok creator data every 6 hours. Check back soon — or try the Video Intel tab to browse trending content now.</div>
               <a href="/app/videos" style={{ display: 'inline-block', height: 38, lineHeight: '38px', padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}>
                 Browse Video Intel →
@@ -609,14 +609,14 @@ export default function CreatorIntelligence() {
           ) : (
             <>
               {/* Disclaimer */}
-              <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 12, padding: '8px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #F0F0F0' }}>
+              <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)' }}>
                 💡 Follower counts and collab rates are AI-estimated based on niche and tier — not verified data.
               </div>
 
               {/* ===== 4. FEATURED CREATORS ===== */}
               {featured.length > 0 && (
                 <div style={{ marginBottom: 24 }}>
-                  <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#F1F5F9', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                     ⭐ Featured Creators
                   </h2>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 14 }}>
@@ -657,7 +657,7 @@ export default function CreatorIntelligence() {
                       padding: '8px 0', borderBottom: i < topNiches.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)', width: 16 }}>{i + 1}</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.55)', width: 16 }}>{i + 1}</span>
                         <span style={{
                           fontSize: 8, fontWeight: 700, padding: '2px 6px', borderRadius: 6,
                           background: `${NICHE_COLORS[niche] || '#6B7280'}30`,
@@ -681,13 +681,13 @@ export default function CreatorIntelligence() {
                 </p>
               </div>
 
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center' as const }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'center' as const }}>
                 Click a creator to see details
               </div>
             </div>
           ) : (
             /* Selected creator detail */
-            <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 16, padding: 20 }}>
+            <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 20 }}>
               <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',
@@ -715,7 +715,7 @@ export default function CreatorIntelligence() {
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#0A0A0A' }}>{selected.display_name}</div>
+                  <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#F1F5F9' }}>{selected.display_name}</div>
                   <a href={getTikTokUrl(selected)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>{selected.handle} ↗</a>
                 </div>
               </div>
@@ -741,12 +741,12 @@ export default function CreatorIntelligence() {
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
                     {stats.map(s => (
-                      <div key={s.label} style={{ background: '#F8F9FC', borderRadius: 8, padding: '8px 10px' }}>
+                      <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '8px 10px' }}>
                         <div style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', gap: 4, alignItems: 'center' }}>
                           {s.label}
-                          {s.hint && <span style={{ fontSize: 9, color: '#D1D5DB', background: '#F3F4F6', padding: '0 4px', borderRadius: 3 }}>est.</span>}
+                          {s.hint && <span style={{ fontSize: 9, color: '#D1D5DB', background: 'rgba(255,255,255,0.06)', padding: '0 4px', borderRadius: 3 }}>est.</span>}
                         </div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A' }}>{s.value}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#F1F5F9' }}>{s.value}</div>
                       </div>
                     ))}
                   </div>
@@ -754,10 +754,10 @@ export default function CreatorIntelligence() {
               })()}
               {selected.promoting_products.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Promoting:</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#CBD5E1', marginBottom: 6 }}>Promoting:</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
                     {selected.promoting_products.map((p, i) => (
-                      <span key={i} style={{ fontSize: 10, color: '#6366F1', background: '#EEF2FF', padding: '2px 8px', borderRadius: 10 }}>{p}</span>
+                      <span key={i} style={{ fontSize: 10, color: '#A5B4FC', background: 'rgba(99,102,241,0.12)', padding: '2px 8px', borderRadius: 10 }}>{p}</span>
                     ))}
                   </div>
                 </div>
@@ -771,9 +771,9 @@ export default function CreatorIntelligence() {
                   value={pitchProduct}
                   onChange={e => setPitchProduct(e.target.value)}
                   placeholder="Your product (e.g. posture corrector, LED lamp…)"
-                  style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' as const, color: '#374151' }}
+                  style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' as const, color: '#CBD5E1', background: 'rgba(255,255,255,0.05)' }}
                   onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; }}
-                  onBlur={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
                 />
                 <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 3 }}>Optional — makes the pitch specific to your product</div>
               </div>
@@ -782,9 +782,9 @@ export default function CreatorIntelligence() {
                 {outreachLoading ? 'Generating...' : 'AI Pitch Message'}
               </button>
               {outreach && (
-                <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 8, padding: 12 }}>
+                <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, color: '#6366F1', marginBottom: 6 }}>AI-Generated Pitch:</div>
-                  <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>{outreach}</div>
+                  <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>{outreach}</div>
                   <button onClick={() => navigator.clipboard.writeText(outreach)}
                     style={{ marginTop: 8, fontSize: 10, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
                     Copy message →

@@ -12,10 +12,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const dm = 'DM Sans, sans-serif';
-const _dark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
-const C = _dark
-  ? { bg: '#060A12', card: '#0E1420', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', indigo: '#6366F1', indigoBg: 'rgba(99,102,241,0.1)', indigoBorder: 'rgba(99,102,241,0.25)' }
-  : { bg: '#F9FAFB', card: '#FFFFFF', border: '#E5E7EB', text: '#0A0A0A', sub: '#6B7280', muted: '#9CA3AF', indigo: '#6366F1', indigoBg: '#EEF2FF', indigoBorder: '#C7D2FE' };
+// Always dark — the app is dark-mode only
+const C = { bg: '#060A12', card: '#0E1420', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', indigo: '#6366F1', indigoBg: 'rgba(99,102,241,0.1)', indigoBorder: 'rgba(99,102,241,0.25)' };
 
 type AlertType = 'trending' | 'price_drop' | 'competitor';
 interface Alert { id: string; alert_type: AlertType; config: Record<string, unknown>; is_active: boolean; last_triggered_at: string | null; created_at: string; }
@@ -119,7 +117,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
         </div>
         <div style={{ fontSize: 13, color: C.sub, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span>📧</span>
-          <span>Alerts delivered to <strong style={{ color: '#374151' }}>{session?.user?.email || 'your email'}</strong> · Check your inbox</span>
+          <span>Alerts delivered to <strong style={{ color: C.sub }}>{session?.user?.email || 'your email'}</strong> · Check your inbox</span>
         </div>
 
         {/* Tabs */}
@@ -153,7 +151,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
             {/* Email notice */}
             <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Bell size={15} style={{ color: '#6366F1', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#374151', flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+              <span style={{ fontSize: 12, color: C.sub, flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
               <button onClick={sendTestNotification} disabled={testSending || testSent}
                 style={{ flexShrink: 0, height: 28, padding: '0 10px', background: testSent ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: testSending || testSent ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
                 {testSent ? '✓ Sent!' : testSending ? 'Sending…' : 'Test Email'}
@@ -169,7 +167,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                   { icon: '💰', label: 'Price drop: LED lights below $15 AUD', type: 'price_drop', preview: 'Notifies when product price drops 20%+ in a week' },
                   { icon: '🏆', label: 'New competitor: Watch for new Shopify stores in Beauty', type: 'competitor', preview: 'Notifies when a new competitor store appears in your niche' },
                 ].map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB', cursor: 'default' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.04)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', cursor: 'default' }}>
                     <span style={{ fontSize: 20 }}>{s.icon}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.label}</div>
@@ -219,7 +217,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                           <span style={{ fontSize: 11, color: '#DC2626', fontWeight: 600 }}>Delete?</span>
                           <button onClick={() => deleteAlert(alert.id)} style={{ height: 26, padding: '0 8px', borderRadius: 6, border: 'none', background: '#DC2626', color: 'white', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>Yes</button>
-                          <button onClick={() => setPendingDelete(null)} style={{ height: 26, padding: '0 8px', borderRadius: 6, border: '1px solid #E5E7EB', background: 'white', color: '#374151', cursor: 'pointer', fontSize: 11 }}>No</button>
+                          <button onClick={() => setPendingDelete(null)} style={{ height: 26, padding: '0 8px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)', background: C.card, color: C.sub, cursor: 'pointer', fontSize: 11 }}>No</button>
                         </div>
                       ) : (
                         <button onClick={() => deleteAlert(alert.id)} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Delete alert"><Trash2 size={12} /></button>
@@ -235,12 +233,12 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
         {/* Create Alert Modal */}
         {showCreate && (
           <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? 0 : 20 }} onClick={() => setShowCreate(false)}>
-            <div style={{ background: 'white', borderRadius: isMobile ? 0 : 20, padding: isMobile ? '24px 20px' : 28, width: '100%', maxWidth: 480, maxHeight: '100dvh', overflowY: 'auto' as const, marginTop: isMobile ? 'auto' : 0 }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: C.card, borderRadius: isMobile ? 0 : 20, padding: isMobile ? '24px 20px' : 28, width: '100%', maxWidth: 480, maxHeight: '100dvh', overflowY: 'auto' as const, marginTop: isMobile ? 'auto' : 0 }} onClick={e => e.stopPropagation()}>
               <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 20 }}>Create Alert</h3>
               {/* Alert type selector */}
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8, marginBottom: 20 }}>
                 {ALERT_TYPES.map(at => (
-                  <label key={at.type} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', border: `1px solid ${alertType === at.type ? C.indigoBorder : C.border}`, borderRadius: 10, cursor: 'pointer', background: alertType === at.type ? C.indigoBg : 'white' }}>
+                  <label key={at.type} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', border: `1px solid ${alertType === at.type ? C.indigoBorder : C.border}`, borderRadius: 10, cursor: 'pointer', background: alertType === at.type ? C.indigoBg : 'rgba(255,255,255,0.03)' }}>
                     <input type="radio" name="alertType" value={at.type} checked={alertType === at.type} onChange={() => setAlertType(at.type)} style={{ marginTop: 2 }} />
                     <div>
                       <div style={{ fontFamily: dm, fontWeight: 600, fontSize: 13, color: C.text, marginBottom: 2 }}>{at.label}</div>
@@ -267,12 +265,12 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               {alertType === 'price_drop' && (
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Product keyword or niche to watch
-                    <input value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))} placeholder="e.g. posture corrector, LED lamp, dog toys" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                    <input value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))} placeholder="e.g. posture corrector, LED lamp, dog toys" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.05)', color: '#F1F5F9' }} />
                   </label>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Alert when supplier price drops below ($AUD)
-                    <input type="number" value={form.threshold} onChange={e => setForm(f => ({ ...f, threshold: e.target.value }))} placeholder="50" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                    <input type="number" value={form.threshold} onChange={e => setForm(f => ({ ...f, threshold: e.target.value }))} placeholder="50" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.05)', color: '#F1F5F9' }} />
                   </label>
-                  <div style={{ fontSize: 11, color: C.muted, background: '#F9FAFB', borderRadius: 8, padding: '8px 10px' }}>
+                  <div style={{ fontSize: 11, color: C.muted, background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '8px 10px' }}>
                     💡 Watches products matching your keyword in the Majorka database. Triggers when any matching product's cost price drops below your threshold.
                   </div>
                 </div>
@@ -288,7 +286,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                         setDomainError(val && !isValid ? 'Enter a valid domain (e.g. store.myshopify.com)' : '');
                       }}
                       placeholder="competitor.myshopify.com"
-                      style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${domainError ? '#EF4444' : C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                      style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${domainError ? '#EF4444' : C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const, background: 'rgba(255,255,255,0.05)', color: '#F1F5F9' }} />
                     {domainError && <span style={{ fontSize: 11, color: '#EF4444', marginTop: 3, display: 'block' }}>{domainError}</span>}
                   </label>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Category to Watch
@@ -299,7 +297,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                 </div>
               )}
               <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-                <button onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '11px', border: `1px solid ${C.border}`, borderRadius: 10, background: 'white', color: C.sub, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: dm }}>Cancel</button>
+                <button onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '11px', border: `1px solid ${C.border}`, borderRadius: 10, background: C.card, color: C.sub, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: dm }}>Cancel</button>
                 <button onClick={createAlert} disabled={saving || !!domainError} style={{ flex: 2, padding: '11px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (saving || !!domainError) ? 'not-allowed' : 'pointer', fontFamily: brico, opacity: domainError ? 0.6 : 1 }}>
                   {saving ? 'Creating…' : 'Create Alert'}
                 </button>
