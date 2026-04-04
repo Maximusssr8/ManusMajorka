@@ -252,7 +252,7 @@ function QualityTierBadge({ tier, score }: { tier?: string; score?: number }) {
 
 function TrendVelocityBadge({ orders }: { orders: number }) {
   if (orders >= 10000) return (
-    <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.3)', whiteSpace: 'nowrap' as const, letterSpacing: '0.05em' }}>
+    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/[0.12] text-orange-400 border border-orange-500/20" style={{ whiteSpace: 'nowrap' as const, letterSpacing: '0.05em' }}>
       EXPLODING
     </span>
   );

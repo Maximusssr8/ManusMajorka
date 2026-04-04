@@ -1,6 +1,7 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCallback, useEffect, useState } from 'react';
 import React from 'react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
 import { supabase } from '@/lib/supabase';
@@ -436,7 +437,27 @@ export default function CreatorIntelligence() {
     return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Creator Intelligence" reason="Discover top creators and influencers" />;
   }
 
+  const errorFallback = (
+    <div className="flex flex-col items-center justify-center h-full py-24 gap-6" style={{ background: '#080808' }}>
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)' }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="1.5">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div className="text-center">
+        <h3 className="text-[15px] font-semibold text-slate-100 mb-2">Creator data unavailable</h3>
+        <p className="text-[13px] text-center max-w-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          We&apos;re having trouble loading creator intelligence data. This is usually temporary.
+        </p>
+      </div>
+      <button onClick={() => window.location.reload()} className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors">
+        Try again
+      </button>
+    </div>
+  );
+
   return (
+    <ErrorBoundary fallback={errorFallback}>
     <div style={{ background: '#F8F9FC', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: dmSans }}>
 
       {/* ===== 1. DARK HERO BANNER ===== */}
@@ -730,13 +751,13 @@ export default function CreatorIntelligence() {
                   : `${(followers * 0.12 / 1000).toFixed(0)}K`;
                 const collabLow = followers >= 1_000_000 ? '$1,500' : followers >= 500_000 ? '$800' : followers >= 100_000 ? '$300' : '$80';
                 const collabHigh = followers >= 1_000_000 ? '$5,000' : followers >= 500_000 ? '$2,000' : followers >= 100_000 ? '$800' : '$300';
-                const stats = [
+                const stats: { label: string; value: string; hint?: boolean }[] = [
                   { label: 'Creator Tier', value: getFollowerTier(followers) },
                   { label: 'Region', value: `${REGION_FLAGS[selected.region_code] || ''} ${selected.region_code}` },
-                  { label: 'Est. Engagement', value: engRate },
-                  { label: 'Est. Avg Views', value: avgViews },
+                  { label: 'Est. Engagement', value: engRate, hint: true },
+                  { label: 'Est. Avg Views', value: avgViews, hint: true },
                   { label: 'Niche', value: selected.niche },
-                  { label: 'Est. Collab Cost', value: `${collabLow}–${collabHigh}` },
+                  { label: 'Est. Collab Cost', value: `${collabLow}–${collabHigh}`, hint: true },
                 ];
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
@@ -796,5 +817,6 @@ export default function CreatorIntelligence() {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

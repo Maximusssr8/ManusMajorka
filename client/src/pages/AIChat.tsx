@@ -168,9 +168,20 @@ function CopyMsgButton({ text }: { text: string }) {
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(stripActionBlocks(text)).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }}
-      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, fontSize: 11, color: copied ? '#10B981' : '#6B7280', display: 'flex', alignItems: 'center', gap: 3, transition: 'color 200ms', marginTop: 4 }}
+      className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/60 transition-colors"
+      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, marginTop: 4, color: copied ? '#10B981' : undefined }}
     >
-      {copied ? '✓ Copied' : '⎘ Copy'}
+      {copied ? (
+        '✓ Copied'
+      ) : (
+        <>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy
+        </>
+      )}
     </button>
   );
 }
@@ -433,16 +444,22 @@ export default function AIChat() {
                 </div>
               )}
               <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: msg.role === "user" ? "70%" : "75%" }}>
-                <div style={{
-                  padding: "12px 16px",
-                  borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                  background: msg.role === "user" ? "#6366F1" : "rgba(255,255,255,0.05)",
-                  border: msg.role === "user" ? "none" : "1px solid rgba(255,255,255,0.1)",
-                  color: "white",
-                  fontFamily: dm,
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                }}>
+                <div
+                  className={msg.role === "user" ? "rounded-xl px-4 py-3" : "bg-white/[0.04] rounded-xl px-4 py-3"}
+                  style={msg.role === "user" ? {
+                    background: 'rgba(99,102,241,0.2)',
+                    border: '1px solid rgba(99,102,241,0.2)',
+                    color: "white",
+                    fontFamily: dm,
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                  } : {
+                    color: "white",
+                    fontFamily: dm,
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                  }}
+                >
                   {msg.role === "user" ? msg.content : renderMarkdown(msg.content)}
                 </div>
                 {msg.role === "assistant" && msg.content && (
@@ -462,13 +479,13 @@ export default function AIChat() {
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
             <textarea
               ref={textareaRef}
-              className="maya-textarea"
+              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-indigo-500/50 resize-none transition-all maya-textarea"
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder="Ask Maya anything about your ecommerce business..."
               rows={1}
-              style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "white", fontFamily: dm, fontSize: 14, lineHeight: 1.5, resize: "none", overflowY: "auto" as const, maxHeight: 120, minHeight: 24 }}
+              style={{ flex: 1, fontFamily: dm, fontSize: 14, lineHeight: 1.5, overflowY: "auto" as const, maxHeight: 120, minHeight: 24 }}
             />
             <button
               onClick={() => sendMessage()}

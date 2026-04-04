@@ -1,3 +1,45 @@
+/* ── Dark mode forced globals ── */
+:root {
+  color-scheme: dark;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+input, select, textarea, button {
+  color-scheme: dark;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f1f5f9 !important;
+  -webkit-box-shadow: 0 0 0 1000px #0D1424 inset !important;
+}
+
+select option {
+  background-color: #111B2E;
+  color: #f1f5f9;
+}
+
+input[type="range"] {
+  accent-color: #6366f1;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  height: 4px;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: #6366f1;
+}
+
 /* Global overflow & box-sizing reset */
 html,
 body {

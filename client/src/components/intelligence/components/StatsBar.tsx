@@ -20,9 +20,9 @@ export function StatsBar({ stats }: { stats?: Stats }) {
     <div className="grid grid-cols-4 rounded-xl overflow-hidden mt-4" style={{ border: '1px solid rgba(255,255,255,0.05)', borderRight: 'none' }}>
       {metrics.map((m, i) => (
         <div key={i} className="px-5 py-4" style={{ background: '#0d0d0d', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="text-[11px] uppercase tracking-[0.08em] font-medium mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>{m.label}</div>
+          <div className="text-[11px] text-white/30 uppercase tracking-[0.08em] font-medium mb-2">{m.label}</div>
           <div className={`text-[22px] font-semibold leading-none ${m.color}`}>{m.value}</div>
-          <div className="text-[11px] mt-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{m.sub}</div>
+          <div className="text-[11px] mt-1.5 text-white/25">{m.sub}</div>
         </div>
       ))}
     </div>

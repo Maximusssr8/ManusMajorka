@@ -379,13 +379,12 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 disabled={loading}
               />
               <button
-                type="submit"
-                disabled={true}
-                title="Service temporarily unavailable"
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed"
-                style={{ background: 'rgba(99,102,241,0.2)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.35)' }}
+                type="button"
+                disabled
+                title="Competitor Spy coming soon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 cursor-not-allowed opacity-50 px-4 py-2 rounded-lg text-sm"
               >
-                Analyse →
+                Analyse
               </button>
             </div>
 
