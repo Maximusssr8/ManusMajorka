@@ -1,3 +1,4 @@
+import { HeroDemo } from '@/components/landing/HeroDemo';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { motion } from 'framer-motion';
 import {
@@ -1515,58 +1516,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Browser mockup — flat, dark chrome */}
+        {/* Animated hero demo — real API data, 5 panels */}
         <div id="demo" style={{ marginTop: 80, padding: '0 24px', opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
-          <div style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${C.border}`, boxShadow: '0 40px 80px rgba(0,0,0,0.4)', maxWidth: 900, margin: '0 auto' }}>
-            {/* Browser title bar */}
-            <div style={{ height: 44, background: '#0B0F1E', display: 'flex', alignItems: 'center', padding: '0 16px', gap: 8 }}>
-              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#EF4444' }} />
-              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#F59E0B' }} />
-              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#22C55E' }} />
-              <div style={{ flex: 1, margin: '0 12px', height: 28, background: 'rgba(255,255,255,0.06)', border: `1px solid ${C.border}`, borderRadius: 6, display: 'flex', alignItems: 'center', padding: '0 12px', fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-                🔒 majorka.io/app/intelligence
-              </div>
-            </div>
-            {/* Browser content */}
-            <div style={{ background: '#080C18' }}>
-              <div style={{ background: '#0B0F1E', borderBottom: `1px solid ${C.border}`, padding: '12px 20px', display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
-                <span style={{ fontWeight: 600, fontSize: 14, color: '#F8FAFC' }}>Product Intelligence</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Global Markets · AI Research</span>
-              </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: C.elevated }}>
-                    {['Product', 'Margin', 'Score', ''].map((h) => (
-                      <th key={h} style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)', padding: '8px 20px', textAlign: 'left', fontWeight: 600 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { product: 'Air Fryer 11-in-1', margin: '58%', score: 75 },
-                    { product: 'LED Strip Lights', margin: '61%', score: 82 },
-                    { product: 'Smart Watch GPS', margin: '44%', score: 68 },
-                  ].map((row) => {
-                    const scoreBg = row.score >= 80 ? 'rgba(99,102,241,0.2)' : row.score >= 65 ? 'rgba(139,92,246,0.15)' : 'rgba(107,114,128,0.15)';
-                    const scoreColor = row.score >= 80 ? '#A5B4FC' : row.score >= 65 ? '#C4B5FD' : '#9CA3AF';
-                    const scoreBorder = row.score >= 80 ? 'rgba(99,102,241,0.3)' : row.score >= 65 ? 'rgba(139,92,246,0.25)' : 'rgba(107,114,128,0.2)';
-                    return (
-                      <tr key={row.product} style={{ borderBottom: `1px solid ${C.border}`, fontSize: 13, color: 'rgba(255,255,255,0.7)' }} onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
-                        <td style={{ padding: '10px 20px', fontWeight: 500, color: '#F8FAFC' }}>{row.product}</td>
-                        <td style={{ padding: '10px 20px' }}>{row.margin}</td>
-                        <td style={{ padding: '10px 20px' }}>
-                          <span style={{ background: scoreBg, color: scoreColor, border: `1px solid ${scoreBorder}`, fontWeight: 700, borderRadius: 6, padding: '3px 8px', fontSize: 12 }}>{row.score}</span>
-                        </td>
-                        <td style={{ padding: '10px 20px' }}>
-                          <button style={{ fontSize: 11, padding: '4px 10px', background: '#6366F1', color: 'white', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 500 }}>Build Store →</button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <HeroDemo />
         </div>
       </section>
 
