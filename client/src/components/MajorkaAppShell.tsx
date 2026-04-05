@@ -263,7 +263,7 @@ function NotificationBell() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             <span style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 700, fontSize: 13, color: '#F1F5F9' }}>Notifications</span>
             {unread > 0 && (
-              <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+              <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Inter', -apple-system, sans-serif" }}>
                 Mark all read
               </button>
             )}
@@ -281,7 +281,7 @@ function NotificationBell() {
                 {!readIds.has(n.id) && (
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', flexShrink: 0, marginTop: 5 }} />
                 )}
-                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#6B7280' : '#CBD5E1', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
+                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#6B7280' : '#CBD5E1', lineHeight: 1.5, margin: 0, fontFamily: "'Inter', -apple-system, sans-serif", paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
                   {n.text}
                 </p>
               </div>
@@ -583,7 +583,7 @@ export default function MajorkaAppShell({ children }: Props) {
             borderRadius: 8,
             background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
             color: active ? '#818CF8' : '#CBD5E1',
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: "'Inter', -apple-system, sans-serif",
             border: 'none',
             borderLeft: active ? '3px solid #6366F1' : '3px solid transparent',
             cursor: 'pointer',
@@ -700,7 +700,7 @@ export default function MajorkaAppShell({ children }: Props) {
             border: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
             color: '#94A3B8',
             cursor: 'pointer',
-            fontFamily: 'DM Sans, sans-serif',
+            fontFamily: "'Inter', -apple-system, sans-serif",
           }}
           onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#6366F1')}
           onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--sidebar-border, #E5E7EB)')}
@@ -839,7 +839,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 <div className="flex items-center gap-1.5">
                   <span
                     className="truncate"
-                    style={{ fontFamily: 'DM Sans, sans-serif', color: '#F1F5F9', fontWeight: 600, fontSize: 14 }}
+                    style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: '#F1F5F9', fontWeight: 600, fontSize: 14 }}
                   >
                     {user?.name ?? session?.user?.user_metadata?.full_name ?? 'User'}
                   </span>
@@ -863,7 +863,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 {(user?.email ?? session?.user?.email) && (
                   <div
                     className="truncate"
-                    style={{ color: '#9CA3AF', fontSize: 12, fontFamily: 'DM Sans, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    style={{ color: '#9CA3AF', fontSize: 12, fontFamily: "'Inter', -apple-system, sans-serif", overflow: 'hidden', textOverflow: 'ellipsis' }}
                   >
                     {user?.email ?? session?.user?.email}
                   </div>
@@ -881,7 +881,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 color: '#9CA3AF',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: 'DM Sans, sans-serif',
+                fontFamily: "'Inter', -apple-system, sans-serif",
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.06)';
@@ -994,7 +994,7 @@ export default function MajorkaAppShell({ children }: Props) {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ background: 'var(--content-bg, #060A12)', color: 'var(--content-text, #F1F5F9)', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: 'var(--content-bg, #060A12)', color: 'var(--content-text, #F1F5F9)', fontFamily: "'Inter', -apple-system, sans-serif" }}
     >
       <PWAInstallBanner />
       {/* Search overlay */}
@@ -1028,7 +1028,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tools..."
                 className="flex-1 bg-transparent outline-none text-sm text-slate-100 caret-slate-100 placeholder:text-slate-500"
-                style={{ color: '#F1F5F9', caretColor: '#F1F5F9', fontFamily: 'DM Sans, sans-serif' }}
+                style={{ color: '#F1F5F9', caretColor: '#F1F5F9', fontFamily: "'Inter', -apple-system, sans-serif" }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
@@ -1215,7 +1215,7 @@ export default function MajorkaAppShell({ children }: Props) {
             </button>
             <NotificationBell />
             <div
-              style={{ width: 36, height: 36, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, fontFamily: "'Inter', -apple-system, sans-serif", cursor: 'pointer' }}
+              style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, fontFamily: "'Inter', -apple-system, sans-serif", cursor: 'pointer' }}
               onClick={() => setLocation('/account')}
             >
               {(user?.name ?? user?.email ?? session?.user?.email ?? 'M').charAt(0).toUpperCase()}
@@ -1256,7 +1256,7 @@ export default function MajorkaAppShell({ children }: Props) {
                   <span
                     style={{
                       fontSize: 9,
-                      fontFamily: 'DM Sans, sans-serif',
+                      fontFamily: "'Inter', -apple-system, sans-serif",
                       fontWeight: active ? 700 : 500,
                       letterSpacing: '0.02em',
                     }}
