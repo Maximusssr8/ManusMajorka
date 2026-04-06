@@ -46,6 +46,7 @@ import {
 } from 'lucide-react';
 import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/_core/hooks/useAuth';
 import MarketSelector from '@/components/MarketSelector';
 import { RegionSelector } from '@/components/RegionSelector';
@@ -1252,10 +1253,21 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: location === '/app/revenue' ? 'transparent' : '#060A12', color: '#F1F5F9' }}>
-          <ErrorBoundary fallback={<div style={{padding:32,color:'#f87171',fontFamily:'monospace',fontSize:13}}><b>Content render error</b> — check browser console (F12 → Console tab)</div>}>
-            {children}
-          </ErrorBoundary>
+        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg mkr-page" style={{ background: location === '/app/revenue' ? 'transparent' : '#060A12', color: '#F1F5F9' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              style={{ height: '100%' }}
+            >
+              <ErrorBoundary fallback={<div style={{padding:32,color:'#f87171',fontFamily:'monospace',fontSize:13}}><b>Content render error</b> — check browser console (F12 → Console tab)</div>}>
+                {children}
+              </ErrorBoundary>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Mobile bottom tab bar */}

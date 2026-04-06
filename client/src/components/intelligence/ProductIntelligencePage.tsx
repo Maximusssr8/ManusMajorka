@@ -6,6 +6,7 @@ import { TrendingTodayTab } from './tabs/TrendingTodayTab';
 import { FullDatabaseTab } from './tabs/FullDatabaseTab';
 import { ScoutTab } from './tabs/ScoutTab';
 import { StatsBar } from './components/StatsBar';
+import { ShimmerButton } from '@/components/ui/ShimmerButton';
 
 interface StatsData {
   total?: number;
@@ -81,10 +82,10 @@ export function ProductIntelligencePage() {
               </svg>
               Export CSV
             </button>
-            <button
+            <ShimmerButton
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white px-3.5 py-1.5 rounded-lg text-[13px] font-medium transition-all"
+              className="flex items-center gap-1.5"
             >
               <svg
                 width="14"
@@ -100,7 +101,7 @@ export function ProductIntelligencePage() {
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
               </svg>
               {refreshing ? 'Refreshing...' : 'Refresh'}
-            </button>
+            </ShimmerButton>
           </div>
         </div>
         <StatsBar stats={stats} isLoading={statsLoading} />

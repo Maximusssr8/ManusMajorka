@@ -18,6 +18,7 @@ import { MetricTooltip } from '@/components/ui/MetricTooltip';
 import UpgradeModal from '@/components/UpgradeModal';
 import UsageMeter from '@/components/UsageMeter';
 import { PLAN_LIMITS } from '@shared/plans';
+import { ShimmerButton } from '@/components/ui/ShimmerButton';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -652,10 +653,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {!isMobile && <DateRangeSelector value={dateRange} onChange={handleDateRange} />}
             {!isMobile && (
-              <button onClick={() => { try { exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products'); toast.success(`CSV exported — ${filteredProducts.length} products`); } catch { toast.error('Export failed'); } }}
-                style={{ height: 36, padding: '0 16px', background: '#0E1420', color: '#e4e4e7', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <ShimmerButton onClick={() => { try { exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products'); toast.success(`CSV exported — ${filteredProducts.length} products`); } catch { toast.error('Export failed'); } }}>
                 ⬇ Export CSV
-              </button>
+              </ShimmerButton>
             )}
             <button onClick={handleRefresh} disabled={refreshing}
               style={{ height: isMobile ? 32 : 36, padding: isMobile ? '0 10px' : '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>

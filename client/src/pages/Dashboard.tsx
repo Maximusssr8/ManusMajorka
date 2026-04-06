@@ -20,6 +20,7 @@ import {
   X,
   Eye,
 } from 'lucide-react';
+import { ShimmerButton } from '@/components/ui/ShimmerButton';
 import React, { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
@@ -1034,11 +1035,9 @@ function DashboardHome() {
               Upgrade to Builder &rarr;
             </button>
           )}
-          <button onClick={() => setLocation('/app/intelligence')} style={{ height: 38, padding: '0 18px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'transform 150ms' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.background = '#4F46E5'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#6366F1'; }}>
+          <ShimmerButton onClick={() => setLocation('/app/intelligence')} className="flex items-center gap-2">
             <Package size={14} /> Find Products
-          </button>
+          </ShimmerButton>
         </div>
       </div>
 

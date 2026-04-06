@@ -1,16 +1,20 @@
 /* ===== CARDS ===== */
 .mkr-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 20px;
-  transition: border-color 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.mkr-card:hover { border-color: var(--border-strong); }
+.mkr-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+}
 
 .mkr-card-sm {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 14px 16px;
 }
@@ -28,7 +32,7 @@
   transition: all 0.15s;
 }
 .mkr-input:hover { border-color: var(--border-strong); }
-.mkr-input:focus { border-color: var(--border-focus); background: rgba(255,255,255,0.07); }
+.mkr-input:focus { border-color: var(--border-focus); background: var(--color-surface-3); }
 .mkr-input::placeholder { color: var(--text-muted); }
 
 /* ===== BUTTONS ===== */
@@ -67,7 +71,7 @@
   white-space: nowrap;
 }
 .btn-ghost:hover {
-  background: rgba(255,255,255,0.07);
+  background: var(--color-surface-3);
   color: var(--text-primary);
   border-color: var(--border-strong);
 }
@@ -169,7 +173,24 @@
 .mkr-nav-item.active svg { opacity: 1; }
 
 /* ===== PAGE LAYOUT ===== */
-.mkr-page { margin-left: 220px; min-height: 100vh; background: var(--bg-page); }
+.mkr-page {
+  margin-left: 220px;
+  min-height: 100vh;
+  background-color: var(--color-surface-1);
+  background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+  position: relative;
+}
+
+.mkr-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  margin-left: 220px;
+}
 .mkr-page-header {
   padding: 24px 28px 0;
   border-bottom: 1px solid var(--border-subtle);
@@ -249,11 +270,4 @@
   animation: pulse 2s infinite;
 }
 
-/* ── Card hover states ──────────────────────────────────────────────────────── */
-.mkr-card {
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.mkr-card:hover {
-  border-color: rgba(255,255,255,0.14);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
-}
+

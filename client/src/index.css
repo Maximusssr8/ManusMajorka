@@ -26,6 +26,19 @@
   --warning: #F59E0B;
   --danger: #EF4444;
   --hot: #F97316;
+
+  --color-surface-1: #0b1120;
+  --color-surface-2: #111827;
+  --color-surface-3: rgba(255,255,255,0.04);
+  --color-border: rgba(255,255,255,0.07);
+  --color-border-hover: rgba(255,255,255,0.14);
+  --color-accent: #6366f1;
+  --color-accent-glow: rgba(99,102,241,0.3);
+  --color-green: #10b981;
+  --color-green-dim: rgba(16,185,129,0.15);
+  --color-amber: #f59e0b;
+  --color-red: #ef4444;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 /* NOTE: No custom reset here — Tailwind v4 @layer base handles box-sizing/margin/padding.
@@ -72,3 +85,30 @@ select option { background: #111827; color: #F8FAFC; }
 @keyframes shimmer { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 .skeleton { animation: shimmer 1.8s ease-in-out infinite; }
+
+@keyframes live-pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.live-dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-green);
+}
+
+.live-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-green);
+  animation: live-pulse-ring 2s ease-out infinite;
+}
+
+@keyframes shimmer-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
