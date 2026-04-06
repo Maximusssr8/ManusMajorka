@@ -771,6 +771,7 @@ function DailyBrief() {
   const [brief, setBrief] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const { session } = useAuth();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
@@ -798,8 +799,6 @@ function DailyBrief() {
   }, [session?.access_token]);
 
   if (!brief && !loading) return null;
-
-  const { setLocation } = (() => { const [, sl] = useLocation(); return { setLocation: sl }; })();
 
   return (
     <div style={{
