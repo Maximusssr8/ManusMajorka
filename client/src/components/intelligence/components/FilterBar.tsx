@@ -43,7 +43,8 @@ export function FilterBar({ filters, onFiltersChange, totalCount }: FilterBarPro
     queryFn: () => apiFetch('/api/products/suggestions').then(r => r.json()),
   });
 
-  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' };
+  const chevron = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")";
+  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backgroundImage: chevron, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', backgroundSize: '10px', paddingRight: 28 };
   const selectClass = "rounded-lg px-3 py-2 text-[12px] text-slate-400 outline-none cursor-pointer transition-colors flex-shrink-0";
 
   return (

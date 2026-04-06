@@ -559,10 +559,10 @@ export default function CreatorIntelligence() {
       {/* ===== 2. GLASSMORPHISM FILTER BAR ===== */}
       <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', padding: '16px 24px 0' }}>
         <div style={{
-          background: 'rgba(255,255,255,0.92)',
+          background: 'rgba(255,255,255,0.04)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          border: '1px solid rgba(99,102,241,0.15)',
+          border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 14,
           padding: '12px 16px',
           display: 'flex',
