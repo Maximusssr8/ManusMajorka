@@ -49,7 +49,7 @@ export function ProductIntelligencePage() {
     <div className="flex flex-col min-h-screen" style={{ background: '#080808' }}>
       {/* PAGE HEADER */}
       <div className="px-6 pt-6 pb-0">
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-start justify-between mb-5 gap-3 flex-wrap">
           <div>
             <h1 className="text-[20px] font-semibold text-slate-100 tracking-tight">
               Product Intelligence
@@ -60,17 +60,18 @@ export function ProductIntelligencePage() {
               Powered by AliExpress API
             </p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
             <div
               className="flex items-center gap-1.5 text-emerald-400 text-[12px] px-3 py-1.5 rounded-full"
               style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.15)' }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Live AliExpress data
+              <span className="hidden sm:inline">Live AliExpress data</span>
+              <span className="sm:hidden">Live</span>
             </div>
             <button
               onClick={() => window.open('/api/products/export?format=csv', '_blank')}
-              className="flex items-center gap-1.5 text-slate-400 hover:text-slate-300 px-3 py-1.5 rounded-lg text-[13px] transition-all"
+              className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-slate-300 px-3 py-1.5 rounded-lg text-[13px] transition-all"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -106,15 +107,24 @@ export function ProductIntelligencePage() {
       </div>
 
       {/* TAB BAR */}
+      <style>{`.pip-tab-bar::-webkit-scrollbar { display: none; }`}</style>
       <div
-        className="flex px-6 mt-4"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#080808' }}
+        className="pip-tab-bar flex mt-4"
+        style={{
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: '#080808',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          paddingLeft: 24,
+        } as React.CSSProperties}
       >
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => tab.id !== 'scout' && setActiveTab(tab.id)}
-            className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap ${
+            className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
                 ? 'text-white border-indigo-500'
                 : 'border-transparent hover:border-white/10'
