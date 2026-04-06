@@ -96,6 +96,8 @@ export default function CompetitorSpy() {
   const [result, setResult] = useState<CompetitorResult | null>(null);
   const [error, setError] = useState('');
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([]);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -438,14 +440,90 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             </div>
           )}
 
-          {/* Error state — show coming soon */}
+          {/* Error state — blurred preview + waitlist */}
           {error && !loading && !result && (
-            <div className="flex flex-col items-center justify-center py-16 gap-4">
-              <div className="text-3xl">🔧</div>
-              <h3 className="text-lg font-medium text-white">Coming Soon</h3>
-              <p className="text-sm text-gray-400 text-center max-w-sm">
-                Competitor Spy is being upgraded with live data. Check back soon.
-              </p>
+            <div className="flex flex-col items-center justify-center py-12 gap-8 px-6">
+              {/* Blurred mockup preview */}
+              <div className="relative w-full max-w-2xl">
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  backdropFilter: 'blur(6px)',
+                  background: 'rgba(5,7,15,0.6)',
+                  borderRadius: 12,
+                  zIndex: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <span style={{
+                    fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.6)',
+                    background: 'rgba(255,255,255,0.06)',
+                    padding: '8px 18px', borderRadius: 20,
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}>
+                    Coming soon — Scale Plan early access
+                  </span>
+                </div>
+                {/* Blurred mock UI */}
+                <div style={{
+                  background: '#0C1120', border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 12, padding: 24, opacity: 0.5,
+                }}>
+                  <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} style={{ height: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }} />
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 12 }}>
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} style={{ height: 40, background: 'rgba(255,255,255,0.04)', borderRadius: 6 }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA + waitlist */}
+              <div style={{ textAlign: 'center', maxWidth: 440 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
+                  Full competitor intelligence, coming soon
+                </h3>
+                <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>
+                  Analyse any Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends. Available on Scale plan.
+                </p>
+                <div style={{ display: 'flex', gap: 8, maxWidth: 360, margin: '0 auto' }}>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={waitlistEmail}
+                    onChange={e => setWaitlistEmail(e.target.value)}
+                    style={{
+                      flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
+                      outline: 'none',
+                    }}
+                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)')}
+                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
+                  />
+                  <button
+                    onClick={() => {
+                      if (waitlistEmail) {
+                        setWaitlistSubmitted(true);
+                        toast.success("You're on the list!");
+                      }
+                    }}
+                    style={{
+                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#6366F1', color: 'white',
+                      border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#5558E8'; }}
+                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#6366F1'; }}
+                  >
+                    {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -519,14 +597,90 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             </div>
           )}
 
-          {/* Empty / coming soon state */}
+          {/* Empty / initial state — blurred preview + waitlist */}
           {!result && !loading && (
-            <div className="flex flex-col items-center justify-center py-16 gap-4">
-              <div className="text-3xl">🔧</div>
-              <h3 className="text-lg font-medium text-white">Coming Soon</h3>
-              <p className="text-sm text-gray-400 text-center max-w-sm">
-                Competitor Spy is being upgraded with live data. Check back soon.
-              </p>
+            <div className="flex flex-col items-center justify-center py-12 gap-8 px-6">
+              {/* Blurred mockup preview */}
+              <div className="relative w-full max-w-2xl">
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  backdropFilter: 'blur(6px)',
+                  background: 'rgba(5,7,15,0.6)',
+                  borderRadius: 12,
+                  zIndex: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <span style={{
+                    fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.6)',
+                    background: 'rgba(255,255,255,0.06)',
+                    padding: '8px 18px', borderRadius: 20,
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}>
+                    Coming soon — Scale Plan early access
+                  </span>
+                </div>
+                {/* Blurred mock UI */}
+                <div style={{
+                  background: '#0C1120', border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 12, padding: 24, opacity: 0.5,
+                }}>
+                  <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} style={{ height: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }} />
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 12 }}>
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} style={{ height: 40, background: 'rgba(255,255,255,0.04)', borderRadius: 6 }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA + waitlist */}
+              <div style={{ textAlign: 'center', maxWidth: 440 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
+                  Full competitor intelligence, coming soon
+                </h3>
+                <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>
+                  Analyse any Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends. Available on Scale plan.
+                </p>
+                <div style={{ display: 'flex', gap: 8, maxWidth: 360, margin: '0 auto' }}>
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={waitlistEmail}
+                    onChange={e => setWaitlistEmail(e.target.value)}
+                    style={{
+                      flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
+                      outline: 'none',
+                    }}
+                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)')}
+                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
+                  />
+                  <button
+                    onClick={() => {
+                      if (waitlistEmail) {
+                        setWaitlistSubmitted(true);
+                        toast.success("You're on the list!");
+                      }
+                    }}
+                    style={{
+                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#6366F1', color: 'white',
+                      border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#5558E8'; }}
+                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#6366F1'; }}
+                  >
+                    {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>

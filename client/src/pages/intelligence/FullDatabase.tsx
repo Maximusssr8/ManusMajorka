@@ -1254,7 +1254,47 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Sparkline */}
                         <td style={tdStyle('center')}>
                           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 44 }}>
-                            <MiniSparkline data={sparkData} width={116} height={32} positive={isPositive} />
+                            {/* Sparkline with tooltip */}
+                            <div
+                              style={{ position: 'relative', display: 'inline-block' }}
+                              onMouseEnter={e => {
+                                const tooltip = e.currentTarget.querySelector<HTMLElement>('.sparkline-tooltip');
+                                if (tooltip) tooltip.style.display = 'block';
+                              }}
+                              onMouseLeave={e => {
+                                const tooltip = e.currentTarget.querySelector<HTMLElement>('.sparkline-tooltip');
+                                if (tooltip) tooltip.style.display = 'none';
+                              }}
+                            >
+                              <MiniSparkline data={sparkData} width={116} height={32} positive={isPositive} />
+                              <div
+                                className="sparkline-tooltip"
+                                style={{
+                                  display: 'none',
+                                  position: 'absolute',
+                                  bottom: 'calc(100% + 6px)',
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  background: '#111827',
+                                  border: '1px solid rgba(255,255,255,0.08)',
+                                  borderRadius: 8,
+                                  padding: '6px 10px',
+                                  fontSize: 11,
+                                  color: '#E2E8F0',
+                                  whiteSpace: 'nowrap',
+                                  zIndex: 20,
+                                  boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                  pointerEvents: 'none',
+                                }}
+                              >
+                                {isPositive ? '↑ Trending up' : '↓ Declining'}
+                                {p.real_orders_count ? (
+                                  <span style={{ display: 'block', color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+                                    {p.real_orders_count >= 1000 ? `${(p.real_orders_count / 1000).toFixed(1)}k` : p.real_orders_count} orders
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
                           </div>
                         </td>
 

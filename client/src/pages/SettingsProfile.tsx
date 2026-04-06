@@ -423,7 +423,7 @@ export default function SettingsProfile() {
             <div className="space-y-4">
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
+                  className="text-xs font-semibold mb-4"
                   style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Account
@@ -431,8 +431,8 @@ export default function SettingsProfile() {
                 <div className="space-y-4">
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Name
                     </label>
@@ -445,8 +445,8 @@ export default function SettingsProfile() {
                   </div>
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Email
                     </label>
@@ -473,7 +473,7 @@ export default function SettingsProfile() {
 
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
+                  className="text-xs font-semibold mb-4"
                   style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Business Profile
@@ -481,8 +481,8 @@ export default function SettingsProfile() {
                 <div className="space-y-4">
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Business Name
                     </label>
@@ -496,8 +496,8 @@ export default function SettingsProfile() {
                   </div>
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Target Niche
                     </label>
@@ -511,8 +511,8 @@ export default function SettingsProfile() {
                   </div>
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Monthly Revenue
                     </label>
@@ -531,8 +531,8 @@ export default function SettingsProfile() {
                   </div>
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Country
                     </label>
@@ -549,7 +549,7 @@ export default function SettingsProfile() {
 
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
+                  className="text-xs font-semibold mb-4"
                   style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Preferences
@@ -557,8 +557,8 @@ export default function SettingsProfile() {
                 <div className="space-y-4">
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-2"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-2"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Experience Level
                     </label>
@@ -589,8 +589,8 @@ export default function SettingsProfile() {
                   </div>
                   <div>
                     <label
-                      className="block text-xs font-bold uppercase tracking-wider mb-2"
-                      style={{ color: 'rgba(99,102,241,0.7)' }}
+                      className="block text-xs font-medium tracking-normal mb-2"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
                     >
                       Main Goal
                     </label>
@@ -623,7 +623,7 @@ export default function SettingsProfile() {
 
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mb-3"
+                  className="text-xs font-semibold mb-3"
                   style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Onboarding
@@ -673,15 +673,15 @@ export default function SettingsProfile() {
 
               {/* ── Change Password ── */}
               <div style={{ marginTop: 16, background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20 }}>
-                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Change Password</div>
+                <div className="text-xs font-semibold mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Change Password</div>
                 <div className="text-xs mb-4" style={{ color: '#9CA3AF' }}>Must be at least 8 characters.</div>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12, maxWidth: 420 }}>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(99,102,241,0.7)' }}>New Password</label>
+                    <label className="block text-xs font-medium tracking-normal mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>New Password</label>
                     <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(99,102,241,0.7)' }}>Confirm New Password</label>
+                    <label className="block text-xs font-medium tracking-normal mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Confirm New Password</label>
                     <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                   </div>
                   <button onClick={handlePasswordChange} disabled={changingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
@@ -704,7 +704,7 @@ export default function SettingsProfile() {
           {activeTab === 'notifications' && (
             <div className={sectionCard} style={sectionCardStyle}>
               <div
-                className="text-xs font-bold uppercase tracking-widest mb-4"
+                className="text-xs font-semibold mb-4"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Email Preferences
@@ -841,7 +841,7 @@ export default function SettingsProfile() {
           {activeTab === 'integrations' && (
             <div className="space-y-4">
               <div className={sectionCard} style={sectionCardStyle}>
-                <div className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-xs font-semibold mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Connected Services
                 </div>
                 <div className="space-y-0">
@@ -886,7 +886,7 @@ export default function SettingsProfile() {
               </div>
               {/* Service Status */}
               <div className={sectionCard} style={sectionCardStyle}>
-                <div className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-xs font-semibold mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Service Status
                 </div>
                 <div className="space-y-2">
@@ -909,7 +909,7 @@ export default function SettingsProfile() {
             <div className="space-y-4">
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
+                  className="text-xs font-semibold mb-4"
                   style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Your Data
@@ -936,7 +936,7 @@ export default function SettingsProfile() {
                 style={{ ...sectionCardStyle, borderColor: 'rgba(239,68,68,0.15)' }}
               >
                 <div
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
+                  className="text-xs font-semibold mb-4"
                   style={{ color: '#ef4444', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Danger Zone
