@@ -430,6 +430,11 @@ function ShopifyStatusIndicator() {
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
+  // STATE — ALL HOOKS AT TOP (Task 9 requirement)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') return window.innerWidth < 1280;
+    return false;
+  });
   const isAdminUser = session?.user?.email === 'maximusmajorka@gmail.com';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobileShell, setIsMobileShell] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
@@ -601,24 +606,27 @@ export default function MajorkaAppShell({ children }: Props) {
         <button
           onClick={() => handleNavClick(item.path)}
           title={tooltip}
-          className="w-full flex items-center gap-2 text-sm transition-all relative"
+          className="flex items-center gap-2 text-sm transition-all relative"
           style={{
+            width: sidebarCollapsed ? 44 : '100%',
+            height: sidebarCollapsed ? 44 : 'auto',
             borderRadius: 8,
             background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
             color: active ? '#818CF8' : '#CBD5E1',
             fontFamily: "'Inter', -apple-system, sans-serif",
             border: 'none',
-            borderLeft: active ? '3px solid #6366F1' : '3px solid transparent',
+            borderLeft: !sidebarCollapsed && active ? '3px solid #6366F1' : '3px solid transparent',
             cursor: 'pointer',
             position: 'relative' as const,
-            paddingLeft: active ? 9 : 12,
-            paddingRight: 12,
-            paddingTop: 8,
-            paddingBottom: 8,
+            paddingLeft: sidebarCollapsed ? 0 : (active ? 9 : 12),
+            paddingRight: sidebarCollapsed ? 0 : 12,
+            paddingTop: sidebarCollapsed ? 0 : 8,
+            paddingBottom: sidebarCollapsed ? 0 : 8,
             fontSize: 14,
-            minHeight: 36,
+            minHeight: sidebarCollapsed ? 44 : 36,
             fontWeight: active ? 600 : 400,
             transition: 'all 150ms',
+            justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
           }}
           onMouseEnter={(e) => {
             if (!active) {
@@ -633,38 +641,40 @@ export default function MajorkaAppShell({ children }: Props) {
             }
           }}
         >
-          <span style={{ flexShrink: 0, opacity: active ? 1 : 0.7, color: active ? '#6366F1' : 'currentColor', display: 'flex', alignItems: 'center' }}>
+          <span style={{ flexShrink: 0, opacity: active ? 1 : 0.7, color: active ? '#6366F1' : 'currentColor', display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}>
             {createElement(item.icon)}
           </span>
-          <span className="flex-1 text-left truncate text-sm">
-            {displayLabel}
-            {badge && (() => {
-              const bs = badge === 'PRO'
-                ? { background: '#6366F1', color: 'white', border: '1px solid rgba(99,102,241,0.4)' }
-                : badge === 'LIVE'
-                ? { background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.25)' }
-                : badge === 'SOON'
-                ? { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.08)' }
-                : item.path === '/app/learn' && badge !== 'HOT'
-                ? { background: 'rgba(16,185,129,0.12)', color: '#6EE7B7', border: '1px solid rgba(16,185,129,0.2)' }
-                : { background: 'rgba(99,102,241,0.15)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.25)' };
-              return (
-                <span
-                  className="ml-1.5"
-                  style={{
-                    ...bs,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    padding: '2px 6px',
-                    borderRadius: 4,
-                    letterSpacing: '0.02em',
-                  }}
-                >
-                  {badge}
-                </span>
-              );
-            })()}
-          </span>
+          {!sidebarCollapsed && (
+            <span className="flex-1 text-left truncate text-sm">
+              {displayLabel}
+              {badge && (() => {
+                const bs = badge === 'PRO'
+                  ? { background: '#6366F1', color: 'white', border: '1px solid rgba(99,102,241,0.4)' }
+                  : badge === 'LIVE'
+                  ? { background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.25)' }
+                  : badge === 'SOON'
+                  ? { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.08)' }
+                  : item.path === '/app/learn' && badge !== 'HOT'
+                  ? { background: 'rgba(16,185,129,0.12)', color: '#6EE7B7', border: '1px solid rgba(16,185,129,0.2)' }
+                  : { background: 'rgba(99,102,241,0.15)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.25)' };
+                return (
+                  <span
+                    className="ml-1.5"
+                    style={{
+                      ...bs,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    {badge}
+                  </span>
+                );
+              })()}
+            </span>
+          )}
           {/* Ads Manager recommendation badge */}
           {item.path === '/app/ads-manager' && (() => {
             try {
@@ -687,62 +697,64 @@ export default function MajorkaAppShell({ children }: Props) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div
-        className="flex items-center gap-2.5 px-3 flex-shrink-0"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', height: 64 }}
+        className="flex items-center justify-center flex-shrink-0"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', height: 64, padding: sidebarCollapsed ? 0 : '0 12px' }}
       >
         <button
           onClick={() => setLocation('/app')}
-          className="flex items-center gap-2.5 flex-1"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          className="flex items-center flex-1"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', justifyContent: sidebarCollapsed ? 'center' : 'flex-start', gap: sidebarCollapsed ? 0 : 10 }}
         >
-          <div
-            className="flex-shrink-0"
-          >
+          <div className="flex-shrink-0">
             <img src="/majorka-logo.jpg" alt="Majorka" width={32} height={32} style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 8, display: 'block' }} draggable={false} />
           </div>
-          <span
-            className="font-bold text-sm"
-            style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: 'var(--sidebar-text, #F1F5F9)', letterSpacing: '-0.01em', fontSize: 15, fontWeight: 800 }}
-          >
-            Majorka
-          </span>
+          {!sidebarCollapsed && (
+            <span
+              className="font-bold text-sm"
+              style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: 'var(--sidebar-text, #F1F5F9)', letterSpacing: '-0.01em', fontSize: 15, fontWeight: 800 }}
+            >
+              Majorka
+            </span>
+          )}
         </button>
       </div>
 
       {/* Search bar */}
-      <div className="px-2.5 py-2 flex-shrink-0">
-        <button
-          onClick={() => {
-            setSearchOpen(true);
-            setTimeout(() => searchInputRef.current?.focus(), 50);
-          }}
-          className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-all"
-          style={{
-            borderRadius: 8,
-            background: 'var(--search-bg, rgba(255,255,255,0.05))',
-            border: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
-            color: '#94A3B8',
-            cursor: 'pointer',
-            fontFamily: "'Inter', -apple-system, sans-serif",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#6366F1')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--sidebar-border, #E5E7EB)')}
-        >
-          <Search size={12} />
-          <span className="flex-1 text-left">Search tools...</span>
-          <kbd
-            className="px-1.5 py-0.5 rounded text-xs"
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              color: '#CBD5E1',
-              fontSize: 9,
-              fontFamily: 'DM Mono, monospace',
+      {!sidebarCollapsed && (
+        <div className="px-2.5 py-2 flex-shrink-0">
+          <button
+            onClick={() => {
+              setSearchOpen(true);
+              setTimeout(() => searchInputRef.current?.focus(), 50);
             }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-all"
+            style={{
+              borderRadius: 8,
+              background: 'var(--search-bg, rgba(255,255,255,0.05))',
+              border: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
+              color: '#94A3B8',
+              cursor: 'pointer',
+              fontFamily: "'Inter', -apple-system, sans-serif",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#6366F1')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--sidebar-border, #E5E7EB)')}
           >
-            ⌘K
-          </kbd>
-        </button>
-      </div>
+            <Search size={12} />
+            <span className="flex-1 text-left">Search tools...</span>
+            <kbd
+              className="px-1.5 py-0.5 rounded text-xs"
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                color: '#CBD5E1',
+                fontSize: 9,
+                fontFamily: 'DM Mono, monospace',
+              }}
+            >
+              ⌘K
+            </kbd>
+          </button>
+        </div>
+      )}
 
       {/* Nav */}
       <div
@@ -1011,6 +1023,35 @@ export default function MajorkaAppShell({ children }: Props) {
           </button>
         )}
       </div>
+
+      {/* Collapse toggle — only on desktop */}
+      {!isMobileShell && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            style={{
+              width: sidebarCollapsed ? 44 : '100%',
+              height: 40,
+              borderRadius: 8,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              color: '#94A3B8',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 14,
+              transition: 'width 0.3s ease-in-out',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
+          >
+            {sidebarCollapsed ? '→' : '←'}
+            {!sidebarCollapsed && <span style={{ marginLeft: 6, fontSize: 12 }}>Collapse</span>}
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -1142,17 +1183,17 @@ export default function MajorkaAppShell({ children }: Props) {
         />
       )}
 
-      {/* Sidebar — 240px, desktop: part of flex flow; mobile: slide-in drawer */}
+      {/* Sidebar — 220/60px toggle, desktop: part of flex flow; mobile: slide-in drawer */}
       <aside
         role="navigation"
         aria-label="Main navigation"
-        className={`flex flex-col z-50 transition-transform duration-300 ease-in-out`}
+        className={`flex flex-col z-50 transition-all duration-300 ease-in-out`}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           bottom: 0,
-          width: 240,
+          width: !isMobileShell && sidebarCollapsed ? 60 : 220,
           transform: mobileOpen || !isMobileShell ? 'translateX(0)' : 'translateX(-100%)',
           background: 'var(--sidebar-bg, #0B0F1E)',
           borderRight: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
@@ -1177,7 +1218,7 @@ export default function MajorkaAppShell({ children }: Props) {
       </aside>
 
       {/* Main content */}
-      <div className="flex flex-col min-h-0" style={{ marginLeft: isMobileShell ? 0 : 240, flex: 1, minWidth: 0 }}>
+      <div className="flex flex-col min-h-0" style={{ marginLeft: isMobileShell ? 0 : (sidebarCollapsed ? 60 : 220), flex: 1, minWidth: 0, transition: 'margin-left 0.3s ease-in-out' }}>
         {/* Mobile top bar */}
         <div
           className="flex items-center gap-3 px-4 border-b flex-shrink-0 lg:hidden"

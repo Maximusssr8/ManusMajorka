@@ -460,7 +460,7 @@ export default function MarketDashboard() {
                     <tr
                       key={p.id}
                       className="cursor-pointer transition-colors"
-                      style={{ borderBottom: i < products.length - 1 ? '1px solid #F9FAFB' : 'none', borderLeft: `3px solid ${{  'Health & Beauty':'#F9A8D4','Pet':'#86EFAC','Tech':'#93C5FD','Kitchen':'#FCD34D','Fitness':'#C4B5FD'}[p.category ?? ''] ?? '#E5E7EB'}` }}
+                      style={{ borderBottom: i < products.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', borderLeft: `3px solid ${{  'Health & Beauty':'#F9A8D4','Pet':'#86EFAC','Tech':'#93C5FD','Kitchen':'#FCD34D','Fitness':'#C4B5FD'}[p.category ?? ''] ?? '#E5E7EB'}`, height: 56 }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       onClick={() => nav('/app/winning-products')}

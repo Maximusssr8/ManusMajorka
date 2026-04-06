@@ -9,6 +9,7 @@ import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
 import { ProductImage } from '@/components/ProductImage';
 import { VelocityBadge } from '@/components/VelocityBadge';
+import { ScoreRing } from '@/components/intelligence/ScoreRing';
 import type { FilterState } from '@/components/ProductFilterSidebar';
 import { useRegion } from '@/context/RegionContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -325,6 +326,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const { region } = useRegion();
   const { isPro, subPlan, session } = useAuth();
   const [, setLocation] = useLocation();
+  // STATE — ALL HOOKS AT TOP (Task 9 requirement)
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const canSeeFinancials = isPro || subPlan === 'scale' || subPlan === 'builder';
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -809,6 +812,26 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
       {/* ── TABLE WRAPPER ── */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px' }}>
+        {/* View mode toggle — List/Grid */}
+        {!isMobile && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginBottom: 16 }}>
+            <button onClick={() => setViewMode('list')} style={{
+              padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+              background: viewMode === 'list' ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
+              color: viewMode === 'list' ? '#818CF8' : 'rgba(255,255,255,0.4)',
+              border: viewMode === 'list' ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.06)',
+              cursor: 'pointer',
+            }}>≡ List</button>
+            <button onClick={() => setViewMode('grid')} style={{
+              padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+              background: viewMode === 'grid' ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
+              color: viewMode === 'grid' ? '#818CF8' : 'rgba(255,255,255,0.4)',
+              border: viewMode === 'grid' ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.06)',
+              cursor: 'pointer',
+            }}>⊞ Grid</button>
+          </div>
+        )}
+        
         {/* Blur gate banner */}
         {!canSeeFinancials && !isAdmin && (
           <div style={{background:'linear-gradient(135deg,#EEF2FF,#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
@@ -821,8 +844,62 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </button>
           </div>
         )}
-        {/* ── MOBILE CARD LIST ── */}
-        {isMobile && (
+        {/* ── GRID VIEW ── */}
+        {viewMode === 'grid' && !isMobile && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, padding: 20 }}>
+            {displayProducts.map(p => {
+              const name = getProductName(p);
+              return (
+                <div key={p.id} onClick={() => setDetailProduct(p)} style={{
+                  background: '#0C1120', border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 12, overflow: 'hidden', cursor: 'pointer',
+                  transition: 'border-color 0.15s, box-shadow 0.15s',
+                }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = 'rgba(99,102,241,0.3)';
+                    el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = 'rgba(255,255,255,0.07)';
+                    el.style.boxShadow = 'none';
+                  }}
+                >
+                  {/* Image */}
+                  <div style={{ background: '#0A0F1C', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={p.image_url} alt="" style={{ maxHeight: 140, maxWidth: '100%', objectFit: 'contain' }} />
+                  </div>
+                  {/* Body */}
+                  <div style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                      {(p.real_orders_count || 0) >= 10000 && <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.2)' }}>🔥 HOT</span>}
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.4, marginBottom: 8 }}>
+                      {name}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>A${(p.real_price_aud || p.price_aud || 0).toFixed(2)}</span>
+                      <span>{(p.real_orders_count || p.orders_count || 0).toLocaleString()} orders</span>
+                    </div>
+                    {/* Score bar */}
+                    <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 3, height: 4, overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', borderRadius: 3,
+                        width: `${p.winning_score || 0}%`,
+                        background: (p.winning_score || 0) >= 80 ? '#10B981' : (p.winning_score || 0) >= 60 ? '#F59E0B' : '#6366F1',
+                      }} />
+                    </div>
+                    <div style={{ marginTop: 4, fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.winning_score}/100</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── LIST VIEW (TABLE) ── */}
+        {viewMode === 'list' && !isMobile && (
           <div style={{ padding: '0 12px 80px' }}>
             {/* Mobile search + filter bar */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
@@ -1045,8 +1122,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </div>
         )}
 
-        {/* Scroll hint wrapper */}
-        {!isMobile && (
+        {/* ── LIST VIEW (TABLE) ── */}
+        {viewMode === 'list' && !isMobile && (
         <div style={{ position: 'relative' as const }}>
           {/* Right-edge fade — indicates more content to scroll */}
           <div
@@ -1071,53 +1148,51 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           }}
         >
             <div style={{ background: '#0E1420' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 900 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 900 }} className="products-table">
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
-              <col style={{ width: '36px' }} />       {/* checkbox */}
-              <col style={{ width: '3%' }} />          {/* # */}
-              <col style={{ width: '32%' }} />         {/* Product */}
-              <col style={{ width: '10%' }} />         {/* Revenue */}
-              <col style={{ width: '8%' }} />          {/* 30-Day Trend */}
-              <col style={{ width: '8%' }} />          {/* Sold */}
-              <col style={{ width: '8%' }} />          {/* Sell Price */}
-              <col style={{ width: '8%' }} />          {/* Margin */}
-              <col style={{ width: '6%' }} />          {/* Dropship Score */}
-              <col style={{ width: '6%' }} />          {/* Creators */}
-              <col style={{ width: '11%' }} />         {/* Actions */}
+              <col style={{ width: 36 }} />          {/* checkbox */}
+              <col style={{ width: 36 }} />          {/* # (row number) */}
+              <col style={{ width: undefined }} />    {/* Product — flex-1, gets remaining space */}
+              <col style={{ width: 110 }} />         {/* Orders */}
+              <col style={{ width: 80 }} />          {/* Trend */}
+              <col style={{ width: 60 }} />          {/* Source */}
+              <col style={{ width: 80 }} />          {/* Sell price */}
+              <col style={{ width: 72 }} />          {/* Margin */}
+              <col style={{ width: 64 }} />          {/* Score */}
+              <col style={{ width: 70 }} />          {/* Creators */}
+              <col style={{ width: 40 }} />          {/* Actions */}
             </colgroup>
             <thead>
-              <tr style={{ background: '#131929', borderBottom: '2px solid rgba(255,255,255,0.08)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
-                <th style={{ width: 36, paddingLeft: 12, borderBottom: '2px solid rgba(255,255,255,0.06)' }} />
-                <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
-                <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')} aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                  Product <SortIcon col="name" />
+              <tr style={{ height: 36, background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'sticky' as const, top: 0, zIndex: 10 }}>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', width: 36 }} />
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'default' }}>#</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'pointer' }} onClick={() => handleSort('name')}>
+                  PRODUCT {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
                 </th>
-                <th style={thStyle('orders_count', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('orders_count')} aria-sort={sortBy === 'orders_count' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                  <MetricTooltip label="Orders" tip="Cross-platform demand score. Considers orders, TikTok views, and margin potential." />
-                  <SortIcon col="orders_count" />
+                <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'pointer' }} onClick={() => handleSort('orders_count')}>
+                  ORDERS {sortBy === 'orders_count' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
                 </th>
-                <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>
-                  <MetricTooltip label="Trend" tip="How fast this product is gaining popularity. Exploding = act fast, Rising = good opportunity, Steady = stable seller." />
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'default' }}>
+                  TREND
                 </th>
-                <th style={{ ...thStyle('source', isMobile ? 70 : 80, 'center'), cursor: 'default' }} title="Data source and link verification status">
-                  Source
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'default' }}>
+                  SOURCE
                 </th>
-                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')} aria-sort={sortBy === 'price' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Suggested sell price in AUD">
-                  Sell <SortIcon col="price" />
+                <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'pointer' }} onClick={() => handleSort('price')}>
+                  SELL {sortBy === 'price' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
                 </th>
-                <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')} aria-sort={sortBy === 'estimated_margin_pct' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                  Margin <SortIcon col="estimated_margin_pct" />
+                <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'pointer' }} onClick={() => handleSort('estimated_margin_pct')}>
+                  MARGIN {sortBy === 'estimated_margin_pct' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
                 </th>
-                <th style={thStyle('winning_score', isMobile ? 80 : 96, 'center')} onClick={() => handleSort('winning_score')} aria-sort={sortBy === 'winning_score' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                  <MetricTooltip label="Score" tip="A 0–100 score based on demand signals, margin potential, and market fit. 80+ = strong opportunity." />
-                  <SortIcon col="winning_score" />
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'pointer' }} onClick={() => handleSort('winning_score')}>
+                  SCORE {sortBy === 'winning_score' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
                 </th>
-                <th style={{ ...thStyle('creators', isMobile ? 60 : 70, 'center'), cursor: 'default' }}>
-                  {isMobile ? '👤' : 'Creators'}
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'default' }}>
+                  CREATORS
                 </th>
-                <th style={{ ...thStyle('actions', isMobile ? 120 : 185, 'center'), cursor: 'default' }}>Actions</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', userSelect: 'none', cursor: 'default' }}></th>
               </tr>
             </thead>
 
@@ -1185,21 +1260,24 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   ).slice(0, 3);
                   const isExpanded = expandedProduct === (p.id || idx);
                   const rowKey = p.id || idx;
+                  const isSelected = selectedIds.has(String(p.id || idx));
 
                   return (
                     <React.Fragment key={rowKey}>
                       <tr
                         onClick={() => setDetailProduct(p)}
+                        className={`row-selected`}
                         style={{
-                          height: isMobile ? 60 : 72,
-                          borderBottom: '1px solid rgba(255,255,255,0.06)',
+                          height: 56,
+                          borderBottom: '1px solid rgba(255,255,255,0.05)',
                           cursor: 'pointer',
                           transition: 'background 120ms',
-                          background: isExpanded ? 'rgba(99,102,241,0.06)' : '#0E1420',
+                          background: isSelected ? 'rgba(99,102,241,0.08)' : 'transparent',
+                          borderColor: isSelected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
                           animation: `fadeInRow 0.3s ease ${idx * 0.03}s both`,
                         }}
-                        onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                        onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = '#0E1420'; }}
+                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? 'rgba(99,102,241,0.08)' : 'transparent'; }}
                       >
                         {/* Checkbox */}
                         <td style={{ width: 36, paddingLeft: 12, verticalAlign: 'middle' }}>
@@ -1217,41 +1295,22 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         </td>
 
                         {/* Product */}
-                        <td style={tdStyle()}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 10 }}>
-                            <ProductImage src={p.image_url} alt={name} size={isMobile ? 36 : 44} />
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, fontSize: isMobile ? 12 : 13, color: '#f4f4f5', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                        <td style={{ padding: '8px 12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <img
+                              src={p.image_url}
+                              alt=""
+                              style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', flexShrink: 0, background: '#0A0F1C' }}
+                            />
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>
                                 {name}
                               </div>
-                              {!isMobile && p.velocity_label && p.velocity_label !== 'UNKNOWN' && (
-                                <div style={{ marginTop: 3 }}>
-                                  <VelocityBadge
-                                    label={p.velocity_label}
-                                    score={p.velocity_score}
-                                    peakInDays={p.peak_in_days}
-                                    curve={p.velocity_curve}
-                                    size="sm"
-                                  />
-                                </div>
-                              )}
-                              {!isMobile && (p.real_orders_count || 0) >= 2000 && (
-                                <div style={{ marginTop: 3 }}>
-                                  <TrendVelocityBadge orders={p.real_orders_count || 0} />
-                                </div>
-                              )}
-                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4, alignItems: 'center' }}>
-                                <QualityTierBadge tier={p.quality_tier} score={p.signal_score || p.winning_score} />
-                                <SourceBadges sources={p.data_sources} isChoice={p.tags?.includes('aliexpress_choice')} />
-                                {tags.slice(0, 1).map(tag => {
-                                  const ts = TAG_STYLE[tag] || TAG_STYLE['TRENDING'];
-                                  return (
-                                    <span key={tag} style={{ fontSize: 9, fontWeight: 700, color: ts.color, background: ts.bg, borderRadius: 4, padding: '1px 5px', letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>
-                                      {tag}
-                                    </span>
-                                  );
-                                })}
-                                {/* niche span removed — tags[0] already shows category */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3 }}>
+                                {/* Show AT MOST 2 badges — prioritise EXPLODING then trend */}
+                                {(p.real_orders_count || 0) >= 10000 && <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.2)' }}>🔥 EXPLODING</span>}
+                                {(p.real_orders_count || 0) >= 2000 && (p.real_orders_count || 0) < 10000 && <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.2)' }}>📈 RISING</span>}
+                                {p.category && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>{p.category}</span>}
                               </div>
                             </div>
                           </div>
@@ -1389,9 +1448,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         </td>
 
                         {/* Score */}
-                        <td style={tdStyle('center')}>
+                        <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <ScoreBadge score={score} />
+                            <ScoreRing score={score} size={36} />
                           </div>
                         </td>
 
@@ -1406,47 +1465,25 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           </a>
                         </td>
 
-                        {/* Actions */}
-                        <td style={{ padding: '8px 12px' }} onClick={e => e.stopPropagation()}>
-                          <div style={{ display: 'flex', gap: 4, alignItems: 'center', justifyContent: 'center' }}>
-                            {/* View on AliExpress */}
-                            <a
-                              href={p.aliexpress_url || p.source_url || p.supplier_url || '#'}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              title="View on AliExpress"
-                              style={{
-                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                width: 28, height: 28, borderRadius: 6,
-                                background: 'rgba(99,102,241,0.1)', color: '#818CF8',
-                                fontSize: 13, textDecoration: 'none',
-                                border: '1px solid rgba(99,102,241,0.2)',
-                              }}
-                            >↗</a>
-                            {/* Save */}
-                            <button
-                              title="Save product"
-                              onClick={() => {
-                                toast.success('Product saved!');
-                              }}
-                              style={{
-                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                width: 28, height: 28, borderRadius: 6,
-                                background: 'rgba(255,255,255,0.05)', color: '#94A3B8',
-                                border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 13,
-                              }}
-                            >♡</button>
-                            {/* Build Store */}
-                            <button
-                              title="Build store for this product"
-                              onClick={e => { e.stopPropagation(); setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`); }}
-                              style={{
-                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                width: 28, height: 28, borderRadius: 6,
-                                background: 'rgba(16,185,129,0.1)', color: '#10B981',
-                                border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 12, fontWeight: 700,
-                              }}
-                            >⚡</button>
+                        {/* Actions — Hover-reveal */}
+                        <td style={{ width: 40, padding: '0 8px', position: 'relative' }} onClick={e => e.stopPropagation()}>
+                          <div className="action-trigger" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                            {/* ⋯ at rest */}
+                            <span className="action-dots" style={{ color: 'rgba(255,255,255,0.2)', fontSize: 16, cursor: 'pointer' }}>⋯</span>
+                            {/* Action strip on hover — absolute, floats above row */}
+                            <div className="action-strip" style={{
+                              position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                              display: 'flex', alignItems: 'center', gap: 4,
+                              background: '#0C1120', border: '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: 8, padding: '4px 8px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                              opacity: 0, pointerEvents: 'none', transition: 'opacity 0.1s', zIndex: 10,
+                            }}>
+                              <a href={p.aliexpress_url || p.source_url || '#'} target="_blank" rel="noopener noreferrer"
+                                title="View on AliExpress"
+                                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(99,102,241,0.1)', color: '#818CF8', textDecoration: 'none', fontSize: 13 }}>↗</a>
+                              <button title="Save" onClick={() => toast.success('Product saved!')} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 13 }}>♡</button>
+                              <button title="Build Store" onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`)} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>⚡</button>
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -1619,6 +1656,37 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
         @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
         @keyframes shimmer { 0% { opacity:0.6; } 50% { opacity:1; } 100% { opacity:0.6; } }
+        
+        /* Hover-reveal action strip */
+        .products-table tbody tr:hover .action-strip {
+          opacity: 1 !important;
+          pointer-events: auto !important;
+        }
+        .products-table tbody tr:hover .action-dots {
+          opacity: 0;
+        }
+        
+        /* Row hover & selection — Linear style */
+        .products-table tbody tr {
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          transition: background 0.1s ease;
+          cursor: pointer;
+        }
+        .products-table tbody tr:hover {
+          background: rgba(255,255,255,0.04);
+        }
+        .products-table tbody tr.row-selected {
+          background: rgba(99,102,241,0.08);
+          border-color: rgba(99,102,241,0.2);
+        }
+        .products-table .row-checkbox {
+          opacity: 0;
+          transition: opacity 0.1s;
+        }
+        .products-table tbody tr:hover .row-checkbox,
+        .products-table tbody tr.row-selected .row-checkbox {
+          opacity: 1;
+        }
       `}</style>
     </div>
   );
