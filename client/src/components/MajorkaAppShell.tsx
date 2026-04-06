@@ -431,10 +431,21 @@ export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
   // STATE — ALL HOOKS AT TOP (Task 9 requirement)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') return window.innerWidth < 1280;
-    return false;
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('mkr-sidebar-collapsed') === 'true';
+    } catch {
+      return false; // always default expanded
+    }
   });
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(c => {
+      const next = !c;
+      try { localStorage.setItem('mkr-sidebar-collapsed', String(next)); } catch {}
+      return next;
+    });
+  };
   const isAdminUser = session?.user?.email === 'maximusmajorka@gmail.com';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobileShell, setIsMobileShell] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
@@ -1028,7 +1039,7 @@ export default function MajorkaAppShell({ children }: Props) {
       {!isMobileShell && (
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px', display: 'flex', justifyContent: 'center' }}>
           <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            onClick={toggleSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             style={{
               width: sidebarCollapsed ? 44 : '100%',

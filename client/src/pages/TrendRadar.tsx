@@ -12,6 +12,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
 import { toast } from 'sonner';
 import { SaveToProduct } from '@/components/SaveToProduct';
 
@@ -241,6 +242,7 @@ const CATEGORIES = [
 ];
 
 export default function TrendRadar() {
+  useDocumentTitle('Trend Radar');
   const [category, setCategory] = useState('');
   const [region, setRegion] = useState('Australia');
   const [timeframe, setTimeframe] = useState('Last 3 months');
@@ -360,9 +362,9 @@ export default function TrendRadar() {
         )}
       </div>
 
-      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+      <div className="flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: '35% 65%', gap: '24px', padding: '24px 28px' }}>
         <div
-          className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
+          className="overflow-y-auto space-y-4"
           style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <div className="space-y-3">
