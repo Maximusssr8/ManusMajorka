@@ -19,6 +19,7 @@ import UpgradeModal from '@/components/UpgradeModal';
 import UsageMeter from '@/components/UsageMeter';
 import { PLAN_LIMITS } from '@shared/plans';
 import { ShimmerButton } from '@/components/ui/ShimmerButton';
+import { ProductDeepDive } from '@/components/intelligence/ProductDeepDive';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -1506,8 +1507,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         </div>
       )}
 
-      {/* ── PRODUCT DETAIL DRAWER ── */}
-      {detailProduct && <ProductDetailDrawer product={detailProduct} onClose={() => setDetailProduct(null)} />}
+      {/* ── PRODUCT DEEP DIVE SLIDE PANEL ── */}
+      <ProductDeepDive product={detailProduct} onClose={() => setDetailProduct(null)} />
 
       {showUpgrade && <UpgradeModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} feature="Full Product Database" reason="Access all products, margins, and revenue data" />}
 

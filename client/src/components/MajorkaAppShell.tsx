@@ -57,6 +57,7 @@ import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
 import { FREE_LESSON_IDS, TOTAL_FREE } from '@/pages/LearnHub';
+import { CommandPalette } from '@/components/CommandPalette';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -432,6 +433,7 @@ export default function MajorkaAppShell({ children }: Props) {
   const isAdminUser = session?.user?.email === 'maximusmajorka@gmail.com';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobileShell, setIsMobileShell] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
+  const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1023px)');
     setIsMobileShell(mq.matches);
@@ -519,17 +521,17 @@ export default function MajorkaAppShell({ children }: Props) {
     return combined.filter(t => { if (seen.has(t.path)) return false; seen.add(t.path); return true; }).slice(0, 6);
   }, [searchQuery]);
 
-  // Keyboard shortcut for search
+  // Keyboard shortcut for command palette and search
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setSearchOpen(true);
-        setTimeout(() => searchInputRef.current?.focus(), 50);
+        setCmdPaletteOpen(open => !open);
       }
       if (e.key === 'Escape') {
         setSearchOpen(false);
         setSearchQuery('');
+        setCmdPaletteOpen(false);
       }
     };
     document.addEventListener('keydown', handler);
@@ -1127,6 +1129,9 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
       )}
+
+      {/* Command Palette */}
+      {cmdPaletteOpen && <CommandPalette onClose={() => setCmdPaletteOpen(false)} />}
 
       {/* Mobile overlay */}
       {mobileOpen && (
