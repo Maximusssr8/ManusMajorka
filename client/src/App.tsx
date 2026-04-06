@@ -162,15 +162,7 @@ function Router() {
       {showBar && <div className="page-loading-bar" key={location + '-bar'} />}
     <RouteErrorBoundary>
     <Suspense fallback={<LoadingFallback />}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-        >
+      <div className="mkr-page-content" key={location} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/blog" component={Blog} />
@@ -356,8 +348,7 @@ function Router() {
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />
           </Switch>
-        </motion.div>
-      </AnimatePresence>
+      </div>
     </Suspense>
     </RouteErrorBoundary>
     </>

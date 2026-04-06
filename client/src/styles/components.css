@@ -177,9 +177,18 @@
   margin-left: 220px;
   min-height: 100vh;
   background-color: var(--color-surface-1);
-  background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 28px 28px;
   position: relative;
+}
+
+/* Dot grid as fixed body overlay — sits above page bg-colors, below content */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .mkr-page::before {
@@ -199,6 +208,15 @@
 .mkr-page-title { font-size: 20px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
 .mkr-page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 .mkr-page-content { padding: 24px 28px; }
+
+/* Page transition — CSS fade replaces Framer Motion (which got stuck at opacity:0 on hard nav) */
+@keyframes mkr-page-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mkr-page-content {
+  animation: mkr-page-fade-in 0.18s ease-out both;
+}
 
 /* ===== STAT CARDS ===== */
 .mkr-stat-grid {
