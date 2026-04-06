@@ -2,19 +2,21 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
+import { cacheGet, cacheSet, TTL } from '../lib/redisCache';
 
 const router = Router();
 
-const briefCache = new Map<string, { text: string; date: string }>();
-
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   const { niche } = req.body;
-  const today = new Date().toISOString().slice(0, 10);
-  const cacheKey = `${(niche || 'general').toLowerCase()}_${today}`;
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const nicheKey = (niche || 'general').toLowerCase().replace(/\s+/g, '_');
+  const cacheKey = `daily-brief:${nicheKey}:${today}`;
 
-  const cached = briefCache.get(cacheKey);
-  if (cached && cached.date === today) {
-    return res.json({ brief: cached.text });
+  // Redis-backed cache — survives server restarts, shared across all instances
+  const cached = await cacheGet<string>(cacheKey);
+  if (cached) {
+    res.setHeader('X-Cache', 'HIT');
+    return res.json({ brief: cached });
   }
 
   try {
@@ -38,12 +40,9 @@ Keep each line under 20 words. Be specific to the niche. Sound like a savvy mark
     });
 
     const text = (msg.content[0] as any).text || '';
-    briefCache.set(cacheKey, { text, date: today });
-
-    for (const [k, v] of briefCache) {
-      if (v.date !== today) briefCache.delete(k);
-    }
-
+    // Cache for 24h — one Claude call per niche per day across all users and instances
+    await cacheSet(cacheKey, text, TTL.DAILY_BRIEF);
+    res.setHeader('X-Cache', 'MISS');
     res.json({ brief: text });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';

@@ -60,6 +60,9 @@ export async function cacheInvalidatePrefix(prefix: string): Promise<void> {
 
 export const TTL = {
   PRODUCTS_LIST:   5 * 60,       // 5 min
+  PRODUCTS_STATS:  10 * 60,      // 10 min
+  PRODUCTS_SUGGESTIONS: 30 * 60, // 30 min
+  DAILY_BRIEF:     24 * 60 * 60, // 24 hours (per niche per day)
   CREATORS:        60 * 60,      // 1 hour
   VIDEOS:          60 * 60,      // 1 hour
   CJ_PRODUCTS:     12 * 60 * 60, // 12 hours

@@ -852,6 +852,9 @@ router.get('/winning', requireAuth, async (req: Request, res: Response) => {
 
 // ── GET /api/products/stats — live stats for product intelligence header ─────
 router.get('/stats', requireAuth, async (_req: Request, res: Response) => {
+  const statsCacheKey = 'products:stats:v1';
+  const cachedStats = await cacheGet<object>(statsCacheKey);
+  if (cachedStats) { res.setHeader('X-Cache', 'HIT'); return res.json(cachedStats); }
   try {
     const supabaseAdmin = getSupabase();
     const [totalRes, hotRes, nichesRes] = await Promise.all([
@@ -866,7 +869,7 @@ router.get('/stats', requireAuth, async (_req: Request, res: Response) => {
     const nicheCounts: Record<string, number> = {};
     niches.forEach((r: any) => { if (r.category) nicheCounts[r.category] = (nicheCounts[r.category] || 0) + 1; });
     const topNiche = Object.entries(nicheCounts).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || '—';
-    res.json({
+    const statsResult = {
       total: totalRes.count || 0,
       hotCount: hotRes.count || 0,
       avgScore: Math.round(avgScore),
@@ -874,7 +877,9 @@ router.get('/stats', requireAuth, async (_req: Request, res: Response) => {
       topMarginNiche: topNiche,
       topMargin: 68,
       lastUpdated: '6h ago',
-    });
+    };
+    await cacheSet(statsCacheKey, statsResult, TTL.PRODUCTS_STATS);
+    res.json(statsResult);
   } catch (err: unknown) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
@@ -947,6 +952,9 @@ router.get('/niches', requireAuth, async (req: Request, res: Response) => {
 
 // ── GET /api/products/suggestions — AI-ranked category suggestions ───────────
 router.get('/suggestions', requireAuth, async (req: Request, res: Response) => {
+  const suggCacheKey = 'products:suggestions:v1';
+  const cachedSugg = await cacheGet<object>(suggCacheKey);
+  if (cachedSugg) { res.setHeader('X-Cache', 'HIT'); return res.json(cachedSugg); }
   try {
     const supabase = getSupabase();
     const { data, error } = await supabase
@@ -994,7 +1002,9 @@ router.get('/suggestions', requireAuth, async (req: Request, res: Response) => {
         isHot: c.trendScore > 40,
       }));
 
-    res.json({ suggestions: ranked, generatedAt: new Date().toISOString() });
+    const suggResult = { suggestions: ranked, generatedAt: new Date().toISOString() };
+    await cacheSet(suggCacheKey, suggResult, TTL.PRODUCTS_SUGGESTIONS);
+    res.json(suggResult);
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to generate suggestions' });
   }
