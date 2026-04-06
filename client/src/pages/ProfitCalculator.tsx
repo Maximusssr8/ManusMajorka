@@ -167,9 +167,9 @@ export default function ProfitCalculator() {
   }, [productCost, sellingPrice, unitsPerDay, adSpendPerDay, shippingCost, platformFeeRate, gstEnabled, afterpayEnabled, returnRate]);
 
   // ── Shared styles ───────────────────────────────────────────────────────
-  const cardStyle: React.CSSProperties = { background: '#0C1120', border: '1px solid #F0F0F0', borderRadius: 16, padding: '24px' };
-  const labelStyle: React.CSSProperties = { fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#94A3B8', marginBottom: 8, display: 'block' };
-  const numberInputStyle: React.CSSProperties = { fontFamily: 'DM Sans, sans-serif', background: '#0C1120', border: '1px solid #F3F4F6', borderRadius: 8, color: '#F8FAFC', padding: '8px 12px', width: 90, fontSize: 14, outline: 'none' };
+  const cardStyle: React.CSSProperties = { background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '24px' };
+  const labelStyle: React.CSSProperties = { fontFamily: "'Inter', -apple-system, sans-serif", fontSize: 13, color: '#94A3B8', marginBottom: 8, display: 'block' };
+  const numberInputStyle: React.CSSProperties = { fontFamily: "'Inter', -apple-system, sans-serif", background: '#0C1120', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#F8FAFC', padding: '8px 12px', width: 90, fontSize: 14, outline: 'none' };
   const sliderStyle: React.CSSProperties = { flex: 1, accentColor: '#6366F1', height: 6, cursor: 'pointer' };
 
   const InputGroup = ({ label, value, onChange, min, max, step, prefix = '$', suffix = '' }: {
@@ -179,7 +179,7 @@ export default function ProfitCalculator() {
       <label style={labelStyle}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(parseFloat(e.target.value))} className="accent-indigo-500" style={sliderStyle} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif', color: '#94A3B8', fontSize: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: "'Inter', -apple-system, sans-serif", color: '#94A3B8', fontSize: 14 }}>
           {prefix && <span>{prefix}</span>}
           <input type="number" min={0} max={999999} step={step} value={value}
             onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.min(999999, Math.max(0, v))); }}
@@ -197,14 +197,14 @@ export default function ProfitCalculator() {
   const roasColor = calc.roas > 3 ? '#059669' : calc.roas >= 1.5 ? '#F59E0B' : '#EF4444';
 
   const ResultMetric = ({ label, value, color }: { label: string; value: string; color: string }) => (
-    <div style={{ background: '#0C1120', border: '1px solid #F0F0F0', borderRadius: 12, padding: '16px 20px', textAlign: 'center' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 800, color, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{value}</div>
+    <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px', textAlign: 'center' }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: color === '#0A0A0A' ? '#A5B4FC' : color, fontFamily: "'Inter', -apple-system, sans-serif", fontVariantNumeric: 'tabular-nums' }}>{value}</div>
     </div>
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#05070F', padding: '40px 24px 80px', fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#05070F', padding: '40px 24px 80px', fontFamily: "'Inter', -apple-system, sans-serif" }}>
       <Helmet><title>Profit Calculator | Majorka</title></Helmet>
 
       {/* Header */}
@@ -220,7 +220,7 @@ export default function ProfitCalculator() {
 
       {/* Input validation warnings */}
       {productCost >= sellingPrice && sellingPrice > 0 && (
-        <div style={{ maxWidth: 1200, margin: '0 auto 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 16px', fontSize: 12, color: '#DC2626', fontWeight: 500 }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '8px 16px', fontSize: 12, color: '#FCA5A5', fontWeight: 500 }}>
           ⚠️ Product cost (${productCost}) is higher than or equal to selling price (${sellingPrice}) — this will produce a negative margin.
         </div>
       )}
@@ -251,7 +251,7 @@ export default function ProfitCalculator() {
               <label style={labelStyle}>Shipping (AusPost)</label>
               <select value={shippingOption} onChange={e => setShippingOption(e.target.value as 'standard' | 'express' | 'free')}
                 className="w-full bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
-                style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
+                style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontSize: 14 }}>
                 <option value="standard">Standard — $9.99</option>
                 <option value="express">Express — $13.99</option>
                 <option value="free">Free Shipping — $0</option>
@@ -264,7 +264,7 @@ export default function ProfitCalculator() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <select value={platformKey} onChange={e => setPlatformKey(e.target.value)}
                   className="bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
-                  style={{ flex: 1, fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
+                  style={{ flex: 1, fontFamily: "'Inter', -apple-system, sans-serif", fontSize: 14 }}>
                   {PLATFORM_OPTIONS.map(o => <option key={o.label} value={o.label}>{o.label}{o.value > 0 ? ` (${o.value}%)` : ''}</option>)}
                 </select>
                 {platformKey === 'Custom' && (
@@ -283,7 +283,7 @@ export default function ProfitCalculator() {
             {/* Payment Processing */}
             <div style={{ marginBottom: 20 }}>
               <label style={labelStyle}>Payment Processing (Stripe AU)</label>
-              <div style={{ background: '#0C1120', border: '1px solid #F3F4F6', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
+              <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                 <span>{PAYMENT_PROCESSING_RATE}%</span>
                 <span style={{ color: '#94A3B8' }}>{fmt(calc.paymentFeeAmt)} per unit</span>
               </div>

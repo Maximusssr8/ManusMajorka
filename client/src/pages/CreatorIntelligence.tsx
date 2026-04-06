@@ -170,7 +170,10 @@ export default function CreatorIntelligence() {
     setLoading(true);
     setError(false);
     try {
-      const r = await fetch('/api/creators/real');
+      const { data: { session: authSession } } = await supabase.auth.getSession();
+      const r = await fetch('/api/creators/real', {
+        headers: authSession?.access_token ? { Authorization: `Bearer ${authSession.access_token}` } : {},
+      });
       if (!r.ok) throw new Error(`API returned ${r.status}`);
       const data = await r.json();
       if (data?.last_synced) setCachedAt(data.last_synced);
@@ -467,7 +470,7 @@ export default function CreatorIntelligence() {
 
   return (
     <ErrorBoundary fallback={errorFallback}>
-    <div style={{ background: '#F8F9FC', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: dmSans }}>
+    <div style={{ background: '#05070F', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: "'Inter', -apple-system, sans-serif" }}>
 
       {/* ===== 1. DARK HERO BANNER ===== */}
       <div style={{
