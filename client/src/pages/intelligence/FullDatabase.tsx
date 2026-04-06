@@ -708,7 +708,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           {/* Niche selector */}
           <select value={niche} onChange={e => setNiche(e.target.value)}
             className="dark-select"
-            style={{ height: 36, padding: '0 10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 13, background: '#131929', outline: 'none', color: '#e4e4e7', cursor: 'pointer' }}>
+            style={{ height: 36, paddingLeft: 10, paddingRight: 28, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 13, backgroundColor: '#131929', outline: 'none', color: '#e4e4e7', cursor: 'pointer' }}>
             {niches.map(n => <option key={n} value={n}>{n}{nicheCountMap.has(n) ? ` (${nicheCountMap.get(n)})` : ''}</option>)}
           </select>
 
@@ -751,7 +751,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           {/* Category multi-select */}
           <select multiple={false} onChange={e => setFilters(f => ({ ...f, category: e.target.value ? [e.target.value] : [] }))}
             className="dark-select"
-            style={{ height: 34, padding: '0 10px', background: '#131929', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#e4e4e7', cursor: 'pointer' }}>
+            style={{ height: 34, paddingLeft: 10, paddingRight: 28, backgroundColor: '#131929', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#e4e4e7', cursor: 'pointer' }}>
             <option value="">All Categories</option>
             {[...new Set(products.map(p => p.category).filter(Boolean))].map(c => (
               <option key={c} value={c}>{c}</option>
@@ -770,7 +770,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           {/* Sort by */}
           <select onChange={e => setFilters(f => ({ ...f, sortBy: e.target.value as any }))}
             className="dark-select"
-            style={{ height: 34, padding: '0 10px', background: '#131929', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#e4e4e7', cursor: 'pointer' }}>
+            style={{ height: 34, paddingLeft: 10, paddingRight: 28, backgroundColor: '#131929', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#e4e4e7', cursor: 'pointer' }}>
             <option value="revenue">Sort: Revenue</option>
             <option value="score">Sort: Score</option>
             <option value="margin">Sort: Margin</option>

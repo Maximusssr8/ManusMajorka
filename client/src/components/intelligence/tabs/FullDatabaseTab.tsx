@@ -193,7 +193,7 @@ export function FullDatabaseTab() {
             </span>
           )}
           {!isSearchMode && (
-            <select value={filters.limit} onChange={e => setFilters({ limit: Number(e.target.value), page: 1 })} className="rounded-lg px-2.5 py-1.5 text-[12px] text-slate-400 outline-none cursor-pointer" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <select value={filters.limit} onChange={e => setFilters({ limit: Number(e.target.value), page: 1 })} className="rounded-lg px-2.5 py-1.5 text-[12px] text-slate-400 outline-none cursor-pointer" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', paddingRight: 28 }}>
               <option value={25}>25 / page</option>
               <option value={50}>50 / page</option>
               <option value={100}>100 / page</option>
