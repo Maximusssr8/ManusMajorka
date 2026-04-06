@@ -333,7 +333,7 @@ export default function MarketDashboard() {
   }
 
   return (
-    <div className="min-h-full" style={{ background: 'var(--content-bg, #FAFAFA)', color: 'var(--cell-text, #0A0A0A)' }}>
+    <div className="min-h-full" style={{ background: 'var(--bg-page, #05070F)', color: 'var(--text-primary, #F8FAFC)' }}>
       <Helmet><title>Market Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div
@@ -461,7 +461,7 @@ export default function MarketDashboard() {
                       key={p.id}
                       className="cursor-pointer transition-colors"
                       style={{ borderBottom: i < products.length - 1 ? '1px solid #F9FAFB' : 'none', borderLeft: `3px solid ${{  'Health & Beauty':'#F9A8D4','Pet':'#86EFAC','Tech':'#93C5FD','Kitchen':'#FCD34D','Fitness':'#C4B5FD'}[p.category ?? ''] ?? '#E5E7EB'}` }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#FAFAFA')}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       onClick={() => nav('/app/winning-products')}
                     >

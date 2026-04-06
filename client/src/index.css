@@ -39,6 +39,8 @@
   --color-amber: #f59e0b;
   --color-red: #ef4444;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --content-bg: #0d1526;
+  --cell-text: rgba(255,255,255,0.85);
 }
 
 /* NOTE: No custom reset here — Tailwind v4 @layer base handles box-sizing/margin/padding.
