@@ -438,7 +438,7 @@ function AdSpyContent() {
   return (
     <div
       className="h-full flex flex-col overflow-hidden"
-      style={{ background: 'var(--content-bg, #FAFAFA)', color: 'var(--cell-text, #0A0A0A)', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#05070F', color: '#F1F5F9', fontFamily: "'Inter', -apple-system, sans-serif" }}
     >
       {/* Header */}
       <div
@@ -723,6 +723,6 @@ function AdSpyContent() {
 // ── Export ────────────────────────────────────────────────────────────────────
 
 export default function AdSpy() {
-  React.useEffect(() => { document.title = 'Ad Brief Generator | Majorka'; }, []);
+  React.useEffect(() => { document.title = 'Ad Briefs — Majorka'; }, []);
   return <AdSpyContent />;
 }

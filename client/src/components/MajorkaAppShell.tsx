@@ -101,27 +101,38 @@ const SvgAcademy = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="n
 const SvgSettings = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
 const SvgAdmin = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
 
-// ── Flat sidebar — 9 items, no section labels, merged overlapping tools ───────
+// ── Sidebar nav — 4 labeled groups ───────────────────────────────────────────
 const NAV_SECTIONS: NavSection[] = [
   {
+    label: 'Intelligence',
     items: [
       { label: 'Home', path: '/app', exact: true, icon: SvgHome, tooltip: 'Your dashboard — activity, top products, quick access.' },
       { label: 'Products', path: '/app/product-intelligence', icon: SvgProducts, tooltip: 'Find winning products — trending, database, AI scout.' },
       { label: 'Market', path: '/app/market', icon: SvgMarket, tooltip: 'Category trends, niche demand data, and market-level signals.' },
       { label: 'Creators & Video', path: '/app/creators', icon: SvgCreators, tooltip: 'Top TikTok creators and highest-performing product videos.' },
-      { label: 'Ad Brief Generator', path: '/app/ad-spy', icon: SvgAdBrief, tooltip: 'Generate ad briefs and discover winning ad angles.' },
-      { label: 'Competitor Spy', path: '/app/competitor-spy', icon: SvgCompetitor, tooltip: 'Analyse competitor stores, pricing strategy, and product selection.' },
-      { label: 'Alerts', path: '/app/alerts', icon: SvgAlerts, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
+    ],
+  },
+  {
+    label: 'AI Tools',
+    items: [
       { label: 'Maya AI', path: '/app/ai-chat', icon: SvgMaya, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },
-      { label: 'Store Builder', path: '/app/store-builder', icon: SvgStore, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
       { label: 'Ads Studio', path: '/app/ads-studio', icon: SvgAdsStudio, badge: 'AI', tooltip: 'Generate Meta and TikTok ad creatives with Maya.' },
-      { label: 'Ads Manager', path: '/app/ads-manager', icon: SvgAdsManager, badge: 'SOON', tooltip: 'Create and manage Meta ad campaigns, pixel, and CAPI.' },
+      { label: 'Ad Briefs', path: '/app/ad-spy', icon: SvgAdBrief, tooltip: 'Generate ad briefs and discover winning ad angles.' },
+      { label: 'Store Builder', path: '/app/store-builder', icon: SvgStore, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
+    ],
+  },
+  {
+    label: 'Manage',
+    items: [
+      { label: 'Alerts', path: '/app/alerts', icon: SvgAlerts, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
+      { label: 'Competitor Spy', path: '/app/competitor-spy', icon: SvgCompetitor, tooltip: 'Analyse competitor stores, pricing strategy, and product selection.' },
+      { label: 'Revenue', path: '/app/revenue', icon: SvgRevenue, tooltip: 'Track your store earnings and order revenue.' },
       { label: 'Profit Calc', path: '/app/profit', icon: SvgProfit, tooltip: 'Model unit economics, margins and break-even CPA.' },
     ],
   },
   {
+    label: 'Account',
     items: [
-      { label: 'Revenue', path: '/app/revenue', icon: SvgRevenue, tooltip: 'Track your store earnings and order revenue.' },
       { label: 'Academy', path: '/app/learn', icon: SvgAcademy, tooltip: 'Dropshipping courses and tutorials.' },
       { label: 'Settings', path: '/app/settings', icon: SvgSettings, tooltip: 'Account settings, plan, and billing.' },
     ],
@@ -210,7 +221,7 @@ function NotificationBell() {
           height: 32,
           borderRadius: 8,
           background: open ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.04)',
-          border: open ? '1px solid rgba(99,102,241,0.3)' : '1px solid #F9FAFB',
+          border: open ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.08)',
           color: '#94A3B8',
           cursor: 'pointer',
           display: 'flex',

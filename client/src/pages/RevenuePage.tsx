@@ -158,6 +158,7 @@ export default function RevenuePage() {
   }, [TARGET]);
 
   useEffect(() => { const id = setTimeout(() => setReady(true), 300); return () => clearTimeout(id); }, []);
+  useEffect(() => { document.title = 'Revenue — Majorka'; }, []);
 
   const chartData = range === '7D' ? allData.slice(-7) : allData;
   const fmt = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -242,10 +243,21 @@ export default function RevenuePage() {
                   <Wallet size={13} color={I} />
                   <span style={{ fontSize:11,color:I,fontWeight:800,letterSpacing:'.05em' }}>REVENUE DASHBOARD</span>
                 </div>
-                <div style={{ display:'flex',alignItems:'center',gap:6, background:'rgba(245,158,11,.1)', border:'1px solid rgba(245,158,11,.25)', borderRadius:999, padding:'6px 12px' }}>
-                  <div style={{ width:7,height:7,borderRadius:'50%',background:A,boxShadow:`0 0 10px ${A}` }} />
-                  <span style={{ fontSize:11,color:A,fontWeight:800 }}>● DEMO</span>
-                </div>
+                {!demoBannerDismissed && (
+                  <span
+                    onClick={() => { setDemoBannerDismissed(true); localStorage.setItem('revenue_demo_dismissed', '1'); }}
+                    style={{
+                      fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                      background: 'rgba(245,158,11,0.1)', color: '#F59E0B',
+                      border: '1px solid rgba(245,158,11,0.2)',
+                      cursor: 'pointer', userSelect: 'none',
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                    }}
+                    title="Click to dismiss"
+                  >
+                    DEMO MODE ×
+                  </span>
+                )}
               </div>
 
               {/* Sub label */}

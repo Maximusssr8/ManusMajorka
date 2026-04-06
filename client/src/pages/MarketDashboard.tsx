@@ -217,7 +217,7 @@ export default function MarketDashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  useEffect(() => { document.title = 'Market Intelligence | Majorka'; }, []);
+  useEffect(() => { document.title = 'Market Intelligence — Majorka'; }, []);
 
   // Check subscription plan
   useEffect(() => {

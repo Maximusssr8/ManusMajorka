@@ -119,7 +119,7 @@ function getTikTokUrl(c: Creator): string {
 export default function CreatorIntelligence() {
   const { subPlan, subStatus, session } = useAuth();
   const [, setLocation] = useLocation();
-  React.useEffect(() => { document.title = 'Creator Intelligence | Majorka'; }, []);
+  React.useEffect(() => { document.title = 'Creators & Video — Majorka'; }, []);
   const isMobile = useIsMobile();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(false);

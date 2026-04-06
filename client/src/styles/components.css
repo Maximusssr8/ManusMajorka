@@ -248,3 +248,12 @@
   background: #10B981;
   animation: pulse 2s infinite;
 }
+
+/* ── Card hover states ──────────────────────────────────────────────────────── */
+.mkr-card {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.mkr-card:hover {
+  border-color: rgba(255,255,255,0.14);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}

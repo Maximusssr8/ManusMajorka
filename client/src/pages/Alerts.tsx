@@ -22,7 +22,7 @@ const NICHES = ['Health & Wellness', 'Beauty', 'Fitness', 'Tech & Gadgets', 'Pet
 const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
 
 export default function Alerts() {
-  React.useEffect(() => { document.title = 'Smart Alerts | Majorka'; }, []);
+  React.useEffect(() => { document.title = 'Alerts — Majorka'; }, []);
   const { session, isPro, subPlan } = useAuth();
   const isMobile = useIsMobile();
 const [alerts, setAlerts] = useState<Alert[]>([]);
