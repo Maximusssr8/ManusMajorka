@@ -51,6 +51,7 @@ import MarketSelector from '@/components/MarketSelector';
 import { RegionSelector } from '@/components/RegionSelector';
 // SocialProofTicker removed — felt cheap/spammy
 import { BEGINNER_LABELS, BEGINNER_TOOLTIPS, useBeginnerMode } from '@/hooks/useBeginnerMode';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
@@ -1224,7 +1225,11 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: location === '/app/revenue' ? 'transparent' : '#060A12', color: '#F1F5F9' }}>{children}</div>
+        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: location === '/app/revenue' ? 'transparent' : '#060A12', color: '#F1F5F9' }}>
+          <ErrorBoundary fallback={<div style={{padding:32,color:'#f87171',fontFamily:'monospace',fontSize:13}}><b>Content render error</b> — check browser console (F12 → Console tab)</div>}>
+            {children}
+          </ErrorBoundary>
+        </div>
 
         {/* Mobile bottom tab bar */}
         <nav

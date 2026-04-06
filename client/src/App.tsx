@@ -464,7 +464,7 @@ function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div style={{minHeight:'100vh',background:'#05070F',color:'#f87171',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:32,fontFamily:'monospace'}}><h2 style={{margin:0,color:'#f87171'}}>App Error</h2><p id="app-err-msg" style={{margin:0,fontSize:13,color:'#fca5a5',textAlign:'center',maxWidth:600}}>Check browser console for details</p><button onClick={()=>window.location.reload()} style={{padding:'8px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>Reload</button></div>}>
       <ThemeProvider defaultTheme="dark" switchable={false}>
         <AuthProvider>
           <MarketProvider>
