@@ -20,9 +20,18 @@ import { RegionProvider } from './context/RegionContext';
 
 function lazyWithRetry(factory: () => Promise<any>) {
   return lazy(() =>
-    factory().catch(() =>
-      new Promise(resolve => setTimeout(() => resolve(factory()), 1500))
-    )
+    factory().catch((err: unknown) => {
+      // Chunk load failure = stale deploy. Force a hard reload once.
+      const reloadKey = 'mkr_chunk_reload';
+      const didReload = sessionStorage.getItem(reloadKey);
+      if (!didReload) {
+        sessionStorage.setItem(reloadKey, '1');
+        window.location.reload();
+        return new Promise(() => {}); // never resolves — reload is happening
+      }
+      // Already reloaded once — surface the error
+      throw err;
+    })
   );
 }
 

@@ -28,7 +28,8 @@
   --hot: #F97316;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* NOTE: No custom reset here — Tailwind v4 @layer base handles box-sizing/margin/padding.
+   An unlayered reset would beat all @layer utilities and zero out every Tailwind spacing class. */
 
 html, body, #root {
   background: var(--bg-page);
@@ -42,6 +43,15 @@ html, body, #root {
 }
 
 input, select, textarea, button { font-family: inherit; color-scheme: dark; }
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  padding-right: 28px;
+}
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

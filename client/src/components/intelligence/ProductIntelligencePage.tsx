@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
+import { apiFetch } from '../../lib/api';
 import { TrendingTodayTab } from './tabs/TrendingTodayTab';
 import { FullDatabaseTab } from './tabs/FullDatabaseTab';
 import { ScoutTab } from './tabs/ScoutTab';
