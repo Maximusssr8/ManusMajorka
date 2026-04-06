@@ -186,6 +186,43 @@ function CopyMsgButton({ text }: { text: string }) {
   );
 }
 
+function MayaContextChips() {
+  const { user, subPlan } = useAuth();
+  const niche = localStorage.getItem('majorka_niche') || null;
+  const region = localStorage.getItem('majorka_region') || 'AU';
+
+  const planLabel = subPlan
+    ? (subPlan.charAt(0).toUpperCase() + subPlan.slice(1) + ' Plan')
+    : null;
+
+  const chips = [
+    niche ? { label: niche, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' } : null,
+    { label: `${region} market`, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' },
+    planLabel ? { label: planLabel, color: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.2)', text: '#818CF8' } : null,
+  ].filter(Boolean) as Array<{ label: string; color: string; border: string; text: string }>;
+
+  if (!chips.length) return null;
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
+      padding: '8px 16px 8px',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      background: 'rgba(255,255,255,0.01)',
+    }}>
+      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginRight: 2 }}>Maya knows:</span>
+      {chips.map(chip => (
+        <span key={chip.label} style={{
+          fontSize: 11, padding: '2px 8px', borderRadius: 20,
+          background: chip.color, border: `1px solid ${chip.border}`, color: chip.text,
+        }}>
+          {chip.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function AIChat() {
   const { subPlan, subStatus, session } = useAuth();
   const [, setLocation] = useLocation();
@@ -405,6 +442,9 @@ export default function AIChat() {
             </button>
           )}
         </div>
+
+        {/* Maya context chips */}
+        <MayaContextChips />
 
         {/* ── Messages ─────────────────────────────────────────────────────── */}
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>

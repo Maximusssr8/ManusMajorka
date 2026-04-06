@@ -354,6 +354,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [mobileDisplayCount, setMobileDisplayCount] = useState(20);
   const [advancedFilters, setAdvancedFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [activeTab, setActiveTab] = useState('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showCompare, setShowCompare] = useState(false);
   const [dbNiches, setDbNiches] = useState<{ name: string; count: number }[]>([]);
   const handleDateRange = (v: DateRange) => { localStorage.setItem('majorka_db_daterange', v); setDateRange(v); };
   const [filters, setFilters] = useState({
@@ -598,6 +600,17 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   }, [filtered, filters]);
 
   const displayProducts = (!canSeeFinancials && !isAdmin) ? filteredProducts.slice(0, 10) : filteredProducts;
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else if (next.size < 4) next.add(id);
+      return next;
+    });
+  };
+
+  const selectedProducts = displayProducts.filter(p => selectedIds.has(String(p.id)));
 
   const niches = dbNiches.length > 0
     ? ['All Niches', ...dbNiches.map(n => n.name)]
@@ -900,8 +913,19 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       WebkitUserSelect: isBlurred ? 'none' as const : 'auto' as const,
                       boxShadow: detailProduct?.id === product.id ? '0 0 0 2px #6366F1' : '0 1px 3px rgba(0,0,0,0.04)',
                       transition: 'box-shadow 150ms',
+                      position: 'relative' as const,
                     }}
                   >
+                    {/* Mobile card checkbox */}
+                    {!isBlurred && (
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(String(product.id || idx))}
+                        onChange={() => toggleSelect(String(product.id || idx))}
+                        onClick={e => e.stopPropagation()}
+                        style={{ position: 'absolute', top: 12, right: 12, width: 14, height: 14, accentColor: '#6366F1', cursor: 'pointer', zIndex: 2 }}
+                      />
+                    )}
                     {/* Top row: image + title + score */}
                     <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
                       <img
@@ -1050,6 +1074,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
+              <col style={{ width: 36 }} />                        {/* checkbox */}
               <col style={{ width: isMobile ? 32 : 40 }} />       {/* # */}
               <col style={{ width: isMobile ? 170 : 210 }} />     {/* Product */}
               <col style={{ width: isMobile ? 90 : 110 }} />      {/* Revenue */}
@@ -1063,6 +1088,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </colgroup>
             <thead>
               <tr style={{ background: '#131929', borderBottom: '2px solid rgba(255,255,255,0.08)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
+                <th style={{ width: 36, paddingLeft: 12, borderBottom: '2px solid rgba(255,255,255,0.06)' }} />
                 <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
                 <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')} aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Product <SortIcon col="name" />
@@ -1099,6 +1125,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               {loading || isFiltering ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} style={{ height: 72, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <td style={{ padding: '0 12px' }} />
                     <td style={{ padding: '0 12px' }}><div style={{ height: 14, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: '60%', animation: 'shimmer 1.5s ease-in-out infinite' }} /></td>
                     {[240, 110, 120, 80, 80, 80, 64, 80, 186].map((_, j) => (
                       <td key={j} style={{ padding: '0 12px' }}>
@@ -1109,7 +1136,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 ))
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} style={{ padding: '60px 24px', textAlign: 'center' as const }}>
+                  <td colSpan={11} style={{ padding: '60px 24px', textAlign: 'center' as const }}>
                     {search ? (
                       <>
                         <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
@@ -1173,6 +1200,16 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                         onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = '#0E1420'; }}
                       >
+                        {/* Checkbox */}
+                        <td style={{ width: 36, paddingLeft: 12, verticalAlign: 'middle' }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(String(p.id || idx))}
+                            onChange={() => toggleSelect(String(p.id || idx))}
+                            onClick={e => e.stopPropagation()}
+                            style={{ width: 14, height: 14, accentColor: '#6366F1', cursor: 'pointer' }}
+                          />
+                        </td>
                         {/* # */}
                         <td style={{ ...tdStyle('center'), color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>
                           {idx + 1}
@@ -1393,7 +1430,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       {/* ── EXPANDED SCORE BREAKDOWN ── */}
                       {isExpanded && (
                         <tr style={{ background: '#131929', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                          <td colSpan={10} style={{ padding: '0 16px 16px' }}>
+                          <td colSpan={11} style={{ padding: '0 16px 16px' }}>
                             <div style={{ padding: '14px 16px', background: '#0E1420', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', maxWidth: 500 }}>
                               <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Why this product?</div>
                               {[
@@ -1450,6 +1487,108 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       {detailProduct && <ProductDetailDrawer product={detailProduct} onClose={() => setDetailProduct(null)} />}
 
       {showUpgrade && <UpgradeModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} feature="Full Product Database" reason="Access all products, margins, and revenue data" />}
+
+      {/* ── FLOATING COMPARE BAR ── */}
+      {selectedIds.size >= 2 && (
+        <div style={{
+          position: 'fixed',
+          bottom: 72,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#111827',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 14,
+          padding: '12px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+          zIndex: 100,
+          whiteSpace: 'nowrap',
+        }}>
+          <span style={{ fontSize: 13, color: '#CBD5E1', fontWeight: 500 }}>
+            {selectedIds.size} products selected
+          </span>
+          <button
+            onClick={() => setShowCompare(true)}
+            style={{
+              background: '#6366F1', color: 'white', border: 'none',
+              borderRadius: 8, padding: '6px 16px', fontSize: 13,
+              fontWeight: 600, cursor: 'pointer',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#5558E8')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#6366F1')}
+          >
+            Compare →
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            style={{ color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* ── COMPARISON MODAL ── */}
+      {showCompare && selectedProducts.length >= 2 && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          onClick={() => setShowCompare(false)}
+        >
+          <div
+            style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24, maxWidth: 900, width: '100%', maxHeight: '80vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 600, color: '#F1F5F9', margin: 0 }}>Product Comparison</h2>
+              <button onClick={() => setShowCompare(false)} style={{ color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>×</button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${selectedProducts.length}, 1fr)`, gap: 16 }}>
+              {selectedProducts.map(p => {
+                const score = p.winning_score || 0;
+                const margin = getProductMargin(p);
+                return (
+                  <div key={p.id} style={{ background: '#111827', borderRadius: 12, padding: 16, border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <img
+                      src={p.image_url}
+                      alt=""
+                      style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 8, marginBottom: 12, background: '#1F2937' }}
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#F1F5F9', lineHeight: 1.4, marginBottom: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any, overflow: 'hidden' }}>
+                      {p.product_title || p.name}
+                    </div>
+                    {[
+                      { label: 'Price', value: p.real_price_aud ? `$${p.real_price_aud} AUD` : (p.price_aud ? `$${p.price_aud} AUD` : '—') },
+                      { label: 'Orders', value: p.real_orders_count ? p.real_orders_count.toLocaleString() : (p.orders_count ? p.orders_count.toLocaleString() : '—') },
+                      { label: 'Rating', value: p.real_rating ? `${p.real_rating}★` : (p.rating ? `${p.rating}★` : '—') },
+                      { label: 'Score', value: score ? score.toString() : '—' },
+                      { label: 'Margin', value: margin !== null ? `${Math.round(margin)}%` : '—' },
+                      { label: 'Category', value: p.category || p.niche || '—' },
+                    ].map(row => (
+                      <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: 12 }}>
+                        <span style={{ color: '#6B7280' }}>{row.label}</span>
+                        <span style={{ color: '#E2E8F0', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{row.value}</span>
+                      </div>
+                    ))}
+                    <a
+                      href={getSupplierUrl(p)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'block', marginTop: 12, textAlign: 'center', padding: '8px', background: 'rgba(99,102,241,0.1)', color: '#818CF8', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', border: '1px solid rgba(99,102,241,0.2)' }}
+                    >
+                      View on AliExpress →
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes fadeInRow { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -1807,6 +1946,81 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+const LAUNCH_STEPS = [
+  { id: 'profit',   label: 'Run profit calculation',    link: '/app/profit-calc',     icon: '💰' },
+  { id: 'supplier', label: 'Verify supplier & order',   link: '/app/intelligence',    icon: '📦' },
+  { id: 'ad',       label: 'Generate ad creative',      link: '/app/ads-studio',      icon: '🎨' },
+  { id: 'creator',  label: 'Brief a TikTok creator',    link: '/app/creators',        icon: '🎬' },
+  { id: 'store',    label: 'Publish to Shopify',         link: '/app/store-builder',   icon: '🛒' },
+  { id: 'alert',    label: 'Set price drop alert',       link: '/app/alerts',          icon: '🔔' },
+];
+
+function LaunchChecklist({ productId, setLocation }: { productId: string; setLocation: (p: string) => void }) {
+  const storageKey = `launch_checklist_${productId}`;
+  const [checked, setChecked] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(storageKey) || '[]')); }
+    catch { return new Set(); }
+  });
+
+  const toggle = (id: string) => {
+    const next = new Set(checked);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setChecked(next);
+    localStorage.setItem(storageKey, JSON.stringify([...next]));
+  };
+
+  const progress = Math.round((checked.size / LAUNCH_STEPS.length) * 100);
+
+  return (
+    <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#F1F5F9' }}>Launch Checklist</span>
+        <span style={{ fontSize: 11, color: checked.size === LAUNCH_STEPS.length ? '#10B981' : '#6B7280' }}>
+          {checked.size}/{LAUNCH_STEPS.length} done
+        </span>
+      </div>
+      {/* Progress bar */}
+      <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginBottom: 14, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${progress}%`, background: '#6366F1', borderRadius: 2, transition: 'width 0.3s ease' }} />
+      </div>
+      {LAUNCH_STEPS.map(step => (
+        <div
+          key={step.id}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer' }}
+          onClick={() => toggle(step.id)}
+        >
+          <div style={{
+            width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+            background: checked.has(step.id) ? '#6366F1' : 'transparent',
+            border: `1.5px solid ${checked.has(step.id) ? '#6366F1' : 'rgba(255,255,255,0.2)'}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.15s',
+          }}>
+            {checked.has(step.id) && <span style={{ fontSize: 10, color: 'white' }}>✓</span>}
+          </div>
+          <span style={{ fontSize: 12 }}>{step.icon}</span>
+          <span style={{
+            fontSize: 12, flex: 1,
+            color: checked.has(step.id) ? 'rgba(255,255,255,0.3)' : '#CBD5E1',
+            textDecoration: checked.has(step.id) ? 'line-through' : 'none',
+            transition: 'all 0.15s',
+          }}>
+            {step.label}
+          </span>
+          <button
+            onClick={e => { e.stopPropagation(); setLocation(step.link); }}
+            style={{ fontSize: 10, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px', borderRadius: 4, opacity: 0.7 }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
+          >
+            Go →
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
@@ -2267,6 +2481,8 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               </button>
             )}
           </div>
+          {/* Launch Checklist */}
+          <LaunchChecklist productId={String(p.id)} setLocation={setLocation} />
         </div>
       </div>
       {showUpgradeDrawer && <UpgradeModal isOpen={showUpgradeDrawer} onClose={() => setShowUpgradeDrawer(false)} feature="Ads Manager" reason="Launch ad campaigns directly from product insights" />}
