@@ -189,7 +189,7 @@ router.get('/refresh-trends', async (req: Request, res: Response) => {
     const client = new Anthropic();
     const msg = await client.messages.create({
       model: 'claude-haiku-4-5',
-      max_tokens: 5000,
+      max_tokens: 2500, // reduced from 5000
       system: `You are an Australian ecommerce data analyst specialising in dropshipping intelligence. Generate realistic, data-driven product intelligence for AU dropshippers. Always return valid JSON only — no markdown, no backticks, no explanation.`,
       messages: [{
         role: 'user',

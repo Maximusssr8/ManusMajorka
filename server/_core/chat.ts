@@ -16,7 +16,7 @@ import { logTrace, runAURelevanceEval } from '../lib/opik';
 import { rateLimit } from '../lib/rate-limit';
 import { getSupabaseAdmin } from './supabase';
 
-const MAX_HISTORY = 20;
+const MAX_HISTORY = 10; // reduced from 20
 
 /** Load last N messages for this user+tool from chat_messages */
 async function loadHistory(
@@ -1122,7 +1122,7 @@ export function registerChatRoutes(app: Application) {
               .then((r) => r.json())
               .catch(() => null);
             if (sr?.results?.length > 0) {
-              webContext = `\n\nLIVE WEB DATA:\n${sr.results.map((r: any, i: number) => `[${i + 1}] ${r.title}: ${r.content}`).join('\n')}`;
+              webContext = `\n\nLIVE WEB DATA:\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
             }
           }
         } catch {
@@ -1157,7 +1157,7 @@ export function registerChatRoutes(app: Application) {
                 .then((r) => r.json())
                 .catch(() => null);
               if (sr?.results?.length > 0) {
-                webContext = `\n\nLIVE WEB DATA (AU product intelligence):\n${sr.results.map((r: any, i: number) => `[${i + 1}] ${r.title}: ${r.content}`).join('\n')}`;
+                webContext = `\n\nLIVE WEB DATA (AU product intelligence):\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
               }
             }
           } catch {
@@ -1189,7 +1189,7 @@ export function registerChatRoutes(app: Application) {
               .catch(() => null);
             if (sr?.results?.length > 0) {
               const label = (toolName === 'store-spy' || toolName === 'competitor-spy') ? 'LIVE COMPETITOR INTELLIGENCE' : 'LIVE MARKET SATURATION DATA';
-              webContext = `\n\n${label}:\n${sr.results.map((r: any, i: number) => `[${i + 1}] ${r.title}: ${r.content}`).join('\n')}`;
+              webContext = `\n\n${label}:\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
             }
           }
         } catch {
@@ -1216,9 +1216,9 @@ export function registerChatRoutes(app: Application) {
       // Tools that need more tokens for complex outputs
       // Cap tokens by tool — website-generator needs room, AI chat is conversational, others moderate
       const maxTokens = toolName === 'website-generator' ? 6000
-        : toolName === 'ai-chat' ? 4096
-        : toolName === 'ads_studio' ? 2000
-        : 4000;
+        : toolName === 'ai-chat' ? 2048   // reduced from 4096
+        : toolName === 'ads_studio' ? 1500  // reduced from 2000
+        : 2000;                             // reduced from 4000
 
       if (wantStream) {
         const client = getAnthropicClient();

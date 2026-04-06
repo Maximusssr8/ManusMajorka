@@ -8,7 +8,7 @@ import { getSupabaseAdmin } from '../_core/supabase';
 import { calculateSignalScore, getQualityTier, buildDataSourcesArray } from '../lib/signalScoring';
 
 const AUD_RATE = 1.58;
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 10; // reduced from 20
 const MAX_BATCHES_PER_RUN = 5;
 
 interface RawProduct {
@@ -79,7 +79,7 @@ Return array of ${products.length} objects:
   try {
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4000,
+      max_tokens: 2000, // reduced from 4000
       messages: [{ role: 'user', content: prompt }],
     });
     const text = (msg.content[0] as any).text || '';
