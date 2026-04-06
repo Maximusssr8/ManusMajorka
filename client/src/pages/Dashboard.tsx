@@ -799,21 +799,37 @@ function DailyBrief() {
 
   if (!brief && !loading) return null;
 
+  const { setLocation } = (() => { const [, sl] = useLocation(); return { setLocation: sl }; })();
+
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '18px 20px', marginBottom: 20 }}>
+    <div style={{
+      background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.06) 100%)',
+      border: '1px solid rgba(99,102,241,0.2)',
+      borderRadius: 14, padding: '18px 20px', marginBottom: 20,
+    }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <span style={{ fontSize: 14 }}>🤖</span>
-        <span style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 700, fontSize: 15, color: '#FFFFFF' }}>
-          Your Daily Brief
+        <span style={{ fontSize: 14 }}>🔥</span>
+        <span style={{ fontWeight: 600, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.4)' }}>
+          Today's Best Opportunity
         </span>
-        <span style={{ fontSize: 11, color: '#94A3B8', marginLeft: 'auto' }}>
-          {new Date().toLocaleDateString('en-AU', { weekday: 'short', month: 'short', day: 'numeric' })}
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginLeft: 'auto' }}>
+          {new Date().toLocaleDateString('en-AU', { weekday: 'long' })}
         </span>
       </div>
       {loading ? (
-        <div style={{ height: 60, background: 'rgba(99,102,241,0.06)', borderRadius: 8 }} />
+        <div style={{ height: 56, background: 'rgba(99,102,241,0.06)', borderRadius: 8, animation: 'shimmer 1.8s ease-in-out infinite' }} />
       ) : (
-        <div style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const, borderLeft: '2px solid rgba(99,102,241,0.4)', paddingLeft: 12 }}>{brief}</div>
+        <>
+          <p style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.75, whiteSpace: 'pre-wrap' as const, margin: 0 }}>{brief}</p>
+          <button
+            onClick={() => setLocation('/app/intelligence')}
+            style={{ marginTop: 12, fontSize: 12, color: '#818CF8', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#A5B4FC')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#818CF8')}
+          >
+            Find these products →
+          </button>
+        </>
       )}
     </div>
   );
