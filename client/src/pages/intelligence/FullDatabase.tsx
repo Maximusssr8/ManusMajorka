@@ -1070,21 +1070,21 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           }}
         >
             <div style={{ background: '#0E1420' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1280 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 900 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
-              <col style={{ width: 36 }} />                        {/* checkbox */}
-              <col style={{ width: isMobile ? 32 : 40 }} />       {/* # */}
-              <col style={{ width: isMobile ? 170 : 210 }} />     {/* Product */}
-              <col style={{ width: isMobile ? 90 : 110 }} />      {/* Revenue */}
-              <col style={{ width: isMobile ? 100 : 130 }} />     {/* 30-Day Trend */}
-              <col style={{ width: isMobile ? 70 : 80 }} />       {/* Sold */}
-              <col style={{ width: isMobile ? 70 : 80 }} />       {/* Sell Price */}
-              <col style={{ width: isMobile ? 68 : 78 }} />       {/* Margin */}
-              <col style={{ width: isMobile ? 80 : 96 }} />       {/* Dropship Score */}
-              <col style={{ width: isMobile ? 60 : 70 }} />       {/* Creators */}
-              <col style={{ width: isMobile ? 120 : 185 }} />       {/* Actions */}
+              <col style={{ width: '36px' }} />       {/* checkbox */}
+              <col style={{ width: '3%' }} />          {/* # */}
+              <col style={{ width: '32%' }} />         {/* Product */}
+              <col style={{ width: '10%' }} />         {/* Revenue */}
+              <col style={{ width: '8%' }} />          {/* 30-Day Trend */}
+              <col style={{ width: '8%' }} />          {/* Sold */}
+              <col style={{ width: '8%' }} />          {/* Sell Price */}
+              <col style={{ width: '8%' }} />          {/* Margin */}
+              <col style={{ width: '6%' }} />          {/* Dropship Score */}
+              <col style={{ width: '6%' }} />          {/* Creators */}
+              <col style={{ width: '11%' }} />         {/* Actions */}
             </colgroup>
             <thead>
               <tr style={{ background: '#131929', borderBottom: '2px solid rgba(255,255,255,0.08)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>

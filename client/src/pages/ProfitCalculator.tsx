@@ -226,12 +226,14 @@ export default function ProfitCalculator() {
       )}
 
       {/* Key metrics row */}
-      <div style={{ maxWidth: 1200, margin: '0 auto 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
-        <ResultMetric label="Monthly Profit" value={fmt(calc.monthlyProfit)} color={monthlyColor} />
-        <ResultMetric label="Margin %" value={`${calc.marginPct.toFixed(1)}%`} color={marginColor} />
-        <ResultMetric label="ROAS" value={calc.roas > 0 ? `${calc.roas.toFixed(2)}x` : 'N/A'} color={roasColor} />
-        <ResultMetric label="Daily Profit" value={fmt(calc.dailyProfit)} color={calc.dailyProfit > 0 ? '#059669' : '#EF4444'} />
-        <ResultMetric label="Break-even CPA" value={fmt(calc.breakEvenCpa)} color="#0A0A0A" />
+      <div style={{ maxWidth: 1200, margin: '0 auto 24px', overflowX: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(160px, 1fr))', gap: 12, minWidth: 800 }}>
+          <ResultMetric label="Monthly Profit" value={fmt(calc.monthlyProfit)} color={monthlyColor} />
+          <ResultMetric label="Margin %" value={`${calc.marginPct.toFixed(1)}%`} color={marginColor} />
+          <ResultMetric label="ROAS" value={calc.roas > 0 ? `${calc.roas.toFixed(2)}x` : 'N/A'} color={roasColor} />
+          <ResultMetric label="Daily Profit" value={fmt(calc.dailyProfit)} color={calc.dailyProfit > 0 ? '#059669' : '#EF4444'} />
+          <ResultMetric label="Break-even CPA" value={fmt(calc.breakEvenCpa)} color="#0A0A0A" />
+        </div>
       </div>
 
       {/* Two-column layout */}

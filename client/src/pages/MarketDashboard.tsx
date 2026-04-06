@@ -425,7 +425,7 @@ export default function MarketDashboard() {
                 style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
               >
                 <c.icon size={18} style={{ color: c.color }} className="mb-2" />
-                <p className="text-sm font-semibold leading-tight" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
+                <p className="text-sm font-semibold leading-tight" style={{ color: '#E2E8F0', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
                 <p className="text-xs mt-1" style={{ color: '#64748b' }}>{c.sub}</p>
               </button>
             ))}
@@ -475,7 +475,7 @@ export default function MarketDashboard() {
                             style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }}
                           />
                           <div>
-                            <p className="text-sm font-medium" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
+                            <p className="text-sm font-medium" style={{ color: '#E2E8F0', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
                             <p className="text-xs" style={{ color: '#475569' }}>${(p.price_aud ?? 0).toFixed(2)} AUD</p>
                             <QuickActions productTitle={p.product_title} priceAud={p.price_aud ?? 0} category={p.category ?? ''} />
                           </div>
@@ -526,7 +526,7 @@ export default function MarketDashboard() {
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-semibold" style={{ color: '#0F172A' }}>{cat.category_name}</p>
+                        <p className="text-sm font-semibold" style={{ color: '#E2E8F0' }}>{cat.category_name}</p>
                         <TrendBadge trend={cat.trend ?? 'growing'} />
                       </div>
                       <p className="text-xs" style={{ color: '#475569' }}>
@@ -568,18 +568,18 @@ export default function MarketDashboard() {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold truncate" style={{ color: '#0F172A' }}>{topCreator.display_name}</p>
+                      <p className="text-sm font-semibold truncate" style={{ color: '#E2E8F0' }}>{topCreator.display_name}</p>
                       {topCreator.is_verified && <span className="text-xs" style={{ color: '#38bdf8' }}>✓</span>}
                     </div>
                     <p className="text-xs" style={{ color: '#475569' }}>@{topCreator.username}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{((topCreator as any).follower_count || (topCreator as any).est_followers) ? `${fmtFollowers((topCreator as any).follower_count ?? (topCreator as any).est_followers)} followers` : '—'} · {topCreator.location}</p>
+                    <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{((topCreator as any).follower_count || (topCreator as any).est_followers) ? `${fmtFollowers((topCreator as any).follower_count ?? (topCreator as any).est_followers)} followers` : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>No data yet</span>} · {topCreator.location}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs" style={{ color: '#64748b' }}>30-day GMV</p>
                     <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                      {((topCreator as any).gmv_30d_aud || (topCreator as any).est_monthly_revenue_aud) ? fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud) : '—'}
+                      {((topCreator as any).gmv_30d_aud || (topCreator as any).est_monthly_revenue_aud) ? fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud) : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>No data yet</span>}
                     </p>
                   </div>
                   <MiniSparkline data={parseSparkline(topCreator.revenue_sparkline)} />

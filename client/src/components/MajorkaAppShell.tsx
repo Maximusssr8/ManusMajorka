@@ -1028,8 +1028,11 @@ export default function MajorkaAppShell({ children }: Props) {
           }}
         >
           <div
-            className="w-full max-w-lg mx-4 overflow-hidden"
+            className="w-full overflow-hidden"
             style={{
+              maxWidth: 560,
+              marginLeft: isMobileShell ? '16px' : 'calc(240px + 40px)',
+              marginRight: '16px',
               background: '#0E1420',
               border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: 12,

@@ -362,31 +362,46 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         <div className="flex-1 min-w-0 p-6">
           {/* Search form */}
           <form onSubmit={(e) => void handleSearch(e)} className="mb-8">
-            <div className="relative">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#475569' }} />
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', width: '100%' }}>
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Enter a TikTok Shop name, URL, or niche (e.g. 'PetLover AU' or 'pet water fountains')"
-                className="w-full pl-11 pr-32 py-4 rounded-xl text-sm"
                 style={{
+                  flex: 1, minWidth: 0,
                   background: '#111B2E',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#F1F5F9',
+                  borderRadius: 10, padding: '11px 16px',
+                  fontSize: 14, color: '#F1F5F9',
                   outline: 'none',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
                 disabled={loading}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
               />
               <button
-                type="button"
-                disabled
-                title="Competitor Spy coming soon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 cursor-not-allowed opacity-50 px-4 py-2 rounded-lg text-sm"
+                type="submit"
+                disabled={loading || !query.trim()}
+                style={{
+                  flexShrink: 0,
+                  padding: '11px 20px',
+                  background: '#6366F1',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 14, fontWeight: 600,
+                  cursor: loading || !query.trim() ? 'not-allowed' : 'pointer',
+                  opacity: loading || !query.trim() ? 0.5 : 1,
+                  whiteSpace: 'nowrap',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => { if (!loading && query.trim()) e.currentTarget.style.background = '#5558E8'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; }}
               >
-                Analyse
+                {loading ? 'Analysing...' : 'Analyse'}
               </button>
             </div>
 
