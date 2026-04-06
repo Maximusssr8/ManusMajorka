@@ -74,7 +74,7 @@ export function HeroDemo() {
   }
 
   return (
-    <div className="relative w-full max-w-[720px] mx-auto">
+    <div className="relative w-full max-w-[720px]" style={{ margin: '0 auto' }}>
       <div ref={mountRef} id="mkr-demo-mount" />
       <div className="absolute inset-0 -z-10 rounded-full scale-75 blur-3xl opacity-20 pointer-events-none" style={{ background: '#6366f1' }} />
     </div>

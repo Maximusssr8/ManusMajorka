@@ -1517,7 +1517,7 @@ export default function Home() {
         </div>
 
         {/* Animated hero demo — real API data, 5 panels */}
-        <div id="demo" style={{ marginTop: 80, padding: '0 24px', opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
+        <div id="demo" style={{ margin: '80px auto 0', padding: '0 24px', maxWidth: 720, opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
           <HeroDemo />
         </div>
       </section>
