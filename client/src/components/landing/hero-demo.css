@@ -53,6 +53,7 @@
 
 /* ── Sidebar ─────────────────────────────────────────────────────────── */
 .mkr-sidebar {
+  position: relative;
   width: 130px;
   background: #0B0F1E;
   border-right: 1px solid rgba(255,255,255,0.05);

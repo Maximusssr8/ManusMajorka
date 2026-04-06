@@ -1481,7 +1481,7 @@ export default function Home() {
         {/* Subtle ambient glow — top right corner only */}
         <div style={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, background: 'radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 840, margin: '0 auto', padding: '0 24px' }}>
           {/* H1 */}
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', wordBreak: 'keep-all' as const, overflowWrap: 'normal' as const }}>
             <span style={{ color: '#F8FAFC' }}>Find Products That Sell.</span>
@@ -1517,7 +1517,7 @@ export default function Home() {
         </div>
 
         {/* Animated hero demo — real API data, 5 panels */}
-        <div id="demo" style={{ margin: '80px auto 0', padding: '0 24px', maxWidth: 720, opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
+        <div id="demo" style={{ margin: '80px auto 0', padding: 0, maxWidth: 840, opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
           <HeroDemo />
         </div>
       </section>
