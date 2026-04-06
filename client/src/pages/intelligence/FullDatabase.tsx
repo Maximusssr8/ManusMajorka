@@ -423,7 +423,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   // Debounce search — show filtering skeleton during debounce
   useEffect(() => {
     if (searchInput !== search) setIsFiltering(true);
-    const t = setTimeout(() => { setSearch(searchInput); setIsFiltering(false); }, 300);
+    const t = setTimeout(() => { setSearch(searchInput); setIsFiltering(false); }, 600);
     return () => clearTimeout(t);
   }, [searchInput]);
 

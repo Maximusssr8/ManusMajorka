@@ -57,6 +57,24 @@ function jsonResponse(res, status, data) {
   res.end(body);
 }
 
+// In-memory cache — 2h TTL for AE product searches
+const relayCache = new Map();
+const RELAY_CACHE_TTL = 2 * 60 * 60 * 1000; // 2 hours
+function relayCacheGet(key) {
+  const entry = relayCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.time > RELAY_CACHE_TTL) { relayCache.delete(key); return null; }
+  return entry.data;
+}
+function relayCacheSet(key, data) {
+  relayCache.set(key, { data, time: Date.now() });
+  // Evict oldest entries if cache grows > 200 entries
+  if (relayCache.size > 200) {
+    const oldest = [...relayCache.entries()].sort((a, b) => a[1].time - b[1].time)[0];
+    if (oldest) relayCache.delete(oldest[0]);
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -78,6 +96,10 @@ const server = http.createServer(async (req, res) => {
     // ── GET /relay/aliexpress/products?keywords=yoga+mat&page=1&limit=50 ──
     if (url.startsWith('/relay/aliexpress/products')) {
       const { keywords = '', page = '1', limit = '50', categoryId } = qs;
+      const cacheKey = `products:${keywords}:${page}:${limit}:${categoryId || ''}`;
+      const hit = relayCacheGet(cacheKey);
+      if (hit) { res.setHeader('X-Relay-Cache', 'HIT'); return jsonResponse(res, 200, hit); }
+
       const params = {
         keywords,
         page_no: page,
@@ -91,19 +113,25 @@ const server = http.createServer(async (req, res) => {
       const raw = await callAE('aliexpress.affiliate.product.query', params);
       const resp = raw?.aliexpress_affiliate_product_query_response?.resp_result;
       const products = resp?.result?.products?.product || [];
-      return jsonResponse(res, 200, {
+      const result = {
         products,
         total: products.length,
         keyword: keywords,
         source: 'aliexpress',
         resp_code: resp?.resp_code,
         resp_msg: resp?.resp_msg,
-      });
+      };
+      relayCacheSet(cacheKey, result);
+      return jsonResponse(res, 200, result);
     }
 
     // ── GET /relay/aliexpress/hot?page=1 ──
     if (url.startsWith('/relay/aliexpress/hot')) {
       const { page = '1', limit = '50', categoryId } = qs;
+      const cacheKey = `hot:${page}:${limit}:${categoryId || ''}`;
+      const hit = relayCacheGet(cacheKey);
+      if (hit) { res.setHeader('X-Relay-Cache', 'HIT'); return jsonResponse(res, 200, hit); }
+
       const params = {
         page_no: page,
         page_size: String(Math.min(parseInt(limit) || 50, 50)),

@@ -153,7 +153,18 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,       // 5 min default — don't refetch fresh data
+      gcTime: 1000 * 60 * 30,          // keep in memory 30 min
+      refetchOnWindowFocus: false,     // CRITICAL — stop refetching on every tab switch
+      refetchOnReconnect: false,       // stop refetching on reconnect
+      refetchInterval: false,          // no polling by default
+      retry: 1,                        // only retry once on failure
+    },
+  },
+});
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;

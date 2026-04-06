@@ -108,7 +108,7 @@ export function FullDatabaseTab() {
     }
     debounceRef.current = setTimeout(() => {
       doSearch(filters.search, 1);
-    }, 400);
+    }, 600);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
