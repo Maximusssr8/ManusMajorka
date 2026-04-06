@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { ProductFilters } from '../hooks/useProductFilters';
+import { apiFetch } from '@/lib/api';
 
 const FILTER_PILLS = [
   { id: 'all', label: 'All Products' },
@@ -39,7 +40,7 @@ interface SuggestionsResponse {
 export function FilterBar({ filters, onFiltersChange, totalCount }: FilterBarProps) {
   const { data: suggestions } = useQuery<SuggestionsResponse>({
     queryKey: ['niche-suggestions'],
-    queryFn: () => fetch('/api/products/suggestions').then(r => r.json()),
+    queryFn: () => apiFetch('/api/products/suggestions').then(r => r.json()),
   });
 
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' };

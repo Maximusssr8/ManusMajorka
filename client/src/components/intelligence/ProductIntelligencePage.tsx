@@ -25,7 +25,7 @@ export function ProductIntelligencePage() {
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const res = await fetch('/api/products/stats', {
+      const res = await apiFetch('/api/products/stats', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       return res.json();

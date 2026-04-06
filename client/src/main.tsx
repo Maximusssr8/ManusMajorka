@@ -78,7 +78,7 @@ import './index.css';
 
 // Initialise Sentry error tracking — conditional on DSN (works in any env when DSN is set)
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-if (SENTRY_DSN) {
+if (SENTRY_DSN && SENTRY_DSN !== 'pending') {
   Sentry.init({
     dsn: SENTRY_DSN as string,
     environment: import.meta.env.MODE || 'production',
