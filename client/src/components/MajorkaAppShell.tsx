@@ -1119,7 +1119,7 @@ export default function MajorkaAppShell({ children }: Props) {
         aria-label="Main navigation"
         className={`flex-shrink-0 flex flex-col z-50 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:inset-auto lg:translate-x-0`}
         style={{
-          width: 240,
+          width: 'min(280px, 85vw)',
           background: 'var(--sidebar-bg, #0B0F1E)',
           borderRight: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
         }}
@@ -1127,15 +1127,16 @@ export default function MajorkaAppShell({ children }: Props) {
         {mobileOpen && (
           <button
             onClick={() => setMobileOpen(false)}
-            className="absolute top-3 right-3 z-50 w-7 h-7 rounded-md flex items-center justify-center lg:hidden"
+            aria-label="Close navigation menu"
+            className="absolute top-3 right-3 z-50 w-8 h-8 rounded-md flex items-center justify-center lg:hidden"
             style={{
-              background: 'rgba(255,255,255,0.04)',
+              background: 'rgba(255,255,255,0.12)',
               color: '#F8FAFC',
-              border: 'none',
+              border: '1px solid rgba(255,255,255,0.15)',
               cursor: 'pointer',
             }}
           >
-            <X size={13} />
+            <X size={15} />
           </button>
         )}
         {sidebarContent()}

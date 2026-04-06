@@ -107,14 +107,14 @@ export function ProductIntelligencePage() {
 
       {/* TAB BAR */}
       <div
-        className="flex px-6 mt-4"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#080808' }}
+        className="flex mt-4"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#080808', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any, scrollbarWidth: 'none' as any, paddingLeft: 24 }}
       >
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => tab.id !== 'scout' && setActiveTab(tab.id)}
-            className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap ${
+            className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
                 ? 'text-white border-indigo-500'
                 : 'border-transparent hover:border-white/10'
