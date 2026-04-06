@@ -1184,7 +1184,11 @@ function DashboardHome() {
                 ) : null}
                 {(products.slice(0, 5)).map((p: any, i: number) => {
                   const score = p.winning_score ?? p.opportunity_score ?? 0;
-                  const revenue = p.est_monthly_revenue_aud ?? 0;
+                  const estRevenue = p.est_monthly_revenue_aud || 
+                    (p.real_orders_count && p.real_price_aud ? Math.round(p.real_orders_count * p.real_price_aud * 0.3) : null);
+                  const revenueDisplay = estRevenue 
+                    ? estRevenue >= 1000 ? `$${(estRevenue/1000).toFixed(1)}k/mo` : `$${estRevenue}/mo`
+                    : '—';
                   const margin = p.profit_margin ?? 0;
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer', transition: 'background 150ms' }}
@@ -1203,7 +1207,7 @@ function DashboardHome() {
                         <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{margin > 0 ? `${margin}% margin · ` : ''}{p.category ?? 'General'}</div>
                       </div>
                       <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#22C55E' }}>${(revenue / 1000).toFixed(1)}k/mo</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#22C55E' }}>{revenueDisplay}</div>
                         <div style={{ marginTop: 4 }}>
                           <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: '50px', ...(score >= 80 ? { background: '#6366F1', color: 'white' } : score >= 65 ? { background: 'transparent', border: '1.5px solid #6366F1', color: '#818CF8' } : { background: 'rgba(255,255,255,0.06)', color: '#9CA3AF' }) }}>{score}</span>
                         </div>

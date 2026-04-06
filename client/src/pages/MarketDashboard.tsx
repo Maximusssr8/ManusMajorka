@@ -512,10 +512,30 @@ export default function MarketDashboard() {
               {loading ? (
                 <div className="p-4 text-sm" style={{ color: '#475569' }}>Loading…</div>
               ) : categories.length === 0 ? (
-                <div style={{ textAlign: 'center' as const, padding: '32px 16px' }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#F8FAFC', marginBottom: 4 }}>No category data yet</div>
-                  <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>Category rankings update nightly. Check back tomorrow.</div>
+                <div style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 12,
+                  padding: '32px 24px',
+                  textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
+                    Category Intelligence — Coming Soon
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', maxWidth: 320, margin: '0 auto', lineHeight: 1.6 }}>
+                    Live category pulse data is being wired up. You'll see real-time trending scores for each niche once connected.
+                  </div>
+                  <div style={{ marginTop: 16 }}>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20,
+                      background: 'rgba(99,102,241,0.1)', color: '#818CF8',
+                      border: '1px solid rgba(99,102,241,0.2)',
+                      display: 'inline-block',
+                    }}>
+                      Scale Plan early access
+                    </span>
+                  </div>
                 </div>
               ) : (
                 categories.map((cat) => (

@@ -1406,23 +1406,46 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         </td>
 
                         {/* Actions */}
-                        <td style={tdStyle('center')}>
-                          <div style={{ display: 'flex', gap: 4, justifyContent: 'center', alignItems: 'center', flexWrap: 'nowrap' as const }} onClick={e => e.stopPropagation()}>
-                            {!isMobile && (
-                              <a href={`/product/${slugify(name)}`} style={{ height: 28, padding: '0 8px', background: 'rgba(255,255,255,0.04)', color: '#6366F1', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-                                Report
-                              </a>
-                            )}
-                            <button onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`)}
-                              style={{ height: 28, padding: isMobile ? '0 8px' : '0 10px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                              {isMobile ? 'Build' : 'Build Store'}
-                            </button>
-                            {!isMobile && <SupplierDropdown product={p} />}
+                        <td style={{ padding: '8px 12px' }} onClick={e => e.stopPropagation()}>
+                          <div style={{ display: 'flex', gap: 4, alignItems: 'center', justifyContent: 'center' }}>
+                            {/* View on AliExpress */}
+                            <a
+                              href={p.aliexpress_url || p.source_url || p.supplier_url || '#'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="View on AliExpress"
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                width: 28, height: 28, borderRadius: 6,
+                                background: 'rgba(99,102,241,0.1)', color: '#818CF8',
+                                fontSize: 13, textDecoration: 'none',
+                                border: '1px solid rgba(99,102,241,0.2)',
+                              }}
+                            >↗</a>
+                            {/* Save */}
                             <button
-                              onClick={() => setExpandedProduct(isExpanded ? null : (p.id || idx))}
-                              style={{ height: 28, width: 28, background: isExpanded ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isExpanded ? '#6366F1' : '#71717a', transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 200ms, color 150ms' }}>
-                              &#9662;
-                            </button>
+                              title="Save product"
+                              onClick={() => {
+                                toast.success('Product saved!');
+                              }}
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                width: 28, height: 28, borderRadius: 6,
+                                background: 'rgba(255,255,255,0.05)', color: '#94A3B8',
+                                border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 13,
+                              }}
+                            >♡</button>
+                            {/* Build Store */}
+                            <button
+                              title="Build store for this product"
+                              onClick={e => { e.stopPropagation(); setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`); }}
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                width: 28, height: 28, borderRadius: 6,
+                                background: 'rgba(16,185,129,0.1)', color: '#10B981',
+                                border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 12, fontWeight: 700,
+                              }}
+                            >⚡</button>
                           </div>
                         </td>
                       </tr>

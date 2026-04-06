@@ -385,9 +385,15 @@ export default function TrendRadar() {
                 placeholder="e.g. Health & Wellness, Beauty…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid #F0F0F0',
-                  color: '#F8FAFC',
+                  background: '#1a2236',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.8)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               />
             </div>
@@ -403,9 +409,15 @@ export default function TrendRadar() {
                 onChange={(e) => setRegion(e.target.value)}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid #F0F0F0',
-                  color: '#F8FAFC',
+                  background: '#1a2236',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.8)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
                 {['Australia', 'United States', 'United Kingdom', 'Global'].map((r) => (
@@ -427,9 +439,15 @@ export default function TrendRadar() {
                 onChange={(e) => setTimeframe(e.target.value)}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid #F0F0F0',
-                  color: '#F8FAFC',
+                  background: '#1a2236',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.8)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
                 }}
               >
                 {['Last month', 'Last 3 months', 'Last 6 months', 'Last year'].map((t) => (
@@ -505,24 +523,40 @@ export default function TrendRadar() {
 
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading && !result && (
-            <div className="h-full flex flex-col items-center justify-center gap-4">
+            <div className="space-y-4 max-w-3xl">
               <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                className="p-4 rounded-2xl animate-pulse"
                 style={{
-                  background: 'rgba(74,184,245,0.1)',
-                  border: '1px solid rgba(74,184,245,0.2)',
+                  background: 'rgba(74,184,245,0.05)',
+                  border: '1px solid rgba(74,184,245,0.15)',
                 }}
               >
-                <Radio size={24} style={{ color: '#4ab8f5' }} className="animate-pulse" />
-              </div>
-              <div className="text-center">
-                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                  Scanning {category}…
-                </div>
-                <div className="text-xs" style={{ color: '#9CA3AF' }}>
-                  Analysing real-time news and trend signals
+                <div className="h-4 bg-slate-700 rounded w-24 mb-3"></div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-slate-700 rounded w-full"></div>
+                  <div className="h-3 bg-slate-700 rounded w-5/6"></div>
                 </div>
               </div>
+
+              {[1, 2, 3, 4].map((idx) => (
+                <div
+                  key={idx}
+                  className="rounded-2xl overflow-hidden animate-pulse"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0' }}
+                >
+                  <div className="flex items-center gap-3 p-4">
+                    <div
+                      className="w-10 h-10 rounded-xl flex-shrink-0"
+                      style={{ background: 'rgba(74,184,245,0.2)' }}
+                    ></div>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="h-4 bg-slate-700 rounded w-3/4"></div>
+                      <div className="h-3 bg-slate-700 rounded w-1/2"></div>
+                    </div>
+                    <div className="w-20 h-8 bg-slate-700 rounded flex-shrink-0"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 

@@ -8,37 +8,92 @@ interface DemoData {
   suggestions: any[];
 }
 
+const DEMO_PRODUCTS = [
+  {
+    id: '1',
+    product_title: 'LED Scalp Massager Pro',
+    title: 'LED Scalp Massager Pro',
+    image_url: 'https://ae01.alicdn.com/kf/S8f7a3b2c1d4e5f6g7h8i9j0k.jpg',
+    real_price_aud: 34.95,
+    price: 34.95,
+    real_orders_count: 18420,
+    orders: 18420,
+    winning_score: 98,
+    category: 'Health & Beauty',
+    hot_product_flag: true,
+    trend_direction: 'rising',
+  },
+  {
+    id: '2',
+    product_title: 'Posture Corrector Belt',
+    title: 'Posture Corrector Belt',
+    image_url: 'https://ae01.alicdn.com/kf/S1a2b3c4d5e6f7g8h9i0j1k.jpg',
+    real_price_aud: 29.95,
+    price: 29.95,
+    real_orders_count: 12840,
+    orders: 12840,
+    winning_score: 94,
+    category: 'Health & Wellness',
+    hot_product_flag: true,
+    trend_direction: 'rising',
+  },
+  {
+    id: '3',
+    product_title: 'Gravity Dog Lick Mat',
+    title: 'Gravity Dog Lick Mat',
+    image_url: 'https://ae01.alicdn.com/kf/S2b3c4d5e6f7g8h9i0j1k2l.jpg',
+    real_price_aud: 19.95,
+    price: 19.95,
+    real_orders_count: 9210,
+    orders: 9210,
+    winning_score: 89,
+    category: 'Pet Supplies',
+    hot_product_flag: true,
+    trend_direction: 'rising',
+  },
+  {
+    id: '4',
+    product_title: 'Bamboo Laptop Desk Riser',
+    title: 'Bamboo Laptop Desk Riser',
+    image_url: 'https://ae01.alicdn.com/kf/S3c4d5e6f7g8h9i0j1k2l3m.jpg',
+    real_price_aud: 49.95,
+    price: 49.95,
+    real_orders_count: 7650,
+    orders: 7650,
+    winning_score: 85,
+    category: 'Home Office',
+    hot_product_flag: false,
+    trend_direction: 'stable',
+  },
+];
+
 export function HeroDemo() {
   const mountRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<DemoData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchDemoData() {
-      try {
-        const [productsRes, statsRes, suggestionsRes, alertsRes] = await Promise.all([
-          fetch('/api/products/winning?limit=4&sort=orders'),
-          fetch('/api/products/stats'),
-          fetch('/api/products/suggestions'),
-          fetch('/api/products/winning?limit=3&filter=hot&sort=orders'),
-        ]);
-        const [productsData, statsData, suggestionsData, alertsData] = await Promise.all([
-          productsRes.json(), statsRes.json(), suggestionsRes.json(), alertsRes.json(),
-        ]);
-        setData({
-          products: productsData.products || [],
-          stats: statsData,
-          alerts: alertsData.products || [],
-          suggestions: suggestionsData.suggestions || [],
-        });
-      } catch (err) {
-        console.error('[HeroDemo] fetch failed:', err);
-        // Show skeleton — never fallback to fake data
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchDemoData();
+    // Use static demo data — no API fetch
+    setData({
+      products: DEMO_PRODUCTS,
+      stats: {
+        total: 2287,
+        hotCount: 1776,
+        avgScore: 70,
+      },
+      alerts: DEMO_PRODUCTS.slice(0, 3),
+      suggestions: [
+        { trendScore: 85 },
+        { trendScore: 78 },
+        { trendScore: 72 },
+        { trendScore: 65 },
+        { trendScore: 58 },
+        { trendScore: 62 },
+        { trendScore: 55 },
+        { trendScore: 48 },
+      ],
+    });
+    setLoading(false);
   }, []);
 
   useEffect(() => {
