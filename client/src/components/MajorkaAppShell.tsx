@@ -419,6 +419,14 @@ export default function MajorkaAppShell({ children }: Props) {
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
   const isAdminUser = session?.user?.email === 'maximusmajorka@gmail.com';
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobileShell, setIsMobileShell] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    setIsMobileShell(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobileShell(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -1118,9 +1126,14 @@ export default function MajorkaAppShell({ children }: Props) {
       <aside
         role="navigation"
         aria-label="Main navigation"
-        className={`flex-shrink-0 flex flex-col z-50 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:inset-auto lg:translate-x-0`}
+        className={`flex flex-col z-50 transition-transform duration-300 ease-in-out`}
         style={{
-          width: 'min(280px, 85vw)',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: 240,
+          transform: mobileOpen || !isMobileShell ? 'translateX(0)' : 'translateX(-100%)',
           background: 'var(--sidebar-bg, #0B0F1E)',
           borderRight: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
         }}
@@ -1144,7 +1157,7 @@ export default function MajorkaAppShell({ children }: Props) {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex flex-col min-h-0" style={{ marginLeft: isMobileShell ? 0 : 240, flex: 1, minWidth: 0 }}>
         {/* Mobile top bar */}
         <div
           className="flex items-center gap-3 px-4 border-b flex-shrink-0 lg:hidden"
