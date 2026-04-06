@@ -61,19 +61,3 @@ select option { background: #111827; color: #F8FAFC; }
 @keyframes shimmer { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 .skeleton { animation: shimmer 1.8s ease-in-out infinite; }
-
-/* ── Mobile base fixes ──────────────────────────────────────────────────────── */
-@media (max-width: 767px) {
-  /* Prevent horizontal scroll on the page */
-  body { overflow-x: hidden; }
-
-  /* Table containers scroll horizontally instead of breaking layout */
-  .table-container,
-  .products-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-  /* Reduce padding on mobile */
-  .app-padding { padding: 12px !important; }
-
-  /* Stat bars / card grids wrap on mobile */
-  .stats-grid { flex-wrap: wrap !important; }
-}

@@ -51,7 +51,6 @@ import MarketSelector from '@/components/MarketSelector';
 import { RegionSelector } from '@/components/RegionSelector';
 // SocialProofTicker removed — felt cheap/spammy
 import { BEGINNER_LABELS, BEGINNER_TOOLTIPS, useBeginnerMode } from '@/hooks/useBeginnerMode';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
@@ -418,7 +417,6 @@ export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
   const isAdminUser = session?.user?.email === 'maximusmajorka@gmail.com';
-  const isMobileDevice = useIsMobile();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -1109,21 +1107,19 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          role="button"
-          aria-label="Close menu"
           className="fixed inset-0 z-40 lg:hidden"
           style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Sidebar — 240px desktop / min(280px,85vw) mobile: slide-in drawer */}
+      {/* Sidebar — 240px, desktop: part of flex flow; mobile: slide-in drawer */}
       <aside
         role="navigation"
         aria-label="Main navigation"
         className={`flex-shrink-0 flex flex-col z-50 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:inset-auto lg:translate-x-0`}
         style={{
-          width: isMobileDevice ? 'min(280px, 85vw)' : 240,
+          width: 240,
           background: 'var(--sidebar-bg, #0B0F1E)',
           borderRight: '1px solid var(--sidebar-border, rgba(255,255,255,0.08))',
         }}
@@ -1131,16 +1127,15 @@ export default function MajorkaAppShell({ children }: Props) {
         {mobileOpen && (
           <button
             onClick={() => setMobileOpen(false)}
-            aria-label="Close navigation menu"
-            className="absolute top-3 right-3 z-50 w-8 h-8 rounded-md flex items-center justify-center lg:hidden"
+            className="absolute top-3 right-3 z-50 w-7 h-7 rounded-md flex items-center justify-center lg:hidden"
             style={{
-              background: 'rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.04)',
               color: '#F8FAFC',
-              border: '1px solid rgba(255,255,255,0.15)',
+              border: 'none',
               cursor: 'pointer',
             }}
           >
-            <X size={15} />
+            <X size={13} />
           </button>
         )}
         {sidebarContent()}
