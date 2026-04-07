@@ -82,7 +82,7 @@ export interface ProductStats {
   maxOrders: number;
   avgScore: number;
   hotCount: number;
-  newToday: number;
+  topScore: number;
   bySource: Record<string, number>;
   loading: boolean;
   error: string | null;
@@ -90,7 +90,7 @@ export interface ProductStats {
 
 export function useProductStats(): ProductStats {
   const [stats, setStats] = useState<ProductStats>({
-    total: 0, maxOrders: 0, avgScore: 0, hotCount: 0, newToday: 0, bySource: {}, loading: true, error: null,
+    total: 0, maxOrders: 0, avgScore: 0, hotCount: 0, topScore: 0, bySource: {}, loading: true, error: null,
   });
 
   useEffect(() => {
@@ -100,12 +100,6 @@ export function useProductStats(): ProductStats {
         const { count: total } = await supabase
           .from('winning_products')
           .select('*', { count: 'exact', head: true });
-
-        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const { count: newToday } = await supabase
-          .from('winning_products')
-          .select('*', { count: 'exact', head: true })
-          .gte('created_at', since);
 
         const { data: rows, error: rowsErr } = await supabase
           .from('winning_products')
@@ -117,6 +111,7 @@ export function useProductStats(): ProductStats {
         const maxOrders = list.reduce((m, r) => Math.max(m, r.sold_count ?? 0), 0);
         const scoreList = list.map((r) => r.winning_score ?? 0).filter((n) => n > 0);
         const avgScore = scoreList.length ? Math.round(scoreList.reduce((a, b) => a + b, 0) / scoreList.length) : 0;
+        const topScore = scoreList.length ? Math.max(...scoreList) : 0;
         const hotCount = list.filter((r) => (r.winning_score ?? 0) >= 65).length;
         const bySource: Record<string, number> = {};
         for (const r of list) {
@@ -129,7 +124,7 @@ export function useProductStats(): ProductStats {
             maxOrders,
             avgScore,
             hotCount,
-            newToday: newToday ?? 0,
+            topScore,
             bySource,
             loading: false,
             error: null,

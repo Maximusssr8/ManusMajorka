@@ -1,6 +1,6 @@
 import { Link } from 'wouter';
 import {
-  Database, Flame, TrendingUp, Sparkles,
+  Database, Flame, TrendingUp, Award,
   ArrowUpRight,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
@@ -24,15 +24,15 @@ const SHIMMER = `
   border-radius: 4px;
   display: inline-block;
 }
-@keyframes mj-pulse {
+@keyframes livePulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+.live-pulse { animation: livePulse 2s ease-in-out infinite; }
 .mj-live-dot {
   display: inline-block;
   width: 6px; height: 6px; border-radius: 50%;
   background: #22c55e;
-  animation: mj-pulse 1.6s infinite;
 }
 `;
 
@@ -110,46 +110,50 @@ function KpiCardCmp({ card, loading }: KpiCardComponentProps) {
 }
 
 function ProductRowImage({ image, title, category }: { image: string | null; title: string; category: string | null }) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={title}
-        referrerPolicy="no-referrer-when-downgrade"
-        loading="lazy"
-        style={{
-          width: 40, height: 40, borderRadius: 6, objectFit: 'cover',
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: '#0d0d10',
-          display: 'block',
-          flexShrink: 0,
-        }}
-        onError={(e) => {
-          const el = e.currentTarget as HTMLImageElement;
-          el.style.display = 'none';
-          const next = el.nextElementSibling as HTMLElement | null;
-          if (next) next.style.display = 'flex';
-        }}
-      />
-    );
-  }
-  return (
+  const initial = ((title ?? 'P').trim() || 'P').charAt(0).toUpperCase();
+  const fallback = (
     <div style={{
-      width: 40, height: 40, borderRadius: 6,
+      width: 44, height: 44, borderRadius: 8,
       background: categoryGradient(category),
       display: image ? 'none' : 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: mono,
-      fontSize: 14,
-      fontWeight: 700,
-      color: '#52525b',
+      fontFamily: display,
+      fontSize: 16,
+      fontWeight: 600,
+      color: '#ffffff',
       border: '1px solid rgba(255,255,255,0.06)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
       flexShrink: 0,
-    }}>
-      {((category ?? title ?? 'P').trim() || 'P').charAt(0).toUpperCase()}
-    </div>
+    }}>{initial}</div>
   );
+  if (image) {
+    return (
+      <>
+        <img
+          src={image}
+          alt={title}
+          referrerPolicy="no-referrer-when-downgrade"
+          loading="lazy"
+          style={{
+            width: 44, height: 44, borderRadius: 8, objectFit: 'cover',
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#0d0d10',
+            display: 'block',
+            flexShrink: 0,
+          }}
+          onError={(e) => {
+            const el = e.currentTarget as HTMLImageElement;
+            el.style.display = 'none';
+            const next = el.nextElementSibling as HTMLElement | null;
+            if (next) next.style.display = 'flex';
+          }}
+        />
+        {fallback}
+      </>
+    );
+  }
+  return fallback;
 }
 
 function SkeletonRow() {
@@ -178,17 +182,17 @@ function SkeletonRow() {
 export default function AppHome() {
   const { user, isPro } = useAuth();
   const stats = useProductStats();
-  const { products, loading: prodLoading, total } = useProducts({ limit: 8, orderBy: 'sold_count' });
+  const { products, loading: prodLoading, total } = useProducts({ limit: 12, orderBy: 'sold_count' });
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const planLabel = isPro ? 'Scale Plan · Live' : 'Builder Plan · Live';
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   const timeOfDay = getTimeOfDay();
 
   const kpiCards: KpiCard[] = [
-    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products',   icon: Database,   accentColor: '#6366F1', bgAccent: 'rgba(99,102,241,0.08)', borderAccent: 'rgba(99,102,241,0.2)' },
-    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',       icon: Flame,      accentColor: '#f97316', bgAccent: 'rgba(249,115,22,0.08)', borderAccent: 'rgba(249,115,22,0.2)' },
-    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',     icon: TrendingUp, accentColor: '#22c55e', bgAccent: 'rgba(34,197,94,0.08)', borderAccent: 'rgba(34,197,94,0.2)' },
-    { label: 'NEW TODAY',      value: fmtNum(stats.newToday), sub: 'Added in last 24 hours',  icon: Sparkles,   accentColor: '#a855f7', bgAccent: 'rgba(168,85,247,0.08)', borderAccent: 'rgba(168,85,247,0.2)' },
+    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products',  icon: Database,   accentColor: '#6366F1', bgAccent: 'rgba(99,102,241,0.08)', borderAccent: 'rgba(99,102,241,0.2)' },
+    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',      icon: Flame,      accentColor: '#f97316', bgAccent: 'rgba(249,115,22,0.08)', borderAccent: 'rgba(249,115,22,0.2)' },
+    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',    icon: TrendingUp, accentColor: '#22c55e', bgAccent: 'rgba(34,197,94,0.08)', borderAccent: 'rgba(34,197,94,0.2)' },
+    { label: 'TOP SCORE',      value: stats.topScore ? `${stats.topScore}/100` : '—', sub: 'Highest in database', icon: Award, accentColor: '#a855f7', bgAccent: 'rgba(168,85,247,0.08)', borderAccent: 'rgba(168,85,247,0.2)' },
   ];
 
   return (
@@ -197,7 +201,7 @@ export default function AppHome() {
 
       {/* Greeting */}
       <div style={{
-        padding: '32px 32px 0',
+        padding: '28px 32px 0',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
@@ -222,7 +226,7 @@ export default function AppHome() {
           </h1>
           <p style={{ fontFamily: sans, fontSize: 14, color: '#52525b', margin: 0 }}>{today}</p>
         </div>
-        <Link href="/app/product-intelligence" style={{
+        <Link href="/app/products" style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: 8,
@@ -269,7 +273,7 @@ export default function AppHome() {
           <p style={{ fontFamily: sans, fontSize: 14, color: '#a1a1aa', lineHeight: 1.65, margin: '0 0 10px' }}>
             Order velocity across the Majorka database peaks Tuesday–Thursday. Products with 5,000+ monthly orders and a net margin above 45% represent the highest-probability opportunities in AU and US markets this week.
           </p>
-          <Link href="/app/product-intelligence" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View top products →</Link>
+          <Link href="/app/products" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View top products →</Link>
         </div>
       </div>
 
@@ -293,9 +297,9 @@ export default function AppHome() {
         margin: '20px 32px 0',
       }}>
         {[
-          { icon: '🔥', label: 'Top Trending Now', sub: 'Products scoring 65+',  href: '/app/product-intelligence', grad: 'linear-gradient(135deg,rgba(249,115,22,0.15),rgba(239,68,68,0.05))', border: 'rgba(249,115,22,0.2)', color: '#f97316' },
-          { icon: '💰', label: 'Highest Margin',   sub: 'Best profit potential', href: '/app/product-intelligence', grad: 'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,185,129,0.05))', border: 'rgba(34,197,94,0.2)', color: '#22c55e' },
-          { icon: '⚡', label: 'New Products',     sub: 'Added in last 24 hours', href: '/app/product-intelligence', grad: 'linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.05))', border: 'rgba(99,102,241,0.2)', color: '#6366F1' },
+          { icon: '🔥', label: 'Top Trending Now', sub: 'Products scoring 65+',  href: '/app/products', grad: 'linear-gradient(135deg,rgba(249,115,22,0.15),rgba(239,68,68,0.05))', border: 'rgba(249,115,22,0.2)', color: '#f97316' },
+          { icon: '💰', label: 'Highest Margin',   sub: 'Best profit potential', href: '/app/products', grad: 'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(16,185,129,0.05))', border: 'rgba(34,197,94,0.2)', color: '#22c55e' },
+          { icon: '⚡', label: 'New Products',     sub: 'Added in last 24 hours', href: '/app/products', grad: 'linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.05))', border: 'rgba(99,102,241,0.2)', color: '#6366F1' },
         ].map((card) => (
           <Link key={card.label} href={card.href} style={{
             display: 'flex',
@@ -337,7 +341,7 @@ export default function AppHome() {
               fontSize: 10,
               color: '#22c55e',
             }}>
-              <span className="mj-live-dot" />
+              <span className="mj-live-dot live-pulse" />
               LIVE DATA
             </span>
             <span style={{
@@ -354,7 +358,7 @@ export default function AppHome() {
               🛒 ALIEXPRESS ADVANCED API
             </span>
           </div>
-          <Link href="/app/product-intelligence" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>
+          <Link href="/app/products" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>
             View all {total > 0 ? total.toLocaleString() : ''} products →
           </Link>
         </div>
@@ -456,9 +460,9 @@ export default function AppHome() {
                     fontSize: 13,
                     color: orders > 0 ? '#22c55e' : '#52525b',
                     textAlign: 'right',
-                  }}>{orders > 0 ? orders.toLocaleString() : '—'}</span>
+                  }}>{orders > 0 ? orders.toLocaleString() : 'N/A'}</span>
                   <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Link href="/app/product-intelligence" style={{
+                    <Link href="/app/products" style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
@@ -506,7 +510,7 @@ export default function AppHome() {
               {stats.total.toLocaleString()} products scored and ranked. Find your next winner.
             </p>
           </div>
-          <Link href="/app/product-intelligence" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>Browse all →</Link>
+          <Link href="/app/products" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>Browse all →</Link>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
           {[
@@ -514,7 +518,7 @@ export default function AppHome() {
             { label: 'Exploding Trend',  sub: 'Score 90–100',          count: '89 products',     icon: '🚀', color: '#f97316', bg: 'rgba(249,115,22,0.06)', border: 'rgba(249,115,22,0.15)' },
             { label: 'New Today',        sub: 'Added via AE API',      count: 'Updated live',    icon: '⚡', color: '#6366F1', bg: 'rgba(99,102,241,0.06)', border: 'rgba(99,102,241,0.15)' },
           ].map((cat) => (
-            <Link key={cat.label} href="/app/product-intelligence" style={{
+            <Link key={cat.label} href="/app/products" style={{
               display: 'block',
               background: cat.bg,
               border: `1px solid ${cat.border}`,

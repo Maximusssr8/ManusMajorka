@@ -287,7 +287,7 @@ function Router() {
             <Route path="/app/profit-check">{() => { window.location.replace('/app/profit'); return null; }}</Route>
 
             {/* New consolidated routes */}
-            <Route path="/app/intelligence">{() => <ProtectedRoute><AppLayout><ProductIntelligence /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/intelligence">{() => { window.location.replace('/app/products'); return null; }}</Route>
             <Route path="/app/alerts">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Alerts" /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/alerts-legacy">{() => <ProtectedRoute><AppLayout><Alerts /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/spy">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Competitor Spy" /></NewAppShell></ProtectedRoute>}</Route>
@@ -327,7 +327,7 @@ function Router() {
             </Route>
             
             {/* ── Sidebar route aliases — must come before catch-all ─────────────── */}
-            <Route path="/app/product-intelligence">{() => <ProtectedRoute><AppLayout><ProductIntelligence /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/product-intelligence">{() => { window.location.replace('/app/products'); return null; }}</Route>
             <Route path="/app/video-intelligence">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/video-intel">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/spy-tools">{() => { window.location.replace('/app/spy'); return null; }}</Route>

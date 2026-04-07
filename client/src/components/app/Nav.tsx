@@ -16,6 +16,7 @@ interface NavItem {
   path: string;
   icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
   exact?: boolean;
+  soon?: boolean;
 }
 interface NavGroup { label: string | null; items: NavItem[] }
 
@@ -24,9 +25,9 @@ const GROUPS: NavGroup[] = [
     { label: 'Home', path: '/app', icon: LayoutDashboard, exact: true },
   ]},
   { label: 'INTELLIGENCE', items: [
-    { label: 'Products',         path: '/app/products',             icon: Package },
-    { label: 'Market',           path: '/app/product-intelligence', icon: TrendingUp },
-    { label: 'Creators & Video', path: '/app/creator-intel',        icon: Video },
+    { label: 'Products',         path: '/app/products',  icon: Package },
+    { label: 'Market',           path: '/app/products',  icon: TrendingUp, soon: true },
+    { label: 'Creators & Video', path: '/app/creators',  icon: Video, soon: true },
   ]},
   { label: 'AI TOOLS', items: [
     { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
@@ -147,7 +148,18 @@ export function Nav() {
                   }}
                 >
                   <Icon size={15} />
-                  {item.label}
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {item.soon && (
+                    <span style={{
+                      background: 'rgba(245,158,11,0.1)',
+                      color: '#f59e0b',
+                      borderRadius: 999,
+                      padding: '1px 5px',
+                      fontSize: 9,
+                      fontWeight: 600,
+                      fontFamily: mono,
+                    }}>Soon</span>
+                  )}
                 </Link>
               );
             })}
