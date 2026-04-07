@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'wouter';
 import {
-  LayoutDashboard, Package, TrendingUp,
-  Sparkles, Megaphone, Store,
-  Bell, DollarSign, Eye, Settings,
+  LayoutDashboard, Package, TrendingUp, Video,
+  Sparkles, Megaphone, Store, FileText,
+  Bell, DollarSign, Eye, Calculator, Settings,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -24,18 +24,21 @@ const GROUPS: NavGroup[] = [
     { label: 'Home', path: '/app', icon: LayoutDashboard, exact: true },
   ]},
   { label: 'INTELLIGENCE', items: [
-    { label: 'Products', path: '/app/products', icon: Package },
-    { label: 'Market',   path: '/app/market',   icon: TrendingUp },
+    { label: 'Products',         path: '/app/products',             icon: Package },
+    { label: 'Market',           path: '/app/product-intelligence', icon: TrendingUp },
+    { label: 'Creators & Video', path: '/app/creator-intel',        icon: Video },
   ]},
   { label: 'AI TOOLS', items: [
-    { label: 'Maya AI',       path: '/app/ai', icon: Sparkles },
-    { label: 'Ads Studio',    path: '/app/ai', icon: Megaphone },
-    { label: 'Store Builder', path: '/app/ai', icon: Store },
+    { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
+    { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
+    { label: 'Ad Briefs',     path: '/app/ad-spy',        icon: FileText },
+    { label: 'Store Builder', path: '/app/store-builder', icon: Store },
   ]},
   { label: 'MANAGE', items: [
-    { label: 'Alerts',  path: '/app/alerts',  icon: Bell },
-    { label: 'Revenue', path: '/app/revenue', icon: DollarSign },
-    { label: 'Spy',     path: '/app/spy',     icon: Eye },
+    { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
+    { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye },
+    { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
+    { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
   ]},
 ];
 

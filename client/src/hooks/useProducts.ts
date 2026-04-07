@@ -82,6 +82,7 @@ export interface ProductStats {
   maxOrders: number;
   avgScore: number;
   hotCount: number;
+  newToday: number;
   bySource: Record<string, number>;
   loading: boolean;
   error: string | null;
@@ -89,7 +90,7 @@ export interface ProductStats {
 
 export function useProductStats(): ProductStats {
   const [stats, setStats] = useState<ProductStats>({
-    total: 0, maxOrders: 0, avgScore: 0, hotCount: 0, bySource: {}, loading: true, error: null,
+    total: 0, maxOrders: 0, avgScore: 0, hotCount: 0, newToday: 0, bySource: {}, loading: true, error: null,
   });
 
   useEffect(() => {
@@ -99,6 +100,12 @@ export function useProductStats(): ProductStats {
         const { count: total } = await supabase
           .from('winning_products')
           .select('*', { count: 'exact', head: true });
+
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count: newToday } = await supabase
+          .from('winning_products')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', since);
 
         const { data: rows, error: rowsErr } = await supabase
           .from('winning_products')
@@ -122,6 +129,7 @@ export function useProductStats(): ProductStats {
             maxOrders,
             avgScore,
             hotCount,
+            newToday: newToday ?? 0,
             bySource,
             loading: false,
             error: null,
