@@ -1,37 +1,27 @@
 import { Link } from 'wouter';
-import {
-  Database, Flame, TrendingUp, Award,
-  ArrowUpRight,
-} from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, useProductStats, type Product } from '@/hooks/useProducts';
 import { getCategoryStyle } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
+import { Sparkline, ProductSparkline } from '@/components/app/Sparkline';
+import { scorePillStyle } from '@/lib/scorePill';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
 const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
 
-interface LiveEvent { flag: string; text: string; time: string }
-const LIVE_EVENT_SEEDS: Omit<LiveEvent, 'time'>[] = [
-  { flag: '🇦🇺', text: 'AU operator added a new product to their Shopify store' },
-  { flag: '🇺🇸', text: 'US operator discovered a winning product in Hardware' },
-  { flag: '🇬🇧', text: 'UK operator confirmed 50%+ margin via profit calculator' },
-  { flag: '🇨🇦', text: 'CA operator launched a new store from the builder' },
-  { flag: '🇩🇪', text: 'DE operator exported a product batch to Shopify' },
-  { flag: '🇸🇬', text: 'SG operator generated ad copy for a top-scored product' },
-  { flag: '🇳🇿', text: 'NZ operator found a new opportunity in the database' },
+const MARKETS = [
+  { flag: '🇦🇺', code: 'AU', active: true },
+  { flag: '🇺🇸', code: 'US', active: false },
+  { flag: '🇬🇧', code: 'UK', active: false },
+  { flag: '🇨🇦', code: 'CA', active: false },
+  { flag: '🇳🇿', code: 'NZ', active: false },
+  { flag: '🇩🇪', code: 'DE', active: false },
+  { flag: '🇸🇬', code: 'SG', active: false },
 ];
-function generateLiveEvents(): LiveEvent[] {
-  let prev = 0;
-  return LIVE_EVENT_SEEDS.map((s) => {
-    prev += 1 + Math.floor(Math.random() * 6);
-    return { ...s, time: `${prev}m ago` };
-  });
-}
 
 const SHIMMER = `
 @keyframes mj-app-shim {
@@ -39,7 +29,7 @@ const SHIMMER = `
   100% { background-position: 300px 0; }
 }
 .mj-shim {
-  background: linear-gradient(90deg, #111114 0%, #1a1a1f 50%, #111114 100%);
+  background: linear-gradient(90deg, #141417 0%, #1a1a1f 50%, #141417 100%);
   background-size: 300px 100%;
   animation: mj-app-shim 1.4s linear infinite;
   border-radius: 4px;
@@ -73,10 +63,7 @@ interface KpiCard {
   label: string;
   value: string;
   sub: string;
-  icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
   accentColor: string;
-  bgAccent: string;
-  borderAccent: string;
 }
 
 interface KpiCardComponentProps {
@@ -84,40 +71,27 @@ interface KpiCardComponentProps {
   loading: boolean;
 }
 function KpiCardCmp({ card, loading }: KpiCardComponentProps) {
-  const Icon = card.icon;
   return (
     <div style={{
-      background: card.bgAccent,
-      border: `1px solid ${card.borderAccent}`,
-      borderRadius: 10,
-      padding: '20px 24px',
+      background: '#141417',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderLeft: `3px solid ${card.accentColor}`,
+      borderRadius: 9,
+      padding: '18px 20px',
       position: 'relative',
-      overflow: 'hidden',
+      minHeight: 110,
     }}>
       <div style={{
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 60,
-        height: 60,
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'flex-end',
-        padding: '12px 14px',
-      }}>
-        <Icon size={18} style={{ color: card.accentColor }} />
-      </div>
-      <div style={{
         fontFamily: mono,
-        fontSize: 10,
+        fontSize: 9,
         color: '#52525b',
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
-        marginBottom: 12,
+        marginBottom: 10,
       }}>{card.label}</div>
       <div style={{
         fontFamily: display,
-        fontSize: 36,
+        fontSize: 34,
         fontWeight: 800,
         color: '#ededed',
         letterSpacing: '-0.03em',
@@ -125,7 +99,10 @@ function KpiCardCmp({ card, loading }: KpiCardComponentProps) {
       }}>
         {loading ? <span className="mj-shim" style={{ height: 28, width: 90 }} /> : card.value}
       </div>
-      <div style={{ fontFamily: sans, fontSize: 12, color: '#71717a', marginTop: 6 }}>{card.sub}</div>
+      <div style={{ fontFamily: sans, fontSize: 12, color: '#52525b', marginTop: 6 }}>{card.sub}</div>
+      <div style={{ position: 'absolute', bottom: 14, right: 16 }}>
+        <Sparkline color={card.accentColor} />
+      </div>
     </div>
   );
 }
@@ -164,7 +141,7 @@ function SkeletonRow() {
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '40px 1.5fr 110px 95px 80px 95px 80px 60px',
+      gridTemplateColumns: '40px 1.5fr 110px 80px 80px 95px 110px 60px 60px',
       gap: 14,
       padding: '14px 16px',
       alignItems: 'center',
@@ -179,7 +156,8 @@ function SkeletonRow() {
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-      <span className="mj-shim" style={{ height: 12, width: '70%' }} />
+      <span className="mj-shim" style={{ height: 12, width: '80%' }} />
+      <span className="mj-shim" style={{ height: 14, width: 50 }} />
       <span className="mj-shim" style={{ height: 24, width: 36, borderRadius: 5 }} />
     </div>
   );
@@ -189,7 +167,6 @@ export default function AppHome() {
   const { user, isPro } = useAuth();
   const stats = useProductStats();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [liveEvents] = useState<LiveEvent[]>(generateLiveEvents);
   const { products, loading: prodLoading, total } = useProducts({ limit: 12, orderBy: 'sold_count' });
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const planLabel = isPro ? 'Scale Plan · Live' : 'Builder Plan · Live';
@@ -197,10 +174,10 @@ export default function AppHome() {
   const timeOfDay = getTimeOfDay();
 
   const kpiCards: KpiCard[] = [
-    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products',  icon: Database,   accentColor: '#6366F1', bgAccent: 'rgba(99,102,241,0.08)', borderAccent: 'rgba(99,102,241,0.2)' },
-    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',      icon: Flame,      accentColor: '#f97316', bgAccent: 'rgba(249,115,22,0.08)', borderAccent: 'rgba(249,115,22,0.2)' },
-    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',    icon: TrendingUp, accentColor: '#22c55e', bgAccent: 'rgba(34,197,94,0.08)', borderAccent: 'rgba(34,197,94,0.2)' },
-    { label: 'TOP SCORE',      value: stats.topScore ? `${stats.topScore}/100` : '—', sub: 'Highest in database', icon: Award, accentColor: '#a855f7', bgAccent: 'rgba(168,85,247,0.08)', borderAccent: 'rgba(168,85,247,0.2)' },
+    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products', accentColor: '#6366F1' },
+    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',     accentColor: '#f97316' },
+    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',   accentColor: '#22c55e' },
+    { label: 'TOP SCORE',      value: stats.topScore ? `${stats.topScore}/100` : '—', sub: 'Highest in database', accentColor: '#a855f7' },
   ];
 
   return (
@@ -254,37 +231,29 @@ export default function AppHome() {
         >Find Products →</Link>
       </div>
 
-      {/* Today's Signal */}
-      <div style={{
-        margin: '24px 32px 0',
-        background: 'linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.04))',
-        border: '1px solid rgba(99,102,241,0.2)',
-        borderRadius: 10,
-        padding: '18px 22px',
-        display: 'flex',
-        gap: 16,
-        alignItems: 'flex-start',
-      }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 8,
-          background: 'rgba(99,102,241,0.2)',
-          border: '1px solid rgba(99,102,241,0.3)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-          fontSize: 18,
-        }}>📡</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: mono, fontSize: 10, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', display: 'inline-block' }} />
-            Today&apos;s Signal · AliExpress Advanced API
-          </div>
-          <p style={{ fontFamily: sans, fontSize: 14, color: '#a1a1aa', lineHeight: 1.65, margin: '0 0 10px' }}>
-            {stats.total > 0
-              ? `${stats.hotCount.toLocaleString()} products are scoring 65+ across the database (${Math.round((stats.hotCount / stats.total) * 100)}% of ${stats.total.toLocaleString()} tracked). ${stats.eliteCount.toLocaleString()} elite picks score 90+. Spread across ${stats.categoryCount} niches and ${Object.keys(stats.bySource).length} markets.`
-              : 'Loading the latest database signal…'}
-          </p>
-          <Link href="/app/products" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View top products →</Link>
-        </div>
+      {/* Market chips strip */}
+      <div style={{ margin: '20px 32px 0', display: 'flex', gap: 8, alignItems: 'center', overflowX: 'auto', scrollbarWidth: 'none' }}>
+        <span style={{ fontFamily: mono, fontSize: 10, color: '#52525b', flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Market:</span>
+        {MARKETS.map((m) => (
+          <button key={m.code} style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '5px 10px',
+            borderRadius: 6,
+            cursor: 'pointer',
+            background: m.active ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${m.active ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            color: m.active ? '#6366F1' : '#71717a',
+            fontFamily: mono,
+            fontSize: 11,
+            fontWeight: m.active ? 600 : 400,
+            flexShrink: 0,
+          }}>
+            <span>{m.flag}</span>
+            <span>{m.code}</span>
+          </button>
+        ))}
       </div>
 
       {/* KPI cards */}
@@ -336,53 +305,6 @@ export default function AppHome() {
         ))}
       </div>
 
-      {/* Live activity feed */}
-      <style>{`@keyframes mj-live-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
-      <div style={{
-        margin: '20px 32px 0',
-        background: 'rgba(34,197,94,0.04)',
-        border: '1px solid rgba(34,197,94,0.12)',
-        borderRadius: 8,
-        padding: '9px 16px',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <span style={{
-            width: 6, height: 6, borderRadius: '50%',
-            background: '#22c55e',
-            display: 'inline-block',
-            boxShadow: '0 0 6px rgba(34,197,94,0.6)',
-          }} />
-          <span style={{
-            fontFamily: mono,
-            fontSize: 10,
-            fontWeight: 700,
-            color: '#22c55e',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}>Live</span>
-        </div>
-        <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.1)', flexShrink: 0 }} />
-        <div style={{ overflow: 'hidden', flex: 1 }}>
-          <div style={{
-            display: 'flex',
-            gap: 48,
-            animation: 'mj-live-scroll 35s linear infinite',
-            width: 'max-content',
-          }}>
-            {[...liveEvents, ...liveEvents].map((e, i) => (
-              <span key={i} style={{ fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                {e.flag} <span style={{ color: '#ededed' }}>{e.text}</span>
-                <span style={{ color: '#4b5563', marginLeft: 8 }}>{e.time}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Leaderboard */}
       <div style={{ margin: '24px 32px 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 12 }}>
@@ -428,7 +350,7 @@ export default function AppHome() {
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '40px 1.5fr 110px 95px 80px 95px 80px 60px',
+            gridTemplateColumns: '40px 1.5fr 110px 80px 80px 95px 110px 60px 60px',
             gap: 14,
             padding: '12px 16px',
             fontFamily: mono,
@@ -445,7 +367,8 @@ export default function AppHome() {
             <span>Score</span>
             <span style={{ textAlign: 'right' }}>Price</span>
             <span style={{ textAlign: 'right' }}>Orders/mo</span>
-            <span style={{ textAlign: 'right' }}>Potential</span>
+            <span style={{ textAlign: 'right' }}>Est. Revenue</span>
+            <span>Trend</span>
             <span style={{ textAlign: 'right' }}>Action</span>
           </div>
 
@@ -463,14 +386,15 @@ export default function AppHome() {
             products.map((p, i) => {
               const score = p.winning_score ?? 0;
               const orders = p.sold_count ?? 0;
-              const scoreColor = score >= 80 ? '#22c55e' : score >= 65 ? '#f59e0b' : '#6366F1';
+              const sp = scorePillStyle(score);
+              const estRevenue = orders > 0 && p.price_aud != null ? Math.round(orders * Number(p.price_aud)) : null;
               return (
                 <div
                   key={p.id}
                   onClick={() => setSelectedProduct(p)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '40px 1.5fr 110px 95px 80px 95px 80px 60px',
+                    gridTemplateColumns: '40px 1.5fr 110px 80px 80px 95px 110px 60px 60px',
                     gap: 14,
                     padding: '14px 16px',
                     alignItems: 'center',
@@ -505,16 +429,17 @@ export default function AppHome() {
                     color: '#71717a',
                     width: 'fit-content',
                   }}>{p.category ?? '—'}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: scoreColor, minWidth: 24 }}>{score || '—'}</span>
-                    <div style={{ width: 48, height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, flexShrink: 0 }}>
-                      <div style={{
-                        width: `${Math.min(100, score)}%`,
-                        height: '100%',
-                        background: scoreColor,
-                        borderRadius: 2,
-                      }} />
-                    </div>
+                  <span>
+                    <span style={{
+                      background: sp.background,
+                      color: sp.color,
+                      fontFamily: mono,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      padding: '3px 9px',
+                      borderRadius: 999,
+                      display: 'inline-block',
+                    }}>{score || '—'}</span>
                   </span>
                   <span style={{
                     fontFamily: mono,
@@ -539,11 +464,14 @@ export default function AppHome() {
                   </span>
                   <span style={{
                     fontFamily: mono,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     textAlign: 'right',
-                    color: score >= 80 ? '#22c55e' : score >= 65 ? '#f59e0b' : '#4b5563',
-                  }}>{score >= 80 ? 'High ↑' : score >= 65 ? 'Med →' : 'Low'}</span>
+                    color: estRevenue != null ? '#22c55e' : '#4b5563',
+                  }}>{estRevenue != null ? `~$${estRevenue.toLocaleString()}/mo` : '—'}</span>
+                  <span style={{ display: 'flex', alignItems: 'center' }}>
+                    <ProductSparkline productId={p.id} score={score} />
+                  </span>
                   <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <Link href="/app/products" style={{
                       display: 'inline-flex',
@@ -570,7 +498,7 @@ export default function AppHome() {
           {/* Last synced footer */}
           <div style={{
             padding: '10px 16px',
-            background: '#0a0a0a',
+            background: '#0c0c0e',
             borderTop: '1px solid rgba(255,255,255,0.05)',
             display: 'flex',
             alignItems: 'center',
@@ -598,7 +526,7 @@ export default function AppHome() {
           ].map((s) => (
             <Link key={s.label} href="/app/products" style={{
               display: 'block',
-              background: '#111114',
+              background: '#141417',
               border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: 10,
               padding: 20,

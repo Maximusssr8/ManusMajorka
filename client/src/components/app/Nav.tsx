@@ -26,18 +26,18 @@ const GROUPS: NavGroup[] = [
   { label: null, items: [
     { label: 'Home', path: '/app', icon: LayoutDashboard, exact: true },
   ]},
-  { label: 'INTELLIGENCE', items: [
+  { label: 'intelligence', items: [
     { label: 'Products',         path: '/app/products', icon: Package },
     { label: 'Market',           path: '/app/products', icon: TrendingUp, soon: true },
     { label: 'Creators & Video', path: '/app/creators', icon: Video, soon: true },
   ]},
-  { label: 'AI TOOLS', items: [
+  { label: 'ai tools', items: [
     { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
     { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
     { label: 'Ad Briefs',     path: '/app/ad-spy',        icon: FileText },
     { label: 'Store Builder', path: '/app/store-builder', icon: Store },
   ]},
-  { label: 'MANAGE', items: [
+  { label: 'manage', items: [
     { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
     { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye },
     { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
@@ -65,7 +65,7 @@ export function Nav() {
     <nav style={{
       width: 220,
       flexShrink: 0,
-      background: '#0a0a0a',
+      background: '#0c0c0e',
       borderRight: '1px solid rgba(255,255,255,0.08)',
       display: 'flex',
       flexDirection: 'column',
@@ -146,33 +146,39 @@ export function Nav() {
         }}>K</span>
       </button>
 
+      {/* Market selector */}
+      <div style={{
+        padding: '8px 12px',
+        margin: '4px 8px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 7,
+        cursor: 'pointer',
+      }}>
+        <span style={{ fontSize: 16 }}>🇦🇺</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: sans, fontSize: 12, fontWeight: 600, color: '#ededed' }}>Australia</div>
+          <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b' }}>AUD · GST 10%</div>
+        </div>
+        <span style={{ fontFamily: mono, fontSize: 10, color: '#52525b' }}>▾</span>
+      </div>
+
       {/* Body */}
       <div style={{ flex: 1, padding: '4px 0', overflowY: 'auto' }}>
         {GROUPS.map((group, gi) => (
           <div key={gi}>
             {group.label && (
               <div style={{
-                padding: '14px 16px 4px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-              }}>
-                <div style={{
-                  width: 2,
-                  height: 8,
-                  background: 'rgba(99,102,241,0.5)',
-                  borderRadius: 1,
-                  flexShrink: 0,
-                }} />
-                <span style={{
-                  fontFamily: mono,
-                  fontSize: 9,
-                  fontWeight: 600,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: '#3f3f46',
-                }}>{group.label}</span>
-              </div>
+                padding: '12px 16px 4px',
+                fontFamily: mono,
+                fontSize: 9,
+                fontWeight: 500,
+                letterSpacing: '0.06em',
+                color: '#3f3f46',
+              }}>{group.label}</div>
             )}
             {group.items.filter((i) => !i.soon).map((item) => {
               const active = isActive(item);
@@ -181,8 +187,8 @@ export function Nav() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                padding: '9px 14px',
-                margin: '1px 8px',
+                padding: '9px 14px 9px 11px',
+                margin: '1px 8px 1px 5px',
                 borderRadius: 7,
                 cursor: 'pointer',
                 fontFamily: sans,
@@ -191,14 +197,10 @@ export function Nav() {
                 textDecoration: 'none',
                 transition: 'all 150ms',
                 position: 'relative',
-                color: active ? '#ededed' : '#6b7280',
-                background: active ? 'rgba(99,102,241,0.1)' : 'transparent',
+                borderLeft: active ? '3px solid #6366F1' : '3px solid transparent',
+                color: active ? '#ededed' : '#71717a',
+                background: active ? 'rgba(99,102,241,0.06)' : 'transparent',
               };
-              if (active) {
-                baseStyle.borderLeft = '2px solid #6366F1';
-                baseStyle.paddingLeft = 12;
-                baseStyle.marginLeft = 6;
-              }
               return (
                 <Link
                   key={`${item.path}-${item.label}`}
@@ -212,7 +214,7 @@ export function Nav() {
                   }}
                   onMouseLeave={(e) => {
                     if (!active) {
-                      (e.currentTarget as HTMLAnchorElement).style.color = '#6b7280';
+                      (e.currentTarget as HTMLAnchorElement).style.color = '#71717a';
                       (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
                     }
                   }}
@@ -335,8 +337,8 @@ export function Nav() {
         gap: 10,
       }}>
         <div style={{
-          width: 32,
-          height: 32,
+          width: 30,
+          height: 30,
           borderRadius: 8,
           background: 'linear-gradient(135deg,#4f46e5,#7c3aed)',
           display: 'flex',
@@ -357,11 +359,25 @@ export function Nav() {
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-          }}>{displayName}</div>
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</span>
+            <span style={{
+              fontFamily: mono,
+              fontSize: 9,
+              color: '#6366F1',
+              background: 'rgba(99,102,241,0.1)',
+              padding: '1px 5px',
+              borderRadius: 3,
+              flexShrink: 0,
+            }}>{isPro ? 'SCALE' : 'BUILDER'}</span>
+          </div>
           <div style={{
             fontFamily: mono,
             fontSize: 10,
-            color: '#6366F1',
+            color: '#52525b',
             marginTop: 1,
           }}>{planLabel}</div>
         </div>

@@ -22,7 +22,7 @@ export function ProductImage({ src, title, size = 40, borderRadius = 6 }: Produc
         width: size,
         height: size,
         borderRadius,
-        background: '#111114',
+        background: '#141417',
         border: '1px solid rgba(255,255,255,0.08)',
         display: 'flex',
         alignItems: 'center',
