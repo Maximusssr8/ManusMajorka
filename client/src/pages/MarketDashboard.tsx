@@ -501,7 +501,7 @@ export default function MarketDashboard() {
         </section>
 
         {/* ── Creator Spotlight ───────────────────────── */}
-        {topCreator && (topCreator.followers > 0 || topCreator.username || topCreator.display_name) && (
+        {topCreator?.followers && topCreator.followers !== 'N/A' && topCreator.followers !== null && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Creator Spotlight */}
           <div>

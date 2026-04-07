@@ -700,8 +700,8 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
         </div>
       ) : (
         /* Desktop: table layout */
-        <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="mkr-table-wrap" style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+          <table className="mkr-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                 {['#', 'Product', 'Category', 'Dropship Score', 'Est. Rev/Day', 'Trend', ''].map(h => (
@@ -804,11 +804,7 @@ function DailyBrief() {
   if (!brief && !loading) return null;
 
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.06) 100%)',
-      border: '1px solid rgba(99,102,241,0.2)',
-      borderRadius: 14, padding: '18px 20px', marginBottom: 20,
-    }}>
+    <div className="mkr-card" style={{ padding: '18px 20px', marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 14 }}>🔥</span>
         <span style={{ fontWeight: 600, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: 'rgba(255,255,255,0.4)' }}>
@@ -1019,7 +1015,7 @@ function DashboardHome() {
   }, [products]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060A12', padding: '0' }}>
+    <div className="page-transition" style={{ minHeight: '100vh', background: '#060A12', padding: '0' }}>
 
       {/* ── Page header ──────────────────────────────────────────── */}
       <div style={{ background: '#0E1420', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
@@ -1060,14 +1056,7 @@ function DashboardHome() {
           ]).map((card, i) => {
             const hotCount = card.label === 'Hot Products' ? parseInt(card.value) || 0 : -1;
             return (
-            <div key={i} onClick={() => card.path && setLocation(card.path)} style={{
-              background: '#0E1420',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 14,
-              padding: '22px 24px',
-              cursor: 'pointer',
-              transition: 'box-shadow 200ms, border-color 200ms',
-            }}
+            <div key={i} onClick={() => card.path && setLocation(card.path)} className="mkr-kpi-card"
               onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.08)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
             >
@@ -1077,7 +1066,7 @@ function DashboardHome() {
                   <card.icon size={16} color="#818CF8" />
                 </div>
               </div>
-              <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 30, color: '#FFFFFF', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
+              <div className="mkr-kpi-number">{card.value}</div>
               <div style={{ fontSize: 12, color: '#9CA3AF' }}>
                 {hotCount === 0 ? <span style={{ color: '#94A3B8' }}>— {card.delta}</span> : hotCount > 0 ? <span style={{ color: '#22C55E' }}>↑ {card.delta}</span> : card.delta}
               </div>
@@ -1093,7 +1082,7 @@ function DashboardHome() {
         <div className="chart-insight-grid">
 
           {/* Revenue trend chart */}
-          <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '24px 28px' }}>
+          <div className="mkr-card" style={{ padding: '24px 28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
                 <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Est. Market Opportunity</div>
@@ -1122,7 +1111,7 @@ function DashboardHome() {
           </div>
 
           {/* Workflow guide */}
-          <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '24px' }}>
+          <div className="mkr-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Your Workflow</div>
               <span style={{ fontSize: 11, color: '#818CF8', fontWeight: 600, background: 'rgba(99,102,241,0.15)', padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(99,102,241,0.25)' }}>Click any step →</span>

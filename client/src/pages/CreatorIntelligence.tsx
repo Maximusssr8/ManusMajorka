@@ -470,7 +470,7 @@ export default function CreatorIntelligence() {
 
   return (
     <ErrorBoundary fallback={errorFallback}>
-    <div style={{ background: '#05070F', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: "'Inter', -apple-system, sans-serif" }}>
+    <div className="page-transition" style={{ background: '#05070F', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: "'Inter', -apple-system, sans-serif" }}>
 
       {/* ===== 1. DARK HERO BANNER ===== */}
       <div style={{

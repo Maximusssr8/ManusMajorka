@@ -617,22 +617,21 @@ export default function MajorkaAppShell({ children }: Props) {
         <button
           onClick={() => handleNavClick(item.path)}
           title={tooltip}
-          className="flex items-center gap-2 text-sm transition-all relative"
+          className={`flex items-center gap-2 text-sm transition-all relative w-full rounded-lg px-3 py-2 ${
+            active 
+              ? 'bg-indigo-500/10 text-white border-l-2 border-indigo-500 pl-[10px]' 
+              : 'text-white/60 hover:bg-white/5 hover:text-white/90'
+          }`}
           style={{
-            width: sidebarCollapsed ? 44 : '100%',
+            width: sidebarCollapsed ? 44 : undefined,
             height: sidebarCollapsed ? 44 : 'auto',
-            borderRadius: 8,
-            background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
-            color: active ? '#818CF8' : '#CBD5E1',
-            fontFamily: "'Inter', -apple-system, sans-serif",
-            border: 'none',
-            borderLeft: !sidebarCollapsed && active ? '3px solid #6366F1' : '3px solid transparent',
+            borderRadius: sidebarCollapsed ? undefined : 8,
             cursor: 'pointer',
             position: 'relative' as const,
-            paddingLeft: sidebarCollapsed ? 0 : (active ? 9 : 12),
-            paddingRight: sidebarCollapsed ? 0 : 12,
-            paddingTop: sidebarCollapsed ? 0 : 8,
-            paddingBottom: sidebarCollapsed ? 0 : 8,
+            paddingLeft: sidebarCollapsed ? 0 : undefined,
+            paddingRight: sidebarCollapsed ? 0 : undefined,
+            paddingTop: sidebarCollapsed ? 0 : undefined,
+            paddingBottom: sidebarCollapsed ? 0 : undefined,
             fontSize: 14,
             minHeight: sidebarCollapsed ? 44 : 36,
             fontWeight: active ? 600 : 400,

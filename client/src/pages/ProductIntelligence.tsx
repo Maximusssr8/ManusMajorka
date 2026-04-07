@@ -70,7 +70,7 @@ export default function ProductIntelligence() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--content-bg, #FAFAFA)', color: 'var(--content-text, #0A0A0A)', fontFamily: "'DM Sans', sans-serif" }}>
+    <div className="page-transition" style={{ minHeight: '100vh', background: 'var(--content-bg, #FAFAFA)', color: 'var(--content-text, #0A0A0A)', fontFamily: "'DM Sans', sans-serif" }}>
       <Helmet><title>Product Intelligence | Majorka</title></Helmet>
       <div style={{ padding: '24px 24px 0', maxWidth: 1200, margin: '0 auto' }}>
         {/* Page header */}

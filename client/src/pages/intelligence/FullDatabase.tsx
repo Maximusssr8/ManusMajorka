@@ -721,10 +721,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {FILTERS.map(f => (
               <button key={f} onClick={() => setOpportunityFilter(f)}
-                className={opportunityFilter === f ? '' : 'filter-chip-inactive'}
-                style={{ height: 32, padding: '0 12px', borderRadius: 16, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, transition: 'all 150ms',
-                  background: opportunityFilter === f ? '#6366F1' : 'rgba(255,255,255,0.06)',
-                  color: opportunityFilter === f ? 'white' : '#e4e4e7' }}>
+                className={opportunityFilter === f ? 'filter-chip-active' : 'filter-chip-inactive'}
+                style={{ height: 32, padding: '0 12px', borderRadius: 16, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, transition: 'all 150ms' }}>
                 {f}
               </button>
             ))}
@@ -766,8 +764,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           {/* Trend direction */}
           {(['all', 'rising', 'peaked', 'declining'] as const).map(t => (
             <button key={t} onClick={() => setFilters(f => ({ ...f, trend: t }))}
-              className={filters.trend === t ? '' : 'filter-chip-inactive'}
-              style={{ height: 34, padding: '0 14px', background: filters.trend === t ? '#6366F1' : 'rgba(255,255,255,0.06)', color: filters.trend === t ? 'white' : '#e4e4e7', border: `1px solid ${filters.trend === t ? '#6366F1' : 'rgba(255,255,255,0.1)'}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+              className={filters.trend === t ? 'filter-chip-active' : 'filter-chip-inactive'}
+              style={{ height: 34, padding: '0 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' as const }}>
               {t === 'all' ? 'All' : t === 'rising' ? 'Rising' : t === 'peaked' ? 'Peaked' : 'Declining'}
             </button>
           ))}
@@ -874,7 +872,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   {/* Body */}
                   <div style={{ padding: '12px 14px' }}>
                     <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
-                      {(p.real_orders_count || 0) >= 10000 && <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.2)' }}>🔥 HOT</span>}
+                      {(p.real_orders_count || 0) >= 10000 && <span className="badge-exploding">🔥 HOT</span>}
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.4, marginBottom: 8 }}>
                       {name}
@@ -960,6 +958,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       boxShadow: detailProduct?.id === product.id ? '0 0 0 2px #6366F1' : '0 1px 3px rgba(0,0,0,0.04)',
                       transition: 'box-shadow 150ms',
                       position: 'relative' as const,
+                      overflow: 'hidden' as const,
                     }}
                   >
                     {/* Mobile card checkbox */}
@@ -1115,8 +1114,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             }
           }}
         >
-            <div style={{ background: '#0E1420' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 900 }} className="products-table">
+            <div className="mkr-table-wrap" style={{ background: '#0E1420' }}>
+          <table className="mkr-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 900 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
@@ -1276,8 +1275,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3 }}>
                                 {/* Show AT MOST 2 badges — prioritise EXPLODING then trend */}
-                                {(p.real_orders_count || 0) >= 10000 && <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.2)' }}>🔥 EXPLODING</span>}
-                                {(p.real_orders_count || 0) >= 2000 && (p.real_orders_count || 0) < 10000 && <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.2)' }}>📈 RISING</span>}
+                                {(p.real_orders_count || 0) >= 10000 && <span className="badge-exploding">🔥 EXPLODING</span>}
+                                {(p.real_orders_count || 0) >= 2000 && (p.real_orders_count || 0) < 10000 && <span className="badge-trending">📈 RISING</span>}
                                 {p.category && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>{p.category}</span>}
                               </div>
                             </div>
@@ -1293,7 +1292,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               if (realOrd && realOrd > 0) {
                                 return (
                                   <>
-                                    <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: '#22C55E' }}>
+                                    <div className="mkr-mono" style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: '#22C55E' }}>
                                       {realOrd >= 1000 ? `${(realOrd / 1000).toFixed(1)}k` : realOrd.toLocaleString()}
                                     </div>
                                     <div style={{ fontSize: 10, color: '#22C55E' }}>real orders</div>
@@ -1302,7 +1301,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               }
                               return (
                                 <>
-                                  <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: aeOrd >= 1000 ? '#f4f4f5' : '#71717a' }}>
+                                  <div className="mkr-mono" style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: aeOrd >= 1000 ? '#f4f4f5' : '#71717a' }}>
                                     {aeOrd >= 1000 ? `${(aeOrd / 1000).toFixed(1)}k` : aeOrd > 0 ? aeOrd.toLocaleString() : '—'}
                                   </div>
                                   <div style={{ fontSize: 10, color: '#9CA3AF' }}>AE orders</div>
@@ -1388,7 +1387,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                             const sellP = (p as any).suggested_sell_aud || price;
                             return (
                               <>
-                                <div style={{ fontWeight: 700, fontSize: 14, color: '#f4f4f5' }}>${sellP > 0 ? sellP.toFixed(0) : '—'}</div>
+                                <div className="mkr-mono" style={{ fontWeight: 700, fontSize: 14, color: '#f4f4f5' }}>${sellP > 0 ? sellP.toFixed(0) : '—'}</div>
                                 <div style={{ fontSize: 10, color: '#9CA3AF' }}>{region.currency}</div>
                               </>
                             );
@@ -1399,7 +1398,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <td style={tdStyle('center')}>
                           {canSeeFinancials ? (
                             <>
-                              <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: margin === null ? '#6B7280' : (margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444') }}>
+                              <div className="mkr-mono" style={{ fontFamily: "'Inter', -apple-system, sans-serif", fontWeight: 800, fontSize: 15, color: margin === null ? '#6B7280' : (margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444') }}>
                                 {margin !== null ? `${margin}%` : '—'}
                               </div>
                               {margin !== null && (

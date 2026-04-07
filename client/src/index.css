@@ -96,6 +96,8 @@ select {
   padding-right: 28px;
 }
 
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; }
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
