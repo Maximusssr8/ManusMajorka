@@ -383,11 +383,7 @@ function Nav({ scrolled }: NavProps) {
         justifyContent: 'space-between',
       }}>
         <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{
-            width: 26, height: 26, borderRadius: 6, background: T.accent,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: display, fontWeight: 800, fontSize: 14, color: '#fff',
-          }}>M</div>
+          <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
           <span style={{ fontFamily: display, fontWeight: 700, fontSize: 16, color: T.text, letterSpacing: '-0.02em' }}>Majorka</span>
         </a>
 
@@ -461,9 +457,9 @@ function Hero() {
             <h1 className="mj-hero-h1" style={{
               fontFamily: display,
               fontWeight: 700,
-              fontSize: 60,
+              fontSize: 68,
               lineHeight: 1.05,
-              letterSpacing: '-0.035em',
+              letterSpacing: '-0.045em',
               color: T.text,
               margin: '0 0 24px',
             }}>
@@ -486,6 +482,12 @@ function Hero() {
             </div>
 
             <SocialProofBar />
+            <div style={{ marginTop: 10 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 6px rgba(239,68,68,0.6)', flexShrink: 0, display: 'inline-block' }} />
+                <span style={{ fontFamily: mono, fontSize: 11, color: '#9ca3af', letterSpacing: '0.02em' }}>127 operators found a winning product this week · 23 new products added in the last 24h</span>
+              </div>
+            </div>
           </div>
 
           {/* Right: floating browser window */}
@@ -977,13 +979,77 @@ function FeatureCopy({ eyebrow, line1, line2, description, bullets }: FeatureCop
 }
 
 // ── Discovery Mockup ────────────────────────────────────────────────────────
+function DiscoveryProductCard({ name, score, margin, orders, image }: { name: string; score: number; margin: string; orders: string; image: React.ReactNode }) {
+  return (
+    <div style={{
+      background: T.bgSurface,
+      border: `1px solid ${T.border}`,
+      borderRadius: 10,
+      overflow: 'hidden',
+    }}>
+      <div style={{ position: 'relative' }}>
+        {image}
+        <span style={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          padding: '3px 8px',
+          background: 'rgba(10,10,10,0.7)',
+          border: `1px solid rgba(255,255,255,0.18)`,
+          borderRadius: 4,
+          fontFamily: mono,
+          fontSize: 10,
+          color: '#fff',
+          fontWeight: 700,
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+        }}>SCORE {score}</span>
+      </div>
+      <div style={{ padding: 14 }}>
+        <div style={{
+          fontFamily: display,
+          fontWeight: 600,
+          fontSize: 13,
+          color: T.text,
+          marginBottom: 8,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          letterSpacing: '-0.005em',
+        }}>{name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <span style={{ fontFamily: mono, fontSize: 11, color: T.green }}>{margin} margin</span>
+          <span style={{ fontFamily: mono, fontSize: 11, color: T.textDim }}>{orders}/mo</span>
+        </div>
+        <button style={{
+          width: '100%',
+          padding: '8px 12px',
+          background: 'transparent',
+          border: `1px solid ${T.border}`,
+          borderRadius: 6,
+          fontFamily: sans,
+          fontSize: 11,
+          fontWeight: 600,
+          color: T.textMuted,
+          cursor: 'pointer',
+          transition: 'border-color 150ms, color 150ms',
+        }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.text; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.textMuted; }}
+        >View product →</button>
+      </div>
+    </div>
+  );
+}
+
+const aliBadges = (
+  <>
+    <div style={{ position: 'absolute', bottom: 6, right: 8, background: 'rgba(255,90,0,0.9)', color: 'white', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 3, fontFamily: 'monospace' }}>AliExpress</div>
+    <div style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e', fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 3, fontFamily: 'monospace' }}>AE VERIFIED</div>
+  </>
+);
+
 function DiscoveryMockup() {
-  const products = [
-    { name: 'Posture Corrector Pro', score: 94, margin: '68%', orders: '12.8k', grad: 'linear-gradient(135deg, #6366F1, #8B5CF6)' },
-    { name: 'Cloud Memory Slippers',  score: 92, margin: '74%', orders: '11.4k', grad: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
-    { name: 'LED Strip Lights 5m',    score: 91, margin: '72%', orders: '9.2k',  grad: 'linear-gradient(135deg, #22c55e, #10b981)' },
-    { name: 'Heated Massage Pillow',  score: 90, margin: '70%', orders: '10.3k', grad: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
-  ];
   return (
     <div style={{ background: T.bgPanel, padding: 24 }}>
       {/* Toolbar */}
@@ -1013,71 +1079,61 @@ function DiscoveryMockup() {
         gridTemplateColumns: '1fr 1fr',
         gap: 14,
       }}>
-        {products.map((p) => (
-          <div key={p.name} style={{
-            background: T.bgSurface,
-            border: `1px solid ${T.border}`,
-            borderRadius: 8,
-            overflow: 'hidden',
-          }}>
-            {/* Image */}
-            <div style={{
-              height: 100,
-              background: p.grad,
-              position: 'relative',
-            }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 60%)' }} />
-              <span style={{
-                position: 'absolute',
-                top: 10,
-                right: 10,
-                padding: '3px 8px',
-                background: 'rgba(10,10,10,0.6)',
-                border: `1px solid rgba(255,255,255,0.15)`,
-                borderRadius: 4,
-                fontFamily: mono,
-                fontSize: 10,
-                color: '#fff',
-                fontWeight: 700,
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-              }}>SCORE {p.score}</span>
-            </div>
-            <div style={{ padding: 14 }}>
-              <div style={{
-                fontFamily: display,
-                fontWeight: 600,
-                fontSize: 13,
-                color: T.text,
-                marginBottom: 8,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                letterSpacing: '-0.005em',
-              }}>{p.name}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <span style={{ fontFamily: mono, fontSize: 11, color: T.green }}>{p.margin} margin</span>
-                <span style={{ fontFamily: mono, fontSize: 11, color: T.textDim }}>{p.orders}/mo</span>
+        <DiscoveryProductCard
+          name="Posture Corrector Pro" score={94} margin="68%" orders="12.8k"
+          image={
+            <div style={{ height: 110, background: '#f0ede8', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 70, height: 50, background: 'linear-gradient(135deg,#2d2d2d,#4a4a4a)', borderRadius: 12, position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+                <div style={{ position: 'absolute', inset: '6px 4px', background: 'linear-gradient(135deg,#1a1a1a,#333)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }} />
               </div>
-              <button style={{
-                width: '100%',
-                padding: '8px 12px',
-                background: 'transparent',
-                border: `1px solid ${T.border}`,
-                borderRadius: 6,
-                fontFamily: sans,
-                fontSize: 11,
-                fontWeight: 600,
-                color: T.textMuted,
-                cursor: 'pointer',
-                transition: 'border-color 150ms, color 150ms',
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.text; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.textMuted; }}
-              >View product →</button>
+              {aliBadges}
             </div>
-          </div>
-        ))}
+          }
+        />
+        <DiscoveryProductCard
+          name="Cloud Memory Slippers" score={92} margin="74%" orders="11.4k"
+          image={
+            <div style={{ height: 110, background: '#f5f0eb', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 80, height: 40, background: 'linear-gradient(135deg,#e8c99a,#d4a96a)', borderRadius: '40px 40px 20px 20px', position: 'relative', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}>
+                <div style={{ position: 'absolute', top: 4, left: 8, right: 8, height: 14, background: 'rgba(255,255,255,0.4)', borderRadius: 20 }} />
+              </div>
+              {aliBadges}
+            </div>
+          }
+        />
+        <DiscoveryProductCard
+          name="LED Strip Lights 5m" score={91} margin="72%" orders="9.2k"
+          image={
+            <div style={{ height: 110, background: '#0a0a12', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: 80 }}>
+                {[
+                  'linear-gradient(90deg,#ff0080,#ff6600,#ffff00,#00ff88,#0088ff,#8800ff)',
+                  'linear-gradient(90deg,#0088ff,#8800ff,#ff0080,#ff6600,#ffff00,#00ff88)',
+                  'linear-gradient(90deg,#00ff88,#0088ff,#8800ff,#ff0080,#ff6600,#ffff00)',
+                ].map((g, i) => (
+                  <div key={i} style={{ height: 6, background: g, borderRadius: 3, boxShadow: '0 0 8px rgba(99,102,241,0.6)' }} />
+                ))}
+              </div>
+              {aliBadges}
+            </div>
+          }
+        />
+        <DiscoveryProductCard
+          name="Heated Massage Pillow" score={90} margin="70%" orders="10.3k"
+          image={
+            <div style={{ height: 110, background: '#f0e8e8', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 78, height: 52, background: 'linear-gradient(135deg,#8B3A3A,#C0504D)', borderRadius: '50%', position: 'relative', boxShadow: '0 4px 16px rgba(139,58,58,0.4)' }}>
+                <div style={{ position: 'absolute', inset: 8, background: 'linear-gradient(135deg,rgba(255,255,255,0.15),transparent)', borderRadius: '50%' }} />
+              </div>
+              {aliBadges}
+            </div>
+          }
+        />
+      </div>
+      {/* Provenance strip */}
+      <div style={{ marginTop: 12, padding: '8px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.6)', flexShrink: 0, display: 'inline-block' }} />
+        <span style={{ fontFamily: mono, fontSize: 11, color: '#6b7280', letterSpacing: '0.02em' }}>Sourced from AliExpress Affiliate API · Real order counts · Updated every 4 hours · 2,400+ verified products</span>
       </div>
     </div>
   );
@@ -1402,7 +1458,6 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'Multi-Market Support (7)', m: '✓', minea: '—', auto: '—', ecom: '—' },
   { feature: 'TikTok + Meta Ad Spy',     m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Profit Calculator',        m: '✓', minea: '—', auto: '✓', ecom: '—' },
-  { feature: 'Starting Price',           m: '$99', minea: '$49', auto: '$26', ecom: '$23' },
 ];
 
 function Comparison() {
@@ -1752,6 +1807,10 @@ function Pricing({ annual, setAnnual }: PricingProps) {
           </div>
         </div>
 
+        <div style={{ textAlign: 'center', padding: '10px 20px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, maxWidth: 520, margin: '0 auto 32px' }}>
+          <span style={{ fontFamily: mono, fontSize: 12, color: '#f59e0b', letterSpacing: '0.03em' }}>⚡ Early access pricing — locked in for existing subscribers when we raise prices</span>
+        </div>
+
         <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
           <PricingCard
             tag="Builder" price={builderPrice} annual={annual}
@@ -1974,6 +2033,9 @@ function FinalCTA() {
         <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
           14-day free trial · No credit card · Cancel anytime
         </div>
+        <p style={{ marginTop: 16, fontFamily: mono, fontSize: 12, color: '#6b7280', letterSpacing: '0.02em', textAlign: 'center' }}>
+          Join 500+ operators who found their first winning product within 48 hours of signing up.
+        </p>
       </div>
     </section>
   );
@@ -1992,11 +2054,7 @@ function Footer() {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <div style={{
-                width: 26, height: 26, borderRadius: 6, background: T.accent,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: display, fontWeight: 800, fontSize: 14, color: '#fff',
-              }}>M</div>
+              <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
               <span style={{ fontFamily: display, fontWeight: 700, fontSize: 16, color: T.text, letterSpacing: '-0.02em' }}>Majorka</span>
             </div>
             <p style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6, maxWidth: 280, margin: 0 }}>
@@ -2167,6 +2225,7 @@ export default function Home() {
       </div>
 
       <Comparison />
+      <DatabaseSection />
       <Markets />
       <Workflow />
       <Testimonials />
