@@ -24,6 +24,29 @@ const SHIMMER = `
   border-radius: 4px;
   display: inline-block;
 }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 14px rgba(34,197,94,0.8), 0 0 24px rgba(34,197,94,0.2); }
+}
+@keyframes score-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.majorka-row-hover { transition: background 100ms ease; cursor: pointer; }
+.majorka-row-hover:hover { background: rgba(99,102,241,0.06) !important; }
+.majorka-btn { transition: all 150ms ease; }
+.majorka-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
+.majorka-btn:active { transform: scale(0.97); }
+.majorka-live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22c55e;
+  animation: pulse-glow 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
 `;
 
 function timeOfDay(): string {
@@ -188,7 +211,7 @@ export default function AppHome() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px rgba(34,197,94,0.5)' }} />
+              <div className="majorka-live-dot" />
               <span style={{
                 fontFamily: mono,
                 fontSize: 10,
@@ -349,6 +372,7 @@ export default function AppHome() {
               return (
                 <div
                   key={p.id}
+                  className="majorka-row-hover"
                   onClick={() => setSelectedProduct(p)}
                   style={{
                     display: 'grid',
@@ -357,11 +381,10 @@ export default function AppHome() {
                     padding: '12px 16px',
                     alignItems: 'center',
                     borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
-                    cursor: 'pointer',
-                    transition: 'background 100ms',
+                    animation: 'fadeUp 300ms ease forwards',
+                    animationDelay: `${i * 40}ms`,
+                    opacity: 0,
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.04)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
                   <span style={{ fontFamily: mono, fontSize: 12, color: '#3f3f52' }}>{String(i + 1).padStart(2, '0')}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -398,6 +421,7 @@ export default function AppHome() {
                       padding: '3px 9px',
                       borderRadius: 999,
                       display: 'inline-block',
+                      animation: score >= 95 ? 'score-pulse 2s ease-in-out infinite' : 'none',
                     }}>{score || '—'}</span>
                   </span>
                   <span style={{

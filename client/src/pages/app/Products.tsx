@@ -38,17 +38,29 @@ const SHIMMER = `
   border-radius: 4px;
   display: inline-block;
 }
-@keyframes mj-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 14px rgba(34,197,94,0.8), 0 0 24px rgba(34,197,94,0.2); }
+}
+@keyframes score-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .mj-app-pulse-dot {
   display: inline-block;
   width: 7px; height: 7px; border-radius: 50%;
   background: #22c55e;
-  box-shadow: 0 0 6px rgba(34,197,94,0.6);
-  animation: mj-pulse 1.6s infinite;
+  animation: pulse-glow 2s ease-in-out infinite;
 }
+.majorka-row-hover { transition: background 100ms ease; cursor: pointer; }
+.majorka-row-hover:hover { background: rgba(99,102,241,0.04) !important; }
+.majorka-btn { transition: all 150ms ease; }
+.majorka-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
+.majorka-btn:active { transform: scale(0.97); }
 `;
 
 type ScoreFilter = 0 | 65 | 80 | 90;
@@ -133,9 +145,7 @@ function SourcePill({ source }: { source: string | null }) {
 }
 
 export default function AppProducts() {
-  const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState<OrderByColumn>('sold_count');
-  const [scoreFilter, setScoreFilter] = useState<ScoreFilter>(0);
   const [view, setView] = useState<'table' | 'grid'>('table');
   const [limit, setLimit] = useState(20);
   const [activeNiche, setActiveNiche] = useState<string | null>(null);
@@ -154,7 +164,6 @@ export default function AppProducts() {
   const { products, loading, total } = useProducts({
     limit,
     orderBy,
-    minScore: scoreFilter === 0 ? undefined : scoreFilter,
     category: activeNiche ?? undefined,
     minPrice: priceMin ?? undefined,
     maxPrice: priceMax ?? undefined,
@@ -175,7 +184,6 @@ export default function AppProducts() {
 
   const filtered = useMemo(() => {
     let list = products;
-    // Smart tab filter (client-side)
     if (activeTab === 'new') {
       const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
       list = list.filter((p) => p.created_at && new Date(p.created_at).getTime() >= cutoff);
@@ -186,31 +194,31 @@ export default function AppProducts() {
     } else if (activeTab === 'top') {
       list = list.filter((p) => (p.winning_score ?? 0) >= 90);
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter((p) => p.product_title?.toLowerCase().includes(q));
-    }
     return list;
-  }, [products, search, activeTab]);
+  }, [products, activeTab]);
 
   return (
     <>
       <style>{SHIMMER}</style>
 
       {/* Page header */}
-      <div style={{ padding: '28px 32px 16px' }}>
+      <div style={{ padding: '32px 36px 20px' }}>
         <h1 style={{
           fontFamily: display,
-          fontWeight: 600,
-          fontSize: 22,
-          color: '#ededed',
+          fontSize: 28,
+          fontWeight: 800,
           letterSpacing: '-0.02em',
-          margin: 0,
+          margin: '0 0 4px',
+          background: 'linear-gradient(135deg, #f1f1f3 0%, #a5b4fc 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
         }}>Products</h1>
-        <p style={{ fontFamily: sans, fontSize: 13, color: '#71717a', margin: '4px 0 0' }}>
+        <p style={{ fontFamily: sans, fontSize: 13, color: '#5a5a6e', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="mj-app-pulse-dot" />
           {searchMode === 'live'
             ? `Live AliExpress Affiliate API · ${aeSearch.total.toLocaleString()} results for "${aeSearch.query}"`
-            : `Real products from AliExpress with genuine order data${loading ? '' : ` · ${total.toLocaleString()} tracked`}`}
+            : `${total > 0 ? total.toLocaleString() : ''} products tracked · AliExpress Advanced API · refreshed every 6h`}
         </p>
       </div>
 
@@ -233,8 +241,15 @@ export default function AppProducts() {
               outline: 'none',
               transition: 'border-color 150ms',
             }}
-            onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(99,102,241,0.4)'; }}
-            onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
+            onFocus={(e) => {
+              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(99,102,241,0.5)';
+              (e.currentTarget as HTMLInputElement).style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08), 0 0 20px rgba(99,102,241,0.1)';
+              (e.currentTarget as HTMLInputElement).style.outline = 'none';
+            }}
+            onBlur={(e) => {
+              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.07)';
+              (e.currentTarget as HTMLInputElement).style.boxShadow = 'none';
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const val = (e.currentTarget as HTMLInputElement).value.trim();
@@ -345,7 +360,7 @@ export default function AppProducts() {
       )}
 
       {searchMode === 'db' && (<>
-      {/* Smart tab presets */}
+      {/* Smart tabs + sort + view toggle (consolidated) */}
       <div style={{
         display: 'flex',
         gap: 4,
@@ -354,6 +369,7 @@ export default function AppProducts() {
         borderBottom: '1px solid rgba(255,255,255,0.07)',
         overflowX: 'auto',
         scrollbarWidth: 'none',
+        alignItems: 'center',
       }}>
         {SMART_TABS.map((tab) => {
           const active = activeTab === tab.key;
@@ -385,47 +401,16 @@ export default function AppProducts() {
             </button>
           );
         })}
-      </div>
-
-      {/* Filter bar */}
-      <div style={{ padding: '0 32px 12px', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
-        <div style={{ position: 'relative', width: 260 }}>
-          <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#52525b', pointerEvents: 'none' }} />
-          <input
-            type="search"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ ...inputStyle, paddingLeft: 30, width: '100%' }}
-          />
-        </div>
+        <div style={{ flex: 1 }} />
         <select
           value={orderBy}
           onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
-          style={selectStyle}
+          style={{ ...selectStyle, marginBottom: 6, flexShrink: 0 }}
         >
-          <option value="sold_count">Orders: High to Low</option>
-          <option value="winning_score">Score: High to Low</option>
-        </select>
-        <select
-          value={scoreFilter}
-          onChange={(e) => setScoreFilter(Number(e.target.value) as ScoreFilter)}
-          style={selectStyle}
-        >
-          <option value={0}>All scores</option>
-          <option value={65}>65+ Score</option>
-          <option value={80}>80+ Score</option>
-          <option value={90}>90+ Score</option>
-        </select>
-        <select
-          value={activeNiche ?? ''}
-          onChange={(e) => setActiveNiche(e.target.value || null)}
-          style={{ ...selectStyle, background: '#0f0f14', borderColor: 'rgba(255,255,255,0.07)', borderRadius: 7 }}
-        >
-          <option value="">All Niches</option>
-          {niches.map((n) => (
-            <option key={n.name} value={n.name}>{n.name} ({n.count})</option>
-          ))}
+          <option value="sold_count">Orders: High → Low</option>
+          <option value="winning_score">Score: High → Low</option>
+          <option value="price_asc">Price: Low → High</option>
+          <option value="created_at">Newest first</option>
         </select>
         <div style={{
           display: 'inline-flex',
@@ -433,7 +418,9 @@ export default function AppProducts() {
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 6,
           padding: 2,
-          marginLeft: 'auto',
+          marginBottom: 6,
+          marginLeft: 6,
+          flexShrink: 0,
         }}>
           {(['table', 'grid'] as const).map((mode) => {
             const active = view === mode;
@@ -443,8 +430,8 @@ export default function AppProducts() {
                 onClick={() => setView(mode)}
                 aria-label={mode}
                 style={{
-                  width: 32,
-                  height: 30,
+                  width: 30,
+                  height: 26,
                   border: 'none',
                   background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
                   color: active ? '#6366F1' : '#71717a',
@@ -456,28 +443,10 @@ export default function AppProducts() {
                   transition: 'all 150ms',
                 }}
               >
-                {mode === 'table' ? <List size={14} /> : <LayoutGrid size={14} />}
+                {mode === 'table' ? <List size={13} /> : <LayoutGrid size={13} />}
               </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* AE source banner */}
-      <div style={{ padding: '0 32px 8px' }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: 6,
-          padding: '6px 12px',
-        }}>
-          <span className="mj-app-pulse-dot" />
-          <span style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>
-            Sourced from AliExpress Affiliate API · Real order counts · Updated every 4 hours
-          </span>
         </div>
       </div>
 
@@ -603,6 +572,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
             return (
               <div
                 key={p.id}
+                className="majorka-row-hover"
                 onClick={() => onSelect(p)}
                 style={{
                   display: 'grid',
@@ -611,11 +581,10 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                   padding: '14px 16px',
                   alignItems: 'center',
                   borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
-                  transition: 'background 120ms',
-                  cursor: 'pointer',
+                  animation: 'fadeUp 300ms ease forwards',
+                  animationDelay: `${Math.min(i, 12) * 40}ms`,
+                  opacity: 0,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 <span style={{ fontFamily: mono, fontSize: 13, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
@@ -1128,6 +1097,7 @@ function ScoreDisplay({ score }: { score: number }) {
       padding: '3px 9px',
       borderRadius: 999,
       display: 'inline-block',
+      animation: score >= 95 ? 'score-pulse 2s ease-in-out infinite' : 'none',
     }}>{score || '—'}</span>
   );
 }
@@ -1140,17 +1110,20 @@ function RowActions({ product }: { product: Product }) {
         title="Profit Calculator"
         onClick={(e) => { e.stopPropagation(); window.location.href = '/app/profit'; }}
         style={{ padding: '4px 8px', background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+        className="majorka-btn"
       >💰</button>
       <button
         title="Generate Ad"
         onClick={(e) => { e.stopPropagation(); window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
         style={{ padding: '4px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+        className="majorka-btn"
       >🎯</button>
       {product.product_url && (
         <button
           title="View on AliExpress"
           onClick={(e) => { e.stopPropagation(); product.product_url && window.open(product.product_url, '_blank', 'noopener,noreferrer'); }}
           style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+        className="majorka-btn"
         >↗</button>
       )}
     </>

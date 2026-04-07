@@ -113,15 +113,24 @@ export function useProductStats(): ProductStats {
     let cancelled = false;
     async function load() {
       try {
-        // Single GET fetches everything needed; client-side aggregation
-        // avoids 6+ HEAD count requests that were 503ing on Supabase.
-        const { data: rows, error: rowsErr } = await supabase
-          .from('winning_products')
-          .select('sold_count,winning_score,platform,category')
-          .limit(3000);
-        if (rowsErr) throw rowsErr;
-
-        const list = (rows ?? []) as Array<{ sold_count: number | null; winning_score: number | null; platform: string | null; category: string | null }>;
+        // Supabase REST default max_rows=1000, so .limit(3000) silently caps
+        // at 1000. Paginate via .range() to fetch the full table for accurate
+        // hotCount / eliteCount / categoryCount aggregations.
+        type StatsRow = { sold_count: number | null; winning_score: number | null; platform: string | null; category: string | null };
+        const list: StatsRow[] = [];
+        const PAGE = 1000;
+        let from = 0;
+        while (from < 10000) {
+          const { data, error: pageErr } = await supabase
+            .from('winning_products')
+            .select('sold_count,winning_score,platform,category')
+            .range(from, from + PAGE - 1);
+          if (pageErr) throw pageErr;
+          const batch = (data ?? []) as StatsRow[];
+          list.push(...batch);
+          if (batch.length < PAGE) break;
+          from += PAGE;
+        }
         const total = list.length;
         const categoryCount = new Set(list.map((r) => r.category).filter((c): c is string => typeof c === 'string' && c.trim().length > 0)).size;
         const maxOrders = list.reduce((m, r) => Math.max(m, r.sold_count ?? 0), 0);
