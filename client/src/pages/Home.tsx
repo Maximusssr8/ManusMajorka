@@ -1483,7 +1483,7 @@ export default function Home() {
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 840, margin: '0 auto', padding: '0 24px' }}>
           {/* H1 */}
-          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', wordBreak: 'keep-all' as const, overflowWrap: 'normal' as const }}>
+          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0' }}>
             <span style={{ color: '#F8FAFC' }}>Find Products That Sell.</span>
             <br />
             <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Build Stores That Convert.</span>
