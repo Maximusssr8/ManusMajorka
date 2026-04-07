@@ -85,15 +85,27 @@ const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustral
 const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
 const WinningProductsAustralia = lazy(() => import('./pages/seo/WinningProductsAustralia'));
 
-// New v2 app pages with custom AppLayout (component lives at components/app/AppLayout.tsx)
-const NewAppLayout = lazyWithRetry(() => import('./components/app/AppLayout').then((m) => ({ default: m.AppLayout })));
-const NewDashboard = lazyWithRetry(() => import('./pages/app/Dashboard'));
+// New v2 app shell (4 files only — AppShell, Nav, Home, Products)
+const NewAppShell = lazyWithRetry(() => import('./components/app/AppShell').then((m) => ({ default: m.AppShell })));
+const NewHome = lazyWithRetry(() => import('./pages/app/Home'));
 const NewProducts = lazyWithRetry(() => import('./pages/app/Products'));
-const NewMarket = lazyWithRetry(() => import('./pages/app/Market'));
-const NewAlerts = lazyWithRetry(() => import('./pages/app/Alerts'));
-const NewRevenue = lazyWithRetry(() => import('./pages/app/Revenue'));
-const NewAI = lazyWithRetry(() => import('./pages/app/AI'));
-const NewSpy = lazyWithRetry(() => import('./pages/app/Spy'));
+
+interface ComingSoonProps { page: string }
+function ComingSoon({ page }: ComingSoonProps) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      flexDirection: 'column',
+      gap: 12,
+    }}>
+      <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: '#ededed', letterSpacing: '-0.025em' }}>{page}</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: '#71717a' }}>Coming soon</div>
+    </div>
+  );
+}
 
 function LoadingFallback() {
   return (
@@ -250,24 +262,18 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app">
-              {() => (
-                <ProtectedRoute>
-                  <NewAppLayout><NewDashboard /></NewAppLayout>
-                </ProtectedRoute>
-              )}
-            </Route>
+            <Route path="/app">{() => <ProtectedRoute><NewAppShell><NewHome /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/legacy">{() => <ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/settings">{() => <ProtectedRoute><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ai">{() => <ProtectedRoute><NewAppLayout><NewAI /></NewAppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ai">{() => <ProtectedRoute><NewAppShell><ComingSoon page="AI Tools" /></NewAppShell></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}
-            <Route path="/app/products">{() => <ProtectedRoute><NewAppLayout><NewProducts /></NewAppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/products">{() => <ProtectedRoute><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/market">{() => <ProtectedRoute><NewAppLayout><NewMarket /></NewAppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/market">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Market Intelligence" /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/market-legacy">{() => <ProtectedRoute><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/market-intel">{() => { window.location.replace('/app/market'); return null; }}</Route>
             <Route path="/app/market-dashboard">{() => { window.location.replace('/app/market'); return null; }}</Route>
@@ -282,9 +288,9 @@ function Router() {
 
             {/* New consolidated routes */}
             <Route path="/app/intelligence">{() => <ProtectedRoute><AppLayout><ProductIntelligence /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/alerts">{() => <ProtectedRoute><NewAppLayout><NewAlerts /></NewAppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/alerts">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Alerts" /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/alerts-legacy">{() => <ProtectedRoute><AppLayout><Alerts /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/spy">{() => <ProtectedRoute><NewAppLayout><NewSpy /></NewAppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/spy">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Competitor Spy" /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/spy-legacy">{() => <ProtectedRoute><AppLayout><SpyTools /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/growth">{() => <ProtectedRoute><AppLayout><GrowthTools /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/profit">{() => <ProtectedRoute><AppLayout><ProfitCalculator /></AppLayout></ProtectedRoute>}</Route>
@@ -341,7 +347,7 @@ function Router() {
             <Route path="/app/profit-calc">{() => { window.location.replace('/app/profit'); return null; }}</Route>
             <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/ai-chat">{() => <ProtectedRoute><AppLayout><AIChat /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/revenue">{() => <ProtectedRoute><NewAppLayout><NewRevenue /></NewAppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/revenue">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Revenue" /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/revenue-legacy">{() => <ProtectedRoute><AppLayout><RevenuePage /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/:tool">
               {() => (

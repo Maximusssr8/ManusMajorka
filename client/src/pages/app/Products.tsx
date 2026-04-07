@@ -1,25 +1,133 @@
 import { useMemo, useState } from 'react';
-import { Search, LayoutGrid, List, ArrowUpRight } from 'lucide-react';
+import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
-import { SkeletonRow, SkeletonCard } from '@/components/app/SkeletonRow';
-import { EmptyState } from '@/components/app/EmptyState';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
 const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
 
-type ScoreFilter = 'all' | '80' | '90';
+const SHIMMER = `
+@keyframes mj-app-shim {
+  0%   { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+.mj-shim {
+  background: linear-gradient(90deg, #111114 0%, #1a1a1f 50%, #111114 100%);
+  background-size: 300px 100%;
+  animation: mj-app-shim 1.4s linear infinite;
+  border-radius: 4px;
+  display: inline-block;
+}
+@keyframes mj-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+.mj-app-pulse-dot {
+  display: inline-block;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34,197,94,0.6);
+  animation: mj-pulse 1.6s infinite;
+}
+`;
+
+type ScoreFilter = 0 | 65 | 80 | 90;
+
+const inputStyle: React.CSSProperties = {
+  background: '#0d0d10',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 6,
+  padding: '8px 12px',
+  color: '#ededed',
+  fontFamily: sans,
+  fontSize: 13,
+  outline: 'none',
+};
+
+const selectStyle: React.CSSProperties = {
+  background: '#0d0d10',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 6,
+  padding: '8px 12px',
+  color: '#a1a1aa',
+  fontFamily: mono,
+  fontSize: 12,
+  cursor: 'pointer',
+  outline: 'none',
+};
+
+function Thumb({ title, image, size = 32 }: { title: string; image: string | null; size?: number }) {
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt={title}
+        style={{
+          width: size, height: size, borderRadius: 5,
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: '#0d0d10',
+          objectFit: 'cover',
+          flexShrink: 0,
+        }}
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+      />
+    );
+  }
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: 5,
+      background: '#0d0d10',
+      border: '1px solid rgba(255,255,255,0.08)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      flexShrink: 0,
+      fontFamily: display,
+      fontSize: Math.round(size * 0.42),
+      fontWeight: 700,
+      color: '#6366F1',
+    }}>{title.charAt(0).toUpperCase()}</div>
+  );
+}
+
+function SourcePill({ source }: { source: string | null }) {
+  const isAli = (source ?? '').toLowerCase().includes('aliexpress');
+  if (isAli) {
+    return <span style={{
+      display: 'inline-block',
+      padding: '2px 8px',
+      background: 'rgba(255,90,0,0.12)',
+      border: '1px solid rgba(255,90,0,0.25)',
+      color: 'rgba(255,90,0,0.9)',
+      borderRadius: 999,
+      fontFamily: mono,
+      fontSize: 10,
+      fontWeight: 700,
+    }}>AliExpress</span>;
+  }
+  return <span style={{
+    display: 'inline-block',
+    padding: '2px 8px',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    color: '#71717a',
+    borderRadius: 999,
+    fontFamily: mono,
+    fontSize: 10,
+    fontWeight: 700,
+  }}>{source ?? '—'}</span>;
+}
 
 export default function AppProducts() {
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState<OrderByColumn>('sold_count');
-  const [scoreFilter, setScoreFilter] = useState<ScoreFilter>('all');
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [scoreFilter, setScoreFilter] = useState<ScoreFilter>(0);
+  const [view, setView] = useState<'table' | 'grid'>('table');
   const [limit, setLimit] = useState(20);
 
-  const minScore = scoreFilter === '80' ? 80 : scoreFilter === '90' ? 90 : undefined;
-
-  const { products, loading, total } = useProducts({ limit, orderBy, minScore });
+  const { products, loading, total } = useProducts({
+    limit,
+    orderBy,
+    minScore: scoreFilter === 0 ? undefined : scoreFilter,
+  });
 
   const filtered = useMemo(() => {
     if (!search.trim()) return products;
@@ -28,378 +136,451 @@ export default function AppProducts() {
   }, [products, search]);
 
   return (
-    <div style={{ padding: '32px 32px 64px', maxWidth: 1400, margin: '0 auto' }}>
+    <>
+      <style>{SHIMMER}</style>
 
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontFamily: display, fontWeight: 600, fontSize: 28, color: '#ededed', letterSpacing: '-0.025em', margin: '0 0 6px' }}>Products</h1>
-        <p style={{ fontFamily: sans, fontSize: 14, color: '#71717a', margin: 0 }}>
-          {loading ? 'Loading…' : `${total.toLocaleString()} products tracked across all markets · live AliExpress data`}
+      {/* Page header */}
+      <div style={{ padding: '28px 32px 16px' }}>
+        <h1 style={{
+          fontFamily: display,
+          fontWeight: 600,
+          fontSize: 22,
+          color: '#ededed',
+          letterSpacing: '-0.02em',
+          margin: 0,
+        }}>Products</h1>
+        <p style={{ fontFamily: sans, fontSize: 13, color: '#71717a', margin: '4px 0 0' }}>
+          Real products from AliExpress with genuine order data{loading ? '' : ` · ${total.toLocaleString()} tracked`}
         </p>
       </div>
 
       {/* Filter bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '12px 14px',
-        background: '#111114',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 8,
-        marginBottom: 16,
-        flexWrap: 'wrap',
-      }}>
-        <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 200 }}>
-          <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#52525b' }} />
+      <div style={{ padding: '0 32px 12px', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+        <div style={{ position: 'relative', width: 260 }}>
+          <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#52525b', pointerEvents: 'none' }} />
           <input
             type="search"
-            placeholder="Search products…"
+            placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: '100%',
-              height: 34,
-              padding: '0 12px 0 32px',
-              background: '#0d0d10',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 6,
-              color: '#ededed',
-              fontFamily: sans,
-              fontSize: 13,
-              outline: 'none',
-            }}
+            style={{ ...inputStyle, paddingLeft: 30, width: '100%' }}
           />
         </div>
-
         <select
           value={orderBy}
           onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
-          style={{
-            height: 34,
-            padding: '0 12px',
-            background: '#0d0d10',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 6,
-            color: '#ededed',
-            fontFamily: sans,
-            fontSize: 13,
-            cursor: 'pointer',
-          }}
+          style={selectStyle}
         >
-          <option value="sold_count">Orders: high → low</option>
-          <option value="winning_score">Score: high → low</option>
-          <option value="est_daily_revenue_aud">Revenue: high → low</option>
-          <option value="created_at">Newest first</option>
+          <option value="sold_count">Orders: High to Low</option>
+          <option value="winning_score">Score: High to Low</option>
         </select>
-
         <select
           value={scoreFilter}
-          onChange={(e) => setScoreFilter(e.target.value as ScoreFilter)}
-          style={{
-            height: 34,
-            padding: '0 12px',
-            background: '#0d0d10',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 6,
-            color: '#ededed',
-            fontFamily: sans,
-            fontSize: 13,
-            cursor: 'pointer',
-          }}
+          onChange={(e) => setScoreFilter(Number(e.target.value) as ScoreFilter)}
+          style={selectStyle}
         >
-          <option value="all">All scores</option>
-          <option value="80">Score 80+</option>
-          <option value="90">Score 90+</option>
+          <option value={0}>All scores</option>
+          <option value={65}>65+ Score</option>
+          <option value={80}>80+ Score</option>
+          <option value={90}>90+ Score</option>
         </select>
+        <div style={{
+          display: 'inline-flex',
+          background: '#0d0d10',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 6,
+          padding: 2,
+          marginLeft: 'auto',
+        }}>
+          {(['table', 'grid'] as const).map((mode) => {
+            const active = view === mode;
+            return (
+              <button
+                key={mode}
+                onClick={() => setView(mode)}
+                aria-label={mode}
+                style={{
+                  width: 32,
+                  height: 30,
+                  border: 'none',
+                  background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
+                  color: active ? '#6366F1' : '#71717a',
+                  cursor: 'pointer',
+                  borderRadius: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 150ms',
+                }}
+              >
+                {mode === 'table' ? <List size={14} /> : <LayoutGrid size={14} />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-        <div style={{ display: 'flex', background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}>
-          {(['table', 'grid'] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              style={{
-                width: 34,
-                height: 34,
-                border: 'none',
-                background: viewMode === mode ? 'rgba(99,102,241,0.12)' : 'transparent',
-                color: viewMode === mode ? '#6366F1' : '#71717a',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 5,
-              }}
-              aria-label={mode}
-            >
-              {mode === 'table' ? <List size={15} /> : <LayoutGrid size={15} />}
-            </button>
-          ))}
+      {/* AE source banner */}
+      <div style={{ padding: '0 32px 8px' }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 6,
+          padding: '6px 12px',
+        }}>
+          <span className="mj-app-pulse-dot" />
+          <span style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>
+            Sourced from AliExpress Affiliate API · Real order counts · Updated every 4 hours
+          </span>
         </div>
       </div>
 
       {/* Content */}
-      {viewMode === 'table' ? (
+      {view === 'table' ? (
         <TableView products={filtered} loading={loading} />
       ) : (
         <GridView products={filtered} loading={loading} />
       )}
 
       {/* Load more */}
-      {!loading && filtered.length > 0 && filtered.length >= limit && limit < total && (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+      {!loading && filtered.length >= limit && limit < total && (
+        <div style={{ margin: '0 32px 32px', textAlign: 'center' }}>
           <button
             onClick={() => setLimit((l) => l + 20)}
             style={{
-              padding: '10px 22px',
-              background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.14)',
-              borderRadius: 6,
-              color: '#ededed',
               fontFamily: sans,
               fontSize: 13,
-              fontWeight: 600,
+              color: '#71717a',
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '10px 24px',
+              borderRadius: 6,
               cursor: 'pointer',
-              transition: 'border-color 150ms, background 150ms',
+              transition: 'border-color 150ms, color 150ms',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.background = 'rgba(99,102,241,0.06)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.background = 'transparent'; }}
-          >Load more ({total - limit} remaining)</button>
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#ededed'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#71717a'; }}
+          >Load more</button>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 function TableView({ products, loading }: { products: Product[]; loading: boolean }) {
   return (
-    <div style={{
-      background: '#111114',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 8,
-      overflow: 'hidden',
-    }}>
+    <div style={{ padding: '0 32px 32px' }}>
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: '40px 1fr 130px 100px 100px 110px 90px',
-        gap: 14,
-        padding: '14px 16px',
-        fontFamily: mono,
-        fontSize: 11,
-        fontWeight: 500,
-        letterSpacing: '0.08em',
-        color: '#52525b',
-        textTransform: 'uppercase',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        background: '#111114',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 8,
+        overflow: 'hidden',
       }}>
-        <span>#</span>
-        <span>Product</span>
-        <span>Score</span>
-        <span style={{ textAlign: 'right' }}>Orders/mo</span>
-        <span style={{ textAlign: 'right' }}>Price</span>
-        <span>Source</span>
-        <span style={{ textAlign: 'right' }}>Action</span>
-      </div>
-      {loading ? (
-        Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)
-      ) : products.length === 0 ? (
-        <div style={{ padding: 24 }}>
-          <EmptyState />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '40px 1.4fr 130px 130px 100px 100px 110px 70px',
+          gap: 14,
+          padding: '10px 16px',
+          fontFamily: mono,
+          fontSize: 10,
+          fontWeight: 500,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: '#52525b',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}>
+          <span>#</span>
+          <span>Product</span>
+          <span>Category</span>
+          <span>Score</span>
+          <span style={{ textAlign: 'right' }}>Orders/mo</span>
+          <span style={{ textAlign: 'right' }}>Price</span>
+          <span>Source</span>
+          <span style={{ textAlign: 'right' }}>Action</span>
         </div>
-      ) : (
-        products.map((p, i) => {
-          const score = p.winning_score ?? 0;
-          const isAli = (p.platform ?? '').toLowerCase().includes('aliexpress');
-          return (
-            <div key={p.id} style={{
+
+        {loading ? (
+          Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} style={{
               display: 'grid',
-              gridTemplateColumns: '40px 1fr 130px 100px 100px 110px 90px',
+              gridTemplateColumns: '40px 1.4fr 130px 130px 100px 100px 110px 70px',
               gap: 14,
               padding: '14px 16px',
               alignItems: 'center',
               borderBottom: '1px solid rgba(255,255,255,0.04)',
-              transition: 'background 120ms',
-            }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-            >
-              <span style={{ fontFamily: mono, fontSize: 12, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                <ProductThumb product={p} size={36} />
-                <span style={{ overflow: 'hidden', minWidth: 0 }}>
-                  <div style={{ fontFamily: sans, fontSize: 14, color: '#ededed', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.product_title}</div>
-                  {p.category && <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', marginTop: 2 }}>{p.category}</div>}
-                </span>
+            }}>
+              <span className="mj-shim" style={{ height: 12, width: 24 }} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="mj-shim" style={{ height: 32, width: 32, borderRadius: 5 }} />
+                <span className="mj-shim" style={{ height: 12, width: '70%' }} />
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ height: 4, flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden', maxWidth: 70 }}>
-                  <span style={{
-                    display: 'block',
-                    height: '100%',
-                    width: `${Math.min(100, score)}%`,
-                    background: score >= 80 ? '#22c55e' : '#6366F1',
-                  }} />
-                </span>
-                <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 600, color: '#6366F1', minWidth: 24, textAlign: 'right' }}>{score || '—'}</span>
-              </span>
-              <span style={{ fontFamily: mono, fontSize: 13, color: '#22c55e', textAlign: 'right' }}>{p.sold_count?.toLocaleString() ?? '—'}</span>
-              <span style={{ fontFamily: mono, fontSize: 13, color: '#ededed', textAlign: 'right' }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</span>
-              <span>
-                <span style={{
-                  display: 'inline-block',
-                  padding: '3px 9px',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  fontFamily: mono,
-                  borderRadius: 4,
-                  background: isAli ? 'rgba(255,90,0,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: isAli ? '#f97316' : '#a1a1aa',
-                  border: isAli ? '1px solid rgba(255,90,0,0.25)' : '1px solid rgba(255,255,255,0.08)',
-                  textTransform: 'uppercase',
-                }}>{p.platform ?? '—'}</span>
-              </span>
-              <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                {p.product_url ? (
-                  <a href={p.product_url} target="_blank" rel="noopener noreferrer" style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    padding: '5px 10px',
-                    background: 'rgba(99,102,241,0.08)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    borderRadius: 6,
-                    color: '#6366F1',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    fontFamily: sans,
-                  }}>View <ArrowUpRight size={11} /></a>
-                ) : (
-                  <span style={{ color: '#52525b', fontSize: 11 }}>—</span>
-                )}
-              </span>
+              <span className="mj-shim" style={{ height: 12, width: '70%' }} />
+              <span className="mj-shim" style={{ height: 12, width: '70%' }} />
+              <span className="mj-shim" style={{ height: 12, width: '70%' }} />
+              <span className="mj-shim" style={{ height: 12, width: '70%' }} />
+              <span className="mj-shim" style={{ height: 16, width: 60, borderRadius: 999 }} />
+              <span className="mj-shim" style={{ height: 24, width: 36, borderRadius: 5 }} />
             </div>
-          );
-        })
-      )}
+          ))
+        ) : products.length === 0 ? (
+          <div style={{
+            padding: '40px 16px',
+            textAlign: 'center',
+            fontFamily: sans,
+            fontSize: 13,
+            color: '#52525b',
+          }}>No products match your filters</div>
+        ) : (
+          products.map((p, i) => {
+            const score = p.winning_score ?? 0;
+            return (
+              <div
+                key={p.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '40px 1.4fr 130px 130px 100px 100px 110px 70px',
+                  gap: 14,
+                  padding: '14px 16px',
+                  alignItems: 'center',
+                  borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
+                  transition: 'background 120ms',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span style={{ fontFamily: mono, fontSize: 13, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                  <Thumb title={p.product_title} image={p.image_url} />
+                  <span style={{
+                    fontFamily: sans,
+                    fontSize: 13,
+                    color: '#ededed',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>{p.product_title}</span>
+                </span>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '3px 9px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 999,
+                  fontFamily: sans,
+                  fontSize: 12,
+                  color: '#71717a',
+                  width: 'fit-content',
+                }}>{p.category ?? '—'}</span>
+                <span style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#6366F1' }}>{score || '—'}</span>
+                  <span style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
+                    <span style={{
+                      display: 'block',
+                      height: '100%',
+                      width: `${Math.min(100, score)}%`,
+                      background: '#6366F1',
+                      borderRadius: 2,
+                    }} />
+                  </span>
+                </span>
+                <span style={{
+                  fontFamily: mono,
+                  fontSize: 13,
+                  color: p.sold_count != null ? '#22c55e' : '#71717a',
+                  textAlign: 'right',
+                }}>{p.sold_count != null ? p.sold_count.toLocaleString() : '—'}</span>
+                <span style={{
+                  fontFamily: mono,
+                  fontSize: 13,
+                  color: '#ededed',
+                  textAlign: 'right',
+                }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</span>
+                <span><SourcePill source={p.platform} /></span>
+                <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  {p.product_url ? (
+                    <a
+                      href={p.product_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        padding: '4px 10px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 5,
+                        fontFamily: sans,
+                        fontSize: 12,
+                        color: '#71717a',
+                        textDecoration: 'none',
+                        transition: 'border-color 150ms, color 150ms',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#71717a'; }}
+                    ><ArrowUpRight size={11} /></a>
+                  ) : (
+                    <span style={{ fontSize: 11, color: '#52525b' }}>—</span>
+                  )}
+                </span>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }
 
 function GridView({ products, loading }: { products: Product[]; loading: boolean }) {
-  if (loading) {
-    return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
-        {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
-      </div>
-    );
-  }
-  if (products.length === 0) return <EmptyState />;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
-      {products.map((p) => {
-        const score = p.winning_score ?? 0;
-        const isAli = (p.platform ?? '').toLowerCase().includes('aliexpress');
-        return (
-          <div key={p.id} style={{
+    <div style={{
+      padding: '0 32px 32px',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+      gap: 14,
+    }}>
+      {loading ? (
+        Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} style={{
             background: '#111114',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 10,
             overflow: 'hidden',
-            transition: 'border-color 200ms, transform 200ms',
-            cursor: 'default',
-          }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-          >
-            <div style={{ height: 110, background: '#0d0d10', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {p.image_url ? (
-                <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
-              ) : (
-                <span style={{
-                  fontFamily: display,
-                  fontSize: 32,
-                  fontWeight: 700,
-                  color: 'rgba(99,102,241,0.4)',
-                }}>{p.product_title.charAt(0).toUpperCase()}</span>
-              )}
-              <span style={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                padding: '3px 8px',
-                background: 'rgba(0,0,0,0.7)',
-                color: '#6366F1',
-                fontFamily: mono,
-                fontSize: 10,
-                fontWeight: 700,
-                borderRadius: 4,
-                border: '1px solid rgba(99,102,241,0.3)',
-              }}>{score}/100</span>
-            </div>
-            <div style={{ padding: 14 }}>
-              <div style={{
-                fontFamily: sans,
-                fontSize: 13,
-                fontWeight: 600,
-                color: '#ededed',
-                lineHeight: 1.4,
-                marginBottom: 8,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}>{p.product_title}</div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ fontFamily: mono, fontSize: 12, color: '#22c55e' }}>{p.sold_count?.toLocaleString() ?? '—'} / mo</span>
-                <span style={{ fontFamily: mono, fontSize: 13, color: '#ededed', fontWeight: 600 }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</span>
-              </div>
-              <span style={{
-                display: 'inline-block',
-                padding: '2px 8px',
-                fontSize: 10,
-                fontWeight: 700,
-                fontFamily: mono,
-                borderRadius: 4,
-                background: isAli ? 'rgba(255,90,0,0.12)' : 'rgba(255,255,255,0.04)',
-                color: isAli ? '#f97316' : '#a1a1aa',
-                border: isAli ? '1px solid rgba(255,90,0,0.25)' : '1px solid rgba(255,255,255,0.08)',
-                textTransform: 'uppercase',
-              }}>{p.platform ?? '—'}</span>
+          }}>
+            <div className="mj-shim" style={{ height: 100, borderRadius: 0 }} />
+            <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <span className="mj-shim" style={{ height: 12, width: '85%' }} />
+              <span className="mj-shim" style={{ height: 12, width: '60%' }} />
+              <span className="mj-shim" style={{ height: 16, width: 50, borderRadius: 999 }} />
             </div>
           </div>
-        );
-      })}
+        ))
+      ) : products.length === 0 ? (
+        <div style={{
+          gridColumn: '1 / -1',
+          padding: '60px 16px',
+          textAlign: 'center',
+          fontFamily: sans,
+          fontSize: 13,
+          color: '#52525b',
+          background: '#111114',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 8,
+        }}>No products match your filters</div>
+      ) : (
+        products.map((p) => {
+          const score = p.winning_score ?? 0;
+          const isAli = (p.platform ?? '').toLowerCase().includes('aliexpress');
+          return (
+            <div
+              key={p.id}
+              style={{
+                background: '#111114',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 10,
+                overflow: 'hidden',
+                transition: 'border-color 200ms, transform 200ms',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <div style={{
+                height: 100,
+                background: '#0d0d10',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+              }}>
+                {p.image_url ? (
+                  <img
+                    src={p.image_url}
+                    alt={p.product_title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  />
+                ) : (
+                  <span style={{
+                    fontFamily: display,
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: 'rgba(99,102,241,0.4)',
+                  }}>{p.product_title.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div style={{ padding: 14 }}>
+                <div style={{
+                  fontFamily: sans,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: '#ededed',
+                  lineHeight: 1.4,
+                  marginBottom: 0,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}>{p.product_title}</div>
+                <div style={{
+                  marginTop: 10,
+                  display: 'inline-block',
+                  padding: '3px 8px',
+                  background: 'rgba(99,102,241,0.12)',
+                  color: '#6366F1',
+                  borderRadius: 999,
+                  fontFamily: mono,
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}>{score} / 100</div>
+                <div style={{
+                  marginTop: 6,
+                  fontFamily: mono,
+                  fontSize: 12,
+                  color: p.sold_count != null ? '#22c55e' : '#52525b',
+                }}>{p.sold_count != null ? `${p.sold_count.toLocaleString()} orders` : '— orders'}</div>
+                <div style={{
+                  marginTop: 4,
+                  fontFamily: mono,
+                  fontSize: 12,
+                  color: '#71717a',
+                }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</div>
+                {isAli && (
+                  <div style={{ marginTop: 8 }}>
+                    <SourcePill source={p.platform} />
+                  </div>
+                )}
+                {p.product_url && (
+                  <a
+                    href={p.product_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      marginTop: 12,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontFamily: sans,
+                      fontSize: 12,
+                      color: '#6366F1',
+                      textDecoration: 'none',
+                    }}
+                  >View details <ArrowUpRight size={11} /></a>
+                )}
+              </div>
+            </div>
+          );
+        })
+      )}
     </div>
-  );
-}
-
-function ProductThumb({ product, size = 36 }: { product: Product; size?: number }) {
-  if (product.image_url) {
-    return (
-      <img src={product.image_url} alt={product.product_title} style={{
-        width: size, height: size, borderRadius: 6,
-        objectFit: 'cover',
-        border: '1px solid rgba(255,255,255,0.08)',
-        flexShrink: 0,
-        background: '#0d0d10',
-      }}
-        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-      />
-    );
-  }
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: 6,
-      background: '#0d0d10',
-      border: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0,
-      fontFamily: display,
-      fontSize: 14,
-      fontWeight: 700,
-      color: '#6366F1',
-    }}>{product.product_title.charAt(0).toUpperCase()}</div>
   );
 }
