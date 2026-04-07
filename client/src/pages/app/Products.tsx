@@ -11,6 +11,15 @@ import { proxyImage } from '@/lib/imageProxy';
 import { scorePillStyle } from '@/lib/scorePill';
 
 type CarouselKey = 'recent' | 'scored' | 'value';
+type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top';
+
+const SMART_TABS: { key: SmartTabKey; label: string; icon: string }[] = [
+  { key: 'all',         label: 'All Products',   icon: '' },
+  { key: 'new',         label: 'New This Week',  icon: '🆕' },
+  { key: 'trending',    label: 'Trending Now',   icon: '🔥' },
+  { key: 'highmargin',  label: 'High Margin',    icon: '💰' },
+  { key: 'top',         label: 'Score 90+',      icon: '⭐' },
+];
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -131,6 +140,7 @@ export default function AppProducts() {
   const [activeNiche, setActiveNiche] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeCarousel, setActiveCarousel] = useState<CarouselKey>('recent');
+  const [activeTab, setActiveTab] = useState<SmartTabKey>('all');
   const { niches } = useNicheStats();
 
   const { products, loading, total } = useProducts({
@@ -141,10 +151,24 @@ export default function AppProducts() {
   });
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return products;
-    const q = search.toLowerCase();
-    return products.filter((p) => p.product_title?.toLowerCase().includes(q));
-  }, [products, search]);
+    let list = products;
+    // Smart tab filter (client-side)
+    if (activeTab === 'new') {
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      list = list.filter((p) => p.created_at && new Date(p.created_at).getTime() >= cutoff);
+    } else if (activeTab === 'trending') {
+      list = list.filter((p) => (p.sold_count ?? 0) > 1000 || (p.winning_score ?? 0) >= 80);
+    } else if (activeTab === 'highmargin') {
+      list = list.filter((p) => p.price_aud != null && Number(p.price_aud) > 5);
+    } else if (activeTab === 'top') {
+      list = list.filter((p) => (p.winning_score ?? 0) >= 90);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((p) => p.product_title?.toLowerCase().includes(q));
+    }
+    return list;
+  }, [products, search, activeTab]);
 
   return (
     <>
@@ -165,7 +189,47 @@ export default function AppProducts() {
         </p>
       </div>
 
-      <FeaturedCarousels active={activeCarousel} setActive={setActiveCarousel} onSelect={setSelectedProduct} />
+      {/* Smart tab presets */}
+      <div style={{
+        display: 'flex',
+        gap: 4,
+        padding: '0 32px',
+        marginBottom: 16,
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        overflowX: 'auto',
+        scrollbarWidth: 'none',
+      }}>
+        {SMART_TABS.map((tab) => {
+          const active = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '9px 16px',
+                fontFamily: sans,
+                fontSize: 13,
+                fontWeight: 500,
+                color: active ? '#ededed' : '#6b7280',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                borderBottom: active ? '2px solid #6366F1' : '2px solid transparent',
+                marginBottom: -1,
+                transition: 'all 150ms',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              {tab.icon && <span>{tab.icon}</span>}
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Filter bar */}
       <div style={{ padding: '0 32px 12px', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
@@ -290,6 +354,19 @@ export default function AppProducts() {
         </div>
       )}
 
+      {/* More to explore — supplementary carousels */}
+      <div style={{ padding: '20px 32px 8px' }}>
+        <h3 style={{
+          fontFamily: display,
+          fontSize: 15,
+          fontWeight: 700,
+          color: '#a1a1aa',
+          margin: 0,
+          letterSpacing: '-0.01em',
+        }}>More to explore</h3>
+      </div>
+      <FeaturedCarousels active={activeCarousel} setActive={setActiveCarousel} onSelect={setSelectedProduct} />
+
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </>
   );
@@ -306,7 +383,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '40px 1.4fr 130px 80px 100px 90px 70px 70px',
+          gridTemplateColumns: '40px 1.3fr 110px 80px 90px 80px 110px 70px 70px',
           gap: 14,
           padding: '10px 16px',
           fontFamily: mono,
@@ -323,6 +400,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
           <span>Score</span>
           <span style={{ textAlign: 'right' }}>Orders/mo</span>
           <span style={{ textAlign: 'right' }}>Price</span>
+          <span style={{ textAlign: 'right' }}>~Est. Revenue</span>
           <span>Trend</span>
           <span style={{ textAlign: 'right' }}>Action</span>
         </div>
@@ -331,7 +409,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
           Array.from({ length: 10 }).map((_, i) => (
             <div key={i} style={{
               display: 'grid',
-              gridTemplateColumns: '40px 1.4fr 130px 80px 100px 90px 70px 70px',
+              gridTemplateColumns: '40px 1.3fr 110px 80px 90px 80px 110px 70px 70px',
               gap: 14,
               padding: '14px 16px',
               alignItems: 'center',
@@ -346,7 +424,8 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
               <span className="mj-shim" style={{ height: 12, width: '70%' }} />
               <span className="mj-shim" style={{ height: 12, width: '70%' }} />
               <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-              <span className="mj-shim" style={{ height: 16, width: 60, borderRadius: 999 }} />
+              <span className="mj-shim" style={{ height: 12, width: '80%' }} />
+              <span className="mj-shim" style={{ height: 14, width: 50 }} />
               <span className="mj-shim" style={{ height: 24, width: 36, borderRadius: 5 }} />
             </div>
           ))
@@ -361,13 +440,16 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
         ) : (
           products.map((p, i) => {
             const score = p.winning_score ?? 0;
+            const estRevenue = p.sold_count && p.price_aud
+              ? Math.round(Number(p.sold_count) * Number(p.price_aud) * 0.45)
+              : null;
             return (
               <div
                 key={p.id}
                 onClick={() => onSelect(p)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '40px 1.4fr 130px 80px 100px 90px 70px 70px',
+                  gridTemplateColumns: '40px 1.3fr 110px 80px 90px 80px 110px 70px 70px',
                   gap: 14,
                   padding: '14px 16px',
                   alignItems: 'center',
@@ -415,6 +497,17 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                   color: '#ededed',
                   textAlign: 'right',
                 }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</span>
+                <span style={{
+                  fontFamily: mono,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: estRevenue != null ? '#22c55e' : '#4b5563',
+                  textAlign: 'right',
+                }}>
+                  {estRevenue != null
+                    ? `~$${estRevenue >= 1000 ? (estRevenue / 1000).toFixed(1) + 'k' : estRevenue}/mo`
+                    : '—'}
+                </span>
                 <span style={{ display: 'flex', alignItems: 'center' }}>
                   <ProductSparkline productId={p.id} score={score} />
                 </span>
@@ -574,7 +667,7 @@ function FeaturedCarousels({ active, setActive, onSelect }: { active: CarouselKe
   ];
   const data = active === 'recent' ? recentlyAdded : active === 'scored' ? topScored : bestValue;
   return (
-    <div style={{ padding: '0 32px 16px' }}>
+    <div style={{ padding: '0 32px 24px', overflow: 'hidden' }}>
       <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid rgba(255,255,255,0.07)', marginBottom: 16 }}>
         {tabs.map((tab) => (
           <button
@@ -598,11 +691,12 @@ function FeaturedCarousels({ active, setActive, onSelect }: { active: CarouselKe
       <div style={{
         display: 'flex',
         gap: 12,
-        padding: '4px 0 12px',
+        paddingBottom: 12,
         overflowX: 'auto',
+        overflowY: 'hidden',
         scrollbarWidth: 'none',
         msOverflowStyle: 'none' as const,
-        minHeight: 260,
+        minHeight: 0,
         alignItems: 'stretch',
       }}>
         {data.loading
@@ -627,6 +721,7 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
       style={{
         flexShrink: 0,
         width: 200,
+        minHeight: 0,
         background: '#141417',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 10,
