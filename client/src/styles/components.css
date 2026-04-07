@@ -211,11 +211,19 @@ body::after {
 
 /* Page transition — CSS fade replaces Framer Motion (which got stuck at opacity:0 on hard nav) */
 @keyframes mkr-page-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
 .mkr-page-content {
-  animation: mkr-page-fade-in 0.18s ease-out both;
+  animation: mkr-page-fade-in 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 /* ===== STAT CARDS ===== */
@@ -538,6 +546,218 @@ body::after {
   height: 60%;
   background: linear-gradient(to bottom, transparent, rgba(10,18,40,0.95));
   pointer-events: none;
+}
+
+.mkr-panel-score {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  z-index: 2;
+}
+
+/* ===== FEATURE 12: COMMAND PALETTE ===== */
+.mkr-cmdk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(4, 8, 18, 0.80);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+}
+
+.mkr-cmdk-container {
+  width: 560px;
+  background: rgba(10, 18, 40, 0.95);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06), 0 0 40px rgba(99,102,241,0.10);
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.mkr-cmdk-input {
+  width: 100%;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 16px;
+  color: rgba(255,255,255,0.9);
+  outline: none;
+  letter-spacing: -0.3px;
+  font-family: inherit;
+}
+
+.mkr-cmdk-input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+
+.mkr-cmdk-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin: 2px 6px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+}
+
+.mkr-cmdk-result-item:hover,
+.mkr-cmdk-result-item[aria-selected="true"],
+.mkr-cmdk-result-item.active {
+  background: rgba(99,102,241,0.12);
+  color: #a5b4fc;
+}
+
+.mkr-cmdk-kbd {
+  margin-left: auto;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+  font-variant-numeric: tabular-nums;
+}
+
+.mkr-cmdk-section-header {
+  padding: 8px 16px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+.mkr-cmdk-results-list {
+  padding: 6px 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.mkr-cmdk-footer {
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ===== FEATURE 13: LIVE BADGE ===== */
+.mkr-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(16,185,129,0.10);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6EE7B7;
+  white-space: nowrap;
+}
+
+.mkr-live-dot-wrap {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+.mkr-live-dot-core {
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.mkr-live-dot-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1.5px solid #10b981;
+  opacity: 0;
+  animation: live-ring-burst 2.5s ease-out infinite;
+}
+
+.mkr-live-dot-ring:nth-child(3) {
+  inset: -5px;
+  animation-delay: 0.5s;
+}
+
+@keyframes live-ring-burst {
+  0%   { opacity: 0.6; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+/* ===== FEATURE 14: SKELETON LOADING ===== */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.mkr-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.08) 100px,
+    rgba(255,255,255,0.04) 200px
+  );
+  background-size: 400px 100%;
+  border-radius: 6px;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.mkr-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  height: 56px;
+}
+
+.mkr-skeleton-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.mkr-skeleton-text-lg {
+  height: 13px;
+  width: 200px;
+  border-radius: 4px;
+}
+
+.mkr-skeleton-text-sm {
+  height: 10px;
+  width: 80px;
+  margin-top: 4px;
+  border-radius: 4px;
+}
+
+.mkr-skeleton-num {
+  height: 13px;
+  width: 60px;
+  margin-left: auto;
+  border-radius: 4px;
+}
+
+.mkr-skeleton-badge {
+  height: 22px;
+  width: 50px;
+  border-radius: 999px;
 }
 
 

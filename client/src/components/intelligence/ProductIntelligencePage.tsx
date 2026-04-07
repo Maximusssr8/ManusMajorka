@@ -7,6 +7,7 @@ import { FullDatabaseTab } from './tabs/FullDatabaseTab';
 import { ScoutTab } from './tabs/ScoutTab';
 import { StatsBar } from './components/StatsBar';
 import { ShimmerButton } from '@/components/ui/ShimmerButton';
+import { LiveBadge } from '@/components/ui/LiveBadge';
 
 interface StatsData {
   total?: number;
@@ -63,13 +64,7 @@ export function ProductIntelligencePage() {
             </p>
           </div>
           <div className="flex items-center gap-2.5">
-            <div
-              className="flex items-center gap-1.5 text-emerald-400 text-[12px] px-3 py-1.5 rounded-full"
-              style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.15)' }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Live AliExpress data
-            </div>
+            <LiveBadge label="Live AliExpress data" />
             <button
               onClick={() => window.open('/api/products/export?format=csv', '_blank')}
               className="flex items-center gap-1.5 text-slate-400 hover:text-slate-300 px-3 py-1.5 rounded-lg text-[13px] transition-all"

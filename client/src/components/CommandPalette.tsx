@@ -100,67 +100,22 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
   }, [flatList, selectedIndex, onClose]);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.6)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: '15vh',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 560,
-          background: '#0C1120',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 14,
-          boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-          overflow: 'hidden',
-          marginLeft: 16,
-          marginRight: 16,
-        }}
-        onClick={e => e.stopPropagation()}
-      >
+    <div className="mkr-cmdk-overlay" onClick={onClose}>
+      <div className="mkr-cmdk-container" onClick={e => e.stopPropagation()}>
         {/* Search input */}
-        <div
-          style={{
-            height: 52,
-            display: 'flex',
-            alignItems: 'center',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            paddingLeft: 16,
-            paddingRight: 16,
+        <input
+          autoFocus
+          value={query}
+          onChange={e => {
+            setQuery(e.target.value);
+            setSelectedIndex(0);
           }}
-        >
-          <input
-            autoFocus
-            value={query}
-            onChange={e => {
-              setQuery(e.target.value);
-              setSelectedIndex(0);
-            }}
-            placeholder="Search pages, products, tools..."
-            style={{
-              flex: 1,
-              fontSize: 16,
-              border: 'none',
-              background: 'transparent',
-              color: 'white',
-              outline: 'none',
-              fontFamily: "'Inter', -apple-system, sans-serif",
-              caretColor: '#6366F1',
-            }}
-          />
-        </div>
+          placeholder="Search pages, products, tools..."
+          className="mkr-cmdk-input"
+        />
 
         {/* Results list */}
-        <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+        <div className="mkr-cmdk-results-list">
           {flatList.length === 0 ? (
             <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
               No results found
@@ -174,17 +129,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
                 return (
                   <div key={category}>
                     {/* Category header */}
-                    <div
-                      style={{
-                        padding: '8px 16px',
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: '#6B7280',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
-                        background: 'rgba(0,0,0,0.2)',
-                      }}
-                    >
+                    <div className="mkr-cmdk-section-header">
                       {category}
                     </div>
 
@@ -196,48 +141,21 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
                         <div
                           key={item.id}
                           onClick={() => handleExecute(item)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            height: 44,
-                            paddingLeft: 16,
-                            paddingRight: 16,
-                            background: isSelected ? 'rgba(99,102,241,0.15)' : 'transparent',
-                            borderLeft: isSelected ? '2px solid #6366F1' : '2px solid transparent',
-                            cursor: 'pointer',
-                            transition: 'background 100ms',
-                            gap: 10,
-                          }}
+                          className={`mkr-cmdk-result-item ${isSelected ? 'active' : ''}`}
                           onMouseEnter={() => setSelectedIndex(itemIndex)}
+                          role="option"
+                          aria-selected={isSelected}
                         >
                           {/* Icon */}
-                          <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
+                          <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
 
                           {/* Label */}
-                          <span
-                            style={{
-                              flex: 1,
-                              fontSize: 14,
-                              color: isSelected ? '#E2E8F0' : '#CBD5E1',
-                              fontFamily: "'Inter', -apple-system, sans-serif",
-                            }}
-                          >
+                          <span style={{ flex: 1 }}>
                             {item.label}
                           </span>
 
                           {/* Category pill */}
-                          <span
-                            style={{
-                              fontSize: 11,
-                              color: '#9CA3AF',
-                              background: 'rgba(255,255,255,0.06)',
-                              border: '1px solid rgba(255,255,255,0.08)',
-                              borderRadius: 4,
-                              padding: '2px 6px',
-                              fontWeight: 500,
-                              flexShrink: 0,
-                            }}
-                          >
+                          <span className="mkr-cmdk-kbd">
                             {category}
                           </span>
                         </div>

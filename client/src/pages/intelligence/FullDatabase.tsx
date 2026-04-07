@@ -21,6 +21,7 @@ import UsageMeter from '@/components/UsageMeter';
 import { PLAN_LIMITS } from '@shared/plans';
 import { ShimmerButton } from '@/components/ui/ShimmerButton';
 import { ProductDeepDive } from '@/components/intelligence/ProductDeepDive';
+import { SkeletonRows } from '@/components/ui/SkeletonRows';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -904,17 +905,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
             {/* Card list */}
             {(loading || isFiltering) ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} style={{ background: '#0E1420', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', padding: 14, marginBottom: 10 }}>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 8, background: 'rgba(255,255,255,0.06)', flexShrink: 0, animation: 'shimmer 1.5s ease-in-out infinite' }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ height: 14, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: '80%', marginBottom: 8, animation: 'shimmer 1.5s ease-in-out infinite' }} />
-                      <div style={{ height: 11, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: '50%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
-                    </div>
-                  </div>
-                </div>
-              ))
+              <SkeletonRows count={8} />
             ) : displayProducts.length === 0 ? (
               search ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>

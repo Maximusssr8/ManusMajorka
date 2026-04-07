@@ -6,6 +6,7 @@
 
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Helmet } from 'react-helmet-async';
+import { LiveBadge } from '@/components/ui/LiveBadge';
 import {
   BarChart3,
   BookOpen,
@@ -362,8 +363,7 @@ export default function MarketDashboard() {
             {refreshError && <p className="text-xs" style={{ color: '#EF4444' }}>{refreshError}</p>}
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs" style={{ color: '#64748b' }}>Live</span>
+            <LiveBadge label="Live market data" />
             {isScale && (
               <button onClick={triggerProductRefresh} disabled={refreshingProducts}
                 style={{ height: 30, padding: '0 10px', background: refreshingProducts ? '#9CA3AF' : 'white', color: refreshingProducts ? 'white' : '#6366F1', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: refreshingProducts ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>

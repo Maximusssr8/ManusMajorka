@@ -23,6 +23,8 @@ import {
 import { ShimmerButton } from '@/components/ui/ShimmerButton';
 import { GradientText } from '@/components/ui/GradientText';
 import { Card3D } from '@/components/ui/Card3D';
+import { EncryptedText } from '@/components/ui/EncryptedText';
+import { Spotlight } from '@/components/ui/Spotlight';
 import React, { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
