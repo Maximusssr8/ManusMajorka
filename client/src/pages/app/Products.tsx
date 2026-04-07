@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'wouter';
 import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
+import { useNicheStats } from '@/hooks/useNicheStats';
 import { ProductImage } from '@/components/app/ProductImage';
 import { getCategoryStyle } from '@/lib/categoryColor';
 
@@ -122,11 +123,13 @@ export default function AppProducts() {
   const [scoreFilter, setScoreFilter] = useState<ScoreFilter>(0);
   const [view, setView] = useState<'table' | 'grid'>('table');
   const [limit, setLimit] = useState(20);
+  const [activeNiche, setActiveNiche] = useState<string | null>(null);
 
   const { products, loading, total } = useProducts({
     limit,
     orderBy,
     minScore: scoreFilter === 0 ? undefined : scoreFilter,
+    category: activeNiche ?? undefined,
   });
 
   const filtered = useMemo(() => {
@@ -154,35 +157,11 @@ export default function AppProducts() {
         </p>
       </div>
 
-      {/* Image sync banner */}
-      <div style={{
-        margin: '12px 32px',
-        padding: '10px 16px',
-        background: 'rgba(99,102,241,0.06)',
-        border: '1px solid rgba(99,102,241,0.15)',
-        borderRadius: 8,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-      }}>
-        <span style={{ fontSize: 16 }}>🔄</span>
-        <div style={{ flex: 1 }}>
-          <span style={{ fontFamily: sans, fontSize: 13, color: '#a1a1aa' }}>Product images syncing from AliExpress — </span>
-          <span style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', fontWeight: 500 }}>run the image backfill to populate instantly</span>
-        </div>
-        <a href="/api/cron/backfill-images" target="_blank" rel="noopener noreferrer" style={{
-          fontFamily: mono,
-          fontSize: 11,
-          color: '#6366F1',
-          textDecoration: 'none',
-          padding: '5px 10px',
-          border: '1px solid rgba(99,102,241,0.3)',
-          borderRadius: 5,
-          whiteSpace: 'nowrap',
-        }}>Trigger sync →</a>
-      </div>
+      <LiveActivityFeed />
 
       <FeaturedSections />
+
+      <NicheSection activeNiche={activeNiche} setActiveNiche={setActiveNiche} />
 
       {/* Filter bar */}
       <div style={{ padding: '0 32px 12px', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
@@ -406,23 +385,14 @@ function TableView({ products, loading }: { products: Product[]; loading: boolea
                   width: 'fit-content',
                 }}>{p.category ?? '—'}</span>
                 <span style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#6366F1' }}>{score || '—'}</span>
-                  <span style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
-                    <span style={{
-                      display: 'block',
-                      height: '100%',
-                      width: `${Math.min(100, score)}%`,
-                      background: '#6366F1',
-                      borderRadius: 2,
-                    }} />
-                  </span>
+                  <ScoreDisplay score={score} />
                 </span>
                 <span style={{
                   fontFamily: mono,
-                  fontSize: 13,
-                  color: p.sold_count != null ? '#22c55e' : '#71717a',
+                  fontSize: 12,
+                  color: p.sold_count != null && p.sold_count > 0 ? '#22c55e' : '#374151',
                   textAlign: 'right',
-                }}>{p.sold_count != null ? p.sold_count.toLocaleString() : '—'}</span>
+                }}>{p.sold_count != null && p.sold_count > 0 ? p.sold_count.toLocaleString() : 'syncing'}</span>
                 <span style={{
                   fontFamily: mono,
                   fontSize: 13,
@@ -430,29 +400,9 @@ function TableView({ products, loading }: { products: Product[]; loading: boolea
                   textAlign: 'right',
                 }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</span>
                 <span><SourcePill source={p.platform} /></span>
-                <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  {p.product_url ? (
-                    <a
-                      href={p.product_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        padding: '4px 10px',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: 5,
-                        fontFamily: sans,
-                        fontSize: 12,
-                        color: '#71717a',
-                        textDecoration: 'none',
-                        transition: 'border-color 150ms, color 150ms',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#71717a'; }}
-                    ><ArrowUpRight size={11} /></a>
-                  ) : (
+                <span style={{ display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
+                  <RowActions product={p} />
+                  {!p.product_url && (
                     <span style={{ fontSize: 11, color: '#52525b' }}>—</span>
                   )}
                 </span>
@@ -724,38 +674,242 @@ function FeaturedCard({ product, bg, border, accentColor }: { product: Product; 
 }
 
 function FeaturedSections() {
-  const bestSellers = useProducts({ limit: 6, orderBy: 'sold_count' });
-  const highestScoring = useProducts({ limit: 6, orderBy: 'winning_score' });
-  const bestMargins = useProducts({ limit: 6, orderBy: 'winning_score', minScore: 80 });
+  const recentlyAdded = useProducts({ limit: 10, orderBy: 'created_at' });
+  const topScored    = useProducts({ limit: 10, orderBy: 'winning_score' });
+  const bestValue    = useProducts({ limit: 10, orderBy: 'price_asc' });
   return (
     <>
       <SectionRow
-        title="Best Sellers This Week"
-        emoji="🔥"
+        title="Recently Added"
+        emoji="🆕"
         bg="linear-gradient(135deg, rgba(249,115,22,0.08), rgba(239,68,68,0.04))"
         border="rgba(249,115,22,0.2)"
         accentColor="#f97316"
-        products={bestSellers.products}
-        loading={bestSellers.loading}
+        products={recentlyAdded.products}
+        loading={recentlyAdded.loading}
       />
       <SectionRow
-        title="Highest Scoring"
+        title="Top Scored"
         emoji="⭐"
         bg="linear-gradient(135deg, rgba(99,102,241,0.08), rgba(99,102,241,0.04))"
         border="rgba(99,102,241,0.2)"
         accentColor="#6366F1"
-        products={highestScoring.products}
-        loading={highestScoring.loading}
+        products={topScored.products}
+        loading={topScored.loading}
       />
       <SectionRow
-        title="Best Margins"
+        title="Best Value"
         emoji="💰"
         bg="linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.04))"
         border="rgba(34,197,94,0.2)"
         accentColor="#22c55e"
-        products={bestMargins.products}
-        loading={bestMargins.loading}
+        products={bestValue.products}
+        loading={bestValue.loading}
       />
+    </>
+  );
+}
+
+// ── Live Activity Feed ──────────────────────────────────────────────
+interface LiveEvent { flag: string; text: string; time: string }
+const LIVE_EVENTS: LiveEvent[] = [
+  { flag: '🇦🇺', text: 'AU operator added a new product to their Shopify store',     time: '2m ago' },
+  { flag: '🇺🇸', text: 'US operator discovered a winning product in Hardware',        time: '5m ago' },
+  { flag: '🇬🇧', text: 'UK operator confirmed 50%+ margin via profit calculator',     time: '8m ago' },
+  { flag: '🇨🇦', text: 'CA operator launched a new store from the builder',           time: '12m ago' },
+  { flag: '🇩🇪', text: 'DE operator exported a product batch to Shopify',             time: '16m ago' },
+  { flag: '🇸🇬', text: 'SG operator generated ad copy for a top-scored product',      time: '20m ago' },
+  { flag: '🇳🇿', text: 'NZ operator found a new opportunity in the database',         time: '24m ago' },
+];
+
+function LiveActivityFeed() {
+  return (
+    <>
+      <style>{`@keyframes mj-live-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
+      <div style={{
+        margin: '0 32px 20px',
+        background: 'rgba(34,197,94,0.04)',
+        border: '1px solid rgba(34,197,94,0.12)',
+        borderRadius: 8,
+        padding: '9px 16px',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: '#22c55e',
+            display: 'inline-block',
+            boxShadow: '0 0 6px rgba(34,197,94,0.6)',
+          }} />
+          <span style={{
+            fontFamily: mono,
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#22c55e',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}>Live</span>
+        </div>
+        <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.1)', flexShrink: 0 }} />
+        <div style={{ overflow: 'hidden', flex: 1 }}>
+          <div style={{
+            display: 'flex',
+            gap: 48,
+            animation: 'mj-live-scroll 35s linear infinite',
+            width: 'max-content',
+          }}>
+            {[...LIVE_EVENTS, ...LIVE_EVENTS].map((e, i) => (
+              <span key={i} style={{ fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {e.flag} <span style={{ color: '#ededed' }}>{e.text}</span>
+                <span style={{ color: '#4b5563', marginLeft: 8 }}>{e.time}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Niche Section (real DB counts) ──────────────────────────────────
+function nicheColor(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes('kitchen'))                          return '#f97316';
+  if (n.includes('electron') || n.includes('tech'))   return '#6366F1';
+  if (n.includes('health') || n.includes('beauty'))   return '#ec4899';
+  if (n.includes('fitness') || n.includes('sport'))   return '#22c55e';
+  if (n.includes('kid') || n.includes('toy') || n.includes('baby')) return '#a855f7';
+  if (n.includes('auto') || n.includes('car'))        return '#6b7280';
+  if (n.includes('fashion') || n.includes('cloth'))   return '#f59e0b';
+  if (n.includes('home') || n.includes('storage'))    return '#14b8a6';
+  if (n.includes('outdoor'))                          return '#84cc16';
+  if (n.includes('pet'))                              return '#fb923c';
+  if (n.includes('jewel') || n.includes('accessor')) return '#e879f9';
+  return '#6366F1';
+}
+
+function NicheSection({ activeNiche, setActiveNiche }: { activeNiche: string | null; setActiveNiche: (v: string | null) => void }) {
+  const { niches, loading } = useNicheStats();
+  return (
+    <div style={{ padding: '0 32px 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <h3 style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: '#ededed', margin: 0, letterSpacing: '-0.015em' }}>
+          🗂️ Niches <span style={{ fontFamily: sans, fontSize: 12, color: '#6b7280', fontWeight: 400 }}>tracked in the database</span>
+        </h3>
+        {activeNiche && (
+          <button onClick={() => setActiveNiche(null)} style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#a1a1aa',
+            fontSize: 11,
+            fontFamily: mono,
+            padding: '4px 10px',
+            borderRadius: 5,
+            cursor: 'pointer',
+          }}>Clear filter ×</button>
+        )}
+      </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gap: 10,
+      }}>
+        {loading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="mj-shim" style={{ height: 70, borderRadius: 8 }} />
+            ))
+          : niches.length === 0
+            ? <div style={{ color: '#52525b', fontSize: 13 }}>No niches yet</div>
+            : niches.map((n) => {
+                const isActive = activeNiche === n.name;
+                const c = nicheColor(n.name);
+                return (
+                  <button
+                    key={n.name}
+                    onClick={() => setActiveNiche(isActive ? null : n.name)}
+                    style={{
+                      background: isActive ? `${c}22` : '#0d0d10',
+                      border: `1px solid ${isActive ? c : 'rgba(255,255,255,0.07)'}`,
+                      borderRadius: 8,
+                      padding: '12px 14px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'border-color 150ms, background 150ms',
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: sans,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: '#ededed',
+                      marginBottom: 6,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>{n.name}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontFamily: mono, fontSize: 11, color: c, fontWeight: 700 }}>
+                        {n.count.toLocaleString()} products
+                      </span>
+                      <span style={{ fontFamily: mono, fontSize: 10, color: '#71717a' }}>
+                        avg {n.avgScore}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+      </div>
+    </div>
+  );
+}
+
+// ── Score Display + Row Actions ─────────────────────────────────────
+function getScoreLabel(s: number): { label: string; bg: string; color: string } {
+  if (s >= 90) return { label: '🔥 HOT',  bg: 'rgba(34,197,94,0.12)',  color: '#22c55e' };
+  if (s >= 70) return { label: '📈 GOOD', bg: 'rgba(245,158,11,0.12)', color: '#f59e0b' };
+  if (s >= 50) return { label: '📊 OK',   bg: 'rgba(99,102,241,0.12)', color: '#6366F1' };
+  return         { label: '❄️ COLD', bg: 'rgba(55,65,81,0.3)',    color: '#6b7280' };
+}
+
+function ScoreDisplay({ score }: { score: number }) {
+  const sl = getScoreLabel(score);
+  return (
+    <div>
+      <span style={{ fontFamily: mono, fontSize: 14, fontWeight: 700, color: sl.color }}>{score || '—'}</span>
+      {score > 0 && (
+        <div style={{ marginTop: 2 }}>
+          <span style={{ fontSize: 9, fontWeight: 700, color: sl.color, background: sl.bg, padding: '1px 5px', borderRadius: 3 }}>
+            {sl.label}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RowActions({ product }: { product: Product }) {
+  return (
+    <>
+      <button
+        title="Profit Calculator"
+        onClick={() => { window.location.href = '/app/profit'; }}
+        style={{ padding: '4px 8px', background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+      >💰</button>
+      <button
+        title="Generate Ad"
+        onClick={() => { window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
+        style={{ padding: '4px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+      >🎯</button>
+      {product.product_url && (
+        <button
+          title="View on AliExpress"
+          onClick={() => product.product_url && window.open(product.product_url, '_blank', 'noopener,noreferrer')}
+          style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+        >↗</button>
+      )}
     </>
   );
 }

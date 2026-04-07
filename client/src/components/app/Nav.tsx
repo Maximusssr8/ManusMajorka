@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useProductStats } from '@/hooks/useProducts';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -46,6 +47,7 @@ const GROUPS: NavGroup[] = [
 export function Nav() {
   const [location] = useLocation();
   const { user, isPro } = useAuth();
+  const { hotCount } = useProductStats();
   const planLabel = isPro ? 'SCALE' : 'BUILDER';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
@@ -90,8 +92,30 @@ export function Nav() {
         }}>Majorka</span>
       </div>
 
+      {/* Search */}
+      <button style={{
+        width: 'calc(100% - 16px)',
+        margin: '12px 8px 4px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 6,
+        padding: '7px 10px',
+        cursor: 'pointer',
+        color: '#6b7280',
+        fontSize: 12,
+        fontFamily: sans,
+        textAlign: 'left',
+      }}>
+        <span style={{ fontSize: 14 }}>🔍</span>
+        <span style={{ flex: 1 }}>Search tools…</span>
+        <span style={{ fontSize: 10, opacity: 0.5, fontFamily: mono }}>⌘K</span>
+      </button>
+
       {/* Body */}
-      <div style={{ flex: 1, padding: '8px 0', overflowY: 'auto' }}>
+      <div style={{ flex: 1, padding: '4px 0', overflowY: 'auto' }}>
         {GROUPS.map((group, gi) => (
           <div key={gi}>
             {group.label && (
@@ -148,7 +172,29 @@ export function Nav() {
                   }}
                 >
                   <Icon size={15} />
-                  <span style={{ flex: 1 }}>{item.label}</span>
+                  <span style={{ flex: 1, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    {item.label}
+                    {item.label === 'Products' && (
+                      <span style={{ fontSize: 9, color: '#3f3f46', fontFamily: mono }}>⌘1</span>
+                    )}
+                    {item.label === 'Maya AI' && (
+                      <span style={{ fontSize: 9, color: '#3f3f46', fontFamily: mono }}>⌘2</span>
+                    )}
+                    {item.label === 'Profit Calc' && (
+                      <span style={{ fontSize: 9, color: '#3f3f46', fontFamily: mono }}>⌘3</span>
+                    )}
+                  </span>
+                  {item.label === 'Products' && hotCount > 0 && (
+                    <span style={{
+                      background: 'rgba(249,115,22,0.12)',
+                      color: '#f97316',
+                      borderRadius: 999,
+                      padding: '1px 6px',
+                      fontSize: 9,
+                      fontWeight: 700,
+                      fontFamily: mono,
+                    }}>{hotCount} 🔥</span>
+                  )}
                   {item.soon && (
                     <span style={{
                       background: 'rgba(245,158,11,0.1)',

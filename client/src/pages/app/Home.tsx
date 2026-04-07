@@ -144,7 +144,7 @@ function SkeletonRow() {
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '40px 1.6fr 130px 130px 110px 80px',
+      gridTemplateColumns: '40px 1.6fr 120px 110px 100px 90px 80px',
       gap: 14,
       padding: '14px 16px',
       alignItems: 'center',
@@ -155,6 +155,7 @@ function SkeletonRow() {
         <span className="mj-shim" style={{ height: 40, width: 40, borderRadius: 6 }} />
         <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       </span>
+      <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
@@ -310,6 +311,68 @@ export default function AppHome() {
         ))}
       </div>
 
+      {/* Live activity feed */}
+      <style>{`@keyframes mj-live-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
+      <div style={{
+        margin: '20px 32px 0',
+        background: 'rgba(34,197,94,0.04)',
+        border: '1px solid rgba(34,197,94,0.12)',
+        borderRadius: 8,
+        padding: '9px 16px',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: '#22c55e',
+            display: 'inline-block',
+            boxShadow: '0 0 6px rgba(34,197,94,0.6)',
+          }} />
+          <span style={{
+            fontFamily: mono,
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#22c55e',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+          }}>Live</span>
+        </div>
+        <div style={{ width: 1, height: 14, background: 'rgba(255,255,255,0.1)', flexShrink: 0 }} />
+        <div style={{ overflow: 'hidden', flex: 1 }}>
+          <div style={{
+            display: 'flex',
+            gap: 48,
+            animation: 'mj-live-scroll 35s linear infinite',
+            width: 'max-content',
+          }}>
+            {[
+              { flag: '🇦🇺', text: 'AU operator added a new product to their Shopify store', time: '2m ago' },
+              { flag: '🇺🇸', text: 'US operator discovered a winning product in Hardware', time: '5m ago' },
+              { flag: '🇬🇧', text: 'UK operator confirmed 50%+ margin via profit calculator', time: '8m ago' },
+              { flag: '🇨🇦', text: 'CA operator launched a new store from the builder', time: '12m ago' },
+              { flag: '🇩🇪', text: 'DE operator exported a product batch to Shopify', time: '16m ago' },
+              { flag: '🇸🇬', text: 'SG operator generated ad copy for a top-scored product', time: '20m ago' },
+              { flag: '🇳🇿', text: 'NZ operator found a new opportunity in the database', time: '24m ago' },
+              { flag: '🇦🇺', text: 'AU operator added a new product to their Shopify store', time: '2m ago' },
+              { flag: '🇺🇸', text: 'US operator discovered a winning product in Hardware', time: '5m ago' },
+              { flag: '🇬🇧', text: 'UK operator confirmed 50%+ margin via profit calculator', time: '8m ago' },
+              { flag: '🇨🇦', text: 'CA operator launched a new store from the builder', time: '12m ago' },
+              { flag: '🇩🇪', text: 'DE operator exported a product batch to Shopify', time: '16m ago' },
+              { flag: '🇸🇬', text: 'SG operator generated ad copy for a top-scored product', time: '20m ago' },
+              { flag: '🇳🇿', text: 'NZ operator found a new opportunity in the database', time: '24m ago' },
+            ].map((e, i) => (
+              <span key={i} style={{ fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {e.flag} <span style={{ color: '#ededed' }}>{e.text}</span>
+                <span style={{ color: '#4b5563', marginLeft: 8 }}>{e.time}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Leaderboard */}
       <div style={{ margin: '24px 32px 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 12 }}>
@@ -355,7 +418,7 @@ export default function AppHome() {
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '40px 1.6fr 130px 130px 110px 80px',
+            gridTemplateColumns: '40px 1.6fr 120px 110px 100px 90px 80px',
             gap: 14,
             padding: '12px 16px',
             fontFamily: mono,
@@ -371,6 +434,7 @@ export default function AppHome() {
             <span>Category</span>
             <span>Score</span>
             <span style={{ textAlign: 'right' }}>Orders/mo</span>
+            <span style={{ textAlign: 'right' }}>Potential</span>
             <span style={{ textAlign: 'right' }}>Action</span>
           </div>
 
@@ -394,7 +458,7 @@ export default function AppHome() {
                   key={p.id}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '40px 1.6fr 130px 130px 110px 80px',
+                    gridTemplateColumns: '40px 1.6fr 120px 110px 100px 90px 80px',
                     gap: 14,
                     padding: '14px 16px',
                     alignItems: 'center',
@@ -445,6 +509,13 @@ export default function AppHome() {
                     color: orders > 0 ? '#22c55e' : '#52525b',
                     textAlign: 'right',
                   }}>{orders > 0 ? orders.toLocaleString() : 'N/A'}</span>
+                  <span style={{
+                    fontFamily: mono,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    textAlign: 'right',
+                    color: score >= 80 ? '#22c55e' : score >= 65 ? '#f59e0b' : '#4b5563',
+                  }}>{score >= 80 ? '⭐ High' : score >= 65 ? '📊 Med' : '—'}</span>
                   <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <Link href="/app/products" style={{
                       display: 'inline-flex',
@@ -482,6 +553,36 @@ export default function AppHome() {
               Sourced from AliExpress Affiliate API · Real order counts · Auto-refreshed every 6 hours
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Database snapshot */}
+      <div style={{ margin: '24px 32px 0' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 12,
+        }}>
+          {[
+            { label: 'Score 80+ products', value: stats.loading ? '—' : stats.highScoreCount.toLocaleString(), icon: '🔥', color: '#f97316', sub: 'High potential, ready to sell' },
+            { label: 'Elite tier (90+)',   value: stats.loading ? '—' : stats.eliteCount.toLocaleString(),     icon: '⭐', color: '#6366F1', sub: 'Top performers in database' },
+            { label: 'Categories tracked', value: stats.loading ? '—' : stats.categoryCount.toLocaleString(),  icon: '🗂️', color: '#22c55e', sub: 'Across all niches' },
+          ].map((s) => (
+            <Link key={s.label} href="/app/products" style={{
+              display: 'block',
+              background: '#111114',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 10,
+              padding: 20,
+              textDecoration: 'none',
+              cursor: 'pointer',
+            }}>
+              <div style={{ fontSize: 22, marginBottom: 8 }}>{s.icon}</div>
+              <div style={{ fontFamily: display, fontSize: 28, fontWeight: 800, color: s.color, marginBottom: 4, letterSpacing: '-0.025em', lineHeight: 1 }}>{s.value}</div>
+              <div style={{ fontFamily: sans, fontSize: 13, fontWeight: 600, color: '#ededed', marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontFamily: sans, fontSize: 11, color: '#6b7280' }}>{s.sub}</div>
+            </Link>
+          ))}
         </div>
       </div>
 

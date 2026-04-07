@@ -19,7 +19,7 @@ export interface Product {
   updated_at: string | null;
 }
 
-export type OrderByColumn = 'sold_count' | 'winning_score' | 'created_at' | 'est_daily_revenue_aud';
+export type OrderByColumn = 'sold_count' | 'winning_score' | 'created_at' | 'est_daily_revenue_aud' | 'price_asc';
 
 export interface UseProductsOptions {
   limit?: number;
@@ -50,9 +50,14 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
       try {
         let query = supabase
           .from('winning_products')
-          .select('*', { count: 'exact' })
-          .order(orderBy, { ascending: false, nullsFirst: false })
-          .limit(limit);
+          .select('*', { count: 'exact' });
+
+        if (orderBy === 'price_asc') {
+          query = query.order('price_aud', { ascending: true, nullsFirst: false });
+        } else {
+          query = query.order(orderBy, { ascending: false, nullsFirst: false });
+        }
+        query = query.limit(limit);
 
         if (typeof minScore === 'number') query = query.gte('winning_score', minScore);
         if (category) query = query.eq('category', category);
@@ -83,6 +88,9 @@ export interface ProductStats {
   avgScore: number;
   hotCount: number;
   topScore: number;
+  highScoreCount: number;
+  eliteCount: number;
+  categoryCount: number;
   bySource: Record<string, number>;
   loading: boolean;
   error: string | null;
@@ -90,7 +98,9 @@ export interface ProductStats {
 
 export function useProductStats(): ProductStats {
   const [stats, setStats] = useState<ProductStats>({
-    total: 0, maxOrders: 0, avgScore: 0, hotCount: 0, topScore: 0, bySource: {}, loading: true, error: null,
+    total: 0, maxOrders: 0, avgScore: 0, hotCount: 0, topScore: 0,
+    highScoreCount: 0, eliteCount: 0, categoryCount: 0,
+    bySource: {}, loading: true, error: null,
   });
 
   useEffect(() => {
@@ -101,13 +111,24 @@ export function useProductStats(): ProductStats {
           .from('winning_products')
           .select('*', { count: 'exact', head: true });
 
+        const { count: highScoreCount } = await supabase
+          .from('winning_products')
+          .select('*', { count: 'exact', head: true })
+          .gte('winning_score', 80);
+
+        const { count: eliteCount } = await supabase
+          .from('winning_products')
+          .select('*', { count: 'exact', head: true })
+          .gte('winning_score', 90);
+
         const { data: rows, error: rowsErr } = await supabase
           .from('winning_products')
-          .select('sold_count,winning_score,platform')
+          .select('sold_count,winning_score,platform,category')
           .limit(2500);
         if (rowsErr) throw rowsErr;
 
-        const list = (rows ?? []) as Array<{ sold_count: number | null; winning_score: number | null; platform: string | null }>;
+        const list = (rows ?? []) as Array<{ sold_count: number | null; winning_score: number | null; platform: string | null; category: string | null }>;
+        const categoryCount = new Set(list.map((r) => r.category).filter((c): c is string => typeof c === 'string' && c.trim().length > 0)).size;
         const maxOrders = list.reduce((m, r) => Math.max(m, r.sold_count ?? 0), 0);
         const scoreList = list.map((r) => r.winning_score ?? 0).filter((n) => n > 0);
         const avgScore = scoreList.length ? Math.round(scoreList.reduce((a, b) => a + b, 0) / scoreList.length) : 0;
@@ -125,6 +146,9 @@ export function useProductStats(): ProductStats {
             avgScore,
             hotCount,
             topScore,
+            highScoreCount: highScoreCount ?? 0,
+            eliteCount: eliteCount ?? 0,
+            categoryCount,
             bySource,
             loading: false,
             error: null,
