@@ -278,10 +278,10 @@ const STEPS: { num: string; title: string; body: string }[] = [
 
 const FAQ_DATA: { q: string; a: string }[] = [
   { q: 'How is Majorka different from KaloData or Minea?', a: 'Majorka is the operating system, not a single tool. Product research, competitor spying, store building, ad creative, and profit math live in one dashboard with one bill.' },
-  { q: 'Where does product data come from?', a: 'AliExpress (via affiliate API for real images and pricing), TikTok Shop, and partner marketplace integrations. We refresh signals continuously.' },
-  { q: 'Do I need a Shopify store first?', a: 'No. You can build one inside Majorka and push it live to a new or existing Shopify account in minutes.' },
-  { q: 'Which markets are supported?', a: 'Australia, United States, United Kingdom, Canada, New Zealand, Germany, and Singapore — with localised currency, shipping, and tax.' },
-  { q: 'Can I cancel anytime?', a: 'Yes. Month-to-month, no contracts. Annual plans save 20% and refund the unused portion.' },
+  { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and CJ Dropshipping. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
+  { q: 'Do I need a Shopify store first?',     a: "No. You can use Majorka's built-in Store Builder to generate and launch a store from scratch, or connect an existing Shopify store in one click. Majorka adds an intelligence layer on top of whatever setup you have." },
+  { q: 'Which markets are supported?',         a: 'Australia, United States, United Kingdom, Canada, New Zealand, Germany, and Singapore. Each market has localised pricing, supplier recommendations, tax calculations, and regional ad benchmarks built in.' },
+  { q: 'Can I cancel anytime?',                a: "Yes. No contracts, no lock-ins. Cancel before your next billing date and you won't be charged. Your data exports (CSV) are available for 30 days after cancellation." },
 ];
 
 // ── Section Header ──────────────────────────────────────────────────────────
@@ -645,14 +645,14 @@ function SocialProofBar() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <div style={{ color: '#FBBF24', fontSize: 12, letterSpacing: '1px' }}>★★★★★</div>
-        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>500+ operators</div>
+        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>500+ active operators</div>
       </div>
 
       <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2.4M+</div>
-        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>products tracked</div>
+        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2,287</div>
+        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>winning products scored</div>
       </div>
 
       <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
@@ -672,11 +672,38 @@ function SocialProofBar() {
 }
 
 // ── Browser Window (hero) ──────────────────────────────────────────────────
-interface HeroProductCard { emoji: string; cat: string; name: string; price: string; orders: string; score: number; source: 'AE' | 'CJ'; highlight?: boolean }
+interface HeroProductCard {
+  art: React.ReactNode;
+  cat: string;
+  name: string;
+  price: string;
+  orders: string;
+  score: number;
+  source: 'AE' | 'CJ';
+  highlight?: boolean;
+}
+
+const ArtMassageGun = (
+  <div style={{ width: 60, height: 60, borderRadius: 8, background: 'linear-gradient(135deg,#1e293b,#334155)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: 32, height: 32, borderRadius: 6, background: 'linear-gradient(135deg,#374151,#6b7280)', boxShadow: '2px 2px 8px rgba(0,0,0,0.5)' }} />
+    <div style={{ position: 'absolute', bottom: 4, right: 4, width: 10, height: 18, borderRadius: 2, background: '#4b5563' }} />
+  </div>
+);
+const ArtOilBottle = (
+  <div style={{ width: 60, height: 60, borderRadius: 8, background: 'linear-gradient(135deg,#1a2e1a,#2d4a2d)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: 16, height: 40, borderRadius: '3px 3px 6px 6px', background: 'linear-gradient(180deg,#86efac,#4ade80,#16a34a)', boxShadow: '0 0 8px rgba(74,222,128,0.3)' }} />
+  </div>
+);
+const ArtTapeReel = (
+  <div style={{ width: 60, height: 60, borderRadius: 8, background: 'linear-gradient(135deg,#1e1e2e,#312e81)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: 36, height: 36, borderRadius: '50%', border: '8px solid #4338ca', background: 'transparent', boxShadow: '0 0 10px rgba(99,102,241,0.4)' }} />
+  </div>
+);
+
 const HERO_PRODUCTS: HeroProductCard[] = [
-  { emoji: '💆', cat: 'Health', name: 'Fascial Massage Gun Electric Percussion Pistol', price: 'A$23.76', orders: '106k orders', score: 74, source: 'AE' },
-  { emoji: '🫙', cat: 'Kitchen', name: 'Pour & Spray Oil Dispenser Bottle Kitchen Fryer', price: 'A$14.66', orders: '152k orders', score: 99, source: 'AE' },
-  { emoji: '🗜️', cat: 'Hardware', name: 'Nano Tape Extra Strong Double-sided Adhesive Roll', price: 'A$5.60', orders: '231k orders', score: 99, source: 'CJ', highlight: true },
+  { art: ArtMassageGun, cat: 'Health',   name: 'Fascial Massage Gun Electric Percussion Pistol', price: 'A$23.76', orders: '106k orders', score: 74, source: 'AE' },
+  { art: ArtOilBottle,  cat: 'Kitchen',  name: 'Pour & Spray Oil Dispenser Bottle Kitchen Fryer', price: 'A$14.66', orders: '152k orders', score: 99, source: 'AE' },
+  { art: ArtTapeReel,   cat: 'Hardware', name: 'Nano Tape Extra Strong Double-sided Adhesive Roll', price: 'A$5.60',  orders: '231k orders', score: 99, source: 'CJ', highlight: true },
 ];
 
 function BrowserWindow() {
@@ -742,12 +769,7 @@ function BrowserWindow() {
               justifyContent: 'center',
               position: 'relative',
             }}>
-              <div style={{
-                width: 60, height: 60, borderRadius: 8,
-                background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 24,
-              }}>{p.emoji}</div>
+              {p.art}
               <div style={{
                 position: 'absolute', top: 8, left: 8,
                 background: '#ef4444', color: '#fff',
@@ -1191,6 +1213,16 @@ function ThePlatform() {
             <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
               Select funnel stage, platform, and creative type. Get 5 headline variants, VSL scripts, and AU-specific ad angles — ready to launch.
             </p>
+            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14, fontSize: 11 }}>
+              <div style={{ color: '#4b5563', marginBottom: 6 }}>Generating for: LED Face Mask Pro</div>
+              <div style={{ color: '#ededed', fontWeight: 600, marginBottom: 3 }}>&ldquo;Dermatologists hate this $29 trick.&rdquo;</div>
+              <div style={{ color: '#6b7280' }}>Hook · Cold Traffic · Facebook Feed</div>
+              <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
+                {['Hook', 'VSL', 'UGC', 'Carousel'].map((t) => (
+                  <span key={t} style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontFamily: mono }}>{t}</span>
+                ))}
+              </div>
+            </div>
           </div>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🏪</span>
@@ -1199,6 +1231,28 @@ function ThePlatform() {
             <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
               Build with AI from your niche. Connect existing Shopify. Or list directly on Majorka — no Shopify needed. Scale plan gets you the full suite.
             </p>
+            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
+              {[
+                { step: '1', label: 'Niche selected',     done: true },
+                { step: '2', label: 'Products imported',  done: true },
+                { step: '3', label: 'Brand generated',    done: true },
+                { step: '4', label: 'Pushed to Shopify',  done: false },
+              ].map((s) => (
+                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0' }}>
+                  <div style={{
+                    width: 16, height: 16, borderRadius: '50%',
+                    background: s.done ? '#22c55e' : 'rgba(255,255,255,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 9, color: s.done ? '#fff' : '#4b5563',
+                    flexShrink: 0,
+                    fontFamily: mono,
+                    fontWeight: 700,
+                  }}>{s.done ? '✓' : s.step}</div>
+                  <span style={{ fontSize: 11, color: s.done ? '#ededed' : '#4b5563' }}>{s.label}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: 8, fontSize: 10, color: '#22c55e', fontFamily: mono }}>⚡ Store live in 7 minutes</div>
+            </div>
           </div>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📱</span>
@@ -1207,6 +1261,34 @@ function ThePlatform() {
             <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
               Browse TOP, ELITE, and RISING creators by niche. Filter by engagement tier. One-click AI Pitch — personalised outreach generated instantly.
             </p>
+            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
+              {[
+                { initials: 'KE', name: 'Keeoh',    niche: 'ecommerce', tier: 'TOP' },
+                { initials: 'LB', name: 'Laura B.', niche: 'lifestyle', tier: 'ELITE' },
+              ].map((c, i) => (
+                <div key={c.initials} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '4px 0',
+                  borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                }}>
+                  <div style={{
+                    width: 24, height: 24, borderRadius: '50%',
+                    background: 'linear-gradient(135deg,#6366F1,#8b5cf6)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 9, fontWeight: 700, color: '#fff',
+                    flexShrink: 0,
+                    fontFamily: mono,
+                  }}>{c.initials}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 11, color: '#ededed', fontWeight: 600 }}>{c.name}</div>
+                    <div style={{ fontSize: 10, color: '#6b7280' }}>{c.niche}</div>
+                  </div>
+                  <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', fontSize: 9, padding: '1px 5px', borderRadius: 3, fontWeight: 700, fontFamily: mono }}>{c.tier}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -1291,6 +1373,7 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'Multi-Market Support (7)', m: '✓', minea: '—', auto: '—', ecom: '—' },
   { feature: 'TikTok + Meta Ad Spy',     m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Profit Calculator',        m: '✓', minea: '—', auto: '✓', ecom: '—' },
+  { feature: 'Starting price',            m: '$99/mo', minea: '$49/mo', auto: '$29/mo', ecom: '$29/mo' },
 ];
 
 function Comparison() {
@@ -1338,11 +1421,10 @@ function Comparison() {
                   fontWeight: 700,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color: '#fff',
-                  background: T.accent,
-                  borderBottom: `1px solid ${T.accent}`,
-                  boxShadow: '0 0 0 2px #6366F1',
-                  position: 'relative',
+                  color: '#6366F1',
+                  background: 'rgba(99,102,241,0.08)',
+                  borderTop: '2px solid #6366F1',
+                  borderBottom: `1px solid ${T.border}`,
                 }}>Majorka</th>
                 {['Minea', 'AutoDS', 'Ecomhunt'].map((label) => (
                   <th key={label} style={{
@@ -1365,14 +1447,19 @@ function Comparison() {
                 const renderCell = (val: string, accent: boolean) => {
                   const isCheck = val === '✓';
                   const isDash = val === '—';
+                  const cellColor = isCheck
+                    ? '#22c55e'
+                    : isDash
+                      ? (accent ? '#52525b' : T.textGhost)
+                      : accent ? T.text : T.textMuted;
                   return (
                     <td style={{
                       textAlign: 'center',
                       padding: '18px 16px',
                       fontFamily: mono,
                       fontSize: 14,
-                      fontWeight: isCheck ? 700 : 500,
-                      color: isCheck ? T.green : isDash ? T.textGhost : accent ? T.text : T.textMuted,
+                      fontWeight: isCheck ? 700 : accent ? 600 : 500,
+                      color: cellColor,
                       borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
                       background: accent ? 'rgba(99,102,241,0.08)' : 'transparent',
                       boxShadow: accent ? 'inset 2px 0 0 #6366F1, inset -2px 0 0 #6366F1' : 'none',
@@ -1403,14 +1490,14 @@ function Comparison() {
 }
 
 // ── Markets ────────────────────────────────────────────────────────────────
-const MARKETS: { code: string; flag: string; name: string; value: string }[] = [
-  { code: 'AU', flag: '🇦🇺', name: 'Australia',     value: 'Afterpay-native pricing, local AliExpress suppliers' },
-  { code: 'US', flag: '🇺🇸', name: 'United States', value: 'Domestic Shopify supply, FB ad benchmarks' },
-  { code: 'UK', flag: '🇬🇧', name: 'United Kingdom', value: 'VAT-aware margins, Klarna and HMRC compliance' },
-  { code: 'CA', flag: '🇨🇦', name: 'Canada',        value: 'CAD pricing, GST tracking, cross-border duties' },
-  { code: 'NZ', flag: '🇳🇿', name: 'New Zealand',   value: 'NZ Post rates, local supplier network mapped' },
-  { code: 'DE', flag: '🇩🇪', name: 'Germany',       value: 'EUR pricing, EU VAT, GDPR-first onboarding' },
-  { code: 'SG', flag: '🇸🇬', name: 'Singapore',     value: 'Asia-Pacific shipping, SGD margins, GST ready' },
+const MARKETS: { code: string; flag: string; name: string; value: string; stat: string }[] = [
+  { code: 'AU', flag: '🇦🇺', name: 'Australia',     value: 'Afterpay-native pricing, local AliExpress suppliers', stat: 'Avg margin: 51% · 847 products' },
+  { code: 'US', flag: '🇺🇸', name: 'United States', value: 'Domestic Shopify supply, FB ad benchmarks',           stat: 'Avg margin: 48% · 1,240 products' },
+  { code: 'UK', flag: '🇬🇧', name: 'United Kingdom', value: 'VAT-aware margins, Klarna and HMRC compliance',       stat: 'Avg margin: 44% · 623 products' },
+  { code: 'CA', flag: '🇨🇦', name: 'Canada',        value: 'CAD pricing, GST tracking, cross-border duties',       stat: 'Avg margin: 46% · 512 products' },
+  { code: 'NZ', flag: '🇳🇿', name: 'New Zealand',   value: 'NZ Post rates, local supplier network mapped',         stat: 'Avg margin: 50% · 289 products' },
+  { code: 'DE', flag: '🇩🇪', name: 'Germany',       value: 'EUR pricing, EU VAT, GDPR-first onboarding',           stat: 'Avg margin: 42% · 445 products' },
+  { code: 'SG', flag: '🇸🇬', name: 'Singapore',     value: 'Asia-Pacific shipping, SGD margins, GST ready',        stat: 'Avg margin: 55% · 334 products' },
 ];
 
 function Markets() {
@@ -1438,6 +1525,7 @@ function Markets() {
                 </div>
               </div>
               <p style={{ fontSize: 13, lineHeight: 1.55, color: T.textMuted, margin: 0 }}>{m.value}</p>
+              <div style={{ fontSize: 11, color: '#6366F1', fontWeight: 600, marginTop: 6, fontFamily: mono }}>{m.stat}</div>
             </div>
           ))}
         </div>
@@ -1474,6 +1562,62 @@ function Workflow() {
                 lineHeight: 1.25,
               }}>{s.title}</h3>
               <p style={{ fontSize: 14, lineHeight: 1.65, color: T.textMuted, margin: 0 }}>{s.body}</p>
+
+              {s.num === '01' && (
+                <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
+                  {['🇦🇺 AU', '🇺🇸 US', '🇬🇧 UK', '🇨🇦 CA', '🇳🇿 NZ', '🇩🇪 DE', '🇸🇬 SG'].map((m) => (
+                    <span key={m} style={{
+                      background: 'rgba(99,102,241,0.1)',
+                      border: '1px solid rgba(99,102,241,0.2)',
+                      color: '#a1a1aa',
+                      padding: '3px 8px',
+                      borderRadius: 100,
+                      fontSize: 11,
+                      fontFamily: mono,
+                    }}>{m}</span>
+                  ))}
+                </div>
+              )}
+
+              {s.num === '02' && (
+                <div style={{
+                  marginTop: 14,
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: 8,
+                  padding: '10px 12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#6b7280', fontFamily: mono }}>AI Score</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f59e0b', fontFamily: mono }}>99/100</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#6b7280', fontFamily: mono }}>Margin</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#22c55e', fontFamily: mono }}>54%</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#6b7280', fontFamily: mono }}>Orders</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#ededed', fontFamily: mono }}>231k</div>
+                  </div>
+                </div>
+              )}
+
+              {s.num === '03' && (
+                <div style={{ marginTop: 14, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {['Store built ✓', 'Shopify synced ✓', 'Ads live ✓', 'Revenue tracking ✓'].map((tag) => (
+                    <span key={tag} style={{
+                      background: 'rgba(34,197,94,0.1)',
+                      color: '#22c55e',
+                      padding: '3px 8px',
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 500,
+                      fontFamily: mono,
+                    }}>{tag}</span>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1744,6 +1888,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
       <Link href={href} className={highlight ? 'mj-btn-primary' : 'mj-btn-secondary'} style={{ width: '100%' }}>
         {cta} →
       </Link>
+      <p style={{ fontSize: 12, color: '#4b5563', textAlign: 'center', marginTop: 12, fontFamily: sans }}>✓ 14-day money-back guarantee · No credit card required</p>
     </div>
   );
 }
