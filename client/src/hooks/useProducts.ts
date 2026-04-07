@@ -26,6 +26,9 @@ export interface UseProductsOptions {
   orderBy?: OrderByColumn;
   minScore?: number;
   category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minOrders?: number;
 }
 
 export interface UseProductsResult {
@@ -36,7 +39,7 @@ export interface UseProductsResult {
 }
 
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
-  const { limit = 20, orderBy = 'sold_count', minScore, category } = options;
+  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders } = options;
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +64,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         if (typeof minScore === 'number') query = query.gte('winning_score', minScore);
         if (category) query = query.eq('category', category);
+        if (typeof minPrice === 'number') query = query.gte('price_aud', minPrice);
+        if (typeof maxPrice === 'number') query = query.lte('price_aud', maxPrice);
+        if (typeof minOrders === 'number') query = query.gte('sold_count', minOrders);
 
         const { data, error: err, count } = await query;
         if (cancelled) return;
@@ -77,7 +83,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
     }
     load();
     return () => { cancelled = true; };
-  }, [limit, orderBy, minScore, category]);
+  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders]);
 
   return { products, loading, error, total };
 }

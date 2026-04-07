@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
+import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { ProductImage } from '@/components/app/ProductImage';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
@@ -141,6 +142,13 @@ export default function AppProducts() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeCarousel, setActiveCarousel] = useState<CarouselKey>('recent');
   const [activeTab, setActiveTab] = useState<SmartTabKey>('all');
+  const [searchMode, setSearchMode] = useState<'db' | 'live'>('db');
+  const [liveQuery, setLiveQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceMin, setPriceMin] = useState<number | null>(null);
+  const [priceMax, setPriceMax] = useState<number | null>(null);
+  const [minOrders, setMinOrders] = useState<number | null>(null);
+  const aeSearch = useAESearch();
   const { niches } = useNicheStats();
 
   const { products, loading, total } = useProducts({
@@ -148,7 +156,22 @@ export default function AppProducts() {
     orderBy,
     minScore: scoreFilter === 0 ? undefined : scoreFilter,
     category: activeNiche ?? undefined,
+    minPrice: priceMin ?? undefined,
+    maxPrice: priceMax ?? undefined,
+    minOrders: minOrders ?? undefined,
   });
+
+  // Infinite scroll for live AE search mode
+  useEffect(() => {
+    if (searchMode !== 'live') return;
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      if (scrollPos > docHeight - 500) aeSearch.loadMore();
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [searchMode, aeSearch]);
 
   const filtered = useMemo(() => {
     let list = products;
@@ -185,10 +208,143 @@ export default function AppProducts() {
           margin: 0,
         }}>Products</h1>
         <p style={{ fontFamily: sans, fontSize: 13, color: '#71717a', margin: '4px 0 0' }}>
-          Real products from AliExpress with genuine order data{loading ? '' : ` · ${total.toLocaleString()} tracked`}
+          {searchMode === 'live'
+            ? `Live AliExpress Affiliate API · ${aeSearch.total.toLocaleString()} results for "${aeSearch.query}"`
+            : `Real products from AliExpress with genuine order data${loading ? '' : ` · ${total.toLocaleString()} tracked`}`}
         </p>
       </div>
 
+      {/* Live AE search bar */}
+      <div style={{ padding: '0 32px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <span style={{ position: 'absolute', left: 12, color: '#52525b', fontSize: 14, pointerEvents: 'none' }}>🔍</span>
+          <input
+            placeholder="Search AliExpress directly — any product, any niche…"
+            defaultValue={liveQuery}
+            style={{
+              width: '100%',
+              background: '#141417',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 9,
+              padding: '12px 16px 12px 38px',
+              color: '#ededed',
+              fontFamily: sans,
+              fontSize: 14,
+              outline: 'none',
+              transition: 'border-color 150ms',
+            }}
+            onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(99,102,241,0.4)'; }}
+            onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const val = (e.currentTarget as HTMLInputElement).value.trim();
+                if (val.length >= 2) {
+                  setLiveQuery(val);
+                  setSearchMode('live');
+                  aeSearch.search({ q: val, reset: true });
+                }
+              }
+            }}
+          />
+        </div>
+        <button
+          onClick={() => setShowFilters((s) => !s)}
+          style={{
+            padding: '10px 14px',
+            background: showFilters ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${showFilters ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`,
+            borderRadius: 8,
+            color: showFilters ? '#6366F1' : '#6b7280',
+            fontFamily: sans,
+            fontSize: 13,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >⚙️ Filters</button>
+        {searchMode === 'live' && (
+          <button
+            onClick={() => { setSearchMode('db'); aeSearch.reset(); setLiveQuery(''); }}
+            style={{
+              padding: '10px 16px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 8,
+              color: '#a1a1aa',
+              fontFamily: sans,
+              fontSize: 13,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >← Back to Database</button>
+        )}
+      </div>
+
+      {/* Advanced filters panel */}
+      {showFilters && searchMode === 'db' && (
+        <div style={{
+          margin: '0 32px 16px',
+          padding: '16px 20px',
+          background: '#141417',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: 10,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 16,
+        }}>
+          {[
+            { label: 'Min Price ($)', value: priceMin, set: setPriceMin, ph: '0' },
+            { label: 'Max Price ($)', value: priceMax, set: setPriceMax, ph: '999' },
+            { label: 'Min Orders',    value: minOrders, set: setMinOrders, ph: '0' },
+          ].map((f) => (
+            <div key={f.label}>
+              <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{f.label}</div>
+              <input
+                type="number"
+                placeholder={f.ph}
+                value={f.value ?? ''}
+                onChange={(e) => f.set(e.target.value ? Number(e.target.value) : null)}
+                style={{
+                  width: '100%',
+                  background: '#0c0c0e',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 6,
+                  padding: '8px 10px',
+                  color: '#ededed',
+                  fontFamily: mono,
+                  fontSize: 12,
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <button
+              onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); }}
+              style={{
+                padding: '8px 14px',
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 6,
+                color: '#71717a',
+                fontFamily: sans,
+                fontSize: 12,
+                cursor: 'pointer',
+              }}
+            >Clear filters</button>
+          </div>
+        </div>
+      )}
+
+      {searchMode === 'live' && (
+        <LiveSearchView
+          aeSearch={aeSearch}
+        />
+      )}
+
+      {searchMode === 'db' && (<>
       {/* Smart tab presets */}
       <div style={{
         display: 'flex',
@@ -366,6 +522,7 @@ export default function AppProducts() {
         }}>More to explore</h3>
       </div>
       <FeaturedCarousels active={activeCarousel} setActive={setActiveCarousel} onSelect={setSelectedProduct} />
+      </>)}
 
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </>
@@ -791,6 +948,171 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
         <ProductSparkline productId={p.id} score={score} width={170} height={20} points={8} />
       </div>
     </div>
+  );
+}
+
+function LiveSearchView({ aeSearch }: { aeSearch: ReturnType<typeof useAESearch> }) {
+  const { products, loading, loadingMore, error, query, total, hasMore, upstreamError } = aeSearch;
+  return (
+    <div style={{ padding: '0 32px 40px' }}>
+      {/* Live mode banner */}
+      <div style={{
+        margin: '0 0 16px',
+        padding: '10px 16px',
+        background: 'rgba(255,90,0,0.06)',
+        border: '1px solid rgba(255,90,0,0.2)',
+        borderRadius: 8,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+      }}>
+        <span style={{ fontSize: 16 }}>🛒</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ fontFamily: sans, fontSize: 13, fontWeight: 600, color: 'rgba(255,130,0,0.9)' }}>Live AliExpress Search</span>
+          <span style={{ fontFamily: sans, fontSize: 12, color: '#71717a', marginLeft: 8 }}>
+            Real-time results from AliExpress Affiliate API · {total.toLocaleString()} found · No filtering applied
+          </span>
+        </div>
+      </div>
+
+      {upstreamError && (
+        <div style={{
+          margin: '0 0 16px',
+          padding: '10px 16px',
+          background: 'rgba(239,68,68,0.06)',
+          border: '1px solid rgba(239,68,68,0.2)',
+          borderRadius: 8,
+          fontFamily: mono,
+          fontSize: 11,
+          color: '#f87171',
+        }}>
+          AE upstream: {upstreamError}
+        </div>
+      )}
+
+      {error && (
+        <div style={{
+          margin: '0 0 16px',
+          padding: '10px 16px',
+          background: 'rgba(239,68,68,0.06)',
+          border: '1px solid rgba(239,68,68,0.2)',
+          borderRadius: 8,
+          fontFamily: sans,
+          fontSize: 12,
+          color: '#f87171',
+        }}>
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="mj-shim" style={{ height: 280, borderRadius: 10 }} />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <div style={{
+          padding: '60px 16px',
+          textAlign: 'center',
+          fontFamily: sans,
+          fontSize: 13,
+          color: '#52525b',
+          background: '#141417',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: 8,
+        }}>
+          {query ? `No live results for "${query}". Try different keywords.` : 'Type a query and press Enter.'}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+          {products.map((p) => <LiveCard key={p.id} product={p} />)}
+        </div>
+      )}
+
+      {loadingMore && (
+        <div style={{ marginTop: 20, textAlign: 'center', fontFamily: mono, fontSize: 11, color: '#52525b' }}>
+          Loading more…
+        </div>
+      )}
+      {!hasMore && products.length > 0 && (
+        <div style={{ marginTop: 20, textAlign: 'center', fontFamily: mono, fontSize: 11, color: '#3f3f46' }}>
+          End of results
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LiveCard({ product: p }: { product: AELiveProduct }) {
+  return (
+    <a
+      href={p.product_url ?? '#'}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'block',
+        background: '#141417',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 10,
+        overflow: 'hidden',
+        textDecoration: 'none',
+        transition: 'all 180ms',
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,90,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+    >
+      <div style={{ width: '100%', height: 160, background: '#0c0c0e', overflow: 'hidden' }}>
+        {p.image_url ? (
+          <img
+            src={proxyImage(p.image_url) ?? p.image_url}
+            alt={p.product_title}
+            loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          />
+        ) : null}
+      </div>
+      <div style={{ padding: '12px 14px' }}>
+        <div style={{
+          display: 'inline-block',
+          fontFamily: mono,
+          fontSize: 9,
+          fontWeight: 700,
+          color: 'rgba(255,130,0,0.9)',
+          background: 'rgba(255,90,0,0.1)',
+          border: '1px solid rgba(255,90,0,0.2)',
+          padding: '2px 6px',
+          borderRadius: 4,
+          marginBottom: 8,
+          letterSpacing: '0.05em',
+        }}>LIVE · UNSCORED</div>
+        <div style={{
+          fontFamily: sans,
+          fontSize: 13,
+          fontWeight: 600,
+          color: '#ededed',
+          lineHeight: 1.3,
+          marginBottom: 8,
+          overflow: 'hidden',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          minHeight: 34,
+        }}>{p.product_title}</div>
+        {p.category && (
+          <div style={{ fontFamily: mono, fontSize: 11, color: '#52525b', marginBottom: 8 }}>{p.category}</div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#22c55e' }}>
+            {p.sold_count > 0 ? `${p.sold_count.toLocaleString()} sold` : '—'}
+          </span>
+          <span style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa' }}>
+            {p.price_aud > 0 ? `$${p.price_aud.toFixed(2)}` : '—'}
+          </span>
+        </div>
+      </div>
+    </a>
   );
 }
 

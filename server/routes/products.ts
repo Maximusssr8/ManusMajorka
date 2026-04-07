@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
+import { searchAffiliateProducts } from '../lib/aliexpress-affiliate';
 import { cacheGet, cacheSet, cacheInvalidatePrefix, TTL } from '../lib/redisCache';
 import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
 import type { Plan } from '../../shared/plans';
@@ -450,6 +451,101 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('[Search] DB fallback error:', err.message);
     res.status(500).json({ error: 'Search failed', message: err.message });
+  }
+});
+
+// ── GET /api/products/ae-live-search — direct AliExpress Affiliate API search ──
+// Layer 2 of the hybrid pipeline: unfiltered live results from AE Affiliate API.
+// Public endpoint (no auth) — read-only, no DB writes, no scoring.
+router.get('/ae-live-search', async (req: Request, res: Response) => {
+  const {
+    q = '',
+    page = '1',
+    pageSize = '20',
+    sort = 'LAST_VOLUME_DESC',
+    minPrice,
+    maxPrice,
+    categoryId,
+  } = req.query as Record<string, string>;
+
+  const keywords = (q || '').trim();
+  if (!keywords || keywords.length < 2) {
+    res.status(400).json({ error: 'Query parameter q is required (min 2 chars)', products: [], total_count: 0 });
+    return;
+  }
+
+  const pageNo = Math.max(1, parseInt(page) || 1);
+  const psize = Math.min(50, Math.max(1, parseInt(pageSize) || 20));
+
+  try {
+    const data = await searchAffiliateProducts({
+      keywords,
+      pageNo,
+      pageSize: psize,
+      sortBy: sort,
+      categoryId: categoryId || undefined,
+    });
+
+    const result = data?.aliexpress_affiliate_product_query_response?.resp_result;
+    if (!result || result.resp_code !== 200) {
+      console.warn('[ae-live-search] upstream error:', result?.resp_msg);
+      res.json({
+        success: false,
+        products: [],
+        total_count: 0,
+        current_page: pageNo,
+        page_size: psize,
+        has_more: false,
+        upstream_error: result?.resp_msg || 'AE API returned no result',
+      });
+      return;
+    }
+
+    const rawProducts = result.result?.products?.product || [];
+    const minP = minPrice ? parseFloat(minPrice) : null;
+    const maxP = maxPrice ? parseFloat(maxPrice) : null;
+
+    const products = rawProducts.map((p: Record<string, unknown>) => {
+      const priceStr = String(p.target_sale_price ?? p.sale_price ?? '0');
+      const price = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 0;
+      return {
+        id: String(p.product_id ?? ''),
+        product_title: String(p.product_title ?? ''),
+        image_url: (p.product_main_image_url as string) || null,
+        price_aud: price,
+        original_price: parseFloat(String(p.target_original_price ?? p.original_price ?? '0').replace(/[^0-9.]/g, '')) || null,
+        sold_count: parseInt(String(p.lastest_volume ?? '0')) || 0,
+        category: (p.second_level_category_name as string) || (p.first_level_category_name as string) || null,
+        product_url: (p.product_detail_url as string) || (p.promotion_link as string) || null,
+        commission_rate: (p.commission_rate as string) || null,
+        evaluate_rate: (p.evaluate_rate as string) || null,
+        platform: 'aliexpress',
+        source: 'aliexpress_live' as const,
+        winning_score: null,
+      };
+    }).filter((p: { price_aud: number }) =>
+      (minP == null || p.price_aud >= minP) &&
+      (maxP == null || p.price_aud <= maxP)
+    );
+
+    const totalCount = result.result?.total_record_count || products.length;
+
+    res.json({
+      success: true,
+      products,
+      total_count: totalCount,
+      current_page: pageNo,
+      page_size: psize,
+      has_more: totalCount > pageNo * psize && rawProducts.length === psize,
+    });
+  } catch (err: unknown) {
+    console.error('[ae-live-search] error:', err);
+    res.status(500).json({
+      error: 'Search failed',
+      message: err instanceof Error ? err.message : String(err),
+      products: [],
+      total_count: 0,
+    });
   }
 });
 
