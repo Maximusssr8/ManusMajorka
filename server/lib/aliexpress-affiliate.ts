@@ -2,20 +2,26 @@ import crypto from 'crypto';
 
 const API_URL = 'https://api-sg.aliexpress.com/sync';
 
+// Strip whitespace, real newlines, and literal "\n" sequences that some envs
+// (Vercel, .env files) inject when secrets are pasted with trailing escapes.
+// AliExpress signing fails silently if the key/secret contains stray bytes.
+const cleanEnv = (v: string | undefined): string =>
+  (v ?? '').replace(/\\n/g, '').replace(/\s+/g, '').trim();
+
 const getKeys = () => ({
-  appKey: process.env.AE_APP_KEY || process.env.ALIEXPRESS_APP_KEY || '',
-  appSecret: process.env.AE_APP_SECRET || process.env.ALIEXPRESS_APP_SECRET || '',
-  trackingId: process.env.AE_TRACKING_ID || process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au',
+  appKey: cleanEnv(process.env.AE_APP_KEY || process.env.ALIEXPRESS_APP_KEY),
+  appSecret: cleanEnv(process.env.AE_APP_SECRET || process.env.ALIEXPRESS_APP_SECRET),
+  trackingId: cleanEnv(process.env.AE_TRACKING_ID || process.env.ALIEXPRESS_TRACKING_ID) || 'majorka_au',
 });
 
-// AliExpress Affiliate API signing (TOP API spec):
-//   sign = SHA256(appSecret + sorted(key+value)... + appSecret).hex().upper()
-// NOTE: plain SHA256, NOT HMAC. The secret wraps the concatenated param string.
+// AliExpress Affiliate (TOP) API signing — HMAC-SHA256.
+//   sign = HMAC-SHA256(appSecret, sorted(key+value)...).hex().upper()
+// Verified working 2026-04-07 against api-sg.aliexpress.com/sync.
+// (The earlier secret-wrap SHA256 variant fails with IncompleteSignature.)
 const signRequest = (params: Record<string, string>, appSecret: string): string => {
   const sorted = Object.keys(params).sort();
   const baseString = sorted.map((k) => `${k}${params[k]}`).join('');
-  const toSign = appSecret + baseString + appSecret;
-  return crypto.createHash('sha256').update(toSign, 'utf8').digest('hex').toUpperCase();
+  return crypto.createHmac('sha256', appSecret).update(baseString, 'utf8').digest('hex').toUpperCase();
 };
 
 // Last raw response — used by /api/cron/refresh-hotproducts to surface
@@ -35,7 +41,7 @@ export const aliAffiliateRequest = async (method: string, extra: Record<string, 
     timestamp,
     format: 'json',
     v: '2.0',
-    sign_method: 'sha256',
+    sign_method: 'hmac-sha256',
     ...extra,
   };
   params.sign = signRequest(params, appSecret);
