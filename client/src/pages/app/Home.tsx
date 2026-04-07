@@ -3,6 +3,7 @@ import { Database, TrendingUp, Percent, Flame, ArrowUpRight } from 'lucide-react
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, useProductStats } from '@/hooks/useProducts';
+import { ProductImage } from '@/components/app/ProductImage';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -82,35 +83,7 @@ function KpiCard({ label, value, sub, icon: Icon, loading }: KpiCardProps) {
 }
 
 function ProductThumb({ title, image }: { title: string; image: string | null }) {
-  if (image) {
-    return (
-      <img
-        src={image}
-        alt={title}
-        style={{
-          width: 32, height: 32, borderRadius: 5,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: '#0d0d10',
-          objectFit: 'cover',
-          flexShrink: 0,
-        }}
-        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-      />
-    );
-  }
-  return (
-    <div style={{
-      width: 32, height: 32, borderRadius: 5,
-      background: '#0d0d10',
-      border: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0,
-      fontFamily: display,
-      fontSize: 13,
-      fontWeight: 700,
-      color: '#6366F1',
-    }}>{title.charAt(0).toUpperCase()}</div>
-  );
+  return <ProductImage src={image} title={title} size={32} borderRadius={5} />;
 }
 
 function SkeletonRow() {

@@ -266,7 +266,7 @@ const TICKER_ITEMS: string[] = [
   '🇨🇦 CA margin calculator: 44% net margin · 9 min ago',
   '🇩🇪 DE winning product: 91 score · 11 min ago',
   '🇸🇬 SG ad creative generated · 14 min ago',
-  '2.4M+ products tracked across 7 markets',
+  '2,287 winning products across 149 niches',
   '500+ active operators online now',
 ];
 

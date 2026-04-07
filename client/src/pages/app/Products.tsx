@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
+import { ProductImage } from '@/components/app/ProductImage';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -57,34 +58,31 @@ const selectStyle: React.CSSProperties = {
 };
 
 function Thumb({ title, image, size = 32 }: { title: string; image: string | null; size?: number }) {
-  if (image) {
+  return <ProductImage src={image} title={title} size={size} borderRadius={5} />;
+}
+
+function ProductHeroImage({ src, title }: { src: string | null; title: string }) {
+  const [failed, setFailed] = useState(false);
+  const initial = (title?.trim() || 'P').charAt(0).toUpperCase();
+  if (!src || failed) {
     return (
-      <img
-        src={image}
-        alt={title}
-        style={{
-          width: size, height: size, borderRadius: 5,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: '#0d0d10',
-          objectFit: 'cover',
-          flexShrink: 0,
-        }}
-        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-      />
+      <span style={{
+        fontFamily: display,
+        fontSize: 32,
+        fontWeight: 700,
+        color: 'rgba(99,102,241,0.4)',
+      }}>{initial}</span>
     );
   }
   return (
-    <div style={{
-      width: size, height: size, borderRadius: 5,
-      background: '#0d0d10',
-      border: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      flexShrink: 0,
-      fontFamily: display,
-      fontSize: Math.round(size * 0.42),
-      fontWeight: 700,
-      color: '#6366F1',
-    }}>{title.charAt(0).toUpperCase()}</div>
+    <img
+      src={src}
+      alt={title}
+      referrerPolicy="no-referrer-when-downgrade"
+      loading="lazy"
+      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      onError={() => setFailed(true)}
+    />
   );
 }
 
@@ -501,22 +499,9 @@ function GridView({ products, loading }: { products: Product[]; loading: boolean
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
+                overflow: 'hidden',
               }}>
-                {p.image_url ? (
-                  <img
-                    src={p.image_url}
-                    alt={p.product_title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                  />
-                ) : (
-                  <span style={{
-                    fontFamily: display,
-                    fontSize: 32,
-                    fontWeight: 700,
-                    color: 'rgba(99,102,241,0.4)',
-                  }}>{p.product_title.charAt(0).toUpperCase()}</span>
-                )}
+                <ProductHeroImage src={p.image_url} title={p.product_title} />
               </div>
               <div style={{ padding: 14 }}>
                 <div style={{
