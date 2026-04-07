@@ -7,6 +7,7 @@ import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, useProductStats } from '@/hooks/useProducts';
 import { getCategoryStyle } from '@/lib/categoryColor';
+import { proxyImage } from '@/lib/imageProxy';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -126,9 +127,8 @@ function ProductRowImage({ image, title, category }: { image: string | null; tit
     }}>
       {image ? (
         <img
-          src={image}
+          src={proxyImage(image) ?? image}
           alt={title}
-          referrerPolicy="no-referrer-when-downgrade"
           loading="lazy"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
@@ -515,7 +515,7 @@ export default function AppHome() {
                     fontWeight: 600,
                     textAlign: 'right',
                     color: score >= 80 ? '#22c55e' : score >= 65 ? '#f59e0b' : '#4b5563',
-                  }}>{score >= 80 ? '⭐ High' : score >= 65 ? '📊 Med' : '—'}</span>
+                  }}>{score >= 80 ? 'High ↑' : score >= 65 ? 'Med →' : 'Low'}</span>
                   <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <Link href="/app/products" style={{
                       display: 'inline-flex',

@@ -8,12 +8,14 @@ const getKeys = () => ({
   trackingId: process.env.AE_TRACKING_ID || process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au',
 });
 
-// HMAC-SHA256 signing — AliExpress Affiliate API spec:
-// key=appSecret, message=sortedParams (NO secret wrapping)
+// AliExpress Affiliate API signing (TOP API spec):
+//   sign = SHA256(appSecret + sorted(key+value)... + appSecret).hex().upper()
+// NOTE: plain SHA256, NOT HMAC. The secret wraps the concatenated param string.
 const signRequest = (params: Record<string, string>, appSecret: string): string => {
   const sorted = Object.keys(params).sort();
-  const baseString = sorted.map(k => `${k}${params[k]}`).join('');
-  return crypto.createHmac('sha256', appSecret).update(baseString).digest('hex').toUpperCase();
+  const baseString = sorted.map((k) => `${k}${params[k]}`).join('');
+  const toSign = appSecret + baseString + appSecret;
+  return crypto.createHash('sha256').update(toSign, 'utf8').digest('hex').toUpperCase();
 };
 
 export const aliAffiliateRequest = async (method: string, extra: Record<string, string>) => {

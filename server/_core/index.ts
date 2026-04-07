@@ -268,6 +268,10 @@ async function startServer() {
   // Cron endpoints (Vercel cron + manual refresh)
   const cronRouter = (await import('../routes/cron')).default;
   app.use('/api/cron', cronRouter);
+
+  // Image proxy for AliExpress CDN (bypasses hotlink protection)
+  const imageProxyRouter = (await import('../routes/imageProxy')).default;
+  app.use('/api', imageProxyRouter);
   const dailyBriefRouter = (await import('../routes/daily-brief')).default;
   app.use('/api/daily-brief', dailyBriefRouter);
   // ── Usage tracking — GET /api/usage/me ────────────────────────────────────

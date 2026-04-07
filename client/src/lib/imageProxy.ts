@@ -1,21 +1,14 @@
 /**
- * Image proxy helper — routes CDN images that block cross-origin requests
- * (AliExpress, Alibaba CDN, etc.) through the local /api/proxy-image endpoint.
+ * Wraps an AliExpress CDN URL through our server-side image proxy
+ * to bypass hotlink protection.
+ *
+ * Non-AE URLs are returned unchanged.
  */
-const PROXY_DOMAINS = [
-  'aliexpress-media.com',
-  'ae-pic',
-  'alicdn.com',
-  'ae01.alicdn.com',
-  'ae04.alicdn.com',
-  'gloimg.alicdn.com',
-];
-
-export function proxyImage(url: string): string {
-  if (!url) return '';
-  const needsProxy = PROXY_DOMAINS.some((d) => url.includes(d));
-  if (needsProxy) {
-    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+export function proxyImage(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith('/api/image-proxy')) return url;
+  if (url.includes('aliexpress-media.com') || url.includes('alicdn.com')) {
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   }
   return url;
 }

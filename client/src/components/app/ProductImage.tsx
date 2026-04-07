@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { proxyImage } from '@/lib/imageProxy';
 
 interface ProductImageProps {
   src: string | null | undefined;
@@ -37,11 +38,11 @@ export function ProductImage({ src, title, size = 40, borderRadius = 6 }: Produc
     );
   }
 
+  const proxied = proxyImage(src) ?? src;
   return (
     <img
-      src={src}
+      src={proxied}
       alt={title ?? 'Product'}
-      referrerPolicy="no-referrer-when-downgrade"
       loading="lazy"
       style={{
         width: size,

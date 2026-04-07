@@ -5,6 +5,7 @@ import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProduc
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { ProductImage } from '@/components/app/ProductImage';
 import { getCategoryStyle } from '@/lib/categoryColor';
+import { proxyImage } from '@/lib/imageProxy';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -79,9 +80,8 @@ function ProductHeroImage({ src, title }: { src: string | null; title: string })
   }
   return (
     <img
-      src={src}
+      src={proxyImage(src) ?? src}
       alt={title}
-      referrerPolicy="no-referrer-when-downgrade"
       loading="lazy"
       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
       onError={() => setFailed(true)}
@@ -627,9 +627,8 @@ function FeaturedCard({ product, bg, border, accentColor }: { product: Product; 
         }}>
           {product.image_url ? (
             <img
-              src={product.image_url}
+              src={proxyImage(product.image_url) ?? product.image_url}
               alt={product.product_title}
-              referrerPolicy="no-referrer-when-downgrade"
               loading="lazy"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
