@@ -111,3 +111,4 @@ temp/
 majorka-gcp-key.json
 discord-bot/node_modules
 .research/
+.claude/worktrees/
