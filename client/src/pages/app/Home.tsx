@@ -279,7 +279,9 @@ export default function AppHome() {
             Today&apos;s Signal · AliExpress Advanced API
           </div>
           <p style={{ fontFamily: sans, fontSize: 14, color: '#a1a1aa', lineHeight: 1.65, margin: '0 0 10px' }}>
-            Order velocity across the Majorka database peaks Tuesday–Thursday. Products with 5,000+ monthly orders and a net margin above 45% represent the highest-probability opportunities in AU and US markets this week.
+            {stats.total > 0
+              ? `${stats.hotCount.toLocaleString()} products are scoring 65+ across the database (${Math.round((stats.hotCount / stats.total) * 100)}% of ${stats.total.toLocaleString()} tracked). ${stats.eliteCount.toLocaleString()} elite picks score 90+. Spread across ${stats.categoryCount} niches and ${Object.keys(stats.bySource).length} markets.`
+              : 'Loading the latest database signal…'}
           </p>
           <Link href="/app/products" style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View top products →</Link>
         </div>

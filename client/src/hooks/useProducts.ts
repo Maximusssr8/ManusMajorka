@@ -107,33 +107,24 @@ export function useProductStats(): ProductStats {
     let cancelled = false;
     async function load() {
       try {
-        const { count: total } = await supabase
-          .from('winning_products')
-          .select('*', { count: 'exact', head: true });
-
-        const { count: highScoreCount } = await supabase
-          .from('winning_products')
-          .select('*', { count: 'exact', head: true })
-          .gte('winning_score', 80);
-
-        const { count: eliteCount } = await supabase
-          .from('winning_products')
-          .select('*', { count: 'exact', head: true })
-          .gte('winning_score', 90);
-
+        // Single GET fetches everything needed; client-side aggregation
+        // avoids 6+ HEAD count requests that were 503ing on Supabase.
         const { data: rows, error: rowsErr } = await supabase
           .from('winning_products')
           .select('sold_count,winning_score,platform,category')
-          .limit(2500);
+          .limit(3000);
         if (rowsErr) throw rowsErr;
 
         const list = (rows ?? []) as Array<{ sold_count: number | null; winning_score: number | null; platform: string | null; category: string | null }>;
+        const total = list.length;
         const categoryCount = new Set(list.map((r) => r.category).filter((c): c is string => typeof c === 'string' && c.trim().length > 0)).size;
         const maxOrders = list.reduce((m, r) => Math.max(m, r.sold_count ?? 0), 0);
         const scoreList = list.map((r) => r.winning_score ?? 0).filter((n) => n > 0);
         const avgScore = scoreList.length ? Math.round(scoreList.reduce((a, b) => a + b, 0) / scoreList.length) : 0;
         const topScore = scoreList.length ? Math.max(...scoreList) : 0;
         const hotCount = list.filter((r) => (r.winning_score ?? 0) >= 65).length;
+        const highScoreCount = list.filter((r) => (r.winning_score ?? 0) >= 80).length;
+        const eliteCount = list.filter((r) => (r.winning_score ?? 0) >= 90).length;
         const bySource: Record<string, number> = {};
         for (const r of list) {
           const k = (r.platform ?? 'unknown').toLowerCase();
@@ -141,13 +132,13 @@ export function useProductStats(): ProductStats {
         }
         if (!cancelled) {
           setStats({
-            total: total ?? list.length,
+            total,
             maxOrders,
             avgScore,
             hotCount,
             topScore,
-            highScoreCount: highScoreCount ?? 0,
-            eliteCount: eliteCount ?? 0,
+            highScoreCount,
+            eliteCount,
             categoryCount,
             bySource,
             loading: false,

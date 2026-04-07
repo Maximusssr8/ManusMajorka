@@ -266,7 +266,7 @@ const TICKER_ITEMS: string[] = [
   '🇨🇦 CA margin calculator: 44% net margin · 9 min ago',
   '🇩🇪 DE winning product: 91 score · 11 min ago',
   '🇸🇬 SG ad creative generated · 14 min ago',
-  '2,287 winning products across 149 niches',
+  '2,302 winning products across 149 niches',
   '500+ active operators online now',
 ];
 
@@ -499,7 +499,7 @@ function Hero() {
               color: '#f0f0f0',
               margin: '0 0 24px',
             }}>
-              2,287 winning products.<br />
+              2,302 winning products.<br />
               <span style={{ color: '#6366F1' }}>One platform to sell them.</span>
             </h1>
 
@@ -651,7 +651,7 @@ function SocialProofBar() {
       <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2,287</div>
+        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2,302</div>
         <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>winning products scored</div>
       </div>
 
@@ -739,7 +739,7 @@ function BrowserWindow() {
         background: 'rgba(255,255,255,0.04)',
       }}>
         {[
-          { label: 'Products',  value: '2,287', color: '#ededed' },
+          { label: 'Products',  value: '2,302', color: '#ededed' },
           { label: 'Hot Today', value: '1,776', color: '#f97316' },
           { label: 'Avg Score', value: '80/100', color: '#f59e0b' },
           { label: 'Top Niche', value: 'Fashion', color: '#6366F1' },
@@ -816,7 +816,7 @@ function BrowserWindow() {
         gap: 6,
       }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
-        <span style={{ fontSize: 10, color: '#6b7280', fontFamily: mono }}>Live AliExpress data · Updated 6h ago · 2,287 products tracked</span>
+        <span style={{ fontSize: 10, color: '#6b7280', fontFamily: mono }}>Live AliExpress data · Updated 6h ago · 2,302 products tracked</span>
       </div>
     </div>
   );
@@ -867,7 +867,7 @@ function LiveTicker() {
 // ── Stats Section ───────────────────────────────────────────────────────────
 interface StatCardData { eyebrow: string; numNode: React.ReactNode; body: string; color?: string }
 const STATS_CARDS: StatCardData[] = [
-  { eyebrow: 'Winning Products', numNode: <>2,287</>,                                                                                               body: 'across 149 niches, updated every 6h' },
+  { eyebrow: 'Winning Products', numNode: <>2,302</>,                                                                                               body: 'across 149 niches, updated every 6h' },
   { eyebrow: 'Hot Right Now',    numNode: <>1,776</>,                                                                                               body: 'scoring ≥ 65/100 today', color: '#f97316' },
   { eyebrow: 'Top Daily Revenue', numNode: <><span style={{ color: '#22c55e' }}>$</span>15.6<span style={{ color: '#22c55e' }}>k</span></>,         body: 'best product tracked this week', color: '#22c55e' },
   { eyebrow: 'Peak AI Score',    numNode: <>99<span style={{ color: '#f59e0b', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>/100</span></>, body: 'AliExpress verified, exploding trend', color: '#f59e0b' },
@@ -1035,14 +1035,14 @@ function ThePlatform() {
               <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Product Intelligence</span>
             </div>
             <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 28, color: '#ededed', marginBottom: 12, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-              2,287 winning products.<br />Ranked by real orders.
+              2,302 winning products.<br />Ranked by real orders.
             </h3>
             <p style={{ color: '#71717a', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
               Every product is sourced directly from the AliExpress Affiliate API and CJ Dropshipping — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { label: '2,287 products', sub: 'across 149 niches' },
+                { label: '2,302 products', sub: 'across 149 niches' },
                 { label: '1,776 hot today', sub: 'winning score ≥ 65/100' },
                 { label: 'Score 99/100',    sub: 'AI-graded for margin + demand + trend' },
               ].map((item) => (
@@ -1301,7 +1301,7 @@ function RevenueProofBanner() {
   const stats = [
     { value: '$247,831', label: 'Lifetime revenue', sub: 'tracked across operator stores' },
     { value: '$15.6k',   label: 'Top daily revenue', sub: 'single product, single day' },
-    { value: '2,287',    label: 'Winning products',  sub: 'verified across 149 niches' },
+    { value: '2,302',    label: 'Winning products',  sub: 'verified across 149 niches' },
     { value: '1,776',    label: 'Hot right now',     sub: 'scoring ≥ 65/100 today' },
     { value: '99/100',   label: 'Peak AI score',     sub: 'exploding trend, verified' },
   ];

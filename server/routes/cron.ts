@@ -818,6 +818,7 @@ router.post('/ae-hot-products', async (req: Request, res: Response) => {
         trend: orders > 5000 ? 'Exploding' : orders > 1000 ? 'Rising' : 'Steady',
         orders_count: orders,
         real_orders_count: orders,
+        sold_count: orders,
         source_url: String(p.product_detail_url || ''),
         aliexpress_url: String(p.product_detail_url || ''),
         aliexpress_id: pid,
