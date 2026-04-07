@@ -1286,7 +1286,13 @@ export default function MajorkaAppShell({ children }: Props) {
             {(() => {
               const allItems = NAV_SECTIONS.flatMap(s => s.items);
               const current = allItems.find(item => isActive(item.path, item.exact));
-              return current?.label || 'Dashboard';
+              if (current) return current.label;
+              // Check if current page is a tool
+              const tool = allTools.find(t => location === `/app/${t.id}` || location.startsWith(`/app/${t.id}/`));
+              if (tool) return tool.label;
+              // Special handling for other pages
+              if (location === '/app/trend-radar') return 'Trend Radar';
+              return 'Dashboard';
             })()}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -901,30 +901,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {/* ── LIST VIEW (TABLE) ── */}
         {viewMode === 'list' && !isMobile && (
           <div style={{ padding: '0 12px 80px' }}>
-            {/* Mobile search + filter bar */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
-              <div style={{ flex: 1, position: 'relative' as const }}>
-                <input
-                  value={searchInput}
-                  onChange={e => setSearchInput(e.target.value)}
-                  placeholder="Search products..."
-                  style={{ width: '100%', height: 40, padding: '0 12px 0 36px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, boxSizing: 'border-box' as const, outline: 'none', background: 'rgba(255,255,255,0.06)', color: '#e4e4e7' }}
-                />
-                <span style={{ position: 'absolute' as const, left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: 15, pointerEvents: 'none' as const }}>🔍</span>
-              </div>
-              <select
-                value={niche}
-                onChange={e => setNiche(e.target.value)}
-                style={{ height: 40, padding: '0 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', fontSize: 13, color: '#e4e4e7', background: '#131929', cursor: 'pointer' }}
-              >
-                {niches.map(n => <option key={n} value={n}>{n}{nicheCountMap.has(n) ? ` (${nicheCountMap.get(n)})` : ''}</option>)}
-              </select>
-            </div>
-
-            {/* Count */}
-            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 12 }}>
-              {Math.min(mobileDisplayCount, displayProducts.length)} of {filteredProducts.length} products
-            </div>
 
             {/* Card list */}
             {(loading || isFiltering) ? (
@@ -1478,9 +1454,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               borderRadius: 8, padding: '4px 8px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
                               opacity: 0, pointerEvents: 'none', transition: 'opacity 0.1s', zIndex: 10,
                             }}>
-                              <a href={p.aliexpress_url || p.source_url || '#'} target="_blank" rel="noopener noreferrer"
-                                title="View on AliExpress"
-                                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(99,102,241,0.1)', color: '#818CF8', textDecoration: 'none', fontSize: 13 }}>↗</a>
+                              <button
+                                title="View product details"
+                                onClick={e => { e.stopPropagation(); setDetailProduct(p); }}
+                                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(99,102,241,0.1)', color: '#818CF8', border: 'none', cursor: 'pointer', fontSize: 13 }}>↗</button>
                               <button title="Save" onClick={() => toast.success('Product saved!')} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 13 }}>♡</button>
                               <button title="Build Store" onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`)} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>⚡</button>
                             </div>

@@ -1233,7 +1233,13 @@ function DashboardHome() {
                 {products[0].profit_margin && <span>{products[0].profit_margin}% margin</span>}
               </div>
               <div style={{ fontSize: 13, color: '#9CA3AF', lineHeight: 1.5, flex: 1 }}>
-                Est. ${(((products[0].est_monthly_revenue_aud ?? (products[0].est_daily_revenue_aud ? products[0].est_daily_revenue_aud * 30 : 0)) || 0) / 1000).toFixed(1)}k/mo · {products[0].trend === 'rising' || products[0].tiktok_signal ? '🔥 Trending' : '📈 Active'}
+                Est. ${((() => {
+                  const estRevenue = products[0].est_monthly_revenue_aud || 
+                    (products[0].est_daily_revenue_aud ? products[0].est_daily_revenue_aud * 30 : null) ||
+                    (products[0].real_orders_count && products[0].real_price_aud ? Math.round(products[0].real_orders_count * products[0].real_price_aud * 0.3) : null) ||
+                    0;
+                  return (estRevenue / 1000).toFixed(1);
+                })())}k/mo · {products[0].trend === 'rising' || products[0].tiktok_signal ? '🔥 Trending' : '📈 Active'}
               </div>
               <button onClick={() => setLocation('/app/intelligence')} style={{ marginTop: 16, padding: '10px 16px', background: 'rgba(99,102,241,0.2)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.3)')}

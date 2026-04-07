@@ -500,74 +500,9 @@ export default function MarketDashboard() {
           </div>
         </section>
 
-        {/* ── Category Pulse + Creator Spotlight ───────────────────────── */}
+        {/* ── Creator Spotlight ───────────────────────── */}
+        {topCreator && (topCreator.followers > 0 || topCreator.username || topCreator.display_name) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Categories */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>Category Pulse</h2>
-              <span className="text-xs" style={{ color: '#475569' }}>30-day GMV growth</span>
-            </div>
-            <div className="space-y-2">
-              {loading ? (
-                <div className="p-4 text-sm" style={{ color: '#475569' }}>Loading…</div>
-              ) : categories.length === 0 ? (
-                <div style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: 12,
-                  padding: '32px 24px',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: 28, marginBottom: 12 }}>📊</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
-                    Category Intelligence — Coming Soon
-                  </div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', maxWidth: 320, margin: '0 auto', lineHeight: 1.6 }}>
-                    Live category pulse data is being wired up. You'll see real-time trending scores for each niche once connected.
-                  </div>
-                  <div style={{ marginTop: 16 }}>
-                    <span style={{
-                      fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20,
-                      background: 'rgba(99,102,241,0.1)', color: '#818CF8',
-                      border: '1px solid rgba(99,102,241,0.2)',
-                      display: 'inline-block',
-                    }}>
-                      Scale Plan early access
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                categories.map((cat) => (
-                  <div
-                    key={cat.id}
-                    className="rounded-xl p-4 flex items-center justify-between"
-                    style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-semibold" style={{ color: '#E2E8F0' }}>{cat.category_name}</p>
-                        <TrendBadge trend={cat.trend ?? 'growing'} />
-                      </div>
-                      <p className="text-xs" style={{ color: '#475569' }}>
-                        {cat.total_products} products · {cat.creator_count} creators · {cat.competition_level} competition
-                      </p>
-                      <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Top: {cat.top_product_title}</p>
-                    </div>
-                    <div className="text-right ml-4 flex-shrink-0">
-                      <p className="text-lg font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                        {fmtAUD(cat.total_gmv_aud)}
-                      </p>
-                      <p className="text-xs" style={{ color: cat.winning_score >= 0 ? '#22c55e' : '#ef4444' }}>
-                        {cat.winning_score >= 0 ? '+' : ''}{(cat.winning_score ?? 0).toFixed(1)}% growth
-                      </p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
           {/* Creator Spotlight */}
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -632,6 +567,7 @@ export default function MarketDashboard() {
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
