@@ -2002,7 +2002,6 @@ export default function Home() {
       <RevenueProofBanner />
 
       <Comparison />
-      <DatabaseSection />
       <Markets />
       <Workflow />
       <Testimonials />
