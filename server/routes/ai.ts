@@ -11,6 +11,24 @@ function getClient() {
 }
 
 router.post('/generate-ads', requireAuth, async (req, res) => {
+
+router.post('/chat', async (req, res) => {
+  try {
+    const { message, demo } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message is required' });
+
+    if (demo) {
+      return res.json({ response: "Demo: top niches to dropship are Pet Accessories, Home & Garden." });
+    }
+
+    // Add real AI logic here
+    return res.json({ response: "This is live AI chat response placeholder." });
+  } catch (err) {
+    console.error('[/api/ai/chat]', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+
+});
   const { productName, price, audience } = req.body;
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
