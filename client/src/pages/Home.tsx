@@ -6,10 +6,12 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
   bg: '#0a0a0a',
+  bgAlt: '#0d0d10',
   bgElevated: '#0e0e10',
   bgSurface: '#111114',
   bgPanel: '#0d0d10',
   bgChrome: '#1a1a1f',
+  bgChromeAlt: '#16161a',
   border: 'rgba(255,255,255,0.08)',
   borderStrong: 'rgba(255,255,255,0.14)',
   borderFaint: 'rgba(255,255,255,0.05)',
@@ -43,16 +45,8 @@ html, body { background: ${T.bg}; }
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-@keyframes mj-marquee-slow {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
 @keyframes mj-fade-in-down {
   from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes mj-fade-slide-in {
-  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes mj-row-stagger {
@@ -69,6 +63,11 @@ html, body { background: ${T.bg}; }
   60%  { transform: translateX(220%) skewX(-20deg); }
   100% { transform: translateX(220%) skewX(-20deg); }
 }
+@keyframes mj-bar-grow { from { width: 0; } }
+@keyframes mj-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
 
 .mj-eyebrow {
   font-family: ${mono};
@@ -78,7 +77,6 @@ html, body { background: ${T.bg}; }
   text-transform: uppercase;
   color: ${T.accent};
 }
-
 .mj-link {
   color: ${T.textMuted};
   text-decoration: none;
@@ -155,20 +153,16 @@ html, body { background: ${T.bg}; }
   display: flex;
   gap: 48px;
   width: max-content;
-  animation: mj-marquee-slow 35s linear infinite;
+  animation: mj-marquee 35s linear infinite;
 }
 
-.mj-row-enter { animation: mj-fade-in-down 400ms ease-out; }
 .mj-row-pulse { animation: mj-row-pulse-green 3s ease-out 1; }
+.mj-row-enter { animation: mj-fade-in-down 400ms ease-out; }
 
-.mj-reveal { opacity: 0; transform: translateY(16px); transition: opacity 400ms ease, transform 400ms ease; }
+.mj-reveal { opacity: 0; transform: translateY(16px); transition: opacity 600ms ease, transform 600ms ease; }
 .mj-reveal.is-visible { opacity: 1; transform: translateY(0); }
 
-.mj-shimmer-btn {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
+.mj-shimmer-btn { position: relative; overflow: hidden; isolation: isolate; }
 .mj-shimmer-btn::after {
   content: "";
   position: absolute;
@@ -191,11 +185,56 @@ html, body { background: ${T.bg}; }
 .mj-ticker-strip::before { left: 0;  background: linear-gradient(90deg, ${T.bgPanel}, transparent); }
 .mj-ticker-strip::after  { right: 0; background: linear-gradient(-90deg, ${T.bgPanel}, transparent); }
 
-.mj-glow-edge { mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); }
+.mj-glow-edge {
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+
+.mj-dot-grid {
+  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.mj-window-shadow {
+  box-shadow:
+    0 0 0 1px rgba(99,102,241,0.18),
+    0 40px 80px rgba(0,0,0,0.6),
+    0 8px 24px rgba(99,102,241,0.18);
+}
+.mj-mockup-shadow {
+  box-shadow:
+    0 0 0 1px ${T.border},
+    0 40px 80px rgba(0,0,0,0.5);
+}
+
+.mj-feature-panel-header {
+  font-family: ${display};
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: ${T.text};
+  margin: 0 0 18px;
+}
+.mj-feature-panel-header span { color: ${T.accent}; }
+
+.mj-bar { animation: mj-bar-grow 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .mj-marquee-track, .mj-ticker-track { animation: none !important; }
+}
 
 @media (max-width: 968px) {
-  .mj-features-layout { grid-template-columns: 1fr !important; }
-  .mj-features-left { position: static !important; }
+  .mj-feat-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+  .mj-feat-grid > * { grid-row: auto !important; }
+  .mj-feat-grid .mj-feat-text { order: 1 !important; }
+  .mj-feat-grid .mj-feat-mock { order: 2 !important; }
+  .mj-stats-grid { grid-template-columns: 1fr 1fr !important; }
 }
 @media (max-width: 768px) {
   .mj-hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
@@ -205,11 +244,15 @@ html, body { background: ${T.bg}; }
   .mj-hero-h1 { font-size: 42px !important; }
   .mj-section-h2 { font-size: 32px !important; }
   .mj-cta-h2 { font-size: 48px !important; }
+  .mj-feature-panel-header { font-size: 30px !important; }
   .mj-hero-cta { flex-direction: column !important; align-items: stretch !important; }
   .mj-hero-cta > * { width: 100% !important; }
-  .mj-data-panel { display: none !important; }
+  .mj-hero-window { display: none !important; }
   .mj-credibility { flex-wrap: wrap !important; gap: 12px 14px !important; }
   .mj-comparison { font-size: 12px !important; }
+  .mj-stat-num { font-size: 44px !important; }
+  .mj-discovery-grid { grid-template-columns: 1fr !important; }
+  .mj-creative-grid { grid-template-columns: 1fr !important; }
 }
 `;
 
@@ -224,17 +267,7 @@ const TICKER_ITEMS: string[] = [
   '🇩🇪 DE winning product: 91 score · 11 min ago',
   '🇸🇬 SG ad creative generated · 14 min ago',
   '2.4M+ products tracked across 7 markets',
-  '500+ active operators this week',
-];
-
-interface Feature { tag: string; title: string; subtitle: string }
-const FEATURES: Feature[] = [
-  { tag: '01', title: 'Discovery',           subtitle: 'AI-scored product opportunities' },
-  { tag: '02', title: 'Margin',              subtitle: 'True profit before you spend' },
-  { tag: '03', title: 'Creative',            subtitle: 'Ad copy and angles, ready to ship' },
-  { tag: '04', title: 'Spy',                 subtitle: 'Competitor stores, fully decoded' },
-  { tag: '05', title: 'Build',               subtitle: 'Shopify stores in minutes' },
-  { tag: '06', title: 'Markets',             subtitle: 'Seven regions, fully localised' },
+  '500+ active operators online now',
 ];
 
 const STEPS: { num: string; title: string; body: string }[] = [
@@ -304,13 +337,7 @@ function SectionHeader({ eyebrow, line1, line2, description, align = 'left', max
         marginBottom: 16,
         justifyContent: align === 'center' ? 'center' : 'flex-start',
       }}>
-        <span style={{
-          display: 'inline-block',
-          width: 4,
-          height: 32,
-          background: T.accent,
-          borderRadius: 2,
-        }} />
+        <span style={{ display: 'inline-block', width: 4, height: 32, background: T.accent, borderRadius: 2 }} />
         <span className="mj-eyebrow">{eyebrow}</span>
       </div>
       <h2 className="mj-section-h2" style={{
@@ -392,16 +419,23 @@ function Hero() {
       overflow: 'hidden',
       isolation: 'isolate',
     }}>
-      {/* Radial glows */}
+      {/* Layered backgrounds */}
+      <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.6, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 80% 60% at 55% 35%, rgba(99,102,241,0.16) 0%, rgba(99,102,241,0.04) 45%, transparent 70%)',
+        background: 'radial-gradient(ellipse 80% 60% at 55% 35%, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.05) 45%, transparent 70%)',
         pointerEvents: 'none',
         zIndex: 0,
       }} />
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 40% 30% at 85% 15%, rgba(99,102,241,0.08) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse 60% 40% at 90% 90%, rgba(139,92,246,0.12) 0%, transparent 60%)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'radial-gradient(ellipse 40% 30% at 85% 15%, rgba(99,102,241,0.10) 0%, transparent 60%)',
         pointerEvents: 'none',
         zIndex: 0,
       }} />
@@ -409,17 +443,16 @@ function Hero() {
       <div style={{
         position: 'relative',
         zIndex: 1,
-        maxWidth: 1200,
+        maxWidth: 1240,
         margin: '0 auto',
         padding: '120px 24px 100px',
       }}>
         <div className="mj-hero-grid" style={{
           display: 'grid',
           gridTemplateColumns: '1.05fr 0.95fr',
-          gap: 64,
+          gap: 56,
           alignItems: 'center',
         }}>
-          {/* Left: copy */}
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="mj-eyebrow" style={{ marginBottom: 20 }}>
               <span className="mj-pulse-dot" style={{ marginRight: 8, verticalAlign: 'middle' }} />
@@ -452,77 +485,87 @@ function Hero() {
               <a href="#features" className="mj-btn-secondary">See it in action</a>
             </div>
 
-            {/* Credibility bar */}
-            <div className="mj-credibility" style={{
-              marginTop: 28,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 16,
-              padding: '10px 18px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 8,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                {[
-                  { i: 'A', from: '#6366F1', to: '#8B5CF6' },
-                  { i: 'J', from: '#22c55e', to: '#10b981' },
-                  { i: 'S', from: '#f59e0b', to: '#ef4444' },
-                ].map((a, i) => (
-                  <div key={a.i} style={{
-                    width: 26,
-                    height: 26,
-                    borderRadius: '50%',
-                    background: `linear-gradient(135deg, ${a.from}, ${a.to})`,
-                    border: `2px solid ${T.bg}`,
-                    marginLeft: i === 0 ? 0 : -8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: display,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: '#fff',
-                  }}>{a.i}</div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: T.amber, fontFamily: mono, fontWeight: 600 }}>
-                <span>★★★★★</span><span style={{ color: T.text, marginLeft: 4 }}>4.9</span>
-              </div>
-              <span style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ fontFamily: mono, fontSize: 12, color: T.textMuted }}>500+ operators</span>
-              <span style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ fontFamily: mono, fontSize: 12, color: T.textMuted }}>7 global markets</span>
-              <span style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 12, color: T.textMuted }}>
-                <span className="mj-pulse-dot" />
-                live data
-              </span>
-            </div>
+            <SocialProofBar />
           </div>
 
-          {/* Right: app window */}
-          <AppWindow />
+          {/* Right: floating browser window */}
+          <BrowserWindow />
         </div>
       </div>
     </section>
   );
 }
 
-// ── App Window ──────────────────────────────────────────────────────────────
+// ── Social Proof Bar ────────────────────────────────────────────────────────
+function SocialProofBar() {
+  return (
+    <div className="mj-credibility" style={{
+      marginTop: 28,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 16,
+      padding: '12px 20px',
+      background: 'rgba(255,255,255,0.04)',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 8,
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {[
+          { i: 'A', from: '#6366F1', to: '#8B5CF6' },
+          { i: 'J', from: '#22c55e', to: '#10b981' },
+          { i: 'S', from: '#f59e0b', to: '#ef4444' },
+          { i: 'M', from: '#06b6d4', to: '#3b82f6' },
+        ].map((a, i) => (
+          <div key={a.i} style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${a.from}, ${a.to})`,
+            border: `2px solid ${T.bg}`,
+            marginLeft: i === 0 ? 0 : -10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: display,
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#fff',
+          }}>{a.i}</div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ color: T.amber, fontSize: 13, letterSpacing: '0.05em' }}>★★★★★</span>
+        <span style={{ color: T.text, fontFamily: mono, fontSize: 12, fontWeight: 600 }}>4.9</span>
+      </div>
+      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
+      <span style={{ fontFamily: mono, fontSize: 12, color: T.textMuted }}>500+ operators</span>
+      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
+      <span style={{ fontFamily: mono, fontSize: 12, color: T.textMuted }}>2.4M+ products</span>
+      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 12, color: T.textMuted }}>
+        <span className="mj-pulse-dot" />
+        live data
+      </span>
+    </div>
+  );
+}
+
+// ── Browser Window (hero) ──────────────────────────────────────────────────
 interface PRow { name: string; score: number; trend: string; vol: string; isNew?: boolean }
 const PRODUCT_POOL: PRow[] = [
-  { name: 'Posture Corrector Pro',  score: 94, trend: '+18%', vol: '12,847' },
-  { name: 'LED Strip Lights 5m',    score: 91, trend: '+22%', vol: '9,213' },
+  { name: 'Posture Corrector Pro',   score: 94, trend: '+18%', vol: '12,847' },
+  { name: 'LED Strip Lights 5m',     score: 91, trend: '+22%', vol: '9,213' },
   { name: 'Pet Hair Remover Roller', score: 88, trend: '+11%', vol: '7,402' },
-  { name: 'Magnetic Phone Charger', score: 86, trend: '+9%',  vol: '6,891' },
-  { name: 'Cloud Slippers Memory',  score: 92, trend: '+27%', vol: '11,420' },
-  { name: 'Mini Portable Blender',  score: 87, trend: '+15%', vol: '8,118' },
-  { name: 'Solar Garden Lights x6', score: 89, trend: '+14%', vol: '5,943' },
-  { name: 'Heated Massage Pillow',  score: 90, trend: '+19%', vol: '10,302' },
+  { name: 'Magnetic Phone Charger',  score: 86, trend: '+9%',  vol: '6,891' },
+  { name: 'Cloud Slippers Memory',   score: 92, trend: '+27%', vol: '11,420' },
+  { name: 'Mini Portable Blender',   score: 87, trend: '+15%', vol: '8,118' },
+  { name: 'Solar Garden Lights x6',  score: 89, trend: '+14%', vol: '5,943' },
+  { name: 'Heated Massage Pillow',   score: 90, trend: '+19%', vol: '10,302' },
 ];
 
-function useCountUp(target: number, duration = 800) {
+function useCountUp(target: number, duration = 900) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     let raf: number;
@@ -543,7 +586,7 @@ function ScoreCell({ score }: { score: number }) {
   return <span style={{ color: T.accent, textAlign: 'right' }}>{v}</span>;
 }
 
-function AppWindow() {
+function BrowserWindow() {
   const [rows, setRows] = useState<PRow[]>(PRODUCT_POOL.slice(0, 5).map((p, i) => ({ ...p, isNew: i === 4 })));
   const [tick, setTick] = useState(0);
   const [secondsAgo, setSecondsAgo] = useState(0);
@@ -563,18 +606,16 @@ function AppWindow() {
   }, [tick]);
 
   return (
-    <div className="mj-data-panel" style={{
+    <div className="mj-hero-window mj-window-shadow" style={{
       background: T.bgPanel,
-      border: '1px solid rgba(99,102,241,0.3)',
       borderRadius: 12,
       overflow: 'hidden',
-      boxShadow: '0 0 60px rgba(99,102,241,0.12), 0 24px 64px rgba(0,0,0,0.6)',
     }}>
-      {/* Window chrome */}
+      {/* Title bar */}
       <div style={{
         height: 38,
         background: T.bgChrome,
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: `1px solid ${T.borderFaint}`,
         display: 'flex',
         alignItems: 'center',
         padding: '0 14px',
@@ -583,22 +624,108 @@ function AppWindow() {
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FF5F57' }} />
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FFBD2E' }} />
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28C840' }} />
-        <span style={{
+        <div style={{ flex: 1, textAlign: 'center', fontFamily: mono, fontSize: 11, color: T.textFaint, letterSpacing: '0.02em' }}>Majorka — Discover</div>
+        <div style={{ width: 36 }} />
+      </div>
+
+      {/* Tab strip */}
+      <div style={{
+        display: 'flex',
+        background: T.bgChromeAlt,
+        borderBottom: `1px solid ${T.borderFaint}`,
+        padding: '0 8px',
+        height: 36,
+        alignItems: 'flex-end',
+      }}>
+        {[
+          { label: 'Discover', active: true },
+          { label: 'Trends', active: false },
+          { label: 'Spy', active: false },
+        ].map((tab) => (
+          <div key={tab.label} style={{
+            padding: '8px 16px 9px',
+            fontFamily: sans,
+            fontSize: 12,
+            fontWeight: tab.active ? 600 : 500,
+            color: tab.active ? T.text : T.textDim,
+            background: tab.active ? T.bgPanel : 'transparent',
+            borderTopLeftRadius: 6,
+            borderTopRightRadius: 6,
+            borderTop: tab.active ? `1px solid ${T.borderFaint}` : 'none',
+            borderLeft: tab.active ? `1px solid ${T.borderFaint}` : 'none',
+            borderRight: tab.active ? `1px solid ${T.borderFaint}` : 'none',
+            marginBottom: tab.active ? -1 : 0,
+            cursor: 'default',
+          }}>{tab.label}</div>
+        ))}
+      </div>
+
+      {/* URL bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '10px 14px',
+        background: T.bgChromeAlt,
+        borderBottom: `1px solid ${T.borderFaint}`,
+      }}>
+        {/* Lock icon (CSS shape) */}
+        <div style={{ position: 'relative', width: 12, height: 13 }}>
+          <div style={{ position: 'absolute', top: 0, left: 2, width: 8, height: 5, border: `1.5px solid ${T.textFaint}`, borderBottom: 'none', borderRadius: '4px 4px 0 0' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, width: 12, height: 8, background: T.textFaint, borderRadius: 2 }} />
+        </div>
+        <div style={{
           flex: 1,
-          textAlign: 'center',
+          padding: '5px 10px',
+          background: T.bgPanel,
+          border: `1px solid ${T.borderFaint}`,
+          borderRadius: 6,
           fontFamily: mono,
           fontSize: 11,
-          color: T.textFaint,
-          letterSpacing: '0.02em',
-        }}>majorka — discover · market: US · score: 80+</span>
-        <span style={{ width: 36 }} />
-      </div>
-      {/* Body */}
-      <div style={{ padding: 20, fontFamily: mono, fontSize: 12, lineHeight: 1.65 }}>
-        <div style={{ color: T.accent, marginBottom: 14 }}>
-          <span style={{ color: T.textFaint }}>$</span> majorka discover --market=US --score=80+
+          color: T.textMuted,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>
+          <span style={{ color: T.textFaint }}>https://</span>majorka.io<span style={{ color: T.textFaint }}>/app/discover?market=US&amp;score=80+</span>
         </div>
-        {/* Header */}
+      </div>
+
+      {/* Toolbar with LIVE badge */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 18px',
+        background: T.bgPanel,
+        borderBottom: `1px solid ${T.border}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '4px 10px',
+            background: 'rgba(34,197,94,0.1)',
+            border: `1px solid rgba(34,197,94,0.3)`,
+            borderRadius: 4,
+            fontFamily: mono,
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            color: T.green,
+            textTransform: 'uppercase',
+          }}>
+            <span className="mj-pulse-dot" style={{ width: 6, height: 6 }} />
+            LIVE
+          </span>
+          <span style={{ fontFamily: mono, fontSize: 11, color: T.textFaint }}>discover · US · 80+</span>
+        </div>
+        <span style={{ fontFamily: mono, fontSize: 10, color: T.textFaint }}>refreshed {secondsAgo}s ago</span>
+      </div>
+
+      {/* Body / table */}
+      <div style={{ padding: 18, fontFamily: mono, fontSize: 12, lineHeight: 1.65 }}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: '24px 1fr 56px 60px 76px',
@@ -634,21 +761,10 @@ function AppWindow() {
             <span style={{ color: T.textFaint }}>{String(i + 1).padStart(2, '0')}</span>
             <span style={{ color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
             <ScoreCell score={p.score} />
-            <span style={{ color: T.green, textAlign: 'right' }}>{p.trend}</span>
+            <span style={{ color: T.green, textAlign: 'right' }}>↑ {p.trend}</span>
             <span style={{ textAlign: 'right' }}>{p.vol}</span>
           </div>
         ))}
-        <div style={{
-          marginTop: 14,
-          color: T.textFaint,
-          fontSize: 11,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-        }}>
-          <span className="mj-pulse-dot" />
-          live · 7 markets · refreshed {secondsAgo}s ago
-        </div>
       </div>
     </div>
   );
@@ -685,7 +801,56 @@ function LiveTicker() {
   );
 }
 
-// ── Partner Bar (marquee) ───────────────────────────────────────────────────
+// ── Stats Section ───────────────────────────────────────────────────────────
+const STATS = [
+  { num: '2,400+', label: 'Products tracked' },
+  { num: '7',      label: 'Global markets' },
+  { num: '500+',   label: 'Active operators' },
+  { num: '94%',    label: 'Discovery score accuracy' },
+];
+
+function Stats() {
+  const ref = useReveal<HTMLDivElement>();
+  return (
+    <section style={{
+      borderBottom: `1px solid ${T.border}`,
+      padding: '64px 24px',
+      background: T.bgAlt,
+    }}>
+      <div ref={ref} className="mj-reveal" style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="mj-stats-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 32,
+        }}>
+          {STATS.map((s) => (
+            <div key={s.label} style={{ padding: '8px 0' }}>
+              <div className="mj-stat-num" style={{
+                fontFamily: display,
+                fontSize: 60,
+                fontWeight: 700,
+                color: T.text,
+                letterSpacing: '-0.035em',
+                lineHeight: 1,
+                marginBottom: 12,
+              }}>{s.num}</div>
+              <div style={{ width: 32, height: 3, background: T.accent, borderRadius: 2, marginBottom: 12 }} />
+              <div style={{
+                fontFamily: mono,
+                fontSize: 12,
+                color: T.textMuted,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+              }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Partner Bar ─────────────────────────────────────────────────────────────
 function PartnerBar() {
   const loop = [...PARTNERS, ...PARTNERS];
   return (
@@ -721,80 +886,50 @@ function PartnerBar() {
   );
 }
 
-// ── Features Sticky Scroll ──────────────────────────────────────────────────
-function Features() {
-  const [active, setActive] = useState(0);
+// ── Cinematic Feature Section wrapper ───────────────────────────────────────
+interface CinematicProps {
+  id?: string;
+  bg: string;
+  reverse: boolean;
+  eyebrow: string;
+  line1: string;
+  line2: string;
+  description: string;
+  bullets: string[];
+  mockup: React.ReactNode;
+}
+function CinematicFeature({ id, bg, reverse, eyebrow, line1, line2, description, bullets, mockup }: CinematicProps) {
+  const ref = useReveal<HTMLDivElement>();
   return (
-    <section id="features" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <SectionHeader
-          eyebrow="Capabilities"
-          line1="Every tool you need."
-          line2="One platform."
-          description="Six core capabilities, no tab-switching, no spreadsheet handoffs."
-        />
-        <div className="mj-features-layout" style={{
+    <section id={id} style={{
+      background: bg,
+      borderBottom: `1px solid ${T.border}`,
+      padding: '120px 24px',
+    }}>
+      <div ref={ref} className="mj-reveal" style={{ maxWidth: 1240, margin: '0 auto' }}>
+        <div className="mj-feat-grid" style={{
           display: 'grid',
-          gridTemplateColumns: '38% 62%',
-          gap: 56,
-          alignItems: 'flex-start',
+          gridTemplateColumns: reverse ? '60% 40%' : '40% 60%',
+          gap: 64,
+          alignItems: 'center',
         }}>
-          {/* Left nav */}
-          <div className="mj-features-left" style={{ position: 'sticky', top: 100 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {FEATURES.map((f, i) => {
-                const isActive = i === active;
-                return (
-                  <button
-                    key={f.tag}
-                    onClick={() => setActive(i)}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      background: isActive ? 'rgba(99,102,241,0.08)' : 'transparent',
-                      border: 'none',
-                      borderLeft: isActive ? `3px solid ${T.accent}` : '3px solid transparent',
-                      padding: '16px 18px',
-                      cursor: 'pointer',
-                      borderRadius: 6,
-                      transition: 'background 200ms, border-color 200ms',
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: mono,
-                      fontSize: 11,
-                      color: isActive ? T.accent : T.textFaint,
-                      letterSpacing: '0.08em',
-                      marginBottom: 4,
-                    }}>{f.tag}</div>
-                    <div style={{
-                      fontFamily: display,
-                      fontSize: 17,
-                      fontWeight: 600,
-                      letterSpacing: '-0.01em',
-                      color: isActive ? T.text : T.textMuted,
-                      marginBottom: 2,
-                    }}>{f.title}</div>
-                    <div style={{ fontSize: 13, color: T.textDim }}>{f.subtitle}</div>
-                  </button>
-                );
-              })}
-            </div>
+          <div className={reverse ? 'mj-feat-mock' : 'mj-feat-text'} style={{
+            order: reverse ? 1 : 1,
+          }}>
+            {reverse ? (
+              <div className="mj-mockup-shadow" style={{ borderRadius: 12, overflow: 'hidden' }}>{mockup}</div>
+            ) : (
+              <FeatureCopy eyebrow={eyebrow} line1={line1} line2={line2} description={description} bullets={bullets} />
+            )}
           </div>
-
-          {/* Right panel */}
-          <div style={{ minHeight: 480 }}>
-            <div key={active} style={{
-              animation: 'mj-fade-slide-in 350ms ease-out',
-            }}>
-              {active === 0 && <PanelDiscovery />}
-              {active === 1 && <PanelMargin />}
-              {active === 2 && <PanelCreative />}
-              {active === 3 && <PanelSpy />}
-              {active === 4 && <PanelBuild />}
-              {active === 5 && <PanelMarkets />}
-            </div>
+          <div className={reverse ? 'mj-feat-text' : 'mj-feat-mock'} style={{
+            order: reverse ? 2 : 2,
+          }}>
+            {reverse ? (
+              <FeatureCopy eyebrow={eyebrow} line1={line1} line2={line2} description={description} bullets={bullets} />
+            ) : (
+              <div className="mj-mockup-shadow" style={{ borderRadius: 12, overflow: 'hidden' }}>{mockup}</div>
+            )}
           </div>
         </div>
       </div>
@@ -802,396 +937,456 @@ function Features() {
   );
 }
 
-// ── Panel: Discovery ────────────────────────────────────────────────────────
-function PanelDiscovery() {
-  const products = PRODUCT_POOL.slice(0, 6);
+interface FeatureCopyProps { eyebrow: string; line1: string; line2: string; description: string; bullets: string[] }
+function FeatureCopy({ eyebrow, line1, line2, description, bullets }: FeatureCopyProps) {
   return (
-    <div style={{
-      background: T.bgSurface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 10,
-      overflow: 'hidden',
-    }}>
-      {/* Filter bar */}
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <span style={{ display: 'inline-block', width: 4, height: 32, background: T.accent, borderRadius: 2 }} />
+        <span className="mj-eyebrow">{eyebrow}</span>
+      </div>
+      <h2 className="mj-feature-panel-header">
+        {line1}<br /><span>{line2}</span>
+      </h2>
+      <p style={{ fontSize: 16, color: T.textMuted, lineHeight: 1.65, margin: '0 0 24px', maxWidth: 460 }}>{description}</p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {bullets.map((b) => (
+          <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, fontSize: 14, color: T.text }}>
+            <span style={{
+              flexShrink: 0,
+              width: 18,
+              height: 18,
+              borderRadius: 4,
+              background: 'rgba(99,102,241,0.12)',
+              border: `1px solid rgba(99,102,241,0.3)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: T.accent,
+              fontFamily: mono,
+              fontSize: 11,
+              fontWeight: 700,
+              marginTop: 2,
+            }}>✓</span>
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// ── Discovery Mockup ────────────────────────────────────────────────────────
+function DiscoveryMockup() {
+  const products = [
+    { name: 'Posture Corrector Pro', score: 94, margin: '68%', orders: '12.8k', grad: 'linear-gradient(135deg, #6366F1, #8B5CF6)' },
+    { name: 'Cloud Memory Slippers',  score: 92, margin: '74%', orders: '11.4k', grad: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
+    { name: 'LED Strip Lights 5m',    score: 91, margin: '72%', orders: '9.2k',  grad: 'linear-gradient(135deg, #22c55e, #10b981)' },
+    { name: 'Heated Massage Pillow',  score: 90, margin: '70%', orders: '10.3k', grad: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
+  ];
+  return (
+    <div style={{ background: T.bgPanel, padding: 24 }}>
+      {/* Toolbar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span className="mj-eyebrow" style={{ color: T.text }}>Discovery</span>
+          <span style={{
+            padding: '3px 8px',
+            background: 'rgba(99,102,241,0.12)',
+            border: `1px solid rgba(99,102,241,0.3)`,
+            borderRadius: 4,
+            fontFamily: mono,
+            fontSize: 10,
+            color: T.accent,
+          }}>US · 80+</span>
+        </div>
+        <span style={{ fontFamily: mono, fontSize: 11, color: T.textFaint }}>4 of 2,447</span>
+      </div>
+      {/* Grid */}
+      <div className="mj-discovery-grid" style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
         gap: 14,
-        padding: '14px 18px',
-        borderBottom: `1px solid ${T.border}`,
-        background: T.bgElevated,
-        fontFamily: mono,
-        fontSize: 12,
-        color: T.textMuted,
-        flexWrap: 'wrap',
       }}>
-        <span style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '6px 12px',
-          background: T.bgPanel,
-          border: `1px solid ${T.border}`,
-          borderRadius: 6,
-        }}>
-          MARKET <span style={{ color: T.accent }}>US ▾</span>
-        </span>
-        <span style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '6px 12px',
-          background: T.bgPanel,
-          border: `1px solid ${T.border}`,
-          borderRadius: 6,
-        }}>
-          SCORE <span style={{ color: T.accent }}>80+</span>
-          <span style={{ display: 'inline-block', width: 60, height: 4, background: T.border, borderRadius: 2, position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '70%', background: T.accent, borderRadius: 2 }} />
-          </span>
-        </span>
-        <span style={{ marginLeft: 'auto', color: T.textFaint, fontSize: 11 }}>{products.length} results</span>
-      </div>
-      {/* Table */}
-      <div style={{ padding: 18, fontFamily: mono, fontSize: 12 }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '24px 1fr 56px 60px 76px',
-          gap: 10,
-          padding: '6px 0',
-          borderBottom: `1px solid ${T.border}`,
-          color: T.textFaint,
-          fontSize: 10,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-        }}>
-          <span>#</span>
-          <span>PRODUCT</span>
-          <span style={{ textAlign: 'right' }}>SCORE</span>
-          <span style={{ textAlign: 'right' }}>TREND</span>
-          <span style={{ textAlign: 'right' }}>VOL/MO</span>
-        </div>
-        {products.map((p, i) => (
+        {products.map((p) => (
           <div key={p.name} style={{
-            display: 'grid',
-            gridTemplateColumns: '24px 1fr 56px 60px 76px',
-            gap: 10,
-            padding: '11px 0',
-            borderBottom: i === products.length - 1 ? 'none' : `1px solid ${T.border}`,
-            alignItems: 'center',
-            color: T.textMuted,
-          }}>
-            <span style={{ color: T.textFaint }}>{String(i + 1).padStart(2, '0')}</span>
-            <span style={{ color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-            <span style={{ color: T.accent, textAlign: 'right' }}>{p.score}</span>
-            <span style={{ color: T.green, textAlign: 'right' }}>{p.trend}</span>
-            <span style={{ textAlign: 'right' }}>{p.vol}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Panel: Margin ──────────────────────────────────────────────────────────
-function PanelMargin() {
-  const sale = 49.95;
-  const cost = 8.20;
-  const ship = 4.50;
-  const fees = 2.10;
-  const ad   = 12.40;
-  const net = sale - cost - ship - fees - ad;
-  const marginPct = (net / sale) * 100;
-  return (
-    <div style={{
-      background: T.bgSurface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 10,
-      padding: 28,
-    }}>
-      <div className="mj-eyebrow" style={{ marginBottom: 18 }}>Margin Calculator</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 22 }}>
-        {[
-          { label: 'Sale price',   val: `$${sale.toFixed(2)}` },
-          { label: 'Cost (AliExpress)', val: `$${cost.toFixed(2)}` },
-          { label: 'Shipping',     val: `$${ship.toFixed(2)}` },
-          { label: 'Platform fees',val: `$${fees.toFixed(2)}` },
-        ].map((row) => (
-          <div key={row.label} style={{
-            background: T.bgPanel,
+            background: T.bgSurface,
             border: `1px solid ${T.border}`,
-            borderRadius: 6,
-            padding: '12px 14px',
+            borderRadius: 8,
+            overflow: 'hidden',
           }}>
-            <div style={{ fontFamily: mono, fontSize: 10, color: T.textFaint, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{row.label}</div>
-            <div style={{ fontFamily: display, fontSize: 18, fontWeight: 600, color: T.text }}>{row.val}</div>
-          </div>
-        ))}
-      </div>
-      {/* Margin bar */}
-      <div style={{ marginBottom: 22 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontFamily: mono, fontSize: 11, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Net margin</span>
-          <span style={{ fontFamily: mono, fontSize: 11, color: T.green }}>{marginPct.toFixed(1)}%</span>
-        </div>
-        <div style={{ height: 8, background: T.bgPanel, borderRadius: 4, overflow: 'hidden', border: `1px solid ${T.border}` }}>
-          <div style={{
-            width: `${marginPct}%`,
-            height: '100%',
-            background: `linear-gradient(90deg, ${T.accent}, ${T.green})`,
-          }} />
-        </div>
-      </div>
-      <div style={{
-        padding: 16,
-        background: 'rgba(34,197,94,0.06)',
-        border: `1px solid rgba(34,197,94,0.2)`,
-        borderRadius: 8,
-        fontFamily: mono,
-        fontSize: 13,
-        color: T.text,
-      }}>
-        Net margin: <span style={{ color: T.green }}>{marginPct.toFixed(1)}%</span>
-        <span style={{ color: T.textFaint, margin: '0 8px' }}>·</span>
-        Break-even CPA: <span style={{ color: T.green }}>${ad.toFixed(2)}</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Panel: Creative ────────────────────────────────────────────────────────
-function PanelCreative() {
-  const ads = [
-    {
-      tag: 'TIKTOK · ANGLE 1',
-      hook: 'POV: You finally fixed the back pain you\'ve had for 6 years.',
-      body: 'No chiropractor. No pills. Just 15 minutes a day with this $49 device.',
-      cta: 'Shop now →',
-    },
-    {
-      tag: 'META · ANGLE 2',
-      hook: 'Your posture is costing you 4cm of height. Here\'s the fix.',
-      body: 'Engineered for desk workers. Wear under any shirt. Free AU shipping.',
-      cta: 'Get yours →',
-    },
-  ];
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-      {ads.map((ad) => (
-        <div key={ad.tag} style={{
-          background: T.bgSurface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 10,
-          padding: 22,
-        }}>
-          <div className="mj-eyebrow" style={{ marginBottom: 14, fontSize: 10 }}>{ad.tag}</div>
-          {[
-            { label: 'HOOK', text: ad.hook },
-            { label: 'BODY', text: ad.body },
-            { label: 'CTA',  text: ad.cta  },
-          ].map((s) => (
-            <div key={s.label} style={{ marginBottom: 14 }}>
-              <div style={{
+            {/* Image */}
+            <div style={{
+              height: 100,
+              background: p.grad,
+              position: 'relative',
+            }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 60%)' }} />
+              <span style={{
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                padding: '3px 8px',
+                background: 'rgba(10,10,10,0.6)',
+                border: `1px solid rgba(255,255,255,0.15)`,
+                borderRadius: 4,
                 fontFamily: mono,
-                fontSize: 9,
-                color: T.textFaint,
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                marginBottom: 6,
-              }}>{s.label}</div>
+                fontSize: 10,
+                color: '#fff',
+                fontWeight: 700,
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+              }}>SCORE {p.score}</span>
+            </div>
+            <div style={{ padding: 14 }}>
               <div style={{
-                fontFamily: sans,
+                fontFamily: display,
+                fontWeight: 600,
                 fontSize: 13,
                 color: T.text,
-                lineHeight: 1.55,
-              }}>{s.text}</div>
+                marginBottom: 8,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                letterSpacing: '-0.005em',
+              }}>{p.name}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <span style={{ fontFamily: mono, fontSize: 11, color: T.green }}>{p.margin} margin</span>
+                <span style={{ fontFamily: mono, fontSize: 11, color: T.textDim }}>{p.orders}/mo</span>
+              </div>
+              <button style={{
+                width: '100%',
+                padding: '8px 12px',
+                background: 'transparent',
+                border: `1px solid ${T.border}`,
+                borderRadius: 6,
+                fontFamily: sans,
+                fontSize: 11,
+                fontWeight: 600,
+                color: T.textMuted,
+                cursor: 'pointer',
+                transition: 'border-color 150ms, color 150ms',
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.text; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.textMuted; }}
+              >View product →</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Spy Mockup ──────────────────────────────────────────────────────────────
+function SpyMockup() {
+  const topProducts = [
+    { name: 'Magnetic Phone Charger', rev: '$48k', path: 'M0,18 L8,15 L16,16 L24,10 L32,12 L40,8 L48,6 L56,4' },
+    { name: 'Cloud Memory Slippers',  rev: '$36k', path: 'M0,16 L8,14 L16,12 L24,14 L32,9  L40,11 L48,7 L56,5' },
+    { name: 'Posture Corrector Pro',  rev: '$28k', path: 'M0,12 L8,14 L16,11 L24,13 L32,8  L40,10 L48,6 L56,8' },
+  ];
+  return (
+    <div style={{ background: T.bgPanel, padding: 24 }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 22,
+      }}>
+        <span className="mj-eyebrow" style={{ color: T.text }}>Store Spy</span>
+        <span style={{ flex: 1 }} />
+        <span style={{
+          padding: '4px 10px',
+          background: T.bgSurface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 6,
+          fontFamily: mono,
+          fontSize: 11,
+          color: T.text,
+        }}>peakflowstore.com</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 10, color: T.green }}>
+          <span className="mj-pulse-dot" /> scanned
+        </span>
+      </div>
+
+      {/* Donut + summary */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 24 }}>
+        <div style={{
+          width: 110,
+          height: 110,
+          borderRadius: '50%',
+          background: `conic-gradient(${T.accent} 0% 42%, #8B5CF6 42% 64%, ${T.green} 64% 80%, ${T.amber} 80% 100%)`,
+          position: 'relative',
+        }}>
+          <div style={{
+            position: 'absolute',
+            inset: 16,
+            borderRadius: '50%',
+            background: T.bgPanel,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <span style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: T.text, lineHeight: 1 }}>$162k</span>
+            <span style={{ fontFamily: mono, fontSize: 9, color: T.textFaint, marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>est. mo. rev</span>
+          </div>
+        </div>
+        <div style={{ flex: 1 }}>
+          {[
+            { label: 'Apparel',     pct: 42, color: T.accent },
+            { label: 'Accessories', pct: 22, color: '#8B5CF6' },
+            { label: 'Home',        pct: 16, color: T.green },
+            { label: 'Other',       pct: 20, color: T.amber },
+          ].map((row) => (
+            <div key={row.label} style={{ marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: mono, fontSize: 10, color: T.textMuted, marginBottom: 4 }}>
+                <span>{row.label}</span>
+                <span style={{ color: row.color }}>{row.pct}%</span>
+              </div>
+              <div style={{ height: 4, background: T.bgSurface, borderRadius: 2, overflow: 'hidden' }}>
+                <div className="mj-bar" style={{ width: `${row.pct}%`, height: '100%', background: row.color }} />
+              </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Top products with sparklines */}
+      <div style={{
+        fontFamily: mono,
+        fontSize: 10,
+        color: T.textFaint,
+        textTransform: 'uppercase',
+        letterSpacing: '0.08em',
+        marginBottom: 10,
+      }}>TOP PRODUCTS</div>
+      {topProducts.map((p, i) => (
+        <div key={p.name} style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '11px 0',
+          borderBottom: i === topProducts.length - 1 ? 'none' : `1px solid ${T.border}`,
+        }}>
+          <span style={{ flex: 1, fontFamily: sans, fontSize: 13, color: T.text, fontWeight: 500 }}>{p.name}</span>
+          <svg width="60" height="22" style={{ display: 'block' }}>
+            <path d={p.path} fill="none" stroke={T.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span style={{ fontFamily: mono, fontSize: 12, color: T.green, fontWeight: 600, minWidth: 44, textAlign: 'right' }}>{p.rev}</span>
         </div>
       ))}
     </div>
   );
 }
 
-// ── Panel: Spy ─────────────────────────────────────────────────────────────
-function PanelSpy() {
-  const rows = [
-    { label: 'Ad spend (est.)', val: '$8,400/mo', color: T.green },
-    { label: 'Top SKU',         val: 'Magnetic Phone Charger', color: T.text },
-    { label: 'Avg. price',      val: '$39.99 USD', color: T.text },
-    { label: 'Revenue (est.)',  val: '$162K/mo', color: T.accent },
-    { label: 'Tech stack',      val: 'Shopify · Klaviyo · Loox', color: T.textMuted },
+// ── Creative Mockup ─────────────────────────────────────────────────────────
+function CreativeMockup() {
+  const ads = [
+    {
+      platform: 'META',
+      grad: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+      hook: 'POV: You finally fixed the back pain you\'ve had for 6 years.',
+      body: 'No chiropractor. No pills. Just 15 minutes a day with this $49 device.',
+      likes: '1.2k',
+      comments: '234',
+      ctr: '4.1%',
+    },
+    {
+      platform: 'TIKTOK',
+      grad: 'linear-gradient(135deg, #ef4444, #f59e0b)',
+      hook: 'Your posture is costing you 4cm of height.',
+      body: 'Engineered for desk workers. Wear under any shirt. Free shipping.',
+      likes: '3.7k',
+      comments: '512',
+      ctr: '5.8%',
+    },
   ];
   return (
-    <div style={{
-      background: T.bgSurface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 10,
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        padding: '14px 18px',
-        borderBottom: `1px solid ${T.border}`,
-        background: T.bgElevated,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-      }}>
-        <span style={{ fontFamily: mono, fontSize: 11, color: T.textFaint, textTransform: 'uppercase', letterSpacing: '0.08em' }}>STORE</span>
-        <span style={{
-          flex: 1,
-          padding: '6px 10px',
-          background: T.bgPanel,
-          border: `1px solid ${T.border}`,
-          borderRadius: 6,
-          fontFamily: mono,
-          fontSize: 12,
-          color: T.text,
-        }}>peakflowstore.com</span>
-        <span className="mj-eyebrow" style={{ fontSize: 10, color: T.green }}>● scanned</span>
+    <div style={{ background: T.bgPanel, padding: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+        <span className="mj-eyebrow" style={{ color: T.text }}>Ad Creative Studio</span>
+        <span style={{ marginLeft: 'auto', fontFamily: mono, fontSize: 11, color: T.textFaint }}>2 angles generated</span>
       </div>
-      <div style={{ padding: '6px 18px' }}>
-        {rows.map((r, i) => (
-          <div key={r.label} style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '14px 0',
-            borderBottom: i === rows.length - 1 ? 'none' : `1px solid ${T.border}`,
-          }}>
-            <span style={{ fontFamily: mono, fontSize: 11, color: T.textFaint, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{r.label}</span>
-            <span style={{ fontFamily: r.label === 'Top SKU' || r.label === 'Tech stack' ? sans : mono, fontSize: 14, fontWeight: 600, color: r.color }}>{r.val}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Panel: Build ───────────────────────────────────────────────────────────
-function PanelBuild() {
-  return (
-    <div style={{
-      background: T.bgSurface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 10,
-      padding: 28,
-    }}>
-      <div className="mj-eyebrow" style={{ marginBottom: 18 }}>Store Preview</div>
-      <div style={{
-        background: T.bgPanel,
-        border: `1px solid ${T.border}`,
-        borderRadius: 8,
-        padding: 24,
-        marginBottom: 18,
-      }}>
-        <div style={{
-          fontFamily: mono,
-          fontSize: 10,
-          color: T.textFaint,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          marginBottom: 8,
-        }}>BRAND NAME</div>
-        <div style={{
-          fontFamily: display,
-          fontSize: 28,
-          fontWeight: 700,
-          color: T.text,
-          letterSpacing: '-0.025em',
-          marginBottom: 18,
-        }}>PeakFlow Co.</div>
-        <div style={{
-          fontFamily: mono,
-          fontSize: 10,
-          color: T.textFaint,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          marginBottom: 10,
-        }}>PALETTE</div>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
-          {['#6366F1', '#0d0d10', '#22c55e', '#ededed'].map((c) => (
-            <div key={c} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '6px 10px',
-              background: T.bg,
-              border: `1px solid ${T.border}`,
-              borderRadius: 6,
-              fontFamily: mono,
-              fontSize: 10,
-              color: T.textMuted,
-            }}>
-              <span style={{ width: 14, height: 14, borderRadius: 3, background: c, border: '1px solid rgba(255,255,255,0.1)' }} />
-              {c}
-            </div>
-          ))}
-        </div>
-        <div style={{
-          fontFamily: mono,
-          fontSize: 10,
-          color: T.textFaint,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          marginBottom: 6,
-        }}>HEADLINE</div>
-        <div style={{ fontFamily: display, fontSize: 16, fontWeight: 600, color: T.text }}>
-          The posture device built for desk warriors.
-        </div>
-      </div>
-      <button className="mj-btn-primary" style={{ width: '100%' }}>Push to Shopify →</button>
-    </div>
-  );
-}
-
-// ── Panel: Markets ─────────────────────────────────────────────────────────
-function PanelMarkets() {
-  const m = [
-    { flag: '🇦🇺', code: 'AU', stat: '$AUD · Afterpay' },
-    { flag: '🇺🇸', code: 'US', stat: '$USD · ShopPay' },
-    { flag: '🇬🇧', code: 'UK', stat: '£GBP · Klarna' },
-    { flag: '🇨🇦', code: 'CA', stat: '$CAD · GST' },
-    { flag: '🇳🇿', code: 'NZ', stat: '$NZD · NZ Post' },
-    { flag: '🇩🇪', code: 'DE', stat: '€EUR · GDPR' },
-    { flag: '🇸🇬', code: 'SG', stat: '$SGD · GST' },
-  ];
-  return (
-    <div style={{
-      background: T.bgSurface,
-      border: `1px solid ${T.border}`,
-      borderRadius: 10,
-      padding: 28,
-    }}>
-      <div className="mj-eyebrow" style={{ marginBottom: 18 }}>7 Markets · Live</div>
-      <div style={{
+      <div className="mj-creative-grid" style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-        gap: 12,
+        gridTemplateColumns: '1fr 1fr',
+        gap: 14,
       }}>
-        {m.map((mk) => (
-          <div key={mk.code} style={{
-            background: T.bgPanel,
+        {ads.map((ad) => (
+          <div key={ad.platform} style={{
+            background: T.bgSurface,
             border: `1px solid ${T.border}`,
             borderRadius: 8,
-            padding: 16,
-            textAlign: 'center',
+            overflow: 'hidden',
           }}>
-            <div style={{ fontSize: 28, marginBottom: 6 }}>{mk.flag}</div>
+            {/* Image area with platform pill */}
             <div style={{
-              fontFamily: mono,
-              fontSize: 11,
-              color: T.accent,
-              letterSpacing: '0.08em',
-              marginBottom: 4,
-            }}>{mk.code}</div>
-            <div style={{
-              fontFamily: mono,
-              fontSize: 11,
-              color: T.textDim,
-            }}>{mk.stat}</div>
+              height: 88,
+              background: ad.grad,
+              position: 'relative',
+            }}>
+              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 70% 30%, rgba(255,255,255,0.18), transparent 65%)' }} />
+              <span style={{
+                position: 'absolute',
+                top: 10,
+                left: 10,
+                padding: '3px 8px',
+                background: 'rgba(10,10,10,0.6)',
+                border: `1px solid rgba(255,255,255,0.15)`,
+                borderRadius: 4,
+                fontFamily: mono,
+                fontSize: 9,
+                fontWeight: 700,
+                color: '#fff',
+                letterSpacing: '0.08em',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+              }}>{ad.platform}</span>
+            </div>
+            <div style={{ padding: 16 }}>
+              <div style={{
+                paddingLeft: 10,
+                borderLeft: `2px solid ${T.accent}`,
+                marginBottom: 12,
+              }}>
+                <p style={{
+                  fontFamily: display,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: T.text,
+                  margin: 0,
+                  lineHeight: 1.4,
+                  letterSpacing: '-0.005em',
+                }}>&ldquo;{ad.hook}&rdquo;</p>
+              </div>
+              <p style={{
+                fontFamily: sans,
+                fontSize: 12,
+                color: T.textMuted,
+                lineHeight: 1.5,
+                margin: '0 0 14px',
+              }}>{ad.body}</p>
+              <div style={{
+                display: 'flex',
+                gap: 14,
+                paddingTop: 12,
+                borderTop: `1px solid ${T.border}`,
+                fontFamily: mono,
+                fontSize: 10,
+                color: T.textDim,
+              }}>
+                <span><span style={{ color: T.text }}>{ad.likes}</span> likes</span>
+                <span><span style={{ color: T.text }}>{ad.comments}</span> comments</span>
+                <span style={{ marginLeft: 'auto', color: T.green }}>↑ {ad.ctr} CTR</span>
+              </div>
+            </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Build Mockup ────────────────────────────────────────────────────────────
+function BuildMockup() {
+  return (
+    <div style={{ background: T.bgPanel, padding: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22 }}>
+        <span className="mj-eyebrow" style={{ color: T.text }}>Store Builder</span>
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 11, color: T.green }}>
+          <span className="mj-pulse-dot" /> generating
+        </span>
+      </div>
+
+      {/* Steps row */}
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, marginBottom: 24 }}>
+        {[
+          { num: '01', label: 'Brand brief',   sub: 'Niche + accent', done: true },
+          { num: '02', label: 'Layout',        sub: 'Theme + sections', done: true },
+          { num: '03', label: 'Push live',     sub: 'Shopify connect', done: false },
+        ].map((step, i, arr) => (
+          <div key={step.num} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <div style={{
+              flex: 1,
+              padding: 14,
+              background: step.done ? 'rgba(34,197,94,0.06)' : T.bgSurface,
+              border: `1px solid ${step.done ? 'rgba(34,197,94,0.25)' : T.border}`,
+              borderRadius: 8,
+            }}>
+              <div style={{ fontFamily: mono, fontSize: 10, color: step.done ? T.green : T.textFaint, letterSpacing: '0.08em', marginBottom: 4 }}>{step.num}</div>
+              <div style={{ fontFamily: display, fontWeight: 600, fontSize: 13, color: T.text, marginBottom: 2 }}>{step.label}</div>
+              <div style={{ fontFamily: mono, fontSize: 10, color: T.textDim }}>{step.sub}</div>
+            </div>
+            {i < arr.length - 1 && (
+              <div style={{
+                width: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: T.textFaint,
+                fontFamily: mono,
+                fontSize: 14,
+              }}>→</div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Store preview */}
+      <div style={{
+        background: T.bgSurface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 10,
+        overflow: 'hidden',
+      }}>
+        {/* mini chrome */}
+        <div style={{
+          height: 24,
+          background: T.bgChrome,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 10px',
+          gap: 5,
+          borderBottom: `1px solid ${T.borderFaint}`,
+        }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#FF5F57' }} />
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#FFBD2E' }} />
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#28C840' }} />
+          <span style={{ flex: 1, textAlign: 'center', fontFamily: mono, fontSize: 9, color: T.textFaint }}>peakflowco.myshopify.com</span>
+        </div>
+        <div style={{ padding: 18 }}>
+          <div style={{
+            fontFamily: display,
+            fontSize: 22,
+            fontWeight: 700,
+            color: T.text,
+            letterSpacing: '-0.025em',
+            marginBottom: 6,
+          }}>PeakFlow Co.</div>
+          <div style={{ fontFamily: sans, fontSize: 11, color: T.textDim, marginBottom: 14 }}>The posture device built for desk warriors.</div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 8,
+            marginBottom: 14,
+          }}>
+            {['linear-gradient(135deg,#6366F1,#8B5CF6)', 'linear-gradient(135deg,#22c55e,#10b981)', 'linear-gradient(135deg,#f59e0b,#ef4444)'].map((g, i) => (
+              <div key={i} style={{ height: 50, background: g, borderRadius: 6, position: 'relative' }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 60%)', borderRadius: 6 }} />
+              </div>
+            ))}
+          </div>
+          <button className="mj-btn-primary" style={{ width: '100%', height: 38, fontSize: 13 }}>
+            Push to Shopify →
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1319,7 +1514,7 @@ function Comparison() {
   );
 }
 
-// ── Markets Grid ───────────────────────────────────────────────────────────
+// ── Markets ────────────────────────────────────────────────────────────────
 const MARKETS: { code: string; flag: string; name: string; value: string }[] = [
   { code: 'AU', flag: '🇦🇺', name: 'Australia',     value: 'Afterpay-native pricing, local AliExpress suppliers' },
   { code: 'US', flag: '🇺🇸', name: 'United States', value: 'Domestic Shopify supply, FB ad benchmarks' },
@@ -1366,7 +1561,7 @@ function Markets() {
 // ── Workflow ────────────────────────────────────────────────────────────────
 function Workflow() {
   return (
-    <section id="workflow" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
+    <section id="workflow" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px', background: T.bgAlt }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <SectionHeader
           eyebrow="Workflow"
@@ -1399,11 +1594,38 @@ function Workflow() {
   );
 }
 
-// ── Testimonials ───────────────────────────────────────────────────────────
-const TESTIMONIALS: { initials: string; name: string; flag: string; city: string; quote: string }[] = [
-  { initials: 'AM', name: 'Alex M.',  flag: '🇦🇺', city: 'Sydney', quote: "Found a $12K/mo product in 20 minutes using Majorka's discovery tool. Switched from Minea and never looked back." },
-  { initials: 'JT', name: 'James T.', flag: '🇺🇸', city: 'Austin', quote: "Majorka's margin calculator saved me from a $4K ad spend mistake on a low-margin product." },
-  { initials: 'PK', name: 'Priya K.', flag: '🇬🇧', city: 'London', quote: "Built and launched a Shopify store in under an hour. Competitors couldn't match the UK supplier data." },
+// ── Testimonials (masonry) ─────────────────────────────────────────────────
+const TESTIMONIALS: { initials: string; name: string; flag: string; market: string; stat: string; quote: string; from: string; to: string }[] = [
+  {
+    initials: 'AM', name: 'Alex M.', flag: '🇦🇺', market: 'Sydney',
+    stat: '$47k/mo store', quote: "Found a $12k/mo product in 20 minutes using Majorka's discovery tool. Switched from Minea and never looked back. The margin calculator alone is worth the subscription.",
+    from: '#6366F1', to: '#8B5CF6',
+  },
+  {
+    initials: 'JT', name: 'James T.', flag: '🇺🇸', market: 'Austin',
+    stat: '$120k/mo agency', quote: "Saved me from a $4k ad spend mistake on a low-margin product. Majorka caught what I missed.",
+    from: '#22c55e', to: '#10b981',
+  },
+  {
+    initials: 'PK', name: 'Priya K.', flag: '🇬🇧', market: 'London',
+    stat: '6 stores live', quote: "Built and launched a Shopify store in under an hour. Competitors couldn't match the UK supplier data and the AI brand brief was on point.",
+    from: '#06b6d4', to: '#3b82f6',
+  },
+  {
+    initials: 'RC', name: 'Ryan C.', flag: '🇨🇦', market: 'Toronto',
+    stat: '$28k/mo store', quote: "The competitor spy paid for itself in week one. I now know exactly which SKUs to test before spending a dollar on ads.",
+    from: '#f59e0b', to: '#ef4444',
+  },
+  {
+    initials: 'ML', name: 'Mei L.', flag: '🇸🇬', market: 'Singapore',
+    stat: '$85k/mo store', quote: "Finally a tool that understands the APAC market. SGD margins, regional shipping rates, GST — all built in.",
+    from: '#ec4899', to: '#8B5CF6',
+  },
+  {
+    initials: 'HW', name: 'Hannes W.', flag: '🇩🇪', market: 'Berlin',
+    stat: '$60k/mo store', quote: "GDPR-first onboarding and EUR pricing out of the box. The store builder pushed to Shopify in one click.",
+    from: '#06b6d4', to: '#22c55e',
+  },
 ];
 
 function Testimonials() {
@@ -1414,32 +1636,66 @@ function Testimonials() {
           eyebrow="Operators"
           line1="Used by serious"
           line2="sellers."
+          description="Real operators across seven markets running real revenue on Majorka."
         />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+        <div style={{
+          columnCount: 3,
+          columnGap: 24,
+        }}>
           {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="mj-card" style={{ padding: 28 }}>
+            <div
+              key={t.name}
+              className="mj-card"
+              style={{
+                padding: 24,
+                marginBottom: 24,
+                breakInside: 'avoid',
+                cursor: 'default',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = T.accent;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = T.border;
+              }}
+            >
               <p style={{
                 fontFamily: display,
-                fontSize: 17,
+                fontSize: 16,
                 lineHeight: 1.55,
                 color: T.text,
-                margin: '0 0 24px',
-                letterSpacing: '-0.01em',
+                margin: '0 0 22px',
+                letterSpacing: '-0.005em',
               }}>&ldquo;{t.quote}&rdquo;</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
-                  width: 40, height: 40, borderRadius: '50%',
-                  background: 'rgba(99,102,241,0.12)',
-                  border: `1px solid rgba(99,102,241,0.3)`,
-                  color: T.accent,
+                  width: 38, height: 38, borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
+                  border: `1px solid rgba(255,255,255,0.1)`,
+                  color: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: display, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em',
+                  flexShrink: 0,
                 }}>{t.initials}</div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{t.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 11, color: T.textDim, marginTop: 2 }}>
-                    <span>{t.flag}</span>
-                    <span>{t.city}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{t.name}</span>
+                    <span style={{ fontSize: 12 }}>{t.flag}</span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontFamily: mono,
+                    fontSize: 11,
+                    color: T.textDim,
+                    marginTop: 2,
+                  }}>
+                    <span>{t.market}</span>
+                    <span style={{ color: T.textGhost }}>·</span>
+                    <span style={{ color: T.green }}>{t.stat}</span>
                   </div>
                 </div>
               </div>
@@ -1467,7 +1723,6 @@ function Pricing({ annual, setAnnual }: PricingProps) {
           align="center"
         />
 
-        {/* Toggle */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{
             display: 'inline-flex',
@@ -1551,11 +1806,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
       : 'none',
   };
   return (
-    <div
-      style={baseStyle}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
+    <div style={baseStyle} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       {highlight && (
         <div style={{
           position: 'absolute',
@@ -1678,7 +1929,7 @@ function FinalCTA() {
       overflow: 'hidden',
       isolation: 'isolate',
     }}>
-      {/* Bottom-center radial glow */}
+      <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{
         position: 'absolute', inset: 0,
         background: 'radial-gradient(ellipse 80% 60% at 50% 90%, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.05) 45%, transparent 70%)',
@@ -1693,13 +1944,7 @@ function FinalCTA() {
       }} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 880, margin: '0 auto', textAlign: 'center', width: '100%' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 24,
-          justifyContent: 'center',
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, justifyContent: 'center' }}>
           <span style={{ display: 'inline-block', width: 4, height: 32, background: T.accent, borderRadius: 2 }} />
           <span className="mj-eyebrow">Ready when you are</span>
         </div>
@@ -1859,8 +2104,68 @@ export default function Home() {
       <Nav scrolled={scrolled} />
       <Hero />
       <LiveTicker />
+      <Stats />
       <PartnerBar />
-      <Features />
+
+      <div id="features">
+        <CinematicFeature
+          bg={T.bg}
+          reverse={false}
+          eyebrow="01 · Discovery"
+          line1="Find winners"
+          line2="in seconds."
+          description="AI-scored product opportunities from global marketplaces. Margin, demand, and supplier match — all in one card."
+          bullets={[
+            '2,400+ live products tracked across 7 markets',
+            'AI demand signals refreshed continuously',
+            'Real AliExpress supplier match per product',
+          ]}
+          mockup={<DiscoveryMockup />}
+        />
+        <CinematicFeature
+          bg={T.bgAlt}
+          reverse={true}
+          eyebrow="02 · Spy"
+          line1="Decode any"
+          line2="competitor store."
+          description="Enter a domain. Get the full playbook — revenue estimates, top SKUs, ad spend signals, and tech stack."
+          bullets={[
+            'Estimated monthly revenue and ad spend',
+            'Top product SKUs with revenue split',
+            'Tech stack and price-change history',
+          ]}
+          mockup={<SpyMockup />}
+        />
+        <CinematicFeature
+          bg={T.bg}
+          reverse={false}
+          eyebrow="03 · Creative"
+          line1="Ad copy that"
+          line2="actually converts."
+          description="Five Meta and TikTok ad angles per product — hooks, body, and CTA — written in your market's voice."
+          bullets={[
+            'Multi-angle Meta and TikTok ad creative',
+            'Localised hook and body copy per market',
+            'Built-in engagement and CTR benchmarks',
+          ]}
+          mockup={<CreativeMockup />}
+        />
+        <CinematicFeature
+          bg={T.bgAlt}
+          reverse={true}
+          eyebrow="04 · Build"
+          line1="Launch a store"
+          line2="in minutes."
+          description="AI brand brief, theme, copy, and product import. Push live to Shopify with one click."
+          bullets={[
+            'AI brand brief and theme generation',
+            'Auto product import from any AliExpress URL',
+            'One-click push to your Shopify store',
+          ]}
+          mockup={<BuildMockup />}
+        />
+      </div>
+
       <Comparison />
       <Markets />
       <Workflow />
