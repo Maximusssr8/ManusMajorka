@@ -69,7 +69,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             borderRadius: 10,
             overflow: 'hidden',
             marginBottom: 16,
-            background: '#141417',
+            background: '#0f0f14',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -125,7 +125,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
               { label: 'Source',    value: product.platform ?? 'AliExpress', color: '#a1a1aa' },
             ].map((m) => (
               <div key={m.label} style={{
-                background: '#141417',
+                background: '#0f0f14',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: 8,
                 padding: '12px 14px',
@@ -145,7 +145,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
           {/* Score breakdown */}
           <div style={{
-            background: '#141417',
+            background: '#0f0f14',
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 8,
             padding: '14px 16px',
@@ -179,7 +179,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
           {/* 30-day order trend */}
           <div style={{
-            background: '#141417',
+            background: '#0f0f14',
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 8,
             padding: '14px 16px',
@@ -202,7 +202,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
           {/* Profit scenarios */}
           <div style={{
-            background: '#141417',
+            background: '#0f0f14',
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 8,
             padding: 14,

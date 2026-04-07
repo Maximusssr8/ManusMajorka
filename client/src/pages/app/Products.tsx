@@ -32,7 +32,7 @@ const SHIMMER = `
   100% { background-position: 300px 0; }
 }
 .mj-shim {
-  background: linear-gradient(90deg, #141417 0%, #1a1a1f 50%, #141417 100%);
+  background: linear-gradient(90deg, #0f0f14 0%, #1a1a1f 50%, #0f0f14 100%);
   background-size: 300px 100%;
   animation: mj-app-shim 1.4s linear infinite;
   border-radius: 4px;
@@ -223,7 +223,7 @@ export default function AppProducts() {
             defaultValue={liveQuery}
             style={{
               width: '100%',
-              background: '#141417',
+              background: '#0f0f14',
               border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: 9,
               padding: '12px 16px 12px 38px',
@@ -287,7 +287,7 @@ export default function AppProducts() {
         <div style={{
           margin: '0 32px 16px',
           padding: '16px 20px',
-          background: '#141417',
+          background: '#0f0f14',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 10,
           display: 'grid',
@@ -308,7 +308,7 @@ export default function AppProducts() {
                 onChange={(e) => f.set(e.target.value ? Number(e.target.value) : null)}
                 style={{
                   width: '100%',
-                  background: '#0c0c0e',
+                  background: '#0a0a0c',
                   border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 6,
                   padding: '8px 10px',
@@ -420,7 +420,7 @@ export default function AppProducts() {
         <select
           value={activeNiche ?? ''}
           onChange={(e) => setActiveNiche(e.target.value || null)}
-          style={{ ...selectStyle, background: '#141417', borderColor: 'rgba(255,255,255,0.07)', borderRadius: 7 }}
+          style={{ ...selectStyle, background: '#0f0f14', borderColor: 'rgba(255,255,255,0.07)', borderRadius: 7 }}
         >
           <option value="">All Niches</option>
           {niches.map((n) => (
@@ -533,7 +533,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
   return (
     <div style={{ padding: '0 32px 32px' }}>
       <div style={{
-        background: '#141417',
+        background: '#0f0f14',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: 8,
         overflow: 'hidden',
@@ -694,7 +694,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
       {loading ? (
         Array.from({ length: 8 }).map((_, i) => (
           <div key={i} style={{
-            background: '#141417',
+            background: '#0f0f14',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 10,
             overflow: 'hidden',
@@ -715,7 +715,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
           fontFamily: sans,
           fontSize: 13,
           color: '#52525b',
-          background: '#141417',
+          background: '#0f0f14',
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 8,
         }}>No products match your filters</div>
@@ -728,7 +728,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
               key={p.id}
               onClick={() => onSelect(p)}
               style={{
-                background: '#141417',
+                background: '#0f0f14',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 10,
                 overflow: 'hidden',
@@ -879,7 +879,7 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
         flexShrink: 0,
         width: 200,
         minHeight: 0,
-        background: '#141417',
+        background: '#0f0f14',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 10,
         overflow: 'hidden',
@@ -895,7 +895,7 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
         (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
       }}
     >
-      <div style={{ width: '100%', height: 130, position: 'relative', overflow: 'hidden', background: '#0c0c0e' }}>
+      <div style={{ width: '100%', height: 130, position: 'relative', overflow: 'hidden', background: '#0a0a0c' }}>
         {p.image_url ? (
           <img
             src={proxyImage(p.image_url) ?? p.image_url}
@@ -1018,7 +1018,7 @@ function LiveSearchView({ aeSearch }: { aeSearch: ReturnType<typeof useAESearch>
           fontFamily: sans,
           fontSize: 13,
           color: '#52525b',
-          background: '#141417',
+          background: '#0f0f14',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 8,
         }}>
@@ -1052,7 +1052,7 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
       rel="noopener noreferrer"
       style={{
         display: 'block',
-        background: '#141417',
+        background: '#0f0f14',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 10,
         overflow: 'hidden',
@@ -1062,7 +1062,7 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,90,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
     >
-      <div style={{ width: '100%', height: 160, background: '#0c0c0e', overflow: 'hidden' }}>
+      <div style={{ width: '100%', height: 160, background: '#0a0a0c', overflow: 'hidden' }}>
         {p.image_url ? (
           <img
             src={proxyImage(p.image_url) ?? p.image_url}
