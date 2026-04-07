@@ -545,7 +545,7 @@ export default function Pricing() {
   // Compute display price based on toggle
   const getDisplayPrice = (plan: (typeof PLANS)[number]) => {
     if (plan.price === '$0') return '$0';
-    const base = parseInt(plan.price.replace('$', ''));
+    const base = parseInt(plan.price.replace(/\$/g, ''));
     if (annual) {
       const monthlyEquiv = Math.round(base * 0.8); // Save 20%
       return `$${monthlyEquiv}`;
@@ -554,7 +554,7 @@ export default function Pricing() {
   };
   const getAnnualTotal = (plan: (typeof PLANS)[number]) => {
     if (plan.price === '$0') return null;
-    const base = parseInt(plan.price.replace('$', ''));
+    const base = parseInt(plan.price.replace(/\$/g, ''));
     return base * 10; // 2 months savings
   };
 
@@ -898,10 +898,10 @@ export default function Pricing() {
               {annual && plan.price !== '$0' && (
                 <div style={{ fontSize: 12, color: C.secondary, marginBottom: 20 }}>
                   <span style={{ textDecoration: 'line-through', color: C.muted }}>
-                    ${parseInt(plan.price.replace('$', '')) * 12}/yr
+                    ${parseInt(plan.price.replace(/\$/g, '')) * 12}/yr
                   </span>{' '}
                   <span style={{ color: '#6366F1', fontWeight: 700 }}>
-                    ${getAnnualTotal(plan)}/yr — save ${Math.round(parseInt(plan.price.replace('$', '')) * 12 * 0.2)}
+                    ${getAnnualTotal(plan)}/yr — save ${Math.round(parseInt(plan.price.replace(/\$/g, '')) * 12 * 0.2)}
                   </span>
                 </div>
               )}

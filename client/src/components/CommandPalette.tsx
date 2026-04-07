@@ -71,8 +71,8 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
       setLocation(cmd.path);
     } else if (cmd.action) {
       // Handle action here (export-csv, refresh-data, etc.)
-      // For now, just log it
-      console.log('Action:', cmd.action);
+      // No-op stub — replace with action dispatcher when implementing.
+      void cmd.action;
     }
     onClose();
   };

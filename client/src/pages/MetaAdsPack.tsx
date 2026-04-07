@@ -313,7 +313,7 @@ export default function MetaAdsPack() {
         raw.split('\n').find((l: string) => l.trim().length > 80 && l.trim().length < 400) || '';
       if (titleStr) setProductName(titleStr);
       if (descMatch) setProductDesc(descMatch);
-      if (priceMatch) setTargetPrice(priceMatch.replace('$', ''));
+      if (priceMatch) setTargetPrice(priceMatch.replace(/\$/g, ''));
       toast.success('Product details imported!');
     } catch (err: any) {
       toast.error(err?.message || 'Could not import URL');

@@ -121,7 +121,26 @@ async function startServer() {
     res.sendStatus(204);
   });
 
-  app.post('/api/agent-log', (req, res) => {
+  // Shared-secret middleware for /api/agent-log (server-to-server only).
+  // Accepts either x-agent-log-secret header or localhost origin.
+  // Set AGENT_LOG_SECRET in env to enable secret-based auth (used by n8n + discord bot).
+  const agentLogAuth = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+    const secret = process.env.AGENT_LOG_SECRET;
+    const provided = req.headers['x-agent-log-secret'];
+    if (secret && provided === secret) {
+      next();
+      return;
+    }
+    const origin = String(req.headers.origin || req.headers.referer || '');
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1') || !origin;
+    if (isLocal) {
+      next();
+      return;
+    }
+    res.status(401).json({ error: 'unauthorized', message: 'Agent log requires x-agent-log-secret header' });
+  };
+
+  app.post('/api/agent-log', agentLogAuth, (req, res) => {
     res.set('Access-Control-Allow-Origin', agentLogOrigin);
     const { agent, message, status, timestamp } = req.body;
     if (!agent || !message) {
@@ -138,13 +157,7 @@ async function startServer() {
     res.json({ ok: true, count: agentLog.length });
   });
 
-  app.get('/api/agent-log', (req, res) => {
-    // Only allow from localhost or with correct origin
-    const origin = req.headers.origin || req.headers.referer || '';
-    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1') || !origin;
-    if (!isLocal) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
+  app.get('/api/agent-log', agentLogAuth, (_req, res) => {
     res.set('Access-Control-Allow-Origin', agentLogOrigin);
     res.json(agentLog);
   });
