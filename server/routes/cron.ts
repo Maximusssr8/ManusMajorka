@@ -964,17 +964,18 @@ async function runBackfillImages(req: Request, res: Response) {
     const sb = getSupabaseAdmin();
     const { data, error } = await sb
       .from('winning_products')
-      .select('id, product_url, product_title')
+      .select('id, aliexpress_url, source_url, product_title')
       .is('image_url', null)
-      .not('product_url', 'is', null)
+      .or('aliexpress_url.not.is.null,source_url.not.is.null')
       .limit(50);
     if (error) { res.status(500).json({ error: error.message }); return; }
-    const rows = (data ?? []) as Array<{ id: string; product_url: string | null; product_title: string | null }>;
+    const rows = (data ?? []) as Array<{ id: string; aliexpress_url: string | null; source_url: string | null; product_title: string | null }>;
 
     let updated = 0;
     let failed = 0;
     for (const p of rows) {
-      const m = p.product_url?.match(/item\/(\d+)\.html/);
+      const url = p.aliexpress_url ?? p.source_url ?? '';
+      const m = url.match(/item\/(\d+)\.html/);
       if (!m) { failed++; continue; }
       try {
         const r = await fetch(`https://www.aliexpress.com/item/${m[1]}.html`, {
