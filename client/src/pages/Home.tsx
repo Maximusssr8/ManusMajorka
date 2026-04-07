@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -159,8 +159,10 @@ html, body { background: ${T.bg}; }
 .mj-row-pulse { animation: mj-row-pulse-green 3s ease-out 1; }
 .mj-row-enter { animation: mj-fade-in-down 400ms ease-out; }
 
-.mj-reveal { opacity: 0; transform: translateY(16px); transition: opacity 600ms ease, transform 600ms ease; }
-.mj-reveal.is-visible { opacity: 1; transform: translateY(0); }
+@keyframes mj-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .mj-shimmer-btn { position: relative; overflow: hidden; isolation: isolate; }
 .mj-shimmer-btn::after {
@@ -257,8 +259,6 @@ html, body { background: ${T.bg}; }
 `;
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-const PARTNERS = ['Shopify', 'AliExpress', 'Meta Ads', 'TikTok', 'Stripe', 'Google Ads', 'DHL'];
-
 const TICKER_ITEMS: string[] = [
   '🇦🇺 AU operator found $14,200/mo product · 2 min ago',
   '🇺🇸 US store launched via Store Builder · 4 min ago',
@@ -284,29 +284,6 @@ const FAQ_DATA: { q: string; a: string }[] = [
   { q: 'Can I cancel anytime?', a: 'Yes. Month-to-month, no contracts. Annual plans save 20% and refund the unused portion.' },
 ];
 
-// ── Reveal hook ─────────────────────────────────────────────────────────────
-function useReveal<T extends HTMLElement = HTMLDivElement>() {
-  const ref = useRef<T | null>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('is-visible');
-            obs.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return ref;
-}
-
 // ── Section Header ──────────────────────────────────────────────────────────
 interface SectionHeaderProps {
   eyebrow: string;
@@ -317,11 +294,8 @@ interface SectionHeaderProps {
   maxWidth?: number;
 }
 function SectionHeader({ eyebrow, line1, line2, description, align = 'left', maxWidth = 700 }: SectionHeaderProps) {
-  const ref = useReveal<HTMLDivElement>();
   return (
     <div
-      ref={ref}
-      className="mj-reveal"
       style={{
         marginBottom: 56,
         maxWidth,
@@ -360,46 +334,95 @@ function SectionHeader({ eyebrow, line1, line2, description, align = 'left', max
 }
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
-interface NavProps { scrolled: boolean }
-function Nav({ scrolled }: NavProps) {
+function Nav() {
   return (
     <nav style={{
-      position: 'sticky',
+      position: 'fixed',
       top: 0,
-      zIndex: 50,
-      background: scrolled ? 'rgba(10,10,10,0.85)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(12px)' : 'none',
-      WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-      borderBottom: `1px solid ${scrolled ? T.border : 'transparent'}`,
-      transition: 'background 200ms, border-color 200ms, backdrop-filter 200ms',
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      background: 'rgba(10,10,10,0.85)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      height: 60,
+      padding: '0 32px',
     }}>
       <div style={{
         maxWidth: 1200,
         margin: '0 auto',
-        padding: '0 24px',
-        height: 64,
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
-          <span style={{ fontFamily: display, fontWeight: 700, fontSize: 16, color: T.text, letterSpacing: '-0.02em' }}>Majorka</span>
+        <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <img src="/majorka-logo.jpg" alt="Majorka" height={28} style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
+          <span style={{
+            fontFamily: display,
+            fontWeight: 800,
+            fontSize: 18,
+            color: T.text,
+            letterSpacing: '-0.03em',
+            marginLeft: 10,
+          }}>majorka</span>
+          <span style={{
+            fontSize: 10,
+            fontFamily: mono,
+            background: 'rgba(99,102,241,0.15)',
+            border: '1px solid rgba(99,102,241,0.3)',
+            color: '#6366F1',
+            padding: '2px 7px',
+            borderRadius: 20,
+            marginLeft: 10,
+            letterSpacing: '0.05em',
+          }}>BETA</span>
         </a>
 
-        <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          <a href="#features" className="mj-link">Features</a>
-          <a href="#compare" className="mj-link">Compare</a>
-          <a href="#workflow" className="mj-link">Workflow</a>
-          <a href="#pricing" className="mj-link">Pricing</a>
-          <a href="/blog" className="mj-link">Blog</a>
+        <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          <a href="#features" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+          >Features</a>
+          <a href="#compare" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+          >Compare</a>
+          <a href="#workflow" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+          >Workflow</a>
+          <a href="#pricing" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+          >Pricing</a>
+          <a href="/blog" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+          >Blog</a>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/sign-in" className="mj-link">Log in</Link>
-          <Link href="/sign-up" className="mj-btn-primary" style={{ height: 36, fontSize: 13, padding: '0 16px' }}>
-            Get Started
-          </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Link href="/sign-in" style={{ color: '#9ca3af', fontSize: 14, textDecoration: 'none', marginRight: 8, transition: 'color 150ms' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+          >Log in</Link>
+          <Link href="/sign-up" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            background: '#6366F1',
+            color: '#fff',
+            padding: '8px 20px',
+            borderRadius: 999,
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration: 'none',
+            transition: 'background 150ms',
+          }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#7c83f4')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#6366F1')}
+          >Get Started</Link>
         </div>
       </div>
     </nav>
@@ -410,79 +433,130 @@ function Nav({ scrolled }: NavProps) {
 function Hero() {
   return (
     <section style={{
+      background: '#0a0a0a',
       position: 'relative',
-      borderBottom: `1px solid ${T.border}`,
       overflow: 'hidden',
-      isolation: 'isolate',
+      padding: '160px 24px 100px',
+      borderBottom: `1px solid ${T.border}`,
+      marginTop: 60,
     }}>
-      {/* Layered backgrounds */}
-      <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.6, pointerEvents: 'none', zIndex: 0 }} />
+      {/* Glow blobs */}
       <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 80% 60% at 55% 35%, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.05) 45%, transparent 70%)',
-        pointerEvents: 'none',
-        zIndex: 0,
+        position: 'absolute', width: 600, height: 600, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
+        top: -100, left: -150, pointerEvents: 'none', zIndex: 0,
       }} />
       <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 60% 40% at 90% 90%, rgba(139,92,246,0.12) 0%, transparent 60%)',
-        pointerEvents: 'none',
-        zIndex: 0,
+        position: 'absolute', width: 500, height: 500, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)',
+        top: 50, right: -100, pointerEvents: 'none', zIndex: 0,
       }} />
       <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 40% 30% at 85% 15%, rgba(99,102,241,0.10) 0%, transparent 60%)',
-        pointerEvents: 'none',
-        zIndex: 0,
+        position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)',
+        bottom: -50, left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none', zIndex: 0,
       }} />
 
       <div style={{
         position: 'relative',
         zIndex: 1,
-        maxWidth: 1240,
+        maxWidth: 1200,
         margin: '0 auto',
-        padding: '120px 24px 100px',
       }}>
         <div className="mj-hero-grid" style={{
           display: 'grid',
-          gridTemplateColumns: '1.05fr 0.95fr',
-          gap: 56,
+          gridTemplateColumns: '1fr 1fr',
+          gap: 64,
           alignItems: 'center',
         }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="mj-eyebrow" style={{ marginBottom: 20 }}>
-              <span className="mj-pulse-dot" style={{ marginRight: 8, verticalAlign: 'middle' }} />
-              The Ecommerce Operating System
+            {/* Eyebrow */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: '#22c55e',
+                boxShadow: '0 0 8px rgba(34,197,94,0.8)',
+                animation: 'mj-pulse 1.6s infinite',
+                display: 'inline-block',
+              }} />
+              <span style={{
+                fontFamily: mono,
+                fontSize: 11,
+                fontWeight: 500,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: '#6366F1',
+              }}>The Ecommerce Operating System</span>
             </div>
+
+            {/* Headline */}
             <h1 className="mj-hero-h1" style={{
               fontFamily: display,
-              fontWeight: 700,
-              fontSize: 68,
+              fontSize: 'clamp(44px, 6vw, 72px)',
+              fontWeight: 800,
               lineHeight: 1.05,
-              letterSpacing: '-0.045em',
-              color: T.text,
+              letterSpacing: '-0.04em',
+              color: '#f0f0f0',
               margin: '0 0 24px',
             }}>
               The unfair advantage<br />
               serious dropshippers<br />
-              <span style={{ color: T.textMuted }}>don&apos;t talk about.</span>
+              <span style={{ color: '#6366F1' }}>don&apos;t talk about.</span>
             </h1>
+
             <p style={{
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: T.textMuted,
-              maxWidth: 540,
+              fontSize: 18,
+              color: '#71717a',
+              lineHeight: 1.65,
               margin: '0 0 36px',
+              maxWidth: 460,
             }}>
               Product intelligence, margin data, competitor spy, and store builder — across 7 markets. One platform, one bill.
             </p>
-            <div className="mj-hero-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Link href="/sign-up" className="mj-btn-primary">Find my first winning product →</Link>
-              <a href="#features" className="mj-btn-secondary">See it in action</a>
+
+            {/* CTAs */}
+            <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
+              <Link href="/sign-up" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                height: 52,
+                padding: '0 28px',
+                background: '#6366F1',
+                color: '#fff',
+                fontFamily: sans,
+                fontWeight: 600,
+                fontSize: 15,
+                borderRadius: 999,
+                textDecoration: 'none',
+                transition: 'background 150ms, transform 150ms',
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#7c83f4'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >Find my first winning product →</Link>
+              <a href="#features" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: 52,
+                padding: '0 24px',
+                background: 'transparent',
+                color: '#9ca3af',
+                fontFamily: sans,
+                fontWeight: 500,
+                fontSize: 15,
+                borderRadius: 999,
+                border: '1px solid rgba(255,255,255,0.12)',
+                textDecoration: 'none',
+                transition: 'border-color 150ms, color 150ms',
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#ededed'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#9ca3af'; }}
+              >See it in action</a>
             </div>
 
             <SocialProofBar />
-            <div style={{ marginTop: 10 }}>
+
+            <div style={{ marginTop: 14 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6 }}>
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 6px rgba(239,68,68,0.6)', flexShrink: 0, display: 'inline-block' }} />
                 <span style={{ fontFamily: mono, fontSize: 11, color: '#9ca3af', letterSpacing: '0.02em' }}>127 operators found a winning product this week · 23 new products added in the last 24h</span>
@@ -491,7 +565,37 @@ function Hero() {
           </div>
 
           {/* Right: floating browser window */}
-          <BrowserWindow />
+          <div style={{ position: 'relative' }}>
+            {/* Glow ring behind the window */}
+            <div style={{
+              position: 'absolute',
+              inset: -20,
+              borderRadius: 20,
+              background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.15) 0%, transparent 70%)',
+              zIndex: 0,
+              pointerEvents: 'none',
+            }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <BrowserWindow />
+            </div>
+            {/* Floating LIVE badge */}
+            <div style={{
+              position: 'absolute',
+              bottom: -16,
+              right: -16,
+              background: '#111114',
+              border: '1px solid rgba(99,102,241,0.3)',
+              borderRadius: 10,
+              padding: '10px 14px',
+              zIndex: 2,
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+            }}>
+              <div style={{ fontFamily: mono, fontSize: 11, color: '#22c55e', marginBottom: 2 }}>● LIVE FEED</div>
+              <div style={{ fontFamily: mono, fontSize: 10, color: '#6b7280' }}>7 markets · refreshed live</div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -500,56 +604,70 @@ function Hero() {
 
 // ── Social Proof Bar ────────────────────────────────────────────────────────
 function SocialProofBar() {
+  const avatars = [
+    { i: 'A', from: '#6366F1', to: '#8B5CF6' },
+    { i: 'J', from: '#059669', to: '#10B981' },
+    { i: 'S', from: '#DC2626', to: '#F97316' },
+    { i: 'M', from: '#0891B2', to: '#06B6D4' },
+  ];
   return (
     <div className="mj-credibility" style={{
-      marginTop: 28,
-      display: 'inline-flex',
+      display: 'flex',
       alignItems: 'center',
-      gap: 16,
-      padding: '12px 20px',
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 8,
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
+      gap: 20,
+      padding: '14px 20px',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 12,
+      width: 'fit-content',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {[
-          { i: 'A', from: '#6366F1', to: '#8B5CF6' },
-          { i: 'J', from: '#22c55e', to: '#10b981' },
-          { i: 'S', from: '#f59e0b', to: '#ef4444' },
-          { i: 'M', from: '#06b6d4', to: '#3b82f6' },
-        ].map((a, i) => (
+      <div style={{ display: 'flex' }}>
+        {avatars.map((a, i) => (
           <div key={a.i} style={{
-            width: 28,
-            height: 28,
+            width: 30,
+            height: 30,
             borderRadius: '50%',
             background: `linear-gradient(135deg, ${a.from}, ${a.to})`,
-            border: `2px solid ${T.bg}`,
-            marginLeft: i === 0 ? 0 : -10,
+            border: '2px solid #0a0a0a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: display,
             fontSize: 11,
             fontWeight: 700,
             color: '#fff',
+            marginLeft: i === 0 ? 0 : -8,
+            zIndex: 4 - i,
+            position: 'relative',
           }}>{a.i}</div>
         ))}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ color: T.amber, fontSize: 13, letterSpacing: '0.05em' }}>★★★★★</span>
-        <span style={{ color: T.text, fontFamily: mono, fontSize: 12, fontWeight: 600 }}>4.9</span>
+
+      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ color: '#FBBF24', fontSize: 12, letterSpacing: '1px' }}>★★★★★</div>
+        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>500+ operators</div>
       </div>
-      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
-      <span style={{ fontFamily: mono, fontSize: 12, color: T.textMuted }}>500+ operators</span>
-      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
-      <span style={{ fontFamily: mono, fontSize: 12, color: T.textMuted }}>2.4M+ products</span>
-      <span style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 12, color: T.textMuted }}>
-        <span className="mj-pulse-dot" />
-        live data
-      </span>
+
+      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2.4M+</div>
+        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>products tracked</div>
+      </div>
+
+      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{
+          width: 6, height: 6, borderRadius: '50%',
+          background: '#22c55e',
+          boxShadow: '0 0 6px rgba(34,197,94,0.8)',
+          animation: 'mj-pulse 1.6s infinite',
+          display: 'inline-block',
+        }} />
+        <span style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>live data</span>
+      </div>
     </div>
   );
 }
@@ -776,26 +894,37 @@ function BrowserWindow() {
 function LiveTicker() {
   const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
   return (
-    <section className="mj-ticker-strip" style={{
-      background: T.bgPanel,
-      borderTop: `1px solid ${T.borderFaint}`,
-      borderBottom: `1px solid ${T.borderFaint}`,
-      padding: '14px 0',
+    <section style={{
+      background: '#0d0d10',
+      borderTop: '1px solid rgba(255,255,255,0.05)',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      padding: '12px 0',
       overflow: 'hidden',
+      position: 'relative',
     }}>
+      <div style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: 120,
+        background: 'linear-gradient(to right, #0d0d10, transparent)',
+        zIndex: 2, pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0, width: 120,
+        background: 'linear-gradient(to left, #0d0d10, transparent)',
+        zIndex: 2, pointerEvents: 'none',
+      }} />
       <div className="mj-ticker-track">
         {items.map((item, i) => (
           <span key={`${item}-${i}`} style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 8,
             fontFamily: mono,
-            fontSize: 13,
-            color: '#6b7280',
+            fontSize: 12,
+            color: '#9ca3af',
             whiteSpace: 'nowrap',
           }}>
             {item}
-            <span style={{ color: '#2d2d35' }}>·</span>
+            <span style={{ color: '#3f3f46', fontSize: 16, margin: '0 8px' }}>·</span>
           </span>
         ))}
       </div>
@@ -804,83 +933,115 @@ function LiveTicker() {
 }
 
 // ── Stats Section ───────────────────────────────────────────────────────────
-const STATS = [
-  { num: '2,400+', label: 'Products tracked' },
-  { num: '7',      label: 'Global markets' },
-  { num: '500+',   label: 'Active operators' },
-  { num: '94%',    label: 'Discovery score accuracy' },
+interface StatCardData { eyebrow: string; numNode: React.ReactNode; body: string }
+const STATS_CARDS: StatCardData[] = [
+  { eyebrow: 'Products Tracked', numNode: <>2,400<span style={{ color: '#6366F1' }}>+</span></>, body: 'Verified AliExpress products across all 7 markets' },
+  { eyebrow: 'Global Markets',   numNode: <>7</>,                                                  body: 'AU, US, UK, CA, NZ, DE, SG — each with local data' },
+  { eyebrow: 'Active Operators', numNode: <>500<span style={{ color: '#6366F1' }}>+</span></>,    body: 'Serious sellers running revenue on Majorka' },
+  { eyebrow: 'Score Accuracy',   numNode: <>94<span style={{ color: '#6366F1', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>%</span></>, body: 'AI demand scores validated against real sales data' },
 ];
 
 function Stats() {
-  const ref = useReveal<HTMLDivElement>();
   return (
     <section style={{
-      borderBottom: `1px solid ${T.border}`,
       padding: '64px 24px',
-      background: T.bgAlt,
+      background: '#0a0a0a',
     }}>
-      <div ref={ref} className="mj-reveal" style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div className="mj-stats-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 32,
-        }}>
-          {STATS.map((s) => (
-            <div key={s.label} style={{ padding: '8px 0' }}>
-              <div className="mj-stat-num" style={{
-                fontFamily: display,
-                fontSize: 60,
-                fontWeight: 700,
-                color: T.text,
-                letterSpacing: '-0.035em',
-                lineHeight: 1,
-                marginBottom: 12,
-              }}>{s.num}</div>
-              <div style={{ width: 32, height: 3, background: T.accent, borderRadius: 2, marginBottom: 12 }} />
-              <div style={{
-                fontFamily: mono,
-                fontSize: 12,
-                color: T.textMuted,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-              }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
+      <div className="mj-stats-grid" style={{
+        maxWidth: 1000,
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 1,
+        background: 'rgba(255,255,255,0.06)',
+        borderRadius: 16,
+        overflow: 'hidden',
+      }}>
+        {STATS_CARDS.map((s) => (
+          <div key={s.eyebrow} style={{
+            background: '#0d0d10',
+            padding: '36px 28px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            transition: 'background 200ms',
+          }}>
+            <div style={{
+              fontFamily: mono,
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#6366F1',
+              marginBottom: 4,
+            }}>{s.eyebrow}</div>
+            <div className="mj-stat-num" style={{
+              fontFamily: display,
+              fontSize: 52,
+              fontWeight: 800,
+              color: '#f0f0f0',
+              lineHeight: 1,
+              letterSpacing: '-0.04em',
+            }}>{s.numNode}</div>
+            <div style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.5, marginTop: 4 }}>{s.body}</div>
+          </div>
+        ))}
       </div>
     </section>
   );
 }
 
-// ── Partner Bar ─────────────────────────────────────────────────────────────
+// ── Partner Bar (integrations) ──────────────────────────────────────────────
+const INTEGRATIONS: { name: string; icon: string }[] = [
+  { name: 'Shopify',     icon: '🛍️' },
+  { name: 'AliExpress',  icon: '🛒' },
+  { name: 'Meta Ads',    icon: '📘' },
+  { name: 'TikTok',      icon: '🎵' },
+  { name: 'Stripe',      icon: '💳' },
+  { name: 'Google Ads',  icon: '🔍' },
+  { name: 'DHL',         icon: '📦' },
+];
+
 function PartnerBar() {
-  const loop = [...PARTNERS, ...PARTNERS];
   return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '36px 0', overflow: 'hidden' }}>
-      <div className="mj-eyebrow" style={{ textAlign: 'center', marginBottom: 24, color: T.textFaint }}>
-        Integrates with the tools you already use
-      </div>
-      <div className="mj-glow-edge">
-        <div className="mj-marquee-track">
-          {loop.map((name, i) => (
-            <span key={`${name}-${i}`} style={{
-              display: 'inline-flex',
+    <section style={{
+      padding: '40px 24px',
+      borderTop: '1px solid rgba(255,255,255,0.05)',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      background: '#0a0a0a',
+    }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{
+          fontFamily: mono,
+          fontSize: 11,
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          color: '#3f3f46',
+          marginBottom: 24,
+        }}>Integrates with</div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}>
+          {INTEGRATIONS.map((p) => (
+            <div key={p.name} style={{
+              display: 'flex',
               alignItems: 'center',
               gap: 8,
-              padding: '8px 18px',
-              border: `1px solid ${T.border}`,
-              borderRadius: 6,
-              background: T.bgSurface,
-              fontFamily: mono,
-              fontSize: 13,
-              fontWeight: 500,
-              color: T.textDim,
-              letterSpacing: '0.01em',
-              whiteSpace: 'nowrap',
-            }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: T.accent }} />
-              {name}
-            </span>
+              padding: '8px 16px',
+              background: '#111114',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 8,
+              transition: 'border-color 200ms',
+            }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+            >
+              <span style={{ fontSize: 16 }}>{p.icon}</span>
+              <span style={{ fontSize: 13, fontWeight: 500, color: '#9ca3af' }}>{p.name}</span>
+            </div>
           ))}
         </div>
       </div>
@@ -901,14 +1062,13 @@ interface CinematicProps {
   mockup: React.ReactNode;
 }
 function CinematicFeature({ id, bg, reverse, eyebrow, line1, line2, description, bullets, mockup }: CinematicProps) {
-  const ref = useReveal<HTMLDivElement>();
   return (
     <section id={id} style={{
       background: bg,
       borderBottom: `1px solid ${T.border}`,
       padding: '120px 24px',
     }}>
-      <div ref={ref} className="mj-reveal" style={{ maxWidth: 1240, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto' }}>
         <div className="mj-feat-grid" style={{
           display: 'grid',
           gridTemplateColumns: reverse ? '60% 40%' : '40% 60%',
@@ -2134,15 +2294,7 @@ function FooterCol({ title, links }: FooterColProps) {
 export default function Home() {
   const isMobile = useIsMobile();
   void isMobile;
-  const [scrolled, setScrolled] = useState(false);
   const [annual, setAnnual] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
     <div style={{
@@ -2159,11 +2311,19 @@ export default function Home() {
         ogImage="/og-image.svg"
       />
       <style>{STYLES}</style>
-      <Nav scrolled={scrolled} />
-      <Hero />
-      <LiveTicker />
-      <Stats />
-      <PartnerBar />
+      <Nav />
+      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '0ms' }}>
+        <Hero />
+      </div>
+      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '100ms' }}>
+        <LiveTicker />
+      </div>
+      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '200ms' }}>
+        <Stats />
+      </div>
+      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '300ms' }}>
+        <PartnerBar />
+      </div>
 
       <div id="features">
         <CinematicFeature
