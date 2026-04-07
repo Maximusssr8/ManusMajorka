@@ -319,7 +319,7 @@ export default function TrendRadar() {
 
   return (
     <div
-      className="h-full flex flex-col"
+      className="page-transition h-full flex flex-col"
       style={{ background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div

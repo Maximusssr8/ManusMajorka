@@ -1040,26 +1040,10 @@ export default function MajorkaAppShell({ children }: Props) {
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px', display: 'flex', justifyContent: 'center' }}>
           <button
             onClick={toggleSidebar}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-6 h-6 rounded-full bg-[#1a2035] border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all text-xs"
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            style={{
-              width: sidebarCollapsed ? 44 : '100%',
-              height: 40,
-              borderRadius: 8,
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              color: '#94A3B8',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 14,
-              transition: 'width 0.3s ease-in-out',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
           >
-            {sidebarCollapsed ? '→' : '←'}
-            {!sidebarCollapsed && <span style={{ marginLeft: 6, fontSize: 12 }}>Collapse</span>}
+            {sidebarCollapsed ? '›' : '‹'}
           </button>
         </div>
       )}

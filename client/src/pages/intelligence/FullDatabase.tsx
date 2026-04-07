@@ -945,6 +945,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 return (
                   <div
                     key={product.id || idx}
+                    className={idx < 3 ? 'border-beam-wrap' : ''}
                     onClick={() => !isBlurred && setDetailProduct(product)}
                     style={{
                       background: '#0E1420',

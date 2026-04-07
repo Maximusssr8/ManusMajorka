@@ -189,18 +189,18 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
       {/* Actions */}
       <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-3">
-          <a
-            href={productUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            className="text-[12px] font-medium transition-colors whitespace-nowrap"
-            style={{ color: '#818CF8', textDecoration: 'none' }}
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onClick();
+            }}
+            className="text-[12px] font-medium transition-colors whitespace-nowrap bg-none border-none cursor-pointer"
+            style={{ color: '#818CF8', textDecoration: 'none', padding: 0 }}
             onMouseEnter={e => (e.currentTarget.style.color = '#A5B4FC')}
             onMouseLeave={e => (e.currentTarget.style.color = '#818CF8')}
           >
             View ↗
-          </a>
+          </button>
           <button
             onClick={handleSave}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center' }}

@@ -334,7 +334,7 @@ export default function MarketDashboard() {
   }
 
   return (
-    <div className="min-h-full" style={{ background: 'var(--bg-page, #05070F)', color: 'var(--text-primary, #F8FAFC)' }}>
+    <div className="page-transition min-h-full" style={{ background: 'var(--bg-page, #05070F)', color: 'var(--text-primary, #F8FAFC)' }}>
       <Helmet><title>Market Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div
@@ -343,7 +343,7 @@ export default function MarketDashboard() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>
+            <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', 'Inter', sans-serif", fontWeight: 700, color: '#fff' }}>
               Market Intelligence
             </h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>

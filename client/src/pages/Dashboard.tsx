@@ -453,14 +453,14 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 12 }}>
+      <div className="page-transition grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 12 }}>
         {kpiCards.map((k) => (
-          <div key={k.label} style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 16px' }}>
+          <div key={k.label} className="mkr-kpi-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 9 }}>
               <k.icon size={12} style={{ color: '#818CF8' }} />
-              <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
             </div>
-            <div style={{ fontSize: 21, fontWeight: 700, color: '#F1F5F9', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', marginBottom: 8, lineHeight: 1 }}>
+            <div className="mkr-kpi-number" style={{ marginBottom: 8 }}>
               {k.value}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -494,17 +494,17 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Top Products */}
-      <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
+      <div className="mkr-table-wrap" style={{ marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 0' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'var(--text-muted)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
           <a href="/app/winning-products" style={{ fontSize: 12, color: '#818CF8', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="mkr-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <tr>
                 {['#', 'Product', 'Category', 'Units Sold', 'Revenue', 'vs last period'].map((h) => (
-                  <th key={h} style={{ padding: '6px 10px', textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const, color: '#94A3B8', fontWeight: 600, fontSize: 10, letterSpacing: '0.07em', textTransform: 'uppercase' as const, fontFamily: UI, whiteSpace: 'nowrap' as const }}>
+                  <th key={h} style={{ textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const }}>
                     {h}
                   </th>
                 ))}
@@ -517,22 +517,20 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                   ? { bg: 'rgba(168,85,247,0.15)', text: '#C084FC' }
                   : { bg: 'rgba(99,102,241,0.15)', text: '#818CF8' };
                 return (
-                  <tr key={p.rank} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                    <td style={{ padding: '9px 10px', color: i === 0 ? '#FACC15' : '#9CA3AF', fontSize: 12, fontWeight: i === 0 ? 700 : 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
-                    <td style={{ padding: '9px 10px' }}>
+                  <tr key={p.rank}>
+                    <td style={{ color: i === 0 ? '#FACC15' : '#9CA3AF', fontSize: 12, fontWeight: i === 0 ? 700 : 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
+                    <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 16, lineHeight: 1 }}>{p.emoji}</span>
                         <span style={{ fontSize: 13, color: '#E2E8F0', fontWeight: 500, whiteSpace: 'nowrap' as const }}>{p.name}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '9px 10px' }}>
+                    <td>
                       <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: cc.bg, color: cc.text, fontWeight: 600 }}>{p.cat}</span>
                     </td>
-                    <td style={{ padding: '9px 10px', color: '#94A3B8', fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{p.units.toLocaleString()}</td>
-                    <td style={{ padding: '9px 10px', color: '#22C55E', fontWeight: 600, fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>${p.revenue.toLocaleString()}</td>
-                    <td style={{ padding: '9px 10px', textAlign: 'right' as const }}>
+                    <td style={{ color: 'var(--text-secondary)', fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{p.units.toLocaleString()}</td>
+                    <td style={{ color: '#22C55E', fontWeight: 600, fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>${p.revenue.toLocaleString()}</td>
+                    <td style={{ textAlign: 'right' as const }}>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', color: '#22C55E' }}>
                         ↑ {p.trend}%
                       </span>
@@ -854,7 +852,7 @@ function GettingStartedChecklist({ userId, userCreatedAt, setLocation }: { userI
       return stored ? new Set(JSON.parse(stored)) : new Set<string>();
     } catch { return new Set<string>(); }
   });
-  const [checklistOpen, setChecklistOpen] = useState(true);
+  const [checklistOpen, setChecklistOpen] = useState(false);
   const [checklistDismissed, setChecklistDismissed] = useState(() =>
     localStorage.getItem(`majorka_onboarding_done_${userId}`) === '1'
   );
