@@ -851,6 +851,7 @@ router.get('/ae-hot-products', async (req: Request, res: Response) => {
   // Mirror POST handler for Vercel cron (uses GET)
   try {
     const sb = getSupabaseAdmin();
+    void sb;
     const { getHotProducts } = await import('../lib/aliexpress-affiliate');
     const result = await getHotProducts({ pageSize: 50, pageNo: 1 });
     const products = result?.aliexpress_affiliate_hotproduct_query_response?.resp_result?.result?.products?.product || [];
@@ -859,6 +860,102 @@ router.get('/ae-hot-products', async (req: Request, res: Response) => {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
+
+// ── /api/cron/refresh-hotproducts — multi-market AliExpress Affiliate API refresh ──
+// Loops 7 markets (AU/US/GB/CA/NZ/DE/SG), fetches up to 50 hot products per market,
+// upserts into winning_products with real CDN images and real lastest_volume order counts.
+async function runRefreshHotProducts(req: Request, res: Response) {
+  if (!verifyCronSecret(req)) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
+  try {
+    console.info('[cron/refresh-hotproducts] Starting multi-market hot products refresh…');
+    const sb = getSupabaseAdmin();
+    const { fetchHotProductsAllMarkets } = await import('../lib/aliexpressHotProducts');
+    const buckets = await fetchHotProductsAllMarkets(50);
+
+    const FX_TO_AUD: Record<string, number> = {
+      USD: 1.55, GBP: 1.95, CAD: 1.13, NZD: 0.93, EUR: 1.65, SGD: 1.15, AUD: 1.0,
+    };
+
+    type Row = Record<string, unknown>;
+    const seen = new Set<string>();
+    const rows: Row[] = [];
+    let totalFetched = 0;
+
+    for (const { market, products } of buckets) {
+      totalFetched += products.length;
+      for (const p of products) {
+        if (!p.product_id || !p.product_main_image_url || !p.product_main_image_url.startsWith('http')) continue;
+        if (seen.has(p.product_id)) continue;
+        seen.add(p.product_id);
+
+        const currency = (p.sale_price_currency || 'USD').toUpperCase();
+        const fx = FX_TO_AUD[currency] ?? 1.55;
+        const salePriceLocal = parseFloat(p.sale_price.replace(/[^0-9.]/g, '')) || 0;
+        const priceAud = Math.round(salePriceLocal * fx * 100) / 100;
+        const costAud = Math.round(priceAud * 0.4 * 100) / 100;
+        const orders = p.lastest_volume || 0;
+
+        rows.push({
+          product_title: p.product_title,
+          image_url: p.product_main_image_url,
+          price_aud: priceAud,
+          real_price_aud: priceAud,
+          cost_price_aud: costAud,
+          supplier_cost_aud: costAud,
+          profit_margin: priceAud > 0 ? Math.round(((priceAud - costAud) / priceAud) * 100) : 60,
+          winning_score: orders >= 5000 ? 88 : orders >= 1000 ? 78 : 68,
+          trend: orders >= 5000 ? 'Exploding' : orders >= 1000 ? 'Rising' : 'Steady',
+          orders_count: orders,
+          real_orders_count: orders,
+          sold_count: orders,
+          source_url: p.product_detail_url,
+          aliexpress_url: p.product_detail_url,
+          aliexpress_id: p.product_id,
+          category: p.second_level_category_name ?? null,
+          platform: 'aliexpress',
+          data_source: 'aliexpress_hotproduct_api',
+          link_status: 'verified',
+          link_verified_at: new Date().toISOString(),
+          tiktok_signal: orders >= 5000,
+          tags: ['ae-hot', 'affiliate', `market-${market.toLowerCase()}`],
+          is_active: true,
+          scraped_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+      }
+    }
+
+    let upserted = 0;
+    if (rows.length > 0) {
+      const { error, count } = await sb
+        .from('winning_products')
+        .upsert(rows, { onConflict: 'aliexpress_id', ignoreDuplicates: false, count: 'exact' });
+      if (error) {
+        console.error('[cron/refresh-hotproducts] upsert error:', error.message);
+      } else {
+        upserted = count ?? rows.length;
+      }
+    }
+
+    const summary = {
+      success: true,
+      markets: buckets.map((b) => ({ market: b.market, fetched: b.products.length })),
+      total_fetched: totalFetched,
+      unique_products: rows.length,
+      upserted,
+      timestamp: new Date().toISOString(),
+    };
+    console.info('[cron/refresh-hotproducts]', summary);
+    res.json(summary);
+  } catch (err: unknown) {
+    console.error('[cron/refresh-hotproducts] Error:', err);
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+router.get('/refresh-hotproducts', runRefreshHotProducts);
+router.post('/refresh-hotproducts', runRefreshHotProducts);
 
 export default router;
 

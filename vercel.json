@@ -130,6 +130,10 @@
       "schedule": "0 */6 * * *"
     },
     {
+      "path": "/api/cron/refresh-hotproducts",
+      "schedule": "15 */6 * * *"
+    },
+    {
       "path": "/api/cron/trend-pipeline",
       "schedule": "0 */12 * * *"
     },
