@@ -18,6 +18,10 @@ const signRequest = (params: Record<string, string>, appSecret: string): string 
   return crypto.createHash('sha256').update(toSign, 'utf8').digest('hex').toUpperCase();
 };
 
+// Last raw response — used by /api/cron/refresh-hotproducts to surface
+// upstream errors when products array comes back empty.
+export let LAST_RAW_RESPONSE: { status: number; body: string; method: string } | null = null;
+
 export const aliAffiliateRequest = async (method: string, extra: Record<string, string>) => {
   const { appKey, appSecret } = getKeys();
   if (!appKey || !appSecret) {
@@ -42,9 +46,17 @@ export const aliAffiliateRequest = async (method: string, extra: Record<string, 
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
       body,
     });
-    return await res.json();
+    const rawText = await res.text();
+    LAST_RAW_RESPONSE = { status: res.status, body: rawText.slice(0, 800), method };
+    console.info(`[aliexpress-affiliate] ${method} status=${res.status} body=${rawText.slice(0, 300)}`);
+    try {
+      return JSON.parse(rawText);
+    } catch {
+      return null;
+    }
   } catch (err) {
     console.error('[aliexpress-affiliate] request failed:', err);
+    LAST_RAW_RESPONSE = { status: -1, body: String(err), method };
     return null;
   }
 };

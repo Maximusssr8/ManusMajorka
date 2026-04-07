@@ -508,7 +508,16 @@ export default function AppHome() {
                     fontSize: 13,
                     color: orders > 0 ? '#22c55e' : '#52525b',
                     textAlign: 'right',
-                  }}>{orders > 0 ? orders.toLocaleString() : 'N/A'}</span>
+                  }}>
+                    {orders > 0 ? (
+                      orders.toLocaleString()
+                    ) : (
+                      <span style={{ fontSize: 11, color: '#3f3f46', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#3f3f46', display: 'inline-block' }} />
+                        pending
+                      </span>
+                    )}
+                  </span>
                   <span style={{
                     fontFamily: mono,
                     fontSize: 11,

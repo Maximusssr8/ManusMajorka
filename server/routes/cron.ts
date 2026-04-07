@@ -938,12 +938,14 @@ async function runRefreshHotProducts(req: Request, res: Response) {
       }
     }
 
+    const { LAST_RAW_RESPONSE } = await import('../lib/aliexpress-affiliate');
     const summary = {
       success: true,
       markets: buckets.map((b) => ({ market: b.market, fetched: b.products.length })),
       total_fetched: totalFetched,
       unique_products: rows.length,
       upserted,
+      raw_sample: LAST_RAW_RESPONSE,
       timestamp: new Date().toISOString(),
     };
     console.info('[cron/refresh-hotproducts]', summary);
