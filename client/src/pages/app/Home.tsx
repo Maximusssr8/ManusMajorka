@@ -4,10 +4,12 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { useProducts, useProductStats } from '@/hooks/useProducts';
+import { useProducts, useProductStats, type Product } from '@/hooks/useProducts';
 import { getCategoryStyle } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
+import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -144,7 +146,7 @@ function SkeletonRow() {
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: '40px 1.6fr 120px 110px 100px 90px 80px',
+      gridTemplateColumns: '40px 1.5fr 110px 95px 80px 95px 80px 60px',
       gap: 14,
       padding: '14px 16px',
       alignItems: 'center',
@@ -159,6 +161,7 @@ function SkeletonRow() {
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
+      <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       <span className="mj-shim" style={{ height: 24, width: 36, borderRadius: 5 }} />
     </div>
   );
@@ -167,6 +170,7 @@ function SkeletonRow() {
 export default function AppHome() {
   const { user, isPro } = useAuth();
   const stats = useProductStats();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { products, loading: prodLoading, total } = useProducts({ limit: 12, orderBy: 'sold_count' });
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const planLabel = isPro ? 'Scale Plan · Live' : 'Builder Plan · Live';
@@ -418,7 +422,7 @@ export default function AppHome() {
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '40px 1.6fr 120px 110px 100px 90px 80px',
+            gridTemplateColumns: '40px 1.5fr 110px 95px 80px 95px 80px 60px',
             gap: 14,
             padding: '12px 16px',
             fontFamily: mono,
@@ -433,6 +437,7 @@ export default function AppHome() {
             <span>Product</span>
             <span>Category</span>
             <span>Score</span>
+            <span style={{ textAlign: 'right' }}>Price</span>
             <span style={{ textAlign: 'right' }}>Orders/mo</span>
             <span style={{ textAlign: 'right' }}>Potential</span>
             <span style={{ textAlign: 'right' }}>Action</span>
@@ -456,14 +461,16 @@ export default function AppHome() {
               return (
                 <div
                   key={p.id}
+                  onClick={() => setSelectedProduct(p)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '40px 1.6fr 120px 110px 100px 90px 80px',
+                    gridTemplateColumns: '40px 1.5fr 110px 95px 80px 95px 80px 60px',
                     gap: 14,
                     padding: '14px 16px',
                     alignItems: 'center',
                     borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
                     transition: 'background 120ms',
+                    cursor: 'pointer',
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -503,6 +510,12 @@ export default function AppHome() {
                       }} />
                     </div>
                   </span>
+                  <span style={{
+                    fontFamily: mono,
+                    fontSize: 12,
+                    color: '#a1a1aa',
+                    textAlign: 'right',
+                  }}>{p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}</span>
                   <span style={{
                     fontFamily: mono,
                     fontSize: 13,
@@ -632,6 +645,8 @@ export default function AppHome() {
           ))}
         </div>
       </div>
+
+      <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </>
   );
 }

@@ -4,6 +4,7 @@ import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { ProductImage } from '@/components/app/ProductImage';
+import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
 import { getCategoryStyle } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 
@@ -124,6 +125,7 @@ export default function AppProducts() {
   const [view, setView] = useState<'table' | 'grid'>('table');
   const [limit, setLimit] = useState(20);
   const [activeNiche, setActiveNiche] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { products, loading, total } = useProducts({
     limit,
@@ -159,7 +161,7 @@ export default function AppProducts() {
 
       <LiveActivityFeed />
 
-      <FeaturedSections />
+      <FeaturedSections onSelect={setSelectedProduct} />
 
       <NicheSection activeNiche={activeNiche} setActiveNiche={setActiveNiche} />
 
@@ -249,9 +251,9 @@ export default function AppProducts() {
 
       {/* Content */}
       {view === 'table' ? (
-        <TableView products={filtered} loading={loading} />
+        <TableView products={filtered} loading={loading} onSelect={setSelectedProduct} />
       ) : (
-        <GridView products={filtered} loading={loading} />
+        <GridView products={filtered} loading={loading} onSelect={setSelectedProduct} />
       )}
 
       {/* Load more */}
@@ -275,11 +277,13 @@ export default function AppProducts() {
           >Load more</button>
         </div>
       )}
+
+      <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </>
   );
 }
 
-function TableView({ products, loading }: { products: Product[]; loading: boolean }) {
+function TableView({ products, loading, onSelect }: { products: Product[]; loading: boolean; onSelect: (p: Product) => void }) {
   return (
     <div style={{ padding: '0 32px 32px' }}>
       <div style={{
@@ -348,6 +352,7 @@ function TableView({ products, loading }: { products: Product[]; loading: boolea
             return (
               <div
                 key={p.id}
+                onClick={() => onSelect(p)}
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '40px 1.4fr 130px 130px 100px 100px 110px 70px',
@@ -356,6 +361,7 @@ function TableView({ products, loading }: { products: Product[]; loading: boolea
                   alignItems: 'center',
                   borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
                   transition: 'background 120ms',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -415,7 +421,7 @@ function TableView({ products, loading }: { products: Product[]; loading: boolea
   );
 }
 
-function GridView({ products, loading }: { products: Product[]; loading: boolean }) {
+function GridView({ products, loading, onSelect }: { products: Product[]; loading: boolean; onSelect: (p: Product) => void }) {
   return (
     <div style={{
       padding: '0 32px 32px',
@@ -458,12 +464,14 @@ function GridView({ products, loading }: { products: Product[]; loading: boolean
           return (
             <div
               key={p.id}
+              onClick={() => onSelect(p)}
               style={{
                 background: '#111114',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 10,
                 overflow: 'hidden',
                 transition: 'border-color 200ms, transform 200ms',
+                cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
@@ -561,9 +569,10 @@ interface SectionRowProps {
   accentColor: string;
   products: Product[];
   loading: boolean;
+  onSelect: (p: Product) => void;
 }
 
-function SectionRow({ title, emoji, bg, border, accentColor, products, loading }: SectionRowProps) {
+function SectionRow({ title, emoji, bg, border, accentColor, products, loading, onSelect }: SectionRowProps) {
   return (
     <div style={{ padding: '0 32px 16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -589,29 +598,36 @@ function SectionRow({ title, emoji, bg, border, accentColor, products, loading }
           : products.length === 0
             ? <div style={{ fontFamily: sans, fontSize: 13, color: '#52525b' }}>No products yet</div>
             : products.map((p) => (
-                <FeaturedCard key={p.id} product={p} bg={bg} border={border} accentColor={accentColor} />
+                <FeaturedCard key={p.id} product={p} bg={bg} border={border} accentColor={accentColor} onSelect={onSelect} />
               ))}
       </div>
     </div>
   );
 }
 
-function FeaturedCard({ product, bg, border, accentColor }: { product: Product; bg: string; border: string; accentColor: string }) {
+function FeaturedCard({ product, bg, border, accentColor, onSelect }: { product: Product; bg: string; border: string; accentColor: string; onSelect: (p: Product) => void }) {
   const cs = getCategoryStyle(product.category);
   const score = product.winning_score ?? 0;
   const orders = product.sold_count ?? 0;
   return (
-    <div style={{
-      width: 200,
-      flexShrink: 0,
-      background: bg,
-      border: `1px solid ${border}`,
-      borderRadius: 10,
-      padding: 14,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10,
-    }}>
+    <div
+      onClick={() => onSelect(product)}
+      style={{
+        width: 200,
+        flexShrink: 0,
+        background: bg,
+        border: `1px solid ${border}`,
+        borderRadius: 10,
+        padding: 14,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+        cursor: 'pointer',
+        transition: 'transform 150ms',
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
           width: 44, height: 44, borderRadius: 8,
@@ -672,38 +688,32 @@ function FeaturedCard({ product, bg, border, accentColor }: { product: Product; 
   );
 }
 
-function FeaturedSections() {
+function FeaturedSections({ onSelect }: { onSelect: (p: Product) => void }) {
   const recentlyAdded = useProducts({ limit: 10, orderBy: 'created_at' });
   const topScored    = useProducts({ limit: 10, orderBy: 'winning_score' });
   const bestValue    = useProducts({ limit: 10, orderBy: 'price_asc' });
   return (
     <>
       <SectionRow
-        title="Recently Added"
-        emoji="🆕"
+        title="Recently Added" emoji="🆕"
         bg="linear-gradient(135deg, rgba(249,115,22,0.08), rgba(239,68,68,0.04))"
-        border="rgba(249,115,22,0.2)"
-        accentColor="#f97316"
-        products={recentlyAdded.products}
-        loading={recentlyAdded.loading}
+        border="rgba(249,115,22,0.2)" accentColor="#f97316"
+        products={recentlyAdded.products} loading={recentlyAdded.loading}
+        onSelect={onSelect}
       />
       <SectionRow
-        title="Top Scored"
-        emoji="⭐"
+        title="Top Scored" emoji="⭐"
         bg="linear-gradient(135deg, rgba(99,102,241,0.08), rgba(99,102,241,0.04))"
-        border="rgba(99,102,241,0.2)"
-        accentColor="#6366F1"
-        products={topScored.products}
-        loading={topScored.loading}
+        border="rgba(99,102,241,0.2)" accentColor="#6366F1"
+        products={topScored.products} loading={topScored.loading}
+        onSelect={onSelect}
       />
       <SectionRow
-        title="Best Value"
-        emoji="💰"
+        title="Best Value" emoji="💰"
         bg="linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.04))"
-        border="rgba(34,197,94,0.2)"
-        accentColor="#22c55e"
-        products={bestValue.products}
-        loading={bestValue.loading}
+        border="rgba(34,197,94,0.2)" accentColor="#22c55e"
+        products={bestValue.products} loading={bestValue.loading}
+        onSelect={onSelect}
       />
     </>
   );
@@ -894,18 +904,18 @@ function RowActions({ product }: { product: Product }) {
     <>
       <button
         title="Profit Calculator"
-        onClick={() => { window.location.href = '/app/profit'; }}
+        onClick={(e) => { e.stopPropagation(); window.location.href = '/app/profit'; }}
         style={{ padding: '4px 8px', background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
       >💰</button>
       <button
         title="Generate Ad"
-        onClick={() => { window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
+        onClick={(e) => { e.stopPropagation(); window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
         style={{ padding: '4px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
       >🎯</button>
       {product.product_url && (
         <button
           title="View on AliExpress"
-          onClick={() => product.product_url && window.open(product.product_url, '_blank', 'noopener,noreferrer')}
+          onClick={(e) => { e.stopPropagation(); product.product_url && window.open(product.product_url, '_blank', 'noopener,noreferrer'); }}
           style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
         >↗</button>
       )}
