@@ -396,7 +396,7 @@ export default function StoreBuilderAnimation() {
                       <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#28c840' }} />
                     </div>
                     <div style={{
-                      flex: 1, background: '#0C1120', borderRadius: 4,
+                      flex: 1, background: '#0d0d10', borderRadius: 4,
                       padding: '3px 10px', fontFamily: "'JetBrains Mono', monospace",
                       fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 5,
                     }}>
@@ -419,7 +419,7 @@ export default function StoreBuilderAnimation() {
                           initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                           transition={{ duration: 0.25, ease: 'easeOut' }}
                           style={{
-                            background: '#0C1120',
+                            background: '#0d0d10',
                             borderBottom: '1px solid rgba(99,102,241,0.15)',
                             padding: '10px 16px', display: 'flex',
                             justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
@@ -454,7 +454,7 @@ export default function StoreBuilderAnimation() {
                             {/* Shimmer fallback (renders behind the image) */}
                             <div style={{
                               position: 'absolute', inset: 0,
-                              background: 'linear-gradient(135deg, #1a1d24 0%, #252833 50%, #1e2130 100%)',
+                              background: 'linear-gradient(135deg, #1a1d24 0%, #252833 50%, #111114 100%)',
                               backgroundSize: '200% 100%',
                               animation: 'sba-shimmer 2.5s ease-in-out infinite',
                               zIndex: 0,

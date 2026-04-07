@@ -207,7 +207,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
       <div
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: '#0C1120',
+          background: '#0d0d10',
           border: '1px solid #F0F0F0',
           boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
         }}
@@ -215,7 +215,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
         {/* Close button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-[#0C1120]/5 transition-all"
+          className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-[#0d0d10]/5 transition-all"
           style={{
             cursor: 'pointer',
             color: '#9CA3AF',

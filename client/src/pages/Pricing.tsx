@@ -395,7 +395,7 @@ function SavingsCalculator() {
       <div style={{
         maxWidth: 860,
         margin: '0 auto',
-        background: '#0C1120',
+        background: '#0d0d10',
         border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: 20,
         padding: '40px 36px',

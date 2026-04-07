@@ -38,7 +38,7 @@ export default function LivestreamAnalytics() {
             { label: 'Avg Viewers/Stream', value: '3,200', icon: 'eye', color: '#FEF3C7' },
             { label: 'Top Niche GMV Today', value: '$9,700', icon: 'dollar', color: '#FEE2E2' },
           ].map(s => (
-            <div key={s.label} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
+            <div key={s.label} style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
               <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#F8FAFC' }}>{s.value}</div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>{s.label}</div>
             </div>
@@ -53,7 +53,7 @@ export default function LivestreamAnalytics() {
         {/* Niche grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
           {LIVE_NICHES.map(n => (
-            <div key={n.niche} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20 }}>
+            <div key={n.niche} style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#F8FAFC' }}>{n.niche}</span>
                 <span style={{ fontSize: 9, fontWeight: 700, color: '#DC2626', background: '#FEF2F2', padding: '2px 8px', borderRadius: 10 }}>DEMO</span>

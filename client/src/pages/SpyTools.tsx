@@ -153,7 +153,7 @@ function CompetitorSpy() {
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 280px', gap: 16, flex: 1 }}>
 
         {/* LEFT — Store Selector */}
-        <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
+        <div style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '12px 14px', borderBottom: '1px solid #F3F4F6', fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
             20 AU Stores
           </div>
@@ -174,7 +174,7 @@ function CompetitorSpy() {
         </div>
 
         {/* CENTER — Product Feed */}
-        <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
               {selectedStore ? `${stores.find(s => s.domain === selectedStore)?.name || selectedStore}` : 'All Stores'} · {products.length} products
@@ -225,7 +225,7 @@ function CompetitorSpy() {
         </div>
 
         {/* RIGHT — Trend Crossovers */}
-        <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
+        <div style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '12px 14px', borderBottom: '1px solid #F3F4F6', fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
             Confirmed Winners
           </div>
@@ -274,7 +274,7 @@ export default function SpyTools() {
   };
 
   return (
-    <div style={{ background: '#060A12', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
       <Helmet><title>Competitor Spy — Majorka</title></Helmet>
 
       {/* Header */}
@@ -343,7 +343,7 @@ export default function SpyTools() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
               {sortedAds.map(ad => (
                 <div key={ad.id} style={{
-                  background: '#0C1120', borderRadius: 12, border: '1px solid #F0F0F0', overflow: 'hidden',
+                  background: '#0d0d10', borderRadius: 12, border: '1px solid #F0F0F0', overflow: 'hidden',
                   boxShadow: '0 2px 8px #F5F5F5', transition: 'transform 150ms, box-shadow 150ms',
                 }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px #E5E7EB'; }}
@@ -365,7 +365,7 @@ export default function SpyTools() {
                     </div>
                     <div style={{
                       position: 'absolute', top: 10, right: 10,
-                      background: '#0C1120', color: '#F8FAFC',
+                      background: '#0d0d10', color: '#F8FAFC',
                       padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
                     }}>
                       RUNNING {ad.runningDays} DAYS
@@ -449,7 +449,7 @@ export default function SpyTools() {
           zIndex: 1000, padding: 24,
         }} onClick={() => setViewAd(null)}>
           <div style={{
-            background: '#0C1120', borderRadius: 16, maxWidth: 480, width: '100%', overflow: 'hidden',
+            background: '#0d0d10', borderRadius: 16, maxWidth: 480, width: '100%', overflow: 'hidden',
             boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
           }} onClick={e => e.stopPropagation()}>
             <div style={{ height: 300, background: viewAd.bg || '#F9FAFB', position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, padding: 24, justifyContent: 'center' }}>
@@ -465,7 +465,7 @@ export default function SpyTools() {
               </div>
               <div style={{
                 position: 'absolute', top: 14, right: 14,
-                background: '#0C1120', color: '#F8FAFC',
+                background: '#0d0d10', color: '#F8FAFC',
                 padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700,
               }}>
                 Running {viewAd.runningDays} days

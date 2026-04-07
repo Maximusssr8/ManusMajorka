@@ -313,7 +313,7 @@ export default function SettingsProfile() {
 
   if ((loading && !loadingTimedOut) || (!user && !loadingTimedOut)) {
     return (
-      <div className="flex h-screen items-center justify-center" style={{ background: '#060A12' }}>
+      <div className="flex h-screen items-center justify-center" style={{ background: '#0a0a0a' }}>
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm animate-pulse"
           style={{
@@ -331,7 +331,7 @@ export default function SettingsProfile() {
   // If timed out with no user, redirect to login
   if (!user && loadingTimedOut) {
     return (
-      <div className="flex h-screen items-center justify-center flex-col gap-4" style={{ background: '#060A12' }}>
+      <div className="flex h-screen items-center justify-center flex-col gap-4" style={{ background: '#0a0a0a' }}>
         <p className="text-sm" style={{ color: '#94A3B8' }}>Unable to load your profile. Please sign in again.</p>
         <button
           onClick={() => setLocation('/login')}
@@ -345,7 +345,7 @@ export default function SettingsProfile() {
   }
 
   const inputClass =
-    'w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
+    'w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
   const sectionCard = 'rounded-xl p-5' as const;
   const sectionCardStyle = { background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' };
 
@@ -359,7 +359,7 @@ export default function SettingsProfile() {
 
   return (
     <>
-      <div className="h-full overflow-auto" style={{ background: '#060A12' }}>
+      <div className="h-full overflow-auto" style={{ background: '#0a0a0a' }}>
         <div className="max-w-3xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
@@ -678,11 +678,11 @@ export default function SettingsProfile() {
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12, maxWidth: 420 }}>
                   <div>
                     <label className="block text-xs font-medium tracking-normal mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>New Password</label>
-                    <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                    <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium tracking-normal mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Confirm New Password</label>
-                    <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0C1120]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                    <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                   </div>
                   <button onClick={handlePasswordChange} disabled={changingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
                     className="rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"

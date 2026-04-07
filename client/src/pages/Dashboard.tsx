@@ -264,7 +264,7 @@ function PersonalisedFeed() {
 
   return (
     <div style={{
-      background: '#0E1420',
+      background: '#111114',
       border: '1px solid rgba(255,255,255,0.1)',
       borderRadius: 16, padding: 20, marginBottom: 24,
     }}>
@@ -396,7 +396,7 @@ function MiniSparkSvg({ data, color = '#22c55e' }: { data: number[]; color?: str
 function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 12px', fontFamily: UI, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
+    <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '8px 12px', fontFamily: UI, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
       <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#22C55E' }}>${payload[0].value.toLocaleString()}</div>
     </div>
@@ -474,7 +474,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Revenue area chart */}
-      <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
+      <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
@@ -544,7 +544,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Recent Orders */}
-      <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 20px' }}>
+      <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
           <span style={{ fontSize: 11, color: '#94A3B8' }}>Updated just now</span>
@@ -656,7 +656,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
       </div>
 
       {leaderboardLoading ? (
-        <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, overflow: 'hidden' }}>
+        <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, overflow: 'hidden' }}>
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
               <div style={{ width: 24, height: 14, borderRadius: 4, background: 'linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
@@ -669,11 +669,11 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
           ))}
         </div>
       ) : leaderboardError ? (
-        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
+        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: '#111114', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
           Could not load leaderboard
         </div>
       ) : leaderboard.length === 0 ? (
-        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
+        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: '#111114', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
           No products tracked yet
         </div>
       ) : isMobile ? (
@@ -683,7 +683,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
             const score = p.winning_score ?? 0;
             const tier = getScoreTier(score);
             return (
-              <div key={p.id} onClick={() => setLocation('/app/intelligence')} style={{ flexShrink: 0, width: 160, background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+              <div key={p.id} onClick={() => setLocation('/app/intelligence')} style={{ flexShrink: 0, width: 160, background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
                 <div style={{ marginBottom: 8 }}>{getRankDisplay(i)}</div>
                 {p.image_url ? (
                   <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
@@ -700,7 +700,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
         </div>
       ) : (
         /* Desktop: table layout */
-        <div className="mkr-table-wrap" style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+        <div className="mkr-table-wrap" style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
           <table className="mkr-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
@@ -1015,15 +1015,16 @@ function DashboardHome() {
   }, [products]);
 
   return (
-    <div className="page-transition" style={{ minHeight: '100vh', background: '#060A12', padding: '0' }}>
+    <div className="page-transition" style={{ minHeight: '100vh', background: '#0a0a0a', padding: '0' }}>
 
       {/* ── Page header ──────────────────────────────────────────── */}
-      <div style={{ background: '#0E1420', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#FFFFFF', marginBottom: 4 }}>
-            👋 {getGreeting()}, <GradientText>{firstName}</GradientText>
+          <div style={{ marginBottom: 4 }}>
+            <span style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 24, fontWeight: 500, color: '#a1a1aa' }}>{getGreeting()}, </span>
+            <span style={{ fontFamily: "'Bricolage Grotesque', system-ui, sans-serif", fontSize: 24, fontWeight: 700, color: '#6366F1', letterSpacing: '-0.02em' }}>{firstName}</span>
           </div>
-          <div style={{ fontSize: 14, color: '#D1D5DB' }}>{formatDate()}{planLabel ? ` · ${planLabel}` : ''}</div>
+          <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#52525b' }}>{formatDate()}{planLabel ? ` · ${planLabel}` : ''}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {!isPaid && (
@@ -1104,7 +1105,7 @@ function DashboardHome() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.06)" vertical={false} />
                 <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
                 <YAxis width={46} tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`} />
-                <Tooltip contentStyle={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#F1F5F9' }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
+                <Tooltip contentStyle={{ background: '#111114', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#F1F5F9' }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
                 <Area type="monotone" dataKey="rev" stroke="#6366F1" strokeWidth={2.5} fill="url(#indigo-grad)" dot={{ fill: '#6366F1', r: 3 }} activeDot={{ r: 5 }} />
               </AreaChart>
             </ResponsiveContainer>
@@ -1147,7 +1148,7 @@ function DashboardHome() {
         <div className="products-ai-grid">
 
           {/* Top products */}
-          <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+          <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Top Products Today</div>
               <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#818CF8', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
@@ -1188,7 +1189,7 @@ function DashboardHome() {
                       onClick={() => setLocation('/app/intelligence')}
                     >
                       {p.image_url ? (
-                        <img src={String(p.image_url)} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)', background: '#0E1420' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
+                        <img src={String(p.image_url)} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)', background: '#111114' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
                       ) : null}
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(99,102,241,0.15)', display: p.image_url ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#818CF8', flexShrink: 0 }}>
                         {(p.product_title ?? p.name ?? 'P').charAt(0)}
@@ -1241,7 +1242,7 @@ function DashboardHome() {
         </div>
 
         {/* Row 4: Tools Bento Grid */}
-        <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '24px' }}>
+        <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Your Tools</div>
             <span style={{ fontSize: 12, color: '#94A3B8' }}>9 AI tools</span>

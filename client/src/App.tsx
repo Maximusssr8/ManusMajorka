@@ -89,7 +89,7 @@ function LoadingFallback() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: '#060A12' }}
+      style={{ background: '#0a0a0a' }}
     >
       <div className="flex flex-col items-center gap-4">
         <div

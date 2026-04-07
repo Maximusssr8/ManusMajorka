@@ -77,7 +77,7 @@ function ShimmerCard() {
   return (
     <div
       className="rounded-2xl p-5 space-y-3"
-      style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)' }}
+      style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.1)' }}
     >
       <div className="flex items-center gap-2">
         <div
@@ -157,7 +157,7 @@ function AdCard({
   return (
     <div
       className="rounded-2xl overflow-hidden flex flex-col"
-      style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)' }}
+      style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.1)' }}
     >
       <div className="p-5 flex-1 space-y-3">
         {/* Badges */}
@@ -438,12 +438,12 @@ function AdSpyContent() {
   return (
     <div
       className="h-full flex flex-col overflow-hidden"
-      style={{ background: '#05070F', color: '#F1F5F9', fontFamily: "'Inter', -apple-system, sans-serif" }}
+      style={{ background: '#05070F', color: '#F1F5F9', fontFamily: "'DM Sans', system-ui, sans-serif" }}
     >
       {/* Header */}
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'var(--card-bg, #0E1420)' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'var(--card-bg, #111114)' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"

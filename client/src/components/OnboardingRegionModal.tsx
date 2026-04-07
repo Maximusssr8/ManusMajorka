@@ -26,7 +26,7 @@ export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps
       <div style={{
         position: 'fixed' as const, top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        background: '#0C1120', borderRadius: 20, padding: '40px 48px',
+        background: '#0d0d10', borderRadius: 20, padding: '40px 48px',
         zIndex: 1001, maxWidth: 600, width: '90vw',
         boxShadow: '0 32px 80px rgba(0,0,0,0.2)',
       }}>

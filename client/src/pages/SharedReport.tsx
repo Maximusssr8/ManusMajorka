@@ -32,7 +32,7 @@ export default function SharedReport() {
   return (
     <div style={{ background: '#05070F', minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0d0d10', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#6366F1' }}>Majorka</div>
         <a href="/signup" style={{ height: 34, padding: '0 16px', background: '#6366F1', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           Get free access \u2192
@@ -46,7 +46,7 @@ export default function SharedReport() {
         </p>
 
         {products.map((p: any, i: number) => (
-          <div key={i} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20, marginBottom: 12 }}>
+          <div key={i} style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20, marginBottom: 12 }}>
             <div style={{ display: 'flex', gap: 14 }}>
               {p.image_url && <img src={p.image_url} alt={p.product_title} style={{ width: 80, height: 80, objectFit: 'cover' as const, borderRadius: 8 }} />}
               <div style={{ flex: 1 }}>

@@ -170,7 +170,7 @@ export default function ShopIntelligence() {
           ))}
         </div>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#0C1120', border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '40px 48px', maxWidth: 420, width: '90%', textAlign: 'center' }}>
+          <div style={{ background: '#0d0d10', border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '40px 48px', maxWidth: 420, width: '90%', textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>🔒</div>
             <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 8 }}>Pro Feature</div>
             <div style={{ fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 1.6 }}>
@@ -423,12 +423,12 @@ export default function ShopIntelligence() {
       {/* Filter Bar */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20, padding: '16px', background: C.surface, borderRadius: 12, border: `1px solid ${C.border}` }}>
         <select value={niche} onChange={e => setNiche(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
+          style={{ padding: '8px 12px', borderRadius: 7, background: '#0d0d10', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
           {NICHES.map(n => <option key={n}>{n}</option>)}
         </select>
 
         <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
+          style={{ padding: '8px 12px', borderRadius: 7, background: '#0d0d10', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
           <option value="est_revenue_aud">Sort: Revenue</option>
           <option value="growth_rate_pct">Sort: Growth Rate</option>
           <option value="items_sold_est">Sort: Items Sold</option>
@@ -439,7 +439,7 @@ export default function ShopIntelligence() {
           const [mn, mx] = e.target.value.split('-');
           setMinRevenue(mn === '0' ? '' : mn);
           setMaxRevenue(mx === '0' ? '' : mx);
-        }} style={{ padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
+        }} style={{ padding: '8px 12px', borderRadius: 7, background: '#0d0d10', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, cursor: 'pointer' }}>
           <option value="0-0">Any Revenue</option>
           <option value="1000-10000">$1k–$10k/mo</option>
           <option value="10000-100000">$10k–$100k/mo</option>
@@ -451,7 +451,7 @@ export default function ShopIntelligence() {
           onChange={e => setSearch(e.target.value)}
           placeholder="Search shop name..."
           onKeyDown={e => e.key === 'Enter' && fetchShops(1)}
-          style={{ flex: 1, minWidth: 160, padding: '8px 12px', borderRadius: 7, background: '#0C1120', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, outline: 'none' }}
+          style={{ flex: 1, minWidth: 160, padding: '8px 12px', borderRadius: 7, background: '#0d0d10', border: `1px solid ${C.border}`, color: C.text, fontSize: 13, outline: 'none' }}
         />
 
         <button onClick={() => fetchShops(1)}

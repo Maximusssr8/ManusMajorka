@@ -54,7 +54,7 @@ export function ProductIntelligencePage() {
       <div className="px-6 pt-6 pb-0">
         <div className="flex items-start justify-between mb-5">
           <div>
-            <h1 className="text-[20px] font-semibold text-slate-100 tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', 'Inter', sans-serif", fontWeight: 700 }}>
+            <h1 className="text-[20px] font-semibold text-slate-100 tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif", fontWeight: 700 }}>
               Product Intelligence
             </h1>
             <p className="text-[13px] mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>

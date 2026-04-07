@@ -324,7 +324,7 @@ export default function TrendRadar() {
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -423,7 +423,7 @@ export default function TrendRadar() {
                 }}
               >
                 {['Australia', 'United States', 'United Kingdom', 'Global'].map((r) => (
-                  <option key={r} value={r} style={{ background: '#0C1120' }}>
+                  <option key={r} value={r} style={{ background: '#0d0d10' }}>
                     {r}
                   </option>
                 ))}
@@ -453,7 +453,7 @@ export default function TrendRadar() {
                 }}
               >
                 {['Last month', 'Last 3 months', 'Last 6 months', 'Last year'].map((t) => (
-                  <option key={t} value={t} style={{ background: '#0C1120' }}>
+                  <option key={t} value={t} style={{ background: '#0d0d10' }}>
                     {t}
                   </option>
                 ))}

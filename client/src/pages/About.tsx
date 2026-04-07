@@ -43,7 +43,7 @@ export default function About() {
 
       {/* Mission */}
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 24px 56px' }}>
-        <div style={{ background: '#0C1120', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', padding: '40px 48px' }}>
+        <div style={{ background: '#0d0d10', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', padding: '40px 48px' }}>
           <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 26, color: '#F8FAFC', marginBottom: 16, letterSpacing: '-0.01em' }}>What we're building</h2>
           <p style={{ fontSize: 16, color: '#CBD5E1', lineHeight: 1.75, marginBottom: 20 }}>
             Majorka is an AI-powered product intelligence platform. We ingest real TikTok Shop data, AliExpress supply signals, and market trend indicators to surface products with genuine commercial potential — scored, ranked, and ready to act on.
@@ -67,7 +67,7 @@ export default function About() {
             { icon: '🌍', title: 'Global by default', body: 'Winning products cross borders. We surface opportunities across markets, not just one geography.' },
             { icon: '🔓', title: 'Access for all', body: 'Enterprise-grade data intelligence shouldn\'t cost enterprise prices. We price for independent sellers.' },
           ].map(v => (
-            <div key={v.title} style={{ background: '#0C1120', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', padding: '24px' }}>
+            <div key={v.title} style={{ background: '#0d0d10', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', padding: '24px' }}>
               <div style={{ fontSize: 28, marginBottom: 12 }}>{v.icon}</div>
               <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#F8FAFC', marginBottom: 8 }}>{v.title}</div>
               <div style={{ fontSize: 14, color: '#94A3B8', lineHeight: 1.6 }}>{v.body}</div>
@@ -81,7 +81,7 @@ export default function About() {
         <div style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', borderRadius: 20, padding: '48px', textAlign: 'center' }}>
           <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: 'white', marginBottom: 12, letterSpacing: '-0.01em' }}>Ready to find your next winner?</h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 28, lineHeight: 1.6 }}>Start free. No credit card required.</p>
-          <Link href="/sign-up" style={{ display: 'inline-block', background: '#0C1120', color: '#6366F1', borderRadius: 10, padding: '14px 36px', fontWeight: 700, fontSize: 16, textDecoration: 'none', letterSpacing: '-0.01em' }}>
+          <Link href="/sign-up" style={{ display: 'inline-block', background: '#0d0d10', color: '#6366F1', borderRadius: 10, padding: '14px 36px', fontWeight: 700, fontSize: 16, textDecoration: 'none', letterSpacing: '-0.01em' }}>
             Get Started Free →
           </Link>
         </div>

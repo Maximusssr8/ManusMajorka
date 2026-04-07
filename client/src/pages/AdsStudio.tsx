@@ -150,7 +150,7 @@ function SectionCard({ header, body, onCopy, copied }: {
       </div>
       {/* Body */}
       {!collapsed && (
-        <div style={{ padding: '10px 12px', background: '#0C1120' }}>
+        <div style={{ padding: '10px 12px', background: '#0d0d10' }}>
           {isCopySection && <CharCounter text={body} />}
           <pre style={{ whiteSpace: 'pre-wrap' as const, fontFamily: dm, fontSize: 12, color: '#CBD5E1', lineHeight: 1.75, margin: isCopySection ? '8px 0 0' : 0 }}>{body}</pre>
         </div>
@@ -304,7 +304,7 @@ Generate the full output following your exact format with all sections.`;
     <div style={{ minHeight: '100vh', background: 'rgba(255,255,255,0.03)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0d0d10', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', margin: 0 }}>Ads Studio</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>Meta-focused ad creative generator — Facebook, Instagram & beyond</p>
@@ -323,7 +323,7 @@ Generate the full output following your exact format with all sections.`;
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr 260px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
 
         {/* ── LEFT: Input Panel ────────────────────────────────────────── */}
-        <div style={{ background: '#0C1120', borderRight: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 18 }}>
+        <div style={{ background: '#0d0d10', borderRight: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 18 }}>
 
           {/* Product details */}
           <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 10 }}>Product Details</div>
@@ -442,8 +442,8 @@ Generate the full output following your exact format with all sections.`;
                   <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{productName} · {funnelStage} · {platforms.join(' + ')}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button onClick={generate} style={{ height: 30, padding: '0 12px', background: '#0C1120', color: '#2563EB', border: '1px solid #BFDBFE', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>↻ Regenerate</button>
-                  <button onClick={() => copyText(output, 'all')} style={{ height: 30, padding: '0 12px', background: '#0C1120', color: '#CBD5E1', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{copied === 'all' ? '✓ Copied' : 'Copy All'}</button>
+                  <button onClick={generate} style={{ height: 30, padding: '0 12px', background: '#0d0d10', color: '#2563EB', border: '1px solid #BFDBFE', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>↻ Regenerate</button>
+                  <button onClick={() => copyText(output, 'all')} style={{ height: 30, padding: '0 12px', background: '#0d0d10', color: '#CBD5E1', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{copied === 'all' ? '✓ Copied' : 'Copy All'}</button>
                   <button onClick={saveOutput} disabled={saving || saved} style={{ height: 30, padding: '0 12px', background: saved ? '#ECFDF5' : '#EFF6FF', color: saved ? '#059669' : '#2563EB', border: `1px solid ${saved ? '#6EE7B7' : '#BFDBFE'}`, borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: saving || saved ? 'default' : 'pointer' }}>
                     {saved ? '✓ Saved' : saving ? 'Saving…' : '💾 Save'}
                   </button>
@@ -483,7 +483,7 @@ Generate the full output following your exact format with all sections.`;
         </div>
 
         {/* ── RIGHT: Saved Outputs ─────────────────────────────────────── */}
-        <div style={{ background: '#0C1120', borderLeft: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 14 }}>
+        <div style={{ background: '#0d0d10', borderLeft: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 14 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 10 }}>Saved Creatives</div>
           {savedOutputs.length === 0 ? (
             <div>

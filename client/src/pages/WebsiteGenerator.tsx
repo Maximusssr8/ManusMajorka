@@ -175,7 +175,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
   <style>
     :root { --primary: {primaryColor}; --accent: {primaryColor}; --text: #1a1a1a; --bg: #ffffff; --light: #f8f9fa; --border: #e9ecef; --dark: #111827; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); }
+    body { font-family: 'DM Sans', system-ui, sans-serif; color: var(--text); background: var(--bg); }
     /* NAV */
     nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px #E5E7EB; }
     .logo { font-weight: 900; font-size: 20px; color: var(--primary); letter-spacing: -0.5px; }
@@ -859,7 +859,7 @@ function FileTree({
           {folder !== '.' && (
             <button
               onClick={() => setExpanded((p) => ({ ...p, [folder]: !p[folder] }))}
-              className="flex items-center gap-1.5 w-full px-3 py-1 text-xs hover:bg-[#0C1120]/5 transition-colors"
+              className="flex items-center gap-1.5 w-full px-3 py-1 text-xs hover:bg-[#0d0d10]/5 transition-colors"
               style={{ color: 'rgba(240,237,232,0.55)', cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'DM Sans, sans-serif' }}
             >
               <FolderOpen size={12} style={{ color: '#6366F1' }} />
@@ -904,7 +904,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
-      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: '#0C1120', border: '1px solid #F0F0F0' }} onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: '#0d0d10', border: '1px solid #F0F0F0' }} onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4" style={{ color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}>
           <X size={18} />
         </button>
@@ -2638,7 +2638,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
   #majorka-toolbar .tb-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
   #majorka-toolbar .tb-edit { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: #6366F1; }
   #majorka-toolbar .tb-edit.active { background: rgba(99,102,241,0.22); border-color: #6366F1; }
-  #majorka-toolbar .tb-save { background: #0C1120; border: 1px solid #F0F0F0; color: #374151; }
+  #majorka-toolbar .tb-save { background: #0d0d10; border: 1px solid #F0F0F0; color: #374151; }
   #majorka-toolbar .tb-save:hover { background: #F0F0F0; color: #fff; }
   #majorka-toolbar .tb-color-wrap { display: flex; align-items: center; gap: 6px; }
   #majorka-toolbar .tb-color-label { font-size: 11px; color: #9CA3AF; }
@@ -2845,7 +2845,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       )}
 
       {/* Top bar */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
+      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
           <Globe size={15} style={{ color: '#6366F1' }} />
         </div>
@@ -2856,7 +2856,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       </div>
 
       {/* Mobile panel toggle */}
-      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
+      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}>
         {(['form','preview'] as const).map((p) => (
           <button key={p} onClick={() => setMobilePanel(p)}
             className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
@@ -2869,7 +2869,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       {/* Body */}
       <div className="flex-1 overflow-auto flex flex-col md:flex-row">
         {/* ── LEFT PANEL ── */}
-        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid #F0F0F0', borderBottom: '1px solid #F0F0F0', scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.1) transparent', background: '#0C1120' }}>
+        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid #F0F0F0', borderBottom: '1px solid #F0F0F0', scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.1) transparent', background: '#0d0d10' }}>
 
           {/* 3-Step Wizard Indicator */}
           <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 24, padding: "0 4px" }}>
@@ -2895,7 +2895,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* Design Template Selector */}
-          <div className="rounded-xl p-4" style={{ background: '#0C1120', border: '1px solid #F0F0F0', position: 'relative' as const }}>
+          <div className="rounded-xl p-4" style={{ background: '#0d0d10', border: '1px solid #F0F0F0', position: 'relative' as const }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Design Template</div>
             <div style={isMobile ? { display: 'flex', gap: 8, overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: 4, scrollbarWidth: 'none' } : { display: 'flex', flexDirection: 'column', gap: 6 }}>
               {WEBSITE_TEMPLATES.map((t) => {
@@ -2948,7 +2948,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               const ht = WEBSITE_TEMPLATES.find(t => t.id === hoveredTemplate);
               if (!ht) return null;
               return (
-                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}>{ht.name}</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
                     {[ht.palette.bg, ht.palette.accent, ht.palette.text].map((c, i) => (
@@ -3066,7 +3066,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAnalyzeProduct(); } }}
                 placeholder="https://aliexpress.com/item/..."
                 className="flex-1 text-sm rounded-lg outline-none"
-                style={{ height: 44, padding: '0 16px', background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#F8FAFC' }}
+                style={{ height: 44, padding: '0 16px', background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#F8FAFC' }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
               />
@@ -3404,9 +3404,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Platform</label>
             <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid #F5F5F5', color: '#F8FAFC', cursor: 'pointer' }}>
-              <option value="shopify" style={{ background: '#0C1120' }}>Shopify</option>
-              <option value="nextjs" style={{ background: '#0C1120' }}>Next.js</option>
-              <option value="react" style={{ background: '#0C1120' }}>React</option>
+              <option value="shopify" style={{ background: '#0d0d10' }}>Shopify</option>
+              <option value="nextjs" style={{ background: '#0d0d10' }}>Next.js</option>
+              <option value="react" style={{ background: '#0d0d10' }}>React</option>
             </select>
           </div>
 
@@ -3646,7 +3646,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {hasOutput ? (
             <>
               {/* Tab bar */}
-              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
+              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -3680,7 +3680,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {activeTab === 'preview' && (
                   <div className="relative h-full flex flex-col overflow-hidden">
                     {/* Toolbar */}
-                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}>
+                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}>
                       <button onClick={handleOpenPreviewNewTab} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                         <ExternalLink size={11} /> Open in new tab
                       </button>
@@ -4319,7 +4319,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         return (
           <div style={{
             height: 44, borderTop: '1px solid rgba(255,255,255,0.06)',
-            background: '#0C1120', display: 'flex', alignItems: 'center',
+            background: '#0d0d10', display: 'flex', alignItems: 'center',
             paddingLeft: 16, paddingRight: 16, gap: 10, flexShrink: 0,
             boxShadow: '0 -1px 4px #F9FAFB',
           }}>

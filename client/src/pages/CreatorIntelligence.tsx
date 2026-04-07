@@ -470,7 +470,7 @@ export default function CreatorIntelligence() {
 
   return (
     <ErrorBoundary fallback={errorFallback}>
-    <div className="page-transition" style={{ background: '#05070F', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: "'Inter', -apple-system, sans-serif" }}>
+    <div className="page-transition" style={{ background: '#05070F', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: "'DM Sans', system-ui, sans-serif" }}>
 
       {/* ===== 1. DARK HERO BANNER ===== */}
       <div style={{
@@ -579,7 +579,7 @@ export default function CreatorIntelligence() {
               placeholder="Search creators..."
               style={{
                 width: '100%', height: 36, padding: '0 12px 0 32px', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 10, fontSize: 13, color: '#CBD5E1', background: '#0E1420',
+                borderRadius: 10, fontSize: 13, color: '#CBD5E1', background: '#111114',
                 boxSizing: 'border-box' as const, outline: 'none', fontFamily: dmSans,
               }}
             />
@@ -617,7 +617,7 @@ export default function CreatorIntelligence() {
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} style={{ background: '#0E1420', borderRadius: 12, padding: 20, border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div key={i} style={{ background: '#111114', borderRadius: 12, padding: 20, border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#F0F0F0', animation: 'pulse 1.5s ease-in-out infinite' }} />
                     <div style={{ flex: 1 }}>
@@ -631,7 +631,7 @@ export default function CreatorIntelligence() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
+            <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
               <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F1F5F9', marginBottom: 8 }}>Creator data refreshing</div>
               <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 20, maxWidth: 380, margin: '0 auto 20px' }}>Our system syncs TikTok creator data every 6 hours. Check back soon — or try the Video Intel tab to browse trending content now.</div>
               <a href="/app/videos" style={{ display: 'inline-block', height: 38, lineHeight: '38px', padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}>
@@ -720,7 +720,7 @@ export default function CreatorIntelligence() {
             </div>
           ) : (
             /* Selected creator detail */
-            <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 20 }}>
+            <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 20 }}>
               <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',

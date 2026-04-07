@@ -571,7 +571,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                         navigator.clipboard.writeText(mapData.insights.join('\n'));
                         toast.success('Copied!');
                       }}
-                      className="p-1 rounded hover:bg-[#0C1120]/5 transition-colors"
+                      className="p-1 rounded hover:bg-[#0d0d10]/5 transition-colors"
                     >
                       <Copy className="w-3 h-3" style={{ color: '#9CA3AF' }} />
                     </button>

@@ -101,7 +101,7 @@ function SectionCard({
   return (
     <div
       className="rounded-2xl overflow-hidden mb-4"
-      style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)' }}
+      style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <button
         onClick={() => setOpen(!open)}
@@ -290,14 +290,14 @@ Generate a full competitive intelligence report as JSON.`;
   };
 
   return (
-    <div className="flex h-full" style={{ background: '#060A12' }}>
+    <div className="flex h-full" style={{ background: '#0a0a0a' }}>
       {/* ── Left Panel ── */}
       <div
         className="flex flex-col flex-shrink-0 overflow-y-auto"
         style={{
           width: '320px',
           borderRight: '1px solid rgba(255,255,255,0.08)',
-          background: '#0E1420',
+          background: '#111114',
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(255,255,255,0.1) transparent',
         }}

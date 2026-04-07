@@ -485,7 +485,7 @@ export default function AIChat() {
               )}
               <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: msg.role === "user" ? "70%" : "75%" }}>
                 <div
-                  className={msg.role === "user" ? "rounded-xl px-4 py-3" : "bg-[#0C1120]/[0.04] rounded-xl px-4 py-3"}
+                  className={msg.role === "user" ? "rounded-xl px-4 py-3" : "bg-[#0d0d10]/[0.04] rounded-xl px-4 py-3"}
                   style={msg.role === "user" ? {
                     background: 'rgba(99,102,241,0.2)',
                     border: '1px solid rgba(99,102,241,0.2)',
@@ -519,7 +519,7 @@ export default function AIChat() {
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
             <textarea
               ref={textareaRef}
-              className="w-full bg-[#0C1120]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-indigo-500/50 resize-none transition-all maya-textarea"
+              className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-indigo-500/50 resize-none transition-all maya-textarea"
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}

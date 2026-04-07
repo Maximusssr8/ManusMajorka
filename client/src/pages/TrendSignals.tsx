@@ -327,7 +327,7 @@ export default function TrendSignals() {
               .map((p, idx) => (
                 <div key={p.id || p.name + '-top'}
                   style={{
-                    flexShrink: 0, width: 160, background: '#0C1120',
+                    flexShrink: 0, width: 160, background: '#0d0d10',
                     border: `1px solid ${idx === 0 ? '#6366F1' : '#E5E7EB'}`,
                     borderRadius: 10, overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.15s',
                   }}
@@ -386,9 +386,9 @@ export default function TrendSignals() {
           return (
             <select value={nicheFilter} onChange={e => { setNicheFilter(e.target.value); setPage(1); }}
               style={{ padding: '7px 10px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto' }}>
-              <option value="All Niches" style={{ background: '#0C1120' }}>All Niches ({products.length})</option>
+              <option value="All Niches" style={{ background: '#0d0d10' }}>All Niches ({products.length})</option>
               {ALL_NICHES.filter(n => n !== 'All Niches').map(n => (
-                <option key={n} value={n} style={{ background: '#0C1120' }}>
+                <option key={n} value={n} style={{ background: '#0d0d10' }}>
                   {n} {nicheCounts[n] ? `(${nicheCounts[n]})` : ''}
                 </option>
               ))}
@@ -672,7 +672,7 @@ export default function TrendSignals() {
                             navigate(`/app/suppliers?${sparams.toString()}`);
                           }}
                           style={{
-                            height: 28, padding: '0 12px', background: '#0C1120', color: '#6366F1',
+                            height: 28, padding: '0 12px', background: '#0d0d10', color: '#6366F1',
                             border: '1px solid #6366F1', borderRadius: 6, fontSize: 12, fontWeight: 600,
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const,
                           }}
@@ -797,7 +797,7 @@ export default function TrendSignals() {
           .trend-cards-mobile { display: none !important; }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        th:hover { background: #0C1120 !important; }
+        th:hover { background: #0d0d10 !important; }
       `}</style>
     </div>
   );

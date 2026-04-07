@@ -344,7 +344,7 @@ export default function ProjectManager() {
                   return (
                     <div
                       key={ti}
-                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all hover:bg-[#0C1120]/[0.02]"
+                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all hover:bg-[#0d0d10]/[0.02]"
                       style={{
                         borderBottom:
                           ti < phase.tasks.length - 1 ? '1px solid #F9FAFB' : 'none',

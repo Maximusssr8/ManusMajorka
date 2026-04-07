@@ -134,7 +134,7 @@ export default function PublicProfitCalculator() {
 
   const numberInputStyle: React.CSSProperties = {
     fontFamily: dm,
-    background: '#0C1120',
+    background: '#0d0d10',
     border: '1px solid #F5F5F5',
     borderRadius: 8,
     color: C.text,
@@ -381,7 +381,7 @@ export default function PublicProfitCalculator() {
                 style={{
                   width: '100%',
                   fontFamily: dm,
-                  background: '#0C1120',
+                  background: '#0d0d10',
                   border: '1px solid #F5F5F5',
                   borderRadius: 8,
                   color: C.text,

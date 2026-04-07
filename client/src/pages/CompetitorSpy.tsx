@@ -309,7 +309,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
   }
 
   return (
-    <div className="min-h-full" style={{ background: 'var(--content-bg, #060A12)', color: 'var(--cell-text, #F1F5F9)' }}>
+    <div className="min-h-full" style={{ background: 'var(--content-bg, #0a0a0a)', color: 'var(--cell-text, #F1F5F9)' }}>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: 'var(--border-color, rgba(255,255,255,0.08))' }}>
         <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--cell-text, #F1F5F9)' }}>Competitor Spy</h1>
@@ -323,7 +323,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         {user && (
           <aside
             className="hidden lg:flex flex-col w-56 flex-shrink-0 p-4 border-r"
-            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0B0F1E' }}
+            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0a0a0a' }}
           >
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#94A3B8' }}>Watchlist</p>
             {watchlist.length === 0 ? (
@@ -481,7 +481,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 </div>
                 {/* Blurred mock UI */}
                 <div style={{
-                  background: '#0C1120', border: '1px solid rgba(255,255,255,0.07)',
+                  background: '#0d0d10', border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 12, padding: 24, opacity: 0.5,
                 }}>
                   <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
@@ -638,7 +638,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 </div>
                 {/* Blurred mock UI */}
                 <div style={{
-                  background: '#0C1120', border: '1px solid rgba(255,255,255,0.07)',
+                  background: '#0d0d10', border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 12, padding: 24, opacity: 0.5,
                 }}>
                   <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />

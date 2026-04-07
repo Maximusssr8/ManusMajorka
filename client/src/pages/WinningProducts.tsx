@@ -92,10 +92,10 @@ interface WinningProduct {
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const C = {
-  bg: '#060A12',
-  card: '#0E1420',
+  bg: '#0a0a0a',
+  card: '#111114',
   cardHover: 'rgba(255,255,255,0.05)',
-  surface: '#0E1420',
+  surface: '#111114',
   border: 'rgba(255,255,255,0.08)',
   gold: '#818CF8',
   goldHover: '#6366F1',
@@ -568,7 +568,7 @@ function Top5Rankings({
                   width: 40,
                   height: 40,
                   borderRadius: 8,
-                  background: '#0E1420',
+                  background: '#111114',
                   border: `1px solid ${C.border}`,
                   flexShrink: 0,
                   display: 'flex',
@@ -780,7 +780,7 @@ Be specific, opinionated, use AUD figures.`;
           right: 0,
           bottom: 0,
           width: 'min(480px, 100vw)',
-          background: '#0E1420',
+          background: '#111114',
           borderLeft: `1px solid ${C.glassBorder}`,
           zIndex: 999,
           overflowY: 'auto',
@@ -803,7 +803,7 @@ Be specific, opinionated, use AUD figures.`;
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to bottom, transparent 40%, #0E1420 100%)',
+                background: 'linear-gradient(to bottom, transparent 40%, #111114 100%)',
               }}
             />
             <button
@@ -1082,7 +1082,7 @@ Be specific, opinionated, use AUD figures.`;
                   />
                   <RechartTooltip
                     contentStyle={{
-                      background: '#0E1420',
+                      background: '#111114',
                       border: `1px solid ${C.goldBorder}`,
                       borderRadius: 8,
                       fontSize: 12,
@@ -1507,7 +1507,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
         width: 'min(560px, 96vw)',
         maxHeight: '85vh',
         overflowY: 'auto',
-        background: '#0E1420',
+        background: '#111114',
         border: `1px solid ${C.goldBorder}`,
         borderRadius: 20,
         zIndex: 1001,
@@ -1900,7 +1900,7 @@ function ProductCard({
         style={{
           position: 'relative',
           height: 160,
-          background: '#0E1420',
+          background: '#111114',
           overflow: 'hidden',
         }}
       >
@@ -2794,7 +2794,7 @@ function CardGrid({
           <div style={{
             padding: '48px 24px',
             textAlign: 'center',
-            background: '#0E1420',
+            background: '#111114',
             border: '1px solid #F0F0F0',
             borderRadius: 16,
             marginBottom: 24,
@@ -3306,7 +3306,7 @@ function WinningProducts() {
   const showExportLockedToast = () => {
     toast('🔒 Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.', {
       duration: 5000,
-      style: { background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', color: '#CBD5E1', fontSize: 13 },
+      style: { background: '#111114', border: '1px solid rgba(255,255,255,0.1)', color: '#CBD5E1', fontSize: 13 },
       action: { label: 'Upgrade Now →', onClick: () => window.location.assign('/pricing') },
     });
   };
@@ -3935,7 +3935,7 @@ function WinningProducts() {
                             Upgrade Now →
                           </button>
                         </div>,
-                        { duration: 5000, style: { background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', color: '#CBD5E1' } }
+                        { duration: 5000, style: { background: '#111114', border: '1px solid rgba(255,255,255,0.1)', color: '#CBD5E1' } }
                       );
                       return;
                     }
@@ -4302,7 +4302,7 @@ function WinningProducts() {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 990,
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.1), #0E1420)',
+            background: 'linear-gradient(135deg, rgba(99,102,241,0.1), #111114)',
             border: `1px solid ${C.goldBorder}`,
             borderRadius: 16,
             padding: '14px 24px',

@@ -698,7 +698,7 @@ export default function MyProducts() {
                               savedAt: Date.now(),
                             })
                           }
-                          className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-[#0C1120]/5"
+                          className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-[#0d0d10]/5"
                           style={{
                             cursor: 'pointer',
                             color: '#9CA3AF',
@@ -710,7 +710,7 @@ export default function MyProducts() {
                       )}
                       <button
                         onClick={() => startEdit(p)}
-                        className="p-1.5 rounded-lg transition-all hover:bg-[#0C1120]/5"
+                        className="p-1.5 rounded-lg transition-all hover:bg-[#0d0d10]/5"
                         style={{ cursor: 'pointer', color: '#9CA3AF' }}
                       >
                         <Pencil size={12} />
@@ -733,7 +733,7 @@ export default function MyProducts() {
                           </button>
                           <button
                             onClick={() => setPendingDeleteId(null)}
-                            className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-[#0C1120]/5"
+                            className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-[#0d0d10]/5"
                             style={{ color: '#9CA3AF', cursor: 'pointer' }}
                           >
                             Cancel
@@ -742,7 +742,7 @@ export default function MyProducts() {
                       ) : (
                         <button
                           onClick={() => setPendingDeleteId(String(p.id))}
-                          className="p-1.5 rounded-lg transition-all hover:bg-[#0C1120]/5"
+                          className="p-1.5 rounded-lg transition-all hover:bg-[#0d0d10]/5"
                           style={{ cursor: 'pointer', color: 'rgba(255,100,100,0.6)' }}
                         >
                           <Trash2 size={12} />

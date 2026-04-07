@@ -367,7 +367,7 @@ export default function AIToolChat({
                               background: 'rgba(255,100,100,0.12)',
                               border: '1px solid rgba(255,100,100,0.2)',
                             }
-                          : { background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)' }
+                          : { background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)' }
                     }
                   >
                     <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -394,7 +394,7 @@ export default function AIToolChat({
                   </div>
                   <div
                     className="rounded-lg px-4 py-3"
-                    style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     <div className="flex items-center gap-2">
                       {/* Pulsing gold dot */}
@@ -499,7 +499,7 @@ export default function AIToolChat({
                   <div className="flex justify-center pt-1 pb-2">
                     <button
                       onClick={handleRegenerate}
-                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-[#0C1120]/5"
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-[#0d0d10]/5"
                       style={{
                         color: '#9CA3AF',
                         cursor: 'pointer',
@@ -539,7 +539,7 @@ export default function AIToolChat({
                 className="resize-none text-sm"
                 rows={1}
                 style={{
-                  background: '#0C1120',
+                  background: '#0d0d10',
                   borderColor: '#F0F0F0',
                   overflowY: 'auto',
                   maxHeight: '200px',
@@ -600,7 +600,7 @@ export default function AIToolChat({
                 </span>
                 <button
                   onClick={() => setShowPreview(!showPreview)}
-                  className="text-xs px-2 py-1 rounded hover:bg-[#0C1120]/5 transition-colors"
+                  className="text-xs px-2 py-1 rounded hover:bg-[#0d0d10]/5 transition-colors"
                   style={{ color: '#6366F1' }}
                 >
                   {showPreview ? 'Code' : 'Preview'}

@@ -94,7 +94,7 @@ export default function Blog() {
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 24px 80px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 24 }}>
           {POSTS.map((post, idx) => (
-            <article key={post.slug} style={{ background: '#0C1120', borderRadius: 16, border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E5E7EB'}`, padding: '28px 32px', transition: 'box-shadow 200ms, transform 200ms', position: 'relative' as const }}
+            <article key={post.slug} style={{ background: '#0d0d10', borderRadius: 16, border: `1px solid ${idx === 0 ? '#C7D2FE' : '#E5E7EB'}`, padding: '28px 32px', transition: 'box-shadow 200ms, transform 200ms', position: 'relative' as const }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.08)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}>
               {/* Coming soon badge */}
@@ -116,7 +116,7 @@ export default function Blog() {
         </div>
 
         {/* Coming soon */}
-        <div style={{ textAlign: 'center', marginTop: 48, padding: '32px', background: '#0C1120', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ textAlign: 'center', marginTop: 48, padding: '32px', background: '#0d0d10', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>✍️</div>
           <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F8FAFC', marginBottom: 8 }}>More guides coming soon</div>
           <p style={{ fontSize: 14, color: '#94A3B8', marginBottom: 20 }}>Weekly product research, supplier insights, and market data — straight to your inbox.</p>

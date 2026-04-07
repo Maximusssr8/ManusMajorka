@@ -1682,7 +1682,7 @@ export default function LearnHub() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: '#060A12', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#0a0a0a', fontFamily: 'DM Sans, sans-serif' }}
     >
       {/* Confetti */}
       <ConfettiBurst active={confettiActive} />

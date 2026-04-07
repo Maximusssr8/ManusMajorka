@@ -106,20 +106,20 @@ export function HeroDemo() {
   if (loading) {
     return (
       <div className="w-full max-w-[720px] mx-auto">
-        <div className="w-full rounded-xl border border-white/10 overflow-hidden" style={{ background: '#060A12', height: '398px' }}>
-          <div className="h-[38px] flex items-center gap-3 px-4" style={{ background: '#0B0F1E', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="w-full rounded-xl border border-white/10 overflow-hidden" style={{ background: '#0a0a0a', height: '398px' }}>
+          <div className="h-[38px] flex items-center gap-3 px-4" style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex gap-1.5">
               {['#FF5F57','#FFBD2E','#28C940'].map(c => <div key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />)}
             </div>
-            <div className="flex-1 h-5 rounded bg-[#0C1120]/[0.06] animate-pulse" />
+            <div className="flex-1 h-5 rounded bg-[#0d0d10]/[0.06] animate-pulse" />
           </div>
           <div className="flex h-[360px]">
-            <div className="w-[130px] h-full animate-pulse" style={{ background: '#0B0F1E', borderRight: '1px solid rgba(255,255,255,0.06)' }} />
+            <div className="w-[130px] h-full animate-pulse" style={{ background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.06)' }} />
             <div className="flex-1 p-4 space-y-3">
-              <div className="h-5 w-48 bg-[#0C1120]/[0.05] rounded animate-pulse" />
-              <div className="h-4 w-32 bg-[#0C1120]/[0.04] rounded animate-pulse" />
+              <div className="h-5 w-48 bg-[#0d0d10]/[0.05] rounded animate-pulse" />
+              <div className="h-4 w-32 bg-[#0d0d10]/[0.04] rounded animate-pulse" />
               <div className="mt-4 space-y-2">
-                {[...Array(4)].map((_, i) => <div key={i} className="h-12 bg-[#0C1120]/[0.03] rounded-lg animate-pulse" />)}
+                {[...Array(4)].map((_, i) => <div key={i} className="h-12 bg-[#0d0d10]/[0.03] rounded-lg animate-pulse" />)}
               </div>
             </div>
           </div>

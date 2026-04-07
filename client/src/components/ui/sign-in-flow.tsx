@@ -219,14 +219,14 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
             >
               <span
                 className="text-white font-bold text-sm"
-                style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}
+                style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
               >
                 M
               </span>
             </div>
             <span
               className="text-slate-100 font-bold text-xl"
-              style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}
+              style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
             >
               Majorka
             </span>
@@ -235,7 +235,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           {/* Brand statement */}
           <h2
             className="text-3xl font-bold leading-tight mb-4"
-            style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: 'white', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: 'white', letterSpacing: '-0.02em' }}
           >
             Your AI ecommerce
             <br />
@@ -286,7 +286,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   <Icon size={13} style={{ color: '#6366F1' }} />
                   <span
                     className="text-lg font-bold"
-                    style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: 'white' }}
+                    style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: 'white' }}
                   >
                     {stat}
                   </span>
@@ -320,12 +320,12 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           >
             <span
               className="text-white font-bold text-sm"
-              style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}
+              style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
             >
               M
             </span>
           </div>
-          <span className="text-slate-100 font-bold text-xl" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+          <span className="text-slate-100 font-bold text-xl" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
             Majorka
           </span>
         </div>
@@ -345,7 +345,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 <div className="text-center lg:text-left space-y-1">
                   <h1
                     className="text-3xl font-bold tracking-tight"
-                    style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: '#F8FAFC' }}
+                    style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: '#F8FAFC' }}
                   >
                     {mode === 'signup' ? 'Create your account' : 'Welcome back'}
                   </h1>
@@ -557,7 +557,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       color: '#FAFAFA',
                       border: 'none',
                       cursor: loading ? 'wait' : 'pointer',
-                      fontFamily: "'Inter', -apple-system, sans-serif",
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
                     }}
                   >
                     {loading
@@ -623,7 +623,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 <div className="space-y-2">
                   <h1
                     className="text-3xl font-bold tracking-tight"
-                    style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: '#F8FAFC' }}
+                    style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: '#F8FAFC' }}
                   >
                     Check your email
                   </h1>
@@ -685,7 +685,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 <div className="space-y-2">
                   <h1
                     className="text-3xl font-bold tracking-tight"
-                    style={{ fontFamily: "'Inter', -apple-system, sans-serif", color: '#F8FAFC' }}
+                    style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: '#F8FAFC' }}
                   >
                     You're in!
                   </h1>
@@ -729,7 +729,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     border: 'none',
                     cursor: 'pointer',
-                    fontFamily: "'Inter', -apple-system, sans-serif",
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
                   }}
                 >
                   Continue to Dashboard

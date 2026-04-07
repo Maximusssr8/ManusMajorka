@@ -193,7 +193,7 @@ export default function StoreSpy() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: '#0C1120',
+    background: '#0d0d10',
     border: '1px solid #F9FAFB',
     borderRadius: 12,
     padding: 24,

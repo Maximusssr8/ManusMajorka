@@ -155,7 +155,7 @@ function HeroGeometric({
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0C1120]/[0.03] border border-white/[0.08] mb-8 md:mb-12"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0d0d10]/[0.03] border border-white/[0.08] mb-8 md:mb-12"
           >
             <Circle className="h-2 w-2 fill-amber-400/80" />
             <TextShimmer className="text-sm tracking-wide" duration={2.5}>

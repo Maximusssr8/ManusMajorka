@@ -190,7 +190,7 @@ export default function KeywordMiner() {
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -279,7 +279,7 @@ export default function KeywordMiner() {
                 }}
               >
                 {['Google', 'Amazon', 'Meta Ads', 'TikTok'].map((p) => (
-                  <option key={p} value={p} style={{ background: '#0C1120' }}>
+                  <option key={p} value={p} style={{ background: '#0d0d10' }}>
                     {p}
                   </option>
                 ))}
@@ -303,7 +303,7 @@ export default function KeywordMiner() {
                 }}
               >
                 {['Australia', 'United States', 'United Kingdom', 'Global'].map((m) => (
-                  <option key={m} value={m} style={{ background: '#0C1120' }}>
+                  <option key={m} value={m} style={{ background: '#0d0d10' }}>
                     {m}
                   </option>
                 ))}
@@ -436,7 +436,7 @@ export default function KeywordMiner() {
                   {sortedKeywords.map((kw, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-[#0C1120]/[0.02] transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-[#0d0d10]/[0.02] transition-colors"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold" style={{ color: '#CBD5E1' }}>

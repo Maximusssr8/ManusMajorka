@@ -336,7 +336,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: '#0C1120',
+        background: '#0d0d10',
         border: '1px solid rgba(255,255,255,0.08)',
       }}
     >
@@ -564,7 +564,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="rounded-2xl p-5 space-y-4"
       style={{
-        background: '#0C1120',
+        background: '#0d0d10',
         border: '1px solid rgba(255,255,255,0.08)',
       }}
     >

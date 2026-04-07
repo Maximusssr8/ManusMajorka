@@ -93,7 +93,7 @@ function LaunchPack() {
   const hasPack = Object.keys(pack).length > 0;
 
   return (
-    <div style={{ background: '#0C1120', border: '1.5px solid #6366F1', borderRadius: 16, overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(99,102,241,0.08)' }}>
+    <div style={{ background: '#0d0d10', border: '1.5px solid #6366F1', borderRadius: 16, overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(99,102,241,0.08)' }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
@@ -133,7 +133,7 @@ function LaunchPack() {
           <div>
             <label style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', display: 'block', marginBottom: 4, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Market</label>
             <select value={region} onChange={e => setRegion(e.target.value)}
-              style={{ height: 40, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#0C1120', cursor: 'pointer' }}>
+              style={{ height: 40, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#0d0d10', cursor: 'pointer' }}>
               {[['AU','🇦🇺 AU'],['US','🇺🇸 US'],['UK','🇬🇧 UK'],['CA','🇨🇦 CA']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
@@ -185,7 +185,7 @@ function LaunchPack() {
 // ── Individual tool card ───────────────────────────────────────────────────
 function ToolCard({ icon, title, desc, children }: { icon: string; title: string; desc: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+    <div style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
       <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 20 }}>{icon}</span>
@@ -269,7 +269,7 @@ function DescriptionTool() {
         <textarea value={features} onChange={e => setFeatures(e.target.value)} rows={2} placeholder="Key features (2-3 bullet points)"
           style={{ padding: '10px 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 12, background: '#05070F', color: '#F8FAFC', resize: 'none' as const, fontFamily: 'inherit' }} />
         <select value={audience} onChange={e => setAudience(e.target.value)}
-          style={{ height: 38, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#0C1120', cursor: 'pointer', color: '#CBD5E1' }}>
+          style={{ height: 38, padding: '0 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#0d0d10', cursor: 'pointer', color: '#CBD5E1' }}>
           {['US Shoppers (General)','AU Shoppers (General)','Beauty Enthusiasts','Fitness & Health','Pet Owners','Tech Lovers','Home Improvers'].map(a => <option key={a}>{a}</option>)}
         </select>
         <button onClick={run} disabled={loading || !product.trim()}
@@ -432,7 +432,7 @@ export default function GrowthTools() {
   return (
     <div style={{ background: '#05070F', minHeight: '100vh' }}>
       {/* Header */}
-      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px' }}>
+      <div style={{ background: '#0d0d10', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px' }}>
         <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', margin: 0 }}>Growth Tools</h1>
         <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>AI-powered marketing tools — from one product to a full launch kit</p>
       </div>

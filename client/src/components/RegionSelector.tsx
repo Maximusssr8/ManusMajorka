@@ -50,7 +50,7 @@ export function RegionSelector() {
         {open && (
           <div style={{
             position: 'absolute' as const, top: '100%', right: 0, zIndex: 200,
-            background: '#0E1420', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
+            background: '#111114', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
             boxShadow: '0 8px 32px rgba(0,0,0,0.5)', overflow: 'hidden',
             minWidth: 200, marginTop: 6,
           }}>

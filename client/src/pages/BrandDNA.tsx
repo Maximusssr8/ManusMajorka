@@ -307,7 +307,7 @@ Generate a comprehensive brand identity document as JSON.`;
           style={{
             width: '320px',
             borderRight: '1px solid #E5E7EB',
-            background: '#0C1120',
+            background: '#0d0d10',
             scrollbarWidth: 'thin',
             scrollbarColor: '#F0F0F0 transparent',
           }}

@@ -1415,3 +1415,10 @@ Default region: **US** (Majorka is now global-first)
 
 ### Currency display
 Use `formatPrice(usdAmount)` from `useRegion()` — auto-converts from USD to user's currency.
+
+
+## Output Rules
+- After completing tasks: one line per task maximum, ✅/❌ only
+- No diffs, no tables, no implementation details, no "what changed"
+- No git output, no build output, no file previews
+- End with: "Done. Deployed." or "Blocked: [one line reason]"

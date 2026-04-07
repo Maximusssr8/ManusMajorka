@@ -272,7 +272,7 @@ export function ProductDeepDive({ product, onClose }: ProductDeepDiveProps) {
               fontWeight: 600,
               cursor: 'pointer',
               transition: 'background 150ms',
-              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontFamily: "'DM Sans', system-ui, sans-serif",
             }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.12)';

@@ -180,7 +180,7 @@ export default function RevenuePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #030608 0%, #080C18 35%, #060A12 100%)', color: '#fff', fontFamily: geist, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 80px)' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #030608 0%, #080C18 35%, #0a0a0a 100%)', color: '#fff', fontFamily: geist, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 80px)' }}>
 
       <style>{`
         @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }

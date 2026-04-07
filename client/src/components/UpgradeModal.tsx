@@ -31,7 +31,7 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
       padding: 16,
     }} onClick={onClose}>
       <div style={{
-        background: '#0C1120', borderRadius: 20, padding: 32,
+        background: '#0d0d10', borderRadius: 20, padding: 32,
         maxWidth: 480, width: '100%', position: 'relative',
         boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
       }} onClick={e => e.stopPropagation()}>

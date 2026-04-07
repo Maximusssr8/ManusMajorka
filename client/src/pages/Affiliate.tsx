@@ -144,7 +144,7 @@ export default function Affiliate() {
                 Your referral link
               </label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, background: '#0C1120', border: `1px solid ${C.goldBorder}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: C.gold, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
+                <div style={{ flex: 1, background: '#0d0d10', border: `1px solid ${C.goldBorder}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: C.gold, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
                   {referralLink}
                 </div>
                 <button

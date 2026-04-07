@@ -142,7 +142,7 @@ export default function StreakWidget() {
         >
           <div
             style={{
-              background: '#0C1120',
+              background: '#0d0d10',
               border: `1px solid ${C.goldBorder}`,
               borderRadius: 20,
               padding: '40px 48px',

@@ -1,10 +1,10 @@
 export const tokens = {
   bg: {
-    page: '#060A12',
+    page: '#0a0a0a',
     card: '#0D1424',
     elevated: '#111B2E',
     surface: '#172038',
-    sidebar: '#0B0F1E',
+    sidebar: '#0a0a0a',
     input: 'rgba(255,255,255,0.05)',
     hover: 'rgba(255,255,255,0.03)',
     badge: 'rgba(255,255,255,0.06)',

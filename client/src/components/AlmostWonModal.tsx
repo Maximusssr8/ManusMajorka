@@ -104,7 +104,7 @@ export default function AlmostWonModal() {
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: '#0C1120',
+            background: '#0d0d10',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 20,
             padding: '40px 36px',

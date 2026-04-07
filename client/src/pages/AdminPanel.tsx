@@ -167,7 +167,7 @@ function ConfirmDialog({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         style={{
-          background: '#0C1120',
+          background: '#0d0d10',
           border: '1px solid #F0F0F0',
           borderRadius: 16,
           padding: 32,
@@ -639,16 +639,16 @@ export default function AdminPanel() {
                         outline: 'none',
                       }}
                     >
-                      <option value="all" style={{ background: '#0C1120' }}>
+                      <option value="all" style={{ background: '#0d0d10' }}>
                         All Plans
                       </option>
-                      <option value="starter" style={{ background: '#0C1120' }}>
+                      <option value="starter" style={{ background: '#0d0d10' }}>
                         Starter
                       </option>
-                      <option value="builder" style={{ background: '#0C1120' }}>
+                      <option value="builder" style={{ background: '#0d0d10' }}>
                         Builder
                       </option>
-                      <option value="scale" style={{ background: '#0C1120' }}>
+                      <option value="scale" style={{ background: '#0d0d10' }}>
                         Scale
                       </option>
                     </select>
@@ -837,7 +837,7 @@ export default function AdminPanel() {
                                             position: 'absolute',
                                             top: 'calc(100% + 4px)',
                                             left: 0,
-                                            background: '#0C1120',
+                                            background: '#0d0d10',
                                             border: '1px solid #F0F0F0',
                                             borderRadius: 8,
                                             zIndex: 100,
@@ -1016,7 +1016,7 @@ export default function AdminPanel() {
                           <YAxis hide />
                           <Tooltip
                             contentStyle={{
-                              background: '#0C1120',
+                              background: '#0d0d10',
                               border: '1px solid #F0F0F0',
                               borderRadius: 8,
                               color: '#F8FAFC',
@@ -1456,7 +1456,7 @@ export default function AdminPanel() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               style={{
-                background: '#0C1120',
+                background: '#0d0d10',
                 border: '1px solid #F0F0F0',
                 borderRadius: 16,
                 padding: 32,

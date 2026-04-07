@@ -224,7 +224,7 @@ export default function SaturationChecker() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: '#0C1120',
+    background: '#0d0d10',
     border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 16,
     padding: '1.5rem',

@@ -273,7 +273,7 @@ export default function VideoIntelligence() {
     <div style={{ background: '#05070F', minHeight: '100vh' }}>
 
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0d0d10', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', margin: 0 }}>Video Intelligence</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>
@@ -288,7 +288,7 @@ export default function VideoIntelligence() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <DateRangeSelector value={dateRange} onChange={handleDateRange} />
           <button onClick={() => exportCSV(videos.map(v => ({ title: v.product_mentioned, niche: v.niche, format: v.format, engagement_signal: v.engagement_signal, hook_text: v.hook_text || '', url: v.url, region: v.region_code })), 'videos')}
-            style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0C1120', color: '#CBD5E1', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
+            style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0d0d10', color: '#CBD5E1', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
             ⬇ Export CSV
           </button>
           <button onClick={triggerRefresh} disabled={refreshing}
@@ -313,7 +313,7 @@ export default function VideoIntelligence() {
               onChange={e => handleSearchInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && searchInput.trim() && runSearch(searchInput.trim())}
               placeholder="Search product videos… e.g. 'dog cooling mat', 'LED face mask', 'posture corrector'"
-              style={{ width: '100%', height: 40, paddingLeft: 38, paddingRight: searchInput ? 36 : 12, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, color: '#F8FAFC', background: '#0C1120', outline: 'none', boxSizing: 'border-box' as const, fontFamily: '-apple-system, sans-serif' }}
+              style={{ width: '100%', height: 40, paddingLeft: 38, paddingRight: searchInput ? 36 : 12, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, color: '#F8FAFC', background: '#0d0d10', outline: 'none', boxSizing: 'border-box' as const, fontFamily: '-apple-system, sans-serif' }}
             />
             {searchInput && (
               <button onClick={clearSearch} style={{ position: 'absolute' as const, right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#9CA3AF', padding: 2 }}>✕</button>
@@ -359,7 +359,7 @@ export default function VideoIntelligence() {
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
               {searchResults.map((v, i) => (
               <a key={i} href={v.url || v.creatorProfileUrl || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
+                style={{ display: 'block', background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
                 {v.thumbnail && <img src={v.thumbnail} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' as const }} onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
                 <div style={{ padding: '10px 12px' }}>
                   <div style={{ fontSize: 12, color: '#F8FAFC', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
@@ -422,7 +422,7 @@ export default function VideoIntelligence() {
             {loading ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, height: 140, animation: 'pulse 1.5s infinite' }} />
+                  <div key={i} style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, height: 140, animation: 'pulse 1.5s infinite' }} />
                 ))}
               </div>
             ) : videos.length === 0 ? (
@@ -460,7 +460,7 @@ export default function VideoIntelligence() {
                   const sig = SIGNAL_META[v.engagement_signal] || SIGNAL_META.MEDIUM;
                   return (
                     <div key={v.id || i}
-                      style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', transition: 'box-shadow 150ms', cursor: 'pointer' }}
+                      style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', transition: 'box-shadow 150ms', cursor: 'pointer' }}
                       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB')}
                       onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
 
@@ -526,7 +526,7 @@ export default function VideoIntelligence() {
           </div>
 
           {/* ── MIDDLE: Hook Library ──────────────────────────────── */}
-          <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
               <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#F8FAFC' }}>🎣 Hook Library</div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Top opening lines that convert</div>
@@ -562,7 +562,7 @@ export default function VideoIntelligence() {
           </div>
 
           {/* ── RIGHT: AI Generator ───────────────────────────────── */}
-          <div style={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
             <div style={{ padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
               <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: '#F8FAFC' }}>🤖 AI Content Generator</div>
               <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Scripts, hooks & livestream outlines</div>

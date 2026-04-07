@@ -343,7 +343,7 @@ export default function MarketDashboard() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', 'Inter', sans-serif", fontWeight: 700, color: '#fff' }}>
+            <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif", fontWeight: 700, color: '#fff' }}>
               Market Intelligence
             </h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
@@ -379,7 +379,7 @@ export default function MarketDashboard() {
       </div>
 
       {/* Region switcher */}
-      <div style={{ background: '#0C1120', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94A3B8' }}>
+      <div style={{ background: '#0d0d10', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94A3B8' }}>
         <span>Viewing:</span>
         {['\u{1F30D} Global', '\u{1F1E6}\u{1F1FA} AU', '\u{1F1FA}\u{1F1F8} US', '\u{1F1EC}\u{1F1E7} UK'].map(r => {
           const isActive = r === activeMarket;

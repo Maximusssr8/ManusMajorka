@@ -106,7 +106,7 @@ export default function SocialProofTicker() {
         <div
           key={index}
           style={{
-            background: '#0C1120',
+            background: '#0d0d10',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             border: '1px solid rgba(255,255,255,0.08)',

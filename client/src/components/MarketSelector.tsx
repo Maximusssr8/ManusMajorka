@@ -55,7 +55,7 @@ export default function MarketSelector() {
         <div
           className="absolute bottom-full left-0 mb-1 w-full overflow-hidden"
           style={{
-            background: '#0C1120',
+            background: '#0d0d10',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 10,
             boxShadow: '0 -8px 32px rgba(0,0,0,0.1)',

@@ -81,7 +81,7 @@ export default function WelcomeModal({ userName }: Props) {
       <div
         className="relative w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
-          background: '#0E1420',
+          background: '#111114',
           border: '1px solid rgba(99,102,241,0.25)',
           borderRadius: 16,
           boxShadow: '0 32px 80px rgba(0,0,0,0.8)',
@@ -191,7 +191,7 @@ export default function WelcomeModal({ userName }: Props) {
                         {selected && (
                           <div
                             className="w-1.5 h-1.5 rounded-full"
-                            style={{ background: '#0C1120' }}
+                            style={{ background: '#0d0d10' }}
                           />
                         )}
                       </div>

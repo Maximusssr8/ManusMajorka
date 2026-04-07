@@ -226,7 +226,7 @@ export default function CopywriterTool() {
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0C1120' }}
+        style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0d0d10' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -357,7 +357,7 @@ export default function CopywriterTool() {
                 }}
               >
                 {FRAMEWORKS.map((f) => (
-                  <option key={f} value={f} style={{ background: '#0C1120' }}>
+                  <option key={f} value={f} style={{ background: '#0d0d10' }}>
                     {f}
                   </option>
                 ))}
