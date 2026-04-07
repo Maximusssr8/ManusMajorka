@@ -18,32 +18,32 @@ const SHIMMER = `
   100% { background-position: 300px 0; }
 }
 .mj-shim {
-  background: linear-gradient(90deg, #0f0f14 0%, #1a1a22 50%, #0f0f14 100%);
+  background: linear-gradient(90deg, #1c1c1c 0%, #1a1a22 50%, #1c1c1c 100%);
   background-size: 300px 100%;
   animation: mj-app-shim 1.4s linear infinite;
   border-radius: 4px;
   display: inline-block;
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); }
-  50% { box-shadow: 0 0 14px rgba(34,197,94,0.8), 0 0 24px rgba(34,197,94,0.2); }
+  0%, 100% { box-shadow: 0 0 6px rgba(16,185,129,0.4); }
+  50% { box-shadow: 0 0 14px rgba(16,185,129,0.8), 0 0 24px rgba(16,185,129,0.2); }
 }
 @keyframes score-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(16,185,129,0); }
 }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .majorka-row-hover { transition: background 100ms ease; cursor: pointer; }
-.majorka-row-hover:hover { background: rgba(99,102,241,0.06) !important; }
+.majorka-row-hover:hover { background: rgba(124,106,255,0.06) !important; }
 .majorka-btn { transition: all 150ms ease; }
 .majorka-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
 .majorka-btn:active { transform: scale(0.97); }
 .majorka-live-dot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: #22c55e;
+  background: #10b981;
   animation: pulse-glow 2s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -72,7 +72,7 @@ interface KpiCardData {
 function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
   return (
     <div style={{
-      background: '#0f0f14',
+      background: '#1c1c1c',
       border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 12,
       padding: '18px 20px',
@@ -189,16 +189,16 @@ export default function AppHome() {
   const tod = timeOfDay();
 
   const kpiCards: KpiCardData[] = [
-    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products', accentGlow: 'rgba(99,102,241,0.2)',  accentColor: '#6366f1' },
-    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',     accentGlow: 'rgba(239,68,68,0.15)',  accentColor: '#f97316' },
-    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',   accentGlow: 'rgba(34,197,94,0.15)',  accentColor: '#22c55e' },
+    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products', accentGlow: 'rgba(124,106,255,0.2)',  accentColor: '#7c6aff' },
+    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',     accentGlow: 'rgba(239,68,68,0.15)',  accentColor: '#f59e0b' },
+    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',   accentGlow: 'rgba(16,185,129,0.15)',  accentColor: '#10b981' },
     { label: 'TOP SCORE',      value: stats.topScore ? `${stats.topScore}/100` : '—', sub: 'Highest in database', accentGlow: 'rgba(168,85,247,0.15)', accentColor: '#a855f7' },
   ];
 
   const quickActions = [
-    { icon: '🔥', label: 'Top Trending',  sub: 'Products scoring 65+',  href: '/app/products', grad: 'linear-gradient(135deg,rgba(239,68,68,0.12),rgba(249,115,22,0.06))', border: 'rgba(239,68,68,0.2)',  arrow: '#f97316' },
-    { icon: '💰', label: 'Highest Margin', sub: 'Best profit potential', href: '/app/products', grad: 'linear-gradient(135deg,rgba(34,197,94,0.12),rgba(16,185,129,0.06))', border: 'rgba(34,197,94,0.2)',  arrow: '#22c55e' },
-    { icon: '⚡', label: 'New Products',  sub: 'Added last 24 hours',   href: '/app/products', grad: 'linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.06))', border: 'rgba(99,102,241,0.2)', arrow: '#818cf8' },
+    { icon: '🔥', label: 'Top Trending',  sub: 'Products scoring 65+',  href: '/app/products', grad: 'linear-gradient(135deg,rgba(239,68,68,0.12),rgba(245,158,11,0.06))', border: 'rgba(239,68,68,0.2)',  arrow: '#f59e0b' },
+    { icon: '💰', label: 'Highest Margin', sub: 'Best profit potential', href: '/app/products', grad: 'linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06))', border: 'rgba(16,185,129,0.2)',  arrow: '#10b981' },
+    { icon: '⚡', label: 'New Products',  sub: 'Added last 24 hours',   href: '/app/products', grad: 'linear-gradient(135deg,rgba(124,106,255,0.12),rgba(139,92,246,0.06))', border: 'rgba(124,106,255,0.2)', arrow: '#a78bfa' },
   ];
 
   return (
@@ -230,7 +230,7 @@ export default function AppHome() {
               lineHeight: 1.1,
             }}>
               Good {tod}, <span style={{
-                background: 'linear-gradient(135deg,#818cf8,#6366f1)',
+                background: 'linear-gradient(135deg,#a78bfa,#7c6aff)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>{firstName}</span>
@@ -242,14 +242,14 @@ export default function AppHome() {
             alignItems: 'center',
             gap: 8,
             padding: '10px 18px',
-            background: 'linear-gradient(135deg,#6366f1,#818cf8)',
+            background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
             color: 'white',
             borderRadius: 9,
             fontFamily: sans,
             fontSize: 13,
             fontWeight: 600,
             textDecoration: 'none',
-            boxShadow: '0 4px 20px rgba(99,102,241,0.35)',
+            boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
             transition: 'transform 120ms',
           }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-1px)'; }}
@@ -310,26 +310,26 @@ export default function AppHome() {
               alignItems: 'center',
               gap: 5,
               padding: '3px 10px',
-              background: 'rgba(34,197,94,0.1)',
-              border: '1px solid rgba(34,197,94,0.2)',
+              background: 'rgba(16,185,129,0.1)',
+              border: '1px solid rgba(16,185,129,0.2)',
               borderRadius: 999,
               fontFamily: mono,
               fontSize: 9,
-              color: '#22c55e',
+              color: '#10b981',
               fontWeight: 700,
             }}>● LIVE</span>
           </div>
           <Link href="/app/products" style={{
             fontFamily: sans,
             fontSize: 13,
-            color: '#6366f1',
+            color: '#7c6aff',
             textDecoration: 'none',
             fontWeight: 500,
           }}>View all {total > 0 ? total.toLocaleString() : ''} →</Link>
         </div>
 
         <div style={{
-          background: '#0c0c10',
+          background: '#1c1c1c',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 14,
           overflow: 'hidden',
@@ -340,7 +340,7 @@ export default function AppHome() {
             gridTemplateColumns: COLS,
             gap: 14,
             padding: '10px 16px',
-            background: '#111118',
+            background: '#222222',
             borderBottom: '1px solid rgba(255,255,255,0.06)',
           }}>
             {HEADERS.map((h, i) => (
@@ -372,7 +372,7 @@ export default function AppHome() {
               return (
                 <div
                   key={p.id}
-                  className="majorka-row-hover"
+                  className="mj-row mj-row-hover"
                   onClick={() => setSelectedProduct(p)}
                   style={{
                     display: 'grid',
@@ -381,9 +381,6 @@ export default function AppHome() {
                     padding: '12px 16px',
                     alignItems: 'center',
                     borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
-                    animation: 'fadeUp 300ms ease forwards',
-                    animationDelay: `${i * 40}ms`,
-                    opacity: 0,
                   }}
                 >
                   <span style={{ fontFamily: mono, fontSize: 12, color: '#3f3f52' }}>{String(i + 1).padStart(2, '0')}</span>
@@ -412,22 +409,25 @@ export default function AppHome() {
                     width: 'fit-content',
                   }}>{p.category ?? '—'}</span>
                   <span>
-                    <span style={{
-                      background: sp.background,
-                      color: sp.color,
-                      fontFamily: mono,
-                      fontSize: 12,
-                      fontWeight: 700,
-                      padding: '3px 9px',
-                      borderRadius: 999,
-                      display: 'inline-block',
-                      animation: score >= 95 ? 'score-pulse 2s ease-in-out infinite' : 'none',
-                    }}>{score || '—'}</span>
+                    <span
+                      className={score >= 95 ? 'mj-score-hot' : ''}
+                      style={{
+                        background: sp.background,
+                        color: sp.color,
+                        border: sp.border,
+                        fontFamily: mono,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        padding: '3px 9px',
+                        borderRadius: 999,
+                        display: 'inline-block',
+                      }}
+                    >{score || '—'}</span>
                   </span>
                   <span style={{
                     fontFamily: mono,
                     fontSize: 13,
-                    color: orders > 0 ? '#22c55e' : '#3f3f52',
+                    color: orders > 0 ? '#10b981' : '#3f3f52',
                   }}>{orders > 0 ? orders.toLocaleString() : '—'}</span>
                   <span style={{
                     fontFamily: mono,

@@ -52,7 +52,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           <span style={{
             fontFamily: mono,
             fontSize: 11,
-            color: '#6366F1',
+            color: '#7c6aff',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
           }}>Product Intelligence</span>
@@ -69,7 +69,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             borderRadius: 10,
             overflow: 'hidden',
             marginBottom: 16,
-            background: '#0f0f14',
+            background: '#1c1c1c',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -120,12 +120,12 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
               { label: 'Sell Price', value: price > 0 ? `$${price.toFixed(2)}` : '—', color: '#ededed' },
-              { label: 'Orders/mo', value: product.sold_count ? product.sold_count.toLocaleString() : 'pending', color: product.sold_count ? '#22c55e' : '#4b5563' },
-              { label: 'AI Score',  value: `${product.winning_score ?? 0}/100`, color: '#6366F1' },
+              { label: 'Orders/mo', value: product.sold_count ? product.sold_count.toLocaleString() : 'pending', color: product.sold_count ? '#10b981' : '#4b5563' },
+              { label: 'AI Score',  value: `${product.winning_score ?? 0}/100`, color: '#7c6aff' },
               { label: 'Source',    value: product.platform ?? 'AliExpress', color: '#a1a1aa' },
             ].map((m) => (
               <div key={m.label} style={{
-                background: '#0f0f14',
+                background: '#1c1c1c',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: 8,
                 padding: '12px 14px',
@@ -145,7 +145,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
           {/* Score breakdown */}
           <div style={{
-            background: '#0f0f14',
+            background: '#1c1c1c',
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 8,
             padding: '14px 16px',
@@ -154,13 +154,13 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             <div style={{
               fontFamily: mono,
               fontSize: 10,
-              color: '#6366F1',
+              color: '#7c6aff',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: 14,
             }}>Score Breakdown</div>
             {([
-              { label: 'Demand',         pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.92 + ((Number(String(product.id).slice(-2)) || 0) % 10))), color: '#22c55e' },
+              { label: 'Demand',         pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.92 + ((Number(String(product.id).slice(-2)) || 0) % 10))), color: '#10b981' },
               { label: 'Margin Signal',  pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.86 + ((Number(String(product.id).slice(-2)) || 0) % 14))), color: '#3b82f6' },
               { label: 'Trend',          pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.95 + ((Number(String(product.id).slice(-2)) || 0) % 5))),  color: '#f59e0b' },
               { label: 'Competition',    pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.72 + ((Number(String(product.id).slice(-2)) || 0) % 18))), color: '#a855f7' },
@@ -179,7 +179,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
           {/* 30-day order trend */}
           <div style={{
-            background: '#0f0f14',
+            background: '#1c1c1c',
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 8,
             padding: '14px 16px',
@@ -188,7 +188,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             <div style={{
               fontFamily: mono,
               fontSize: 10,
-              color: '#6366F1',
+              color: '#7c6aff',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: 12,
@@ -202,7 +202,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
           {/* Profit scenarios */}
           <div style={{
-            background: '#0f0f14',
+            background: '#1c1c1c',
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 8,
             padding: 14,
@@ -211,7 +211,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             <div style={{
               fontFamily: mono,
               fontSize: 11,
-              color: '#6366F1',
+              color: '#7c6aff',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: 12,
@@ -230,7 +230,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
                   <span style={{ fontFamily: sans, fontSize: 12, color: '#a1a1aa' }}>
                     {s.icon} {s.label} ({s.sales}/day)
                   </span>
-                  <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#22c55e' }}>
+                  <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#10b981' }}>
                     ${Number(monthly).toLocaleString()}/mo
                   </span>
                 </div>
@@ -253,8 +253,8 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             {product.product_url && (
               <a href={product.product_url} target="_blank" rel="noopener noreferrer" style={actionStyle('rgba(255,90,0,0.1)', 'rgba(255,90,0,0.2)', 'rgba(255,120,0,0.9)')}>↗ View on AliExpress</a>
             )}
-            <a href={`/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`} style={actionStyle('rgba(99,102,241,0.1)', 'rgba(99,102,241,0.2)', '#6366F1')}>🎯 Generate Ad</a>
-            <a href="/app/profit" style={actionStyle('rgba(34,197,94,0.1)', 'rgba(34,197,94,0.2)', '#22c55e')}>💰 Profit Calc</a>
+            <a href={`/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`} style={actionStyle('rgba(124,106,255,0.1)', 'rgba(124,106,255,0.2)', '#7c6aff')}>🎯 Generate Ad</a>
+            <a href="/app/profit" style={actionStyle('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.2)', '#10b981')}>💰 Profit Calc</a>
             <a href="/app/store-builder" style={actionStyle('rgba(255,255,255,0.05)', 'rgba(255,255,255,0.1)', '#a1a1aa')}>🏪 Build Store</a>
           </div>
         </div>

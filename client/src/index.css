@@ -602,3 +602,57 @@ input[type="search"].mkr-search:focus {
   height: 52px;
   z-index: 2;
 }
+
+/* ── Majorka Design System (Codex-inspired) ─────────────────────────── */
+
+@keyframes mj-fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes mj-scalePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.08); opacity: 0.85; }
+}
+@keyframes mj-glowPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(16,185,129,0.3); }
+  50%      { box-shadow: 0 0 16px rgba(16,185,129,0.7), 0 0 32px rgba(16,185,129,0.15); }
+}
+@keyframes mj-borderGlow {
+  0%, 100% { border-color: rgba(124,106,255,0.3); }
+  50%      { border-color: rgba(124,106,255,0.7); }
+}
+
+/* Staggered row fade-up — applies via :nth-child positioning */
+.mj-row { opacity: 0; animation: mj-fadeUp 280ms ease forwards; }
+.mj-row:nth-child(1)  { animation-delay: 0ms; }
+.mj-row:nth-child(2)  { animation-delay: 35ms; }
+.mj-row:nth-child(3)  { animation-delay: 70ms; }
+.mj-row:nth-child(4)  { animation-delay: 105ms; }
+.mj-row:nth-child(5)  { animation-delay: 140ms; }
+.mj-row:nth-child(6)  { animation-delay: 175ms; }
+.mj-row:nth-child(7)  { animation-delay: 210ms; }
+.mj-row:nth-child(8)  { animation-delay: 245ms; }
+.mj-row:nth-child(9)  { animation-delay: 280ms; }
+.mj-row:nth-child(10) { animation-delay: 315ms; }
+.mj-row:nth-child(11) { animation-delay: 350ms; }
+.mj-row:nth-child(12) { animation-delay: 385ms; }
+
+.mj-row-hover { transition: background 120ms ease; cursor: pointer; }
+.mj-row-hover:hover { background: rgba(255,255,255,0.03) !important; }
+
+.mj-pill {
+  border-radius: 9999px;
+  transition: all 150ms ease;
+  -webkit-font-smoothing: antialiased;
+}
+.mj-pill:hover  { transform: scale(1.04); filter: brightness(1.12); }
+.mj-pill:active { transform: scale(0.97); }
+
+.mj-score-hot { animation: mj-scalePulse 3s ease-in-out infinite; }
+
+body { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }

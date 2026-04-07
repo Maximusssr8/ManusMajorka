@@ -4,7 +4,7 @@ import { scoreColor } from '@/lib/scorePill';
  * Sparkline — small decorative SVG line for stat cards.
  * Random gentle upward trend; recomputed each render.
  */
-export function Sparkline({ color = '#22c55e', points = 5, width = 60, height = 22 }: { color?: string; points?: number; width?: number; height?: number }) {
+export function Sparkline({ color = '#10b981', points = 5, width = 60, height = 22 }: { color?: string; points?: number; width?: number; height?: number }) {
   const vals = Array.from({ length: points }, (_, i) =>
     Math.round(40 + (i / points) * 40 + Math.random() * 15)
   );

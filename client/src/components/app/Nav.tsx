@@ -65,7 +65,7 @@ export function Nav() {
   return (
     <nav style={{
       width: 220,
-      background: '#0a0a0c',
+      background: '#151515',
       borderRight: '1px solid rgba(255,255,255,0.06)',
       display: 'flex',
       flexDirection: 'column',
@@ -89,7 +89,7 @@ export function Nav() {
           width: 28,
           height: 28,
           borderRadius: 8,
-          background: 'linear-gradient(135deg,#6366f1,#818cf8)',
+          background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -144,8 +144,8 @@ export function Nav() {
       <div style={{
         margin: '4px 10px 14px',
         padding: '9px 12px',
-        background: 'rgba(99,102,241,0.07)',
-        border: '1px solid rgba(99,102,241,0.15)',
+        background: 'rgba(124,106,255,0.07)',
+        border: '1px solid rgba(124,106,255,0.15)',
         borderRadius: 9,
         display: 'flex',
         alignItems: 'center',
@@ -155,7 +155,7 @@ export function Nav() {
         <span style={{ fontSize: 17 }}>🇦🇺</span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: sans, fontSize: 12, fontWeight: 600, color: '#e2e2e8', lineHeight: 1.2 }}>Australia</div>
-          <div style={{ fontFamily: mono, fontSize: 9, color: '#6366f1', marginTop: 1 }}>AUD · GST 10%</div>
+          <div style={{ fontFamily: mono, fontSize: 9, color: '#7c6aff', marginTop: 1 }}>AUD · GST 10%</div>
         </div>
         <span style={{ fontFamily: mono, fontSize: 9, color: '#4a4a5e' }}>▾</span>
       </div>
@@ -283,7 +283,7 @@ export function Nav() {
           <div style={{
             fontFamily: mono,
             fontSize: 9,
-            color: '#6366f1',
+            color: '#7c6aff',
             marginTop: 1,
           }}>{planLabel}</div>
         </div>
@@ -328,8 +328,8 @@ function NavLink({ item, active, hotCount }: NavLinkProps) {
     fontFamily: sans,
     transition: 'all 120ms',
     color: active ? '#e8e8f0' : '#6b6b80',
-    background: active ? 'rgba(99,102,241,0.1)' : 'transparent',
-    border: `1px solid ${active ? 'rgba(99,102,241,0.18)' : 'transparent'}`,
+    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
+    border: `1px solid ${active ? 'rgba(124,106,255,0.18)' : 'transparent'}`,
     fontWeight: active ? 600 : 500,
   };
   return (

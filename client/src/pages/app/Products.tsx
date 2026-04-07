@@ -14,6 +14,12 @@ import { scorePillStyle } from '@/lib/scorePill';
 type CarouselKey = 'recent' | 'scored' | 'value';
 type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top';
 
+const fmtRev = (v: number): string =>
+  v >= 1_000_000 ? `~$${(v / 1_000_000).toFixed(1)}M`
+  : v >= 1_000   ? `~$${Math.round(v / 1_000)}k`
+  : v > 0        ? `~$${v}`
+  : '—';
+
 const SMART_TABS: { key: SmartTabKey; label: string; icon: string }[] = [
   { key: 'all',         label: 'All Products',   icon: '' },
   { key: 'new',         label: 'New This Week',  icon: '🆕' },
@@ -32,19 +38,19 @@ const SHIMMER = `
   100% { background-position: 300px 0; }
 }
 .mj-shim {
-  background: linear-gradient(90deg, #0f0f14 0%, #1a1a1f 50%, #0f0f14 100%);
+  background: linear-gradient(90deg, #1c1c1c 0%, #1a1a1f 50%, #1c1c1c 100%);
   background-size: 300px 100%;
   animation: mj-app-shim 1.4s linear infinite;
   border-radius: 4px;
   display: inline-block;
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 6px rgba(34,197,94,0.4); }
-  50% { box-shadow: 0 0 14px rgba(34,197,94,0.8), 0 0 24px rgba(34,197,94,0.2); }
+  0%, 100% { box-shadow: 0 0 6px rgba(16,185,129,0.4); }
+  50% { box-shadow: 0 0 14px rgba(16,185,129,0.8), 0 0 24px rgba(16,185,129,0.2); }
 }
 @keyframes score-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(16,185,129,0); }
 }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -53,11 +59,11 @@ const SHIMMER = `
 .mj-app-pulse-dot {
   display: inline-block;
   width: 7px; height: 7px; border-radius: 50%;
-  background: #22c55e;
+  background: #10b981;
   animation: pulse-glow 2s ease-in-out infinite;
 }
 .majorka-row-hover { transition: background 100ms ease; cursor: pointer; }
-.majorka-row-hover:hover { background: rgba(99,102,241,0.04) !important; }
+.majorka-row-hover:hover { background: rgba(124,106,255,0.04) !important; }
 .majorka-btn { transition: all 150ms ease; }
 .majorka-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
 .majorka-btn:active { transform: scale(0.97); }
@@ -101,7 +107,7 @@ function ProductHeroImage({ src, title }: { src: string | null; title: string })
         fontFamily: display,
         fontSize: 32,
         fontWeight: 700,
-        color: 'rgba(99,102,241,0.4)',
+        color: 'rgba(124,106,255,0.4)',
       }}>{initial}</span>
     );
   }
@@ -225,29 +231,29 @@ export default function AppProducts() {
       {/* Live AE search bar */}
       <div style={{ padding: '0 32px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
         <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: 12, color: '#52525b', fontSize: 14, pointerEvents: 'none' }}>🔍</span>
+          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'rgba(255,255,255,0.2)', pointerEvents: 'none' }}>⌘</span>
           <input
-            placeholder="Search AliExpress directly — any product, any niche…"
+            placeholder={`Search ${total > 0 ? total.toLocaleString() : '2,302'} products or explore 829k+ live from AliExpress...`}
             defaultValue={liveQuery}
             style={{
               width: '100%',
-              background: '#0f0f14',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 9,
-              padding: '12px 16px 12px 38px',
-              color: '#ededed',
+              background: '#1c1c1c',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 12,
+              padding: '14px 18px 14px 44px',
+              color: '#f5f5f5',
               fontFamily: sans,
               fontSize: 14,
               outline: 'none',
-              transition: 'border-color 150ms',
+              boxSizing: 'border-box',
+              transition: 'border-color 150ms ease, box-shadow 150ms ease',
             }}
             onFocus={(e) => {
-              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(99,102,241,0.5)';
-              (e.currentTarget as HTMLInputElement).style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08), 0 0 20px rgba(99,102,241,0.1)';
-              (e.currentTarget as HTMLInputElement).style.outline = 'none';
+              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(124,106,255,0.5)';
+              (e.currentTarget as HTMLInputElement).style.boxShadow = '0 0 0 3px rgba(124,106,255,0.08)';
             }}
             onBlur={(e) => {
-              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.07)';
+              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.08)';
               (e.currentTarget as HTMLInputElement).style.boxShadow = 'none';
             }}
             onKeyDown={(e) => {
@@ -266,10 +272,10 @@ export default function AppProducts() {
           onClick={() => setShowFilters((s) => !s)}
           style={{
             padding: '10px 14px',
-            background: showFilters ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
-            border: `1px solid ${showFilters ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`,
+            background: showFilters ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${showFilters ? 'rgba(124,106,255,0.3)' : 'rgba(255,255,255,0.08)'}`,
             borderRadius: 8,
-            color: showFilters ? '#6366F1' : '#6b7280',
+            color: showFilters ? '#7c6aff' : '#6b7280',
             fontFamily: sans,
             fontSize: 13,
             cursor: 'pointer',
@@ -302,7 +308,7 @@ export default function AppProducts() {
         <div style={{
           margin: '0 32px 16px',
           padding: '16px 20px',
-          background: '#0f0f14',
+          background: '#1c1c1c',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 10,
           display: 'grid',
@@ -323,7 +329,7 @@ export default function AppProducts() {
                 onChange={(e) => f.set(e.target.value ? Number(e.target.value) : null)}
                 style={{
                   width: '100%',
-                  background: '#0a0a0c',
+                  background: '#151515',
                   border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 6,
                   padding: '8px 10px',
@@ -366,7 +372,6 @@ export default function AppProducts() {
         gap: 4,
         padding: '0 32px',
         marginBottom: 16,
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
         overflowX: 'auto',
         scrollbarWidth: 'none',
         alignItems: 'center',
@@ -381,19 +386,30 @@ export default function AppProducts() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '9px 16px',
+                padding: '7px 14px',
                 fontFamily: sans,
                 fontSize: 13,
-                fontWeight: 500,
-                color: active ? '#ededed' : '#6b7280',
-                background: 'none',
-                border: 'none',
+                fontWeight: active ? 600 : 500,
+                color: active ? '#f5f5f5' : 'rgba(255,255,255,0.35)',
+                background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
+                border: `1px solid ${active ? 'rgba(124,106,255,0.2)' : 'transparent'}`,
+                borderRadius: 7,
                 cursor: 'pointer',
-                borderBottom: active ? '2px solid #6366F1' : '2px solid transparent',
-                marginBottom: -1,
-                transition: 'all 150ms',
+                transition: 'all 150ms ease',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)';
+                  (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.6)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.35)';
+                }
               }}
             >
               {tab.icon && <span>{tab.icon}</span>}
@@ -433,8 +449,8 @@ export default function AppProducts() {
                   width: 30,
                   height: 26,
                   border: 'none',
-                  background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
-                  color: active ? '#6366F1' : '#71717a',
+                  background: active ? 'rgba(124,106,255,0.12)' : 'transparent',
+                  color: active ? '#7c6aff' : '#71717a',
                   cursor: 'pointer',
                   borderRadius: 4,
                   display: 'flex',
@@ -473,7 +489,7 @@ export default function AppProducts() {
               cursor: 'pointer',
               transition: 'border-color 150ms, color 150ms',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#ededed'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#7c6aff'; e.currentTarget.style.color = '#ededed'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#71717a'; }}
           >Load more</button>
         </div>
@@ -502,7 +518,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
   return (
     <div style={{ padding: '0 32px 32px' }}>
       <div style={{
-        background: '#0f0f14',
+        background: '#1c1c1c',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: 8,
         overflow: 'hidden',
@@ -566,13 +582,13 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
         ) : (
           products.map((p, i) => {
             const score = p.winning_score ?? 0;
-            const estRevenue = p.sold_count && p.price_aud
-              ? Math.round(Number(p.sold_count) * Number(p.price_aud) * 0.45)
+            const estRevenue = (p.sold_count && p.price_aud)
+              ? Math.round((Number(p.sold_count) * 0.04) * (Number(p.price_aud) * 2.2) * 0.32)
               : null;
             return (
               <div
                 key={p.id}
-                className="majorka-row-hover"
+                className="mj-row mj-row-hover"
                 onClick={() => onSelect(p)}
                 style={{
                   display: 'grid',
@@ -581,9 +597,6 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                   padding: '14px 16px',
                   alignItems: 'center',
                   borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
-                  animation: 'fadeUp 300ms ease forwards',
-                  animationDelay: `${Math.min(i, 12) * 40}ms`,
-                  opacity: 0,
                 }}
               >
                 <span style={{ fontFamily: mono, fontSize: 13, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
@@ -614,7 +627,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                 <span style={{
                   fontFamily: mono,
                   fontSize: 12,
-                  color: p.sold_count != null && p.sold_count > 0 ? '#22c55e' : '#4b5563',
+                  color: p.sold_count != null && p.sold_count > 0 ? '#10b981' : '#4b5563',
                   textAlign: 'right',
                 }}>{p.sold_count != null && p.sold_count > 0 ? p.sold_count.toLocaleString() : '—'}</span>
                 <span style={{
@@ -627,12 +640,10 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                   fontFamily: mono,
                   fontSize: 12,
                   fontWeight: 600,
-                  color: estRevenue != null ? '#22c55e' : '#4b5563',
+                  color: estRevenue != null ? '#10b981' : '#4b5563',
                   textAlign: 'right',
                 }}>
-                  {estRevenue != null
-                    ? `~$${estRevenue >= 1000 ? (estRevenue / 1000).toFixed(1) + 'k' : estRevenue}/mo`
-                    : '—'}
+                  {estRevenue != null ? `${fmtRev(estRevenue)}/mo` : '—'}
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center' }}>
                   <ProductSparkline productId={p.id} score={score} />
@@ -663,7 +674,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
       {loading ? (
         Array.from({ length: 8 }).map((_, i) => (
           <div key={i} style={{
-            background: '#0f0f14',
+            background: '#1c1c1c',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 10,
             overflow: 'hidden',
@@ -684,7 +695,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
           fontFamily: sans,
           fontSize: 13,
           color: '#52525b',
-          background: '#0f0f14',
+          background: '#1c1c1c',
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 8,
         }}>No products match your filters</div>
@@ -697,7 +708,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
               key={p.id}
               onClick={() => onSelect(p)}
               style={{
-                background: '#0f0f14',
+                background: '#1c1c1c',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 10,
                 overflow: 'hidden',
@@ -742,7 +753,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
                   marginTop: 6,
                   fontFamily: mono,
                   fontSize: 12,
-                  color: p.sold_count != null ? '#22c55e' : '#52525b',
+                  color: p.sold_count != null ? '#10b981' : '#52525b',
                 }}>{p.sold_count != null ? `${p.sold_count.toLocaleString()} orders` : '— orders'}</div>
                 <div style={{
                   marginTop: 4,
@@ -767,7 +778,7 @@ function GridView({ products, loading, onSelect }: { products: Product[]; loadin
                       gap: 4,
                       fontFamily: sans,
                       fontSize: 12,
-                      color: '#6366F1',
+                      color: '#7c6aff',
                       textDecoration: 'none',
                     }}
                   >View details <ArrowUpRight size={11} /></a>
@@ -808,7 +819,7 @@ function FeaturedCarousels({ active, setActive, onSelect }: { active: CarouselKe
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              borderBottom: active === tab.key ? '2px solid #6366F1' : '2px solid transparent',
+              borderBottom: active === tab.key ? '2px solid #7c6aff' : '2px solid transparent',
               marginBottom: -1,
             }}
           >{tab.label}</button>
@@ -848,7 +859,7 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
         flexShrink: 0,
         width: 200,
         minHeight: 0,
-        background: '#0f0f14',
+        background: '#1c1c1c',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 10,
         overflow: 'hidden',
@@ -864,7 +875,7 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
         (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
       }}
     >
-      <div style={{ width: '100%', height: 130, position: 'relative', overflow: 'hidden', background: '#0a0a0c' }}>
+      <div style={{ width: '100%', height: 130, position: 'relative', overflow: 'hidden', background: '#151515' }}>
         {p.image_url ? (
           <img
             src={proxyImage(p.image_url) ?? p.image_url}
@@ -907,7 +918,7 @@ function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p
           minHeight: 34,
         }}>{p.product_title}</div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#22c55e' }}>
+          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#10b981' }}>
             {p.sold_count ? `${p.sold_count.toLocaleString()} orders` : '—'}
           </span>
           <span style={{ fontFamily: mono, fontSize: 12, color: '#a1a1aa' }}>
@@ -987,7 +998,7 @@ function LiveSearchView({ aeSearch }: { aeSearch: ReturnType<typeof useAESearch>
           fontFamily: sans,
           fontSize: 13,
           color: '#52525b',
-          background: '#0f0f14',
+          background: '#1c1c1c',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 8,
         }}>
@@ -1021,7 +1032,7 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
       rel="noopener noreferrer"
       style={{
         display: 'block',
-        background: '#0f0f14',
+        background: '#1c1c1c',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 10,
         overflow: 'hidden',
@@ -1031,7 +1042,7 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,90,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
     >
-      <div style={{ width: '100%', height: 160, background: '#0a0a0c', overflow: 'hidden' }}>
+      <div style={{ width: '100%', height: 160, background: '#151515', overflow: 'hidden' }}>
         {p.image_url ? (
           <img
             src={proxyImage(p.image_url) ?? p.image_url}
@@ -1073,7 +1084,7 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
           <div style={{ fontFamily: mono, fontSize: 11, color: '#52525b', marginBottom: 8 }}>{p.category}</div>
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#22c55e' }}>
+          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#10b981' }}>
             {p.sold_count > 0 ? `${p.sold_count.toLocaleString()} sold` : '—'}
           </span>
           <span style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa' }}>
@@ -1088,17 +1099,20 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
 function ScoreDisplay({ score }: { score: number }) {
   const sp = scorePillStyle(score);
   return (
-    <span style={{
-      background: sp.background,
-      color: sp.color,
-      fontFamily: mono,
-      fontSize: 12,
-      fontWeight: 700,
-      padding: '3px 9px',
-      borderRadius: 999,
-      display: 'inline-block',
-      animation: score >= 95 ? 'score-pulse 2s ease-in-out infinite' : 'none',
-    }}>{score || '—'}</span>
+    <span
+      className={score >= 95 ? 'mj-score-hot' : ''}
+      style={{
+        background: sp.background,
+        color: sp.color,
+        border: sp.border,
+        fontFamily: mono,
+        fontSize: 12,
+        fontWeight: 700,
+        padding: '3px 9px',
+        borderRadius: 999,
+        display: 'inline-block',
+      }}
+    >{score || '—'}</span>
   );
 }
 
@@ -1109,13 +1123,13 @@ function RowActions({ product }: { product: Product }) {
       <button
         title="Profit Calculator"
         onClick={(e) => { e.stopPropagation(); window.location.href = '/app/profit'; }}
-        style={{ padding: '4px 8px', background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+        style={{ padding: '4px 8px', background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
         className="majorka-btn"
       >💰</button>
       <button
         title="Generate Ad"
         onClick={(e) => { e.stopPropagation(); window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
-        style={{ padding: '4px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
+        style={{ padding: '4px 8px', background: 'rgba(124,106,255,0.1)', color: '#7c6aff', border: '1px solid rgba(124,106,255,0.2)', borderRadius: 5, fontSize: 11, cursor: 'pointer' }}
         className="majorka-btn"
       >🎯</button>
       {product.product_url && (
