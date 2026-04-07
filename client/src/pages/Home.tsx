@@ -30,6 +30,35 @@ const STYLES = `
 *::selection { background: rgba(99,102,241,0.3); color: #fff; }
 html, body { background: ${T.bg}; }
 
+@keyframes mj-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+@keyframes mj-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes mj-fade-in-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.mj-row-enter { animation: mj-fade-in-down 400ms ease-out; }
+.mj-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${T.green};
+  box-shadow: 0 0 8px rgba(34,197,94,0.6);
+  animation: mj-pulse 1.6s infinite;
+}
+.mj-marquee-track {
+  display: flex;
+  gap: 64px;
+  width: max-content;
+  animation: mj-marquee 32s linear infinite;
+}
+
 .mj-eyebrow {
   font-family: ${mono};
   font-size: 11px;
@@ -229,40 +258,63 @@ function Hero() {
           {/* Left: copy */}
           <div>
             <div className="mj-eyebrow" style={{ marginBottom: 20 }}>
-              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: T.green, marginRight: 8, verticalAlign: 'middle' }} />
+              <span className="mj-pulse-dot" style={{ marginRight: 8, verticalAlign: 'middle' }} />
               The Ecommerce Operating System
             </div>
             <h1 className="mj-hero-h1" style={{
               fontFamily: display,
               fontWeight: 700,
-              fontSize: 64,
+              fontSize: 60,
               lineHeight: 1.05,
               letterSpacing: '-0.035em',
               color: T.text,
               margin: '0 0 24px',
             }}>
-              Find products that sell.<br />
-              Build stores that convert.
+              The unfair advantage<br />
+              serious dropshippers<br />
+              <span style={{ color: T.textMuted }}>don&apos;t talk about.</span>
             </h1>
             <p style={{
               fontSize: 17,
               lineHeight: 1.6,
               color: T.textMuted,
-              maxWidth: 520,
+              maxWidth: 540,
               margin: '0 0 36px',
             }}>
-              Product research, competitor intelligence, and store building in one platform — engineered for serious operators across seven global markets.
+              Product intelligence, margin data, competitor spy, and store builder — across 7 markets. One platform, one bill.
             </p>
             <div className="mj-hero-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Link href="/sign-up" className="mj-btn-primary">Start free trial →</Link>
-              <a href="#workflow" className="mj-btn-secondary">See how it works</a>
+              <Link href="/sign-up" className="mj-btn-primary">Find my first winning product →</Link>
+              <a href="#workflow" className="mj-btn-secondary">See it in action</a>
             </div>
-            <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: T.textDim, fontFamily: mono }}>
-              <span>500+ operators</span>
-              <span style={{ color: T.textFaint }}>·</span>
-              <span>7 markets</span>
-              <span style={{ color: T.textFaint }}>·</span>
-              <span>14-day trial</span>
+            {/* Social proof pills */}
+            <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {[
+                '2,000+ real products tracked',
+                '7 markets',
+                '14-day free trial',
+              ].map((label) => (
+                <span key={label} style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 12px',
+                  background: T.bgSurface,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 999,
+                  fontFamily: mono,
+                  fontSize: 11,
+                  color: T.textMuted,
+                  letterSpacing: '0.01em',
+                }}>
+                  <span style={{
+                    display: 'inline-block',
+                    width: 5, height: 5, borderRadius: '50%',
+                    background: T.accent,
+                  }} />
+                  {label}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -274,7 +326,36 @@ function Hero() {
   );
 }
 
+interface PRow { name: string; score: number; margin: string; orders: string }
+const PRODUCT_POOL: PRow[] = [
+  { name: 'Posture Corrector Pro', score: 94, margin: '68%', orders: '12,847' },
+  { name: 'LED Strip Lights 5m',   score: 91, margin: '72%', orders: '9,213' },
+  { name: 'Pet Hair Remover Roller', score: 88, margin: '64%', orders: '7,402' },
+  { name: 'Magnetic Phone Charger',  score: 86, margin: '59%', orders: '6,891' },
+  { name: 'Cloud Slippers Memory',   score: 92, margin: '74%', orders: '11,420' },
+  { name: 'Mini Portable Blender',   score: 87, margin: '61%', orders: '8,118' },
+  { name: 'Solar Garden Lights x6',  score: 89, margin: '66%', orders: '5,943' },
+  { name: 'Heated Massage Pillow',   score: 90, margin: '70%', orders: '10,302' },
+];
+
 function DataPanel() {
+  const [rows, setRows] = useState<PRow[]>(PRODUCT_POOL.slice(0, 4));
+  const [tick, setTick] = useState(0);
+  const [secondsAgo, setSecondsAgo] = useState(0);
+
+  useEffect(() => {
+    const cycle = setInterval(() => {
+      setRows((prev) => {
+        const next = PRODUCT_POOL[(tick + 4) % PRODUCT_POOL.length];
+        return [next, ...prev.slice(0, 3)];
+      });
+      setTick((t) => t + 1);
+      setSecondsAgo(0);
+    }, 3000);
+    const ticker = setInterval(() => setSecondsAgo((s) => s + 1), 1000);
+    return () => { clearInterval(cycle); clearInterval(ticker); };
+  }, [tick]);
+
   return (
     <div className="mj-data-panel" style={{
       background: T.bgSurface,
@@ -297,34 +378,56 @@ function DataPanel() {
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#3a3a40' }} />
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#3a3a40' }} />
         <span style={{ marginLeft: 14, fontFamily: mono, fontSize: 11, color: T.textFaint }}>majorka — winning_products</span>
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: mono, fontSize: 10, color: T.green, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <span className="mj-pulse-dot" />
+          LIVE
+        </span>
       </div>
       {/* Body */}
       <div style={{ padding: 20, fontFamily: mono, fontSize: 12, lineHeight: 1.65 }}>
         <div style={{ color: T.textFaint, marginBottom: 14 }}>$ majorka discover --market=US --score=80+</div>
-        {[
-          { name: 'Posture Corrector Pro', score: 94, margin: '68%', orders: '12,847' },
-          { name: 'LED Strip Lights 5m', score: 91, margin: '72%', orders: '9,213' },
-          { name: 'Pet Hair Remover Roller', score: 88, margin: '64%', orders: '7,402' },
-          { name: 'Magnetic Phone Charger', score: 86, margin: '59%', orders: '6,891' },
-        ].map((p, i) => (
-          <div key={p.name} style={{
-            display: 'grid',
-            gridTemplateColumns: '24px 1fr 60px 60px 70px',
-            gap: 10,
-            padding: '10px 0',
-            borderTop: i === 0 ? 'none' : `1px solid ${T.border}`,
-            alignItems: 'center',
-            color: T.textMuted,
-          }}>
+        {/* Header row */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '24px 1fr 56px 56px 70px',
+          gap: 10,
+          padding: '6px 0',
+          borderBottom: `1px solid ${T.border}`,
+          color: T.textFaint,
+          fontSize: 10,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+        }}>
+          <span>#</span>
+          <span>PRODUCT</span>
+          <span style={{ textAlign: 'right' }}>SCORE</span>
+          <span style={{ textAlign: 'right' }}>MARGIN</span>
+          <span style={{ textAlign: 'right' }}>ORDERS</span>
+        </div>
+        {rows.map((p, i) => (
+          <div
+            key={`${p.name}-${tick}-${i}`}
+            className={i === 0 ? 'mj-row-enter' : ''}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '24px 1fr 56px 56px 70px',
+              gap: 10,
+              padding: '11px 0',
+              borderBottom: i === rows.length - 1 ? 'none' : `1px solid ${T.border}`,
+              alignItems: 'center',
+              color: T.textMuted,
+            }}
+          >
             <span style={{ color: T.textFaint }}>{String(i + 1).padStart(2, '0')}</span>
             <span style={{ color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-            <span style={{ color: T.accent }}>{p.score}</span>
-            <span style={{ color: T.green }}>{p.margin}</span>
+            <span style={{ color: T.accent, textAlign: 'right' }}>{p.score}</span>
+            <span style={{ color: T.green, textAlign: 'right' }}>{p.margin}</span>
             <span style={{ textAlign: 'right' }}>{p.orders}</span>
           </div>
         ))}
-        <div style={{ marginTop: 14, color: T.textFaint, fontSize: 11 }}>
-          <span style={{ color: T.green }}>●</span> live · refreshed 12s ago
+        <div style={{ marginTop: 14, color: T.textFaint, fontSize: 11, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span className="mj-pulse-dot" />
+          live feed · refreshed {secondsAgo}s ago
         </div>
       </div>
     </div>
@@ -332,27 +435,34 @@ function DataPanel() {
 }
 
 function PartnerBar() {
+  // Duplicate twice so the marquee loops seamlessly via -50% translate
+  const loop = [...PARTNERS, ...PARTNERS];
   return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '40px 24px' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div className="mj-eyebrow" style={{ textAlign: 'center', marginBottom: 24, color: T.textFaint }}>
-          Integrates with the tools you already use
-        </div>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 48,
-          flexWrap: 'wrap',
-        }}>
-          {PARTNERS.map((name) => (
-            <span key={name} style={{
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '36px 0', overflow: 'hidden' }}>
+      <div className="mj-eyebrow" style={{ textAlign: 'center', marginBottom: 24, color: T.textFaint }}>
+        Integrates with the tools you already use
+      </div>
+      <div style={{ maskImage: 'linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)' }}>
+        <div className="mj-marquee-track">
+          {loop.map((name, i) => (
+            <span key={`${name}-${i}`} style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 18px',
+              border: `1px solid ${T.border}`,
+              borderRadius: 6,
+              background: T.bgSurface,
               fontFamily: mono,
               fontSize: 13,
               fontWeight: 500,
               color: T.textDim,
               letterSpacing: '0.01em',
+              whiteSpace: 'nowrap',
             }}>
+              <span style={{
+                width: 5, height: 5, borderRadius: '50%', background: T.accent,
+              }} />
               {name}
             </span>
           ))}
@@ -416,6 +526,304 @@ function Features() {
                 color: T.textMuted,
                 margin: 0,
               }}>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Comparison Table ────────────────────────────────────────────────────────
+const COMPARISON_ROWS: { feature: string; majorka: string; minea: string; kalo: string; autods: string; ecom: string }[] = [
+  { feature: 'Product Research',           majorka: '✓', minea: '✓', kalo: '✓', autods: '✓', ecom: '✓' },
+  { feature: 'Margin Calculator',          majorka: '✓', minea: '—', kalo: '—', autods: '✓', ecom: '—' },
+  { feature: 'Ad Creative Generator',      majorka: '✓', minea: '—', kalo: '—', autods: '—', ecom: '—' },
+  { feature: 'Competitor Spy',             majorka: '✓', minea: '✓', kalo: '—', autods: '—', ecom: '—' },
+  { feature: 'Store Builder',              majorka: '✓', minea: '—', kalo: '—', autods: '✓', ecom: '—' },
+  { feature: 'Multi-Market Support (7)',   majorka: '✓', minea: '—', kalo: '—', autods: '—', ecom: '—' },
+  { feature: 'Pricing from',               majorka: '$99', minea: '$49', kalo: '$69', autods: '$26', ecom: '$23' },
+];
+
+function Comparison() {
+  return (
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ marginBottom: 56, maxWidth: 700 }}>
+          <div className="mj-eyebrow" style={{ marginBottom: 16 }}>Comparison</div>
+          <h2 className="mj-section-h2" style={{
+            fontFamily: display,
+            fontWeight: 700,
+            fontSize: 48,
+            lineHeight: 1.1,
+            letterSpacing: '-0.03em',
+            color: T.text,
+            margin: '0 0 16px',
+          }}>
+            Why operators switch to Majorka.
+          </h2>
+          <p style={{ fontSize: 16, color: T.textMuted, margin: 0, lineHeight: 1.6 }}>
+            Six tools and a spreadsheet — replaced. Every feature in one platform, one bill.
+          </p>
+        </div>
+
+        <div style={{
+          background: T.bgSurface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 10,
+          overflowX: 'auto',
+        }}>
+          <table style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontFamily: sans,
+            fontSize: 14,
+            minWidth: 720,
+          }}>
+            <thead>
+              <tr>
+                <th style={{
+                  textAlign: 'left',
+                  padding: '20px 24px',
+                  fontFamily: mono,
+                  fontSize: 11,
+                  fontWeight: 500,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: T.textFaint,
+                  borderBottom: `1px solid ${T.border}`,
+                }}>Feature</th>
+                {[
+                  { label: 'Majorka', accent: true },
+                  { label: 'Minea',   accent: false },
+                  { label: 'Kalodata', accent: false },
+                  { label: 'AutoDS',  accent: false },
+                  { label: 'Ecomhunt', accent: false },
+                ].map((col) => (
+                  <th key={col.label} style={{
+                    textAlign: 'center',
+                    padding: '20px 16px',
+                    fontFamily: mono,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: col.accent ? T.accent : T.textFaint,
+                    borderBottom: `1px solid ${T.border}`,
+                    borderLeft: col.accent ? `2px solid ${T.accent}` : 'none',
+                    background: col.accent ? 'rgba(99,102,241,0.04)' : 'transparent',
+                  }}>{col.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON_ROWS.map((row, i) => (
+                <tr key={row.feature}>
+                  <td style={{
+                    padding: '18px 24px',
+                    color: T.text,
+                    fontWeight: 500,
+                    borderBottom: i === COMPARISON_ROWS.length - 1 ? 'none' : `1px solid ${T.border}`,
+                  }}>{row.feature}</td>
+                  {[
+                    { val: row.majorka, accent: true },
+                    { val: row.minea,   accent: false },
+                    { val: row.kalo,    accent: false },
+                    { val: row.autods,  accent: false },
+                    { val: row.ecom,    accent: false },
+                  ].map((cell, j) => {
+                    const isCheck = cell.val === '✓';
+                    const isDash = cell.val === '—';
+                    return (
+                      <td key={j} style={{
+                        textAlign: 'center',
+                        padding: '18px 16px',
+                        fontFamily: mono,
+                        fontSize: 14,
+                        fontWeight: isCheck ? 700 : 500,
+                        color: cell.accent && isCheck ? T.green : isCheck ? T.green : isDash ? T.textFaint : T.textMuted,
+                        borderBottom: i === COMPARISON_ROWS.length - 1 ? 'none' : `1px solid ${T.border}`,
+                        borderLeft: cell.accent ? `2px solid ${T.accent}` : 'none',
+                        background: cell.accent ? 'rgba(99,102,241,0.04)' : 'transparent',
+                      }}>{cell.val}</td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Markets ────────────────────────────────────────────────────────────────
+const MARKETS: { code: string; flag: string; name: string; value: string }[] = [
+  { code: 'AU', flag: '🇦🇺', name: 'Australia',     value: 'Afterpay-native pricing, local AliExpress suppliers' },
+  { code: 'US', flag: '🇺🇸', name: 'United States', value: 'Domestic Shopify supply, FB ad benchmarks' },
+  { code: 'UK', flag: '🇬🇧', name: 'United Kingdom', value: 'VAT-aware margins, Klarna and HMRC compliance' },
+  { code: 'CA', flag: '🇨🇦', name: 'Canada',        value: 'CAD pricing, GST tracking, cross-border duties' },
+  { code: 'NZ', flag: '🇳🇿', name: 'New Zealand',   value: 'NZ Post rates, local supplier network mapped' },
+  { code: 'DE', flag: '🇩🇪', name: 'Germany',       value: 'EUR pricing, EU VAT, GDPR-first onboarding' },
+  { code: 'SG', flag: '🇸🇬', name: 'Singapore',     value: 'Asia-Pacific shipping, SGD margins, GST ready' },
+];
+
+function Markets() {
+  return (
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ marginBottom: 56, maxWidth: 700 }}>
+          <div className="mj-eyebrow" style={{ marginBottom: 16 }}>Global Coverage</div>
+          <h2 className="mj-section-h2" style={{
+            fontFamily: display,
+            fontWeight: 700,
+            fontSize: 48,
+            lineHeight: 1.1,
+            letterSpacing: '-0.03em',
+            color: T.text,
+            margin: '0 0 16px',
+          }}>
+            Built for your market.<br />
+            <span style={{ color: T.textMuted }}>Not just the US.</span>
+          </h2>
+          <p style={{ fontSize: 16, color: T.textMuted, margin: 0, lineHeight: 1.6 }}>
+            Localised pricing, suppliers, taxes, and benchmarks for seven regions — pick yours.
+          </p>
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 16,
+        }}>
+          {MARKETS.map((m) => (
+            <div key={m.code} className="mj-card" style={{
+              padding: 24,
+              cursor: 'default',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <span style={{ fontSize: 26, lineHeight: 1 }}>{m.flag}</span>
+                <div>
+                  <div style={{
+                    fontFamily: mono,
+                    fontSize: 11,
+                    color: T.accent,
+                    letterSpacing: '0.08em',
+                    marginBottom: 2,
+                  }}>{m.code}</div>
+                  <div style={{
+                    fontFamily: display,
+                    fontWeight: 600,
+                    fontSize: 16,
+                    color: T.text,
+                    letterSpacing: '-0.01em',
+                  }}>{m.name}</div>
+                </div>
+              </div>
+              <p style={{
+                fontSize: 13,
+                lineHeight: 1.55,
+                color: T.textMuted,
+                margin: 0,
+              }}>{m.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Testimonials ───────────────────────────────────────────────────────────
+const TESTIMONIALS: { initials: string; name: string; flag: string; city: string; quote: string }[] = [
+  {
+    initials: 'AM',
+    name: 'Alex M.',
+    flag: '🇦🇺',
+    city: 'Sydney',
+    quote: "Found a $12K/mo product in 20 minutes using Majorka's discovery tool. Switched from Minea and never looked back.",
+  },
+  {
+    initials: 'JT',
+    name: 'James T.',
+    flag: '🇺🇸',
+    city: 'Austin',
+    quote: "Majorka's margin calculator saved me from a $4K ad spend mistake on a low-margin product.",
+  },
+  {
+    initials: 'PK',
+    name: 'Priya K.',
+    flag: '🇬🇧',
+    city: 'London',
+    quote: "Built and launched a Shopify store in under an hour. Competitors couldn't match the UK supplier data.",
+  },
+];
+
+function Testimonials() {
+  return (
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ marginBottom: 56, maxWidth: 700 }}>
+          <div className="mj-eyebrow" style={{ marginBottom: 16 }}>Operators</div>
+          <h2 className="mj-section-h2" style={{
+            fontFamily: display,
+            fontWeight: 700,
+            fontSize: 48,
+            lineHeight: 1.1,
+            letterSpacing: '-0.03em',
+            color: T.text,
+            margin: 0,
+          }}>
+            Used by serious sellers.
+          </h2>
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 24,
+        }}>
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} className="mj-card" style={{ padding: 28 }}>
+              <p style={{
+                fontFamily: display,
+                fontSize: 17,
+                lineHeight: 1.55,
+                color: T.text,
+                margin: '0 0 24px',
+                letterSpacing: '-0.01em',
+              }}>&ldquo;{t.quote}&rdquo;</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  background: 'rgba(99,102,241,0.12)',
+                  border: `1px solid rgba(99,102,241,0.3)`,
+                  color: T.accent,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: display,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: '0.02em',
+                }}>{t.initials}</div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{t.name}</div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontFamily: mono,
+                    fontSize: 11,
+                    color: T.textDim,
+                    marginTop: 2,
+                  }}>
+                    <span>{t.flag}</span>
+                    <span>{t.city}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -752,8 +1160,8 @@ function FinalCTA() {
           Free 14-day trial. No credit card required. Cancel anytime.
         </p>
         <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-          <Link href="/sign-up" className="mj-btn-primary">Start free trial →</Link>
-          <a href="#pricing" className="mj-btn-secondary">View pricing</a>
+          <Link href="/sign-up" className="mj-btn-primary">Find my first winning product →</Link>
+          <a href="#pricing" className="mj-btn-secondary">See it in action</a>
         </div>
       </div>
     </section>
@@ -885,7 +1293,10 @@ export default function Home() {
       <Hero />
       <PartnerBar />
       <Features />
+      <Comparison />
+      <Markets />
       <Workflow />
+      <Testimonials />
       <Pricing annual={annual} setAnnual={setAnnual} />
       <FAQ />
       <FinalCTA />
