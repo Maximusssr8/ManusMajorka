@@ -589,6 +589,8 @@ function SectionRow({ title, emoji, bg, border, accentColor, products, loading, 
           overflowX: 'auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none' as const,
+          minHeight: 200,
+          alignItems: 'stretch',
         }}
       >
         {loading
@@ -614,6 +616,7 @@ function FeaturedCard({ product, bg, border, accentColor, onSelect }: { product:
       onClick={() => onSelect(product)}
       style={{
         width: 200,
+        minHeight: 188,
         flexShrink: 0,
         background: bg,
         border: `1px solid ${border}`,
@@ -721,17 +724,26 @@ function FeaturedSections({ onSelect }: { onSelect: (p: Product) => void }) {
 
 // ── Live Activity Feed ──────────────────────────────────────────────
 interface LiveEvent { flag: string; text: string; time: string }
-const LIVE_EVENTS: LiveEvent[] = [
-  { flag: '🇦🇺', text: 'AU operator added a new product to their Shopify store',     time: '2m ago' },
-  { flag: '🇺🇸', text: 'US operator discovered a winning product in Hardware',        time: '5m ago' },
-  { flag: '🇬🇧', text: 'UK operator confirmed 50%+ margin via profit calculator',     time: '8m ago' },
-  { flag: '🇨🇦', text: 'CA operator launched a new store from the builder',           time: '12m ago' },
-  { flag: '🇩🇪', text: 'DE operator exported a product batch to Shopify',             time: '16m ago' },
-  { flag: '🇸🇬', text: 'SG operator generated ad copy for a top-scored product',      time: '20m ago' },
-  { flag: '🇳🇿', text: 'NZ operator found a new opportunity in the database',         time: '24m ago' },
+const LIVE_EVENT_SEEDS: Omit<LiveEvent, 'time'>[] = [
+  { flag: '🇦🇺', text: 'AU operator added a new product to their Shopify store' },
+  { flag: '🇺🇸', text: 'US operator discovered a winning product in Hardware' },
+  { flag: '🇬🇧', text: 'UK operator confirmed 50%+ margin via profit calculator' },
+  { flag: '🇨🇦', text: 'CA operator launched a new store from the builder' },
+  { flag: '🇩🇪', text: 'DE operator exported a product batch to Shopify' },
+  { flag: '🇸🇬', text: 'SG operator generated ad copy for a top-scored product' },
+  { flag: '🇳🇿', text: 'NZ operator found a new opportunity in the database' },
 ];
 
+function generateLiveEvents(): LiveEvent[] {
+  let prev = 0;
+  return LIVE_EVENT_SEEDS.map((s) => {
+    prev += 1 + Math.floor(Math.random() * 6);
+    return { ...s, time: `${prev}m ago` };
+  });
+}
+
 function LiveActivityFeed() {
+  const [events] = useState<LiveEvent[]>(generateLiveEvents);
   return (
     <>
       <style>{`@keyframes mj-live-scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
@@ -770,7 +782,7 @@ function LiveActivityFeed() {
             animation: 'mj-live-scroll 35s linear infinite',
             width: 'max-content',
           }}>
-            {[...LIVE_EVENTS, ...LIVE_EVENTS].map((e, i) => (
+            {[...events, ...events].map((e, i) => (
               <span key={i} style={{ fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {e.flag} <span style={{ color: '#ededed' }}>{e.text}</span>
                 <span style={{ color: '#4b5563', marginLeft: 8 }}>{e.time}</span>

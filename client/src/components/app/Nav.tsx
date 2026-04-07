@@ -5,6 +5,7 @@ import {
   Bell, DollarSign, Eye, Calculator, Settings,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProductStats } from '@/hooks/useProducts';
 
@@ -48,6 +49,7 @@ export function Nav() {
   const [location] = useLocation();
   const { user, isPro } = useAuth();
   const { hotCount } = useProductStats();
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const planLabel = isPro ? 'Scale Plan' : 'Builder Plan';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
@@ -56,6 +58,8 @@ export function Nav() {
     if (item.exact) return location === item.path;
     return location === item.path || location.startsWith(item.path + '/');
   };
+
+  const totalSoon = GROUPS.reduce((acc, g) => acc + g.items.filter((i) => i.soon).length, 0);
 
   return (
     <nav style={{
@@ -100,16 +104,6 @@ export function Nav() {
           color: '#ededed',
           letterSpacing: '-0.03em',
         }}>Majorka</span>
-        <span style={{
-          fontSize: 9,
-          fontFamily: mono,
-          color: '#3f3f46',
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          padding: '1px 5px',
-          borderRadius: 3,
-          marginLeft: 4,
-        }}>v1.0</span>
       </div>
 
       {/* Search */}
@@ -180,7 +174,7 @@ export function Nav() {
                 }}>{group.label}</span>
               </div>
             )}
-            {group.items.map((item) => {
+            {group.items.filter((i) => !i.soon).map((item) => {
               const active = isActive(item);
               const Icon = item.icon;
               const baseStyle: React.CSSProperties = {
@@ -257,6 +251,79 @@ export function Nav() {
             })}
           </div>
         ))}
+
+        {/* Coming Soon collapsible */}
+        {totalSoon > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <button
+              onClick={() => setShowComingSoon((v) => !v)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: 'calc(100% - 16px)',
+                margin: '0 8px',
+                padding: '8px 12px',
+                background: 'transparent',
+                border: '1px dashed rgba(255,255,255,0.08)',
+                borderRadius: 7,
+                cursor: 'pointer',
+                fontFamily: mono,
+                fontSize: 10,
+                fontWeight: 600,
+                color: '#52525b',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                transition: 'all 150ms',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#52525b'; }}
+            >
+              <span style={{ flex: 1, textAlign: 'left' }}>Coming soon ({totalSoon})</span>
+              <span style={{ fontSize: 11 }}>{showComingSoon ? '−' : '+'}</span>
+            </button>
+            {showComingSoon && (
+              <div style={{ marginTop: 6 }}>
+                {GROUPS.flatMap((g) => g.items.filter((i) => i.soon)).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={`soon-${item.path}-${item.label}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '8px 14px',
+                        margin: '1px 8px',
+                        borderRadius: 7,
+                        fontFamily: sans,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: '#52525b',
+                        cursor: 'not-allowed',
+                        opacity: 0.7,
+                      }}
+                    >
+                      <Icon size={14} style={{ flexShrink: 0 }} />
+                      <span style={{ flex: 1 }}>{item.label}</span>
+                      <span style={{
+                        fontSize: 9,
+                        fontWeight: 600,
+                        fontFamily: mono,
+                        color: '#6b7280',
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        borderRadius: 4,
+                        padding: '1px 5px',
+                        letterSpacing: '0.02em',
+                      }}>SOON</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* User area */}
