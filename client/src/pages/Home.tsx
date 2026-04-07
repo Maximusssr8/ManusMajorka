@@ -653,7 +653,7 @@ function BentoFeaturesSection() {
         </div>
 
         {/* Bento Grid */}
-        <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: isMobile ? 12 : 16 }}>
+        <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 12 : 16 }}>
 
           {/* ── A: Product Intelligence ── */}
           <div style={{ ...card(), ...staggerStyle(0), ...hoverCard('A'), gridColumn: FEATURES[0].col, gridRow: FEATURES[0].row }}
