@@ -21,6 +21,8 @@ import {
   Eye,
 } from 'lucide-react';
 import { ShimmerButton } from '@/components/ui/ShimmerButton';
+import { GradientText } from '@/components/ui/GradientText';
+import { Card3D } from '@/components/ui/Card3D';
 import React, { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
@@ -1023,7 +1025,7 @@ function DashboardHome() {
       <div style={{ background: '#0E1420', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#FFFFFF', marginBottom: 4 }}>
-            👋 {getGreeting()}, {firstName}
+            👋 {getGreeting()}, <GradientText>{firstName}</GradientText>
           </div>
           <div style={{ fontSize: 14, color: '#D1D5DB' }}>{formatDate()}{planLabel ? ` · ${planLabel}` : ''}</div>
         </div>
@@ -1249,34 +1251,29 @@ function DashboardHome() {
           )}
         </div>
 
-        {/* Row 4: Tools grid */}
+        {/* Row 4: Tools Bento Grid */}
         <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Your Tools</div>
-            <span style={{ fontSize: 12, color: '#94A3B8' }}>10 AI tools</span>
+            <span style={{ fontSize: 12, color: '#94A3B8' }}>9 AI tools</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="mkr-bento-grid">
             {([
-              { icon: Search, label: 'Product Intel', path: '/app/intelligence', color: '#818CF8' },
-              { icon: Globe, label: 'Store Builder', path: '/app/store-builder', color: '#A78BFA' },
-              { icon: Eye, label: 'Competitor Spy', path: '/app/competitor-spy', color: '#38BDF8' },
-              { icon: BarChart2, label: 'Market Intel', path: '/app/market-intel', color: '#34D399' },
-              { icon: Megaphone, label: 'Ads Studio', path: '/app/ads-studio', color: '#FBBF24' },
-              { icon: DollarSign, label: 'Profit Calc', path: '/app/profit-calculator', color: '#22C55E' },
-              { icon: MessageSquare, label: 'Maya AI', path: '/app/ai-chat', color: '#818CF8' },
-              { icon: TrendingUp, label: 'Trend Radar', path: '/app/trend-radar', color: '#F472B6' },
-              { icon: BookOpen, label: 'Learn Hub', path: '/app/learn', color: '#FBBF24' },
-              { icon: ShoppingBag, label: 'My Products', path: '/app/my-products', color: '#94A3B8' },
-            ] as const).map((tool, i) => (
-              <button key={i} onClick={() => setLocation(tool.path)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 150ms' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(99,102,241,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <tool.icon size={18} color="#818CF8" />
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#CBD5E1', textAlign: 'center', lineHeight: 1.3 }}>{tool.label}</span>
-              </button>
+              { id: 'intelligence', label: 'Product Intel', desc: 'Discover winning products', icon: '🔍', path: '/app/intelligence', wide: true },
+              { id: 'store-builder', label: 'Store Builder', desc: 'Build in 60 seconds', icon: '🏪', path: '/app/store-builder' },
+              { id: 'spy', label: 'Competitor Spy', desc: 'Analyse any store', icon: '🕵️', path: '/app/competitor-spy' },
+              { id: 'ads', label: 'Ads Studio', desc: 'Generate ad creatives', icon: '🎯', path: '/app/ads-studio' },
+              { id: 'maya', label: 'Maya AI', desc: 'Your AI advisor', icon: '🤖', path: '/app/ai-chat', wide: true },
+              { id: 'market', label: 'Market Intel', desc: 'Live market data', icon: '📊', path: '/app/market' },
+              { id: 'profit', label: 'Profit Calc', desc: 'Run the numbers', icon: '💰', path: '/app/profit' },
+              { id: 'trend', label: 'Trend Radar', desc: 'Spot trends early', icon: '📡', path: '/app/trend-radar' },
+              { id: 'learn', label: 'Learn Hub', desc: 'Courses & tutorials', icon: '🎓', path: '/app/learn' },
+            ] as const).map(tool => (
+              <div key={tool.id} className={`mkr-bento-cell ${tool.wide ? 'mkr-bento-cell-wide' : ''}`} onClick={() => setLocation(tool.path)} style={{ cursor: 'pointer' }}>
+                <span className="bento-icon">{tool.icon}</span>
+                <span className="bento-name">{tool.label}</span>
+                <span className="bento-desc">{tool.desc}</span>
+              </div>
             ))}
           </div>
         </div>

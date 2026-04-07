@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useCountUp } from '@/hooks/useCountUp';
+import { Meteors } from '@/components/ui/Meteors';
 
 interface Product {
   id: string | number;
@@ -47,23 +48,14 @@ export function ProductDeepDive({ product, onClose }: ProductDeepDiveProps) {
 
   return (
     <div
+      className={`mkr-deep-dive-panel ${product ? 'open' : ''}`}
       style={{
-        position: 'fixed',
-        right: 0,
-        top: 0,
-        height: '100vh',
-        width: 480,
-        background: '#0C1120',
-        borderLeft: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '-24px 0 64px rgba(0,0,0,0.4)',
-        transform: product ? 'translateX(0)' : 'translateX(480px)',
-        transition: 'transform 0.25s ease-out',
-        zIndex: 100,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
       }}
     >
+      <Meteors number={8} />
       {/* Header with image and close button */}
       <div style={{ flexShrink: 0, position: 'relative' }}>
         {/* Product image */}
@@ -138,7 +130,7 @@ export function ProductDeepDive({ product, onClose }: ProductDeepDiveProps) {
       </div>
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 16 }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 16, position: 'relative', zIndex: 10 }}>
         {/* Score bar */}
         <div style={{ padding: '0 16px 16px' }}>
           <div

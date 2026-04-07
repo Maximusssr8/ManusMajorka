@@ -114,3 +114,74 @@ select option { background: #111827; color: #F8FAFC; }
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* FEATURE 1: Aurora Background */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.aurora-bg::before,
+.aurora-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: aurora-drift 18s ease-in-out infinite alternate;
+}
+
+.aurora-bg::before {
+  width: 900px;
+  height: 600px;
+  top: -200px;
+  left: -100px;
+  background: radial-gradient(ellipse, #6366f1 0%, #7c3aed 40%, transparent 70%);
+  animation-duration: 22s;
+}
+
+.aurora-bg::after {
+  width: 700px;
+  height: 500px;
+  bottom: -150px;
+  right: -100px;
+  background: radial-gradient(ellipse, #0ea5e9 0%, #6366f1 50%, transparent 70%);
+  animation-duration: 16s;
+  animation-direction: alternate-reverse;
+}
+
+.aurora-blob-3 {
+  position: absolute;
+  width: 500px;
+  height: 400px;
+  top: 40%;
+  left: 50%;
+  background: radial-gradient(ellipse, #10b981 0%, transparent 65%);
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.05;
+  animation: aurora-drift-3 28s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(60px, -40px) scale(1.05); }
+  66%  { transform: translate(-40px, 50px) scale(0.95); }
+  100% { transform: translate(30px, -20px) scale(1.02); }
+}
+
+@keyframes aurora-drift-3 {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  33%  { transform: translate(calc(-50% + 60px), calc(-50% - 40px)) scale(1.05); }
+  66%  { transform: translate(calc(-50% - 40px), calc(-50% + 50px)) scale(0.95); }
+  100% { transform: translate(calc(-50% + 30px), calc(-50% - 20px)) scale(1.02); }
+}
+
+/* All content sits above aurora */
+#root > *:not(.aurora-bg) {
+  position: relative;
+  z-index: 1;
+}
