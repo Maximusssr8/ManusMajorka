@@ -957,6 +957,52 @@ async function runRefreshHotProducts(req: Request, res: Response) {
 router.get('/refresh-hotproducts', runRefreshHotProducts);
 router.post('/refresh-hotproducts', runRefreshHotProducts);
 
+// ── /api/cron/backfill-images — extracts og:image from AliExpress pages ──
+async function runBackfillImages(req: Request, res: Response) {
+  if (!verifyCronSecret(req)) { res.status(401).json({ error: 'Unauthorized' }); return; }
+  try {
+    const sb = getSupabaseAdmin();
+    const { data, error } = await sb
+      .from('winning_products')
+      .select('id, product_url, product_title')
+      .is('image_url', null)
+      .not('product_url', 'is', null)
+      .limit(50);
+    if (error) { res.status(500).json({ error: error.message }); return; }
+    const rows = (data ?? []) as Array<{ id: string; product_url: string | null; product_title: string | null }>;
+
+    let updated = 0;
+    let failed = 0;
+    for (const p of rows) {
+      const m = p.product_url?.match(/item\/(\d+)\.html/);
+      if (!m) { failed++; continue; }
+      try {
+        const r = await fetch(`https://www.aliexpress.com/item/${m[1]}.html`, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+        });
+        const html = await r.text();
+        const og = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i);
+        const imageUrl = og?.[1];
+        if (imageUrl && imageUrl.startsWith('http')) {
+          await sb.from('winning_products')
+            .update({ image_url: imageUrl, updated_at: new Date().toISOString() })
+            .eq('id', p.id);
+          updated++;
+        } else {
+          failed++;
+        }
+      } catch {
+        failed++;
+      }
+    }
+    res.json({ success: true, updated, failed, processed: rows.length });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+}
+router.get('/backfill-images', runBackfillImages);
+router.post('/backfill-images', runBackfillImages);
+
 export default router;
 
 // POST /api/cron/ae-bestsellers — runs every 6h via Vercel cron (0 */6 * * *)

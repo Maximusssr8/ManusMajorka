@@ -6,7 +6,7 @@ import {
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, useProductStats } from '@/hooks/useProducts';
-import { categoryGradient } from '@/lib/categoryColor';
+import { getCategoryStyle } from '@/lib/categoryColor';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -110,50 +110,34 @@ function KpiCardCmp({ card, loading }: KpiCardComponentProps) {
 }
 
 function ProductRowImage({ image, title, category }: { image: string | null; title: string; category: string | null }) {
-  const initial = ((title ?? 'P').trim() || 'P').charAt(0).toUpperCase();
-  const fallback = (
+  const cs = getCategoryStyle(category);
+  return (
     <div style={{
       width: 44, height: 44, borderRadius: 8,
-      background: categoryGradient(category),
-      display: image ? 'none' : 'flex',
+      background: cs.gradient,
+      display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: display,
-      fontSize: 16,
-      fontWeight: 600,
-      color: '#ffffff',
+      fontSize: 22,
+      flexShrink: 0,
       border: '1px solid rgba(255,255,255,0.06)',
       boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
-      flexShrink: 0,
-    }}>{initial}</div>
-  );
-  if (image) {
-    return (
-      <>
+      overflow: 'hidden',
+    }}>
+      {image ? (
         <img
           src={image}
           alt={title}
           referrerPolicy="no-referrer-when-downgrade"
           loading="lazy"
-          style={{
-            width: 44, height: 44, borderRadius: 8, objectFit: 'cover',
-            border: '1px solid rgba(255,255,255,0.08)',
-            background: '#0d0d10',
-            display: 'block',
-            flexShrink: 0,
-          }}
-          onError={(e) => {
-            const el = e.currentTarget as HTMLImageElement;
-            el.style.display = 'none';
-            const next = el.nextElementSibling as HTMLElement | null;
-            if (next) next.style.display = 'flex';
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
         />
-        {fallback}
-      </>
-    );
-  }
-  return fallback;
+      ) : (
+        cs.emoji
+      )}
+    </div>
+  );
 }
 
 function SkeletonRow() {

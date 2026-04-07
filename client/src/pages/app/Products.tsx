@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { ProductImage } from '@/components/app/ProductImage';
-import { categoryGradient } from '@/lib/categoryColor';
+import { getCategoryStyle } from '@/lib/categoryColor';
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
@@ -152,6 +152,34 @@ export default function AppProducts() {
         <p style={{ fontFamily: sans, fontSize: 13, color: '#71717a', margin: '4px 0 0' }}>
           Real products from AliExpress with genuine order data{loading ? '' : ` · ${total.toLocaleString()} tracked`}
         </p>
+      </div>
+
+      {/* Image sync banner */}
+      <div style={{
+        margin: '12px 32px',
+        padding: '10px 16px',
+        background: 'rgba(99,102,241,0.06)',
+        border: '1px solid rgba(99,102,241,0.15)',
+        borderRadius: 8,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+      }}>
+        <span style={{ fontSize: 16 }}>🔄</span>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontFamily: sans, fontSize: 13, color: '#a1a1aa' }}>Product images syncing from AliExpress — </span>
+          <span style={{ fontFamily: sans, fontSize: 13, color: '#6366F1', fontWeight: 500 }}>run the image backfill to populate instantly</span>
+        </div>
+        <a href="/api/cron/backfill-images" target="_blank" rel="noopener noreferrer" style={{
+          fontFamily: mono,
+          fontSize: 11,
+          color: '#6366F1',
+          textDecoration: 'none',
+          padding: '5px 10px',
+          border: '1px solid rgba(99,102,241,0.3)',
+          borderRadius: 5,
+          whiteSpace: 'nowrap',
+        }}>Trigger sync →</a>
       </div>
 
       <FeaturedSections />
@@ -619,7 +647,7 @@ function SectionRow({ title, emoji, bg, border, accentColor, products, loading }
 }
 
 function FeaturedCard({ product, bg, border, accentColor }: { product: Product; bg: string; border: string; accentColor: string }) {
-  const initial = ((product.product_title ?? 'P').trim() || 'P').charAt(0).toUpperCase();
+  const cs = getCategoryStyle(product.category);
   const score = product.winning_score ?? 0;
   const orders = product.sold_count ?? 0;
   return (
@@ -635,40 +663,31 @@ function FeaturedCard({ product, bg, border, accentColor }: { product: Product; 
       gap: 10,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        {product.image_url ? (
-          <img
-            src={product.image_url}
-            alt={product.product_title}
-            referrerPolicy="no-referrer-when-downgrade"
-            loading="lazy"
-            style={{
-              width: 44, height: 44, borderRadius: 8, objectFit: 'cover',
-              border: '1px solid rgba(255,255,255,0.08)',
-              background: '#0d0d10',
-              flexShrink: 0,
-            }}
-            onError={(e) => {
-              const el = e.currentTarget as HTMLImageElement;
-              el.style.display = 'none';
-              const next = el.nextElementSibling as HTMLElement | null;
-              if (next) next.style.display = 'flex';
-            }}
-          />
-        ) : null}
         <div style={{
           width: 44, height: 44, borderRadius: 8,
-          background: categoryGradient(product.category),
-          display: product.image_url ? 'none' : 'flex',
+          background: cs.gradient,
+          display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: display,
-          fontSize: 16,
-          fontWeight: 600,
-          color: '#fff',
+          fontSize: 22,
+          flexShrink: 0,
           border: '1px solid rgba(255,255,255,0.06)',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
-          flexShrink: 0,
-        }}>{initial}</div>
+          overflow: 'hidden',
+        }}>
+          {product.image_url ? (
+            <img
+              src={product.image_url}
+              alt={product.product_title}
+              referrerPolicy="no-referrer-when-downgrade"
+              loading="lazy"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
+          ) : (
+            cs.emoji
+          )}
+        </div>
         <span style={{
           padding: '3px 9px',
           background: `${accentColor}22`,
