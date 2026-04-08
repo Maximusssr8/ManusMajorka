@@ -19,7 +19,6 @@ import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
-import MajorkaAppShell from '@/components/MajorkaAppShell';
 import { useProductTour } from '@/components/ProductTour';
 import { supabase } from '@/lib/supabase';
 import { trpc } from '@/lib/trpc';

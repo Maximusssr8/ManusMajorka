@@ -28,25 +28,25 @@ interface NavItem {
 }
 
 const GROUPS: NavItem[][] = [
-  // Group 1 — core
+  // Group 1 — intelligence
   [
     { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
     { label: 'Products', path: '/app/products', icon: Package },
-    { label: 'Market',           path: '/app/market',   icon: TrendingUp },
-    { label: 'Creators & Video', path: '/app/creators', icon: Video },
+    { label: 'Market',           path: '/app/market',   icon: TrendingUp, soon: true },
+    { label: 'Creators & Video', path: '/app/creators', icon: Video,      soon: true },
   ],
   // Group 2 — AI tools (each AI-powered surface gets a green AI pill)
   [
     { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles,  ai: true },
     { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone, ai: true },
-    { label: 'Ad Briefs',     path: '/app/ad-spy',        icon: FileText },
+    { label: 'Ad Briefs',     path: '/app/ad-spy',        icon: FileText,  soon: true },
     { label: 'Store Builder', path: '/app/store-builder', icon: Store,     ai: true },
   ],
   // Group 3 — manage
   [
-    { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
+    { label: 'Alerts',         path: '/app/alerts',         icon: Bell,       soon: true },
     { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye },
-    { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
+    { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign, soon: true },
     { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
   ],
   // Group 4 — account (always-visible)
@@ -216,20 +216,42 @@ export function Nav() {
         }}>{initial}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
-            fontFamily: sans,
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#e2e2e8',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>{displayName}</div>
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <span style={{
+              fontFamily: sans,
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#e2e2e8',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              minWidth: 0,
+            }}>{displayName}</span>
+            <span style={{
+              flexShrink: 0,
+              fontFamily: mono,
+              fontSize: 8,
+              fontWeight: 700,
+              color: isPro ? '#7c6aff' : 'rgba(255,255,255,0.4)',
+              background: isPro ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${isPro ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
+              padding: '1px 5px',
+              borderRadius: 3,
+              letterSpacing: '0.05em',
+            }}>{isPro ? 'SCALE' : 'BUILDER'}</span>
+          </div>
           <div style={{
             fontFamily: mono,
             fontSize: 9,
-            color: '#7c6aff',
+            color: 'rgba(255,255,255,0.35)',
             marginTop: 1,
-          }}>{planLabel}</div>
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>{user?.email ?? planLabel}</div>
         </div>
         <Link
           href="/app/settings"
@@ -259,6 +281,7 @@ interface NavLinkProps {
 
 function NavLink({ item, active, hotCount }: NavLinkProps) {
   const Icon = item.icon;
+  const dim = item.soon && !active;
   const baseStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
@@ -271,10 +294,11 @@ function NavLink({ item, active, hotCount }: NavLinkProps) {
     fontSize: 13,
     fontFamily: sans,
     transition: 'all 120ms',
-    color: active ? '#e8e8f0' : '#6b6b80',
+    color: active ? '#e8e8f0' : dim ? 'rgba(255,255,255,0.28)' : '#6b6b80',
     background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
     border: `1px solid ${active ? 'rgba(124,106,255,0.18)' : 'transparent'}`,
     fontWeight: active ? 600 : 500,
+    opacity: dim ? 0.7 : 1,
   };
   return (
     <Link
@@ -322,6 +346,20 @@ function NavLink({ item, active, hotCount }: NavLinkProps) {
           letterSpacing: '0.05em',
           flexShrink: 0,
         }}>{item.tag.toUpperCase()}</span>
+      )}
+      {item.soon && (
+        <span style={{
+          background: 'rgba(255,255,255,0.04)',
+          color: 'rgba(255,255,255,0.3)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 999,
+          padding: '1px 6px',
+          fontSize: 8,
+          fontWeight: 600,
+          fontFamily: mono,
+          letterSpacing: '0.05em',
+          flexShrink: 0,
+        }}>SOON</span>
       )}
       {hotCount > 0 && (
         <span style={{

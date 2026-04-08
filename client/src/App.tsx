@@ -10,7 +10,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import CookieBanner from './components/CookieBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import MajorkaAppShell from './components/MajorkaAppShell';
 import { AuthProvider } from './contexts/AuthContext';
 import { MarketProvider } from './contexts/MarketContext';
 import { ProductProvider } from './contexts/ProductContext';
@@ -247,7 +246,8 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/ad-spy">{() => <ProtectedRoute><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ad-spy">{() => <ProtectedRoute><AppLayout><ComingSoon page="Ad Briefs" /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ad-spy-legacy">{() => <ProtectedRoute><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/competitor-spy">{() => <ProtectedRoute><AppLayout><CompetitorSpy /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ads-studio">{() => <ProtectedRoute><AppLayout><AdsStudio /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ads-manager">{() => <ProtectedRoute><AppLayout><AdsManager /></AppLayout></ProtectedRoute>}</Route>

@@ -34,7 +34,6 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
 import { DashboardAISuggestion } from '@/components/DashboardAISuggestion';
 import LaunchReadiness from '@/components/LaunchReadiness';
-import MajorkaAppShell from '@/components/MajorkaAppShell';
 import { SEO } from '@/components/SEO';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { ProductImage } from '@/components/ProductImage';
