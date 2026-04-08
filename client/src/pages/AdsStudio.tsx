@@ -151,19 +151,21 @@ export default function AdsStudio() {
     if (dbProducts.length > 0) return;
     setDbLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('winning_products')
-        .select('id, product_title, price_aud, sold_count, category, image_url, product_url')
-        .not('product_title', 'is', null)
-        .order('sold_count', { ascending: false })
-        .limit(20);
-      if (error) {
-        console.error('[ads-studio] DB picker error:', error);
+      // Use the server route — bypasses RLS via service role key, no client-side auth hassle
+      const r = await fetch('/api/products/top20');
+      if (!r.ok) {
+        console.error('[ads-studio] DB picker HTTP error:', r.status);
         setDbProducts([]);
         return;
       }
-      console.info(`[ads-studio] DB picker loaded ${data?.length ?? 0} products`);
-      setDbProducts((data ?? []) as DbProduct[]);
+      const data = await r.json() as { products: DbProduct[]; count: number; error?: string };
+      if (data.error) {
+        console.error('[ads-studio] DB picker server error:', data.error);
+        setDbProducts([]);
+        return;
+      }
+      console.info(`[ads-studio] DB picker loaded ${data.count} products via /api/products/top20`);
+      setDbProducts(data.products ?? []);
     } catch (err) {
       console.error('[ads-studio] DB picker threw:', err);
       setDbProducts([]);
@@ -192,8 +194,12 @@ export default function AdsStudio() {
   }
 
   async function generate() {
-    if (!productName.trim()) return;
-    console.log('[ads-studio] generating for:', productName);
+    // Log FIRST so we can see if the handler is firing even when validation bails.
+    console.log('[generate] FIRED - productName:', productName, 'price:', pricePoint);
+    if (!productName.trim()) {
+      console.warn('[generate] aborted — productName is empty');
+      return;
+    }
     setLoading(true);
     setParsed(null);
 
@@ -236,9 +242,10 @@ HOOK VARIATION 3:
 OBJECTION KILLER:
 [One sentence that neutralises the main reason someone would scroll past]`;
 
+    const API_URL = '/api/ai/generate';
     try {
-      console.log('[ads-studio] calling API...');
-      const r = await fetch('/api/ai/generate', {
+      console.log('[generate] calling API at:', API_URL);
+      const r = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -252,7 +259,7 @@ OBJECTION KILLER:
           max_tokens: 1400,
         }),
       });
-      console.log('[ads-studio] response received:', r.status);
+      console.log('[generate] API response status:', r.status);
       const d = await r.json();
       const result: string = d.result || d.content || d.text || d.output || '';
       console.log('[ads-studio] raw result length:', result.length);

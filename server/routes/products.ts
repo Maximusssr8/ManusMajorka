@@ -455,6 +455,35 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/top20 — service-role bypass for client pickers ──
+// Uses SUPABASE_SERVICE_ROLE_KEY which bypasses RLS. Safe: read-only, no
+// user data, returns the 20 products with the highest sold_count. Used by
+// the Ads Studio "Pick from your product database" dropdown so the client
+// never has to touch winning_products directly (avoids RLS policy drift).
+router.get('/top20', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const { data, error } = await sb
+      .from('winning_products')
+      .select('id, product_title, price_aud, sold_count, category, image_url, product_url')
+      .not('product_title', 'is', null)
+      .not('sold_count', 'is', null)
+      .order('sold_count', { ascending: false })
+      .limit(20);
+    if (error) {
+      console.error('[products/top20] supabase error:', error.message);
+      return res.status(500).json({ error: error.message, products: [] });
+    }
+    return res.json({ products: data ?? [], count: data?.length ?? 0 });
+  } catch (err: unknown) {
+    console.error('[products/top20]', err);
+    return res.status(500).json({
+      error: err instanceof Error ? err.message : 'Unknown error',
+      products: [],
+    });
+  }
+});
+
 // ── GET /api/products/ae-live-search — direct AliExpress Affiliate API search ──
 // Layer 2 of the hybrid pipeline: unfiltered live results from AE Affiliate API.
 // Public endpoint (no auth) — read-only, no DB writes, no scoring.
