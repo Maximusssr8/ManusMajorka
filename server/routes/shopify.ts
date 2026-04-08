@@ -435,6 +435,79 @@ router.post('/push-product', async (req, res) => {
   }
 });
 
+// ── POST /api/shopify/create-product — push a saved/favourite product ──────
+// Accepts an arbitrary product payload (not bound to winning_products id) so
+// the favourites export flow can ship products that may not be in the DB.
+router.post('/create-product', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { product } = req.body as {
+      product?: {
+        product_title?: string;
+        price_aud?: number | null;
+        sold_count?: number | null;
+        category?: string | null;
+        image_url?: string | null;
+        product_url?: string | null;
+      };
+    };
+    if (!product?.product_title) return res.status(400).json({ error: 'product.product_title required' });
+
+    const { data: conn } = await supabase
+      .from('shopify_connections')
+      .select('shop_domain, access_token')
+      .eq('user_id', user.id)
+      .single();
+    if (!conn?.access_token) {
+      return res.status(400).json({ error: 'Shopify not connected' });
+    }
+
+    const orders = product.sold_count ?? 0;
+    const basePrice = Number(product.price_aud ?? 16.65);
+    const sellPrice = (basePrice * 3).toFixed(2);
+
+    const shopifyRes = await fetch(
+      `https://${conn.shop_domain}/admin/api/2024-01/products.json`,
+      {
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': conn.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product: {
+            title: product.product_title,
+            body_html: `<p>High-demand product with ${orders.toLocaleString()} monthly orders on AliExpress.</p>`,
+            vendor: 'AliExpress',
+            product_type: product.category || 'General',
+            status: 'draft',
+            images: product.image_url ? [{ src: product.image_url }] : [],
+            variants: [{ price: sellPrice, requires_shipping: true }],
+          },
+        }),
+      }
+    );
+
+    if (!shopifyRes.ok) {
+      const errData = await shopifyRes.json().catch(() => ({}));
+      return res.status(shopifyRes.status).json({ error: 'Shopify API error', details: errData });
+    }
+
+    const result = await shopifyRes.json() as { product?: { id?: number } };
+    return res.json({
+      success: true,
+      shopifyProductId: result.product?.id,
+      shopifyProductUrl: `https://${conn.shop_domain}/admin/products/${result.product?.id}`,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: msg });
+  }
+});
+
 // ── GET /api/shopify/sync-status — last sync time + product count ───────────
 router.get('/sync-status', async (req, res) => {
   try {

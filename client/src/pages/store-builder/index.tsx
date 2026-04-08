@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFavourites } from '@/hooks/useFavourites';
 import UpgradeModal from '@/components/UpgradeModal';
 import { Check, X, Plus, ChevronDown, ChevronUp, Loader2, ExternalLink, RefreshCw, Eye, Smartphone, Monitor, Copy, ShoppingCart } from 'lucide-react';
 import { useLocation } from 'wouter';
@@ -291,6 +292,9 @@ const confettiCSS = `
 export default function StoreBuilder() {
   const { session, subPlan, subStatus } = useAuth();
   const [, setLocation] = useLocation();
+  const fav = useFavourites();
+  const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<{ done: number; total: number; failed: number }>({ done: 0, total: 0, failed: 0 });
 
   // ── Auth & subscription ──────────────────────────────────────
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
@@ -1049,6 +1053,77 @@ export default function StoreBuilder() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Import saved favourites */}
+              {fav.count > 0 && (
+                <div style={{ marginBottom: 32, background: cardBg, border: cardBorder, borderRadius: 16, padding: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const, marginBottom: 12 }}>
+                    <div>
+                      <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Import your saved products</h3>
+                      <p style={{ color: textSecondary, fontSize: 13, margin: 0 }}>You have {fav.count} saved product{fav.count === 1 ? '' : 's'} ready to import.</p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        setExporting(true);
+                        setExportProgress({ done: 0, total: fav.favourites.length, failed: 0 });
+                        let done = 0; let failed = 0;
+                        for (const item of fav.favourites) {
+                          try {
+                            const r = await fetch('/api/shopify/create-product', {
+                              method: 'POST',
+                              headers: authHeaders,
+                              body: JSON.stringify({
+                                product: {
+                                  product_title: item.product_title,
+                                  price_aud: item.price_aud,
+                                  sold_count: item.sold_count,
+                                  category: item.category,
+                                  image_url: item.image_url,
+                                  product_url: item.product_url,
+                                },
+                              }),
+                            });
+                            if (!r.ok) failed += 1;
+                          } catch { failed += 1; }
+                          done += 1;
+                          setExportProgress({ done, total: fav.favourites.length, failed });
+                        }
+                        setExporting(false);
+                      }}
+                      disabled={exporting}
+                      style={{ ...btnPrimary, padding: '10px 16px', fontSize: 13, opacity: exporting ? 0.7 : 1 }}
+                    >
+                      {exporting
+                        ? `Importing ${exportProgress.done} of ${exportProgress.total}…`
+                        : 'Export all to Shopify →'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, overflowX: 'auto' as const, paddingBottom: 4 }}>
+                    {fav.favourites.slice(0, 5).map((item) => (
+                      <div key={item.id} style={{ flexShrink: 0, width: 120 }}>
+                        <div style={{ width: 120, height: 120, borderRadius: 10, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', marginBottom: 6 }}>
+                          {item.image_url && <img src={item.image_url} alt={item.product_title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />}
+                        </div>
+                        <div style={{ fontSize: 11, color: textSecondary, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.product_title || '—'}</div>
+                      </div>
+                    ))}
+                    {fav.favourites.length > 5 && (
+                      <div style={{ flexShrink: 0, alignSelf: 'center' as const, color: textMuted, fontSize: 12 }}>+{fav.favourites.length - 5} more</div>
+                    )}
+                  </div>
+                  {exporting && (
+                    <div style={{ marginTop: 10, fontSize: 12, color: textMuted }}>
+                      Imported {exportProgress.done}/{exportProgress.total}{exportProgress.failed > 0 ? ` · ${exportProgress.failed} failed` : ''}
+                    </div>
+                  )}
+                  {!exporting && exportProgress.done > 0 && exportProgress.done === exportProgress.total && (
+                    <div style={{ marginTop: 10, fontSize: 12, color: '#10B981' }}>
+                      ✓ Imported {exportProgress.done - exportProgress.failed} of {exportProgress.total} products
+                      {exportProgress.failed > 0 ? ` (${exportProgress.failed} failed)` : ''}
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Search, List, LayoutGrid, ArrowUpRight, Clock, TrendingUp, DollarSign, Award, Calculator, Zap, ExternalLink } from 'lucide-react';
+import { Search, List, LayoutGrid, ArrowUpRight, Clock, TrendingUp, DollarSign, Award, Calculator, Zap, ExternalLink, Heart, Bookmark } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
+import { useFavourites } from '@/hooks/useFavourites';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { ProductImage } from '@/components/app/ProductImage';
@@ -13,7 +14,7 @@ import { proxyImage } from '@/lib/imageProxy';
 import { scorePillStyle, fmtScore } from '@/lib/scorePill';
 
 type CarouselKey = 'recent' | 'scored' | 'value';
-type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top';
+type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'saved';
 
 const fmtRev = (v: number): string =>
   v >= 1_000_000 ? `~$${(v / 1_000_000).toFixed(1)}M`
@@ -27,6 +28,7 @@ const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon }[] = [
   { key: 'trending',    label: 'Trending Now',  Icon: TrendingUp },
   { key: 'highmargin',  label: 'High Margin',   Icon: DollarSign },
   { key: 'top',         label: 'Score 90+',     Icon: Award },
+  { key: 'saved',       label: 'Saved',         Icon: Bookmark },
 ];
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
@@ -155,7 +157,7 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
   if (typeof window === 'undefined') return { tab: 'all', search: '' };
   const params = new URLSearchParams(window.location.search);
   const t = params.get('tab');
-  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top'];
+  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'saved'];
   const tab = validTabs.includes(t as SmartTabKey) ? (t as SmartTabKey) : 'all';
   return { tab, search: params.get('search') ?? '' };
 }
@@ -180,6 +182,8 @@ export default function AppProducts() {
   const [scoreMax, setScoreMax] = useState<number>(100);
   const aeSearch = useAESearch();
   const { niches } = useNicheStats();
+  const fav = useFavourites();
+  const [favToast, setFavToast] = useState<string | null>(null);
 
   // Trigger AE live search if a ?search= param is present on first mount
   useEffect(() => {
@@ -189,13 +193,15 @@ export default function AppProducts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { products, loading, total } = useProducts({
+  const { products, loading, total, cached } = useProducts({
     limit,
     orderBy,
-    category: activeNiche ?? undefined,
+    tab: activeTab === 'saved' ? 'all' : activeTab,
+    category: activeNiche ?? (categoryFilter || undefined),
     minPrice: priceMin ?? undefined,
     maxPrice: priceMax ?? undefined,
     minOrders: minOrders ?? undefined,
+    minScore: scoreMin > 0 ? scoreMin : undefined,
   });
 
   // Infinite scroll for live AE search mode
@@ -221,41 +227,52 @@ export default function AppProducts() {
     return Array.from(set).sort();
   }, [products]);
 
+  // Server has applied tab + category + price + minScore filters already.
+  // Only the saved-tab override (uses local favourites) and the maxScore
+  // upper bound need to be applied client-side.
   const filtered = useMemo(() => {
-    let list = products;
-    if (activeTab === 'new') {
-      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      list = list.filter((p) => p.created_at && new Date(p.created_at).getTime() >= cutoff);
-    } else if (activeTab === 'trending') {
-      list = list.filter((p) => (p.sold_count ?? 0) > 10000);
-    } else if (activeTab === 'highmargin') {
-      list = list.filter((p) => p.price_aud != null && Number(p.price_aud) > 5);
-    } else if (activeTab === 'top') {
-      list = list.filter((p) => (p.winning_score ?? 0) >= 90);
+    if (activeTab === 'saved') {
+      return fav.favourites.map((f) => ({
+        id: f.product_id,
+        product_title: f.product_title ?? '',
+        category: f.category,
+        platform: 'aliexpress',
+        price_aud: f.price_aud,
+        sold_count: f.sold_count,
+        winning_score: f.winning_score,
+        trend: null,
+        est_daily_revenue_aud: null,
+        image_url: f.image_url,
+        product_url: f.product_url,
+        created_at: f.saved_at,
+        updated_at: null,
+      } satisfies Product));
     }
-    if (categoryFilter) {
-      list = list.filter((p) => p.category === categoryFilter);
+    if (scoreMax < 100) {
+      return products.filter((p) => (p.winning_score ?? 0) <= scoreMax);
     }
-    if (scoreMin > 0 || scoreMax < 100) {
-      list = list.filter((p) => {
-        const s = p.winning_score ?? 0;
-        return s >= scoreMin && s <= scoreMax;
-      });
-    }
-    return list;
-  }, [products, activeTab, categoryFilter, scoreMin, scoreMax]);
+    return products;
+  }, [products, activeTab, scoreMax, fav.favourites]);
 
-  // Counts for smart tabs (computed from the loaded slice; "All" uses `total` for full DB count)
+  // Counts for smart tabs. Most are approximations since we only have the
+  // current page loaded — `total` is reliable because it comes from
+  // count: 'exact' for the active tab. Saved comes from useFavourites.
   const tabCounts = useMemo(() => {
-    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
     return {
-      all:        total,
-      new:        products.filter((p) => p.created_at && new Date(p.created_at).getTime() >= cutoff).length,
-      trending:   products.filter((p) => (p.sold_count ?? 0) > 10000).length,
-      highmargin: products.filter((p) => p.price_aud != null && Number(p.price_aud) > 5).length,
-      top:        products.filter((p) => (p.winning_score ?? 0) >= 90).length,
+      all:        activeTab === 'all' ? total : products.length,
+      new:        activeTab === 'new' ? total : products.filter((p) => {
+        if (!p.created_at) return false;
+        return new Date(p.created_at).getTime() >= Date.now() - 7 * 24 * 60 * 60 * 1000;
+      }).length,
+      trending:   activeTab === 'trending' ? total : products.filter((p) => (p.sold_count ?? 0) >= 50000).length,
+      highmargin: activeTab === 'highmargin' ? total : products.filter((p) => {
+        const price = Number(p.price_aud ?? 0);
+        return price >= 2 && price <= 15 && (p.sold_count ?? 0) >= 10000;
+      }).length,
+      top:        activeTab === 'top' ? total : products.filter((p) => (p.winning_score ?? 0) >= 90).length,
+      saved:      fav.count,
     };
-  }, [products, total]);
+  }, [products, total, activeTab, fav.count]);
 
   return (
     <>
@@ -278,7 +295,19 @@ export default function AppProducts() {
           <span className="mj-app-pulse-dot" />
           {searchMode === 'live'
             ? `Live AliExpress Affiliate API · ${aeSearch.total.toLocaleString()} results for "${aeSearch.query}"`
-            : `${total > 0 ? total.toLocaleString() : ''} products tracked · AliExpress Advanced API · refreshed every 6h`}
+            : `${total > 0 ? total.toLocaleString() : ''} products tracked · AliExpress Advanced API`}
+          {searchMode === 'db' && (
+            <span style={{
+              padding: '2px 8px',
+              borderRadius: 999,
+              fontFamily: mono,
+              fontSize: 10,
+              fontWeight: 700,
+              background: cached ? 'rgba(124,106,255,0.12)' : 'rgba(16,185,129,0.12)',
+              color: cached ? '#a78bfa' : '#10b981',
+              border: `1px solid ${cached ? 'rgba(124,106,255,0.25)' : 'rgba(16,185,129,0.25)'}`,
+            }}>{cached ? '⚡ Cached' : '● Live'}</span>
+          )}
         </p>
       </div>
 
@@ -322,23 +351,6 @@ export default function AppProducts() {
             }}
           />
         </div>
-        <button
-          onClick={() => setShowFilters((s) => !s)}
-          style={{
-            padding: '10px 14px',
-            background: showFilters ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.04)',
-            border: `1px solid ${showFilters ? 'rgba(124,106,255,0.3)' : 'rgba(255,255,255,0.08)'}`,
-            borderRadius: 8,
-            color: showFilters ? '#7c6aff' : '#6b7280',
-            fontFamily: sans,
-            fontSize: 13,
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >⚙️ Filters</button>
         {searchMode === 'live' && (
           <button
             onClick={() => { setSearchMode('db'); aeSearch.reset(); setLiveQuery(''); }}
@@ -357,8 +369,8 @@ export default function AppProducts() {
         )}
       </div>
 
-      {/* Advanced filters panel */}
-      {showFilters && searchMode === 'db' && (
+      {/* Always-visible inline filter bar (sits between tabs and table) */}
+      {searchMode === 'db' && (
         <div style={{
           margin: '0 32px 16px',
           padding: '16px 20px',
@@ -481,15 +493,18 @@ export default function AppProducts() {
                 cursor: 'pointer',
               }}
             >
-              <option value="sold_count">Orders: High → Low</option>
-              <option value="winning_score">Score: High → Low</option>
-              <option value="price_asc">Price: Low → High</option>
-              <option value="created_at">Newest First</option>
+              <option value="sold_count">🔥 Most Orders</option>
+              <option value="winning_score">⭐ Highest Score</option>
+              <option value="est_daily_revenue_aud">💰 Highest Revenue</option>
+              <option value="price_asc">📈 Price: Low to High</option>
+              <option value="price_desc">📉 Price: High to Low</option>
+              <option value="created_at">🆕 Newest First</option>
+              <option value="orders_asc">📊 Orders: Low to High</option>
             </select>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button
-              onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); setCategoryFilter(''); setScoreMin(0); setScoreMax(100); }}
+              onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); setCategoryFilter(''); setScoreMin(0); setScoreMax(100); setOrderBy('sold_count'); }}
               style={{
                 padding: '8px 14px',
                 background: 'transparent',
@@ -612,7 +627,21 @@ export default function AppProducts() {
 
       {/* Content */}
       {view === 'table' ? (
-        <TableView products={filtered} loading={loading} onSelect={setSelectedProduct} />
+        <TableView
+          products={filtered}
+          loading={loading && activeTab !== 'saved'}
+          onSelect={setSelectedProduct}
+          isFavourite={fav.isFavourite}
+          onToggleFav={async (p) => {
+            try { await fav.toggleFavourite(p); }
+            catch (e) {
+              if ((e as Error).message === 'NOT_AUTHED') {
+                setFavToast('Sign in to save products');
+                setTimeout(() => setFavToast(null), 2500);
+              }
+            }
+          }}
+        />
       ) : (
         <GridView products={filtered} loading={loading} onSelect={setSelectedProduct} />
       )}
@@ -654,11 +683,36 @@ export default function AppProducts() {
       </>)}
 
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+
+      {favToast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          padding: '12px 18px',
+          background: '#1c1c1c',
+          border: '1px solid rgba(124,106,255,0.35)',
+          borderRadius: 10,
+          color: '#e8e8f0',
+          fontFamily: sans,
+          fontSize: 13,
+          boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+          zIndex: 9999,
+        }}>{favToast}</div>
+      )}
     </>
   );
 }
 
-function TableView({ products, loading, onSelect }: { products: Product[]; loading: boolean; onSelect: (p: Product) => void }) {
+interface TableViewProps {
+  products: Product[];
+  loading: boolean;
+  onSelect: (p: Product) => void;
+  isFavourite: (id: string | number) => boolean;
+  onToggleFav: (p: Product) => void | Promise<void>;
+}
+
+function TableView({ products, loading, onSelect, isFavourite, onToggleFav }: TableViewProps) {
   return (
     <div style={{ padding: '0 32px 32px' }}>
       <div style={{
@@ -670,7 +724,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 230px',
+          gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 270px',
           gap: 14,
           padding: '10px 16px',
           fontFamily: mono,
@@ -716,7 +770,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
           Array.from({ length: 10 }).map((_, i) => (
             <div key={i} style={{
               display: 'grid',
-              gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 230px',
+              gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 270px',
               gap: 14,
               padding: '12px 16px',
               alignItems: 'center',
@@ -761,7 +815,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                 onClick={() => onSelect(p)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 230px',
+                  gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 270px',
                   gap: 14,
                   padding: '12px 16px',
                   alignItems: 'center',
@@ -841,7 +895,11 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                   <ProductSparkline productId={p.id} score={score} width={86} height={22} points={8} />
                 </span>
                 <span style={{ display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
-                  <RowActions product={p} />
+                  <RowActions
+                    product={p}
+                    isFav={isFavourite(p.id)}
+                    onToggleFav={() => onToggleFav(p)}
+                  />
                 </span>
               </div>
             );
@@ -1360,7 +1418,13 @@ function ProductThumb({ title, image, category }: { title: string; image: string
 }
 
 
-function RowActions({ product }: { product: Product }) {
+interface RowActionsProps {
+  product: Product;
+  isFav: boolean;
+  onToggleFav: () => void;
+}
+
+function RowActions({ product, isFav, onToggleFav }: RowActionsProps) {
   const pillBase: React.CSSProperties = {
     display: 'inline-flex',
     alignItems: 'center',
@@ -1377,6 +1441,23 @@ function RowActions({ product }: { product: Product }) {
   };
   return (
     <>
+      <button
+        title={isFav ? 'Saved — click to remove' : 'Save product'}
+        onClick={(e) => { e.stopPropagation(); onToggleFav(); }}
+        style={{
+          ...pillBase,
+          width: 28,
+          padding: 0,
+          justifyContent: 'center',
+          background: isFav ? 'rgba(124,106,255,0.18)' : 'rgba(255,255,255,0.04)',
+          color: isFav ? '#a78bfa' : 'rgba(255,255,255,0.5)',
+          border: `1px solid ${isFav ? 'rgba(124,106,255,0.35)' : 'rgba(255,255,255,0.08)'}`,
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = isFav ? 'rgba(124,106,255,0.28)' : 'rgba(255,255,255,0.08)'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = isFav ? 'rgba(124,106,255,0.18)' : 'rgba(255,255,255,0.04)'; }}
+      >
+        <Heart size={12} fill={isFav ? '#a78bfa' : 'none'} strokeWidth={isFav ? 2 : 1.6} />
+      </button>
       <button
         title="Profit Calculator"
         onClick={(e) => { e.stopPropagation(); window.location.href = '/app/profit'; }}
