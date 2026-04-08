@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -2129,6 +2130,8 @@ export default function Home() {
         ogImage="/og-image.svg"
       />
       <style>{STYLES}</style>
+      <AnnouncementBanner />
+      <div style={{ paddingTop: 36 }} />
       <Nav />
       <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '0ms' }}>
         <Hero />
