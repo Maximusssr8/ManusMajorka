@@ -162,7 +162,9 @@ html, body { background: ${T.bg}; }
 .mj-row-enter { animation: mj-fade-in-down 400ms ease-out; }
 
 @keyframes mj-fade-up {
-  from { opacity: 0; transform: translateY(20px); }
+  /* Neutralized — starts at opacity 1 so elements are visible even if the
+     animation never runs (e.g. headless browsers, reduced-motion). */
+  from { opacity: 1; transform: translateY(0); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -2245,18 +2247,10 @@ export default function Home() {
       <SocialProofToasts />
       <div style={{ paddingTop: 36 }} />
       <Nav />
-      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '0ms' }}>
-        <Hero />
-      </div>
-      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '100ms' }}>
-        <LiveTicker />
-      </div>
-      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '200ms' }}>
-        <Stats />
-      </div>
-      <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '300ms' }}>
-        <PartnerBar />
-      </div>
+      <Hero />
+      <LiveTicker />
+      <Stats />
+      <PartnerBar />
 
       <ThePlatform />
       <RevenueProofBanner />
