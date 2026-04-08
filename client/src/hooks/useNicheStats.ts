@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+// Module-level cache — niche aggregations are expensive (full table scan).
+// 5-minute TTL so Home → Products → Market navigation hits cache.
+const NICHE_CACHE = new Map<string, { data: NicheStat[]; ts: number }>();
+const NICHE_TTL = 5 * 60 * 1000;
+
 export interface NicheStat {
   name: string;
   count: number;
@@ -23,6 +28,13 @@ export function useNicheStats(limit: number = 12): UseNicheStatsResult {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      const cacheKey = `market:categories:${limit}`;
+      const cached = NICHE_CACHE.get(cacheKey);
+      if (cached && Date.now() - cached.ts < NICHE_TTL) {
+        setNiches(cached.data);
+        setLoading(false);
+        return;
+      }
       try {
         // Paginated fetch — Supabase default max_rows=1000
         type Row = { category: string | null; winning_score: number | null; sold_count: number | null; price_aud: number | null };
@@ -67,6 +79,7 @@ export function useNicheStats(limit: number = 12): UseNicheStatsResult {
           .sort((a, b) => b.totalOrders - a.totalOrders)
           .slice(0, limit);
 
+        NICHE_CACHE.set(`market:categories:${limit}`, { data: result, ts: Date.now() });
         if (!cancelled) {
           setNiches(result);
           setLoading(false);

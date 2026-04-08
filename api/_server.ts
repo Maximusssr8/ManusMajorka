@@ -72,6 +72,15 @@ const app = express();
 app.disable('x-powered-by'); // Don't expose Express in response headers
 app.set('trust proxy', 1); // Trust Vercel's load balancer for req.ip
 
+// ═══ Security headers — applied to every API response ═══
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
 // ═══ CORS Lockdown ═══
 const ALLOWED_ORIGINS = [
   'https://majorka.io',

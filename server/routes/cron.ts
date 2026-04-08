@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { cronLimiter } from '../lib/ratelimit';
 // Fire-and-forget launchers
 import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
 import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
@@ -957,8 +958,8 @@ async function runRefreshHotProducts(req: Request, res: Response) {
   }
 }
 
-router.get('/refresh-hotproducts', runRefreshHotProducts);
-router.post('/refresh-hotproducts', runRefreshHotProducts);
+router.get('/refresh-hotproducts', cronLimiter, runRefreshHotProducts);
+router.post('/refresh-hotproducts', cronLimiter, runRefreshHotProducts);
 
 // ── /api/cron/backfill-images — extracts og:image from AliExpress pages ──
 async function runBackfillImages(req: Request, res: Response) {

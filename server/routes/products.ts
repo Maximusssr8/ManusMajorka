@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
 import { searchAffiliateProducts } from '../lib/aliexpress-affiliate';
+import { aeSearchLimiter } from '../lib/ratelimit';
 import { cacheGet, cacheSet, cacheInvalidatePrefix, TTL } from '../lib/redisCache';
 import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
 import type { Plan } from '../../shared/plans';
@@ -457,7 +458,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
 // ── GET /api/products/ae-live-search — direct AliExpress Affiliate API search ──
 // Layer 2 of the hybrid pipeline: unfiltered live results from AE Affiliate API.
 // Public endpoint (no auth) — read-only, no DB writes, no scoring.
-router.get('/ae-live-search', async (req: Request, res: Response) => {
+router.get('/ae-live-search', aeSearchLimiter, async (req: Request, res: Response) => {
   const {
     q = '',
     page = '1',

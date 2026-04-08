@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 
-import { checkRateLimit } from '../lib/ratelimit';
+import { checkRateLimit, aiLimiter } from '../lib/ratelimit';
 import { requireAuth } from '../middleware/requireAuth';
 
 const router = Router();
@@ -67,7 +67,7 @@ Only output the JSON array. No markdown.`
   }
 });
 
-router.post('/generate-copy', requireAuth, async (req, res) => {
+router.post('/generate-copy', requireAuth, aiLimiter, async (req, res) => {
   const { productName, price, niche } = req.body;
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
@@ -273,7 +273,7 @@ ALWAYS output in this EXACT format with these EXACT section headers (include all
 });
 
 // Content Creator tools endpoint
-router.post('/generate-content', requireAuth, async (req, res) => {
+router.post('/generate-content', requireAuth, aiLimiter, async (req, res) => {
   try {
     const { tool, productName, benefit, niche, audience, platform } = req.body;
 
@@ -414,7 +414,7 @@ CAPTION: This is a game changer #australia #${(niche || 'product').replace(/\s/g
 export default router;
 
 // POST /api/ai/supplier-search — Tavily live supplier search
-router.post('/supplier-search', requireAuth, async (req, res) => {
+router.post('/supplier-search', requireAuth, aiLimiter, async (req, res) => {
   try {
     const { product } = req.body;
     if (!product) return res.status(400).json({ error: 'product required' });

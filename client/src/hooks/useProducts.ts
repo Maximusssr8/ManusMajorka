@@ -1,6 +1,29 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+// Module-level query cache. Shared across every `useProducts` /
+// `useProductStats` consumer in the session so navigating between pages
+// doesn't refetch. 5-minute TTL strikes the right balance between fresh
+// data and Supabase quota.
+const QUERY_CACHE = new Map<string, { data: unknown; timestamp: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+function cacheGet<T>(key: string): T | null {
+  const entry = QUERY_CACHE.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    QUERY_CACHE.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+function cacheSet(key: string, data: unknown): void {
+  QUERY_CACHE.set(key, { data, timestamp: Date.now() });
+}
+export function invalidateProductsCache(): void {
+  QUERY_CACHE.clear();
+}
+
 // ── Real schema (verified against server/lib/migrate-winning-products.ts) ──
 // The DB does NOT have an `is_active` column. Active = all rows in the table.
 export interface Product {
@@ -48,6 +71,14 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      const cacheKey = `products:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}`;
+      const cached = cacheGet<{ products: Product[]; total: number }>(cacheKey);
+      if (cached) {
+        setProducts(cached.products);
+        setTotal(cached.total);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
@@ -71,8 +102,11 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         const { data, error: err, count } = await query;
         if (cancelled) return;
         if (err) throw err;
-        setProducts((data ?? []) as Product[]);
-        setTotal(count ?? 0);
+        const productsOut = (data ?? []) as Product[];
+        const totalOut = count ?? 0;
+        setProducts(productsOut);
+        setTotal(totalOut);
+        cacheSet(`products:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}`, { products: productsOut, total: totalOut });
       } catch (e: unknown) {
         if (cancelled) return;
         setError(e instanceof Error ? e.message : 'Failed to load products');
@@ -112,6 +146,11 @@ export function useProductStats(): ProductStats {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      const cached = cacheGet<ProductStats>('stats:all');
+      if (cached) {
+        setStats({ ...cached, loading: false });
+        return;
+      }
       try {
         // Supabase REST default max_rows=1000, so .limit(3000) silently caps
         // at 1000. Paginate via .range() to fetch the full table for accurate
@@ -145,21 +184,13 @@ export function useProductStats(): ProductStats {
           const k = (r.platform ?? 'unknown').toLowerCase();
           bySource[k] = (bySource[k] ?? 0) + 1;
         }
-        if (!cancelled) {
-          setStats({
-            total,
-            maxOrders,
-            avgScore,
-            hotCount,
-            topScore,
-            highScoreCount,
-            eliteCount,
-            categoryCount,
-            bySource,
-            loading: false,
-            error: null,
-          });
-        }
+        const statsOut: ProductStats = {
+          total, maxOrders, avgScore, hotCount, topScore,
+          highScoreCount, eliteCount, categoryCount, bySource,
+          loading: false, error: null,
+        };
+        cacheSet('stats:all', statsOut);
+        if (!cancelled) setStats(statsOut);
       } catch (e: unknown) {
         console.warn('[useProductStats] paginated fetch failed, falling back to HEAD count:', e);
         // Fallback: HEAD count query so at least `total` is populated
