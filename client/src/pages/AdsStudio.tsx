@@ -151,14 +151,22 @@ export default function AdsStudio() {
     if (dbProducts.length > 0) return;
     setDbLoading(true);
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('winning_products')
-        .select('id, product_title, image_url, price_aud, sold_count, category, product_url')
-        .order('sold_count', { ascending: false, nullsFirst: false })
+        .select('id, product_title, price_aud, sold_count, category, image_url, product_url')
+        .not('product_title', 'is', null)
+        .order('sold_count', { ascending: false })
         .limit(20);
+      if (error) {
+        console.error('[ads-studio] DB picker error:', error);
+        setDbProducts([]);
+        return;
+      }
+      console.info(`[ads-studio] DB picker loaded ${data?.length ?? 0} products`);
       setDbProducts((data ?? []) as DbProduct[]);
     } catch (err) {
-      console.error('[ads-studio] db picker error:', err);
+      console.error('[ads-studio] DB picker threw:', err);
+      setDbProducts([]);
     } finally {
       setDbLoading(false);
     }
