@@ -3,9 +3,9 @@ import {
   LayoutDashboard, Package, TrendingUp, Video,
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Calculator, Settings,
+  GraduationCap, ShieldCheck,
 } from 'lucide-react';
 import type { ComponentType, SVGProps, CSSProperties } from 'react';
-import { useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProductStats } from '@/hooks/useProducts';
 
@@ -19,6 +19,12 @@ interface NavItem {
   icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
   exact?: boolean;
   soon?: boolean;
+  /** Green AI pill badge next to the label. */
+  ai?: boolean;
+  /** Optional "Start" / "New" style tag. */
+  tag?: string;
+  /** Only shown to admins. */
+  adminOnly?: boolean;
 }
 
 const GROUPS: NavItem[][] = [
@@ -26,13 +32,15 @@ const GROUPS: NavItem[][] = [
   [
     { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
     { label: 'Products', path: '/app/products', icon: Package },
+    { label: 'Market',           path: '/app/market',   icon: TrendingUp },
+    { label: 'Creators & Video', path: '/app/creators', icon: Video },
   ],
-  // Group 2 — AI tools
+  // Group 2 — AI tools (each AI-powered surface gets a green AI pill)
   [
-    { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
-    { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
+    { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles,  ai: true },
+    { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone, ai: true },
     { label: 'Ad Briefs',     path: '/app/ad-spy',        icon: FileText },
-    { label: 'Store Builder', path: '/app/store-builder', icon: Store },
+    { label: 'Store Builder', path: '/app/store-builder', icon: Store,     ai: true },
   ],
   // Group 3 — manage
   [
@@ -41,18 +49,20 @@ const GROUPS: NavItem[][] = [
     { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
     { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
   ],
+  // Group 4 — account (always-visible)
+  [
+    { label: 'Academy',  path: '/app/learn',    icon: GraduationCap, tag: 'Start' },
+    { label: 'Settings', path: '/app/settings', icon: Settings },
+    { label: 'Admin',    path: '/app/admin',    icon: ShieldCheck, adminOnly: true },
+  ],
 ];
 
-const SOON_ITEMS: NavItem[] = [
-  { label: 'Market',           path: '/app/market',   icon: TrendingUp, soon: true },
-  { label: 'Creators & Video', path: '/app/creators', icon: Video,      soon: true },
-];
 
 export function Nav() {
   const [location] = useLocation();
   const { user, isPro } = useAuth();
   const { hotCount } = useProductStats();
-  const [showSoon, setShowSoon] = useState(false);
+  const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
   const planLabel = isPro ? 'Scale Plan' : 'Builder Plan';
@@ -160,92 +170,26 @@ export function Nav() {
         <span style={{ fontFamily: mono, fontSize: 9, color: '#4a4a5e' }}>▾</span>
       </div>
 
-      {/* Nav groups */}
-      {GROUPS.map((group, gi) => (
-        <div key={gi}>
-          {gi > 0 && (
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '4px 10px 8px' }} />
-          )}
-          {group.map((item) => (
-            <NavLink
-              key={item.path}
-              item={item}
-              active={isActive(item)}
-              hotCount={item.label === 'Products' ? hotCount : 0}
-            />
-          ))}
-        </div>
-      ))}
-
-      {/* Coming soon collapsible */}
-      {SOON_ITEMS.length > 0 && (
-        <div>
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '4px 10px 8px' }} />
-          <button
-            onClick={() => setShowSoon((s) => !s)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '7px 12px',
-              margin: '1px 8px',
-              width: 'calc(100% - 16px)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#3f3f52',
-              fontSize: 11,
-              fontFamily: mono,
-              letterSpacing: '0.03em',
-              boxSizing: 'border-box',
-              textAlign: 'left',
-              transition: 'color 120ms',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#6b6b80'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#3f3f52'; }}
-          >
-            <span style={{
-              transition: 'transform 120ms',
-              display: 'inline-block',
-              transform: showSoon ? 'rotate(90deg)' : 'none',
-              fontSize: 9,
-            }}>›</span>
-            <span>{SOON_ITEMS.length} coming soon</span>
-          </button>
-          {showSoon && SOON_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
+      {/* Nav groups — admin items filtered out for non-admin users */}
+      {GROUPS.map((group, gi) => {
+        const visible = group.filter((i) => !i.adminOnly || isAdmin);
+        if (visible.length === 0) return null;
+        return (
+          <div key={gi}>
+            {gi > 0 && (
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '4px 10px 8px' }} />
+            )}
+            {visible.map((item) => (
+              <NavLink
                 key={item.path}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '8px 12px',
-                  margin: '1px 8px',
-                  borderRadius: 8,
-                  fontFamily: sans,
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: '#3f3f52',
-                  cursor: 'not-allowed',
-                  border: '1px solid transparent',
-                }}
-              >
-                <Icon size={14} style={{ flexShrink: 0, opacity: 0.5 }} />
-                <span style={{ flex: 1 }}>{item.label}</span>
-                <span style={{
-                  fontFamily: mono,
-                  fontSize: 8,
-                  fontWeight: 700,
-                  color: '#3f3f52',
-                  letterSpacing: '0.05em',
-                }}>SOON</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                item={item}
+                active={isActive(item)}
+                hotCount={item.label === 'Products' ? hotCount : 0}
+              />
+            ))}
+          </div>
+        );
+      })}
 
       {/* User area */}
       <div style={{
@@ -350,7 +294,35 @@ function NavLink({ item, active, hotCount }: NavLinkProps) {
       }}
     >
       <Icon size={15} style={{ flexShrink: 0, opacity: active ? 1 : 0.7 }} />
-      <span style={{ flex: 1 }}>{item.label}</span>
+      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
+      {item.ai && (
+        <span style={{
+          background: 'rgba(16,185,129,0.15)',
+          color: '#10b981',
+          border: '1px solid rgba(16,185,129,0.25)',
+          borderRadius: 999,
+          padding: '1px 6px',
+          fontSize: 8,
+          fontWeight: 700,
+          fontFamily: mono,
+          letterSpacing: '0.05em',
+          flexShrink: 0,
+        }}>AI</span>
+      )}
+      {item.tag && (
+        <span style={{
+          background: 'rgba(124,106,255,0.15)',
+          color: '#a78bfa',
+          border: '1px solid rgba(124,106,255,0.25)',
+          borderRadius: 999,
+          padding: '1px 6px',
+          fontSize: 8,
+          fontWeight: 700,
+          fontFamily: mono,
+          letterSpacing: '0.05em',
+          flexShrink: 0,
+        }}>{item.tag.toUpperCase()}</span>
+      )}
       {hotCount > 0 && (
         <span style={{
           background: 'rgba(239,68,68,0.15)',
@@ -360,6 +332,7 @@ function NavLink({ item, active, hotCount }: NavLinkProps) {
           fontSize: 9,
           fontWeight: 700,
           fontFamily: mono,
+          flexShrink: 0,
         }}>{hotCount}</span>
       )}
     </Link>

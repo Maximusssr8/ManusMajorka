@@ -158,12 +158,15 @@ const LOADING_BAR_CSS = `
   }
 `;
 
-// Wraps any app page with the persistent sidebar shell
+// Wraps any app page with the persistent sidebar shell.
+// Uses the unified NewAppShell (Nav.tsx) so every route — Home, Products,
+// Maya AI, Ads Studio, Store Builder, Settings, Admin — renders the exact
+// same sidebar, top header zone, and background tokens.
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <MajorkaAppShell>
+    <NewAppShell>
       {children}
-    </MajorkaAppShell>
+    </NewAppShell>
   );
 }
 
