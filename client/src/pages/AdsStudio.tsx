@@ -193,6 +193,7 @@ export default function AdsStudio() {
 
   async function generate() {
     if (!productName.trim()) return;
+    console.log('[ads-studio] generating for:', productName);
     setLoading(true);
     setParsed(null);
 
@@ -236,6 +237,7 @@ OBJECTION KILLER:
 [One sentence that neutralises the main reason someone would scroll past]`;
 
     try {
+      console.log('[ads-studio] calling API...');
       const r = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -250,8 +252,10 @@ OBJECTION KILLER:
           max_tokens: 1400,
         }),
       });
+      console.log('[ads-studio] response received:', r.status);
       const d = await r.json();
       const result: string = d.result || d.content || d.text || d.output || '';
+      console.log('[ads-studio] raw result length:', result.length);
       if (!r.ok || !result) {
         const msg = r.status === 429
           ? 'Usage limit reached — try again in a minute.'
@@ -265,6 +269,7 @@ OBJECTION KILLER:
         return;
       }
       const sections = parseSections(result);
+      console.log('[ads-studio] parsed output:', sections.primaryHook?.slice(0, 50) || '(empty)');
       setParsed(sections);
 
       // Persist to localStorage
@@ -330,13 +335,22 @@ OBJECTION KILLER:
 
       {/* 3-col */}
       <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 280px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
-        {/* ── LEFT: Form ── */}
+        {/* ── LEFT: Form — flex column so generate button can pin to bottom without sticky quirks ── */}
         <div style={{
           position: 'relative',
           background: '#151515',
           borderRight: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          minHeight: 0,
+        }}>
+        {/* Scrollable form content */}
+        <div style={{
+          flex: 1,
           overflowY: 'auto',
-          padding: '18px 18px 0',
+          padding: '18px 18px 12px',
+          minHeight: 0,
         }}>
           {/* DB Picker button */}
           <button
@@ -565,7 +579,7 @@ OBJECTION KILLER:
           </div>
 
           {/* Creative type */}
-          <div style={{ marginBottom: 80 /* room for sticky footer */ }}>
+          <div style={{ marginBottom: 12 }}>
             <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Creative Type</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {CREATIVE_TYPES.map((ct) => {
@@ -583,18 +597,14 @@ OBJECTION KILLER:
               })}
             </div>
           </div>
+        </div>{/* end scrollable form content */}
 
-          {/* Sticky Generate footer */}
+          {/* Pinned Generate footer — outside scroll container, flex-shrink:0 */}
           <div style={{
-            position: 'sticky',
-            bottom: 0,
-            background: 'linear-gradient(to top, #151515 70%, transparent)',
-            padding: '16px 0 18px',
-            zIndex: 10,
-            marginLeft: -18,
-            marginRight: -18,
-            paddingLeft: 18,
-            paddingRight: 18,
+            flexShrink: 0,
+            background: '#151515',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+            padding: '14px 18px 18px',
           }}>
             <button
               onClick={generate}

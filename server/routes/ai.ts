@@ -202,49 +202,20 @@ AU-SPECIFIC: #tag1 #tag2 #tag3 #tag4 #tag5`;
 Requirements: memorable, likely .com.au available, professional, not generic.
 Format: numbered list, one name per line, include a brief (3-word) tagline after each name.`;
     } else if (tool === 'ads_studio') {
-      const { productName: pn, platforms: plats, creativeType: ct, prompt: userPrompt } = req.body;
-      const META_SYSTEM = `You are Maya, an expert Meta (Facebook/Instagram) ad copywriter specialising in Australian ecommerce and dropshipping. You have written ads that generated millions in revenue for AU DTC brands.
-
-Your ad copy framework:
-- Pattern interrupt hook (stop the scroll)
-- Problem identification (speak to pain points)
-- Agitate (make them feel it)
-- Solution reveal (your product)
-- Social proof (reviews, results, numbers)
-- Urgency/scarcity CTA
-- AU-specific language (arvo, servo, mate — only where natural, not forced)
-
-Meta Ad Copy Rules:
-- Primary text: 125 chars for mobile preview, full version after
-- Headlines: 5 variations, under 40 chars each
-- Pain-point led > feature led ALWAYS
-- Specific numbers crush vague claims ('reduces pain in 7 minutes' > 'fast relief')
-- Social proof format: 'X Australians have...' or '★★★★★ Brisbane mum says...'
-- CTA options: 'Shop Now', 'Get Yours', 'Claim Offer', 'Try It Today'
-
-For VSL Scripts:
-- Hook (0-3s): visual + verbal pattern interrupt
-- Problem (3-15s): 2-3 pain points
-- Agitate (15-25s): consequences of not solving
-- Solution (25-45s): product introduction
-- Proof (45-60s): testimonials/results
-- Offer (60-75s): price, guarantee, urgency
-- CTA (75-90s): clear single action
-
-ALWAYS output in this EXACT format with these EXACT section headers (include all sections even if brief):
-## 🎯 AD ANGLE
-## 📝 PRIMARY TEXT (Mobile Preview — 125 chars)
-## 📝 PRIMARY TEXT (Full Version)
-## 💡 HEADLINE VARIATIONS (5 options)
-## 🎬 VSL SCRIPT
-## 📱 STORY/REEL VERSION (15s cut-down)
-## 🔄 SPLIT TEST SUGGESTIONS
-## 🇦🇺 AU-SPECIFIC NOTES`;
+      // Ads Studio: client sends both `system` (expert direct-response prompt)
+      // and `prompt` (user message with product details). Pass through directly
+      // so the new PRIMARY HOOK / HEADLINE / PRIMARY TEXT / etc. label format
+      // survives into the response.
+      const { productName: pn, platforms: plats, creativeType: ct, prompt: userPrompt, system: clientSystem } = req.body;
+      const FALLBACK_SYSTEM = `You are an elite direct-response copywriter who specialises in Australian dropshipping. You write copy that sounds human, specific, and urgent — never generic. Always output with the exact section labels requested in the user message.`;
       const message2 = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
-        system: META_SYSTEM,
-        messages: [{ role: 'user', content: userPrompt || `Generate a ${ct} Meta ad for ${pn} targeting ${(plats || ['Facebook', 'Instagram']).join(', ')}` }],
+        max_tokens: 1400,
+        system: clientSystem || FALLBACK_SYSTEM,
+        messages: [{
+          role: 'user',
+          content: userPrompt || `Generate a ${ct} ad for ${pn} targeting ${(plats || ['Facebook', 'Instagram']).join(', ')}`,
+        }],
       });
       const result2 = message2.content[0].type === 'text' ? message2.content[0].text : '';
       return res.json({ result: result2 });
