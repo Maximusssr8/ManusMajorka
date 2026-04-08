@@ -519,8 +519,8 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
     <div style={{ padding: '0 32px 32px' }}>
       <div style={{
         background: '#1c1c1c',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 8,
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 12,
         overflow: 'hidden',
       }}>
         <div style={{
@@ -531,10 +531,11 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
           fontFamily: mono,
           fontSize: 10,
           fontWeight: 500,
-          letterSpacing: '0.08em',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
-          color: '#52525b',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          color: 'rgba(255,255,255,0.2)',
+          background: '#222222',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
         }}>
           <span>#</span>
           <span>Product</span>

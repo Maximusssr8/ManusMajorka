@@ -42,9 +42,10 @@ const SHIMMER = `
 .majorka-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
 .majorka-btn:active { transform: scale(0.97); }
 .majorka-live-dot {
-  width: 7px; height: 7px; border-radius: 50%;
+  width: 6px; height: 6px; border-radius: 50%;
   background: #10b981;
-  animation: pulse-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(16,185,129,0.6);
+  animation: mj-glowPulse 2.5s ease-in-out infinite;
   flex-shrink: 0;
 }
 `;
@@ -82,14 +83,15 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
     }}>
       <div style={{
         position: 'absolute',
-        top: -20,
-        right: -20,
-        width: 80,
-        height: 80,
+        top: -30,
+        right: -30,
+        width: 90,
+        height: 90,
         borderRadius: '50%',
         background: card.accentGlow,
-        filter: 'blur(20px)',
+        filter: 'blur(28px)',
         pointerEvents: 'none',
+        zIndex: 0,
       }} />
       <div style={{
         fontFamily: mono,
@@ -189,10 +191,10 @@ export default function AppHome() {
   const tod = timeOfDay();
 
   const kpiCards: KpiCardData[] = [
-    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products', accentGlow: 'rgba(124,106,255,0.2)',  accentColor: '#7c6aff' },
-    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',     accentGlow: 'rgba(239,68,68,0.15)',  accentColor: '#f59e0b' },
-    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',   accentGlow: 'rgba(16,185,129,0.15)',  accentColor: '#10b981' },
-    { label: 'TOP SCORE',      value: stats.topScore ? `${stats.topScore}/100` : '—', sub: 'Highest in database', accentGlow: 'rgba(168,85,247,0.15)', accentColor: '#a855f7' },
+    { label: 'PRODUCTS IN DB', value: fmtNum(stats.total),    sub: 'Total tracked products', accentGlow: 'rgba(124,106,255,0.3)',  accentColor: '#7c6aff' },
+    { label: 'HOT PRODUCTS',   value: fmtNum(stats.hotCount), sub: 'Score 65+ products',     accentGlow: 'rgba(245,158,11,0.25)', accentColor: '#f59e0b' },
+    { label: 'AVG SCORE',      value: `${stats.avgScore}/100`, sub: 'Mean dropship score',   accentGlow: 'rgba(16,185,129,0.2)',  accentColor: '#10b981' },
+    { label: 'TOP SCORE',      value: stats.topScore ? `${stats.topScore}/100` : '—', sub: 'Highest in database', accentGlow: 'rgba(168,85,247,0.25)', accentColor: '#a855f7' },
   ];
 
   const quickActions = [
@@ -288,8 +290,16 @@ export default function AppHome() {
               textDecoration: 'none',
               transition: 'all 150ms',
             }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'; }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.transform = 'translateY(-3px)';
+                el.style.boxShadow = '0 12px 32px rgba(0,0,0,0.4)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.transform = 'translateY(0)';
+                el.style.boxShadow = 'none';
+              }}
             >
               <span style={{ fontSize: 22, flexShrink: 0 }}>{c.icon}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
