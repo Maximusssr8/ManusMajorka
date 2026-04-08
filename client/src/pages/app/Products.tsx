@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Search, List, LayoutGrid, ArrowUpRight } from 'lucide-react';
+import { Search, List, LayoutGrid, ArrowUpRight, Clock, TrendingUp, DollarSign, Award, Calculator, Zap, ExternalLink } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 import { useNicheStats } from '@/hooks/useNicheStats';
@@ -20,12 +21,12 @@ const fmtRev = (v: number): string =>
   : v > 0        ? `~$${v}`
   : '—';
 
-const SMART_TABS: { key: SmartTabKey; label: string; icon: string }[] = [
-  { key: 'all',         label: 'All Products',   icon: '' },
-  { key: 'new',         label: 'New This Week',  icon: '🆕' },
-  { key: 'trending',    label: 'Trending Now',   icon: '🔥' },
-  { key: 'highmargin',  label: 'High Margin',    icon: '💰' },
-  { key: 'top',         label: 'Score 90+',      icon: '⭐' },
+const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon }[] = [
+  { key: 'all',         label: 'All Products',  Icon: LayoutGrid },
+  { key: 'new',         label: 'New This Week', Icon: Clock },
+  { key: 'trending',    label: 'Trending Now',  Icon: TrendingUp },
+  { key: 'highmargin',  label: 'High Margin',   Icon: DollarSign },
+  { key: 'top',         label: 'Score 90+',     Icon: Award },
 ];
 
 const display = "'Bricolage Grotesque', system-ui, sans-serif";
@@ -391,6 +392,7 @@ export default function AppProducts() {
         {SMART_TABS.map((tab) => {
           const active = activeTab === tab.key;
           const count = tabCounts[tab.key];
+          const TabIcon = tab.Icon;
           return (
             <button
               key={tab.key}
@@ -398,7 +400,7 @@ export default function AppProducts() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 7,
                 padding: '7px 14px',
                 fontFamily: sans,
                 fontSize: 13,
@@ -425,7 +427,7 @@ export default function AppProducts() {
                 }
               }}
             >
-              {tab.icon && <span>{tab.icon}</span>}
+              <TabIcon size={13} style={{ opacity: active ? 1 : 0.7 }} />
               <span>{tab.label}</span>
               <span style={{
                 fontFamily: mono,
@@ -544,7 +546,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '30px minmax(0,3fr) 130px 85px 85px 75px 120px 95px 105px',
+          gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 230px',
           gap: 14,
           padding: '10px 16px',
           fontFamily: mono,
@@ -590,7 +592,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
           Array.from({ length: 10 }).map((_, i) => (
             <div key={i} style={{
               display: 'grid',
-              gridTemplateColumns: '30px minmax(0,3fr) 130px 85px 85px 75px 120px 95px 105px',
+              gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 230px',
               gap: 14,
               padding: '12px 16px',
               alignItems: 'center',
@@ -635,7 +637,7 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                 onClick={() => onSelect(p)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '30px minmax(0,3fr) 130px 85px 85px 75px 120px 95px 105px',
+                  gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 230px',
                   gap: 14,
                   padding: '12px 16px',
                   alignItems: 'center',
@@ -1161,10 +1163,15 @@ function LiveCard({ product: p }: { product: AELiveProduct }) {
 
 function ScoreDisplay({ score }: { score: number }) {
   const sp = scorePillStyle(score);
+  const dotColor = score >= 90 ? '#10b981' : score >= 70 ? '#a78bfa' : score >= 50 ? '#f59e0b' : 'rgba(255,255,255,0.3)';
   return (
     <span
       className={score >= 95 ? 'mj-score-hot' : ''}
+      title="Score based on: orders volume, price margin, trend direction"
       style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
         background: sp.background,
         color: sp.color,
         border: sp.border,
@@ -1173,9 +1180,18 @@ function ScoreDisplay({ score }: { score: number }) {
         fontWeight: 700,
         padding: '3px 10px',
         borderRadius: 999,
-        display: 'inline-block',
+        cursor: 'help',
       }}
-    >{score ? fmtScore(score) : '—'}</span>
+    >
+      <span style={{
+        width: 5,
+        height: 5,
+        borderRadius: '50%',
+        background: dotColor,
+        flexShrink: 0,
+      }} />
+      {score ? fmtScore(score) : '—'}
+    </span>
   );
 }
 
@@ -1221,47 +1237,63 @@ function ProductThumb({ title, image, category }: { title: string; image: string
 
 
 function RowActions({ product }: { product: Product }) {
-  const btnBase: React.CSSProperties = {
+  const pillBase: React.CSSProperties = {
     display: 'inline-flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: 28,
+    gap: 5,
     height: 28,
-    borderRadius: 999,
-    fontSize: 12,
+    padding: '0 10px',
+    borderRadius: 6,
+    fontSize: 11,
+    fontWeight: 600,
+    fontFamily: sans,
     cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    transition: 'all 150ms ease',
   };
   return (
     <>
       <button
-        title="Quick Profit Calculator"
-        aria-label="Quick Profit Calculator"
+        title="Profit Calculator"
         onClick={(e) => { e.stopPropagation(); window.location.href = '/app/profit'; }}
-        style={{ ...btnBase, background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)' }}
-        className="mj-pill"
-      >💰</button>
+        style={{
+          ...pillBase,
+          background: 'rgba(124,106,255,0.15)',
+          color: '#a78bfa',
+          border: '1px solid rgba(124,106,255,0.28)',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,106,255,0.22)'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,106,255,0.15)'; }}
+      ><Calculator size={11} />Profit Calc</button>
       <button
-        title="Generate Ad Creative"
-        aria-label="Generate Ad Creative"
+        title="Generate ad creative"
         onClick={(e) => { e.stopPropagation(); window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
-        style={{ ...btnBase, background: 'rgba(124,106,255,0.1)', color: '#a78bfa', border: '1px solid rgba(124,106,255,0.2)' }}
-        className="mj-pill"
-      >🎯</button>
-      {product.product_url ? (
-        <button
+        style={{
+          ...pillBase,
+          background: 'rgba(16,185,129,0.12)',
+          color: '#10b981',
+          border: '1px solid rgba(16,185,129,0.28)',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.2)'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.12)'; }}
+      ><Zap size={11} />Create Ad</button>
+      {product.product_url && (
+        <a
+          href={product.product_url}
+          target="_blank"
+          rel="noopener noreferrer"
           title="View on AliExpress"
-          aria-label="View on AliExpress"
-          onClick={(e) => { e.stopPropagation(); product.product_url && window.open(product.product_url, '_blank', 'noopener,noreferrer'); }}
-          style={{ ...btnBase, background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}
-          className="mj-pill"
-        >↗</button>
-      ) : (
-        <button
-          title="No AliExpress link available"
-          aria-label="More options"
-          disabled
-          style={{ ...btnBase, background: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'not-allowed' }}
-        >···</button>
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            ...pillBase,
+            background: 'transparent',
+            color: 'rgba(255,255,255,0.4)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.7)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.4)'; }}
+        ><ExternalLink size={10} />Source</a>
       )}
     </>
   );
