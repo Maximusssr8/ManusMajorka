@@ -161,8 +161,25 @@ export function useProductStats(): ProductStats {
           });
         }
       } catch (e: unknown) {
-        if (!cancelled) {
-          setStats((s) => ({ ...s, loading: false, error: e instanceof Error ? e.message : 'Failed to load stats' }));
+        console.warn('[useProductStats] paginated fetch failed, falling back to HEAD count:', e);
+        // Fallback: HEAD count query so at least `total` is populated
+        try {
+          const { count } = await supabase
+            .from('winning_products')
+            .select('*', { count: 'exact', head: true });
+          if (!cancelled) {
+            setStats((s) => ({
+              ...s,
+              total: count ?? 0,
+              loading: false,
+              error: e instanceof Error ? e.message : 'Failed to load stats',
+            }));
+          }
+        } catch (fallbackErr) {
+          console.warn('[useProductStats] fallback also failed:', fallbackErr);
+          if (!cancelled) {
+            setStats((s) => ({ ...s, loading: false, error: e instanceof Error ? e.message : 'Failed to load stats' }));
+          }
         }
       }
     }

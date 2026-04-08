@@ -106,13 +106,14 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
         fontFamily: display,
         fontSize: 32,
         fontWeight: 800,
-        color: '#f1f1f3',
+        color: loading ? 'rgba(241,241,243,0.4)' : '#f1f1f3',
         letterSpacing: '-0.02em',
         lineHeight: 1,
         marginBottom: 6,
         position: 'relative',
+        transition: 'color 200ms ease',
       }}>
-        {loading ? <span className="mj-shim" style={{ height: 26, width: 80 }} /> : card.value}
+        {card.value && card.value !== '—' ? card.value : (loading ? '…' : '0')}
       </div>
       <div style={{ fontFamily: sans, fontSize: 12, color: '#4a4a5e', position: 'relative' }}>{card.sub}</div>
       <div style={{ position: 'absolute', bottom: 14, right: 16 }}>
