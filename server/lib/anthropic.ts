@@ -18,7 +18,7 @@ export function getAnthropicClient(): Anthropic {
 }
 
 /** The default model to use across all Majorka tools */
-export const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
+export const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
 /** Majorka product knowledge injected into every AI response */
 export const MAJORKA_KNOWLEDGE_BASE = `MAJORKA PRODUCT CONTEXT:

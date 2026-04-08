@@ -244,10 +244,23 @@ OBJECTION KILLER:
 
     const API_URL = '/api/ai/generate';
     try {
-      console.log('[generate] calling API at:', API_URL);
+      // Always fetch a fresh session at call time — avoids empty-token race on first click
+      const { data: sessionData } = await supabase.auth.getSession();
+      const freshToken = sessionData.session?.access_token ?? token;
+      if (!freshToken) {
+        console.warn('[generate] no auth token — aborting');
+        setParsed({
+          primaryHook: 'Please sign in to generate ads.',
+          headline: '', primaryText: '', fullBody: '', cta: '',
+          hookA: '', hookB: '', hookC: '', objectionKiller: '',
+        });
+        setLoading(false);
+        return;
+      }
+      console.log('[generate] calling API at:', API_URL, 'token:', freshToken.slice(0, 8) + '...');
       const r = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${freshToken}` },
         body: JSON.stringify({
           tool: 'ads_studio',
           system: ADS_SYSTEM_PROMPT,
