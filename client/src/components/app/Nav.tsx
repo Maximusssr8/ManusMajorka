@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   LayoutDashboard, Package, TrendingUp, Video,
@@ -35,17 +36,17 @@ const GROUPS: NavItem[][] = [
     { label: 'Market',           path: '/app/market',   icon: TrendingUp },
     { label: 'Creators & Video', path: '/app/creators', icon: Video },
   ],
-  // Group 2 — AI tools (each AI-powered surface gets a green AI pill)
+  // Group 2 — AI tools
   [
-    { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles,  ai: true },
-    { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone, ai: true },
-    { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText,  ai: true },
-    { label: 'Store Builder', path: '/app/store-builder', icon: Store,     ai: true },
+    { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
+    { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
+    { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText },
+    { label: 'Store Builder', path: '/app/store-builder', icon: Store },
   ],
   // Group 3 — manage
   [
     { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
-    { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye },
+    { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye, soon: true },
     { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
     { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
   ],
@@ -59,9 +60,10 @@ const GROUPS: NavItem[][] = [
 
 
 export function Nav() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { user, isPro } = useAuth();
   const { hotCount } = useProductStats();
+  const [searchTerm, setSearchTerm] = useState('');
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
@@ -117,38 +119,51 @@ export function Nav() {
       </div>
 
       {/* Search */}
-      <button
-        style={{
-          width: 'calc(100% - 20px)',
-          margin: '10px 10px 4px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 8,
-          padding: '8px 12px',
-          cursor: 'pointer',
-          color: '#5a5a6e',
-          fontSize: 12,
-          fontFamily: sans,
-          boxSizing: 'border-box',
-          transition: 'all 120ms',
-        }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'; }}
-      >
-        <span style={{ fontSize: 13, opacity: 0.5 }}>⌘</span>
-        <span style={{ flex: 1, textAlign: 'left' }}>Search...</span>
+      <div style={{
+        width: 'calc(100% - 20px)',
+        margin: '10px 10px 4px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 8,
+        padding: '8px 12px',
+        boxSizing: 'border-box',
+      }}>
+        <span style={{ fontSize: 13, opacity: 0.5, color: '#5a5a6e' }}>⌘</span>
+        <input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && searchTerm.trim().length > 0) {
+              navigate(`/app/products?search=${encodeURIComponent(searchTerm.trim())}`);
+              setSearchTerm('');
+            }
+          }}
+          placeholder="Search products..."
+          style={{
+            flex: 1,
+            minWidth: 0,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            color: '#e2e2e8',
+            fontSize: 12,
+            fontFamily: sans,
+            padding: 0,
+          }}
+        />
         <span style={{
           fontFamily: mono,
           fontSize: 9,
           opacity: 0.4,
+          color: '#5a5a6e',
           background: 'rgba(255,255,255,0.06)',
           padding: '2px 5px',
           borderRadius: 3,
         }}>K</span>
-      </button>
+      </div>
 
       {/* Market selector */}
       <div style={{

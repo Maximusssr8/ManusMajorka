@@ -25,9 +25,19 @@ const CATEGORY_MAP: Record<string, string> = {
   'Automobiles & Motorcycles':      'Auto',
 };
 
+/** Strip raw-data artefacts (unclosed parens, trailing commas, extra whitespace). */
+export function cleanCategory(category: string | null | undefined): string {
+  if (!category) return 'Other';
+  return category
+    .replace(/\(+\s*$/, '')   // remove trailing unclosed open parenthesis
+    .replace(/,\s*$/, '')     // remove trailing comma
+    .replace(/\s+$/, '')      // trim trailing whitespace
+    .trim();
+}
+
 export function shortenCategory(category: string | null | undefined): string {
   if (!category) return '—';
-  const trimmed = category.trim();
+  const trimmed = cleanCategory(category);
   if (CATEGORY_MAP[trimmed]) return CATEGORY_MAP[trimmed];
   if (trimmed.length <= 20) return trimmed;
   // Fallback: take first two words or truncate

@@ -151,22 +151,43 @@ function SourcePill({ source }: { source: string | null }) {
   }}>{source ?? '—'}</span>;
 }
 
+function readInitialParams(): { tab: SmartTabKey; search: string } {
+  if (typeof window === 'undefined') return { tab: 'all', search: '' };
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('tab');
+  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top'];
+  const tab = validTabs.includes(t as SmartTabKey) ? (t as SmartTabKey) : 'all';
+  return { tab, search: params.get('search') ?? '' };
+}
+
 export default function AppProducts() {
+  const initial = readInitialParams();
   const [orderBy, setOrderBy] = useState<OrderByColumn>('sold_count');
   const [view, setView] = useState<'table' | 'grid'>('table');
   const [limit, setLimit] = useState(20);
   const [activeNiche, setActiveNiche] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeCarousel, setActiveCarousel] = useState<CarouselKey>('recent');
-  const [activeTab, setActiveTab] = useState<SmartTabKey>('all');
-  const [searchMode, setSearchMode] = useState<'db' | 'live'>('db');
-  const [liveQuery, setLiveQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<SmartTabKey>(initial.tab);
+  const [searchMode, setSearchMode] = useState<'db' | 'live'>(initial.search ? 'live' : 'db');
+  const [liveQuery, setLiveQuery] = useState(initial.search);
   const [showFilters, setShowFilters] = useState(false);
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [minOrders, setMinOrders] = useState<number | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [scoreMin, setScoreMin] = useState<number>(0);
+  const [scoreMax, setScoreMax] = useState<number>(100);
   const aeSearch = useAESearch();
   const { niches } = useNicheStats();
+
+  // Trigger AE live search if a ?search= param is present on first mount
+  useEffect(() => {
+    if (initial.search && initial.search.trim().length >= 2) {
+      aeSearch.search({ q: initial.search.trim(), reset: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { products, loading, total } = useProducts({
     limit,
@@ -189,6 +210,17 @@ export default function AppProducts() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [searchMode, aeSearch]);
 
+  // Distinct category list for the category filter dropdown
+  const availableCategories = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      if (p.category && p.category.trim().length > 0) {
+        set.add(p.category.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [products]);
+
   const filtered = useMemo(() => {
     let list = products;
     if (activeTab === 'new') {
@@ -201,8 +233,17 @@ export default function AppProducts() {
     } else if (activeTab === 'top') {
       list = list.filter((p) => (p.winning_score ?? 0) >= 90);
     }
+    if (categoryFilter) {
+      list = list.filter((p) => p.category === categoryFilter);
+    }
+    if (scoreMin > 0 || scoreMax < 100) {
+      list = list.filter((p) => {
+        const s = p.winning_score ?? 0;
+        return s >= scoreMin && s <= scoreMax;
+      });
+    }
     return list;
-  }, [products, activeTab]);
+  }, [products, activeTab, categoryFilter, scoreMin, scoreMax]);
 
   // Counts for smart tabs (computed from the loaded slice; "All" uses `total` for full DB count)
   const tabCounts = useMemo(() => {
@@ -354,9 +395,101 @@ export default function AppProducts() {
               />
             </div>
           ))}
+          <div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Category</div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{
+                width: '100%',
+                background: '#151515',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 6,
+                padding: '8px 10px',
+                color: '#ededed',
+                fontFamily: mono,
+                fontSize: 12,
+                boxSizing: 'border-box',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="">All categories</option>
+              {availableCategories.map((c) => (
+                <option key={c} value={c}>{shortenCategory(c)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Min Score</div>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              placeholder="0"
+              value={scoreMin}
+              onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
+              style={{
+                width: '100%',
+                background: '#151515',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 6,
+                padding: '8px 10px',
+                color: '#ededed',
+                fontFamily: mono,
+                fontSize: 12,
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+          <div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Max Score</div>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              placeholder="100"
+              value={scoreMax}
+              onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
+              style={{
+                width: '100%',
+                background: '#151515',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 6,
+                padding: '8px 10px',
+                color: '#ededed',
+                fontFamily: mono,
+                fontSize: 12,
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+          <div>
+            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Sort by</div>
+            <select
+              value={orderBy}
+              onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
+              style={{
+                width: '100%',
+                background: '#151515',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 6,
+                padding: '8px 10px',
+                color: '#ededed',
+                fontFamily: mono,
+                fontSize: 12,
+                boxSizing: 'border-box',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="sold_count">Orders: High → Low</option>
+              <option value="winning_score">Score: High → Low</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="created_at">Newest First</option>
+            </select>
+          </div>
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button
-              onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); }}
+              onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); setCategoryFilter(''); setScoreMin(0); setScoreMax(100); }}
               style={{
                 padding: '8px 14px',
                 background: 'transparent',
@@ -439,16 +572,6 @@ export default function AppProducts() {
           );
         })}
         <div style={{ flex: 1 }} />
-        <select
-          value={orderBy}
-          onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
-          style={{ ...selectStyle, marginBottom: 6, flexShrink: 0 }}
-        >
-          <option value="sold_count">Orders: High → Low</option>
-          <option value="winning_score">Score: High → Low</option>
-          <option value="price_asc">Price: Low → High</option>
-          <option value="created_at">Newest first</option>
-        </select>
         <div style={{
           display: 'inline-flex',
           background: '#0d0d10',
@@ -542,7 +665,8 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
         background: '#1c1c1c',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 12,
-        overflow: 'hidden',
+        overflowX: 'auto',
+        overflowY: 'hidden',
       }}>
         <div style={{
           display: 'grid',
@@ -1242,7 +1366,7 @@ function RowActions({ product }: { product: Product }) {
     alignItems: 'center',
     gap: 5,
     height: 28,
-    padding: '0 10px',
+    padding: '0 8px',
     borderRadius: 6,
     fontSize: 11,
     fontWeight: 600,
