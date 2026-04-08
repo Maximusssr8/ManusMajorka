@@ -1,6 +1,53 @@
 export interface CategoryStyle { gradient: string; emoji: string }
 
 /**
+ * Compact display label for raw AliExpress category strings.
+ * Long names break row heights and look unprofessional in a data grid.
+ */
+const CATEGORY_MAP: Record<string, string> = {
+  'Welding Equipment & Supplies':  'Welding',
+  'Kitchen,Dining & Bar':           'Kitchen & Bar',
+  'Kitchen, Dining & Bar':          'Kitchen & Bar',
+  'Mobile Phone Protective Film':   'Phone Cases',
+  'Mobile Phone Accessories':       'Phone',
+  'Ornamental & Cleaning':          'Home Cleaning',
+  'Car Wash & Maintenance':         'Car Care',
+  'Stuffed Animals & Plush':        'Plush Toys',
+  'Portable Audio & Video':         'Audio',
+  'Household Cleaning':             'Cleaning',
+  'Arts,Crafts & Sewing':           'Crafts',
+  'Electrical Equipment & Supplies':'Electrical',
+  'Consumer Electronics':           'Electronics',
+  'Home Improvement':               'Home Improve',
+  'Beauty & Health':                'Beauty',
+  'Sports & Entertainment':         'Sports',
+  'Toys & Hobbies':                 'Toys',
+  'Automobiles & Motorcycles':      'Auto',
+};
+
+export function shortenCategory(category: string | null | undefined): string {
+  if (!category) return '—';
+  const trimmed = category.trim();
+  if (CATEGORY_MAP[trimmed]) return CATEGORY_MAP[trimmed];
+  if (trimmed.length <= 20) return trimmed;
+  // Fallback: take first two words or truncate
+  const words = trimmed.split(/[\s,&]+/).filter(Boolean);
+  if (words.length >= 2 && words.slice(0, 2).join(' ').length <= 18) {
+    return words.slice(0, 2).join(' ');
+  }
+  return trimmed.slice(0, 17) + '…';
+}
+
+/** Abbreviate large numbers: 231177 → "231K", 1450000 → "1.4M". */
+export function fmtK(n: number | null | undefined): string {
+  if (n == null || n === 0) return '—';
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (abs >= 1_000)     return `${Math.round(n / 1000)}K`;
+  return String(n);
+}
+
+/**
  * Returns a gradient + matching emoji for a product category, used as a
  * fallback when a product has no image_url.
  */

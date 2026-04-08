@@ -2,11 +2,11 @@ import { Link } from 'wouter';
 import { useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, useProductStats, type Product } from '@/hooks/useProducts';
-import { getCategoryStyle } from '@/lib/categoryColor';
+import { getCategoryStyle, shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
 import { Sparkline, ProductSparkline } from '@/components/app/Sparkline';
-import { scorePillStyle } from '@/lib/scorePill';
+import { scorePillStyle, fmtScore } from '@/lib/scorePill';
 
 const display = "'Bricolage Grotesque', sans-serif";
 const sans = "'DM Sans', sans-serif";
@@ -124,36 +124,44 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
 
 function ProductRowImage({ image, title, category }: { image: string | null; title: string; category: string | null }) {
   const cs = getCategoryStyle(category);
+  const [failed, setFailed] = useState(false);
+  const initial = (category?.trim()?.[0] || title?.trim()?.[0] || '?').toUpperCase();
+  const hasImage = image && !failed;
   return (
     <div style={{
-      width: 40,
-      height: 40,
+      width: 52,
+      height: 52,
       borderRadius: 8,
       background: cs.gradient,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: 20,
       flexShrink: 0,
       border: '1px solid rgba(255,255,255,0.06)',
       overflow: 'hidden',
     }}>
-      {image ? (
+      {hasImage ? (
         <img
           src={proxyImage(image) ?? image}
           alt={title}
           loading="lazy"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          onError={() => setFailed(true)}
         />
       ) : (
-        cs.emoji
+        <span style={{
+          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontSize: 22,
+          fontWeight: 800,
+          color: 'rgba(255,255,255,0.85)',
+          textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+        }}>{initial}</span>
       )}
     </div>
   );
 }
 
-const COLS = '40px 1fr 130px 80px 100px 100px 70px 60px';
+const COLS = '30px minmax(0,3fr) 120px 85px 85px 75px 100px 60px';
 const HEADERS = ['#', 'PRODUCT', 'CATEGORY', 'SCORE', 'ORDERS', 'PRICE', 'TREND', ''];
 
 function SkeletonRow() {
@@ -164,19 +172,21 @@ function SkeletonRow() {
       gap: 14,
       padding: '12px 16px',
       alignItems: 'center',
+      minHeight: 76,
+      maxHeight: 76,
       borderBottom: '1px solid rgba(255,255,255,0.04)',
     }}>
-      <span className="mj-shim" style={{ height: 12, width: 22 }} />
+      <span className="mj-shim" style={{ height: 12, width: 20 }} />
       <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span className="mj-shim" style={{ height: 40, width: 40, borderRadius: 8 }} />
+        <span className="mj-shim" style={{ height: 52, width: 52, borderRadius: 8 }} />
         <span className="mj-shim" style={{ height: 12, width: '70%' }} />
       </span>
+      <span className="mj-shim" style={{ height: 16, width: 80, borderRadius: 999 }} />
+      <span className="mj-shim" style={{ height: 18, width: 44, borderRadius: 999 }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-      <span className="mj-shim" style={{ height: 18, width: 36, borderRadius: 999 }} />
       <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-      <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-      <span className="mj-shim" style={{ height: 14, width: 50 }} />
-      <span className="mj-shim" style={{ height: 18, width: 22 }} />
+      <span className="mj-shim" style={{ height: 14, width: 80 }} />
+      <span className="mj-shim" style={{ height: 14, width: 22 }} />
     </div>
   );
 }
@@ -379,6 +389,7 @@ export default function AppHome() {
               const score = p.winning_score ?? 0;
               const orders = p.sold_count ?? 0;
               const sp = scorePillStyle(score);
+              const categoryShort = shortenCategory(p.category);
               return (
                 <div
                   key={p.id}
@@ -390,34 +401,48 @@ export default function AppHome() {
                     gap: 14,
                     padding: '12px 16px',
                     alignItems: 'center',
+                    minHeight: 76,
+                    maxHeight: 76,
                     borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
                   }}
                 >
                   <span style={{ fontFamily: mono, fontSize: 12, color: '#3f3f52' }}>{String(i + 1).padStart(2, '0')}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                     <ProductRowImage image={p.image_url} title={p.product_title} category={p.category} />
-                    <span style={{
-                      fontFamily: sans,
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: '#e2e2e8',
-                      lineHeight: 1.35,
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                    }}>{p.product_title}</span>
+                    <span
+                      title={p.product_title}
+                      style={{
+                        fontFamily: sans,
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: '#e2e2e8',
+                        lineHeight: 1.35,
+                        overflow: 'hidden',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        wordBreak: 'break-word',
+                      }}
+                    >{p.product_title}</span>
                   </span>
-                  <span style={{
-                    display: 'inline-block',
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: 6,
-                    padding: '3px 9px',
-                    fontFamily: sans,
-                    fontSize: 11,
-                    color: '#6b6b80',
-                    width: 'fit-content',
-                  }}>{p.category ?? '—'}</span>
+                  <span
+                    title={p.category ?? ''}
+                    style={{
+                      display: 'inline-block',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.07)',
+                      borderRadius: 999,
+                      padding: '3px 9px',
+                      fontFamily: sans,
+                      fontSize: 11,
+                      color: '#a1a1aa',
+                      maxWidth: 108,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      width: 'fit-content',
+                    }}
+                  >{categoryShort}</span>
                   <span>
                     <span
                       className={score >= 95 ? 'mj-score-hot' : ''}
@@ -428,24 +453,29 @@ export default function AppHome() {
                         fontFamily: mono,
                         fontSize: 12,
                         fontWeight: 700,
-                        padding: '3px 9px',
+                        padding: '3px 10px',
                         borderRadius: 999,
                         display: 'inline-block',
                       }}
-                    >{score || '—'}</span>
+                    >{score ? fmtScore(score) : '—'}</span>
                   </span>
-                  <span style={{
-                    fontFamily: mono,
-                    fontSize: 13,
-                    color: orders > 0 ? '#10b981' : '#3f3f52',
-                  }}>{orders > 0 ? orders.toLocaleString() : '—'}</span>
+                  <span
+                    title={orders > 0 ? orders.toLocaleString() : ''}
+                    style={{
+                      fontFamily: mono,
+                      fontSize: 13,
+                      color: orders > 0 ? '#10b981' : '#3f3f52',
+                      textAlign: 'right',
+                    }}
+                  >{orders > 0 ? fmtK(orders) : '—'}</span>
                   <span style={{
                     fontFamily: mono,
                     fontSize: 12,
                     color: '#8888a0',
+                    textAlign: 'right',
                   }}>{p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}</span>
                   <span style={{ display: 'flex', alignItems: 'center' }}>
-                    <ProductSparkline productId={p.id} score={score} />
+                    <ProductSparkline productId={p.id} score={score} width={90} height={22} points={8} />
                   </span>
                   <span style={{
                     fontFamily: mono,
