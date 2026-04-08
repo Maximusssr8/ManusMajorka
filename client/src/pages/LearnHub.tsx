@@ -1,1908 +1,582 @@
 /**
- * LearnHub — Majorka Academy (v2)
- * Premium learning experience: markdown rendering, lesson navigation,
- * track progress, playlist, search + filter, completion celebration,
- * Supabase sync with localStorage fallback, mobile-first.
+ * Majorka Academy
+ * Static-content learning experience. Four modules, 21 lessons, inline
+ * expansion, localStorage-backed progress tracking, no API calls.
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  ArrowRight,
-  Bookmark,
-  BookmarkCheck,
-  BookOpen,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  ListOrdered,
-  Lock,
-  Minus,
-  Play,
-  Plus,
-  Trophy,
-  X,
-} from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'wouter';
-import { useAuth } from '@/_core/hooks/useAuth';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, ChevronRight, CheckCircle2, Lock } from 'lucide-react';
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+const display = "'Bricolage Grotesque', sans-serif";
+const sans = "'DM Sans', sans-serif";
+const mono = "'JetBrains Mono', monospace";
+
+const surface = '#161618';
+const border = '1px solid rgba(255,255,255,0.06)';
+
+const PROGRESS_KEY = 'academy_progress';
 
 interface Lesson {
   id: string;
   title: string;
-  description: string;
-  readTime: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  free: boolean;
+  tier: 'FREE' | 'SCALE';
+  body: string[];
 }
-
-interface Track {
+interface Module {
   id: string;
-  emoji: string;
   title: string;
-  description: string;
+  color: string;
+  summary: string;
   lessons: Lesson[];
 }
 
-// ── Data ───────────────────────────────────────────────────────────────────────
-
-const TRACKS: Track[] = [
+const MODULES: Module[] = [
   {
     id: 'fundamentals',
-    emoji: '🎓',
     title: 'Dropshipping Fundamentals',
-    description: 'Everything you need to know before your first sale',
+    color: '#7c6aff',
+    summary: 'The model, the numbers, and the Australian realities you need to know before you ship product one.',
     lessons: [
       {
-        id: 'getting-started-majorka',
-        title: 'Getting Started with Majorka',
-        description: 'Understand scores, navigate the platform, and run your first product evaluation end-to-end',
-        readTime: '8 min',
-        difficulty: 'Beginner',
-        free: true,
+        id: 'f1',
+        title: 'How Australian dropshipping actually works',
+        tier: 'FREE',
+        body: [
+          "The model in one sentence: you list AliExpress products on a Shopify store, a customer buys at your markup, you order the item from AliExpress and have it shipped directly to them. You never touch inventory.",
+          "AU specifics: shipping runs 10-20 days from China via AliExpress Standard Shipping. After the COVID era, Australians are used to longer delivery windows from overseas stores, but they expect tracking numbers and proactive updates. Set up automated shipping emails on day one.",
+          "The AusPost mindset is 'I can track this from the warehouse to my door'. Mirror that. Use a tracking widget on your Shopify store, and put a shipping ETA directly on the product page.",
+          "The biggest mistake beginners make: competing on price. There is always someone cheaper in China. Instead, compete on brand, copy, and product curation. Your job is to find products Australians want that they cannot easily find on Amazon AU.",
+        ],
       },
       {
-        id: 'what-is-dropshipping',
-        title: 'What is Dropshipping?',
-        description: 'The complete business model explained with real AU examples',
-        readTime: '5 min',
-        difficulty: 'Beginner',
-        free: true,
+        id: 'f2',
+        title: 'Reading AliExpress data — what the numbers mean',
+        tier: 'FREE',
+        body: [
+          "sold_count is total lifetime orders for a listing. It is the single most important proxy for demand. In Majorka, anything with 10K+ orders has proven demand. 100K+ is mass-market — you are competing with everyone, but the TAM is huge. 1M+ usually means a saturated evergreen.",
+          "The Majorka winning_score is a blended metric: 0.4 × normalised orders + 0.3 × price-band viability + 0.2 × review quality + 0.1 × shipping rating. Scores above 80 are strong. Above 90 is your shortlist.",
+          "Shipping ratings under 4.5/5 usually mean slow or lost parcels — avoid. Store ratings under 4.7 are a warning sign.",
+          "Avoid brand-name knockoffs (Apple, Gucci, Nike logos). They get seized at Australian customs and you will refund every order. Look for generic, well-photographed, solution-oriented products.",
+        ],
       },
       {
-        id: 'au-market-101',
-        title: 'The Australian Market',
-        description: 'Why AU is different: consumer behaviour, platforms, regulations',
-        readTime: '8 min',
-        difficulty: 'Beginner',
-        free: true,
+        id: 'f3',
+        title: 'Picking your first niche',
+        tier: 'FREE',
+        body: [
+          "Three winning niche frameworks for the Australian market. 1) Passion niches — pet accessories, home gym, camping, gardening. The buyer already has a reason to want the product, you just need to find the right one. 2) Problem-solvers — home organisation, car care, back/posture, sleep aids. These sell on outcomes, not features. 3) Seasonal — Christmas gifts (Nov-Dec), summer beach/pool (Oct-Feb), winter heated gear (Jun-Aug). Time your ad launch 3 weeks before peak.",
+          "What to avoid: consumer electronics (high return rate, voltage issues, warranty expectations), apparel (AU sizing is not AliExpress sizing — you will drown in returns), anything individually worth more than $1000 AUD (customs duty kicks in).",
+          "Rule of thumb: your first product should cost you less than $15 AUD landed, and you should be able to sell it for $40-60 AUD on a dedicated product page. That 3-4× markup is what gives you room for ad spend.",
+        ],
       },
       {
-        id: 'legal-setup',
-        title: 'Legal Setup in Australia',
-        description: 'ABN, GST, ACCC requirements — what you actually need',
-        readTime: '6 min',
-        difficulty: 'Beginner',
-        free: false,
+        id: 'f4',
+        title: 'Setting up GST and your ABN',
+        tier: 'SCALE',
+        body: [
+          "You need to register for an ABN once you start selling. You are only required to register for GST once your turnover hits $75K AUD/year, but many operators register earlier so they can claim GST credits on business expenses.",
+          "GST is 10% on top of every AU sale. Add it to your prices — do not absorb it. If you are GST-registered, your checkout should show 'GST included'.",
+          "Keep every AliExpress receipt. They are a legitimate cost of goods sold and fully deductible. Xero or QuickBooks will import them from your Gmail automatically.",
+          "Imports under $1000 AUD per consignment are duty-free at the border but still attract GST if you are registered. Nothing your customer sees or pays — handled in your BAS.",
+          "Talk to an accountant before you cross $75K. An hour of their time now saves a month of pain at tax time.",
+        ],
       },
       {
-        id: 'supplier-types',
-        title: 'Types of Suppliers',
-        description: 'Alibaba, AU wholesalers, 3PL, print-on-demand compared',
-        readTime: '7 min',
-        difficulty: 'Beginner',
-        free: false,
+        id: 'f5',
+        title: 'Writing your Shopify product pages',
+        tier: 'SCALE',
+        body: [
+          "Formula for AU buyers: 1) Headline sells a benefit, not a feature. 2) Hero image shows the product in use, not on a white background. 3) Social proof — orders count, review count, photo reviews if possible. 4) Urgency — 'only 14 left in the AU warehouse'. 5) Clear shipping ETA ('2-5 business days AU-wide'). 6) Refund and returns policy above the fold.",
+          "Never say 'ships from China'. Say 'international warehouse' or 'dispatched from our fulfilment partner'. It is legally accurate and removes friction.",
+          "Before → After example. Bad: 'LED strip lights 5m USB powered with remote control.' Good: 'Turn your bedroom into a cinema — 5m smart LED strip with 16 million colours, app + remote control, plugs into any USB.' Same product. Second one sells.",
+          "Include at least one 30-second product video. You can use the AliExpress demo video as a starting point — crop it, add captions in CapCut, done.",
+        ],
       },
       {
-        id: 'profit-maths',
-        title: 'The Profit Maths',
-        description: 'COGS, margins, ROAS targets — the numbers you must know',
-        readTime: '10 min',
-        difficulty: 'Intermediate',
-        free: false,
+        id: 'f6',
+        title: 'Scaling from $1K to $10K/month',
+        tier: 'SCALE',
+        body: [
+          "Three levers: horizontal (more products), vertical (better ads for existing products), and AOV (get each customer to spend more).",
+          "The $1K/month month needs one winning product and one profitable ad set. That is it. Do not try to run three products at once when you are learning — you will dilute your attention.",
+          "The $10K/month month usually needs 3-5 products, a retargeting sequence, and a post-purchase upsell flow. Retargeting catches the 90% of visitors who did not buy first time.",
+          "Warning: do NOT scale ad spend before you have a 2.5× ROAS on cold traffic. You will burn through your margin. Validate the offer first, then pour fuel on the fire.",
+        ],
       },
     ],
   },
   {
-    id: 'products',
-    emoji: '🔍',
+    id: 'winning',
     title: 'Finding Winning Products',
-    description: 'How to find products that actually sell',
+    color: '#10b981',
+    summary: 'The product is 80% of the game. These lessons are how you stop guessing and start shortlisting.',
     lessons: [
       {
-        id: 'product-criteria',
-        title: 'The Winning Product Formula',
-        description: '7 criteria that separate winners from money-wasters',
-        readTime: '8 min',
-        difficulty: 'Beginner',
-        free: true,
+        id: 'w1',
+        title: 'Using the Majorka winning score',
+        tier: 'FREE',
+        body: [
+          "The winning_score is a composite — it is not the truth, it is a shortlist filter. Use it to reduce 2,000 products to 50 candidates, then apply your own judgement on top.",
+          "Set your minimum filter at 65 to cut noise. Set it at 80 when you want a tight shortlist. 90+ is your 'investigate today' list.",
+          "A score alone never sells the product. A 95-score wall stand with bad photos loses to a 75-score wall stand with a great lifestyle video every time. Score gets you in the door; creative wins the sale.",
+        ],
       },
       {
-        id: 'research-tools',
-        title: 'Using Majorka Product Scout',
-        description: 'Step-by-step: find your first winner using AI',
-        readTime: '6 min',
-        difficulty: 'Beginner',
-        free: true,
+        id: 'w2',
+        title: 'Orders velocity vs viral one-hit-wonders',
+        tier: 'FREE',
+        body: [
+          "Two kinds of winning products. 1) Velocity products — 500-2000 orders every single month for 12+ months. Boring, reliable, your bread and butter. 2) Viral products — a sudden spike to 50K orders in 30 days, usually from a TikTok moment. High risk, high reward, shorter shelf life.",
+          "For your first winning product, pick velocity. Viral products look incredible in the data but by the time you list them, the trend is half over and competition is everywhere.",
+          "How to spot viral decay: check the 30-day order trend in Majorka. If the slope is flattening or reversing, you are late.",
+        ],
       },
       {
-        id: 'trend-timing',
-        title: 'Trend Timing',
-        description: 'How to enter a trend at the right moment',
-        readTime: '7 min',
-        difficulty: 'Intermediate',
-        free: false,
+        id: 'w3',
+        title: 'Seasonality in the AU market',
+        tier: 'SCALE',
+        body: [
+          "Australia's seasons are flipped from the northern hemisphere. Your Christmas campaign runs in 30°C weather. Summer beach gear peaks October to February. Heated jackets, gloves, and blankets sell June to August.",
+          "Launch 3 weeks before the season peaks. By the time the peak arrives, your ad accounts will have learned the audience and you will have organic reviews.",
+          "AFL and NRL merchandise has regional sub-peaks — finals in September, grand finals in October. Never compete on licensed merch (IP risk). Sell the accessory category that benefits from the hype — BBQ tools during grand final weekend, for example.",
+        ],
       },
       {
-        id: 'competition-analysis',
-        title: 'Analysing Competition',
-        description: 'How to read saturation signals and find untapped angles',
-        readTime: '9 min',
-        difficulty: 'Intermediate',
-        free: false,
+        id: 'w4',
+        title: 'Competitor research',
+        tier: 'SCALE',
+        body: [
+          "Three competitors to study for every product. 1) The AliExpress top seller (price, shipping rating, photos). 2) The Shopify store selling the same product to AU (branding, upsells, price). 3) The TikTok account running ads on it (hook, copy, creative format).",
+          "Use the Facebook Ad Library to find every active ad running for a product. Filter by country = Australia. Copy the structure, never the creative itself.",
+          "If three well-established stores already run ads on a product, that is validation, not a closed door — it means there is money in the niche. Find an angle they are missing.",
+        ],
       },
       {
-        id: 'validation',
-        title: 'Validate Before You Invest',
-        description: 'Test demand with $50 before spending $500',
-        readTime: '8 min',
-        difficulty: 'Intermediate',
-        free: false,
-      },
-    ],
-  },
-  {
-    id: 'brand',
-    emoji: '🏗️',
-    title: 'Building Your Brand',
-    description: 'Stand out from generic dropship stores',
-    lessons: [
-      {
-        id: 'brand-positioning',
-        title: 'Brand Positioning',
-        description: 'How to be specific enough to win, broad enough to scale',
-        readTime: '7 min',
-        difficulty: 'Beginner',
-        free: true,
-      },
-      {
-        id: 'store-building',
-        title: 'Building with Majorka',
-        description: 'From brand DNA to live Shopify store in one session',
-        readTime: '10 min',
-        difficulty: 'Beginner',
-        free: true,
-      },
-      {
-        id: 'copywriting-basics',
-        title: 'Copywriting That Converts',
-        description: '5 principles of high-converting copy for AU buyers',
-        readTime: '9 min',
-        difficulty: 'Intermediate',
-        free: false,
-      },
-      {
-        id: 'trust-signals',
-        title: 'AU Trust Signals',
-        description: 'Afterpay, AusPost, reviews — what AU buyers need to see',
-        readTime: '6 min',
-        difficulty: 'Beginner',
-        free: false,
-      },
-      {
-        id: 'email-marketing',
-        title: 'Email Marketing Foundations',
-        description: 'Build a list from day one — your most valuable asset',
-        readTime: '8 min',
-        difficulty: 'Intermediate',
-        free: false,
+        id: 'w5',
+        title: 'Bundle strategy for AOV',
+        tier: 'SCALE',
+        body: [
+          "The simplest AOV boost is a 'frequently bought together' bundle. If your hero product is $39.99, offer a $24.99 complementary add-on at 'Buy both and save 15%' — the customer pays $54.99 and you have added $15 margin per order with zero new acquisition cost.",
+          "Volume bundles work for consumable or gift-giving products. 'Buy 2 get 15% off, buy 3 get 25% off' converts shockingly well on accessories and novelty items.",
+          "Post-purchase upsells (via ReConvert or similar) are free money. One-click add-to-order after checkout converts at 10-18% with almost no friction.",
+        ],
       },
     ],
   },
   {
     id: 'ads',
-    emoji: '📢',
-    title: 'Running Ads',
-    description: 'Profitable paid traffic for AU ecommerce',
+    title: 'Running Ads in Australia',
+    color: '#f59e0b',
+    summary: 'How to buy traffic without setting your budget on fire.',
     lessons: [
       {
-        id: 'meta-basics',
-        title: 'Meta Ads for Beginners',
-        description: 'Your first AU Facebook/Instagram campaign, step by step',
-        readTime: '12 min',
-        difficulty: 'Beginner',
-        free: true,
+        id: 'a1',
+        title: 'Facebook vs TikTok for AU in 2026',
+        tier: 'FREE',
+        body: [
+          "Facebook/Instagram ads still win for 35+ audiences, especially for home, garden, pet, and health products. Targeting is precise, ad manager is mature, reporting is honest.",
+          "TikTok ads dominate for 18-34, impulse buys, novelty products, and anything demo-friendly. CPMs are lower than FB, creative fatigues faster (7-10 days), and the native look matters more than the targeting.",
+          "Split by product: beauty, gadgets, fashion accessories → TikTok. Home, wellness, pet, outdoor → Facebook. Run both if you can afford to split the budget.",
+        ],
       },
       {
-        id: 'creative-strategy',
-        title: 'Creative Strategy',
-        description: 'Hooks, angles, and formats that work for AU audiences',
-        readTime: '10 min',
-        difficulty: 'Intermediate',
-        free: true,
+        id: 'a2',
+        title: 'Minimum cold-traffic budget',
+        tier: 'FREE',
+        body: [
+          "Below $20/day per ad set, the Meta algorithm cannot exit the learning phase. You will spend $10 a day for 4 days and get nothing.",
+          "Realistic minimum to validate a product: $30-50/day for 3 days. That is $90-150 to get a statistically meaningful signal. If you cannot afford that, wait until you can.",
+          "Start with one Advantage+ Shopping Campaign and 3 creatives. Let Meta's algorithm decide the winner. Only split-test manually once you have conversion data.",
+        ],
       },
       {
-        id: 'tiktok-ads',
-        title: 'TikTok Ads AU',
-        description: 'Profitable TikTok Shop and Spark Ads in Australia',
-        readTime: '11 min',
-        difficulty: 'Intermediate',
-        free: false,
+        id: 'a3',
+        title: 'Reading ROAS properly',
+        tier: 'SCALE',
+        body: [
+          "ROAS = revenue / ad spend. A 2× ROAS means you got $2 back for every $1 spent. That sounds profitable but remember: $2 of revenue is not $2 of profit. After COGS, shipping, and fees, a 2× ROAS is usually break-even.",
+          "Breakeven ROAS formula: selling_price / (selling_price − COGS − shipping − fees). For most dropship products that is 2.2-2.8×. Anything above is profit. Anything below is loss.",
+          "A 3× ROAS is healthy. 4× is great. 5× is your scale signal — add budget aggressively.",
+        ],
       },
       {
-        id: 'scaling',
-        title: 'Scaling Winning Ads',
-        description: 'How to 2x, 5x, 10x a winning campaign without killing it',
-        readTime: '9 min',
-        difficulty: 'Advanced',
-        free: false,
+        id: 'a4',
+        title: 'Retargeting sequences that convert',
+        tier: 'SCALE',
+        body: [
+          "Three retargeting audiences in priority order: 1) Add-to-cart, no purchase in the last 7 days. 2) Page visitors, no add-to-cart in the last 14 days. 3) Post/video engagers in the last 30 days.",
+          "Budget split: 70% cold traffic, 20% retargeting, 10% lookalikes. Do not invert this until your cold audience is truly saturated.",
+          "Use a different creative for retargeting than for cold. Retargeting is 'you looked at this, here is why you should buy it now' with urgency (stock, limited offer). Cold is 'do you know this product exists?' with discovery-mode creative.",
+        ],
       },
       {
-        id: 'analytics',
-        title: 'Reading Your Numbers',
-        description: 'CPM, CTR, ROAS, CPA — what each metric actually means',
-        readTime: '8 min',
-        difficulty: 'Intermediate',
-        free: false,
+        id: 'a5',
+        title: 'Scaling winners without killing them',
+        tier: 'SCALE',
+        body: [
+          "When an ad set hits 3×+ ROAS consistently over 5 days, duplicate it at 2× the budget instead of editing the original. Editing triggers the learning phase all over again.",
+          "Horizontal scaling (more audiences) is safer than vertical scaling (higher budget per audience). You dilute less, and you find incremental audience pockets.",
+          "Once an ad set is running at $200/day+, check frequency. Above 3.0 means fatigue — rotate the creative, not the targeting.",
+        ],
+      },
+    ],
+  },
+  {
+    id: 'brand',
+    title: 'Building Your Brand',
+    color: '#a78bfa',
+    summary: 'The difference between a one-hit-wonder store and a brand that compounds over years.',
+    lessons: [
+      {
+        id: 'b1',
+        title: 'Naming your store',
+        tier: 'FREE',
+        body: [
+          "Good names are short (1-3 syllables), memorable, and give you room to expand. 'AussieGripSocks' locks you into one product category forever. 'Kindred & Co' gives you any lifestyle vertical.",
+          "Check domain availability on Porkbun or Namecheap. .com.au is the gold standard for AU-targeted stores; it signals local to Australian customers and earns trust immediately.",
+          "Check the name on Instagram, TikTok, and the Australian Trademark Register (IP Australia) before you commit. Nothing hurts more than rebranding at month six.",
+        ],
+      },
+      {
+        id: 'b2',
+        title: 'Building trust on day one',
+        tier: 'FREE',
+        body: [
+          "A new store with zero reviews looks like a scam. Pre-seed reviews ethically: ask 5 friends to buy at cost, ship it for real, ask them to leave an honest review on the product page.",
+          "Trust elements to have on every page: phone/email contact, street address (PO box is fine), clear returns policy link in the footer, 'Afterpay accepted' badge if you are on Afterpay, trust seals only if they are real (Shopify secure checkout badge is free).",
+          "Add an 'About' page with a real photo of the founder (you). Customers buy from humans, not logos.",
+        ],
+      },
+      {
+        id: 'b3',
+        title: 'Product photography on a budget',
+        tier: 'SCALE',
+        body: [
+          "You do not need a studio. An iPhone 12+, a $30 softbox from Bunnings, and a white paper backdrop is enough for e-commerce quality shots.",
+          "Shoot three types per product: 1) Clean pack shot on white. 2) Lifestyle shot (the product in use in an Australian home or outdoor setting). 3) Scale shot (the product in a hand or next to a known-size object). The lifestyle shot sells; the pack shot converts.",
+          "Never use only the AliExpress supplier photos. Every other dropshipper is using them. Your own photos become your moat.",
+        ],
+      },
+      {
+        id: 'b4',
+        title: 'Email flows that recover revenue',
+        tier: 'SCALE',
+        body: [
+          "Four flows to set up in Klaviyo or Omnisend before you spend another dollar on ads. 1) Abandoned cart (3 emails over 48 hours, first at 1hr). 2) Welcome series (3 emails over 7 days, offer 10% off on email 1). 3) Post-purchase (thank-you, then review request 10 days later, then cross-sell at day 30). 4) Win-back (customers inactive for 60 days).",
+          "These four flows alone recover 15-25% of email-eligible revenue with zero ongoing work once set up. The best ROI you will get in e-commerce.",
+          "Write them in your brand voice. Never copy template emails word-for-word — they are obvious and kill the relationship before it starts.",
+        ],
+      },
+      {
+        id: 'b5',
+        title: 'Supplier relationships that save you',
+        tier: 'SCALE',
+        body: [
+          "Once you are doing 20+ orders/day of a product, message the AliExpress seller directly and ask for a private rate. 'Hi, I am importing this to Australia for a dropship brand. At volume, can we discuss per-unit pricing and faster dispatch?' You will get a better price, priority packing, and sometimes a contact at the factory.",
+          "Ask for an 'AE Standard Shipping' upgrade at your cost — often 2-3 days faster than the default.",
+          "Move to CJDropshipping or Zendrop as soon as you can afford the 5-10% premium. Faster shipping, better QC, real support. Your customers will never know — your refund rate will plummet.",
+        ],
       },
     ],
   },
 ];
 
-// Flat list of all free lesson IDs (exported for sidebar badge)
-export const FREE_LESSON_IDS: string[] = TRACKS.flatMap((t) =>
-  t.lessons.filter((l) => l.free).map((l) => l.id)
-);
-export const TOTAL_FREE = FREE_LESSON_IDS.length; // 8
+const TOTAL_LESSONS = MODULES.reduce((a, m) => a + m.lessons.length, 0);
 
-const STORAGE_KEY = 'majorka_academy_v1';
-const PLAYLIST_KEY = 'majorka_playlist';
-const PLAYBOOK_KEY = 'majorka_playbook';
-const TOTAL_LESSONS = 20;
-
-// ── localStorage helpers ───────────────────────────────────────────────────────
-
-function loadProgress(): Record<string, boolean> {
+function readProgress(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
+    const raw = window.localStorage.getItem(PROGRESS_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    return new Set(Array.isArray(parsed) ? parsed : []);
   } catch {
-    return {};
+    return new Set();
   }
 }
-function saveProgress(p: Record<string, boolean>) {
+
+function writeProgress(ids: Set<string>): void {
+  if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(Array.from(ids)));
   } catch {
-    /* ignore */
-  }
-}
-function loadPlaylist(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(PLAYLIST_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
-function savePlaylist(ids: string[]) {
-  try {
-    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(ids));
-  } catch {
-    /* ignore */
-  }
-}
-function appendPlaybook(entry: string) {
-  try {
-    const existing = localStorage.getItem(PLAYBOOK_KEY) ?? '';
-    localStorage.setItem(PLAYBOOK_KEY, existing + entry);
-  } catch {
-    /* ignore */
+    /* ignore quota errors */
   }
 }
 
-// ── Supabase progress sync (graceful fallback) ────────────────────────────────
-
-async function loadProgressFromSupabase(userId: string): Promise<Record<string, boolean>> {
-  try {
-    const { data, error } = await supabase
-      .from('lesson_progress')
-      .select('lesson_id, completed')
-      .eq('user_id', userId)
-      .eq('completed', true);
-    if (error) return {};
-    const result: Record<string, boolean> = {};
-    (data ?? []).forEach((r: { lesson_id: string; completed: boolean }) => {
-      result[r.lesson_id] = r.completed;
-    });
-    return result;
-  } catch {
-    return {};
-  }
-}
-
-async function syncProgressToSupabase(userId: string, lessonId: string) {
-  try {
-    await supabase.from('lesson_progress').upsert(
-      {
-        user_id: userId,
-        lesson_id: lessonId,
-        completed: true,
-        completed_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,lesson_id' }
-    );
-  } catch {
-    /* no-op — table may not exist */
-  }
-}
-
-// ── Markdown renderer ──────────────────────────────────────────────────────────
-
-// SafeInlineText: parses **bold**, *italic*, `code` without dangerouslySetInnerHTML
-function SafeInlineText({ text }: { text: string }) {
-  // Split on **bold**, *italic*, and `code` patterns
-  const parts: React.ReactNode[] = [];
-  const regex = /(\*\*(.+?)\*\*|\*([^*]+?)\*|`([^`]+?)`)/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-  let key = 0;
-
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
-    }
-    if (match[0].startsWith('**')) {
-      parts.push(
-        <strong key={key++} className="text-white font-semibold">
-          {match[2]}
-        </strong>
-      );
-    } else if (match[0].startsWith('*')) {
-      parts.push(<em key={key++}>{match[3]}</em>);
-    } else {
-      parts.push(
-        <code
-          key={key++}
-          style={{
-            background: 'rgba(255,255,255,0.08)',
-            padding: '1px 6px',
-            borderRadius: '4px',
-            fontFamily: 'monospace',
-            fontSize: '0.85em',
-            color: '#F59E0B',
-          }}
-        >
-          {match[4]}
-        </code>
-      );
-    }
-    lastIndex = match.index + match[0].length;
-  }
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-  return <>{parts}</>;
-}
-
-function renderMarkdown(text: string): React.ReactNode[] {
-  const nodes: React.ReactNode[] = [];
-  const lines = text.split('\n');
-  let i = 0;
-  let key = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-    if (line.trim() === '') {
-      i++;
-      continue;
-    }
-
-    // Headings
-    if (/^#{1,3} /.test(line)) {
-      const content = line.replace(/^#{1,3} /, '');
-      nodes.push(
-        <h3
-          key={key++}
-          className="text-lg font-bold text-white mt-6 mb-3"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-        >
-          {content}
-        </h3>
-      );
-      i++;
-      continue;
-    }
-
-    // Bullet list
-    if (/^[*-] /.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^[*-] /.test(lines[i])) {
-        items.push(lines[i].replace(/^[*-] /, ''));
-        i++;
-      }
-      nodes.push(
-        <ul
-          key={key++}
-          className="list-disc list-inside space-y-1 mb-4"
-          style={{ color: '#94A3B8' }}
-        >
-          {items.map((item, j) => (
-            <li key={j} className="mb-1">
-              <SafeInlineText text={item} />
-            </li>
-          ))}
-        </ul>
-      );
-      continue;
-    }
-
-    // Numbered list
-    if (/^\d+\. /.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\. /.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\. /, ''));
-        i++;
-      }
-      nodes.push(
-        <ol
-          key={key++}
-          className="list-decimal list-inside space-y-1 mb-4"
-          style={{ color: '#94A3B8' }}
-        >
-          {items.map((item, j) => (
-            <li key={j} className="mb-1">
-              <SafeInlineText text={item} />
-            </li>
-          ))}
-        </ol>
-      );
-      continue;
-    }
-
-    // Paragraph
-    nodes.push(
-      <p key={key++} className="mb-4 leading-relaxed text-sm" style={{ color: '#94A3B8' }}>
-        <SafeInlineText text={line} />
-      </p>
-    );
-    i++;
-  }
-  return nodes;
-}
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function difficultyStyle(d: string): { bg: string; color: string } {
-  if (d === 'Beginner') return { bg: 'rgba(34,197,94,0.1)', color: '#4ade80' };
-  if (d === 'Advanced') return { bg: 'rgba(239,68,68,0.1)', color: '#f87171' };
-  return { bg: 'rgba(99,102,241,0.1)', color: '#6366F1' };
-}
-
-function getLessonByTrack(lessonId: string): { track: Track; index: number } | null {
-  for (const track of TRACKS) {
-    const index = track.lessons.findIndex((l) => l.id === lessonId);
-    if (index !== -1) return { track, index };
-  }
-  return null;
-}
-
-// ── Circular progress ring ────────────────────────────────────────────────────
-
-function CircularRing({ percent }: { percent: number }) {
-  const r = 16;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (percent / 100) * circ;
-  return (
-    <svg width={40} height={40} className="flex-shrink-0">
-      <circle cx={20} cy={20} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={3} />
-      <circle
-        cx={20}
-        cy={20}
-        r={r}
-        fill="none"
-        stroke="#6366F1"
-        strokeWidth={3}
-        strokeDasharray={circ}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        transform="rotate(-90 20 20)"
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-      />
-    </svg>
-  );
-}
-
-// ── Confetti (CSS-only) ───────────────────────────────────────────────────────
-
-const CONFETTI_COLORS = ['#6366F1', '#F59E0B', '#22c55e', '#a855f7', '#3b82f6', '#f59e0b'];
-
-function ConfettiBurst({ active }: { active: boolean }) {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: 32 }, (_, i) => ({
-        id: i,
-        left: `${5 + Math.random() * 90}%`,
-        delay: Math.random() * 0.5,
-        duration: 1.2 + Math.random() * 1.2,
-        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-        size: 6 + Math.round(Math.random() * 6),
-        isCircle: Math.random() > 0.5,
-        rotate: Math.random() * 360,
-      })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [active]
-  );
-
-  if (!active) return null;
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[300] overflow-hidden">
-      {pieces.map((p) => (
-        <motion.div
-          key={p.id}
-          initial={{ y: -10, opacity: 1, rotate: p.rotate }}
-          animate={{ y: '110vh', opacity: [1, 1, 0], rotate: p.rotate + 720 }}
-          transition={{ duration: p.duration, delay: p.delay, ease: 'easeIn' }}
-          style={{
-            position: 'absolute',
-            left: p.left,
-            top: 0,
-            width: p.size,
-            height: p.size,
-            borderRadius: p.isCircle ? '50%' : 2,
-            background: p.color,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ── Toast ────────────────────────────────────────────────────────────────────
-
-function Toast({ message, visible }: { message: string; visible: boolean }) {
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.92 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[250] px-6 py-3 rounded-2xl flex items-center gap-3"
-          style={{
-            background: 'linear-gradient(135deg, rgba(20,20,24,0.98), rgba(28,28,36,0.98))',
-            border: '1px solid rgba(99,102,241,0.4)',
-            boxShadow: '0 8px 32px rgba(99,102,241,0.15), 0 2px 8px rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(16px)',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
-          }}
-        >
-          <Trophy size={18} style={{ color: '#6366F1', flexShrink: 0 }} />
-          <span className="text-sm font-bold text-white whitespace-nowrap">{message}</span>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-// ── Playlist Drawer ───────────────────────────────────────────────────────────
-
-interface PlaylistDrawerProps {
-  open: boolean;
-  onClose: () => void;
-  playlist: string[];
-  progress: Record<string, boolean>;
-  onPlay: (lessonId: string) => void;
-  onRemove: (lessonId: string) => void;
-}
-
-function PlaylistDrawer({
-  open,
-  onClose,
-  playlist,
-  progress,
-  onPlay,
-  onRemove,
-}: PlaylistDrawerProps) {
-  const allLessons: Record<string, Lesson> = {};
-  TRACKS.forEach((t) =>
-    t.lessons.forEach((l) => {
-      allLessons[l.id] = l;
-    })
-  );
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[150]"
-            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
-            onClick={onClose}
-          />
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="fixed right-0 top-0 bottom-0 z-[160] flex flex-col"
-            style={{
-              width: 'min(380px, 100vw)',
-              background: 'rgba(10,10,14,0.98)',
-              borderLeft: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '-16px 0 64px rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(20px)',
-            }}
-          >
-            {/* Header */}
-            <div
-              className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              <div className="flex items-center gap-2">
-                <ListOrdered size={16} style={{ color: '#6366F1' }} />
-                <h3
-                  className="font-bold text-white text-sm"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                >
-                  My Playlist
-                </h3>
-                {playlist.length > 0 && (
-                  <span
-                    className="px-2 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}
-                  >
-                    {playlist.length}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={onClose}
-                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#94A3B8',
-                }}
-                onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.background =
-                    'rgba(255,255,255,0.1)')
-                }
-                onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.background =
-                    'rgba(255,255,255,0.06)')
-                }
-              >
-                <X size={13} />
-              </button>
-            </div>
-
-            {/* List */}
-            <div
-              className="flex-1 overflow-y-auto px-3 py-3"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(255,255,255,0.08) transparent',
-              }}
-            >
-              {playlist.length === 0 ? (
-                <div className="text-center py-12">
-                  <BookOpen size={32} style={{ color: '#94A3B8', margin: '0 auto 12px' }} />
-                  <p className="text-sm" style={{ color: '#9CA3AF' }}>
-                    Your playlist is empty
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: '#94A3B8' }}>
-                    Add free lessons to build your queue
-                  </p>
-                </div>
-              ) : (
-                playlist.map((id, idx) => {
-                  const lesson = allLessons[id];
-                  if (!lesson) return null;
-                  const done = progress[id];
-                  return (
-                    <div
-                      key={id}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 group transition-all"
-                      style={{
-                        background: '#05070F',
-                        border: '1px solid #F9FAFB',
-                      }}
-                      onMouseEnter={(e) =>
-                        ((e.currentTarget as HTMLDivElement).style.borderColor =
-                          'rgba(99,102,241,0.15)')
-                      }
-                      onMouseLeave={(e) =>
-                        ((e.currentTarget as HTMLDivElement).style.borderColor =
-                          '#F9FAFB')
-                      }
-                    >
-                      <span
-                        className="text-xs font-bold flex-shrink-0"
-                        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif", minWidth: 20 }}
-                      >
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className="text-xs font-semibold"
-                          style={{ overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, lineHeight: 1.4, color: done ? '#9CA3AF' : '#e5e5e5', textDecoration: done ? 'line-through' : 'none' }}
-                        >
-                          {lesson.title}
-                        </div>
-                        <div className="text-xs" style={{ color: '#94A3B8' }}>
-                          {lesson.readTime}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => onPlay(id)}
-                        title="Open lesson"
-                        className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
-                        style={{
-                          background: 'rgba(99,102,241,0.1)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#6366F1',
-                        }}
-                        onMouseEnter={(e) =>
-                          ((e.currentTarget as HTMLButtonElement).style.background =
-                            'rgba(99,102,241,0.2)')
-                        }
-                        onMouseLeave={(e) =>
-                          ((e.currentTarget as HTMLButtonElement).style.background =
-                            'rgba(99,102,241,0.1)')
-                        }
-                      >
-                        <Play size={10} />
-                      </button>
-                      <button
-                        onClick={() => onRemove(id)}
-                        title="Remove from playlist"
-                        className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all opacity-0 group-hover:opacity-100"
-                        style={{
-                          background: 'rgba(239,68,68,0.08)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#f87171',
-                        }}
-                        onMouseEnter={(e) =>
-                          ((e.currentTarget as HTMLButtonElement).style.background =
-                            'rgba(239,68,68,0.2)')
-                        }
-                        onMouseLeave={(e) =>
-                          ((e.currentTarget as HTMLButtonElement).style.background =
-                            'rgba(239,68,68,0.08)')
-                        }
-                      >
-                        <X size={10} />
-                      </button>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Footer */}
-            {playlist.length > 0 && (
-              <div
-                className="flex-shrink-0 px-4 py-4"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <button
-                  onClick={() => {
-                    onPlay(playlist[0]);
-                    onClose();
-                  }}
-                  className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
-                  style={{
-                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                    color: '#fff',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')
-                  }
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
-                >
-                  <Play size={14} />
-                  Start Playlist
-                </button>
-              </div>
-            )}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
-
-// ── Lesson Modal ──────────────────────────────────────────────────────────────
-
-interface LessonModalProps {
-  lesson: Lesson | null;
-  open: boolean;
-  onClose: () => void;
-  onComplete: (lessonId: string) => void;
-  completed: Record<string, boolean>;
-  prevLesson: Lesson | null;
-  nextLesson: Lesson | null;
-  onNavigate: (lesson: Lesson) => void;
-}
-
-function generateFallbackContent(title: string, description: string, difficulty: string): string {
-  return `## ${title}
-
-${description}
-
-## Why This Matters for AU Dropshippers
-
-Understanding ${title.toLowerCase()} is essential for building a profitable dropshipping business in Australia. The AU market has unique characteristics — higher shipping expectations, ACCC compliance requirements, and a consumer base that responds well to local trust signals.
-
-## Getting Started
-
-1. **Research your market** — Use Majorka's Product Intelligence to find trending products with real AU demand data
-2. **Validate before you invest** — Run the numbers through the Profit Calculator before ordering stock or running ads  
-3. **Start small, scale fast** — Test with $50/day ad budget before scaling to $500/day
-
-## Key Principles
-
-- Focus on products with 50%+ margin after COGS, shipping, and ad spend
-- Target niches where AU competition is low but global demand is proven
-- Build trust through fast shipping promises and clear return policies
-
-## Australian Market Tips
-
-- **Delivery expectations**: AU customers expect 5-10 day delivery for standard, 2-3 for express
-- **Price sensitivity**: AUD pricing should feel local — $49.95 beats $51.00 every time
-- **Trust signals**: "Ships from AU warehouse" doubles conversion vs "Ships from China"
-
-## Key Takeaways
-
-1. ${title} is a foundational skill — invest time learning it properly before scaling
-2. The AU market rewards speed and local trust signals more than anywhere else
-3. Use Majorka's AI tools to compress weeks of research into minutes
-
-*Difficulty: ${difficulty} · Refresh to load the full AI-generated lesson.*`;
-}
-
-
-function LessonModal({
-  lesson,
-  open,
-  onClose,
-  onComplete,
-  completed,
-  prevLesson,
-  nextLesson,
-  onNavigate,
-}: LessonModalProps) {
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [readProgress, setReadProgress] = useState(0);
-  const [saved, setSaved] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [, setLocation] = useLocation();
-  const { session } = useAuth();
+export default function LearnHub() {
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!lesson || !open) return;
-    setContent('');
-    setReadProgress(0);
-    setSaved(false);
-    setLoading(true);
-
-    const prompt = `Write a detailed lesson titled "${lesson.title}". ${lesson.description}. 
-
-Format requirements:
-- Use ## for section headings
-- Use **bold** for key terms and important concepts
-- Use bullet lists (- item) for lists of features or tips
-- Use numbered lists (1. step) for processes and actionable steps
-- Include 2-3 Australian examples with AUD pricing where relevant
-- Difficulty level: ${lesson.difficulty}
-- Target length: ${lesson.readTime} read
-- End with a section "## Key Takeaways" containing 3 numbered actionable takeaways
-
-Start with a brief intro paragraph, then dive straight into the content.`;
-
-    // Safety timeout — if API takes >25s, show fallback
-    const timeout = setTimeout(() => {
-      setLoading(false);
-      setContent(`## ${lesson.title}\n\n${lesson.description}\n\n## Key Takeaways\n\n1. Start with product research before building your store\n2. Validate demand with real AU search data before investing\n3. Focus on one niche and master it before expanding\n\n*Refresh the lesson to load the full AI-generated content.*`);
-    }, 25000);
-
-    fetch('/api/ai/generate-content', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-      },
-      body: JSON.stringify({
-        tool: 'lesson-content',
-        productName: lesson.title,
-        niche: lesson.description,
-        audience: lesson.difficulty,
-      }),
-    })
-      .then((r) => r.json())
-      .then((data: unknown) => {
-        clearTimeout(timeout);
-        const d = data as Record<string, unknown>;
-        const text = (d.result as string) || (d.content as string) || (d.text as string) || '';
-        if (text && text.length > 50) {
-          setContent(text);
-        } else {
-          // Fallback: generate content client-side
-          setContent(generateFallbackContent(lesson.title, lesson.description, lesson.difficulty));
-        }
-      })
-      .catch(() => {
-        clearTimeout(timeout);
-        setContent(generateFallbackContent(lesson.title, lesson.description, lesson.difficulty));
-      })
-      .finally(() => { clearTimeout(timeout); setLoading(false); });
-  }, [lesson, open]);
-
-  const handleScroll = useCallback(() => {
-    const el = contentRef.current;
-    if (!el) return;
-    const { scrollTop, scrollHeight, clientHeight } = el;
-    const max = scrollHeight - clientHeight;
-    setReadProgress(max <= 0 ? 100 : Math.round((scrollTop / max) * 100));
+    setCompleted(readProgress());
   }, []);
 
-  const handleSaveToPlaybook = useCallback(() => {
-    if (!lesson || !content) return;
-    const date = new Date().toLocaleDateString('en-AU');
-    const takeaways = content
-      .split('\n')
-      .filter((l) => /^\d+\. /.test(l))
-      .slice(0, 3)
-      .map((l) => l.replace(/^\d+\. /, '• '))
-      .join('\n');
-    const entry = `\n\n---\n# ${lesson.title}\n*Saved ${date}*\n\n${takeaways || content.slice(0, 300) + '...'}\n`;
-    appendPlaybook(entry);
-    setSaved(true);
-  }, [lesson, content]);
+  const pct = useMemo(() => Math.round((completed.size / TOTAL_LESSONS) * 100), [completed]);
 
-  if (!lesson) return null;
+  const toggleComplete = (id: string) => {
+    setCompleted((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      writeProgress(next);
+      return next;
+    });
+  };
 
-  const isCompleted = completed[lesson.id];
-  const diffStyle = difficultyStyle(lesson.difficulty);
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => (prev === id ? null : id));
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent
-        className="sm:max-w-2xl border border-white/10 p-0 overflow-hidden w-full"
-        style={{
-          background: 'rgba(10,10,18,0.98)',
-          backdropFilter: 'blur(20px)',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.08)',
-        }}
-      >
-        {/* Reading progress bar */}
-        <div
-          className="absolute top-0 left-0 right-0 z-10"
-          style={{ height: 2, background: 'rgba(255,255,255,0.08)' }}
-        >
-          <div
-            className="h-full transition-all duration-200"
-            style={{
-              width: `${readProgress}%`,
-              background: 'linear-gradient(90deg, #6366F1, #8B5CF6)',
-            }}
-          />
-        </div>
+    <div style={{
+      padding: '40px 36px 80px',
+      maxWidth: 960,
+      margin: '0 auto',
+      fontFamily: sans,
+      color: '#e8e8f0',
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{
+          fontFamily: display,
+          fontSize: 40,
+          fontWeight: 800,
+          letterSpacing: '-0.025em',
+          margin: '0 0 8px',
+          background: 'linear-gradient(135deg,#f5f5f5 0%,#a78bfa 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}>Majorka Academy</h1>
+        <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', margin: '0 0 24px' }}>
+          Everything you need to go from zero to your first $10K month.
+        </p>
 
-        {/* Header */}
-        <DialogHeader
-          className="px-6 pt-7 pb-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <span
-              className="px-2.5 py-1 rounded-full text-xs font-bold"
-              style={{ background: diffStyle.bg, color: diffStyle.color }}
-            >
-              {lesson.difficulty}
+        {/* Progress tracker */}
+        <div style={{
+          background: surface,
+          border,
+          borderRadius: 12,
+          padding: '18px 22px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <span style={{ fontFamily: mono, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)' }}>
+              Your Progress
             </span>
-            <span className="text-xs" style={{ color: '#9CA3AF' }}>
-              {lesson.readTime} read
+            <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#a78bfa' }}>
+              {completed.size} of {TOTAL_LESSONS} lessons complete
             </span>
-            {lesson.free && (
-              <span
-                className="px-2 py-0.5 rounded-full text-xs font-bold"
-                style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}
-              >
-                Free
-              </span>
-            )}
           </div>
-          <DialogTitle
-            className="text-xl font-bold text-white leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          >
-            {lesson.title}
-          </DialogTitle>
-          <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
-            {lesson.description}
-          </p>
-        </DialogHeader>
-
-        {/* Content */}
-        <div
-          ref={contentRef}
-          onScroll={handleScroll}
-          className="flex-1 overflow-y-auto px-6 py-4"
-          style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}
-        >
-          {loading ? (
-            <div className="space-y-3 mt-2 animate-pulse">
-              {[85, 70, 90, 60, 75, 55, 80, 65].map((w, i) => (
-                <div
-                  key={i}
-                  className="h-3.5 rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.06)', width: `${w}%` }}
-                />
-              ))}
-              <div className="mt-4 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-              {[70, 85, 60, 90].map((w, i) => (
-                <div
-                  key={i + 10}
-                  className="h-3.5 rounded-full mt-2"
-                  style={{ background: 'rgba(255,255,255,0.06)', width: `${w}%` }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="prose-invert">{renderMarkdown(content)}</div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div
-          className="flex-shrink-0 px-5 py-4 space-y-3"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-        >
-          {/* Navigation + Save */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {prevLesson ? (
-                <button
-                  onClick={() => onNavigate(prevLesson)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    color: '#94A3B8',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.background =
-                      '#F5F5F5')
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.background =
-                      '#F9FAFB')
-                  }
-                >
-                  <ChevronLeft size={12} /> Prev
-                </button>
-              ) : (
-                <div style={{ width: 60 }} />
-              )}
-              {nextLesson && (
-                <button
-                  onClick={() => onNavigate(nextLesson)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    color: '#94A3B8',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.background =
-                      '#F5F5F5')
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLButtonElement).style.background =
-                      '#F9FAFB')
-                  }
-                >
-                  Next <ChevronRight size={12} />
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {!loading && content && (
-                <button
-                  onClick={handleSaveToPlaybook}
-                  title="Save key takeaways to My Playbook"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: saved ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.06)',
-                    color: saved ? '#6366F1' : '#94A3B8',
-                    border: `1px solid ${saved ? 'rgba(99,102,241,0.2)' : 'transparent'}`,
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!saved)
-                      (e.currentTarget as HTMLButtonElement).style.background =
-                        '#F5F5F5';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!saved)
-                      (e.currentTarget as HTMLButtonElement).style.background =
-                        '#F9FAFB';
-                  }}
-                >
-                  {saved ? <BookmarkCheck size={12} /> : <Bookmark size={12} />}
-                  {saved ? 'Saved' : 'Save to Playbook'}
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  setLocation(
-                    `/app/ai-chat?q=${encodeURIComponent(`Tell me more about: ${lesson.title}`)}`
-                  );
-                }}
-                className="text-xs font-medium transition-opacity"
-                style={{ color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer' }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.7')}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
-              >
-                Ask Maya →
-              </button>
-            </div>
-          </div>
-
-          {/* Complete button */}
-          <button
-            onClick={() => {
-              onComplete(lesson.id);
-              onClose();
-            }}
-            className="w-full py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
-            style={{
-              background: isCompleted
-                ? 'rgba(34,197,94,0.12)'
-                : 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              color: isCompleted ? '#4ade80' : '#fff',
-              border: isCompleted ? '1px solid rgba(34,197,94,0.25)' : 'none',
-              cursor: 'pointer',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
-              boxShadow: isCompleted ? 'none' : '0 4px 16px rgba(99,102,241,0.25)',
-            }}
-            onMouseEnter={(e) => {
-              if (!isCompleted) (e.currentTarget as HTMLButtonElement).style.opacity = '0.9';
-            }}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
-          >
-            {isCompleted ? <CheckCircle2 size={15} /> : <ArrowRight size={15} />}
-            {isCompleted ? 'Completed' : 'Mark Complete'}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ── Upgrade Dialog ─────────────────────────────────────────────────────────────
-
-function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [, setLocation] = useLocation();
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent
-        className="max-w-sm border border-white/10 text-center p-0 overflow-hidden"
-        style={{ background: 'rgba(10,10,18,0.98)', backdropFilter: 'blur(20px)' }}
-      >
-        <div className="py-8 px-6 flex flex-col items-center gap-4">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center"
-            style={{
-              background: 'rgba(99,102,241,0.08)',
-              border: '1px solid rgba(99,102,241,0.2)',
-            }}
-          >
-            <Lock size={22} style={{ color: '#6366F1' }} />
-          </div>
-          <DialogTitle
-            className="text-xl font-bold text-white"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-          >
-            Builder Plan Required
-          </DialogTitle>
-          <p className="text-sm" style={{ color: '#94A3B8' }}>
-            Unlock all 20 lessons + AI personalisation to accelerate your dropshipping journey.
-          </p>
-          <button
-            onClick={() => {
-              setLocation('/pricing');
-              onClose();
-            }}
-            className="w-full py-3 rounded-xl font-bold text-sm transition-all"
-            style={{
-              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
-              boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
-            }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
-          >
-            Upgrade to Builder Plan
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ── Track Card ─────────────────────────────────────────────────────────────────
-
-interface TrackCardProps {
-  track: Track;
-  isOpen: boolean;
-  onToggle: () => void;
-  progress: Record<string, boolean>;
-  playlist: string[];
-  onLessonClick: (lesson: Lesson) => void;
-  onPlaylistToggle: (lessonId: string) => void;
-}
-
-function TrackCard({
-  track,
-  isOpen,
-  onToggle,
-  progress,
-  playlist,
-  onLessonClick,
-  onPlaylistToggle,
-}: TrackCardProps) {
-  const completedInTrack = track.lessons.filter((l) => progress[l.id]).length;
-  const freeInTrack = track.lessons.filter((l) => l.free);
-  const freeCompleted = freeInTrack.filter((l) => progress[l.id]).length;
-  const progressPercent = (completedInTrack / track.lessons.length) * 100;
-  const trackComplete = freeCompleted === freeInTrack.length && freeInTrack.length > 0;
-  const hasStarted = freeCompleted > 0;
-
-  return (
-    <motion.div
-      layout
-      className="rounded-2xl overflow-hidden cursor-pointer"
-      style={{
-        background: isOpen ? 'rgba(99,102,241,0.06)' : '#0D1424',
-        border: isOpen ? '1px solid rgba(99,102,241,0.25)' : '1px solid rgba(255,255,255,0.08)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: isOpen
-          ? '0 0 40px rgba(99,102,241,0.06), 0 4px 24px rgba(0,0,0,0.3)'
-          : '0 2px 12px rgba(0,0,0,0.2)',
-        transition: 'border-color 200ms ease, box-shadow 200ms ease, background 200ms ease',
-      }}
-      onClick={onToggle}
-    >
-      {/* Card header */}
-      <div className="p-5">
-        <div className="flex items-start gap-4">
-          <span style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>{track.emoji}</span>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3
-                className="font-bold text-slate-100 text-base leading-tight"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                {track.title}
-              </h3>
-              {trackComplete && (
-                <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
-                  style={{
-                    background: 'rgba(99,102,241,0.15)',
-                    color: '#6366F1',
-                    border: '1px solid rgba(99,102,241,0.25)',
-                  }}
-                >
-                  <Trophy size={10} />
-                  Complete
-                </span>
-              )}
-            </div>
-            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#94A3B8' }}>
-              {track.description}
-            </p>
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span
-                className="px-2 py-0.5 rounded-full text-xs font-medium"
-                style={{ background: 'rgba(255,255,255,0.06)', color: '#94A3B8' }}
-              >
-                {track.lessons.length} lessons · {freeInTrack.length} free
-              </span>
-              {completedInTrack > 0 && (
-                <span
-                  className="px-2 py-0.5 rounded-full text-xs font-bold"
-                  style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}
-                >
-                  {completedInTrack}/{track.lessons.length} done
-                </span>
-              )}
-            </div>
+          <div style={{
+            height: 8,
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: 999,
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              width: `${pct}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg,#7c6aff,#a78bfa)',
+              transition: 'width 320ms cubic-bezier(0.34,1.56,0.64,1)',
+            }} />
           </div>
         </div>
-
-        {/* Progress bar */}
-        <div
-          className="mt-4 w-full rounded-full overflow-hidden"
-          style={{ height: 3, background: 'rgba(255,255,255,0.03)' }}
-        >
-          <motion.div
-            className="h-full rounded-full"
-            initial={false}
-            animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            style={{
-              background: trackComplete
-                ? 'linear-gradient(90deg, #4ade80, #22c55e)'
-                : 'linear-gradient(90deg, #6366F1, #8B5CF6)',
-            }}
-          />
-        </div>
-
-        {/* CTA button */}
-        {!isOpen && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle();
-            }}
-            className="mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
-            style={{
-              background: hasStarted ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)',
-              color: hasStarted ? '#6366F1' : '#94A3B8',
-              border: `1px solid ${hasStarted ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.08)'}`,
-              cursor: 'pointer',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
-            }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.8')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
-          >
-            {hasStarted ? (
-              <>
-                <Play size={10} /> Continue
-              </>
-            ) : (
-              <>
-                <BookOpen size={10} /> Start Learning
-              </>
-            )}
-          </button>
-        )}
       </div>
 
-      {/* Accordion lessons */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: 'easeInOut' }}
-            style={{ overflow: 'hidden' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-3 pb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              {track.lessons.map((lesson, idx) => {
-                const isCompleted = progress[lesson.id];
-                const inPlaylist = playlist.includes(lesson.id);
-                const diffStyle = difficultyStyle(lesson.difficulty);
-                const num = String(idx + 1).padStart(2, '0');
+      {/* Modules */}
+      {MODULES.map((mod) => {
+        const moduleCompleted = mod.lessons.filter((l) => completed.has(l.id)).length;
+        return (
+          <section key={mod.id} style={{ marginBottom: 28 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              marginBottom: 14,
+              gap: 16,
+            }}>
+              <div>
+                <div style={{
+                  fontFamily: mono,
+                  fontSize: 9,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: mod.color,
+                  marginBottom: 4,
+                }}>Module</div>
+                <h2 style={{
+                  fontFamily: display,
+                  fontSize: 22,
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  margin: '0 0 4px',
+                  color: '#f1f1f3',
+                }}>{mod.title}</h2>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0, maxWidth: 600 }}>
+                  {mod.summary}
+                </p>
+              </div>
+              <span style={{
+                fontFamily: mono,
+                fontSize: 11,
+                color: 'rgba(255,255,255,0.45)',
+                whiteSpace: 'nowrap',
+                marginTop: 18,
+              }}>{moduleCompleted}/{mod.lessons.length} done</span>
+            </div>
 
+            {/* Lesson list */}
+            <div style={{
+              background: surface,
+              border,
+              borderRadius: 12,
+              overflow: 'hidden',
+              borderLeft: `2px solid ${mod.color}`,
+            }}>
+              {mod.lessons.map((lesson, idx) => {
+                const isOpen = expanded === lesson.id;
+                const isDone = completed.has(lesson.id);
                 return (
                   <div
                     key={lesson.id}
-                    className="group relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl mt-1 cursor-pointer transition-all"
                     style={{
-                      background: 'transparent',
-                      borderLeft: '2px solid transparent',
-                      minHeight: 48,
-                    }}
-                    onClick={() => onLessonClick(lesson)}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLDivElement;
-                      el.style.background = 'rgba(255,255,255,0.04)';
-                      el.style.borderLeftColor = isCompleted
-                        ? 'rgba(34,197,94,0.4)'
-                        : 'rgba(99,102,241,0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLDivElement;
-                      el.style.background = 'transparent';
-                      el.style.borderLeftColor = 'transparent';
+                      borderTop: idx === 0 ? 'none' : '1px solid rgba(255,255,255,0.05)',
                     }}
                   >
-                    {/* Lesson number */}
-                    <span
-                      className="text-xs font-bold flex-shrink-0 w-7 text-center"
-                      style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    {/* Row */}
+                    <button
+                      onClick={() => toggleExpand(lesson.id)}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 14,
+                        padding: '16px 20px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: sans,
+                        color: '#e8e8f0',
+                        transition: 'background 120ms',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.02)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                     >
-                      {num}
-                    </span>
+                      <span style={{
+                        flexShrink: 0,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        background: isDone ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)',
+                        color: isDone ? '#10b981' : 'rgba(255,255,255,0.35)',
+                      }}>
+                        {isDone ? <CheckCircle2 size={14} /> : <span style={{ fontFamily: mono, fontSize: 10, fontWeight: 700 }}>{idx + 1}</span>}
+                      </span>
+                      <span style={{
+                        flex: 1,
+                        fontSize: 14,
+                        fontWeight: isDone ? 500 : 600,
+                        color: isDone ? 'rgba(255,255,255,0.55)' : '#f1f1f3',
+                        textDecoration: isDone ? 'line-through' : 'none',
+                      }}>{lesson.title}</span>
 
-                    {/* Status icon */}
-                    <div className="flex-shrink-0">
-                      {isCompleted ? (
-                        <CheckCircle2 size={15} style={{ color: '#4ade80' }} />
-                      ) : lesson.free ? (
-                        <BookOpen size={15} style={{ color: '#6366F1' }} />
+                      {lesson.tier === 'SCALE' ? (
+                        <span style={{
+                          fontFamily: mono,
+                          fontSize: 9,
+                          fontWeight: 700,
+                          color: '#a78bfa',
+                          background: 'rgba(124,106,255,0.12)',
+                          border: '1px solid rgba(124,106,255,0.25)',
+                          borderRadius: 999,
+                          padding: '2px 8px',
+                          letterSpacing: '0.05em',
+                        }}>SCALE · UNLOCKED</span>
                       ) : (
-                        <Lock size={14} style={{ color: '#94A3B8' }} />
+                        <span style={{
+                          fontFamily: mono,
+                          fontSize: 9,
+                          fontWeight: 700,
+                          color: 'rgba(16,185,129,0.9)',
+                          background: 'rgba(16,185,129,0.1)',
+                          border: '1px solid rgba(16,185,129,0.22)',
+                          borderRadius: 999,
+                          padding: '2px 8px',
+                          letterSpacing: '0.05em',
+                        }}>FREE</span>
                       )}
-                    </div>
 
-                    {/* Title + description */}
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className="text-sm font-medium truncate transition-colors"
-                        style={{
-                          color: isCompleted ? '#9CA3AF' : lesson.free ? '#e5e5e5' : '#6B7280',
-                          textDecoration: isCompleted ? 'line-through' : 'none',
-                        }}
-                      >
-                        {lesson.title}
-                      </div>
-                    </div>
+                      {isOpen
+                        ? <ChevronDown size={15} style={{ color: 'rgba(255,255,255,0.4)', flexShrink: 0 }} />
+                        : <ChevronRight size={15} style={{ color: 'rgba(255,255,255,0.4)', flexShrink: 0 }} />}
+                    </button>
 
-                    {/* Right badges */}
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {lesson.free && !isCompleted && (
-                        <span
-                          className="px-1.5 py-0.5 rounded-full text-xs font-bold"
-                          style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}
-                        >
-                          Free
-                        </span>
-                      )}
-                      <span className="text-xs hidden sm:block" style={{ color: '#94A3B8' }}>
-                        {lesson.readTime}
-                      </span>
-                      <span
-                        className="px-1.5 py-0.5 rounded-full text-xs font-medium hidden sm:block"
-                        style={{ background: diffStyle.bg, color: diffStyle.color }}
-                      >
-                        {lesson.difficulty}
-                      </span>
-
-                      {/* Playlist toggle — free lessons only */}
-                      {lesson.free && (
+                    {/* Expanded content */}
+                    {isOpen && (
+                      <div style={{
+                        padding: '4px 24px 22px 58px',
+                        background: 'rgba(124,106,255,0.03)',
+                        borderTop: '1px solid rgba(255,255,255,0.04)',
+                      }}>
+                        {lesson.body.map((para, i) => (
+                          <p key={i} style={{
+                            fontSize: 13.5,
+                            lineHeight: 1.7,
+                            color: 'rgba(232,232,240,0.85)',
+                            margin: '12px 0',
+                          }}>{para}</p>
+                        ))}
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onPlaylistToggle(lesson.id);
-                          }}
-                          title={inPlaylist ? 'Remove from playlist' : 'Add to playlist'}
-                          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all opacity-0 group-hover:opacity-100"
+                          onClick={() => toggleComplete(lesson.id)}
                           style={{
-                            background: inPlaylist
-                              ? 'rgba(99,102,241,0.15)'
-                              : '#F9FAFB',
-                            border: 'none',
+                            marginTop: 10,
+                            padding: '8px 14px',
+                            borderRadius: 8,
+                            border: `1px solid ${isDone ? 'rgba(16,185,129,0.35)' : 'rgba(124,106,255,0.35)'}`,
+                            background: isDone ? 'rgba(16,185,129,0.12)' : 'rgba(124,106,255,0.1)',
+                            color: isDone ? '#10b981' : '#a78bfa',
+                            fontFamily: sans,
+                            fontSize: 12,
+                            fontWeight: 700,
                             cursor: 'pointer',
-                            color: inPlaylist ? '#6366F1' : '#6B7280',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            transition: 'all 120ms',
                           }}
-                          onMouseEnter={(e) =>
-                            ((e.currentTarget as HTMLButtonElement).style.opacity = '1')
-                          }
                         >
-                          {inPlaylist ? <Minus size={10} /> : <Plus size={10} />}
+                          {isDone ? <><CheckCircle2 size={13} /> Completed</> : <>Mark complete ✓</>}
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
+          </section>
+        );
+      })}
 
-// ── Main Page ──────────────────────────────────────────────────────────────────
-
-export default function LearnHub() {
-  const { session } = useAuth();
-  const userId = session?.user?.id;
-
-  const [progress, setProgress] = useState<Record<string, boolean>>({});
-  const [progressLoaded, setProgressLoaded] = useState(false);
-  const [openTrack, setOpenTrack] = useState<string | null>('fundamentals');
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [lessonModalOpen, setLessonModalOpen] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [diffFilter, setDiffFilter] = useState<string>('All');
-  const [playlist, setPlaylist] = useState<string[]>([]);
-  const [playlistOpen, setPlaylistOpen] = useState(false);
-  const [toast, setToast] = useState({ message: '', visible: false });
-  const [confettiActive, setConfettiActive] = useState(false);
-
-  // Load progress on mount — Supabase preferred, localStorage fallback
-  useEffect(() => {
-    async function load() {
-      const local = loadProgress();
-      if (userId) {
-        const remote = await loadProgressFromSupabase(userId);
-        // Merge: remote wins for completed lessons, local fills gaps
-        const merged = { ...local, ...remote };
-        setProgress(merged);
-        // Write merged back to localStorage for offline use
-        saveProgress(merged);
-      } else {
-        setProgress(local);
-      }
-      setProgressLoaded(true);
-    }
-    load();
-    setPlaylist(loadPlaylist());
-  }, [userId]);
-
-  const completedCount = Object.values(progress).filter(Boolean).length;
-  const overallPercent = Math.round((completedCount / TOTAL_LESSONS) * 100);
-
-  // Trigger toast + confetti when a track's free lessons are all done
-  const checkTrackCompletion = useCallback(
-    (updated: Record<string, boolean>, prev: Record<string, boolean>) => {
-      for (const track of TRACKS) {
-        const freeLessons = track.lessons.filter((l) => l.free);
-        const wasComplete = freeLessons.every((l) => prev[l.id]);
-        const nowComplete = freeLessons.every((l) => updated[l.id]);
-        if (nowComplete && !wasComplete) {
-          setConfettiActive(true);
-          setToast({ message: `You completed ${track.title}!`, visible: true });
-          setTimeout(() => setConfettiActive(false), 3000);
-          setTimeout(() => setToast((t) => ({ ...t, visible: false })), 3500);
-          break;
-        }
-      }
-    },
-    []
-  );
-
-  const handleComplete = useCallback(
-    (lessonId: string) => {
-      const updated = { ...progress, [lessonId]: true };
-      setProgress(updated);
-      saveProgress(updated);
-      checkTrackCompletion(updated, progress);
-      if (userId) syncProgressToSupabase(userId, lessonId);
-    },
-    [progress, userId, checkTrackCompletion]
-  );
-
-  // Plan check — dual-listener pattern (same as FullDatabase)
-  const [userPlan, setUserPlan] = useState<'free' | 'builder' | 'scale'>('free');
-  useEffect(() => {
-    async function checkPlan(token: string | undefined) {
-      if (!token) return;
-      try {
-        const res = await fetch('/api/subscription/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const sub = await res.json();
-          if (['active', 'trialing'].includes(sub.status || '')) {
-            const p = (sub.plan || '').toLowerCase();
-            setUserPlan(p === 'scale' ? 'scale' : p === 'builder' ? 'builder' : 'free');
-          }
-        }
-      } catch { /* silently fail */ }
-    }
-    supabase.auth.getSession().then(({ data }) => checkPlan(data.session?.access_token));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      checkPlan(session?.access_token);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLessonClick = useCallback((lesson: Lesson) => {
-    // Scale and Builder plans have full access; free users only get free lessons
-    const hasPaid = userPlan === 'scale' || userPlan === 'builder';
-    if (!lesson.free && !hasPaid) {
-      setUpgradeOpen(true);
-      return;
-    }
-    setSelectedLesson(lesson);
-    setLessonModalOpen(true);
-  }, [userPlan]);
-
-  const handlePlaylistToggle = useCallback((lessonId: string) => {
-    setPlaylist((prev) => {
-      const next = prev.includes(lessonId)
-        ? prev.filter((id) => id !== lessonId)
-        : [...prev, lessonId];
-      savePlaylist(next);
-      return next;
-    });
-  }, []);
-
-  // Lesson navigation (prev/next within same track)
-  const { prevLesson, nextLesson } = useMemo(() => {
-    if (!selectedLesson) return { prevLesson: null, nextLesson: null };
-    const ctx = getLessonByTrack(selectedLesson.id);
-    if (!ctx) return { prevLesson: null, nextLesson: null };
-    const { track, index } = ctx;
-    const freeLessons = track.lessons.filter((l) => l.free);
-    const freeIdx = freeLessons.findIndex((l) => l.id === selectedLesson.id);
-    return {
-      prevLesson: freeIdx > 0 ? freeLessons[freeIdx - 1] : null,
-      nextLesson: freeIdx < freeLessons.length - 1 ? freeLessons[freeIdx + 1] : null,
-    };
-  }, [selectedLesson]);
-
-  const handleNavigate = useCallback((lesson: Lesson) => {
-    setSelectedLesson(lesson);
-  }, []);
-
-  // Filter tracks by search + difficulty
-  const filteredTracks = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    return TRACKS.map((track) => {
-      const lessons = track.lessons.filter((l) => {
-        const matchDiff = diffFilter === 'All' || l.difficulty === diffFilter;
-        const matchSearch =
-          !q || l.title.toLowerCase().includes(q) || l.description.toLowerCase().includes(q);
-        return matchDiff && matchSearch;
-      });
-      return { ...track, lessons };
-    }).filter(
-      (track) =>
-        track.lessons.length > 0 ||
-        (!q && diffFilter === 'All') ||
-        track.title.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, diffFilter]);
-
-  const DIFF_PILLS = ['All', 'Beginner', 'Intermediate', 'Advanced'] as const;
-
-  return (
-    <div
-      className="min-h-screen"
-      style={{ background: '#0a0a0a', fontFamily: 'DM Sans, sans-serif' }}
-    >
-      {/* Confetti */}
-      <ConfettiBurst active={confettiActive} />
-
-      {/* Toast */}
-      <Toast message={toast.message} visible={toast.visible} />
-
-      {/* Playlist Drawer */}
-      <PlaylistDrawer
-        open={playlistOpen}
-        onClose={() => setPlaylistOpen(false)}
-        playlist={playlist}
-        progress={progress}
-        onPlay={(id) => {
-          const lesson = TRACKS.flatMap((t) => t.lessons).find((l) => l.id === id);
-          if (lesson) handleLessonClick(lesson);
-        }}
-        onRemove={handlePlaylistToggle}
-      />
-
-      <div className="max-w-4xl mx-auto px-4 md:px-8 py-8">
-        {/* Page header */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
-          <div>
-            <h1
-              className="text-4xl md:text-5xl font-extrabold leading-tight"
-              style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
-                background: 'linear-gradient(135deg, #6366F1 20%, #A5B4FC 60%, #6366F1 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              Majorka Academy
-            </h1>
-            <p className="text-sm mt-2" style={{ color: '#94A3B8' }}>
-              From zero to your first $10K month — step by step.
-            </p>
-          </div>
-
-          {/* Progress + Playlist trigger */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Playlist button */}
-            <button
-              onClick={() => setPlaylistOpen(true)}
-              className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid #F5F5F5',
-                color: '#94A3B8',
-                cursor: 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
-                fontSize: 13,
-                fontWeight: 600,
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(99,102,241,0.25)';
-                (e.currentTarget as HTMLButtonElement).style.color = '#E2E8F0';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.08)';
-                (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8';
-              }}
-            >
-              <ListOrdered size={14} />
-              Playlist
-              {playlist.length > 0 && (
-                <span
-                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-xs font-extrabold"
-                  style={{ background: '#6366F1', color: '#0a0a0a', fontSize: 9 }}
-                >
-                  {playlist.length}
-                </span>
-              )}
-            </button>
-
-            {/* Circular progress */}
-            {progressLoaded && (
-              <div
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  backdropFilter: 'blur(12px)',
-                }}
-              >
-                <div className="relative flex items-center justify-center">
-                  <CircularRing percent={overallPercent} />
-                  <span
-                    className="absolute text-xs font-extrabold"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                  >
-                    {overallPercent}%
-                  </span>
-                </div>
-                <div>
-                  <div
-                    className="font-bold text-slate-100 text-sm"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                  >
-                    {completedCount} of {TOTAL_LESSONS}
-                  </div>
-                  <div className="text-xs" style={{ color: '#9CA3AF' }}>
-                    complete
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Search + Filter bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <input
-            type="search"
-            placeholder="Search lessons..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 sm:max-w-sm text-sm transition-all focus:outline-none"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 10,
-              padding: '10px 16px',
-              color: '#F1F5F9',
-              fontFamily: 'DM Sans, sans-serif',
-            }}
-            onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
-            onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
-          />
-
-          {/* Difficulty pills */}
-          <div
-            className="flex items-center gap-2 overflow-x-auto pb-1"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {DIFF_PILLS.map((pill) => {
-              const active = diffFilter === pill;
-              const col = pill === 'All' ? '#6366F1' : difficultyStyle(pill).color;
-              return (
-                <button
-                  key={pill}
-                  onClick={() => setDiffFilter(pill)}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
-                  style={{
-                    background: active
-                      ? pill === 'All'
-                        ? 'rgba(99,102,241,0.15)'
-                        : `${difficultyStyle(pill).bg}`
-                      : 'rgba(255,255,255,0.06)',
-                    color: active ? col : '#CBD5E1',
-                    border: active ? `1px solid ${col}40` : '1px solid rgba(255,255,255,0.1)',
-                    cursor: 'pointer',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
-                  }}
-                >
-                  {pill}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Track grid */}
-        {filteredTracks.length === 0 ? (
-          <div className="text-center py-16">
-            <BookOpen size={36} style={{ color: '#94A3B8', margin: '0 auto 12px' }} />
-            <p className="text-sm font-medium" style={{ color: '#9CA3AF' }}>
-              No lessons match your search
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {filteredTracks.map((track) => (
-              <TrackCard
-                key={track.id}
-                track={track}
-                isOpen={openTrack === track.id}
-                onToggle={() => setOpenTrack((prev) => (prev === track.id ? null : track.id))}
-                progress={progress}
-                playlist={playlist}
-                onLessonClick={handleLessonClick}
-                onPlaylistToggle={handlePlaylistToggle}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-10 text-center">
-          <p className="text-xs" style={{ color: '#94A3B8' }}>
-            Free lessons open to all · Locked lessons require Builder Plan
-          </p>
-        </div>
+      {/* Footer note */}
+      <div style={{
+        marginTop: 40,
+        padding: '16px 20px',
+        background: 'rgba(124,106,255,0.04)',
+        border: '1px solid rgba(124,106,255,0.15)',
+        borderRadius: 12,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.55)',
+      }}>
+        <Lock size={13} style={{ color: '#a78bfa', flexShrink: 0 }} />
+        <span>You're on Scale Plan — all lessons unlocked. Progress is stored locally in your browser.</span>
       </div>
-
-      {/* Lesson Modal */}
-      <LessonModal
-        lesson={selectedLesson}
-        open={lessonModalOpen}
-        onClose={() => {
-          setLessonModalOpen(false);
-          setSelectedLesson(null);
-        }}
-        onComplete={handleComplete}
-        completed={progress}
-        prevLesson={prevLesson}
-        nextLesson={nextLesson}
-        onNavigate={handleNavigate}
-      />
-
-      {/* Upgrade Dialog */}
-      <UpgradeDialog open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </div>
   );
 }

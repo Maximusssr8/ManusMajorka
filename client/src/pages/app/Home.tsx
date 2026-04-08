@@ -78,19 +78,19 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
   return (
     <div
       style={{
-        background: '#1c1c1c',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderLeft: `3px solid ${card.accentColor}`,
-        borderRadius: 14,
-        padding: 24,
+        background: '#161618',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderLeft: `2px solid ${card.accentColor}`,
+        borderRadius: 12,
+        padding: '20px 24px',
         position: 'relative',
         overflow: 'hidden',
-        minHeight: 140,
+        minHeight: 130,
         transition: 'transform 320ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 320ms cubic-bezier(0.34,1.56,0.64,1)',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
+        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.4)';
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
@@ -98,26 +98,26 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
       }}
     >
       {/* Top row — label + icon */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
         <span style={{
           fontFamily: mono,
-          fontSize: 10,
+          fontSize: 9,
           color: 'rgba(255,255,255,0.35)',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
         }}>{card.label}</span>
-        <Icon size={18} style={{ color: card.accentColor, opacity: 0.85 }} />
+        <Icon size={15} style={{ color: card.accentColor, opacity: 0.6 }} />
       </div>
       {/* Big number */}
       <div style={{
         fontFamily: display,
-        fontSize: 40,
+        fontSize: 38,
         fontWeight: 800,
         color: '#f1f1f3',
         letterSpacing: '-0.025em',
         lineHeight: 1,
         marginBottom: 6,
-        minHeight: 40,
+        minHeight: 38,
         display: 'flex',
         alignItems: 'center',
       }}>
@@ -126,10 +126,10 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
           : (card.value && card.value !== '—' ? card.value : '0')}
       </div>
       {/* Subtitle */}
-      <div style={{ fontFamily: sans, fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{card.sub}</div>
+      <div style={{ fontFamily: sans, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{card.sub}</div>
       {/* Sparkline bottom right */}
-      <div style={{ position: 'absolute', bottom: 16, right: 20 }}>
-        <Sparkline color={card.accentColor} width={80} height={32} points={7} />
+      <div style={{ position: 'absolute', bottom: 14, right: 18 }}>
+        <Sparkline color={card.accentColor} width={70} height={28} points={7} />
       </div>
     </div>
   );
@@ -277,33 +277,52 @@ export default function AppHome() {
   ];
 
   // Dashboard quick-action shortcuts — each navigates to Products with a pre-applied tab filter
-  const quickActions = [
+  // and surfaces a real product card when data is loaded.
+  interface QuickAction {
+    label: string;
+    sub: string;
+    href: string;
+    border: string;
+    arrow: string;
+    product: Product | null;
+    badge: string;
+    badgeColor: string;
+    cta: string;
+  }
+
+  const quickActions: QuickAction[] = [
     {
       label: 'Top Trending',
-      sub: 'Products with 10K+ orders',
-      icon: '🔥',
+      sub: 'Products with 50K+ orders',
       href: '/app/products?tab=trending',
-      grad: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.04))',
-      border: 'rgba(239,68,68,0.22)',
+      border: 'rgba(239,68,68,0.35)',
       arrow: '#f87171',
+      product: topProduct ?? null,
+      badge: topProduct?.sold_count ? `${fmtK(topProduct.sold_count)} orders/mo` : 'Live',
+      badgeColor: '#f59e0b',
+      cta: 'View product',
     },
     {
-      label: 'Highest Margin',
-      sub: 'Products over $5 AUD',
-      icon: '💰',
+      label: 'Best Margin',
+      sub: 'Low price, proven demand',
       href: '/app/products?tab=highmargin',
-      grad: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04))',
-      border: 'rgba(16,185,129,0.22)',
+      border: 'rgba(16,185,129,0.35)',
       arrow: '#34d399',
+      product: highMarginProduct ?? null,
+      badge: highMarginProduct?.price_aud != null ? `$${Number(highMarginProduct.price_aud).toFixed(2)}` : '',
+      badgeColor: '#10b981',
+      cta: 'Calculate profit',
     },
     {
-      label: 'New Products',
+      label: 'Newest',
       sub: 'Added in the last 7 days',
-      icon: '✨',
       href: '/app/products?tab=new',
-      grad: 'linear-gradient(135deg, rgba(124,106,255,0.12), rgba(139,92,246,0.04))',
-      border: 'rgba(124,106,255,0.22)',
+      border: 'rgba(124,106,255,0.35)',
       arrow: '#a78bfa',
+      product: newestProduct ?? null,
+      badge: 'Just added',
+      badgeColor: '#a78bfa',
+      cta: "See what's new",
     },
   ];
 
@@ -411,7 +430,88 @@ export default function AppHome() {
           {kpiCards.map((card) => <KpiCard key={card.label} card={card} loading={stats.loading} />)}
         </div>
 
-        {/* Quick actions */}
+        {/* Category Performance chart — the data-platform centrepiece */}
+        <div style={{
+          background: '#161618',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 12,
+          padding: '20px 24px',
+          marginBottom: 16,
+        }}>
+          <div style={{
+            fontFamily: mono,
+            fontSize: 9,
+            color: 'rgba(255,255,255,0.35)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            marginBottom: 14,
+          }}>Category Performance · top 8 by order volume</div>
+          <div style={{ height: 180 }}>
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 4, right: 8, left: 0, bottom: 4 }}
+                  onClick={(d) => {
+                    const active = d?.activePayload?.[0]?.payload as { fullName?: string } | undefined;
+                    if (active?.fullName) {
+                      window.location.href = `/app/products?category=${encodeURIComponent(active.fullName)}`;
+                    }
+                  }}
+                >
+                  <XAxis
+                    dataKey="name"
+                    stroke="rgba(255,255,255,0.45)"
+                    tick={{ fontSize: 10, fontFamily: 'DM Sans, sans-serif' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    stroke="rgba(255,255,255,0.35)"
+                    tick={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => v >= 1000 ? `${Math.round(v / 1000)}K` : String(v)}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(124,106,255,0.08)' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload || !payload.length) return null;
+                      const row = payload[0].payload as { fullName: string; orders: number; productCount: number };
+                      return (
+                        <div style={{
+                          background: '#111114',
+                          border: '1px solid rgba(124,106,255,0.3)',
+                          borderRadius: 8,
+                          padding: '10px 14px',
+                          fontFamily: sans,
+                          fontSize: 12,
+                          minWidth: 180,
+                        }}>
+                          <div style={{ fontWeight: 700, color: '#f1f1f3', marginBottom: 4 }}>{row.fullName}</div>
+                          <div style={{ color: '#a1a1aa', fontSize: 11 }}>
+                            {row.orders.toLocaleString()} orders · {row.productCount} products
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Bar dataKey="orders" radius={[4, 4, 0, 0]}>
+                    {chartData.map((_, i) => (
+                      <Cell key={i} fill="rgba(124,106,255,0.8)" cursor="pointer" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontFamily: mono, fontSize: 12 }}>
+                Loading category data…
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick actions — real products */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
@@ -421,32 +521,94 @@ export default function AppHome() {
           {quickActions.map((c) => (
             <Link key={c.label} href={c.href} style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              padding: '14px 18px',
-              background: c.grad,
-              border: `1px solid ${c.border}`,
+              flexDirection: 'column',
+              gap: 12,
+              padding: '18px 20px',
+              background: '#161618',
+              border: '1px solid rgba(255,255,255,0.06)',
               borderRadius: 12,
               textDecoration: 'none',
-              transition: 'all 150ms',
+              minHeight: 160,
+              transition: 'all 180ms cubic-bezier(0.34,1.56,0.64,1)',
             }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLAnchorElement;
-                el.style.transform = 'translateY(-3px)';
+                el.style.transform = 'translateY(-2px)';
                 el.style.boxShadow = '0 12px 32px rgba(0,0,0,0.4)';
+                el.style.borderColor = c.border;
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLAnchorElement;
                 el.style.transform = 'translateY(0)';
                 el.style.boxShadow = 'none';
+                el.style.borderColor = 'rgba(255,255,255,0.06)';
               }}
             >
-              <span style={{ fontSize: 22, flexShrink: 0 }}>{c.icon}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: sans, fontSize: 14, fontWeight: 600, color: '#e8e8f0', marginBottom: 2 }}>{c.label}</div>
-                <div style={{ fontFamily: sans, fontSize: 12, color: '#5a5a6e' }}>{c.sub}</div>
-              </div>
-              <span style={{ color: c.arrow, fontSize: 18, flexShrink: 0 }}>→</span>
+              <div style={{
+                fontFamily: mono,
+                fontSize: 9,
+                color: 'rgba(255,255,255,0.35)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}>{c.label}</div>
+
+              {c.product ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 8,
+                    overflow: 'hidden',
+                    background: '#0d0d10',
+                    flexShrink: 0,
+                    border: '1px solid rgba(255,255,255,0.06)',
+                  }}>
+                    {c.product.image_url && (
+                      <img
+                        src={proxyImage(c.product.image_url) ?? c.product.image_url}
+                        alt={c.product.product_title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: sans,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: '#e8e8f0',
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      lineHeight: 1.3,
+                      marginBottom: 4,
+                    }}>{c.product.product_title}</div>
+                    <span style={{
+                      display: 'inline-block',
+                      fontFamily: mono,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: c.badgeColor,
+                      background: `${c.badgeColor}1f`,
+                      border: `1px solid ${c.badgeColor}40`,
+                      borderRadius: 999,
+                      padding: '2px 8px',
+                    }}>{c.badge}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontFamily: sans, fontSize: 13, color: '#5a5a6e' }}>{c.sub}</div>
+              )}
+
+              <div style={{
+                marginTop: 'auto',
+                fontFamily: sans,
+                fontSize: 12,
+                fontWeight: 600,
+                color: c.arrow,
+              }}>{c.cta} →</div>
             </Link>
           ))}
         </div>
@@ -479,9 +641,9 @@ export default function AppHome() {
         </div>
 
         <div style={{
-          background: '#1c1c1c',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 14,
+          background: '#161618',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 12,
           overflow: 'hidden',
         }}>
           {/* Table header */}
