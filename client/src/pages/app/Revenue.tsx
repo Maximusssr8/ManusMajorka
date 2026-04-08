@@ -70,9 +70,9 @@ export default function Revenue() {
             letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
             background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>Revenue</h1>
+          }}>Revenue Tracker</h1>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-            Track your store's performance across products and markets
+            Connect your store to track real performance
           </p>
         </div>
         <Link href="/app/store-builder" style={{

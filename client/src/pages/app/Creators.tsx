@@ -50,7 +50,12 @@ function creatorTier(score: number): { label: string; reach: string; cpm: string
 }
 
 export default function Creators() {
-  const { niches, loading } = useNicheStats(12);
+  const { niches: rawNiches, loading } = useNicheStats(20);
+  // Re-rank by average score for creator matching (highest-quality categories first)
+  const niches = useMemo(
+    () => [...rawNiches].sort((a, b) => b.avgScore - a.avgScore).slice(0, 12),
+    [rawNiches]
+  );
   const [query, setQuery] = useState('');
   const [copied, setCopied] = useState<string | null>(null);
 
