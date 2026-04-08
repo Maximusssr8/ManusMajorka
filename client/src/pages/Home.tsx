@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
+import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -260,16 +261,23 @@ html, body { background: ${T.bg}; }
 `;
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-const TICKER_ITEMS: string[] = [
-  '🇦🇺 AU operator found $14,200/mo product · 2 min ago',
-  '🇺🇸 US store launched via Store Builder · 4 min ago',
-  '🇬🇧 UK competitor spy scan completed · 7 min ago',
-  '🇨🇦 CA margin calculator: 44% net margin · 9 min ago',
-  '🇩🇪 DE winning product: 91 score · 11 min ago',
-  '🇸🇬 SG ad creative generated · 14 min ago',
-  '2,302 winning products across 149 niches',
-  '500+ active operators online now',
+const TICKER_BASE: { text: string; needsTime: boolean }[] = [
+  { text: '🇦🇺 AU operator found $14,200/mo product', needsTime: true },
+  { text: '🇺🇸 US store launched via Store Builder',   needsTime: true },
+  { text: '🇬🇧 UK competitor spy scan completed',       needsTime: true },
+  { text: '🇨🇦 CA margin calculator: 44% net margin',   needsTime: true },
+  { text: '🇩🇪 DE winning product: 91 score',           needsTime: true },
+  { text: '🇸🇬 SG ad creative generated',               needsTime: true },
+  { text: '2,302 winning products across 149 niches',  needsTime: false },
+  { text: '500+ active operators online now',          needsTime: false },
 ];
+function generateTickerItems(): string[] {
+  return TICKER_BASE.map((item, i) => {
+    if (!item.needsTime) return item.text;
+    const mins = Math.floor(Math.random() * 5 + i * 3 + 1);
+    return `${item.text} · ${mins} min ago`;
+  });
+}
 
 const STEPS: { num: string; title: string; body: string }[] = [
   { num: '01', title: 'Pick a market', body: 'Choose your region. Majorka adapts pricing, suppliers, and compliance to where you sell.' },
@@ -437,10 +445,22 @@ function Hero() {
       background: '#0a0a0a',
       position: 'relative',
       overflow: 'hidden',
-      padding: '160px 24px 100px',
+      padding: '80px 24px 100px',
       borderBottom: `1px solid ${T.border}`,
       marginTop: 60,
+      minHeight: 'auto',
     }}>
+      {/* Full-bleed ambient background so the hero never shows dead black above the content */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%), #0a0a0a',
+      }} />
+      {/* Bottom fade into next section */}
+      <div style={{
+        position: 'absolute', left: 0, right: 0, bottom: 0, height: 120, zIndex: 2,
+        pointerEvents: 'none',
+        background: 'linear-gradient(180deg, transparent 0%, #0a0a0a 100%)',
+      }} />
       {/* Glow blobs */}
       <div style={{
         position: 'absolute', width: 600, height: 600, borderRadius: '50%',
@@ -684,21 +704,40 @@ interface HeroProductCard {
   highlight?: boolean;
 }
 
+function HeroProductImage({ src, alt, tint }: { src: string; alt: string; tint: string }) {
+  return (
+    <div style={{ width: 60, height: 60, borderRadius: 8, background: tint, overflow: 'hidden' }}>
+      <img
+        src={src}
+        alt={alt}
+        loading="eager"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+      />
+    </div>
+  );
+}
+
 const ArtMassageGun = (
-  <div style={{ width: 60, height: 60, borderRadius: 8, background: 'linear-gradient(135deg,#1e293b,#334155)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ width: 32, height: 32, borderRadius: 6, background: 'linear-gradient(135deg,#374151,#6b7280)', boxShadow: '2px 2px 8px rgba(0,0,0,0.5)' }} />
-    <div style={{ position: 'absolute', bottom: 4, right: 4, width: 10, height: 18, borderRadius: 2, background: '#4b5563' }} />
-  </div>
+  <HeroProductImage
+    src="https://ae-pic-a1.aliexpress-media.com/kf/S5a405c21c45e48299e80fa82fff25987G.jpeg_480x480q75.jpeg"
+    alt="Fascial Massage Gun"
+    tint="linear-gradient(135deg,#1e293b,#334155)"
+  />
 );
 const ArtOilBottle = (
-  <div style={{ width: 60, height: 60, borderRadius: 8, background: 'linear-gradient(135deg,#1a2e1a,#2d4a2d)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ width: 16, height: 40, borderRadius: '3px 3px 6px 6px', background: 'linear-gradient(180deg,#86efac,#4ade80,#16a34a)', boxShadow: '0 0 8px rgba(74,222,128,0.3)' }} />
-  </div>
+  <HeroProductImage
+    src="https://ae-pic-a1.aliexpress-media.com/kf/S85e01ebaacff41878737d727fae55a9fg.jpg_480x480q75.jpg"
+    alt="Oil Dispenser Bottle"
+    tint="linear-gradient(135deg,#1a2e1a,#2d4a2d)"
+  />
 );
 const ArtTapeReel = (
-  <div style={{ width: 60, height: 60, borderRadius: 8, background: 'linear-gradient(135deg,#1e1e2e,#312e81)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ width: 36, height: 36, borderRadius: '50%', border: '8px solid #4338ca', background: 'transparent', boxShadow: '0 0 10px rgba(99,102,241,0.4)' }} />
-  </div>
+  <HeroProductImage
+    src="https://ae-pic-a1.aliexpress-media.com/kf/S5d68d8fcd3cd4c25bbf0a2a18ac8b0abt.jpg_480x480q75.jpg"
+    alt="Nano Tape Double-sided"
+    tint="linear-gradient(135deg,#1e1e2e,#312e81)"
+  />
 );
 
 const HERO_PRODUCTS: HeroProductCard[] = [
@@ -825,7 +864,8 @@ function BrowserWindow() {
 
 // ── Live Activity Ticker ────────────────────────────────────────────────────
 function LiveTicker() {
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  const [tickerItems] = useState<string[]>(generateTickerItems);
+  const items = [...tickerItems, ...tickerItems];
   return (
     <section style={{
       background: '#0d0d10',
@@ -1740,6 +1780,68 @@ function Testimonials() {
   );
 }
 
+// ── Pricing countdown (targets April 25 2026) ──────────────────────────────
+function PricingCountdown() {
+  const target = new Date('2026-04-25T23:59:59+10:00').getTime();
+  const compute = () => {
+    const diff = target - Date.now();
+    if (diff <= 0) return { d: 0, h: 0, m: 0 };
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return { d, h, m };
+  };
+  const [t, setT] = useState(compute);
+  useEffect(() => {
+    const id = window.setInterval(() => setT(compute()), 60000);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16,
+      flexWrap: 'wrap',
+      padding: '14px 22px',
+      background: 'rgba(251,191,36,0.08)',
+      border: '1px solid rgba(251,191,36,0.25)',
+      borderRadius: 8,
+      maxWidth: 720,
+      margin: '0 auto 32px',
+    }}>
+      <span style={{ fontFamily: mono, fontSize: 12, color: '#fbbf24', letterSpacing: '0.03em' }}>
+        ⏱ Beta pricing locks in April 25, 2026 — Builder goes to $149/mo after that
+      </span>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        {[
+          { label: 'Days', value: t.d },
+          { label: 'Hrs',  value: t.h },
+          { label: 'Mins', value: t.m },
+        ].map((seg) => (
+          <div key={seg.label} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            background: 'rgba(0,0,0,0.25)',
+            border: '1px solid rgba(251,191,36,0.2)',
+            borderRadius: 6,
+            padding: '4px 10px',
+            minWidth: 44,
+          }}>
+            <span style={{ fontFamily: mono, fontSize: 16, fontWeight: 700, color: '#fbbf24', lineHeight: 1 }}>
+              {String(seg.value).padStart(2, '0')}
+            </span>
+            <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(251,191,36,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2 }}>
+              {seg.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Pricing ────────────────────────────────────────────────────────────────
 interface PricingProps { annual: boolean; setAnnual: (v: boolean) => void }
 function Pricing({ annual, setAnnual }: PricingProps) {
@@ -1785,9 +1887,8 @@ function Pricing({ annual, setAnnual }: PricingProps) {
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', padding: '10px 20px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, maxWidth: 520, margin: '0 auto 32px' }}>
-          <span style={{ fontFamily: mono, fontSize: 12, color: '#f59e0b', letterSpacing: '0.03em' }}>⚡ Early access pricing — locked in for existing subscribers when we raise prices</span>
-        </div>
+        <PricingCountdown />
+
 
         <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
           <PricingCard
@@ -1847,18 +1948,20 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
       {highlight && (
         <div style={{
           position: 'absolute',
-          top: -10,
+          top: -12,
           right: 24,
-          background: T.accent,
-          color: '#fff',
+          background: 'rgba(239,68,68,0.15)',
+          color: '#f87171',
+          border: '1px solid rgba(239,68,68,0.35)',
           fontFamily: mono,
           fontSize: 10,
-          fontWeight: 600,
+          fontWeight: 700,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          padding: '4px 10px',
-          borderRadius: 4,
-        }}>Recommended</div>
+          padding: '5px 11px',
+          borderRadius: 999,
+          boxShadow: '0 4px 20px rgba(239,68,68,0.2)',
+        }}>🔥 Only 17 beta slots left</div>
       )}
       <div style={{
         fontFamily: mono,
@@ -1995,12 +2098,28 @@ function FinalCTA() {
           color: T.text,
           margin: '0 0 28px',
         }}>
-          Stop guessing.<br />
-          <span style={{ color: T.accent }}>Start operating.</span>
+          Your competitors are<br />already on this.
         </h2>
-        <p style={{ fontSize: 18, color: T.textMuted, margin: '0 0 44px', lineHeight: 1.6 }}>
-          Find your first winning product in 20 minutes. Or your money back.
+        <p style={{ fontSize: 18, color: T.accent, margin: '0 0 32px', lineHeight: 1.6, fontWeight: 500 }}>
+          Find your winning product before they do.
         </p>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 16px',
+          background: 'rgba(239,68,68,0.1)',
+          border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: 999,
+          color: '#f87171',
+          fontFamily: mono,
+          fontSize: 12,
+          fontWeight: 600,
+          letterSpacing: '0.03em',
+          marginBottom: 24,
+        }}>
+          🔥 Beta pricing ends April 25 — $99/mo locked for life
+        </div>
         <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 18 }}>
           <Link href="/sign-up" className="mj-btn-primary mj-shimmer-btn" style={{ height: 56, padding: '0 32px', fontSize: 16 }}>
             Find my first winning product →
@@ -2010,11 +2129,8 @@ function FinalCTA() {
           </a>
         </div>
         <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
-          14-day free trial · No credit card · Cancel anytime
+          Join 500+ operators · 14-day money-back · No credit card · Cancel anytime
         </div>
-        <p style={{ marginTop: 16, fontFamily: mono, fontSize: 12, color: '#6b7280', letterSpacing: '0.02em', textAlign: 'center' }}>
-          Join 500+ operators who found their first winning product within 48 hours of signing up.
-        </p>
       </div>
     </section>
   );
@@ -2124,13 +2240,14 @@ export default function Home() {
       overflowX: 'hidden',
     }}>
       <SEO
-        title="Majorka — The Ecommerce Operating System"
-        description="Find winning products, build Shopify stores, and run ad campaigns from one platform. Built for serious dropshipping operators across 7 global markets."
+        title="Majorka — The Ecommerce Operating System for Serious Operators"
+        description="2,302 winning products. Real AliExpress data. AI-scored rankings across 7 markets — AU, US, UK, CA, NZ, DE, SG."
         path="/"
         ogImage="/og-image.svg"
       />
       <style>{STYLES}</style>
       <AnnouncementBanner />
+      <SocialProofToasts />
       <div style={{ paddingTop: 36 }} />
       <Nav />
       <div style={{ animation: 'mj-fade-up 600ms ease both', animationDelay: '0ms' }}>

@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'majorka-announcement-dismissed-v1';
 
+const MESSAGES = [
+  '⚡ Beta pricing ends April 25 — lock in $99/mo before we raise to $149. Claim your rate →',
+  '🔥 23 new winning products added in the last 24h — See them now →',
+  '🇦🇺 An operator just found a $14,200/mo product using Majorka — Find yours →',
+];
+
 export function AnnouncementBanner() {
   const [visible, setVisible] = useState(false);
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -14,6 +21,14 @@ export function AnnouncementBanner() {
       setVisible(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % MESSAGES.length);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -28,7 +43,7 @@ export function AnnouncementBanner() {
       insetInline: 0,
       top: 0,
       zIndex: 50,
-      background: '#1F1D48',
+      background: 'linear-gradient(90deg, #4338ca, #6366f1)',
       width: '100%',
       pointerEvents: 'none',
     }}>
@@ -43,28 +58,19 @@ export function AnnouncementBanner() {
         margin: '0 auto',
         position: 'relative',
       }}>
-        <span style={{ color: 'rgb(166,164,255)', fontSize: 14, lineHeight: 1 }}>✦</span>
-        <span style={{
-          color: 'white',
-          fontSize: 14,
-          fontWeight: 400,
-          fontFamily: "'DM Sans', sans-serif",
-        }}>
-          Majorka is now in public beta — start building for free today.
-        </span>
         <a
-          href="/signup"
+          href="/sign-up"
+          key={index}
           style={{
-            color: 'rgb(166,164,255)',
-            fontWeight: 500,
-            textDecoration: 'none',
+            color: 'white',
             fontSize: 14,
+            fontWeight: 500,
+            fontFamily: "'DM Sans', sans-serif",
+            textDecoration: 'none',
             pointerEvents: 'auto',
-            transition: 'opacity 150ms ease',
+            animation: 'mj-banner-fade 400ms ease',
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-        >Get Started →</a>
+        >{MESSAGES[index]}</a>
         <button
           onClick={dismiss}
           aria-label="Dismiss announcement"
@@ -75,7 +81,7 @@ export function AnnouncementBanner() {
             transform: 'translateY(-50%)',
             background: 'none',
             border: 'none',
-            color: 'rgba(255,255,255,0.6)',
+            color: 'rgba(255,255,255,0.7)',
             cursor: 'pointer',
             fontSize: 16,
             pointerEvents: 'auto',
@@ -88,14 +94,15 @@ export function AnnouncementBanner() {
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.color = 'white';
-            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)';
+            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)';
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.6)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)';
             (e.currentTarget as HTMLButtonElement).style.background = 'none';
           }}
         >×</button>
       </div>
+      <style>{`@keyframes mj-banner-fade { from { opacity: 0; transform: translateY(-2px) } to { opacity: 1; transform: translateY(0) } }`}</style>
     </div>
   );
 }
