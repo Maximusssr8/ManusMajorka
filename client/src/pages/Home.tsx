@@ -704,39 +704,34 @@ interface HeroProductCard {
   highlight?: boolean;
 }
 
-function HeroProductImage({ src, alt, tint }: { src: string; alt: string; tint: string }) {
-  return (
-    <div style={{ width: 60, height: 60, borderRadius: 8, background: tint, overflow: 'hidden' }}>
-      <img
-        src={src}
-        alt={alt}
-        loading="eager"
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-      />
-    </div>
-  );
-}
+// Hero product thumbnails — routed through /api/image-proxy because
+// AliExpress CDN blocks hotlinked images from non-AE referrers.
+const proxied = (url: string) => `/api/image-proxy?url=${encodeURIComponent(url)}`;
 
 const ArtMassageGun = (
-  <HeroProductImage
-    src="https://ae-pic-a1.aliexpress-media.com/kf/S5a405c21c45e48299e80fa82fff25987G.jpeg_480x480q75.jpeg"
+  <img
+    src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/S67daf35bdca4423987825b41de097c3cw.png')}
     alt="Fascial Massage Gun"
-    tint="linear-gradient(135deg,#1e293b,#334155)"
+    style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1e293b,#334155)' }}
+    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
   />
 );
+
 const ArtOilBottle = (
-  <HeroProductImage
-    src="https://ae-pic-a1.aliexpress-media.com/kf/S85e01ebaacff41878737d727fae55a9fg.jpg_480x480q75.jpg"
+  <img
+    src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/Sd1a0175e1d304c7f9c0bac71d558aa14M.jpg')}
     alt="Oil Dispenser Bottle"
-    tint="linear-gradient(135deg,#1a2e1a,#2d4a2d)"
+    style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1a2e1a,#2d4a2d)' }}
+    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
   />
 );
+
 const ArtTapeReel = (
-  <HeroProductImage
-    src="https://ae-pic-a1.aliexpress-media.com/kf/S5d68d8fcd3cd4c25bbf0a2a18ac8b0abt.jpg_480x480q75.jpg"
+  <img
+    src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/Sef81281b5a114d688f22f42a3f87c0941.jpg')}
     alt="Nano Tape Double-sided"
-    tint="linear-gradient(135deg,#1e1e2e,#312e81)"
+    style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1e1e2e,#312e81)' }}
+    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
   />
 );
 
