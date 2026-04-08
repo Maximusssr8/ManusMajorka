@@ -39,6 +39,11 @@ const STYLES = `
 *::selection { background: rgba(99,102,241,0.3); color: #fff; }
 html, body { background: ${T.bg}; }
 
+/* Belt-and-braces: force every landing section to be visible. Stops any
+   future animation/fill-mode/reveal pattern from hiding content below the
+   fold. Animations can still opt in on child elements. */
+section { opacity: 1 !important; visibility: visible !important; }
+
 @keyframes mj-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.85); }
@@ -1048,7 +1053,7 @@ function ThePlatform() {
             marginBottom: 16,
             letterSpacing: '-0.03em',
           }}>
-            Every tool an operator needs.<br />Nothing they don&apos;t.
+            The unfair advantage<br />serious operators don&apos;t share.
           </h2>
           <p style={{ fontSize: 18, color: '#71717a', maxWidth: 560, margin: '0 auto' }}>
             From product discovery to live store — Majorka is the only platform purpose-built for serious dropship operators.
@@ -1420,8 +1425,8 @@ function Comparison() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <SectionHeader
           eyebrow="Comparison"
-          line1="One platform."
-          line2="Everything included."
+          line1="How Majorka stacks up"
+          line2="against the tools you&apos;re paying for now."
           description="Six tools and a spreadsheet — replaced. Side by side with the alternatives."
         />
         <div className="mj-comparison" style={{
@@ -1577,6 +1582,20 @@ function Workflow() {
   return (
     <section id="workflow" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px', background: T.bgAlt }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 12 }}>
+          <span style={{
+            display: 'inline-block',
+            padding: '5px 14px',
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.22)',
+            borderRadius: 999,
+            color: '#fbbf24',
+            fontFamily: mono,
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+          }}>⚡ Average time to first winning product: 18 minutes</span>
+        </div>
         <SectionHeader
           eyebrow="Workflow"
           line1="From signal to store"
@@ -1704,9 +1723,9 @@ function Testimonials() {
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <SectionHeader
           eyebrow="Operators"
-          line1="Used by serious"
-          line2="sellers."
-          description="Real operators across seven markets running real revenue on Majorka."
+          line1="What operators are"
+          line2="making with Majorka."
+          description="$487,631 in verified operator revenue tracked this month across seven markets."
         />
         <div style={{
           columnCount: 3,

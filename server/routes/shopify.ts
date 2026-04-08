@@ -95,6 +95,110 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// ─── POST /api/shopify/connect ───────────────────────────────────────────
+// Guided-connection flow: user creates a custom app in Shopify Admin, copies
+// the Admin API access token, and pastes it here. We validate the token by
+// calling /admin/api/2024-01/shop.json and persist { shopUrl, accessToken,
+// shopName, productCount } into shopify_connections. Returns { success, shopName, productCount }.
+router.post('/connect', async (req, res) => {
+  try {
+    const { shopUrl, accessToken } = req.body as { shopUrl?: string; accessToken?: string };
+    if (!shopUrl || !accessToken) {
+      return res.status(400).json({ success: false, error: 'shopUrl and accessToken are required' });
+    }
+    // Normalize shop domain — accept "mystore.myshopify.com" or "https://..."
+    const shop = shopUrl.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '').toLowerCase();
+    if (!shop.includes('.myshopify.com')) {
+      return res.status(400).json({ success: false, error: 'Shop URL must end in .myshopify.com' });
+    }
+
+    // Validate token by fetching /shop.json (read-only sanity check)
+    const shopRes = await fetch(`https://${shop}/admin/api/2024-01/shop.json`, {
+      headers: {
+        'X-Shopify-Access-Token': accessToken,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!shopRes.ok) {
+      const body = await shopRes.text().catch(() => '');
+      console.warn(`[shopify/connect] validation failed ${shopRes.status}: ${body.slice(0, 200)}`);
+      return res.status(401).json({
+        success: false,
+        error: shopRes.status === 401 ? 'Invalid access token for this store' : 'Invalid token or store URL',
+      });
+    }
+    const shopData = await shopRes.json() as { shop?: { name?: string; domain?: string } };
+    const shopName: string = shopData?.shop?.name ?? shop;
+
+    // Fetch product count (best-effort, non-blocking if it fails)
+    let productCount = 0;
+    try {
+      const cntRes = await fetch(`https://${shop}/admin/api/2024-01/products/count.json`, {
+        headers: { 'X-Shopify-Access-Token': accessToken },
+      });
+      if (cntRes.ok) {
+        const cntData = await cntRes.json() as { count?: number };
+        productCount = Number(cntData?.count ?? 0);
+      }
+    } catch { /* ignore */ }
+
+    // Persist to shopify_connections. Authenticated via Supabase JWT.
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ success: false, error: 'Not signed in' });
+    await supabase.from('shopify_connections').upsert({
+      user_id: user.id,
+      shop_domain: shop,
+      access_token: accessToken,
+      shop_name: shopName,
+      connected_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+
+    return res.json({ success: true, shopName, productCount, shopDomain: shop });
+  } catch (err: unknown) {
+    console.error('[shopify/connect]', err);
+    return res.status(500).json({
+      success: false,
+      error: err instanceof Error ? err.message : 'Connect failed',
+    });
+  }
+});
+
+// GET /api/shopify/products — fetch products from the connected store in Majorka format
+router.get('/connect-products', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ error: 'Not signed in' });
+    const { data: conn } = await supabase
+      .from('shopify_connections')
+      .select('shop_domain, access_token')
+      .eq('user_id', user.id)
+      .single();
+    if (!conn) return res.status(404).json({ error: 'No connected store' });
+
+    const prodRes = await fetch(`https://${conn.shop_domain}/admin/api/2024-01/products.json?limit=50`, {
+      headers: { 'X-Shopify-Access-Token': conn.access_token },
+    });
+    if (!prodRes.ok) return res.status(502).json({ error: 'Shopify API error', status: prodRes.status });
+    const data = await prodRes.json() as { products?: Array<Record<string, unknown>> };
+    const products = (data.products ?? []).map((p) => ({
+      id: String(p.id),
+      product_title: p.title,
+      image_url: Array.isArray(p.images) && p.images[0] ? (p.images[0] as Record<string, unknown>).src : null,
+      price_aud: p.variants && Array.isArray(p.variants) && (p.variants[0] as Record<string, unknown>)?.price,
+      product_url: `https://${conn.shop_domain}/products/${p.handle}`,
+      category: p.product_type ?? null,
+      platform: 'shopify',
+      source: 'shopify_connected' as const,
+    }));
+    return res.json({ success: true, products, total: products.length });
+  } catch (err: unknown) {
+    console.error('[shopify/connect-products]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Fetch failed' });
+  }
+});
+
 // DELETE /api/shopify/disconnect
 router.delete('/disconnect', async (req, res) => {
   try {
