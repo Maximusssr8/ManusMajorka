@@ -49,23 +49,22 @@ export function ProductSparkline({
   points?: number;
 }) {
   const seed = hashId(productId) % 100;
-  // Score biases the underlying trend, but colour is determined by first→last delta.
-  const bias = score >= 70 ? 1 : score >= 55 ? 0 : -1;
+  // Weaker score bias + larger per-point variance so we get a real mix of
+  // up/down/flat lines even among high scores. Final colour is purely
+  // delta-driven so downgraded products naturally render red/amber.
+  const slope = score >= 90 ? 5 : score >= 70 ? 2 : score >= 55 ? 0 : -4;
   const vals = Array.from({ length: points }, (_, i) => {
-    const base = bias > 0
-      ? 25 + i * 7
-      : bias < 0
-        ? 55 - i * 6
-        : 40 + Math.sin(i * 1.2 + seed) * 5;
-    return Math.max(5, Math.min(60, base + ((seed + i * 11) % 18) - 9));
+    const base = 35 + i * slope + Math.sin(i * 1.3 + seed * 0.7) * 6;
+    return Math.max(5, Math.min(60, base + ((seed + i * 11) % 24) - 12));
   });
   const first = vals[0];
   const last  = vals[vals.length - 1];
   const delta = last - first;
   let stroke: string;
-  if (delta > 4) stroke = '#10b981';        // up — green
-  else if (delta < -4) stroke = '#f59e0b';  // down — amber
-  else stroke = 'rgba(255,255,255,0.3)';    // flat — grey
+  if (delta > 4)        stroke = '#10b981'; // up     — green
+  else if (delta < -4)  stroke = '#f87171'; // down   — coral
+  else                  stroke = '#f59e0b'; // flat   — amber
+  // Elite scores still render the tier colour when positive
   if (score >= 95 && delta >= 0) stroke = scoreColor(score);
 
   const max = Math.max(...vals);

@@ -412,10 +412,12 @@ export default function AppHome() {
                     <span
                       title={p.product_title}
                       style={{
+                        flex: 1,
+                        minWidth: 0,
                         fontFamily: sans,
                         fontSize: 13,
                         fontWeight: 500,
-                        color: '#e2e2e8',
+                        color: '#e8e8f0',
                         lineHeight: 1.35,
                         overflow: 'hidden',
                         display: '-webkit-box',

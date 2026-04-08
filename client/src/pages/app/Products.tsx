@@ -650,10 +650,12 @@ function TableView({ products, loading, onSelect }: { products: Product[]; loadi
                   <span
                     title={p.product_title}
                     style={{
+                      flex: 1,
+                      minWidth: 0,
                       fontFamily: sans,
                       fontSize: 13,
                       fontWeight: 500,
-                      color: '#ededed',
+                      color: '#e8e8f0',
                       lineHeight: 1.35,
                       overflow: 'hidden',
                       display: '-webkit-box',
