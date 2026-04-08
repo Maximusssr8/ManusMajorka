@@ -5,6 +5,8 @@ export interface NicheStat {
   name: string;
   count: number;
   avgScore: number;
+  totalOrders: number;
+  avgPrice: number;
 }
 
 export interface UseNicheStatsResult {
@@ -13,7 +15,7 @@ export interface UseNicheStatsResult {
   error: string | null;
 }
 
-export function useNicheStats(): UseNicheStatsResult {
+export function useNicheStats(limit: number = 12): UseNicheStatsResult {
   const [niches, setNiches] = useState<NicheStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,31 +24,48 @@ export function useNicheStats(): UseNicheStatsResult {
     let cancelled = false;
     async function load() {
       try {
-        const { data, error: err } = await supabase
-          .from('winning_products')
-          .select('category, winning_score')
-          .not('category', 'is', null)
-          .limit(2500);
-        if (err) throw err;
+        // Paginated fetch — Supabase default max_rows=1000
+        type Row = { category: string | null; winning_score: number | null; sold_count: number | null; price_aud: number | null };
+        const list: Row[] = [];
+        const PAGE = 1000;
+        let from = 0;
+        while (from < 10000) {
+          const { data, error: pageErr } = await supabase
+            .from('winning_products')
+            .select('category, winning_score, sold_count, price_aud')
+            .not('category', 'is', null)
+            .range(from, from + PAGE - 1);
+          if (pageErr) throw pageErr;
+          const batch = (data ?? []) as Row[];
+          list.push(...batch);
+          if (batch.length < PAGE) break;
+          from += PAGE;
+        }
 
-        type Row = { category: string | null; winning_score: number | null };
-        const grouped: Record<string, { count: number; totalScore: number }> = {};
-        for (const row of (data ?? []) as Row[]) {
+        const grouped: Record<string, { count: number; totalScore: number; totalOrders: number; totalPrice: number; priceCount: number }> = {};
+        for (const row of list) {
           const cat = row.category;
           if (!cat) continue;
-          if (!grouped[cat]) grouped[cat] = { count: 0, totalScore: 0 };
+          if (!grouped[cat]) grouped[cat] = { count: 0, totalScore: 0, totalOrders: 0, totalPrice: 0, priceCount: 0 };
           grouped[cat].count++;
           grouped[cat].totalScore += row.winning_score ?? 0;
+          grouped[cat].totalOrders += row.sold_count ?? 0;
+          if (row.price_aud != null) {
+            grouped[cat].totalPrice += Number(row.price_aud);
+            grouped[cat].priceCount++;
+          }
         }
 
         const result: NicheStat[] = Object.entries(grouped)
-          .map(([name, { count, totalScore }]) => ({
+          .map(([name, g]) => ({
             name,
-            count,
-            avgScore: count > 0 ? Math.round(totalScore / count) : 0,
+            count: g.count,
+            avgScore: g.count > 0 ? Math.round(g.totalScore / g.count) : 0,
+            totalOrders: g.totalOrders,
+            avgPrice: g.priceCount > 0 ? g.totalPrice / g.priceCount : 0,
           }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 12);
+          .sort((a, b) => b.totalOrders - a.totalOrders)
+          .slice(0, limit);
 
         if (!cancelled) {
           setNiches(result);
@@ -61,7 +80,7 @@ export function useNicheStats(): UseNicheStatsResult {
     }
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [limit]);
 
   return { niches, loading, error };
 }

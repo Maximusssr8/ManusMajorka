@@ -32,21 +32,21 @@ const GROUPS: NavItem[][] = [
   [
     { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
     { label: 'Products', path: '/app/products', icon: Package },
-    { label: 'Market',           path: '/app/market',   icon: TrendingUp, soon: true },
-    { label: 'Creators & Video', path: '/app/creators', icon: Video,      soon: true },
+    { label: 'Market',           path: '/app/market',   icon: TrendingUp },
+    { label: 'Creators & Video', path: '/app/creators', icon: Video },
   ],
   // Group 2 — AI tools (each AI-powered surface gets a green AI pill)
   [
     { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles,  ai: true },
     { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone, ai: true },
-    { label: 'Ad Briefs',     path: '/app/ad-spy',        icon: FileText,  soon: true },
+    { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText,  ai: true },
     { label: 'Store Builder', path: '/app/store-builder', icon: Store,     ai: true },
   ],
   // Group 3 — manage
   [
-    { label: 'Alerts',         path: '/app/alerts',         icon: Bell,       soon: true },
+    { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
     { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye },
-    { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign, soon: true },
+    { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
     { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
   ],
   // Group 4 — account (always-visible)
