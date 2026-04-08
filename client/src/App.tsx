@@ -4,6 +4,7 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { Toaster } from '@/components/ui/sonner';
 import AlmostWonModal from '@/components/AlmostWonModal';
+import { OAuthErrorBanner } from '@/components/OAuthErrorBanner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -499,6 +500,7 @@ function App() {
               <MayaProvider>
                 <TooltipProvider>
                   <Toaster />
+                  <OAuthErrorBanner />
                   <AlmostWonModal />
                   <Router />
                 </TooltipProvider>
