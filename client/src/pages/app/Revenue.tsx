@@ -5,9 +5,10 @@ import { scorePillStyle, fmtScore } from '@/lib/scorePill';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { ProductSparkline } from '@/components/app/Sparkline';
 
-const display = "'Bricolage Grotesque', sans-serif";
-const sans = "'DM Sans', sans-serif";
-const mono = "'JetBrains Mono', monospace";
+import { C } from '@/lib/designTokens';
+const display = C.fontDisplay;
+const sans = C.fontBody;
+const mono = C.fontBody;
 
 // Demo data — clearly labelled. Revenue pipeline is unconnected; when a user
 // connects Shopify this is replaced with real figures.
@@ -29,7 +30,7 @@ function generateDemoSeries(days: number, total: number): number[] {
   return out;
 }
 
-function LineChart({ data, width = 800, height = 200, color = '#10b981' }: { data: number[]; width?: number; height?: number; color?: string }) {
+function LineChart({ data, width = 800, height = 200, color = C.green }: { data: number[]; width?: number; height?: number; color?: string }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const pad = 16;
@@ -61,7 +62,7 @@ export default function Revenue() {
   const bestProductTitle = products[0]?.product_title ?? 'Oil Dispenser Bottle';
 
   return (
-    <div style={{ padding: '32px 36px', overflow: 'auto', color: '#e8e8f0', fontFamily: sans }}>
+    <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
         <div>
@@ -88,7 +89,7 @@ export default function Revenue() {
 
       {!showDemo ? (
         <div style={{
-          background: '#1c1c1c',
+          background: C.raised,
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 14,
           padding: '48px 32px',
@@ -103,13 +104,13 @@ export default function Revenue() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 20px',
           }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={C.accentHover} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 9l3-6h12l3 6" />
               <path d="M3 9v12h18V9" />
               <path d="M9 21V12h6v9" />
             </svg>
           </div>
-          <h2 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: '#e8e8f0', margin: '0 0 8px' }}>
+          <h2 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>
             Connect your Shopify store to unlock Revenue tracking
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, margin: '0 0 24px', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
@@ -150,7 +151,7 @@ export default function Revenue() {
             gap: 10,
           }}>
             <span style={{ fontSize: 16 }}>📊</span>
-            <span style={{ fontSize: 12, color: '#f59e0b', fontWeight: 500 }}>
+            <span style={{ fontSize: 12, color: C.amber, fontWeight: 500 }}>
               Demo data — connect your store to see real numbers
             </span>
             <button
@@ -168,15 +169,15 @@ export default function Revenue() {
 
           {/* Stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 28 }}>
-            <StatCard label="Total Revenue"   value={`$${DEMO_TOTAL_REVENUE.toLocaleString()}`} sub="Last 30 days" accent="#10b981" glow="rgba(16,185,129,0.25)" />
-            <StatCard label="Orders"          value={DEMO_ORDERS.toLocaleString()}              sub="This month"  accent="#7c6aff" glow="rgba(124,106,255,0.25)" />
-            <StatCard label="Best Product"    value={shortenCategory(bestProductTitle.slice(0, 22))} sub="Top seller" accent="#f59e0b" glow="rgba(245,158,11,0.2)" />
+            <StatCard label="Total Revenue"   value={`$${DEMO_TOTAL_REVENUE.toLocaleString()}`} sub="Last 30 days" accent={C.green} glow="rgba(16,185,129,0.25)" />
+            <StatCard label="Orders"          value={DEMO_ORDERS.toLocaleString()}              sub="This month"  accent={C.accent} glow="rgba(124,106,255,0.25)" />
+            <StatCard label="Best Product"    value={shortenCategory(bestProductTitle.slice(0, 22))} sub="Top seller" accent={C.amber} glow="rgba(245,158,11,0.2)" />
             <StatCard label="Avg Order Value" value={`$${DEMO_AOV.toFixed(2)}`}                  sub="Per order"   accent="#a855f7" glow="rgba(168,85,247,0.25)" />
           </div>
 
           {/* Line chart */}
           <div style={{
-            background: '#1c1c1c',
+            background: C.raised,
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 12,
             padding: 20,
@@ -185,9 +186,9 @@ export default function Revenue() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
                 <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>30-Day Revenue</div>
-                <div style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: '#e8e8f0', marginTop: 2 }}>${DEMO_TOTAL_REVENUE.toLocaleString()}</div>
+                <div style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: C.text, marginTop: 2 }}>${DEMO_TOTAL_REVENUE.toLocaleString()}</div>
               </div>
-              <div style={{ fontFamily: mono, fontSize: 11, color: '#10b981' }}>↑ 18.4%</div>
+              <div style={{ fontFamily: mono, fontSize: 11, color: C.green }}>↑ 18.4%</div>
             </div>
             <LineChart data={demoSeries} height={200} />
           </div>
@@ -195,7 +196,7 @@ export default function Revenue() {
           {/* Top products table */}
           <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Top Products</h2>
           <div style={{
-            background: '#1c1c1c',
+            background: C.raised,
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 12,
             overflow: 'hidden',
@@ -226,7 +227,7 @@ export default function Revenue() {
                 }}>
                   <span style={{ fontFamily: mono, fontSize: 12, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
                   <span style={{
-                    fontFamily: sans, fontSize: 13, fontWeight: 500, color: '#e8e8f0',
+                    fontFamily: sans, fontSize: 13, fontWeight: 500, color: C.text,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0,
                   }}>{p.product_title}</span>
                   <span>
@@ -236,8 +237,8 @@ export default function Revenue() {
                       padding: '3px 9px', borderRadius: 999, display: 'inline-block',
                     }}>{fmtScore(score)}</span>
                   </span>
-                  <span style={{ fontFamily: mono, fontSize: 13, color: '#10b981', textAlign: 'right' }}>{fmtK(orders)}</span>
-                  <span style={{ fontFamily: mono, fontSize: 13, color: '#e8e8f0', textAlign: 'right' }}>${demoRev.toLocaleString()}</span>
+                  <span style={{ fontFamily: mono, fontSize: 13, color: C.green, textAlign: 'right' }}>{fmtK(orders)}</span>
+                  <span style={{ fontFamily: mono, fontSize: 13, color: C.text, textAlign: 'right' }}>${demoRev.toLocaleString()}</span>
                   <span><ProductSparkline productId={p.id} score={score} width={80} height={22} /></span>
                 </div>
               );
@@ -252,7 +253,7 @@ export default function Revenue() {
 function StatCard({ label, value, sub, accent, glow }: { label: string; value: string; sub: string; accent: string; glow: string }) {
   return (
     <div style={{
-      background: '#1c1c1c',
+      background: C.raised,
       border: '1px solid rgba(255,255,255,0.07)',
       borderLeft: `3px solid ${accent}`,
       borderRadius: 12,
@@ -263,7 +264,7 @@ function StatCard({ label, value, sub, accent, glow }: { label: string; value: s
     }}>
       <div style={{ position: 'absolute', top: -30, right: -30, width: 90, height: 90, borderRadius: '50%', background: glow, filter: 'blur(28px)', pointerEvents: 'none' }} />
       <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>{label}</div>
-      <div style={{ fontFamily: display, fontSize: 26, fontWeight: 800, color: '#f1f1f3', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 6 }}>{value}</div>
+      <div style={{ fontFamily: display, fontSize: 26, fontWeight: 800, color: C.text, letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 6 }}>{value}</div>
       <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{sub}</div>
     </div>
   );

@@ -92,7 +92,6 @@ export default function AIToolChat({
           setGeneratedHTML(htmlMatch[1]);
           setPreviewError(false);
         } catch (err) {
-          console.warn('Failed to set generated HTML:', err);
           setPreviewError(true);
         }
       }

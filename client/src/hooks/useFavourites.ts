@@ -83,7 +83,6 @@ export function useFavourites(): UseFavouritesResult {
           .order('saved_at', { ascending: false });
         if (cancelled) return;
         if (error) {
-          console.warn('[useFavourites] load failed', error.message);
           setFavourites([]);
           return;
         }
@@ -140,7 +139,6 @@ export function useFavourites(): UseFavouritesResult {
       .single();
 
     if (error) {
-      console.warn('[useFavourites] insert failed', error.message);
       // Roll back the optimistic update
       setFavourites((prev) => prev.filter((f) => f.product_id !== productIdStr));
       return;
@@ -167,7 +165,6 @@ export function useFavourites(): UseFavouritesResult {
       .eq('user_id', userId)
       .eq('product_id', productIdStr);
     if (error) {
-      console.warn('[useFavourites] delete failed', error.message);
       setFavourites(previous);
       return;
     }

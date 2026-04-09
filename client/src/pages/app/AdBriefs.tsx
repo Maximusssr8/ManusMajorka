@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const display = "'Bricolage Grotesque', sans-serif";
-const sans = "'DM Sans', sans-serif";
-const mono = "'JetBrains Mono', monospace";
+import { C } from '@/lib/designTokens';
+const display = C.fontDisplay;
+const sans = C.fontBody;
+const mono = C.fontBody;
 
 type Platform = 'facebook' | 'tiktok' | 'instagram' | 'youtube';
 type AdType = 'video' | 'image' | 'carousel' | 'story';
@@ -123,7 +124,7 @@ export default function AdBriefs() {
   };
 
   return (
-    <div style={{ padding: '32px 36px', overflow: 'auto', color: '#e8e8f0', fontFamily: sans }}>
+    <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{
@@ -139,7 +140,7 @@ export default function AdBriefs() {
 
       {/* Generator */}
       <section style={{
-        background: '#1c1c1c',
+        background: C.raised,
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 12,
         padding: 24,
@@ -229,7 +230,7 @@ export default function AdBriefs() {
       {/* Output */}
       {loading && (
         <div style={{
-          background: '#1c1c1c',
+          background: C.raised,
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 12,
           padding: 24,
@@ -243,7 +244,7 @@ export default function AdBriefs() {
       )}
       {output && !loading && (
         <div style={{
-          background: '#1c1c1c',
+          background: C.raised,
           border: '1px solid rgba(124,106,255,0.2)',
           borderRadius: 12,
           padding: 24,
@@ -265,12 +266,12 @@ export default function AdBriefs() {
               const open = expanded === b.id;
               return (
                 <div key={b.id} style={{
-                  background: '#1c1c1c',
+                  background: C.raised,
                   border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 10,
                   padding: 16,
                 }}>
-                  <div style={{ fontFamily: display, fontSize: 14, fontWeight: 600, color: '#e8e8f0', marginBottom: 4 }}>{b.product}</div>
+                  <div style={{ fontFamily: display, fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 4 }}>{b.product}</div>
                   <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
                     {b.platforms.join(' · ')} · {new Date(b.createdAt).toLocaleDateString()}
                   </div>
@@ -286,7 +287,7 @@ export default function AdBriefs() {
                       style={{
                         marginTop: 8,
                         background: 'none', border: 'none',
-                        color: '#a78bfa', fontSize: 12, cursor: 'pointer', padding: 0,
+                        color: C.accentHover, fontSize: 12, cursor: 'pointer', padding: 0,
                       }}
                     >{open ? 'Collapse ↑' : 'View full brief →'}</button>
                   )}
@@ -307,14 +308,14 @@ export default function AdBriefs() {
               onClick={() => generate(t)}
               disabled={loading}
               style={{
-                background: '#1c1c1c',
+                background: C.raised,
                 border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: 10,
                 padding: 16,
                 textAlign: 'left',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 fontFamily: sans,
-                color: '#e8e8f0',
+                color: C.text,
                 fontSize: 13,
                 fontWeight: 500,
                 transition: 'all 150ms ease',
@@ -322,7 +323,7 @@ export default function AdBriefs() {
               onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(124,106,255,0.3)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
             >
-              <div style={{ fontFamily: mono, fontSize: 9, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Template</div>
+              <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Template</div>
               {t}
             </button>
           ))}
@@ -339,7 +340,7 @@ function pillStyle(active: boolean): React.CSSProperties {
     background: active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
     border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
     color: active ? '#f5f5f5' : 'rgba(255,255,255,0.5)',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: C.fontBody,
     fontSize: 12,
     fontWeight: active ? 600 : 500,
     cursor: 'pointer',

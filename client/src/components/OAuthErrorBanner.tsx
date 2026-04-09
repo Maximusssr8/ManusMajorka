@@ -31,11 +31,6 @@ export function OAuthErrorBanner() {
 
     if (!error && !errorCode) return;
 
-    console.warn('[Majorka Auth] OAuth callback error detected:', {
-      error,
-      errorCode,
-      errorDescription,
-    });
 
     setState({
       error: error || 'oauth_error',

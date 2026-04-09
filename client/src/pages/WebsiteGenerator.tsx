@@ -1488,7 +1488,6 @@ export default function WebsiteGenerator() {
         window.history.replaceState({}, '', '/app/store-builder');
       }
     } catch (err) {
-      console.warn('[WebsiteGenerator] Failed to read URL params:', err);
     }
 
     // Maya prefill — check sessionStorage for agentic navigation
@@ -1593,7 +1592,6 @@ export default function WebsiteGenerator() {
       const heroImg = doc.querySelector('.hero__img-wrap img') as HTMLImageElement | null;
       if (heroImg) { heroImg.src = urls[0]; } 
     } catch (e) {
-      console.warn('[pexels-fallback] Failed:', e);
     }
   }, []);
 
@@ -1671,7 +1669,6 @@ export default function WebsiteGenerator() {
           }
         }
       } catch (e) {
-        console.warn('[hero-enhance] Canvas error:', e);
       }
     };
 
@@ -2049,7 +2046,6 @@ export default function WebsiteGenerator() {
           }).select('id').single();
           if (insertData?.id) setSavedStoreId(insertData.id);
         } catch (e) {
-          console.warn('[store-history] save failed:', e);
         }
       }
 

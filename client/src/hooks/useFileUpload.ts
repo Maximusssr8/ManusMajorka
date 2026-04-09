@@ -168,13 +168,11 @@ export function useFileUpload({
           accept.some((a) => a.endsWith('/*') && file.type.startsWith(a.replace('/*', '/')));
 
         if (!isAccepted) {
-          console.warn(`File type ${file.type} not accepted`);
           continue;
         }
 
         // Check file size
         if (file.size > maxSize) {
-          console.warn(`File ${file.name} exceeds max size`);
           continue;
         }
 

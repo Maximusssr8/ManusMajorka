@@ -164,7 +164,6 @@ export default function AdsStudio() {
         setDbProducts([]);
         return;
       }
-      console.info(`[ads-studio] DB picker loaded ${data.count} products via /api/products/top20`);
       setDbProducts(data.products ?? []);
     } catch (err) {
       console.error('[ads-studio] DB picker threw:', err);
@@ -195,9 +194,7 @@ export default function AdsStudio() {
 
   async function generate() {
     // Log FIRST so we can see if the handler is firing even when validation bails.
-    console.log('[generate] FIRED - productName:', productName, 'price:', pricePoint);
     if (!productName.trim()) {
-      console.warn('[generate] aborted — productName is empty');
       return;
     }
     setLoading(true);
@@ -248,7 +245,6 @@ OBJECTION KILLER:
       const { data: sessionData } = await supabase.auth.getSession();
       const freshToken = sessionData.session?.access_token ?? token;
       if (!freshToken) {
-        console.warn('[generate] no auth token — aborting');
         setParsed({
           primaryHook: 'Please sign in to generate ads.',
           headline: '', primaryText: '', fullBody: '', cta: '',
@@ -257,7 +253,6 @@ OBJECTION KILLER:
         setLoading(false);
         return;
       }
-      console.log('[generate] calling API at:', API_URL, 'token:', freshToken.slice(0, 8) + '...');
       const r = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${freshToken}` },
@@ -272,10 +267,8 @@ OBJECTION KILLER:
           max_tokens: 1400,
         }),
       });
-      console.log('[generate] API response status:', r.status);
       const d = await r.json();
       const result: string = d.result || d.content || d.text || d.output || '';
-      console.log('[ads-studio] raw result length:', result.length);
       if (!r.ok || !result) {
         const msg = r.status === 429
           ? 'Usage limit reached — try again in a minute.'
@@ -289,7 +282,6 @@ OBJECTION KILLER:
         return;
       }
       const sections = parseSections(result);
-      console.log('[ads-studio] parsed output:', sections.primaryHook?.slice(0, 50) || '(empty)');
       setParsed(sections);
 
       // Persist to localStorage

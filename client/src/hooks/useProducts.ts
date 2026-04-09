@@ -272,7 +272,6 @@ export function useProductStats(): ProductStats {
         cacheSet('stats:all', statsOut);
         if (!cancelled) setStats(statsOut);
       } catch (e: unknown) {
-        console.warn('[useProductStats] paginated fetch failed, falling back to HEAD count:', e);
         // Fallback: HEAD count query so at least `total` is populated
         try {
           const { count } = await supabase
@@ -287,7 +286,6 @@ export function useProductStats(): ProductStats {
             }));
           }
         } catch (fallbackErr) {
-          console.warn('[useProductStats] fallback also failed:', fallbackErr);
           if (!cancelled) {
             setStats((s) => ({ ...s, loading: false, error: e instanceof Error ? e.message : 'Failed to load stats' }));
           }

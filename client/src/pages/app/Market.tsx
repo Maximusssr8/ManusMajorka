@@ -5,11 +5,12 @@ import { useNicheStats } from '@/hooks/useNicheStats';
 import { useProducts, useProductStats } from '@/hooks/useProducts';
 import { cleanCategory, shortenCategory, fmtK } from '@/lib/categoryColor';
 
-const display = "'Bricolage Grotesque', sans-serif";
-const sans = "'DM Sans', sans-serif";
-const mono = "'JetBrains Mono', monospace";
+import { C } from '@/lib/designTokens';
+const display = C.fontDisplay;
+const sans = C.fontBody;
+const mono = C.fontBody;
 
-const surfaceBg = '#161618';
+const surfaceBg = C.surface;
 const surfaceBorder = '1px solid rgba(255,255,255,0.06)';
 
 // ── Opportunity classification ─────────────────────────────────────────────
@@ -20,16 +21,16 @@ type TierKey = 'open' | 'competitive' | 'saturated';
 interface Tier { key: TierKey; label: string; color: string; bg: string; border: string }
 
 function tierFor(count: number): Tier {
-  if (count < 20) return { key: 'open', label: 'Open', color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.28)' };
-  if (count <= 50) return { key: 'competitive', label: 'Competitive', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.28)' };
-  return { key: 'saturated', label: 'Saturated', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.28)' };
+  if (count < 20) return { key: 'open', label: 'Open', color: C.green, bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.28)' };
+  if (count <= 50) return { key: 'competitive', label: 'Competitive', color: C.amber, bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.28)' };
+  return { key: 'saturated', label: 'Saturated', color: C.red, bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.28)' };
 }
 
 // ── Bar colour gradient: violet (1–3), teal (4–6), amber (7–10) ────────────
 function barColour(rank: number): string {
-  if (rank < 3) return '#7c6aff';
+  if (rank < 3) return C.accent;
   if (rank < 6) return '#14b8a6';
-  return '#f59e0b';
+  return C.amber;
 }
 
 function fmtBig(n: number): string {
@@ -83,7 +84,7 @@ export default function Market() {
   const hottestProduct = hottest.products[0];
 
   return (
-    <div style={{ padding: '32px 36px', overflow: 'auto', color: '#e8e8f0', fontFamily: sans }}>
+    <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
       {/* ── Header ──────────────────────────────────────────────── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <div>
@@ -104,7 +105,7 @@ export default function Market() {
               padding: '5px 11px', borderRadius: 7,
               background: m.active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
               border: `1px solid ${m.active ? 'rgba(124,106,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
-              color: m.active ? '#a78bfa' : 'rgba(255,255,255,0.4)',
+              color: m.active ? C.accentHover : 'rgba(255,255,255,0.4)',
               fontFamily: mono, fontSize: 11, fontWeight: m.active ? 600 : 400,
               cursor: 'pointer', flexShrink: 0,
             }}>
@@ -158,7 +159,7 @@ export default function Market() {
                   type="category"
                   dataKey="shortName"
                   stroke="rgba(255,255,255,0.55)"
-                  tick={{ fontSize: 11, fontFamily: 'DM Sans, sans-serif', fill: '#d8d8e0' }}
+                  tick={{ fontSize: 11, fontFamily: C.fontBody, fill: '#d8d8e0' }}
                   axisLine={false}
                   tickLine={false}
                   width={130}
@@ -170,7 +171,7 @@ export default function Market() {
                     const n = payload[0].payload as typeof top10[number];
                     return (
                       <div style={{
-                        background: '#111114',
+                        background: C.surface,
                         border: '1px solid rgba(124,106,255,0.3)',
                         borderRadius: 8,
                         padding: '10px 14px',
@@ -178,8 +179,8 @@ export default function Market() {
                         fontSize: 12,
                         minWidth: 180,
                       }}>
-                        <div style={{ fontWeight: 700, color: '#f1f1f3', marginBottom: 6 }}>{n.cleanName}</div>
-                        <div style={{ color: '#a1a1aa', fontSize: 11 }}>
+                        <div style={{ fontWeight: 700, color: C.text, marginBottom: 6 }}>{n.cleanName}</div>
+                        <div style={{ color: C.body, fontSize: 11 }}>
                           {fmtK(n.totalOrders)} orders · {n.count} products · avg score {n.avgScore}
                         </div>
                         <div style={{ marginTop: 4, color: n.tier.color, fontSize: 11, fontWeight: 600 }}>
@@ -280,7 +281,7 @@ export default function Market() {
                     }}>{t.label}</span>
                   </div>
                   <div style={{
-                    fontFamily: display, fontSize: 22, fontWeight: 800, color: '#f1f1f3',
+                    fontFamily: display, fontSize: 22, fontWeight: 800, color: C.text,
                     letterSpacing: '-0.02em', marginBottom: 12,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>{shortenCategory(n.cleanName)}</div>
@@ -289,7 +290,7 @@ export default function Market() {
                     <Stat label="Products" value={String(n.count)} />
                     <Stat label="Avg Score" value={`${n.avgScore}`} />
                   </div>
-                  <div style={{ fontSize: 12, color: '#a78bfa', fontWeight: 600 }}>
+                  <div style={{ fontSize: 12, color: C.accentHover, fontWeight: 600 }}>
                     Browse {shortenCategory(n.cleanName)} products →
                   </div>
                 </Link>
@@ -309,7 +310,7 @@ export default function Market() {
           label="Categories Tracked"
           value={stats.loading ? '…' : String(stats.categoryCount)}
           sub="Distinct niches in DB"
-          color="#7c6aff"
+          color={C.accent}
         />
         <Signal
           label="Hottest Product"
@@ -317,20 +318,20 @@ export default function Market() {
             ? (hottestProduct.product_title || '').slice(0, 22) + ((hottestProduct.product_title || '').length > 22 ? '…' : '')
             : '—'}
           sub={hottestProduct?.sold_count ? `${fmtK(hottestProduct.sold_count)} orders` : ''}
-          color="#f59e0b"
+          color={C.amber}
           smallValue
         />
         <Signal
           label="Avg Market Score"
           value={stats.loading ? '…' : `${stats.avgScore}/100`}
           sub={`Across ${stats.total.toLocaleString()} products`}
-          color="#10b981"
+          color={C.green}
         />
         <Signal
           label="Total Monthly Orders"
           value={loading ? '…' : fmtBig(totalOrdersAll)}
           sub="Sum of tracked product volume"
-          color="#a78bfa"
+          color={C.accentHover}
         />
       </div>
     </div>
@@ -350,7 +351,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
-      <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 700, color: '#e8e8f0' }}>{value}</div>
+      <div style={{ fontFamily: mono, fontSize: 14, fontWeight: 700, color: C.text }}>{value}</div>
     </div>
   );
 }
@@ -370,7 +371,7 @@ function Signal({ label, value, sub, color, smallValue }: { label: string; value
       </div>
       <div style={{
         fontFamily: display, fontSize: smallValue ? 18 : 28, fontWeight: 800,
-        color: '#f1f1f3', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 6,
+        color: C.text, letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 6,
       }}>{value}</div>
       <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{sub}</div>
     </div>

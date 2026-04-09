@@ -1,157 +1,124 @@
-import { useMemo, useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { Search, List, LayoutGrid, ArrowUpRight, Clock, TrendingUp, DollarSign, Award, Calculator, Zap, ExternalLink, Heart, Bookmark } from 'lucide-react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'wouter';
+import {
+  Search, List, LayoutGrid, ChevronDown, Heart, X,
+  ExternalLink, Zap, Flame,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Clock, TrendingUp, DollarSign, Award, Bookmark } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useFavourites } from '@/hooks/useFavourites';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
-import { useNicheStats } from '@/hooks/useNicheStats';
-import { ProductImage } from '@/components/app/ProductImage';
-import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
-import { ProductSparkline } from '@/components/app/Sparkline';
-import { getCategoryStyle, shortenCategory, fmtK } from '@/lib/categoryColor';
+import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
-import { scorePillStyle, fmtScore } from '@/lib/scorePill';
-import { t } from '@/lib/designTokens';
+import { C } from '@/lib/designTokens';
 
-type CarouselKey = 'recent' | 'scored' | 'value';
+/* ══════════════════════════════════════════════════════════════
+   Type definitions
+   ══════════════════════════════════════════════════════════════ */
+
 type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'saved';
 
-const fmtRev = (v: number): string =>
-  v >= 1_000_000 ? `~$${(v / 1_000_000).toFixed(1)}M`
-  : v >= 1_000   ? `~$${Math.round(v / 1_000)}k`
-  : v > 0        ? `~$${v}`
-  : '—';
-
 const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon }[] = [
-  { key: 'all',         label: 'All Products',  Icon: LayoutGrid },
-  { key: 'new',         label: 'New This Week', Icon: Clock },
-  { key: 'trending',    label: 'Trending Now',  Icon: TrendingUp },
-  { key: 'highmargin',  label: 'High Margin',   Icon: DollarSign },
+  { key: 'all',         label: 'All products',  Icon: LayoutGrid },
+  { key: 'new',         label: 'New this week', Icon: Clock },
+  { key: 'trending',    label: 'Trending',      Icon: TrendingUp },
+  { key: 'highmargin',  label: 'High margin',   Icon: DollarSign },
   { key: 'top',         label: 'Score 90+',     Icon: Award },
   { key: 'saved',       label: 'Saved',         Icon: Bookmark },
 ];
 
-const display = "'Bricolage Grotesque', system-ui, sans-serif";
-const sans = "'DM Sans', system-ui, sans-serif";
-const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
+const SORT_OPTIONS: { key: OrderByColumn; label: string }[] = [
+  { key: 'sold_count',            label: 'Most orders' },
+  { key: 'winning_score',         label: 'Highest score' },
+  { key: 'est_daily_revenue_aud', label: 'Highest revenue' },
+  { key: 'price_asc',             label: 'Price: low to high' },
+  { key: 'price_desc',            label: 'Price: high to low' },
+  { key: 'created_at',            label: 'Newest first' },
+  { key: 'orders_asc',            label: 'Orders: low to high' },
+];
 
-const SHIMMER = `
-@keyframes mj-app-shim {
-  0%   { background-position: -300px 0; }
-  100% { background-position: 300px 0; }
+/* ══════════════════════════════════════════════════════════════
+   Shared styles
+   ══════════════════════════════════════════════════════════════ */
+
+const STYLES = `
+@keyframes mj-shim {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
 .mj-shim {
-  background: linear-gradient(90deg, #1c1c1c 0%, #1a1a1f 50%, #1c1c1c 100%);
-  background-size: 300px 100%;
-  animation: mj-app-shim 1.4s linear infinite;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%);
+  background-size: 400px 100%;
+  animation: mj-shim 1.4s linear infinite;
   border-radius: 4px;
   display: inline-block;
 }
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 6px rgba(16,185,129,0.4); }
-  50% { box-shadow: 0 0 14px rgba(16,185,129,0.8), 0 0 24px rgba(16,185,129,0.2); }
+.mj-row {
+  transition: background ${C.dur} ${C.ease};
+  cursor: pointer;
 }
-@keyframes score-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+.mj-row:hover {
+  background: rgba(99,102,241,0.04);
 }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+.mj-row:hover .mj-row-chevron {
+  color: ${C.accent};
 }
-.mj-app-pulse-dot {
-  display: inline-block;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #10b981;
-  animation: pulse-glow 2s ease-in-out infinite;
+.mj-grid-card {
+  transition: border-color ${C.dur} ${C.ease}, transform ${C.dur} ${C.ease}, box-shadow ${C.dur} ${C.ease};
+  cursor: pointer;
 }
-.majorka-row-hover { transition: background 100ms ease; cursor: pointer; }
-.majorka-row-hover:hover { background: rgba(124,106,255,0.04) !important; }
-.majorka-btn { transition: all 150ms ease; }
-.majorka-btn:hover { transform: scale(1.05); filter: brightness(1.15); }
-.majorka-btn:active { transform: scale(0.97); }
+.mj-grid-card:hover {
+  border-color: rgba(99,102,241,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.mj-pill {
+  transition: background ${C.dur} ${C.ease}, border-color ${C.dur} ${C.ease}, color ${C.dur} ${C.ease};
+}
+.mj-pill:hover {
+  border-color: rgba(99,102,241,0.25);
+  color: ${C.text};
+}
+@keyframes mj-slide {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.mj-panel {
+  animation: mj-slide 240ms ${C.ease};
+}
+@keyframes mj-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.mj-backdrop {
+  animation: mj-fade 180ms ${C.ease};
+}
 `;
 
-type ScoreFilter = 0 | 65 | 80 | 90;
+/* ══════════════════════════════════════════════════════════════
+   Helpers
+   ══════════════════════════════════════════════════════════════ */
 
-const inputStyle: React.CSSProperties = {
-  background: '#0d0d10',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: 6,
-  padding: '8px 12px',
-  color: '#ededed',
-  fontFamily: sans,
-  fontSize: 13,
-  outline: 'none',
-};
-
-const selectStyle: React.CSSProperties = {
-  background: '#0d0d10',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: 6,
-  padding: '8px 12px',
-  color: '#a1a1aa',
-  fontFamily: mono,
-  fontSize: 12,
-  cursor: 'pointer',
-  outline: 'none',
-};
-
-function Thumb({ title, image, size = 32 }: { title: string; image: string | null; size?: number }) {
-  return <ProductImage src={image} title={title} size={size} borderRadius={5} />;
+function timeAgoShort(iso: string | null): string {
+  if (!iso) return '';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '';
+  const days = Math.round((Date.now() - ts) / (24 * 60 * 60 * 1000));
+  if (days < 1) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  if (days < 14) return '1 week ago';
+  if (days < 30) return `${Math.round(days / 7)} weeks ago`;
+  if (days < 60) return '1 month ago';
+  return `${Math.round(days / 30)} months ago`;
 }
 
-function ProductHeroImage({ src, title }: { src: string | null; title: string }) {
-  const [failed, setFailed] = useState(false);
-  const initial = (title?.trim() || 'P').charAt(0).toUpperCase();
-  if (!src || failed) {
-    return (
-      <span style={{
-        fontFamily: display,
-        fontSize: 32,
-        fontWeight: 700,
-        color: 'rgba(124,106,255,0.4)',
-      }}>{initial}</span>
-    );
-  }
-  return (
-    <img
-      src={proxyImage(src) ?? src}
-      alt={title}
-      loading="lazy"
-      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-      onError={() => setFailed(true)}
-    />
-  );
-}
-
-function SourcePill({ source }: { source: string | null }) {
-  const isAli = (source ?? '').toLowerCase().includes('aliexpress');
-  if (isAli) {
-    return <span style={{
-      display: 'inline-block',
-      padding: '2px 8px',
-      background: 'rgba(255,90,0,0.12)',
-      border: '1px solid rgba(255,90,0,0.25)',
-      color: 'rgba(255,90,0,0.9)',
-      borderRadius: 999,
-      fontFamily: mono,
-      fontSize: 10,
-      fontWeight: 700,
-    }}>AliExpress</span>;
-  }
-  return <span style={{
-    display: 'inline-block',
-    padding: '2px 8px',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    color: '#71717a',
-    borderRadius: 999,
-    fontFamily: mono,
-    fontSize: 10,
-    fontWeight: 700,
-  }}>{source ?? '—'}</span>;
+function daysSince(iso: string | null): number {
+  if (!iso) return 9999;
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return 9999;
+  return (Date.now() - ts) / (24 * 60 * 60 * 1000);
 }
 
 function readInitialParams(): { tab: SmartTabKey; search: string } {
@@ -163,30 +130,511 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
   return { tab, search: params.get('search') ?? '' };
 }
 
+function scoreTier(score: number): { bg: string; fg: string } {
+  if (score >= 90) return { bg: C.greenSubtle, fg: C.green };
+  if (score >= 70) return { bg: C.amberSubtle, fg: C.amber };
+  return { bg: C.orangeSubtle, fg: C.orange };
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Thumbnail
+   ══════════════════════════════════════════════════════════════ */
+
+function Thumb({ image, title, size, radius }: { image: string | null; title: string; size: number; radius: number }) {
+  const [failed, setFailed] = useState(false);
+  const initial = (title?.trim()?.[0] || '?').toUpperCase();
+  const hasImage = image && !failed;
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: radius,
+        background: C.raised,
+        border: `1px solid ${C.border}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {hasImage ? (
+        <img
+          src={proxyImage(image) ?? image}
+          alt={title}
+          loading="lazy"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <span
+          style={{
+            fontFamily: C.fontDisplay,
+            fontSize: size * 0.38,
+            fontWeight: 700,
+            color: C.muted,
+          }}
+        >
+          {initial}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Filter pill with popover dropdown
+   ══════════════════════════════════════════════════════════════ */
+
+interface FilterPillProps {
+  label: string;
+  active: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  children?: React.ReactNode;
+}
+
+function FilterPill({ label, active, open, onToggle, onClose, children }: FilterPillProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open, onClose]);
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        className="mj-pill"
+        onClick={onToggle}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          background: active ? C.accentSubtle : C.raised,
+          border: `1px solid ${active ? C.borderFocus : C.border}`,
+          borderRadius: C.rSm,
+          padding: '7px 14px',
+          color: active ? C.text : C.body,
+          fontSize: C.fBody,
+          fontFamily: C.fontBody,
+          fontWeight: 500,
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span>{label}</span>
+        <ChevronDown size={12} color={C.muted} strokeWidth={2} />
+      </button>
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 6px)',
+            left: 0,
+            zIndex: 50,
+            background: C.raised,
+            border: `1px solid ${C.borderStrong}`,
+            borderRadius: C.rMd,
+            padding: 16,
+            minWidth: 220,
+            boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Input + option list primitives used inside dropdowns
+   ══════════════════════════════════════════════════════════════ */
+
+const numberInputStyle: React.CSSProperties = {
+  background: C.bg,
+  border: `1px solid ${C.border}`,
+  borderRadius: C.rXs,
+  padding: '8px 10px',
+  color: C.text,
+  width: 90,
+  outline: 'none',
+  fontSize: C.fBody,
+  fontFamily: C.fontBody,
+  fontVariantNumeric: 'tabular-nums',
+  boxSizing: 'border-box',
+};
+
+function OptionList<T extends string | number>({
+  options,
+  value,
+  onSelect,
+  keyExtractor,
+  renderLabel,
+}: {
+  options: T[];
+  value: T | null;
+  onSelect: (v: T) => void;
+  keyExtractor: (v: T) => string;
+  renderLabel: (v: T) => string;
+}) {
+  return (
+    <div style={{ maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {options.map((opt) => {
+        const k = keyExtractor(opt);
+        const sel = value !== null && keyExtractor(value) === k;
+        return (
+          <div
+            key={k}
+            onClick={() => onSelect(opt)}
+            style={{
+              padding: '8px 12px',
+              cursor: 'pointer',
+              borderRadius: 6,
+              fontSize: C.fBody,
+              fontFamily: C.fontBody,
+              color: sel ? C.text : C.body,
+              background: sel ? C.accentSubtle : 'transparent',
+              transition: `background ${C.dur} ${C.ease}`,
+            }}
+            onMouseEnter={(e) => {
+              if (!sel) (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.05)';
+            }}
+            onMouseLeave={(e) => {
+              if (!sel) (e.currentTarget as HTMLDivElement).style.background = 'transparent';
+            }}
+          >
+            {renderLabel(opt)}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Product detail side panel — spec version
+   ══════════════════════════════════════════════════════════════ */
+
+function ProductSidePanel({ product, onClose }: { product: Product | null; onClose: () => void }) {
+  if (!product) return null;
+  const score = Math.round(product.winning_score ?? 0);
+  const orders = product.sold_count ?? 0;
+  const price = product.price_aud != null ? Number(product.price_aud) : null;
+  const estDaily = product.est_daily_revenue_aud ?? null;
+  const estMonthly = estDaily != null ? estDaily * 30 : null;
+  const aliHref = (product as Product & { aliexpress_url?: string }).aliexpress_url ?? product.product_url ?? null;
+  const tier = scoreTier(score);
+
+  return (
+    <>
+      <div
+        className="mj-backdrop"
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.55)',
+          zIndex: 99,
+        }}
+      />
+      <aside
+        className="mj-panel"
+        style={{
+          position: 'fixed',
+          right: 0,
+          top: 0,
+          width: 420,
+          maxWidth: '100vw',
+          height: '100vh',
+          background: C.surface,
+          borderLeft: `1px solid ${C.border}`,
+          zIndex: 100,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          fontFamily: C.fontBody,
+          color: C.text,
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '20px 20px 0',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: C.fontDisplay,
+              fontSize: C.fH4,
+              fontWeight: 600,
+              color: C.text,
+              maxWidth: 320,
+              lineHeight: 1.3,
+            }}
+          >
+            {product.product_title}
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: C.muted,
+              cursor: 'pointer',
+              padding: 4,
+              transition: `color ${C.dur} ${C.ease}`,
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = C.muted; }}
+          >
+            <X size={18} strokeWidth={1.75} />
+          </button>
+        </div>
+
+        {/* Image */}
+        <div style={{ margin: 16 }}>
+          <div
+            style={{
+              width: '100%',
+              height: 220,
+              borderRadius: C.rMd,
+              overflow: 'hidden',
+              background: C.raised,
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            {product.image_url && (
+              <img
+                src={proxyImage(product.image_url) ?? product.image_url}
+                alt={product.product_title}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Stats grid */}
+        <div
+          style={{
+            padding: '0 16px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 10,
+          }}
+        >
+          {[
+            { label: 'Score', value: score ? String(score) : '—', color: score ? tier.fg : C.muted },
+            { label: 'Orders', value: orders ? orders.toLocaleString() : '—', color: C.text },
+            { label: 'Price', value: price != null ? `$${price.toFixed(2)}` : '—', color: C.text },
+            { label: 'Est. Revenue', value: estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—', color: C.green },
+          ].map((cell) => (
+            <div
+              key={cell.label}
+              style={{
+                background: C.raised,
+                borderRadius: C.rMd,
+                padding: 14,
+                border: `1px solid ${C.border}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: C.fXxs,
+                  fontFamily: C.fontBody,
+                  fontWeight: 500,
+                  color: C.muted,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginBottom: 6,
+                }}
+              >
+                {cell.label}
+              </div>
+              <div
+                style={{
+                  fontFamily: C.fontDisplay,
+                  fontSize: 22,
+                  fontWeight: 600,
+                  color: cell.color,
+                  fontVariantNumeric: 'tabular-nums',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {cell.value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Metadata */}
+        <div style={{ padding: '16px 16px 20px' }}>
+          {product.category && (
+            <div
+              style={{
+                fontSize: C.fSm,
+                fontFamily: C.fontBody,
+                color: C.body,
+                marginBottom: 8,
+              }}
+            >
+              <span style={{ color: C.muted }}>Category: </span>
+              {product.category}
+            </div>
+          )}
+          {product.created_at && (
+            <div
+              style={{
+                fontSize: C.fSm,
+                fontFamily: C.fontBody,
+                color: C.body,
+              }}
+            >
+              <span style={{ color: C.muted }}>Added: </span>
+              {timeAgoShort(product.created_at)}
+            </div>
+          )}
+        </div>
+
+        {/* AliExpress link */}
+        {aliHref && (
+          <a
+            href={aliHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              margin: '0 16px 16px',
+              background: 'rgba(255,255,255,0.06)',
+              border: `1px solid ${C.border}`,
+              borderRadius: C.rMd,
+              padding: 12,
+              fontSize: C.fBody,
+              fontFamily: C.fontBody,
+              color: C.text,
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              textDecoration: 'none',
+              transition: `background ${C.dur} ${C.ease}`,
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.1)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.06)'; }}
+          >
+            View on AliExpress
+            <ExternalLink size={14} strokeWidth={1.75} />
+          </a>
+        )}
+
+        <div style={{ flex: 1 }} />
+
+        {/* Sticky bottom bar */}
+        <div
+          style={{
+            position: 'sticky',
+            bottom: 0,
+            background: C.surface,
+            borderTop: `1px solid ${C.border}`,
+            padding: 16,
+            display: 'flex',
+            gap: 10,
+          }}
+        >
+          <button
+            style={{
+              flex: 1,
+              background: C.accent,
+              color: C.white,
+              border: 'none',
+              borderRadius: C.rMd,
+              padding: 12,
+              fontSize: C.fBody,
+              fontFamily: C.fontBody,
+              fontWeight: 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              transition: `background ${C.dur} ${C.ease}`,
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.accentHover; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.accent; }}
+          >
+            <Zap size={14} strokeWidth={2} />
+            Create Ad
+          </button>
+          <button
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.06)',
+              color: C.text,
+              border: `1px solid ${C.border}`,
+              borderRadius: C.rMd,
+              padding: 12,
+              fontSize: C.fBody,
+              fontFamily: C.fontBody,
+              fontWeight: 500,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              transition: `background ${C.dur} ${C.ease}`,
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; }}
+          >
+            <Heart size={14} strokeWidth={1.75} />
+            Save
+          </button>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Main component
+   ══════════════════════════════════════════════════════════════ */
+
 export default function AppProducts() {
   const initial = readInitialParams();
+  const [, navigate] = useLocation();
   const [orderBy, setOrderBy] = useState<OrderByColumn>('sold_count');
   const [view, setView] = useState<'table' | 'grid'>('table');
-  const [limit, setLimit] = useState(20);
-  const [activeNiche, setActiveNiche] = useState<string | null>(null);
+  const [perPage, setPerPage] = useState<number>(25);
+  const [page, setPage] = useState<number>(1);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [activeCarousel, setActiveCarousel] = useState<CarouselKey>('recent');
   const [activeTab, setActiveTab] = useState<SmartTabKey>(initial.tab);
   const [searchMode, setSearchMode] = useState<'db' | 'live'>(initial.search ? 'live' : 'db');
   const [liveQuery, setLiveQuery] = useState(initial.search);
-  const [showFilters, setShowFilters] = useState(false);
+  const [searchInput, setSearchInput] = useState(initial.search);
+
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [minOrders, setMinOrders] = useState<number | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [scoreMin, setScoreMin] = useState<number>(0);
   const [scoreMax, setScoreMax] = useState<number>(100);
-  const aeSearch = useAESearch();
-  const { niches } = useNicheStats();
-  const fav = useFavourites();
-  const [favToast, setFavToast] = useState<string | null>(null);
 
-  // Trigger AE live search if a ?search= param is present on first mount
+  const [openPill, setOpenPill] = useState<string | null>(null);
+  const closePill = () => setOpenPill(null);
+
+  const aeSearch = useAESearch();
+  const fav = useFavourites();
+
   useEffect(() => {
     if (initial.search && initial.search.trim().length >= 2) {
       aeSearch.search({ q: initial.search.trim(), reset: true });
@@ -194,44 +642,23 @@ export default function AppProducts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { products, loading, total, cached } = useProducts({
-    limit,
+  /* Fetch. We pull `perPage * page` rows so we can slice client-side for
+     pagination, which keeps the existing useProducts hook signature
+     intact while giving us a real Showing X–Y of Z display. */
+  const fetchLimit = perPage * page;
+  const { products: allFetched, loading, total } = useProducts({
+    limit: Math.min(fetchLimit, 200),
     orderBy,
     tab: activeTab === 'saved' ? 'all' : activeTab,
-    category: activeNiche ?? (categoryFilter || undefined),
+    category: categoryFilter || undefined,
     minPrice: priceMin ?? undefined,
     maxPrice: priceMax ?? undefined,
     minOrders: minOrders ?? undefined,
     minScore: scoreMin > 0 ? scoreMin : undefined,
   });
 
-  // Infinite scroll for live AE search mode
-  useEffect(() => {
-    if (searchMode !== 'live') return;
-    const handleScroll = () => {
-      const scrollPos = window.scrollY + window.innerHeight;
-      const docHeight = document.documentElement.scrollHeight;
-      if (scrollPos > docHeight - 500) aeSearch.loadMore();
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [searchMode, aeSearch]);
-
-  // Distinct category list for the category filter dropdown
-  const availableCategories = useMemo(() => {
-    const set = new Set<string>();
-    products.forEach((p) => {
-      if (p.category && p.category.trim().length > 0) {
-        set.add(p.category.trim());
-      }
-    });
-    return Array.from(set).sort();
-  }, [products]);
-
-  // Server has applied tab + category + price + minScore filters already.
-  // Only the saved-tab override (uses local favourites) and the maxScore
-  // upper bound need to be applied client-side.
-  const filtered = useMemo(() => {
+  /* Apply saved-tab override + maxScore ceiling client-side */
+  const filtered = useMemo<Product[]>(() => {
     if (activeTab === 'saved') {
       return fav.favourites.map((f) => ({
         id: f.product_id,
@@ -250,1256 +677,1286 @@ export default function AppProducts() {
       } satisfies Product));
     }
     if (scoreMax < 100) {
-      return products.filter((p) => (p.winning_score ?? 0) <= scoreMax);
+      return allFetched.filter((p) => (p.winning_score ?? 0) <= scoreMax);
     }
-    return products;
-  }, [products, activeTab, scoreMax, fav.favourites]);
+    return allFetched;
+  }, [activeTab, scoreMax, allFetched, fav.favourites]);
 
-  // Counts for smart tabs. Most are approximations since we only have the
-  // current page loaded — `total` is reliable because it comes from
-  // count: 'exact' for the active tab. Saved comes from useFavourites.
+  const filteredTotal = activeTab === 'saved' ? fav.count : total;
+  const offset = (page - 1) * perPage;
+  const pageSlice = filtered.slice(offset, offset + perPage);
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
+
+  /* Tab counts — computed from live data */
   const tabCounts = useMemo(() => {
     return {
-      all:        activeTab === 'all' ? total : products.length,
-      new:        activeTab === 'new' ? total : products.filter((p) => {
-        if (!p.created_at) return false;
-        return new Date(p.created_at).getTime() >= Date.now() - 7 * 24 * 60 * 60 * 1000;
+      all:        total,
+      new:        allFetched.filter((p) => daysSince(p.created_at) <= 7).length,
+      trending:   allFetched.filter((p) => (p.sold_count ?? 0) > 50000).length,
+      highmargin: allFetched.filter((p) => {
+        const price = Number(p.price_aud ?? 999);
+        return price < 15 && (p.winning_score ?? 0) > 75;
       }).length,
-      trending:   activeTab === 'trending' ? total : products.filter((p) => (p.sold_count ?? 0) >= 50000).length,
-      highmargin: activeTab === 'highmargin' ? total : products.filter((p) => {
-        const price = Number(p.price_aud ?? 0);
-        return price >= 2 && price <= 15 && (p.sold_count ?? 0) >= 10000;
-      }).length,
-      top:        activeTab === 'top' ? total : products.filter((p) => (p.winning_score ?? 0) >= 90).length,
+      top:        allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
       saved:      fav.count,
     };
-  }, [products, total, activeTab, fav.count]);
+  }, [total, allFetched, fav.count]);
+
+  /* Category options for dropdown */
+  const availableCategories = useMemo(() => {
+    const set = new Set<string>();
+    allFetched.forEach((p) => {
+      if (p.category && p.category.trim().length > 0) set.add(p.category.trim());
+    });
+    return Array.from(set).sort();
+  }, [allFetched]);
+
+  const anyFilterActive =
+    priceMin !== null || priceMax !== null || minOrders !== null ||
+    categoryFilter !== '' || scoreMin > 0 || scoreMax < 100;
+
+  function clearFilters(): void {
+    setPriceMin(null);
+    setPriceMax(null);
+    setMinOrders(null);
+    setCategoryFilter('');
+    setScoreMin(0);
+    setScoreMax(100);
+  }
+
+  function runSearch(): void {
+    const v = searchInput.trim();
+    if (v.length >= 2) {
+      setLiveQuery(v);
+      setSearchMode('live');
+      aeSearch.search({ q: v, reset: true });
+    }
+  }
+
+  function backToDb(): void {
+    setSearchMode('db');
+    aeSearch.reset();
+    setLiveQuery('');
+    setSearchInput('');
+  }
+
+  const activeSortLabel = SORT_OPTIONS.find((o) => o.key === orderBy)?.label ?? 'Sort';
+
+  /* ══════════════════════════════════════════════════════════════
+     Render
+     ══════════════════════════════════════════════════════════════ */
 
   return (
     <>
-      <style>{SHIMMER}</style>
+      <style>{STYLES}</style>
 
-      {/* Editorial hero — massive H1, quiet grey subhead. */}
-      <div style={{ padding: `${t.s10}px ${t.s9}px ${t.s7}px`, maxWidth: 1320, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
-        <h1 style={{
-          fontFamily: t.fontDisplay,
-          fontSize: t.fH1,
-          fontWeight: 600,
-          letterSpacing: '-0.03em',
-          margin: 0,
-          color: t.text,
-          lineHeight: 1.05,
-        }}>Products</h1>
-        <p style={{
-          fontFamily: t.fontBody,
-          fontSize: t.fLead,
-          color: t.body,
-          margin: `${t.s5}px 0 0`,
-          maxWidth: '56ch',
-          lineHeight: 1.55,
-        }}>
-          {searchMode === 'live'
-            ? `${aeSearch.total.toLocaleString()} live AliExpress results for "${aeSearch.query}"`
-            : `${total > 0 ? total.toLocaleString() : ''} products tracked. Sort, filter, and save winners.`}
-        </p>
-      </div>
-
-      {/* Search bar — borderless except for a single hairline underline. */}
-      <div style={{ padding: `0 ${t.s9}px ${t.s6}px`, maxWidth: 1320, margin: '0 auto', width: '100%', boxSizing: 'border-box', display: 'flex', gap: t.s3, alignItems: 'center' }}>
-        <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', borderBottom: `1px solid ${t.line}` }}>
-          <Search size={14} strokeWidth={1.75} color={t.muted} style={{ pointerEvents: 'none', flexShrink: 0 }} />
-          <input
-            placeholder={`Search ${total > 0 ? total.toLocaleString() : '2,302'} products or 829k live from AliExpress`}
-            defaultValue={liveQuery}
+      <div
+        style={{
+          background: C.bg,
+          minHeight: '100vh',
+          fontFamily: C.fontBody,
+          color: C.text,
+        }}
+      >
+        {/* ── SEARCH BAR ── */}
+        <div style={{ padding: '24px 32px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <Search
+              size={16}
+              color={C.muted}
+              strokeWidth={1.75}
+              style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+            />
+            <input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') runSearch(); }}
+              placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products or explore live from AliExpress`}
+              style={{
+                width: '100%',
+                height: 52,
+                background: C.raised,
+                border: `1.5px solid ${C.border}`,
+                borderRadius: C.rMd,
+                padding: '0 16px 0 46px',
+                color: C.text,
+                fontFamily: C.fontBody,
+                fontSize: C.fBody,
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: `border-color ${C.dur} ${C.ease}`,
+              }}
+              onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = C.borderFocus; }}
+              onBlur={(e)  => { (e.currentTarget as HTMLInputElement).style.borderColor = C.border; }}
+            />
+          </div>
+          <div
             style={{
-              width: '100%',
-              background: 'transparent',
-              border: 'none',
-              padding: `${t.s3}px ${t.s4}px`,
-              color: t.text,
-              fontFamily: t.fontBody,
-              fontSize: t.fLead,
-              outline: 'none',
-              boxSizing: 'border-box',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: C.raised,
+              border: `1px solid ${C.border}`,
+              borderRadius: C.rSm,
+              padding: 4,
             }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const val = (e.currentTarget as HTMLInputElement).value.trim();
-                if (val.length >= 2) {
-                  setLiveQuery(val);
-                  setSearchMode('live');
-                  aeSearch.search({ q: val, reset: true });
-                }
-              }
-            }}
-          />
+          >
+            {(['db', 'live'] as const).map((mode) => {
+              const active = searchMode === mode;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
+                  style={{
+                    background: active ? C.accentSubtle : 'transparent',
+                    color: active ? C.accentHover : C.muted,
+                    border: `1px solid ${active ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
+                    borderRadius: 6,
+                    padding: '5px 12px',
+                    fontSize: C.fSm,
+                    fontFamily: C.fontBody,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: `all ${C.dur} ${C.ease}`,
+                  }}
+                >
+                  {mode === 'db' ? 'Database' : 'Live AliExpress'}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {/* ── LIVE SEARCH NOTICE ── */}
         {searchMode === 'live' && (
-          <button
-            onClick={() => { setSearchMode('db'); aeSearch.reset(); setLiveQuery(''); }}
+          <div
             style={{
-              padding: `${t.s3}px ${t.s4}px`,
-              background: 'transparent',
-              border: `1px solid ${t.line}`,
-              borderRadius: t.rMd,
-              color: t.body,
-              fontFamily: t.fontBody,
-              fontSize: t.fBody,
-              fontWeight: 500,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              transition: `all ${t.dur} ${t.ease}`,
+              padding: '0 32px 12px',
+              fontSize: C.fSm,
+              color: C.muted,
+              fontFamily: C.fontBody,
             }}
-          >Back to database</button>
+          >
+            Showing {aeSearch.total.toLocaleString()} live results for <span style={{ color: C.text }}>"{liveQuery}"</span>
+          </div>
+        )}
+
+        {/* ── FILTER BAR (db mode only) ── */}
+        {searchMode === 'db' && (
+          <div
+            style={{
+              padding: '0 32px 16px',
+              display: 'flex',
+              gap: 8,
+              flexWrap: 'wrap',
+              alignItems: 'center',
+            }}
+          >
+            {/* Price */}
+            <FilterPill
+              label={priceMin !== null || priceMax !== null
+                ? `Price: $${priceMin ?? 0}–$${priceMax ?? '∞'}`
+                : 'Price'}
+              active={priceMin !== null || priceMax !== null}
+              open={openPill === 'price'}
+              onToggle={() => setOpenPill(openPill === 'price' ? null : 'price')}
+              onClose={closePill}
+            >
+              <div
+                style={{
+                  fontSize: C.fXs,
+                  fontFamily: C.fontBody,
+                  color: C.muted,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                Price range
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={priceMin ?? ''}
+                  onChange={(e) => setPriceMin(e.target.value ? Number(e.target.value) : null)}
+                  style={numberInputStyle}
+                />
+                <span style={{ color: C.muted, fontSize: C.fSm }}>to</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={priceMax ?? ''}
+                  onChange={(e) => setPriceMax(e.target.value ? Number(e.target.value) : null)}
+                  style={numberInputStyle}
+                />
+              </div>
+            </FilterPill>
+
+            {/* Min Orders */}
+            <FilterPill
+              label={minOrders !== null ? `Min orders: ${minOrders.toLocaleString()}` : 'Min Orders'}
+              active={minOrders !== null}
+              open={openPill === 'minOrders'}
+              onToggle={() => setOpenPill(openPill === 'minOrders' ? null : 'minOrders')}
+              onClose={closePill}
+            >
+              <div
+                style={{
+                  fontSize: C.fXs,
+                  fontFamily: C.fontBody,
+                  color: C.muted,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                Minimum orders
+              </div>
+              <input
+                type="number"
+                placeholder="e.g. 1000"
+                value={minOrders ?? ''}
+                onChange={(e) => setMinOrders(e.target.value ? Number(e.target.value) : null)}
+                style={{ ...numberInputStyle, width: 180 }}
+              />
+            </FilterPill>
+
+            {/* Category */}
+            <FilterPill
+              label={categoryFilter ? `Category: ${shortenCategory(categoryFilter)}` : 'Category'}
+              active={categoryFilter !== ''}
+              open={openPill === 'category'}
+              onToggle={() => setOpenPill(openPill === 'category' ? null : 'category')}
+              onClose={closePill}
+            >
+              <div
+                style={{
+                  fontSize: C.fXs,
+                  fontFamily: C.fontBody,
+                  color: C.muted,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                Category
+              </div>
+              {availableCategories.length > 0 ? (
+                <OptionList
+                  options={['', ...availableCategories]}
+                  value={categoryFilter}
+                  onSelect={(v) => { setCategoryFilter(v); closePill(); }}
+                  keyExtractor={(v) => v || '__all__'}
+                  renderLabel={(v) => v ? shortenCategory(v) : 'All categories'}
+                />
+              ) : (
+                <div style={{ color: C.muted, fontSize: C.fSm }}>No categories loaded yet.</div>
+              )}
+            </FilterPill>
+
+            {/* Score */}
+            <FilterPill
+              label={scoreMin > 0 || scoreMax < 100 ? `Score: ${scoreMin}–${scoreMax}` : 'Score'}
+              active={scoreMin > 0 || scoreMax < 100}
+              open={openPill === 'score'}
+              onToggle={() => setOpenPill(openPill === 'score' ? null : 'score')}
+              onClose={closePill}
+            >
+              <div
+                style={{
+                  fontSize: C.fXs,
+                  fontFamily: C.fontBody,
+                  color: C.muted,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                Score range
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="Min"
+                  value={scoreMin || ''}
+                  onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
+                  style={numberInputStyle}
+                />
+                <span style={{ color: C.muted, fontSize: C.fSm }}>to</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  placeholder="Max"
+                  value={scoreMax !== 100 ? scoreMax : ''}
+                  onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
+                  style={numberInputStyle}
+                />
+              </div>
+            </FilterPill>
+
+            <div style={{ flex: 1 }} />
+
+            {/* Sort */}
+            <FilterPill
+              label={`Sort: ${activeSortLabel}`}
+              active={false}
+              open={openPill === 'sort'}
+              onToggle={() => setOpenPill(openPill === 'sort' ? null : 'sort')}
+              onClose={closePill}
+            >
+              <div
+                style={{
+                  fontSize: C.fXs,
+                  fontFamily: C.fontBody,
+                  color: C.muted,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                Sort by
+              </div>
+              <OptionList
+                options={SORT_OPTIONS.map((o) => o.key)}
+                value={orderBy}
+                onSelect={(v) => { setOrderBy(v); closePill(); }}
+                keyExtractor={(v) => String(v)}
+                renderLabel={(v) => SORT_OPTIONS.find((o) => o.key === v)?.label ?? String(v)}
+              />
+            </FilterPill>
+
+            {anyFilterActive && (
+              <button
+                onClick={clearFilters}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: C.accent,
+                  fontSize: C.fBody,
+                  fontFamily: C.fontBody,
+                  cursor: 'pointer',
+                  padding: '7px 8px',
+                }}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB BAR ── */}
+        {searchMode === 'db' && (
+          <div
+            style={{
+              padding: '0 32px',
+              display: 'flex',
+              alignItems: 'center',
+              borderBottom: `1px solid ${C.border}`,
+              overflowX: 'auto',
+            }}
+          >
+            {SMART_TABS.map((tab) => {
+              const active = activeTab === tab.key;
+              const count = tabCounts[tab.key];
+              const Icon = tab.Icon;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => { setActiveTab(tab.key); setPage(1); }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '10px 16px',
+                    marginBottom: -1,
+                    border: 'none',
+                    background: 'transparent',
+                    fontSize: C.fBody,
+                    fontFamily: C.fontBody,
+                    fontWeight: active ? 600 : 500,
+                    color: active ? C.text : C.body,
+                    borderBottom: `2px solid ${active ? C.accent : 'transparent'}`,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: `color ${C.dur} ${C.ease}`,
+                  }}
+                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
+                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = C.body; }}
+                >
+                  <Icon size={14} strokeWidth={1.75} />
+                  <span>{tab.label}</span>
+                  <span
+                    style={{
+                      background: 'rgba(255,255,255,0.07)',
+                      borderRadius: 4,
+                      padding: '1px 6px',
+                      fontSize: C.fXs,
+                      fontFamily: C.fontBody,
+                      color: C.muted,
+                      fontVariantNumeric: 'tabular-nums',
+                      marginLeft: 2,
+                    }}
+                  >
+                    {count >= 1000 ? `${Math.round(count / 1000)}k` : count}
+                  </span>
+                </button>
+              );
+            })}
+            <div style={{ flex: 1 }} />
+            <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexShrink: 0 }}>
+              {(['table', 'grid'] as const).map((mode) => {
+                const active = view === mode;
+                const Icon = mode === 'table' ? List : LayoutGrid;
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => setView(mode)}
+                    aria-label={mode}
+                    style={{
+                      background: active ? C.raised : 'transparent',
+                      color: active ? C.text : C.muted,
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 6,
+                      borderRadius: 6,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: `color ${C.dur} ${C.ease}`,
+                    }}
+                  >
+                    <Icon size={14} strokeWidth={1.75} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── RESULTS HEADER ── */}
+        {searchMode === 'db' && (
+          <div
+            style={{
+              padding: '12px 32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div style={{ fontSize: C.fBody, color: C.muted, fontFamily: C.fontBody }}>
+              {loading
+                ? 'Loading products…'
+                : `${filteredTotal.toLocaleString()} products`}
+            </div>
+          </div>
+        )}
+
+        {/* ── BODY ── */}
+        {searchMode === 'live' ? (
+          <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
+        ) : view === 'table' ? (
+          <ListTable
+            products={pageSlice}
+            loading={loading}
+            onSelect={setSelectedProduct}
+            isFavourite={fav.isFavourite}
+            onToggleFav={fav.toggleFavourite}
+          />
+        ) : (
+          <GridCards
+            products={pageSlice}
+            loading={loading}
+            onSelect={setSelectedProduct}
+            navigate={navigate}
+          />
+        )}
+
+        {/* ── PAGINATION ── */}
+        {searchMode === 'db' && filteredTotal > 0 && (
+          <div
+            style={{
+              margin: '16px 32px 48px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ fontSize: C.fBody, color: C.muted, fontFamily: C.fontBody, fontVariantNumeric: 'tabular-nums' }}>
+              Showing {(offset + 1).toLocaleString()}–{Math.min(offset + perPage, filteredTotal).toLocaleString()} of {filteredTotal.toLocaleString()}
+            </div>
+            <div style={{ flex: 1 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <PageBtn disabled={page === 1} onClick={() => setPage(page - 1)}>‹</PageBtn>
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                const start = Math.max(1, page - 2);
+                const p = start + i;
+                if (p > totalPages) return null;
+                return (
+                  <PageBtn key={p} active={p === page} onClick={() => setPage(p)}>
+                    {p}
+                  </PageBtn>
+                );
+              })}
+              <PageBtn disabled={page >= totalPages} onClick={() => setPage(page + 1)}>›</PageBtn>
+              <select
+                value={perPage}
+                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+                style={{
+                  background: C.raised,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 6,
+                  padding: '4px 10px',
+                  fontSize: C.fBody,
+                  fontFamily: C.fontBody,
+                  color: C.body,
+                  outline: 'none',
+                  marginLeft: 8,
+                }}
+              >
+                <option value={25}>25 / page</option>
+                <option value={50}>50 / page</option>
+                <option value={100}>100 / page</option>
+              </select>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Filter bar — flush with the page, no card, no fill. */}
-      {searchMode === 'db' && (
-        <div style={{
-          margin: `0 ${t.s9}px ${t.s6}px`,
-          maxWidth: 1320,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          padding: `${t.s5}px ${t.s9}px`,
-          borderTop: `1px solid ${t.line}`,
-          borderBottom: `1px solid ${t.line}`,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: t.s5,
-          boxSizing: 'border-box',
-        }}>
-          {[
-            { label: 'Min price', value: priceMin, set: setPriceMin, ph: '0' },
-            { label: 'Max price', value: priceMax, set: setPriceMax, ph: '999' },
-            { label: 'Min orders', value: minOrders, set: setMinOrders, ph: '0' },
-          ].map((f) => (
-            <div key={f.label}>
-              <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{f.label}</div>
-              <input
-                type="number"
-                placeholder={f.ph}
-                value={f.value ?? ''}
-                onChange={(e) => f.set(e.target.value ? Number(e.target.value) : null)}
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: `1px solid ${t.line}`,
-                  borderRadius: 0,
-                  padding: `${t.s2}px 0`,
-                  color: t.text,
-                  fontFamily: t.fontBody,
-                  fontSize: t.fBody,
-                  fontVariantNumeric: 'tabular-nums',
-                  boxSizing: 'border-box',
-                  outline: 'none',
-                }}
-              />
-            </div>
-          ))}
-          <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Category</div>
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: `1px solid ${t.line}`,
-                borderRadius: 0,
-                padding: `${t.s2}px 0`,
-                color: t.text,
-                fontFamily: t.fontBody,
-                fontSize: t.fBody,
-                boxSizing: 'border-box',
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              <option value="">All categories</option>
-              {availableCategories.map((c) => (
-                <option key={c} value={c}>{shortenCategory(c)}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Min score</div>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              placeholder="0"
-              value={scoreMin}
-              onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: `1px solid ${t.line}`,
-                borderRadius: 0,
-                padding: `${t.s2}px 0`,
-                color: t.text,
-                fontFamily: t.fontBody,
-                fontSize: t.fBody,
-                fontVariantNumeric: 'tabular-nums',
-                boxSizing: 'border-box',
-                outline: 'none',
-              }}
-            />
-          </div>
-          <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Max score</div>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              placeholder="100"
-              value={scoreMax}
-              onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: `1px solid ${t.line}`,
-                borderRadius: 0,
-                padding: `${t.s2}px 0`,
-                color: t.text,
-                fontFamily: t.fontBody,
-                fontSize: t.fBody,
-                fontVariantNumeric: 'tabular-nums',
-                boxSizing: 'border-box',
-                outline: 'none',
-              }}
-            />
-          </div>
-          <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Sort by</div>
-            <select
-              value={orderBy}
-              onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: `1px solid ${t.line}`,
-                borderRadius: 0,
-                padding: `${t.s2}px 0`,
-                color: t.text,
-                fontFamily: t.fontBody,
-                fontSize: t.fBody,
-                boxSizing: 'border-box',
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              <option value="sold_count">Most orders</option>
-              <option value="winning_score">Highest score</option>
-              <option value="est_daily_revenue_aud">Highest revenue</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">📉 Price: High to Low</option>
-              <option value="created_at">🆕 Newest First</option>
-              <option value="orders_asc">Orders: low to high</option>
-            </select>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button
-              onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); setCategoryFilter(''); setScoreMin(0); setScoreMax(100); setOrderBy('sold_count'); }}
-              style={{
-                padding: `${t.s2}px 0`,
-                background: 'transparent',
-                border: 'none',
-                color: t.muted,
-                fontFamily: t.fontBody,
-                fontSize: t.fBody,
-                fontWeight: 500,
-                cursor: 'pointer',
-                textDecoration: 'underline',
-                textUnderlineOffset: 3,
-              }}
-            >Clear filters</button>
-          </div>
-        </div>
-      )}
-
-      {searchMode === 'live' && (
-        <LiveSearchView
-          aeSearch={aeSearch}
-        />
-      )}
-
-      {searchMode === 'db' && (<>
-      {/* Tabs — quiet, editorial underline. Active = white + 2px rule below. */}
-      <div style={{
-        display: 'flex',
-        gap: t.s2,
-        margin: `0 auto ${t.s6}`,
-        padding: `0 ${t.s9}px`,
-        maxWidth: 1320,
-        borderBottom: `1px solid ${t.line}`,
-        overflowX: 'auto',
-        scrollbarWidth: 'none',
-        alignItems: 'center',
-        boxSizing: 'border-box',
-      }}>
-        {SMART_TABS.map((tab) => {
-          const active = activeTab === tab.key;
-          const count = tabCounts[tab.key];
-          const TabIcon = tab.Icon;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: t.s2,
-                padding: `${t.s3}px ${t.s2}px`,
-                marginBottom: -1,
-                fontFamily: t.fontBody,
-                fontSize: t.fBody,
-                fontWeight: active ? 600 : 400,
-                color: active ? t.text : t.muted,
-                background: 'transparent',
-                border: 'none',
-                borderBottom: `2px solid ${active ? t.text : 'transparent'}`,
-                cursor: 'pointer',
-                transition: `color ${t.dur} ${t.ease}`,
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.text; }}
-              onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.muted; }}
-            >
-              <TabIcon size={14} strokeWidth={1.75} />
-              <span>{tab.label}</span>
-              {active && count > 0 && (
-                <span style={{
-                  fontFamily: t.fontBody,
-                  fontSize: t.fCaption,
-                  fontWeight: 500,
-                  color: t.muted,
-                  fontVariantNumeric: 'tabular-nums',
-                  marginLeft: 2,
-                }}>{count >= 1000 ? `${Math.round(count / 1000)}k` : count}</span>
-              )}
-            </button>
-          );
-        })}
-        <div style={{ flex: 1 }} />
-        <div style={{
-          display: 'inline-flex',
-          gap: t.s1,
-          marginLeft: t.s4,
-          marginBottom: t.s3,
-          flexShrink: 0,
-        }}>
-          {(['table', 'grid'] as const).map((mode) => {
-            const active = view === mode;
-            return (
-              <button
-                key={mode}
-                onClick={() => setView(mode)}
-                aria-label={mode}
-                style={{
-                  width: 28,
-                  height: 28,
-                  border: 'none',
-                  background: 'transparent',
-                  color: active ? t.text : t.faint,
-                  cursor: 'pointer',
-                  borderRadius: t.rSm,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: `color ${t.dur} ${t.ease}`,
-                }}
-                onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.muted; }}
-                onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.faint; }}
-              >
-                {mode === 'table' ? <List size={13} /> : <LayoutGrid size={13} />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Content */}
-      {view === 'table' ? (
-        <TableView
-          products={filtered}
-          loading={loading && activeTab !== 'saved'}
-          onSelect={setSelectedProduct}
-          isFavourite={fav.isFavourite}
-          onToggleFav={async (p) => {
-            try { await fav.toggleFavourite(p); }
-            catch (e) {
-              if ((e as Error).message === 'NOT_AUTHED') {
-                setFavToast('Sign in to save products');
-                setTimeout(() => setFavToast(null), 2500);
-              }
-            }
-          }}
-        />
-      ) : (
-        <GridView products={filtered} loading={loading} onSelect={setSelectedProduct} />
-      )}
-
-      {/* Load more */}
-      {!loading && filtered.length >= limit && limit < total && (
-        <div style={{ margin: '0 32px 32px', textAlign: 'center' }}>
-          <button
-            onClick={() => setLimit((l) => l + 20)}
-            style={{
-              fontFamily: sans,
-              fontSize: 13,
-              color: '#71717a',
-              background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.08)',
-              padding: '10px 24px',
-              borderRadius: 6,
-              cursor: 'pointer',
-              transition: 'border-color 150ms, color 150ms',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#7c6aff'; e.currentTarget.style.color = '#ededed'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#71717a'; }}
-          >Load more</button>
-        </div>
-      )}
-
-      {/* More to explore — supplementary carousels */}
-      <div style={{ padding: '20px 32px 8px' }}>
-        <h3 style={{
-          fontFamily: display,
-          fontSize: 15,
-          fontWeight: 700,
-          color: '#a1a1aa',
-          margin: 0,
-          letterSpacing: '-0.01em',
-        }}>More to explore</h3>
-      </div>
-      <FeaturedCarousels active={activeCarousel} setActive={setActiveCarousel} onSelect={setSelectedProduct} />
-      </>)}
-
-      <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
-
-      {favToast && (
-        <div style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          padding: '12px 18px',
-          background: '#1c1c1c',
-          border: '1px solid rgba(124,106,255,0.35)',
-          borderRadius: 10,
-          color: '#e8e8f0',
-          fontFamily: sans,
-          fontSize: 13,
-          boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
-          zIndex: 9999,
-        }}>{favToast}</div>
-      )}
+      <ProductSidePanel product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </>
   );
 }
 
-interface TableViewProps {
+/* ══════════════════════════════════════════════════════════════
+   Pagination button
+   ══════════════════════════════════════════════════════════════ */
+
+function PageBtn({
+  children,
+  active,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      style={{
+        background: active ? C.accent : C.raised,
+        border: `1px solid ${active ? C.accent : C.border}`,
+        borderRadius: 6,
+        width: 32,
+        height: 32,
+        fontSize: C.fBody,
+        fontFamily: C.fontBody,
+        color: active ? C.white : disabled ? C.muted : C.body,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: `background ${C.dur} ${C.ease}`,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   List view (table)
+   ══════════════════════════════════════════════════════════════ */
+
+interface ListTableProps {
   products: Product[];
   loading: boolean;
   onSelect: (p: Product) => void;
   isFavourite: (id: string | number) => boolean;
-  onToggleFav: (p: Product) => void | Promise<void>;
+  onToggleFav: (p: Product) => Promise<void>;
 }
 
-function TableView({ products, loading, onSelect, isFavourite, onToggleFav }: TableViewProps) {
-  return (
-    <div style={{ padding: '0 32px 32px' }}>
-      <div style={{
-        background: '#1c1c1c',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 12,
-        overflowX: 'auto',
-        overflowY: 'hidden',
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 270px',
-          gap: 14,
-          padding: '10px 16px',
-          fontFamily: mono,
-          fontSize: 10,
-          fontWeight: 500,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.2)',
-          background: '#222222',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-        }}>
-          <span>#</span>
-          <span>Product</span>
-          <span>Category</span>
-          <span>Score</span>
-          <span style={{ textAlign: 'right' }}>Orders</span>
-          <span style={{ textAlign: 'right' }}>Price</span>
-          <span
-            style={{ textAlign: 'right', display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}
-            title="Approximate monthly revenue generated by top sellers of this product on AliExpress. Estimated from order volume × sell price."
-          >
-            Est. Market Rev.
-            <span style={{
-              display: 'inline-flex',
+function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: ListTableProps) {
+  if (loading && products.length === 0) {
+    return (
+      <div
+        style={{
+          margin: '0 32px',
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+          borderRadius: C.rXl,
+          overflow: 'hidden',
+        }}
+      >
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              height: 80,
+              padding: '0 24px',
+              display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              width: 12,
-              height: 12,
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.3)',
-              fontSize: 8,
-              fontFamily: sans,
-              color: 'rgba(255,255,255,0.4)',
-              textTransform: 'none',
-              cursor: 'help',
-            }}>i</span>
-          </span>
-          <span>Trend</span>
-          <span style={{ textAlign: 'right' }}>Actions</span>
-        </div>
-
-        {loading ? (
-          Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} style={{
-              display: 'grid',
-              gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 270px',
               gap: 14,
-              padding: '12px 16px',
-              alignItems: 'center',
-              minHeight: 76,
-              maxHeight: 76,
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
-            }}>
-              <span className="mj-shim" style={{ height: 12, width: 20 }} />
-              <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mj-shim" style={{ height: 52, width: 52, borderRadius: 8 }} />
-                <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-              </span>
-              <span className="mj-shim" style={{ height: 16, width: 80, borderRadius: 999 }} />
-              <span className="mj-shim" style={{ height: 18, width: 44, borderRadius: 999 }} />
-              <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-              <span className="mj-shim" style={{ height: 12, width: '70%' }} />
-              <span className="mj-shim" style={{ height: 12, width: '80%' }} />
-              <span className="mj-shim" style={{ height: 14, width: 80 }} />
-              <span className="mj-shim" style={{ height: 24, width: 90, borderRadius: 999 }} />
-            </div>
-          ))
-        ) : products.length === 0 ? (
-          <div style={{
-            padding: '40px 16px',
-            textAlign: 'center',
-            fontFamily: sans,
-            fontSize: 13,
-            color: '#52525b',
-          }}>No products match your filters</div>
-        ) : (
-          products.map((p, i) => {
-            const score = p.winning_score ?? 0;
-            const orders = p.sold_count ?? 0;
-            const estRevenue = (orders && p.price_aud)
-              ? Math.round((Number(orders) * 0.04) * (Number(p.price_aud) * 2.2) * 0.32)
-              : null;
-            const categoryShort = shortenCategory(p.category);
-            return (
-              <div
-                key={p.id}
-                className="mj-row mj-row-hover"
-                onClick={() => onSelect(p)}
+              borderBottom: i === 7 ? 'none' : `1px solid ${C.border}`,
+            }}
+          >
+            <span className="mj-shim" style={{ width: 20, height: 12 }} />
+            <span className="mj-shim" style={{ width: 60, height: 60, borderRadius: 10 }} />
+            <span className="mj-shim" style={{ flex: 1, height: 14 }} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (products.length === 0) {
+    return <EmptyState />;
+  }
+  return (
+    <div
+      style={{
+        margin: '0 32px',
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: C.rXl,
+        overflow: 'hidden',
+      }}
+    >
+      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <colgroup>
+          <col style={{ width: 60 }} />
+          <col />
+          <col style={{ width: 80 }} />
+          <col style={{ width: 100 }} />
+          <col style={{ width: 90 }} />
+          <col style={{ width: 130 }} />
+          <col style={{ width: 50 }} />
+        </colgroup>
+        <thead>
+          <tr style={{ background: C.raised }}>
+            {['#', 'Product', 'Score', 'Orders', 'Price', 'Est. Revenue', ''].map((h, i) => (
+              <th
+                key={h + i}
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: '28px minmax(260px,3fr) 120px 80px 80px 70px 110px 80px 270px',
-                  gap: 14,
-                  padding: '12px 16px',
-                  alignItems: 'center',
-                  minHeight: 76,
-                  maxHeight: 76,
-                  borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
+                  padding: '14px 24px',
+                  textAlign: i === 0 || i === 1 ? 'left' : i === 6 ? 'center' : 'right',
+                  fontSize: C.fXxs,
+                  fontFamily: C.fontBody,
+                  fontWeight: 500,
+                  color: C.muted,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.07em',
                 }}
               >
-                <span style={{ fontFamily: mono, fontSize: 12, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                  <ProductThumb title={p.product_title} image={p.image_url} category={p.category} />
-                  <span
-                    title={p.product_title}
-                    style={{
-                      flex: 1,
-                      minWidth: 0,
-                      fontFamily: sans,
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: '#e8e8f0',
-                      lineHeight: 1.35,
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      wordBreak: 'break-word',
-                    }}
-                  >{p.product_title}</span>
-                </span>
-                <span
-                  title={p.category ?? ''}
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p, i) => {
+            const score = Math.round(p.winning_score ?? 0);
+            const orders = p.sold_count ?? 0;
+            const tier = scoreTier(score);
+            const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
+            const isNew = daysSince(p.created_at) <= 7;
+            const fav = isFavourite(p.id);
+            return (
+              <tr
+                key={p.id}
+                className="mj-row"
+                onClick={() => onSelect(p)}
+                style={{ borderBottom: i === products.length - 1 ? 'none' : `1px solid ${C.border}` }}
+              >
+                <td
                   style={{
-                    display: 'inline-block',
-                    padding: '3px 9px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    borderRadius: 999,
-                    fontFamily: sans,
-                    fontSize: 11,
-                    color: '#a1a1aa',
-                    maxWidth: 118,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    width: 'fit-content',
-                  }}
-                >{categoryShort}</span>
-                <span><ScoreDisplay score={score} /></span>
-                <span
-                  title={orders > 0 ? orders.toLocaleString() : ''}
-                  style={{
-                    fontFamily: mono,
-                    fontSize: 13,
-                    color: orders > 0 ? '#10b981' : '#4b5563',
-                    textAlign: 'right',
-                  }}
-                >{orders > 0 ? fmtK(orders) : '—'}</span>
-                <span style={{
-                  fontFamily: mono,
-                  fontSize: 13,
-                  color: '#ededed',
-                  textAlign: 'right',
-                }}>{p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}</span>
-                <span
-                  title={estRevenue != null ? `Est. ~$${estRevenue.toLocaleString()}/mo market revenue (orders × price × margin factor)` : ''}
-                  style={{
-                    fontFamily: mono,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: estRevenue != null ? '#10b981' : '#4b5563',
-                    textAlign: 'right',
+                    padding: '20px 24px',
+                    fontSize: C.fSm,
+                    color: C.muted,
+                    fontFamily: C.fontBody,
+                    fontVariantNumeric: 'tabular-nums',
                   }}
                 >
-                  {estRevenue != null ? `${fmtRev(estRevenue)}/mo` : '—'}
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center' }}>
-                  <ProductSparkline productId={p.id} score={score} width={86} height={22} points={8} />
-                </span>
-                <span style={{ display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
-                  <RowActions
-                    product={p}
-                    isFav={isFavourite(p.id)}
-                    onToggleFav={() => onToggleFav(p)}
-                  />
-                </span>
-              </div>
+                  {String(i + 1).padStart(2, '0')}
+                </td>
+                <td style={{ padding: '20px 24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+                    <Thumb image={p.image_url} title={p.product_title} size={60} radius={10} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        title={p.product_title}
+                        style={{
+                          fontSize: C.fBody,
+                          fontFamily: C.fontBody,
+                          fontWeight: 500,
+                          color: C.text,
+                          maxWidth: 380,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          marginBottom: 4,
+                        }}
+                      >
+                        {p.product_title}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {p.category && (
+                          <span
+                            style={{
+                              background: 'rgba(255,255,255,0.06)',
+                              borderRadius: 4,
+                              padding: '2px 8px',
+                              fontSize: C.fXs,
+                              fontFamily: C.fontBody,
+                              color: C.body,
+                              maxWidth: 160,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {shortenCategory(p.category)}
+                          </span>
+                        )}
+                        {isNew && (
+                          <span
+                            style={{
+                              background: C.greenSubtle,
+                              color: C.green,
+                              borderRadius: 4,
+                              padding: '1px 6px',
+                              fontSize: C.fXxs,
+                              fontFamily: C.fontBody,
+                              fontWeight: 600,
+                              letterSpacing: '0.05em',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            New
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td style={{ padding: '20px 24px', textAlign: 'right' }}>
+                  {score ? (
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        background: tier.bg,
+                        border: `1px solid ${tier.bg}`,
+                        color: tier.fg,
+                        borderRadius: 6,
+                        padding: '4px 10px',
+                        fontSize: C.fBody,
+                        fontFamily: C.fontBody,
+                        fontWeight: 600,
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {score}
+                    </span>
+                  ) : (
+                    <span style={{ color: C.muted, fontSize: C.fSm }}>—</span>
+                  )}
+                </td>
+                <td
+                  style={{
+                    padding: '20px 24px',
+                    textAlign: 'right',
+                    fontSize: C.fH4,
+                    fontFamily: C.fontBody,
+                    color: orders > 0 ? C.text : C.muted,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {orders > 150000 && <Flame size={12} color={C.amber} style={{ display: 'inline', marginRight: 4 }} />}
+                  {orders > 0 ? fmtK(orders) : '—'}
+                </td>
+                <td
+                  style={{
+                    padding: '20px 24px',
+                    textAlign: 'right',
+                    fontSize: C.fH4,
+                    fontFamily: C.fontBody,
+                    color: C.text,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
+                </td>
+                <td
+                  style={{
+                    padding: '20px 24px',
+                    textAlign: 'right',
+                    fontSize: C.fBody,
+                    fontFamily: C.fontBody,
+                    color: estMonthly != null ? C.green : C.muted,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
+                </td>
+                <td style={{ padding: '20px 24px', textAlign: 'center' }}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); void onToggleFav(p); }}
+                    aria-label="Save"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: fav ? C.accent : C.muted,
+                      cursor: 'pointer',
+                      padding: 4,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: `color ${C.dur} ${C.ease}`,
+                    }}
+                  >
+                    <Heart size={16} strokeWidth={1.75} fill={fav ? C.accent : 'none'} />
+                  </button>
+                </td>
+              </tr>
             );
-          })
-        )}
-      </div>
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function GridView({ products, loading, onSelect }: { products: Product[]; loading: boolean; onSelect: (p: Product) => void }) {
-  return (
-    <div style={{
-      padding: '0 32px 32px',
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-      gap: 14,
-    }}>
-      {loading ? (
-        Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} style={{
-            background: '#1c1c1c',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 10,
-            overflow: 'hidden',
-          }}>
-            <div className="mj-shim" style={{ height: 100, borderRadius: 0 }} />
-            <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <span className="mj-shim" style={{ height: 12, width: '85%' }} />
-              <span className="mj-shim" style={{ height: 12, width: '60%' }} />
-              <span className="mj-shim" style={{ height: 16, width: 50, borderRadius: 999 }} />
+/* ══════════════════════════════════════════════════════════════
+   Grid view (4-column cards)
+   ══════════════════════════════════════════════════════════════ */
+
+interface GridCardsProps {
+  products: Product[];
+  loading: boolean;
+  onSelect: (p: Product) => void;
+  navigate: (path: string) => void;
+}
+
+function GridCards({ products, loading, onSelect }: GridCardsProps) {
+  if (loading && products.length === 0) {
+    return (
+      <div
+        style={{
+          padding: '0 32px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 16,
+        }}
+      >
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: C.rXl,
+              overflow: 'hidden',
+            }}
+          >
+            <div className="mj-shim" style={{ width: '100%', height: 180, display: 'block', borderRadius: 0 }} />
+            <div style={{ padding: 14 }}>
+              <span className="mj-shim" style={{ width: '90%', height: 14, marginBottom: 8 }} />
+              <span className="mj-shim" style={{ width: '60%', height: 12 }} />
             </div>
           </div>
-        ))
-      ) : products.length === 0 ? (
-        <div style={{
-          gridColumn: '1 / -1',
-          padding: '60px 16px',
-          textAlign: 'center',
-          fontFamily: sans,
-          fontSize: 13,
-          color: '#52525b',
-          background: '#1c1c1c',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 8,
-        }}>No products match your filters</div>
-      ) : (
-        products.map((p) => {
-          const score = p.winning_score ?? 0;
-          const isAli = (p.platform ?? '').toLowerCase().includes('aliexpress');
-          return (
-            <div
-              key={p.id}
-              onClick={() => onSelect(p)}
-              style={{
-                background: '#1c1c1c',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 10,
-                overflow: 'hidden',
-                transition: 'border-color 200ms, transform 200ms',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <div style={{
-                height: 100,
-                background: '#0d0d10',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-              }}>
-                <ProductHeroImage src={p.image_url} title={p.product_title} />
-              </div>
-              <div style={{ padding: 14 }}>
-                <div style={{
-                  fontFamily: sans,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#ededed',
-                  lineHeight: 1.4,
-                  marginBottom: 0,
+        ))}
+      </div>
+    );
+  }
+  if (products.length === 0) {
+    return <EmptyState />;
+  }
+  return (
+    <div
+      style={{
+        padding: '0 32px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 16,
+      }}
+    >
+      {products.map((p) => {
+        const score = Math.round(p.winning_score ?? 0);
+        const orders = p.sold_count ?? 0;
+        const tier = scoreTier(score);
+        const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
+        const isNew = daysSince(p.created_at) <= 7;
+        return (
+          <div
+            key={p.id}
+            className="mj-grid-card"
+            onClick={() => onSelect(p)}
+            style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: C.rXl,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Image with score badge */}
+            <div style={{ position: 'relative', width: '100%', height: 180, background: C.raised }}>
+              {p.image_url ? (
+                <img
+                  src={proxyImage(p.image_url) ?? p.image_url}
+                  alt={p.product_title}
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: C.fontDisplay,
+                    fontSize: 48,
+                    fontWeight: 700,
+                    color: C.muted,
+                  }}
+                >
+                  {(p.product_title?.[0] ?? '?').toUpperCase()}
+                </div>
+              )}
+              {score > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    background: tier.bg,
+                    color: tier.fg,
+                    border: `1px solid ${tier.bg}`,
+                    borderRadius: 6,
+                    padding: '3px 9px',
+                    fontSize: C.fBody,
+                    fontFamily: C.fontBody,
+                    fontWeight: 600,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {score}
+                </div>
+              )}
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: 14, flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div
+                title={p.product_title}
+                style={{
+                  fontSize: C.fBody,
+                  fontFamily: C.fontBody,
+                  fontWeight: 500,
+                  color: C.text,
+                  lineHeight: 1.35,
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
-                }}>{p.product_title}</div>
-                <div style={{ marginTop: 10 }}><ScoreDisplay score={score} /></div>
-                <div style={{
-                  marginTop: 6,
-                  fontFamily: mono,
-                  fontSize: 12,
-                  color: p.sold_count != null ? '#10b981' : '#52525b',
-                }}>{p.sold_count != null ? `${p.sold_count.toLocaleString()} orders` : '— orders'}</div>
-                <div style={{
-                  marginTop: 4,
-                  fontFamily: mono,
-                  fontSize: 12,
-                  color: '#71717a',
-                }}>{p.price_aud != null ? `$${p.price_aud.toFixed(2)}` : '—'}</div>
-                {isAli && (
-                  <div style={{ marginTop: 8 }}>
-                    <SourcePill source={p.platform} />
-                  </div>
-                )}
-                {p.product_url && (
-                  <a
-                    href={p.product_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  marginBottom: 8,
+                  minHeight: 36,
+                }}
+              >
+                {p.product_title}
+              </div>
+
+              {/* Chips */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+                {p.category && (
+                  <span
                     style={{
-                      marginTop: 12,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontFamily: sans,
-                      fontSize: 12,
-                      color: '#7c6aff',
-                      textDecoration: 'none',
+                      background: 'rgba(255,255,255,0.06)',
+                      borderRadius: 4,
+                      padding: '2px 8px',
+                      fontSize: C.fXs,
+                      color: C.body,
+                      maxWidth: 140,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
-                  >View details <ArrowUpRight size={11} /></a>
+                  >
+                    {shortenCategory(p.category)}
+                  </span>
+                )}
+                {isNew && (
+                  <span
+                    style={{
+                      background: C.greenSubtle,
+                      color: C.green,
+                      borderRadius: 4,
+                      padding: '1px 6px',
+                      fontSize: C.fXxs,
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    New
+                  </span>
                 )}
               </div>
+
+              {/* Stats row */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 8,
+                  marginBottom: 12,
+                  marginTop: 'auto',
+                }}
+              >
+                {[
+                  { label: 'Orders', value: orders > 0 ? fmtK(orders) : '—', color: C.text },
+                  { label: 'Price', value: p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—', color: C.text },
+                  { label: 'Est Rev', value: estMonthly != null ? `$${Math.round(estMonthly / 1000)}k` : '—', color: C.green },
+                ].map((cell) => (
+                  <div key={cell.label}>
+                    <div
+                      style={{
+                        fontSize: C.fXxs,
+                        fontFamily: C.fontBody,
+                        color: C.muted,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        marginBottom: 2,
+                      }}
+                    >
+                      {cell.label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: C.fH4,
+                        fontFamily: C.fontBody,
+                        color: cell.color,
+                        fontVariantNumeric: 'tabular-nums',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {cell.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); }}
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${C.border}`,
+                    borderRadius: C.rSm,
+                    padding: '6px 14px',
+                    fontSize: C.fSm,
+                    fontFamily: C.fontBody,
+                    color: C.body,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Save
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onSelect(p); }}
+                  style={{
+                    flex: 1,
+                    background: C.accent,
+                    border: 'none',
+                    borderRadius: C.rSm,
+                    padding: '6px 14px',
+                    fontSize: C.fSm,
+                    fontFamily: C.fontBody,
+                    color: C.white,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  View →
+                </button>
+              </div>
             </div>
-          );
-        })
-      )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// ── Featured Carousels (tabs) ───────────────────────────────────────
-function FeaturedCarousels({ active, setActive, onSelect }: { active: CarouselKey; setActive: (k: CarouselKey) => void; onSelect: (p: Product) => void }) {
-  const recentlyAdded = useProducts({ limit: 10, orderBy: 'created_at' });
-  const topScored    = useProducts({ limit: 10, orderBy: 'winning_score' });
-  const bestValue    = useProducts({ limit: 10, orderBy: 'price_asc' });
-  const tabs: { key: CarouselKey; label: string }[] = [
-    { key: 'recent', label: 'New Arrivals' },
-    { key: 'scored', label: 'Top Scored' },
-    { key: 'value',  label: 'Best Value' },
-  ];
-  const data = active === 'recent' ? recentlyAdded : active === 'scored' ? topScored : bestValue;
-  return (
-    <div style={{ padding: '0 32px 24px', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid rgba(255,255,255,0.07)', marginBottom: 16 }}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActive(tab.key)}
-            style={{
-              padding: '10px 18px',
-              fontFamily: sans,
-              fontSize: 13,
-              fontWeight: 500,
-              color: active === tab.key ? '#ededed' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              borderBottom: active === tab.key ? '2px solid #7c6aff' : '2px solid transparent',
-              marginBottom: -1,
-            }}
-          >{tab.label}</button>
-        ))}
-      </div>
-      <div style={{
-        display: 'flex',
-        gap: 12,
-        paddingBottom: 12,
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none' as const,
-        minHeight: 0,
-        alignItems: 'stretch',
-      }}>
-        {data.loading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="mj-shim" style={{ width: 200, height: 250, borderRadius: 10, flexShrink: 0 }} />
-            ))
-          : data.products.length === 0
-            ? <div style={{ fontFamily: sans, fontSize: 13, color: '#52525b' }}>No products yet</div>
-            : data.products.map((p) => <CarouselCard key={p.id} product={p} onSelect={onSelect} />)}
-      </div>
-    </div>
-  );
-}
+/* ══════════════════════════════════════════════════════════════
+   Empty state
+   ══════════════════════════════════════════════════════════════ */
 
-function CarouselCard({ product: p, onSelect }: { product: Product; onSelect: (p: Product) => void }) {
-  const score = p.winning_score ?? 0;
-  const sp = scorePillStyle(score);
-  const cs = getCategoryStyle(p.category);
+function EmptyState() {
   return (
     <div
-      onClick={() => onSelect(p)}
       style={{
-        flexShrink: 0,
-        width: 200,
-        minHeight: 0,
-        background: '#1c1c1c',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 10,
-        overflow: 'hidden',
-        cursor: 'pointer',
-        transition: 'all 180ms',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.13)';
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+        margin: '40px 32px',
+        padding: '64px 32px',
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: C.rXl,
+        textAlign: 'center',
       }}
     >
-      <div style={{ width: '100%', height: 130, position: 'relative', overflow: 'hidden', background: '#151515' }}>
-        {p.image_url ? (
-          <img
-            src={proxyImage(p.image_url) ?? p.image_url}
-            loading="lazy"
-            alt={p.product_title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: cs.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
-            {cs.emoji}
-          </div>
-        )}
-        <div style={{ position: 'absolute', top: 8, left: 8 }}>
-          <span style={{
-            background: sp.background,
-            color: sp.color,
-            fontFamily: mono,
-            fontSize: 11,
-            fontWeight: 700,
-            padding: '3px 8px',
-            borderRadius: 999,
-            display: 'inline-block',
-          }}>{score || '—'}</span>
-        </div>
-      </div>
-      <div style={{ padding: '12px 14px' }}>
-        <div style={{ fontFamily: sans, fontSize: 12, color: '#52525b', marginBottom: 4 }}>{p.category || 'General'}</div>
-        <div style={{
-          fontFamily: sans,
-          fontSize: 13,
-          fontWeight: 600,
-          color: '#ededed',
-          lineHeight: 1.3,
-          marginBottom: 10,
-          overflow: 'hidden',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          minHeight: 34,
-        }}>{p.product_title}</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#10b981' }}>
-            {p.sold_count ? `${p.sold_count.toLocaleString()} orders` : '—'}
-          </span>
-          <span style={{ fontFamily: mono, fontSize: 12, color: '#a1a1aa' }}>
-            {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
-          </span>
-        </div>
-        <ProductSparkline productId={p.id} score={score} width={170} height={20} points={8} />
-      </div>
-    </div>
-  );
-}
-
-function LiveSearchView({ aeSearch }: { aeSearch: ReturnType<typeof useAESearch> }) {
-  const { products, loading, loadingMore, error, query, total, hasMore, upstreamError } = aeSearch;
-  return (
-    <div style={{ padding: '0 32px 40px' }}>
-      {/* Live mode banner */}
-      <div style={{
-        margin: '0 0 16px',
-        padding: '10px 16px',
-        background: 'rgba(255,90,0,0.06)',
-        border: '1px solid rgba(255,90,0,0.2)',
-        borderRadius: 8,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-      }}>
-        <span style={{ fontSize: 16 }}>🛒</span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontFamily: sans, fontSize: 13, fontWeight: 600, color: 'rgba(255,130,0,0.9)' }}>Live AliExpress Search</span>
-          <span style={{ fontFamily: sans, fontSize: 12, color: '#71717a', marginLeft: 8 }}>
-            Real-time results from AliExpress Affiliate API · {total.toLocaleString()} found · No filtering applied
-          </span>
-        </div>
-      </div>
-
-      {upstreamError && (
-        <div style={{
-          margin: '0 0 16px',
-          padding: '10px 16px',
-          background: 'rgba(239,68,68,0.06)',
-          border: '1px solid rgba(239,68,68,0.2)',
-          borderRadius: 8,
-          fontFamily: mono,
-          fontSize: 11,
-          color: '#f87171',
-        }}>
-          AE upstream: {upstreamError}
-        </div>
-      )}
-
-      {error && (
-        <div style={{
-          margin: '0 0 16px',
-          padding: '10px 16px',
-          background: 'rgba(239,68,68,0.06)',
-          border: '1px solid rgba(239,68,68,0.2)',
-          borderRadius: 8,
-          fontFamily: sans,
-          fontSize: 12,
-          color: '#f87171',
-        }}>
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="mj-shim" style={{ height: 280, borderRadius: 10 }} />
-          ))}
-        </div>
-      ) : products.length === 0 ? (
-        <div style={{
-          padding: '60px 16px',
-          textAlign: 'center',
-          fontFamily: sans,
-          fontSize: 13,
-          color: '#52525b',
-          background: '#1c1c1c',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 8,
-        }}>
-          {query ? `No live results for "${query}". Try different keywords.` : 'Type a query and press Enter.'}
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
-          {products.map((p) => <LiveCard key={p.id} product={p} />)}
-        </div>
-      )}
-
-      {loadingMore && (
-        <div style={{ marginTop: 20, textAlign: 'center', fontFamily: mono, fontSize: 11, color: '#52525b' }}>
-          Loading more…
-        </div>
-      )}
-      {!hasMore && products.length > 0 && (
-        <div style={{ marginTop: 20, textAlign: 'center', fontFamily: mono, fontSize: 11, color: '#3f3f46' }}>
-          End of results
-        </div>
-      )}
-    </div>
-  );
-}
-
-function LiveCard({ product: p }: { product: AELiveProduct }) {
-  return (
-    <a
-      href={p.product_url ?? '#'}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: 'block',
-        background: '#1c1c1c',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 10,
-        overflow: 'hidden',
-        textDecoration: 'none',
-        transition: 'all 180ms',
-      }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,90,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-    >
-      <div style={{ width: '100%', height: 160, background: '#151515', overflow: 'hidden' }}>
-        {p.image_url ? (
-          <img
-            src={proxyImage(p.image_url) ?? p.image_url}
-            alt={p.product_title}
-            loading="lazy"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-        ) : null}
-      </div>
-      <div style={{ padding: '12px 14px' }}>
-        <div style={{
-          display: 'inline-block',
-          fontFamily: mono,
-          fontSize: 9,
-          fontWeight: 700,
-          color: 'rgba(255,130,0,0.9)',
-          background: 'rgba(255,90,0,0.1)',
-          border: '1px solid rgba(255,90,0,0.2)',
-          padding: '2px 6px',
-          borderRadius: 4,
-          marginBottom: 8,
-          letterSpacing: '0.05em',
-        }}>LIVE · UNSCORED</div>
-        <div style={{
-          fontFamily: sans,
-          fontSize: 13,
-          fontWeight: 600,
-          color: '#ededed',
-          lineHeight: 1.3,
-          marginBottom: 8,
-          overflow: 'hidden',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          minHeight: 34,
-        }}>{p.product_title}</div>
-        {p.category && (
-          <div style={{ fontFamily: mono, fontSize: 11, color: '#52525b', marginBottom: 8 }}>{p.category}</div>
-        )}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#10b981' }}>
-            {p.sold_count > 0 ? `${p.sold_count.toLocaleString()} sold` : '—'}
-          </span>
-          <span style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa' }}>
-            {p.price_aud > 0 ? `$${p.price_aud.toFixed(2)}` : '—'}
-          </span>
-        </div>
-      </div>
-    </a>
-  );
-}
-
-function ScoreDisplay({ score }: { score: number }) {
-  const sp = scorePillStyle(score);
-  const dotColor = score >= 90 ? '#10b981' : score >= 70 ? '#a78bfa' : score >= 50 ? '#f59e0b' : 'rgba(255,255,255,0.3)';
-  return (
-    <span
-      className={score >= 95 ? 'mj-score-hot' : ''}
-      title="Score based on: orders volume, price margin, trend direction"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 5,
-        background: sp.background,
-        color: sp.color,
-        border: sp.border,
-        fontFamily: mono,
-        fontSize: 12,
-        fontWeight: 700,
-        padding: '3px 10px',
-        borderRadius: 999,
-        cursor: 'help',
-      }}
-    >
-      <span style={{
-        width: 5,
-        height: 5,
-        borderRadius: '50%',
-        background: dotColor,
-        flexShrink: 0,
-      }} />
-      {score ? fmtScore(score) : '—'}
-    </span>
-  );
-}
-
-function ProductThumb({ title, image, category }: { title: string; image: string | null; category: string | null }) {
-  const cs = getCategoryStyle(category);
-  const [failed, setFailed] = useState(false);
-  const initial = (category?.trim()?.[0] || title?.trim()?.[0] || '?').toUpperCase();
-  const hasImage = image && !failed;
-  return (
-    <div style={{
-      width: 52,
-      height: 52,
-      borderRadius: 8,
-      background: cs.gradient,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0,
-      border: '1px solid rgba(255,255,255,0.06)',
-      overflow: 'hidden',
-      position: 'relative',
-    }}>
-      {hasImage ? (
-        <img
-          src={proxyImage(image) ?? image}
-          alt={title}
-          loading="lazy"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <span style={{
-          fontFamily: "'Bricolage Grotesque', sans-serif",
-          fontSize: 22,
-          fontWeight: 800,
-          color: 'rgba(255,255,255,0.85)',
-          textShadow: '0 1px 2px rgba(0,0,0,0.4)',
-        }}>{initial}</span>
-      )}
-    </div>
-  );
-}
-
-
-interface RowActionsProps {
-  product: Product;
-  isFav: boolean;
-  onToggleFav: () => void;
-}
-
-function RowActions({ product, isFav, onToggleFav }: RowActionsProps) {
-  const pillBase: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 5,
-    height: 28,
-    padding: '0 8px',
-    borderRadius: 6,
-    fontSize: 11,
-    fontWeight: 600,
-    fontFamily: sans,
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    transition: 'all 150ms ease',
-  };
-  return (
-    <>
-      <button
-        title={isFav ? 'Saved — click to remove' : 'Save product'}
-        onClick={(e) => { e.stopPropagation(); onToggleFav(); }}
+      <div
         style={{
-          ...pillBase,
-          width: 28,
-          padding: 0,
+          display: 'inline-flex',
+          alignItems: 'center',
           justifyContent: 'center',
-          background: isFav ? 'rgba(124,106,255,0.18)' : 'rgba(255,255,255,0.04)',
-          color: isFav ? '#a78bfa' : 'rgba(255,255,255,0.5)',
-          border: `1px solid ${isFav ? 'rgba(124,106,255,0.35)' : 'rgba(255,255,255,0.08)'}`,
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          background: C.raised,
+          marginBottom: 16,
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = isFav ? 'rgba(124,106,255,0.28)' : 'rgba(255,255,255,0.08)'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = isFav ? 'rgba(124,106,255,0.18)' : 'rgba(255,255,255,0.04)'; }}
       >
-        <Heart size={12} fill={isFav ? '#a78bfa' : 'none'} strokeWidth={isFav ? 2 : 1.6} />
-      </button>
-      <button
-        title="Profit Calculator"
-        onClick={(e) => { e.stopPropagation(); window.location.href = '/app/profit'; }}
+        <Search size={24} color={C.muted} strokeWidth={1.75} />
+      </div>
+      <div
         style={{
-          ...pillBase,
-          background: 'rgba(124,106,255,0.15)',
-          color: '#a78bfa',
-          border: '1px solid rgba(124,106,255,0.28)',
+          fontFamily: C.fontDisplay,
+          fontSize: C.fH3,
+          fontWeight: 600,
+          color: C.text,
+          marginBottom: 8,
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,106,255,0.22)'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,106,255,0.15)'; }}
-      ><Calculator size={11} />Profit Calc</button>
-      <button
-        title="Generate ad creative"
-        onClick={(e) => { e.stopPropagation(); window.location.href = `/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`; }}
+      >
+        No products match
+      </div>
+      <div
         style={{
-          ...pillBase,
-          background: 'rgba(16,185,129,0.12)',
-          color: '#10b981',
-          border: '1px solid rgba(16,185,129,0.28)',
+          fontSize: C.fBody,
+          fontFamily: C.fontBody,
+          color: C.body,
+          maxWidth: 380,
+          margin: '0 auto',
+          lineHeight: 1.5,
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.2)'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.12)'; }}
-      ><Zap size={11} />Create Ad</button>
-      {product.product_url && (
-        <a
-          href={product.product_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="View on AliExpress"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            ...pillBase,
-            background: 'transparent',
-            color: 'rgba(255,255,255,0.4)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            textDecoration: 'none',
+      >
+        Try clearing your filters or switching to Live AliExpress search to pull fresh results from the marketplace.
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Live AliExpress search view
+   ══════════════════════════════════════════════════════════════ */
+
+function LiveSearchView({ aeSearch, onSelect }: { aeSearch: ReturnType<typeof useAESearch>; onSelect: (p: Product) => void }) {
+  if (aeSearch.loading && aeSearch.products.length === 0) {
+    return (
+      <div style={{ padding: '0 32px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: C.rXl,
+              height: 320,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+  if (aeSearch.products.length === 0) {
+    return <EmptyState />;
+  }
+  return (
+    <div
+      style={{
+        padding: '0 32px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 16,
+      }}
+    >
+      {aeSearch.products.map((p: AELiveProduct, i) => (
+        <div
+          key={`${p.id}-${i}`}
+          className="mj-grid-card"
+          onClick={() => {
+            const asProduct: Product = {
+              id: p.id,
+              product_title: p.product_title,
+              category: p.category,
+              platform: 'aliexpress',
+              price_aud: p.price_aud,
+              sold_count: p.sold_count,
+              winning_score: p.winning_score,
+              trend: null,
+              est_daily_revenue_aud: null,
+              image_url: p.image_url,
+              product_url: p.product_url,
+              created_at: new Date().toISOString(),
+              updated_at: null,
+            };
+            onSelect(asProduct);
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.7)'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.4)'; }}
-        ><ExternalLink size={10} />Source</a>
-      )}
-    </>
+          style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: C.rXl,
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ height: 180, background: C.raised }}>
+            {p.image_url && (
+              <img
+                src={proxyImage(p.image_url) ?? p.image_url}
+                alt={p.product_title}
+                loading="lazy"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
+          </div>
+          <div style={{ padding: 14 }}>
+            <div
+              style={{
+                fontSize: C.fBody,
+                fontFamily: C.fontBody,
+                color: C.text,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                marginBottom: 8,
+              }}
+            >
+              {p.product_title}
+            </div>
+            <div
+              style={{
+                fontSize: C.fSm,
+                color: C.body,
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}{p.sold_count ? ` · ${fmtK(p.sold_count)} orders` : ''}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

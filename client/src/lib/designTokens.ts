@@ -23,6 +23,8 @@ export const C = {
   accent:       '#6366f1',
   accentHover:  '#818cf8',
   accentSubtle: 'rgba(99,102,241,0.12)',
+  accentInk:    '#ffffff',
+  white:        '#ffffff',
 
   // Data accents
   cyan:         '#22d3ee',

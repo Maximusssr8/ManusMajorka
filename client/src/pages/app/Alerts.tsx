@@ -4,9 +4,10 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { shortenCategory } from '@/lib/categoryColor';
 
-const display = "'Bricolage Grotesque', sans-serif";
-const sans = "'DM Sans', sans-serif";
-const mono = "'JetBrains Mono', monospace";
+import { C } from '@/lib/designTokens';
+const display = C.fontDisplay;
+const sans = C.fontBody;
+const mono = C.fontBody;
 
 type AlertType = 'score' | 'new' | 'price' | 'trending';
 type Frequency = 'immediately' | 'daily' | 'weekly';
@@ -86,7 +87,7 @@ export default function Alerts() {
   };
 
   return (
-    <div style={{ padding: '32px 36px', overflow: 'auto', color: '#e8e8f0', fontFamily: sans }}>
+    <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
@@ -106,7 +107,7 @@ export default function Alerts() {
           borderRadius: 10,
           padding: '12px 16px',
           marginBottom: 20,
-          color: '#10b981',
+          color: C.green,
           fontSize: 13,
         }}>{toast}</div>
       )}
@@ -116,7 +117,7 @@ export default function Alerts() {
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Active Alerts</h2>
         {alerts.length === 0 ? (
           <div style={{
-            background: '#1c1c1c',
+            background: C.raised,
             border: '1px dashed rgba(255,255,255,0.1)',
             borderRadius: 12,
             padding: '40px 24px',
@@ -128,19 +129,19 @@ export default function Alerts() {
               border: '1px solid rgba(124,106,255,0.25)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 14px',
-              color: '#a78bfa',
+              color: C.accentHover,
               position: 'relative',
             }}>
               <Bell size={22} />
               <span style={{
                 position: 'absolute', top: 2, right: 2,
                 width: 16, height: 16, borderRadius: '50%',
-                background: '#7c6aff', color: 'white',
+                background: C.accent, color: 'white',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 10, fontWeight: 700,
               }}>+</span>
             </div>
-            <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: '#e8e8f0', marginBottom: 4 }}>No alerts set up yet</div>
+            <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>No alerts set up yet</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
               Get notified when a product hits your score threshold, enters a new trend, or drops in competition
             </div>
@@ -164,14 +165,14 @@ export default function Alerts() {
               const typeLabel = ALERT_TYPES.find((t) => t.key === a.type)?.label ?? a.type;
               return (
                 <div key={a.id} style={{
-                  background: '#1c1c1c',
+                  background: C.raised,
                   border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 10,
                   padding: 16,
                   position: 'relative',
                 }}>
-                  <div style={{ fontFamily: mono, fontSize: 9, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{typeLabel}</div>
-                  <div style={{ fontSize: 13, color: '#e8e8f0', marginBottom: 4 }}>
+                  <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{typeLabel}</div>
+                  <div style={{ fontSize: 13, color: C.text, marginBottom: 4 }}>
                     {a.type === 'score'    && <>Score ≥ {a.value} in <strong>{shortenCategory(a.category)}</strong></>}
                     {a.type === 'new'      && <>New products in <strong>{shortenCategory(a.category)}</strong></>}
                     {a.type === 'price'    && <>Price &lt; ${a.value} AUD in <strong>{shortenCategory(a.category)}</strong></>}
@@ -201,7 +202,7 @@ export default function Alerts() {
       <section id="mj-alerts-form" style={{ marginBottom: 36 }}>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Create an Alert</h2>
         <div style={{
-          background: '#1c1c1c',
+          background: C.raised,
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 12,
           padding: 24,
@@ -278,7 +279,7 @@ export default function Alerts() {
                     borderRadius: 8,
                     background: active ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                    color: active ? '#10b981' : 'rgba(255,255,255,0.5)',
+                    color: active ? C.green : 'rgba(255,255,255,0.5)',
                     fontFamily: sans, fontSize: 12, fontWeight: active ? 600 : 500, textTransform: 'capitalize',
                     cursor: 'pointer',
                   }}
@@ -326,7 +327,7 @@ export default function Alerts() {
             }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>{n.icon}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#e8e8f0' }}>{n.title}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{n.title}</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{n.body}</div>
                 <div style={{ marginTop: 6, fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Example</div>
               </div>
@@ -353,8 +354,8 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid rgba(255,255,255,0.07)',
   borderRadius: 8,
   padding: '9px 12px',
-  color: '#e8e8f0',
-  fontFamily: "'DM Sans', sans-serif",
+  color: C.text,
+  fontFamily: C.fontBody,
   fontSize: 13,
   outline: 'none',
   boxSizing: 'border-box',

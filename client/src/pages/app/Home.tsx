@@ -1,11 +1,10 @@
 import { Link } from 'wouter';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ArrowRight, ArrowUp, Package, Flame, Star, Trophy,
 } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, type Product } from '@/hooks/useProducts';
-import { useNicheStats } from '@/hooks/useNicheStats';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
@@ -318,7 +317,25 @@ export default function AppHome() {
   const { products, loading: prodLoading, total } = useProducts({ limit: 10, orderBy: 'sold_count' });
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
-  const { niches: categoryChartData, loading: nicheLoading } = useNicheStats(8);
+
+  /* Category chart — fetched live from /api/products/stats-categories.
+     No useNicheStats here anymore; this is now the single source of
+     truth for the Home bar chart. */
+  interface CategoryRow { category: string; total_orders: number; product_count: number; }
+  const [categoryRows, setCategoryRows] = useState<CategoryRow[]>([]);
+  const [nicheLoading, setNicheLoading] = useState(true);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products/stats-categories?limit=8', { credentials: 'include' })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((data: { categories?: CategoryRow[] }) => {
+        if (cancelled) return;
+        setCategoryRows(Array.isArray(data.categories) ? data.categories : []);
+        setNicheLoading(false);
+      })
+      .catch(() => { if (!cancelled) setNicheLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const today = new Date().toLocaleDateString('en-AU', {
@@ -386,11 +403,11 @@ export default function AppHome() {
     },
   ];
 
-  /* ── Category chart — real data only ── */
-  const chartRows = categoryChartData.map((n) => ({
-    name: shortenCategory(n.name),
-    fullName: n.name,
-    orders: n.totalOrders,
+  /* ── Category chart — derived from server endpoint data ── */
+  const chartRows = categoryRows.map((n) => ({
+    name: shortenCategory(n.category),
+    fullName: n.category,
+    orders: n.total_orders,
   }));
   const maxOrders = Math.max(1, ...chartRows.map((r) => r.orders));
 
