@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
 import CountUp from 'react-countup';
 import { toast } from 'sonner';
