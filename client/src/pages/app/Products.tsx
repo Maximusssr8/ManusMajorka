@@ -12,6 +12,7 @@ import { ProductSparkline } from '@/components/app/Sparkline';
 import { getCategoryStyle, shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { scorePillStyle, fmtScore } from '@/lib/scorePill';
+import { t } from '@/lib/designTokens';
 
 type CarouselKey = 'recent' | 'scored' | 'value';
 type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'saved';
@@ -278,67 +279,53 @@ export default function AppProducts() {
     <>
       <style>{SHIMMER}</style>
 
-      {/* Page header */}
-      <div style={{ padding: '32px 36px 20px' }}>
+      {/* Page header — no gradient text, no pulsing dot, no mock status pills. */}
+      <div style={{ padding: `${t.s8}px ${t.s8}px ${t.s5}px` }}>
         <h1 style={{
-          fontFamily: display,
-          fontSize: 28,
-          fontWeight: 800,
-          letterSpacing: '-0.02em',
-          margin: '0 0 4px',
-          background: 'linear-gradient(135deg, #f1f1f3 0%, #a5b4fc 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
+          fontFamily: t.fontDisplay,
+          fontSize: t.fH1,
+          fontWeight: 700,
+          letterSpacing: '-0.025em',
+          margin: 0,
+          color: t.text,
+          lineHeight: 1.1,
         }}>Products</h1>
-        <p style={{ fontFamily: sans, fontSize: 13, color: '#5a5a6e', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="mj-app-pulse-dot" />
+        <p style={{
+          fontFamily: t.fontBody,
+          fontSize: t.fLead,
+          color: t.body,
+          margin: `${t.s3}px 0 0`,
+          maxWidth: '52ch',
+          lineHeight: 1.5,
+        }}>
           {searchMode === 'live'
-            ? `Live AliExpress Affiliate API · ${aeSearch.total.toLocaleString()} results for "${aeSearch.query}"`
-            : `${total > 0 ? total.toLocaleString() : ''} products tracked · AliExpress Advanced API`}
-          {searchMode === 'db' && (
-            <span style={{
-              padding: '2px 8px',
-              borderRadius: 999,
-              fontFamily: mono,
-              fontSize: 10,
-              fontWeight: 700,
-              background: cached ? 'rgba(124,106,255,0.12)' : 'rgba(16,185,129,0.12)',
-              color: cached ? '#a78bfa' : '#10b981',
-              border: `1px solid ${cached ? 'rgba(124,106,255,0.25)' : 'rgba(16,185,129,0.25)'}`,
-            }}>{cached ? '⚡ Cached' : '● Live'}</span>
-          )}
+            ? `${aeSearch.total.toLocaleString()} live AliExpress results for "${aeSearch.query}"`
+            : `${total > 0 ? total.toLocaleString() : ''} products tracked. Sort, filter, and save winners.`}
         </p>
       </div>
 
-      {/* Live AE search bar */}
-      <div style={{ padding: '0 32px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
+      {/* Search bar — flat, Linear-style. Focus ring is 1px, not 3px glow. */}
+      <div style={{ padding: `0 ${t.s8}px ${t.s4}px`, display: 'flex', gap: t.s3, alignItems: 'center' }}>
         <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'rgba(255,255,255,0.2)', pointerEvents: 'none' }}>⌘</span>
+          <Search size={14} strokeWidth={2} color={t.muted} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
           <input
-            placeholder={`Search ${total > 0 ? total.toLocaleString() : '2,302'} products or explore 829k+ live from AliExpress...`}
+            placeholder={`Search ${total > 0 ? total.toLocaleString() : '2,302'} products or 829k live from AliExpress`}
             defaultValue={liveQuery}
             style={{
               width: '100%',
-              background: '#1c1c1c',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 12,
-              padding: '14px 18px 14px 44px',
-              color: '#f5f5f5',
-              fontFamily: sans,
-              fontSize: 14,
+              background: t.surface,
+              border: `1px solid ${t.line}`,
+              borderRadius: t.rSm,
+              padding: `${t.s3}px ${t.s5}px ${t.s3}px 40px`,
+              color: t.text,
+              fontFamily: t.fontBody,
+              fontSize: t.fBody,
               outline: 'none',
               boxSizing: 'border-box',
-              transition: 'border-color 150ms ease, box-shadow 150ms ease',
+              transition: `border-color ${t.dur} ${t.ease}`,
             }}
-            onFocus={(e) => {
-              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(124,106,255,0.5)';
-              (e.currentTarget as HTMLInputElement).style.boxShadow = '0 0 0 3px rgba(124,106,255,0.08)';
-            }}
-            onBlur={(e) => {
-              (e.currentTarget as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.08)';
-              (e.currentTarget as HTMLInputElement).style.boxShadow = 'none';
-            }}
+            onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = t.lineFocus; }}
+            onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = t.line; }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const val = (e.currentTarget as HTMLInputElement).value.trim();
@@ -355,39 +342,42 @@ export default function AppProducts() {
           <button
             onClick={() => { setSearchMode('db'); aeSearch.reset(); setLiveQuery(''); }}
             style={{
-              padding: '10px 16px',
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 8,
-              color: '#a1a1aa',
-              fontFamily: sans,
-              fontSize: 13,
+              padding: `${t.s3}px ${t.s4}px`,
+              background: 'transparent',
+              border: `1px solid ${t.lineStrong}`,
+              borderRadius: t.rSm,
+              color: t.body,
+              fontFamily: t.fontBody,
+              fontSize: t.fBody,
+              fontWeight: 500,
               cursor: 'pointer',
               whiteSpace: 'nowrap',
+              transition: `all ${t.dur} ${t.ease}`,
             }}
-          >← Back to Database</button>
+          >Back to database</button>
         )}
       </div>
 
-      {/* Always-visible inline filter bar (sits between tabs and table) */}
+      {/* Filter bar — mixed-weight labels (not uppercase mono), flat inputs,
+          emoji stripped from sort values. */}
       {searchMode === 'db' && (
         <div style={{
-          margin: '0 32px 16px',
-          padding: '16px 20px',
-          background: '#1c1c1c',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 10,
+          margin: `0 ${t.s8}px ${t.s4}px`,
+          padding: `${t.s4}px ${t.s5}px`,
+          background: t.surface,
+          border: `1px solid ${t.line}`,
+          borderRadius: t.rMd,
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: 16,
+          gap: t.s4,
         }}>
           {[
-            { label: 'Min Price ($)', value: priceMin, set: setPriceMin, ph: '0' },
-            { label: 'Max Price ($)', value: priceMax, set: setPriceMax, ph: '999' },
-            { label: 'Min Orders',    value: minOrders, set: setMinOrders, ph: '0' },
+            { label: 'Min price', value: priceMin, set: setPriceMin, ph: '$0' },
+            { label: 'Max price', value: priceMax, set: setPriceMax, ph: '$999' },
+            { label: 'Min orders',    value: minOrders, set: setMinOrders, ph: '0' },
           ].map((f) => (
             <div key={f.label}>
-              <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{f.label}</div>
+              <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>{f.label}</div>
               <input
                 type="number"
                 placeholder={f.ph}
@@ -395,34 +385,37 @@ export default function AppProducts() {
                 onChange={(e) => f.set(e.target.value ? Number(e.target.value) : null)}
                 style={{
                   width: '100%',
-                  background: '#151515',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 6,
-                  padding: '8px 10px',
-                  color: '#ededed',
-                  fontFamily: mono,
-                  fontSize: 12,
+                  background: t.bg,
+                  border: `1px solid ${t.line}`,
+                  borderRadius: t.rSm,
+                  padding: `${t.s2}px ${t.s3}px`,
+                  color: t.text,
+                  fontFamily: t.fontBody,
+                  fontSize: t.fBody,
+                  fontVariantNumeric: 'tabular-nums',
                   boxSizing: 'border-box',
+                  outline: 'none',
                 }}
               />
             </div>
           ))}
           <div>
-            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Category</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Category</div>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               style={{
                 width: '100%',
-                background: '#151515',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 6,
-                padding: '8px 10px',
-                color: '#ededed',
-                fontFamily: mono,
-                fontSize: 12,
+                background: t.bg,
+                border: `1px solid ${t.line}`,
+                borderRadius: t.rSm,
+                padding: `${t.s2}px ${t.s3}px`,
+                color: t.text,
+                fontFamily: t.fontBody,
+                fontSize: t.fBody,
                 boxSizing: 'border-box',
                 cursor: 'pointer',
+                outline: 'none',
               }}
             >
               <option value="">All categories</option>
@@ -432,7 +425,7 @@ export default function AppProducts() {
             </select>
           </div>
           <div>
-            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Min Score</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Min score</div>
             <input
               type="number"
               min={0}
@@ -442,19 +435,21 @@ export default function AppProducts() {
               onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
               style={{
                 width: '100%',
-                background: '#151515',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 6,
-                padding: '8px 10px',
-                color: '#ededed',
-                fontFamily: mono,
-                fontSize: 12,
+                background: t.bg,
+                border: `1px solid ${t.line}`,
+                borderRadius: t.rSm,
+                padding: `${t.s2}px ${t.s3}px`,
+                color: t.text,
+                fontFamily: t.fontBody,
+                fontSize: t.fBody,
+                fontVariantNumeric: 'tabular-nums',
                 boxSizing: 'border-box',
+                outline: 'none',
               }}
             />
           </div>
           <div>
-            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Max Score</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Max score</div>
             <input
               type="number"
               min={0}
@@ -464,55 +459,59 @@ export default function AppProducts() {
               onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
               style={{
                 width: '100%',
-                background: '#151515',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 6,
-                padding: '8px 10px',
-                color: '#ededed',
-                fontFamily: mono,
-                fontSize: 12,
+                background: t.bg,
+                border: `1px solid ${t.line}`,
+                borderRadius: t.rSm,
+                padding: `${t.s2}px ${t.s3}px`,
+                color: t.text,
+                fontFamily: t.fontBody,
+                fontSize: t.fBody,
+                fontVariantNumeric: 'tabular-nums',
                 boxSizing: 'border-box',
+                outline: 'none',
               }}
             />
           </div>
           <div>
-            <div style={{ fontFamily: mono, fontSize: 10, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Sort by</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Sort by</div>
             <select
               value={orderBy}
               onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
               style={{
                 width: '100%',
-                background: '#151515',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 6,
-                padding: '8px 10px',
-                color: '#ededed',
-                fontFamily: mono,
-                fontSize: 12,
+                background: t.bg,
+                border: `1px solid ${t.line}`,
+                borderRadius: t.rSm,
+                padding: `${t.s2}px ${t.s3}px`,
+                color: t.text,
+                fontFamily: t.fontBody,
+                fontSize: t.fBody,
                 boxSizing: 'border-box',
                 cursor: 'pointer',
+                outline: 'none',
               }}
             >
-              <option value="sold_count">🔥 Most Orders</option>
-              <option value="winning_score">⭐ Highest Score</option>
-              <option value="est_daily_revenue_aud">💰 Highest Revenue</option>
-              <option value="price_asc">📈 Price: Low to High</option>
+              <option value="sold_count">Most orders</option>
+              <option value="winning_score">Highest score</option>
+              <option value="est_daily_revenue_aud">Highest revenue</option>
+              <option value="price_asc">Price: low to high</option>
               <option value="price_desc">📉 Price: High to Low</option>
               <option value="created_at">🆕 Newest First</option>
-              <option value="orders_asc">📊 Orders: Low to High</option>
+              <option value="orders_asc">Orders: low to high</option>
             </select>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button
               onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); setCategoryFilter(''); setScoreMin(0); setScoreMax(100); setOrderBy('sold_count'); }}
               style={{
-                padding: '8px 14px',
+                padding: `${t.s2}px ${t.s3}px`,
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 6,
-                color: '#71717a',
-                fontFamily: sans,
-                fontSize: 12,
+                border: `1px solid ${t.line}`,
+                borderRadius: t.rSm,
+                color: t.muted,
+                fontFamily: t.fontBody,
+                fontSize: t.fBody,
+                fontWeight: 500,
                 cursor: 'pointer',
               }}
             >Clear filters</button>
@@ -527,12 +526,14 @@ export default function AppProducts() {
       )}
 
       {searchMode === 'db' && (<>
-      {/* Smart tabs + sort + view toggle (consolidated) */}
+      {/* Tabs — quiet, Linear-style. Active tab gets a single underline,
+          not a tinted pill. No count badge on the inactive tabs. */}
       <div style={{
         display: 'flex',
-        gap: 4,
-        padding: '0 32px',
-        marginBottom: 16,
+        gap: t.s1,
+        padding: `0 ${t.s8}px`,
+        marginBottom: t.s4,
+        borderBottom: `1px solid ${t.line}`,
         overflowX: 'auto',
         scrollbarWidth: 'none',
         alignItems: 'center',
@@ -548,53 +549,48 @@ export default function AppProducts() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 7,
-                padding: '7px 14px',
-                fontFamily: sans,
-                fontSize: 13,
+                gap: t.s2,
+                padding: `${t.s3}px ${t.s3}px`,
+                marginBottom: -1,
+                fontFamily: t.fontBody,
+                fontSize: t.fBody,
                 fontWeight: active ? 600 : 500,
-                color: active ? '#f5f5f5' : 'rgba(255,255,255,0.35)',
-                background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                border: `1px solid ${active ? 'rgba(124,106,255,0.2)' : 'transparent'}`,
-                borderRadius: 7,
+                color: active ? t.text : t.muted,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: `2px solid ${active ? t.accent : 'transparent'}`,
                 cursor: 'pointer',
-                transition: 'all 150ms ease',
+                transition: `color ${t.dur} ${t.ease}`,
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
               }}
-              onMouseEnter={(e) => {
-                if (!active) {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)';
-                  (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.6)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!active) {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                  (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.35)';
-                }
-              }}
+              onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.text; }}
+              onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.muted; }}
             >
-              <TabIcon size={13} style={{ opacity: active ? 1 : 0.7 }} />
+              <TabIcon size={14} strokeWidth={1.75} />
               <span>{tab.label}</span>
-              <span style={{
-                fontFamily: mono,
-                fontSize: 10,
-                color: active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)',
-                marginLeft: 2,
-              }}>· {count >= 1000 ? `${Math.round(count / 1000)}k` : count}</span>
+              {active && count > 0 && (
+                <span style={{
+                  fontFamily: t.fontBody,
+                  fontSize: t.fCaption,
+                  fontWeight: 500,
+                  color: t.muted,
+                  fontVariantNumeric: 'tabular-nums',
+                  marginLeft: 2,
+                }}>{count >= 1000 ? `${Math.round(count / 1000)}k` : count}</span>
+              )}
             </button>
           );
         })}
         <div style={{ flex: 1 }} />
         <div style={{
           display: 'inline-flex',
-          background: '#0d0d10',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 6,
+          background: t.surface,
+          border: `1px solid ${t.line}`,
+          borderRadius: t.rSm,
           padding: 2,
-          marginBottom: 6,
-          marginLeft: 6,
+          marginBottom: t.s2,
+          marginLeft: t.s2,
           flexShrink: 0,
         }}>
           {(['table', 'grid'] as const).map((mode) => {
@@ -608,14 +604,14 @@ export default function AppProducts() {
                   width: 30,
                   height: 26,
                   border: 'none',
-                  background: active ? 'rgba(124,106,255,0.12)' : 'transparent',
-                  color: active ? '#7c6aff' : '#71717a',
+                  background: active ? t.raised : 'transparent',
+                  color: active ? t.text : t.muted,
                   cursor: 'pointer',
                   borderRadius: 4,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 150ms',
+                  transition: `all ${t.dur} ${t.ease}`,
                 }}
               >
                 {mode === 'table' ? <List size={13} /> : <LayoutGrid size={13} />}

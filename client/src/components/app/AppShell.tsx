@@ -1,22 +1,40 @@
 import type { ReactNode } from 'react';
 import { Nav } from './Nav';
+import { t } from '@/lib/designTokens';
 
 interface AppShellProps { children: ReactNode }
 
+/**
+ * AppShell — the root layout for all `/app/*` routes.
+ *
+ * Design notes:
+ *   - Page background is the single source of truth (t.bg).
+ *   - No radial violet glow — that was the AI-purple tell.
+ *   - The nav sits flush against the page; its only separator is
+ *     a 1px hairline, not a surface change.
+ */
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#151515' }}>
-      <Nav />
-      <div style={{
-        flex: 1,
+    <div
+      style={{
         display: 'flex',
-        flexDirection: 'column',
-        minWidth: 0,
-        overflowX: 'hidden',
-        color: '#ededed',
-        fontFamily: "'DM Sans', system-ui, sans-serif",
-        background: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,106,255,0.08) 0%, transparent 60%), #151515',
-      }}>
+        minHeight: '100vh',
+        background: t.bg,
+        color: t.text,
+        fontFamily: t.fontBody,
+      }}
+    >
+      <Nav />
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          overflowX: 'hidden',
+          background: t.bg,
+        }}
+      >
         {children}
       </div>
     </div>

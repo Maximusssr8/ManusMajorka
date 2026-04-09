@@ -4,15 +4,12 @@ import {
   LayoutDashboard, Package, TrendingUp, Video,
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Calculator, Settings,
-  GraduationCap, ShieldCheck,
+  GraduationCap, ShieldCheck, Search,
 } from 'lucide-react';
 import type { ComponentType, SVGProps, CSSProperties } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProductStats } from '@/hooks/useProducts';
-
-const display = "'Bricolage Grotesque', sans-serif";
-const sans = "'DM Sans', sans-serif";
-const mono = "'JetBrains Mono', monospace";
+import { t } from '@/lib/designTokens';
 
 interface NavItem {
   label: string;
@@ -20,44 +17,51 @@ interface NavItem {
   icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
   exact?: boolean;
   soon?: boolean;
-  /** Green AI pill badge next to the label. */
-  ai?: boolean;
-  /** Optional "Start" / "New" style tag. */
-  tag?: string;
-  /** Only shown to admins. */
   adminOnly?: boolean;
 }
 
-const GROUPS: NavItem[][] = [
-  // Group 1 — intelligence
-  [
-    { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
-    { label: 'Products', path: '/app/products', icon: Package },
-    { label: 'Market',           path: '/app/market',   icon: TrendingUp },
-    { label: 'Creators & Video', path: '/app/creators', icon: Video },
-  ],
-  // Group 2 — AI tools
-  [
-    { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
-    { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
-    { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText },
-    { label: 'Store Builder', path: '/app/store-builder', icon: Store },
-  ],
-  // Group 3 — manage
-  [
-    { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
-    { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye, soon: true },
-    { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
-    { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
-  ],
-  // Group 4 — account (always-visible)
-  [
-    { label: 'Academy',  path: '/app/learn',    icon: GraduationCap, tag: 'Start' },
-    { label: 'Settings', path: '/app/settings', icon: Settings },
-    { label: 'Admin',    path: '/app/admin',    icon: ShieldCheck, adminOnly: true },
-  ],
+/**
+ * Nav groups — labelled so the eye can parse the sections.
+ * Labels render as tiny uppercase captions, not dividers,
+ * which gives the sidebar real information architecture.
+ */
+const GROUPS: { title: string; items: NavItem[] }[] = [
+  {
+    title: 'Intelligence',
+    items: [
+      { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
+      { label: 'Products', path: '/app/products', icon: Package },
+      { label: 'Market',   path: '/app/market',   icon: TrendingUp },
+      { label: 'Creators', path: '/app/creators', icon: Video },
+    ],
+  },
+  {
+    title: 'Create',
+    items: [
+      { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
+      { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
+      { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText },
+      { label: 'Store Builder', path: '/app/store-builder', icon: Store },
+    ],
+  },
+  {
+    title: 'Operate',
+    items: [
+      { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
+      { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye, soon: true },
+      { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
+      { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
+    ],
+  },
+  {
+    title: 'Account',
+    items: [
+      { label: 'Academy',  path: '/app/learn',    icon: GraduationCap },
+      { label: 'Settings', path: '/app/settings', icon: Settings },
+      { label: 'Admin',    path: '/app/admin',    icon: ShieldCheck, adminOnly: true },
+    ],
+  },
 ];
-
 
 export function Nav() {
   const [location, navigate] = useLocation();
@@ -67,7 +71,6 @@ export function Nav() {
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
-  const planLabel = isPro ? 'Scale Plan' : 'Builder Plan';
 
   const isActive = (item: NavItem): boolean => {
     if (item.exact) return location === item.path;
@@ -75,213 +78,201 @@ export function Nav() {
   };
 
   return (
-    <nav style={{
-      width: 220,
-      background: '#151515',
-      borderRight: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      position: 'sticky',
-      top: 0,
-      flexShrink: 0,
-      overflowY: 'auto',
-    }}>
-      {/* Logo */}
-      <div style={{
-        height: 58,
+    <nav
+      style={{
+        width: 232,
+        background: t.bg,
+        borderRight: `1px solid ${t.line}`,
         display: 'flex',
-        alignItems: 'center',
-        padding: '0 18px',
-        gap: 10,
+        flexDirection: 'column',
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
         flexShrink: 0,
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-      }}>
-        <div style={{
-          width: 28,
-          height: 28,
-          borderRadius: 8,
-          background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+        overflowY: 'auto',
+      }}
+    >
+      {/* Brand mark — clean, no gradient, no glow. */}
+      <div
+        style={{
+          height: 64,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          padding: `0 ${t.s5}px`,
+          gap: t.s3,
           flexShrink: 0,
-        }}>
-          <span style={{ fontFamily: display, fontWeight: 800, fontSize: 13, color: 'white' }}>M</span>
-        </div>
-        <span style={{
-          fontFamily: display,
-          fontWeight: 800,
-          fontSize: 16,
-          color: '#f1f1f3',
-          letterSpacing: '-0.03em',
-        }}>Majorka</span>
-      </div>
-
-      {/* Search */}
-      <div style={{
-        width: 'calc(100% - 20px)',
-        margin: '10px 10px 4px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 8,
-        padding: '8px 12px',
-        boxSizing: 'border-box',
-      }}>
-        <span style={{ fontSize: 13, opacity: 0.5, color: '#5a5a6e' }}>⌘</span>
-        <input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && searchTerm.trim().length > 0) {
-              navigate(`/app/products?search=${encodeURIComponent(searchTerm.trim())}`);
-              setSearchTerm('');
-            }
-          }}
-          placeholder="Search products..."
+        }}
+      >
+        <div
           style={{
-            flex: 1,
-            minWidth: 0,
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            color: '#e2e2e8',
-            fontSize: 12,
-            fontFamily: sans,
-            padding: 0,
-          }}
-        />
-        <span style={{
-          fontFamily: mono,
-          fontSize: 9,
-          opacity: 0.4,
-          color: '#5a5a6e',
-          background: 'rgba(255,255,255,0.06)',
-          padding: '2px 5px',
-          borderRadius: 3,
-        }}>K</span>
-      </div>
-
-      {/* Market selector */}
-      <div style={{
-        margin: '4px 10px 14px',
-        padding: '9px 12px',
-        background: 'rgba(124,106,255,0.07)',
-        border: '1px solid rgba(124,106,255,0.15)',
-        borderRadius: 9,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 9,
-        cursor: 'pointer',
-      }}>
-        <span style={{ fontSize: 17 }}>🇦🇺</span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: sans, fontSize: 12, fontWeight: 600, color: '#e2e2e8', lineHeight: 1.2 }}>Australia</div>
-          <div style={{ fontFamily: mono, fontSize: 9, color: '#7c6aff', marginTop: 1 }}>AUD · GST 10%</div>
-        </div>
-        <span style={{ fontFamily: mono, fontSize: 9, color: '#4a4a5e' }}>▾</span>
-      </div>
-
-      {/* Nav groups — admin items filtered out for non-admin users */}
-      {GROUPS.map((group, gi) => {
-        const visible = group.filter((i) => !i.adminOnly || isAdmin);
-        if (visible.length === 0) return null;
-        return (
-          <div key={gi}>
-            {gi > 0 && (
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '4px 10px 8px' }} />
-            )}
-            {visible.map((item) => (
-              <NavLink
-                key={item.path}
-                item={item}
-                active={isActive(item)}
-                hotCount={item.label === 'Products' ? hotCount : 0}
-              />
-            ))}
-          </div>
-        );
-      })}
-
-      {/* User area */}
-      <div style={{
-        marginTop: 'auto',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        padding: '12px 14px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-      }}>
-        <div style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
-          background: 'linear-gradient(135deg,#4f46e5,#7c3aed)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: display,
-          fontWeight: 700,
-          fontSize: 12,
-          color: 'white',
-          flexShrink: 0,
-        }}>{initial}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
+            width: 28,
+            height: 28,
+            borderRadius: t.rSm,
+            background: t.accent,
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-          }}>
-            <span style={{
-              fontFamily: sans,
-              fontSize: 13,
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ fontFamily: t.fontDisplay, fontWeight: 800, fontSize: 15, color: '#fff' }}>M</span>
+        </div>
+        <span
+          style={{
+            fontFamily: t.fontDisplay,
+            fontWeight: 700,
+            fontSize: 17,
+            color: t.text,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Majorka
+        </span>
+      </div>
+
+      {/* Search — single flat input. No mock-keyboard shortcut noise. */}
+      <div style={{ padding: `0 ${t.s3}px ${t.s3}px` }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: t.s2,
+            background: t.surface,
+            border: `1px solid ${t.line}`,
+            borderRadius: t.rSm,
+            padding: `${t.s2}px ${t.s3}px`,
+          }}
+        >
+          <Search size={14} color={t.faint} strokeWidth={2} />
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchTerm.trim().length > 0) {
+                navigate(`/app/products?search=${encodeURIComponent(searchTerm.trim())}`);
+                setSearchTerm('');
+              }
+            }}
+            placeholder="Search products"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: t.text,
+              fontSize: t.fBody,
+              fontFamily: t.fontBody,
+              padding: 0,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Nav groups — section titles give real IA, not just coloured dividers. */}
+      <div style={{ paddingBottom: t.s4 }}>
+        {GROUPS.map((group, gi) => {
+          const visible = group.items.filter((i) => !i.adminOnly || isAdmin);
+          if (visible.length === 0) return null;
+          return (
+            <div key={gi} style={{ marginBottom: t.s4 }}>
+              <div
+                style={{
+                  padding: `${t.s2}px ${t.s5}px ${t.s1}px`,
+                  fontFamily: t.fontBody,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: t.faint,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {group.title}
+              </div>
+              {visible.map((item) => (
+                <NavLink
+                  key={item.path}
+                  item={item}
+                  active={isActive(item)}
+                  hotCount={item.label === 'Products' ? hotCount : 0}
+                />
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* User footer — single row, no emoji, no fake plan pill. */}
+      <div
+        style={{
+          marginTop: 'auto',
+          borderTop: `1px solid ${t.line}`,
+          padding: `${t.s3}px ${t.s4}px`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: t.s3,
+        }}
+      >
+        <div
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: t.rSm,
+            background: t.surface,
+            border: `1px solid ${t.lineStrong}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: t.fontDisplay,
+            fontWeight: 700,
+            fontSize: 13,
+            color: t.text,
+            flexShrink: 0,
+          }}
+        >
+          {initial}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontFamily: t.fontBody,
+              fontSize: t.fBody,
               fontWeight: 600,
-              color: '#e2e2e8',
+              color: t.text,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              minWidth: 0,
-            }}>{displayName}</span>
-            <span style={{
-              flexShrink: 0,
-              fontFamily: mono,
-              fontSize: 8,
-              fontWeight: 700,
-              color: isPro ? '#7c6aff' : 'rgba(255,255,255,0.4)',
-              background: isPro ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.05)',
-              border: `1px solid ${isPro ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
-              padding: '1px 5px',
-              borderRadius: 3,
-              letterSpacing: '0.05em',
-            }}>{isPro ? 'SCALE' : 'BUILDER'}</span>
+            }}
+          >
+            {displayName}
           </div>
-          <div style={{
-            fontFamily: mono,
-            fontSize: 9,
-            color: 'rgba(255,255,255,0.35)',
-            marginTop: 1,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>{user?.email ?? planLabel}</div>
+          <div
+            style={{
+              fontFamily: t.fontBody,
+              fontSize: t.fCaption,
+              color: t.muted,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {isPro ? 'Scale' : 'Builder'} · AUD
+          </div>
         </div>
         <Link
           href="/app/settings"
           style={{
-            color: '#3f3f52',
-            cursor: 'pointer',
+            color: t.faint,
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
-            transition: 'color 120ms',
+            transition: `color ${t.dur} ${t.ease}`,
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#a1a1aa'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#3f3f52'; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = t.text; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = t.faint; }}
+          aria-label="Settings"
         >
-          <Settings size={13} />
+          <Settings size={14} strokeWidth={2} />
         </Link>
       </div>
     </nav>
@@ -296,97 +287,84 @@ interface NavLinkProps {
 
 function NavLink({ item, active, hotCount }: NavLinkProps) {
   const Icon = item.icon;
-  const dim = item.soon && !active;
   const baseStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
-    padding: '8px 12px',
-    margin: '1px 8px',
-    borderRadius: 8,
-    cursor: 'pointer',
+    gap: t.s3,
+    padding: `${t.s2}px ${t.s3}px`,
+    margin: `1px ${t.s2}px`,
+    borderRadius: t.rSm,
+    cursor: item.soon ? 'not-allowed' : 'pointer',
     textDecoration: 'none',
-    fontSize: 13,
-    fontFamily: sans,
-    transition: 'all 120ms',
-    color: active ? '#e8e8f0' : dim ? 'rgba(255,255,255,0.28)' : '#6b6b80',
-    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-    border: `1px solid ${active ? 'rgba(124,106,255,0.18)' : 'transparent'}`,
+    fontSize: t.fBody,
+    fontFamily: t.fontBody,
+    transition: `background ${t.dur} ${t.ease}, color ${t.dur} ${t.ease}`,
+    color: active ? t.text : item.soon ? t.faint : t.body,
+    background: active ? t.surface : 'transparent',
     fontWeight: active ? 600 : 500,
-    opacity: dim ? 0.7 : 1,
+    // Active state uses a 1px inner line in place of a heavy border
+    // — quiet, Linear-style.
+    boxShadow: active ? `inset 0 0 0 1px ${t.line}` : 'none',
   };
   return (
     <Link
-      href={item.path}
+      href={item.soon ? '#' : item.path}
       style={baseStyle}
       onMouseEnter={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLAnchorElement).style.color = '#c0c0d0';
-          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.04)';
+        if (!active && !item.soon) {
+          (e.currentTarget as HTMLAnchorElement).style.background = t.surface;
+          (e.currentTarget as HTMLAnchorElement).style.color = t.text;
         }
       }}
       onMouseLeave={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLAnchorElement).style.color = '#6b6b80';
+        if (!active && !item.soon) {
           (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+          (e.currentTarget as HTMLAnchorElement).style.color = t.body;
         }
       }}
     >
-      <Icon size={15} style={{ flexShrink: 0, opacity: active ? 1 : 0.7 }} />
-      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
-      {item.ai && (
-        <span style={{
-          background: 'rgba(16,185,129,0.15)',
-          color: '#10b981',
-          border: '1px solid rgba(16,185,129,0.25)',
-          borderRadius: 999,
-          padding: '1px 6px',
-          fontSize: 8,
-          fontWeight: 700,
-          fontFamily: mono,
-          letterSpacing: '0.05em',
-          flexShrink: 0,
-        }}>AI</span>
-      )}
-      {item.tag && (
-        <span style={{
-          background: 'rgba(124,106,255,0.15)',
-          color: '#a78bfa',
-          border: '1px solid rgba(124,106,255,0.25)',
-          borderRadius: 999,
-          padding: '1px 6px',
-          fontSize: 8,
-          fontWeight: 700,
-          fontFamily: mono,
-          letterSpacing: '0.05em',
-          flexShrink: 0,
-        }}>{item.tag.toUpperCase()}</span>
-      )}
+      <Icon size={15} strokeWidth={1.75} style={{ flexShrink: 0, color: active ? t.accent : 'currentColor' }} />
+      <span
+        style={{
+          flex: 1,
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {item.label}
+      </span>
       {item.soon && (
-        <span style={{
-          background: 'rgba(255,255,255,0.04)',
-          color: 'rgba(255,255,255,0.3)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 999,
-          padding: '1px 6px',
-          fontSize: 8,
-          fontWeight: 600,
-          fontFamily: mono,
-          letterSpacing: '0.05em',
-          flexShrink: 0,
-        }}>SOON</span>
+        <span
+          style={{
+            fontFamily: t.fontBody,
+            fontSize: 10,
+            fontWeight: 600,
+            color: t.faint,
+            letterSpacing: '0.04em',
+            flexShrink: 0,
+          }}
+        >
+          Soon
+        </span>
       )}
       {hotCount > 0 && (
-        <span style={{
-          background: 'rgba(239,68,68,0.15)',
-          color: '#f87171',
-          borderRadius: 999,
-          padding: '1px 7px',
-          fontSize: 9,
-          fontWeight: 700,
-          fontFamily: mono,
-          flexShrink: 0,
-        }}>{hotCount}</span>
+        <span
+          style={{
+            background: t.accentDim,
+            color: t.accent,
+            borderRadius: t.rPill,
+            padding: '1px 7px',
+            fontSize: 10,
+            fontWeight: 700,
+            fontFamily: t.fontBody,
+            fontVariantNumeric: 'tabular-nums',
+            flexShrink: 0,
+          }}
+        >
+          {hotCount}
+        </span>
       )}
     </Link>
   );
