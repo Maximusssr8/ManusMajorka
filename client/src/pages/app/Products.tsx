@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import {
-  Search, List, LayoutGrid, ChevronDown, Heart, X,
-  ExternalLink, Zap, Flame,
+  Search, List, LayoutGrid, ChevronDown, Heart,
+  ExternalLink, Zap, Flame, ShoppingBag, Store, Calculator, ChevronRight,
   Clock, TrendingUp, DollarSign, Award, Bookmark,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -24,7 +24,7 @@ type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'saved';
 
 const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass?: string }[] = [
   { key: 'all',        label: 'All products',  Icon: LayoutGrid },
-  { key: 'new',        label: 'New this week', Icon: Clock },
+  { key: 'new',        label: 'Recently Added', Icon: Clock },
   { key: 'trending',   label: 'Trending',      Icon: TrendingUp,  iconClass: 'text-amber' },
   { key: 'highmargin', label: 'High margin',   Icon: DollarSign,  iconClass: 'text-green' },
   { key: 'top',        label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]' },
@@ -53,10 +53,11 @@ function daysSince(iso: string | null): number {
 }
 
 /**
- * Threshold for the NEW badge. Set to 3 days because the Apify
- * pipeline seeds rows daily — a 7-day window flags everything.
+ * Threshold for the NEW badge + Recently Added tab. Temporarily 90
+ * days because the entire seed was imported at once — a 7-day window
+ * shows 0 rows. Drop back to 7 once fresh scrapes are flowing in.
  */
-const NEW_DAYS_THRESHOLD = 3;
+const NEW_DAYS_THRESHOLD = 90;
 
 /**
  * Monthly revenue. ONLY uses est_daily_revenue_aud × 30 — no
@@ -196,17 +197,77 @@ function ProductSheet({
   product,
   open,
   onOpenChange,
+  navigate,
+  onToggleFav,
+  isFav,
 }: {
   product: Product | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  navigate: (path: string) => void;
+  onToggleFav: (p: Product) => Promise<void> | void;
+  isFav: boolean;
 }) {
+  const [calcOpen, setCalcOpen] = useState(false);
+  const [sellPrice,  setSellPrice]  = useState<number>(0);
+  const [landedCost, setLandedCost] = useState<number>(0);
+  const [shipping,   setShipping]   = useState<number>(5);
+  const [feePct,     setFeePct]     = useState<number>(5);
+
+  // Reset calc inputs whenever a new product opens
+  useEffect(() => {
+    if (!product) return;
+    const base = product.price_aud != null ? Number(product.price_aud) : 0;
+    setSellPrice(Math.round(base * 3 * 100) / 100);
+    setLandedCost(base);
+    setShipping(5);
+    setFeePct(5);
+  }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!product) return null;
   const score = Math.round(product.winning_score ?? 0);
   const orders = product.sold_count ?? 0;
   const price = product.price_aud != null ? Number(product.price_aud) : null;
   const estMonthly = monthlyRevenue(product);
   const aliHref = (product as Product & { aliexpress_url?: string }).aliexpress_url ?? product.product_url ?? null;
+
+  const grossProfit = sellPrice - landedCost - shipping;
+  const marginPct = sellPrice > 0 ? (grossProfit / sellPrice) * 100 : 0;
+  const netAfterFees = grossProfit * (1 - feePct / 100);
+  const profitColor = grossProfit >= 0 ? 'text-green' : 'text-red-400';
+
+  function handleCreateAd() {
+    sessionStorage.setItem('majorka_ad_product', JSON.stringify({
+      id: product.id,
+      title: product.product_title,
+      image: product.image_url,
+      price: product.price_aud,
+    }));
+    onOpenChange(false);
+    navigate('/app/ads-studio');
+    toast.success('Product loaded into Ads Studio');
+  }
+
+  function handleImportToStore() {
+    sessionStorage.setItem('majorka_import_product', JSON.stringify({
+      id: product.id,
+      title: product.product_title,
+      image: product.image_url,
+      price: product.price_aud,
+      description: product.product_title,
+      aliexpress_url: product.product_url,
+    }));
+    onOpenChange(false);
+    navigate('/app/store-builder');
+    toast.success('Product imported to Store Builder');
+  }
+
+  async function handleToggleSave() {
+    const wasFav = isFav;
+    await onToggleFav(product);
+    if (wasFav) toast('Removed from saved');
+    else toast.success('Product saved');
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -283,24 +344,100 @@ function ProductSheet({
               href={aliHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="mx-4 mb-4 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
+              className="mx-4 mb-3 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
             >
               View on AliExpress
               <ExternalLink size={14} strokeWidth={1.75} />
             </a>
           )}
 
+          {/* Import to Store */}
+          <button
+            onClick={handleImportToStore}
+            className="mx-4 mb-4 bg-white/[0.06] border border-white/10 rounded-xl py-3 text-sm font-medium text-text flex items-center justify-center gap-2 hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            <Store size={14} strokeWidth={1.75} />
+            Import to Store
+          </button>
+
+          {/* Profit calculator — collapsible */}
+          <div className="mx-4 mb-4 bg-raised rounded-xl overflow-hidden border border-white/[0.07]">
+            <button
+              onClick={() => setCalcOpen((o) => !o)}
+              className="w-full flex items-center justify-between p-4 text-left cursor-pointer hover:bg-white/[0.03] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Calculator size={14} strokeWidth={1.75} className="text-accent-hover" />
+                <span className="text-sm font-semibold text-text">Calculate profit</span>
+              </div>
+              <ChevronRight
+                size={14}
+                strokeWidth={2}
+                className={`text-muted transition-transform ${calcOpen ? 'rotate-90' : ''}`}
+              />
+            </button>
+            {calcOpen && (
+              <div className="px-4 pb-4 pt-1 space-y-3">
+                {[
+                  { label: 'Sell price',     value: sellPrice,  set: setSellPrice,  prefix: '$' },
+                  { label: 'Landed cost',    value: landedCost, set: setLandedCost, prefix: '$' },
+                  { label: 'Shipping',       value: shipping,   set: setShipping,   prefix: '$' },
+                  { label: 'Platform fee %', value: feePct,     set: setFeePct,     prefix: '' },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between gap-3">
+                    <label className="text-xs text-muted flex-1">{row.label}</label>
+                    <div className="flex items-center gap-1 w-[110px]">
+                      {row.prefix && <span className="text-xs text-muted">{row.prefix}</span>}
+                      <input
+                        type="number"
+                        value={row.value}
+                        onChange={(e) => row.set(Number(e.target.value) || 0)}
+                        className="flex-1 bg-bg border border-white/[0.08] rounded-md px-2.5 py-1.5 text-sm text-text tabular-nums outline-none focus:border-accent"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <div className="border-t border-white/[0.08] pt-3 mt-3 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted">Gross profit</span>
+                    <span className={`font-bold tabular-nums ${profitColor}`}>
+                      ${grossProfit.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted">Margin</span>
+                    <span className={`font-bold tabular-nums ${profitColor}`}>
+                      {marginPct.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm pt-1">
+                    <span className="text-text font-medium">Net after fees</span>
+                    <span className={`font-bold tabular-nums ${profitColor}`}>
+                      ${netAfterFees.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex-1" />
 
-          {/* Sticky bottom */}
+          {/* Sticky bottom — Create Ad + Save wired */}
           <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
-            <button className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+            <button
+              onClick={handleCreateAd}
+              className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
+            >
               <Zap size={14} strokeWidth={2} />
               Create Ad
             </button>
-            <button className="flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] text-text rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
-              <Heart size={14} strokeWidth={1.75} />
-              Save
+            <button
+              onClick={handleToggleSave}
+              className={`flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${isFav ? 'text-accent' : 'text-text'}`}
+            >
+              <Heart size={14} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
+              {isFav ? 'Saved' : 'Save'}
             </button>
           </div>
         </Dialog.Content>
@@ -718,6 +855,7 @@ export default function AppProducts() {
           onSelect={setSelectedProduct}
           isFavourite={fav.isFavourite}
           onToggleFav={fav.toggleFavourite}
+          navigate={navigate}
         />
       ) : (
         <GridCards
@@ -765,6 +903,9 @@ export default function AppProducts() {
         product={selectedProduct}
         open={selectedProduct !== null}
         onOpenChange={(v) => { if (!v) setSelectedProduct(null); }}
+        navigate={navigate}
+        onToggleFav={fav.toggleFavourite}
+        isFav={selectedProduct ? fav.isFavourite(selectedProduct.id) : false}
       />
     </div>
   );
@@ -804,9 +945,35 @@ interface ListTableProps {
   onSelect: (p: Product) => void;
   isFavourite: (id: string | number) => boolean;
   onToggleFav: (p: Product) => Promise<void>;
+  navigate: (path: string) => void;
 }
 
-function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: ListTableProps) {
+/* Hover-quick-action handlers for the last column of each row. */
+function createAdForProduct(p: Product, navigate: (path: string) => void) {
+  sessionStorage.setItem('majorka_ad_product', JSON.stringify({
+    id: p.id,
+    title: p.product_title,
+    image: p.image_url,
+    price: p.price_aud,
+  }));
+  navigate('/app/ads-studio');
+  toast.success('Product loaded into Ads Studio');
+}
+
+function importToStore(p: Product, navigate: (path: string) => void) {
+  sessionStorage.setItem('majorka_import_product', JSON.stringify({
+    id: p.id,
+    title: p.product_title,
+    image: p.image_url,
+    price: p.price_aud,
+    description: p.product_title,
+    aliexpress_url: p.product_url,
+  }));
+  navigate('/app/store-builder');
+  toast.success('Product imported to Store Builder');
+}
+
+function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navigate }: ListTableProps) {
   if (loading && products.length === 0) {
     return (
       <div className="mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
@@ -826,31 +993,29 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
   if (products.length === 0) return <EmptyState />;
   return (
     <div className="mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
-      <table className="w-full table-fixed">
-        <colgroup>
-          <col className="w-12" />
-          <col className="w-[420px]" />
-          <col className="w-[140px]" />
-          <col className="w-[100px]" />
-          <col className="w-[100px]" />
-          <col className="w-[100px]" />
-          <col className="w-[140px]" />
-          <col />
-        </colgroup>
-        <thead>
-          <tr className="bg-[#0f1629] border-b border-white/[0.06]">
-            {['#', 'Product', 'Category', 'Score', 'Orders', 'Price', 'Revenue', ''].map((h, i) => (
-              <th
-                key={h + i}
-                className={`text-[11px] font-semibold uppercase tracking-widest text-white/45 px-5 py-3.5 ${
-                  i === 0 || i === 1 || i === 2 ? 'text-left' : i === 7 ? 'text-center' : 'text-right'
-                }`}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-[#0f1629] border-b border-white/[0.06]">
+              {[
+                { label: '#',        align: 'text-left'  },
+                { label: 'Product',  align: 'text-left'  },
+                { label: 'Category', align: 'text-left'  },
+                { label: 'Score',    align: 'text-right' },
+                { label: 'Orders',   align: 'text-right' },
+                { label: 'Price',    align: 'text-right' },
+                { label: 'Revenue',  align: 'text-right' },
+                { label: '♡',        align: 'text-center' },
+              ].map((h) => (
+                <th
+                  key={h.label}
+                  className={`text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap ${h.align}`}
+                >
+                  {h.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
         <tbody>
           {products.map((p, i) => {
             const score = Math.round(p.winning_score ?? 0);
@@ -865,12 +1030,12 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
-                className={`h-[72px] ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
+                className={`group h-[72px] ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
               >
-                <td className="px-5 text-xs text-white/20 tabular-nums">
+                <td className="px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
                   {String(i + 1).padStart(2, '0')}
                 </td>
-                <td className="px-5">
+                <td className="px-4">
                   <div className="flex items-center gap-3 min-w-0">
                     {p.image_url ? (
                       <img
@@ -884,14 +1049,14 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                     )}
                     <div className="min-w-0 flex-1">
                       <TT content={p.product_title}>
-                        <p className="text-sm font-medium text-white/90 truncate max-w-md cursor-default">
+                        <p className="text-sm font-medium text-white/90 truncate max-w-[240px] cursor-default">
                           {p.product_title}
                         </p>
                       </TT>
                     </div>
                   </div>
                 </td>
-                <td className="px-5">
+                <td className="px-4 whitespace-nowrap">
                   {p.category ? (
                     <span
                       className="inline-block text-[11px] font-medium px-2 py-0.5 rounded truncate max-w-[124px]"
@@ -903,7 +1068,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                     <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td className="px-5 text-right">
+                <td className="px-4 text-right whitespace-nowrap">
                   {score ? (
                     <TT
                       content={
@@ -923,7 +1088,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                     <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td className={`px-5 text-right text-base font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
+                <td className={`px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${orders > 0 ? 'text-text' : 'text-muted'}`}>
                   {orders > 0 ? (
                     <TT content={`${orders.toLocaleString()} total orders tracked`}>
                       <span className="inline-block cursor-default">
@@ -935,37 +1100,54 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                     '—'
                   )}
                 </td>
-                <td className="px-5 text-right text-base font-bold text-text tabular-nums">
+                <td className="px-4 text-right text-base font-bold text-text tabular-nums whitespace-nowrap">
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                 </td>
-                <td className={`px-5 text-right text-base font-bold tabular-nums ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
+                <td className={`px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
-                <td className="px-5 text-center">
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const wasFav = fav;
-                      await onToggleFav(p);
-                      if (wasFav) {
-                        toast('Removed from saved');
-                      } else {
-                        toast.success('Product saved');
-                      }
-                    }}
-                    aria-label="Save"
-                    className={`inline-flex items-center justify-center p-1 rounded transition-colors cursor-pointer ${
-                      fav ? 'text-accent' : 'text-muted hover:text-text'
-                    }`}
-                  >
-                    <Heart size={16} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
-                  </button>
+                <td className="px-4 text-center whitespace-nowrap">
+                  {/* Default: heart icon. Hover: heart + Zap + ShoppingBag trio. */}
+                  <div className="flex items-center justify-end gap-1">
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const wasFav = fav;
+                        await onToggleFav(p);
+                        if (wasFav) toast('Removed from saved');
+                        else toast.success('Product saved');
+                      }}
+                      aria-label="Save"
+                      className={`inline-flex items-center justify-center p-1.5 rounded-md transition-colors cursor-pointer ${
+                        fav ? 'text-accent' : 'text-muted hover:text-text hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      <Heart size={15} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); createAdForProduct(p, navigate); }}
+                      aria-label="Create ad"
+                      title="Create ad"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center p-1.5 rounded-md text-muted hover:text-accent-hover hover:bg-white/[0.08] cursor-pointer"
+                    >
+                      <Zap size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); importToStore(p, navigate); }}
+                      aria-label="Import to store"
+                      title="Import to store"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center p-1.5 rounded-md text-muted hover:text-accent-hover hover:bg-white/[0.08] cursor-pointer"
+                    >
+                      <ShoppingBag size={15} strokeWidth={1.75} />
+                    </button>
+                  </div>
                 </td>
               </motion.tr>
             );
           })}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }

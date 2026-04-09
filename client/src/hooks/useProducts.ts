@@ -136,7 +136,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         // ── Tab filters (server-side) ────────────────────────────────────
         if (tab === 'new') {
-          const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+          // 90 days while the seed is the same-day import; reduce to 7
+          // once fresh Apify scrapes are flowing in.
+          const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
           query = query.gte('created_at', cutoff);
           query = applyOrder(query, orderBy);
         } else if (tab === 'trending') {
@@ -156,7 +158,8 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         // ── Generic filters ──────────────────────────────────────────────
         if (typeof minScore === 'number') query = query.gte('winning_score', minScore);
-        if (category) query = query.eq('category', category);
+        // Case-insensitive match so chip click + dropdown casing both work
+        if (category) query = query.ilike('category', category);
         if (typeof minPrice === 'number') query = query.gte('price_aud', minPrice);
         if (typeof maxPrice === 'number') query = query.lte('price_aud', maxPrice);
         if (typeof minOrders === 'number') query = query.gte('sold_count', minOrders);
