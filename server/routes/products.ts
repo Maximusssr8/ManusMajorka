@@ -674,60 +674,84 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
 // If the table doesn't exist yet the endpoint degrades gracefully —
 // every row is flagged isNew=true until the table is created.
 router.get('/radar', async (_req: Request, res: Response) => {
+  // Bulletproof: every sub-call gets its own try/catch so the endpoint
+  // always returns 200 with a valid JSON body as long as Supabase is up.
+  let current: Array<{
+    id: string | number;
+    product_title: string;
+    category: string | null;
+    price_aud: number | null;
+    sold_count: number | null;
+    winning_score: number | null;
+    image_url: string | null;
+    product_url: string | null;
+    created_at: string;
+    est_daily_revenue_aud: number | null;
+  }> = [];
+
   try {
     const sb = getSupabase();
-
-    // Current top 100 by orders
-    const { data: current, error } = await sb
+    const result = await sb
       .from('winning_products')
       .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at, est_daily_revenue_aud')
       .not('sold_count', 'is', null)
       .order('sold_count', { ascending: false })
       .limit(100);
-    if (error) return res.status(500).json({ error: error.message });
+    if (!result.error && result.data) current = result.data;
+  } catch (e) {
+    console.error('[radar] winning_products fetch failed:', e instanceof Error ? e.message : e);
+    // fall through with empty current list — page will render empty state
+  }
 
-    // Read previous rank snapshot — tolerate missing table
-    let snapshotMap = new Map<string, number>();
-    try {
-      const { data: snapshots } = await sb
-        .from('product_rank_snapshots')
-        .select('product_id, rank');
-      for (const row of (snapshots ?? []) as Array<{ product_id: string; rank: number }>) {
+  // Try to read snapshots. Any failure → empty map, all products = NEW.
+  const snapshotMap = new Map<string, number>();
+  try {
+    const sb = getSupabase();
+    const snapRes = await sb
+      .from('product_rank_snapshots')
+      .select('product_id, rank');
+    if (!snapRes.error && Array.isArray(snapRes.data)) {
+      for (const row of snapRes.data as Array<{ product_id: string; rank: number }>) {
         snapshotMap.set(String(row.product_id), row.rank);
       }
-    } catch { /* table may not exist yet */ }
-
-    const ranked = (current ?? []).map((p, i) => {
-      const currentRank = i + 1;
-      const prev = snapshotMap.get(String(p.id));
-      return {
-        ...p,
-        currentRank,
-        previousRank: prev ?? null,
-        delta: prev != null ? prev - currentRank : null,
-        isNew: prev == null,
-      };
-    });
-
-    // Fire-and-forget: write new snapshot so the next call computes deltas
-    // against this one. Swallow errors so missing table doesn't 500 the
-    // endpoint.
-    (async () => {
-      try {
-        const rows = ranked.map((r) => ({
-          product_id: String(r.id),
-          rank: r.currentRank,
-          captured_at: new Date().toISOString(),
-        }));
-        await sb.from('product_rank_snapshots').upsert(rows, { onConflict: 'product_id' });
-      } catch { /* ignore */ }
-    })();
-
-    return res.json({ ranked, updatedAt: new Date().toISOString() });
-  } catch (err: unknown) {
-    console.error('[radar]', err);
-    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+  } catch {
+    // table doesn't exist — intentional noop
   }
+
+  const ranked = current.map((p, i) => {
+    const currentRank = i + 1;
+    const prev = snapshotMap.get(String(p.id));
+    return {
+      ...p,
+      currentRank,
+      previousRank: prev ?? null,
+      delta: prev != null ? prev - currentRank : null,
+      isNew: prev == null,
+    };
+  });
+
+  // Fire-and-forget snapshot write. Wrapped in its own try and a
+  // .catch() on the promise so rejection can never propagate.
+  if (ranked.length > 0) {
+    try {
+      const sb = getSupabase();
+      const rows = ranked.map((r) => ({
+        product_id: String(r.id),
+        rank: r.currentRank,
+        captured_at: new Date().toISOString(),
+      }));
+      void sb
+        .from('product_rank_snapshots')
+        .upsert(rows, { onConflict: 'product_id' })
+        .then(() => {})
+        .catch(() => {});
+    } catch {
+      // ignore
+    }
+  }
+
+  return res.status(200).json({ ranked, updatedAt: new Date().toISOString() });
 });
 
 // ── GET /api/products/tab-counts ──────────────────────────────────────────

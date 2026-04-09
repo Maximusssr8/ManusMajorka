@@ -10,8 +10,10 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import * as Popover from '@radix-ui/react-popover';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useFavourites } from '@/hooks/useFavourites';
+import { useLists } from '@/hooks/useLists';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
@@ -158,6 +160,94 @@ function ScoreBadge({ score, size = 32 }: { score: number; size?: number }) {
     >
       {rounded}
     </span>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ListPickerButton — heart icon that opens a Radix Popover listing
+   all of the user's saved lists. Clicking a list toggles this
+   product in/out of that list. "+ New list" opens a prompt().
+   ══════════════════════════════════════════════════════════════ */
+
+interface ListPickerButtonProps {
+  product: Product;
+  lists: ReturnType<typeof useLists>;
+  size?: number;
+  className?: string;
+}
+
+function ListPickerButton({ product, lists, size = 15, className = '' }: ListPickerButtonProps) {
+  const inAnyList = lists.isInAnyList(product.id);
+  return (
+    <Popover.Root>
+      <Popover.Trigger asChild>
+        <button
+          onClick={(e) => { e.stopPropagation(); }}
+          aria-label="Save to list"
+          className={`inline-flex items-center justify-center p-1.5 rounded-md transition-colors cursor-pointer ${
+            inAnyList ? 'text-accent' : 'text-muted hover:text-text hover:bg-white/[0.08]'
+          } ${className}`}
+        >
+          <Heart size={size} strokeWidth={1.75} fill={inAnyList ? 'currentColor' : 'none'} />
+        </button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          onClick={(e) => e.stopPropagation()}
+          sideOffset={6}
+          align="end"
+          className="z-[120] bg-raised border border-white/10 rounded-xl p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)] min-w-[220px] font-body"
+        >
+          <p className="text-[11px] text-muted uppercase tracking-wider mb-2 px-1">Save to list</p>
+          <div className="flex flex-col gap-0.5 max-h-[240px] overflow-y-auto">
+            {lists.lists.map((list) => {
+              const inList = list.productIds.includes(String(product.id));
+              return (
+                <button
+                  key={list.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (inList) {
+                      lists.removeFromList(list.id, product.id);
+                      toast(`Removed from "${list.name}"`);
+                    } else {
+                      lists.addToList(list.id, product);
+                      toast.success(`Saved to "${list.name}"`);
+                    }
+                  }}
+                  className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-body hover:text-text hover:bg-white/[0.05] rounded-lg transition-colors text-left"
+                >
+                  <span className={`text-[11px] shrink-0 w-3 ${inList ? 'text-accent' : 'text-muted'}`}>
+                    {inList ? '✓' : '○'}
+                  </span>
+                  <span className="truncate flex-1">{list.name}</span>
+                  <span className="text-[10px] text-muted tabular-nums shrink-0">
+                    {list.productIds.length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="border-t border-white/[0.06] mt-2 pt-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const name = window.prompt('List name:');
+                if (name && name.trim()) {
+                  const created = lists.createList(name.trim());
+                  lists.addToList(created.id, product);
+                  toast.success(`Saved to "${created.name}"`);
+                }
+              }}
+              className="flex items-center gap-1.5 w-full px-2 py-1.5 text-xs text-accent hover:bg-accent/10 rounded-lg transition-colors"
+            >
+              + New list
+            </button>
+          </div>
+          <Popover.Arrow className="fill-raised" />
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }
 
@@ -535,6 +625,8 @@ export default function AppProducts() {
 
   const aeSearch = useAESearch();
   const fav = useFavourites();
+  const lists = useLists();
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
   /* Pre-fetched exact tab counts from /api/products/tab-counts so
      badges show real totals, not per-page slices. */
@@ -629,8 +721,13 @@ export default function AppProducts() {
 
   const filtered = useMemo<Product[]>(() => {
     if (activeTab === 'saved') {
-      return fav.favourites.map((f) => ({
-        id: f.product_id,
+      // Pull from useLists — either the selected list's products, or
+      // the union across all lists if none is selected.
+      const source = selectedListId
+        ? (lists.lists.find((l) => l.id === selectedListId)?.products ?? [])
+        : lists.allSavedProducts;
+      return source.map((f) => ({
+        id: f.id,
         product_title: f.product_title ?? '',
         category: f.category,
         platform: 'aliexpress',
@@ -649,15 +746,18 @@ export default function AppProducts() {
       return allFetched.filter((p) => (p.winning_score ?? 0) <= scoreMax);
     }
     return allFetched;
-  }, [activeTab, scoreMax, allFetched, fav.favourites]);
+  }, [activeTab, scoreMax, allFetched, lists.lists, lists.allSavedProducts, selectedListId]);
 
-  const filteredTotal = activeTab === 'saved' ? fav.count : total;
+  const filteredTotal = activeTab === 'saved'
+    ? (selectedListId
+        ? (lists.lists.find((l) => l.id === selectedListId)?.productIds.length ?? 0)
+        : lists.totalSaved)
+    : total;
   const offset = (page - 1) * perPage;
   const pageSlice = filtered.slice(offset, offset + perPage);
   const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
 
   const tabCounts = useMemo(() => {
-    // Prefer server-side COUNT(*) totals when available
     if (serverTabCounts) {
       return {
         all:        serverTabCounts.all,
@@ -665,10 +765,9 @@ export default function AppProducts() {
         trending:   serverTabCounts.trending,
         highmargin: serverTabCounts.highMargin,
         top:        serverTabCounts.score90,
-        saved:      fav.count,
+        saved:      lists.totalSaved,
       };
     }
-    // Fallback: client-side counts from the already-loaded slice
     return {
       all:        total,
       new:        allFetched.filter((p) => daysSince(p.created_at) <= NEW_DAYS_THRESHOLD).length,
@@ -678,9 +777,9 @@ export default function AppProducts() {
         return price < 15 && (p.winning_score ?? 0) >= 75 && (p.sold_count ?? 0) > 500;
       }).length,
       top:        allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
-      saved:      fav.count,
+      saved:      lists.totalSaved,
     };
-  }, [total, allFetched, fav.count, serverTabCounts]);
+  }, [total, allFetched, lists.totalSaved, serverTabCounts]);
 
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
@@ -974,6 +1073,73 @@ export default function AppProducts() {
         </div>
       )}
 
+      {/* Saved tab — list picker chips */}
+      {searchMode === 'db' && activeTab === 'saved' && (
+        <div className="px-4 md:px-8 pb-3 flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setSelectedListId(null)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+              selectedListId == null
+                ? 'bg-accent/15 border-accent text-accent-hover'
+                : 'bg-card border-white/10 text-body hover:border-white/20'
+            }`}
+          >
+            All saved
+            <span className="text-[10px] text-muted tabular-nums">
+              {lists.totalSaved}
+            </span>
+          </button>
+          {lists.lists.map((list) => {
+            const active = selectedListId === list.id;
+            return (
+              <button
+                key={list.id}
+                onClick={() => setSelectedListId(list.id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+                  active
+                    ? 'bg-accent/15 border-accent text-accent-hover'
+                    : 'bg-card border-white/10 text-body hover:border-white/20'
+                }`}
+              >
+                {list.name}
+                <span className="text-[10px] text-muted tabular-nums">
+                  {list.productIds.length}
+                </span>
+              </button>
+            );
+          })}
+          <button
+            onClick={() => {
+              const name = window.prompt('List name:');
+              if (name && name.trim()) {
+                const created = lists.createList(name.trim());
+                setSelectedListId(created.id);
+                toast.success(`List "${created.name}" created`);
+              }
+            }}
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-accent hover:bg-accent/10 transition-colors"
+          >
+            + New list
+          </button>
+          {selectedListId != null && lists.lists.length > 1 && (
+            <button
+              onClick={() => {
+                const list = lists.lists.find((l) => l.id === selectedListId);
+                if (!list) return;
+                if (window.confirm(`Delete list "${list.name}"?`)) {
+                  lists.deleteList(selectedListId);
+                  setSelectedListId(null);
+                  toast('List deleted');
+                }
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Body */}
       {searchMode === 'live' ? (
         <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
@@ -982,8 +1148,7 @@ export default function AppProducts() {
           products={pageSlice}
           loading={loading}
           onSelect={setSelectedProduct}
-          isFavourite={fav.isFavourite}
-          onToggleFav={fav.toggleFavourite}
+          lists={lists}
           navigate={navigate}
         />
       ) : (
@@ -991,6 +1156,7 @@ export default function AppProducts() {
           products={pageSlice}
           loading={loading}
           onSelect={setSelectedProduct}
+          lists={lists}
           navigate={navigate}
         />
       )}
@@ -1072,8 +1238,7 @@ interface ListTableProps {
   products: Product[];
   loading: boolean;
   onSelect: (p: Product) => void;
-  isFavourite: (id: string | number) => boolean;
-  onToggleFav: (p: Product) => Promise<void>;
+  lists: ReturnType<typeof useLists>;
   navigate: (path: string) => void;
 }
 
@@ -1102,7 +1267,7 @@ function importToStore(p: Product, navigate: (path: string) => void) {
   toast.success('Product imported to Store Builder');
 }
 
-function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navigate }: ListTableProps) {
+function ListTable({ products, loading, onSelect, lists, navigate }: ListTableProps) {
   if (loading && products.length === 0) {
     return (
       <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
@@ -1141,7 +1306,6 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
             const score = Math.round(p.winning_score ?? 0);
             const orders = p.sold_count ?? 0;
             const estMonthly = monthlyRevenue(p);
-            const fav = isFavourite(p.id);
             const isLast = i === products.length - 1;
             return (
               <motion.tr
@@ -1191,19 +1355,9 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                         </span>
                       </div>
                     </div>
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        const wasFav = fav;
-                        await onToggleFav(p);
-                        if (wasFav) toast('Removed from saved');
-                        else toast.success('Product saved');
-                      }}
-                      aria-label="Save"
-                      className={`md:hidden shrink-0 p-1.5 rounded-md ${fav ? 'text-accent' : 'text-muted'}`}
-                    >
-                      <Heart size={15} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
-                    </button>
+                    <div className="md:hidden shrink-0">
+                      <ListPickerButton product={p} lists={lists} />
+                    </div>
                   </div>
                 </td>
                 <td className="hidden md:table-cell px-4 whitespace-nowrap">
@@ -1268,23 +1422,9 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
                 <td className="hidden md:table-cell px-4 text-center whitespace-nowrap">
-                  {/* Default: heart icon. Hover: heart + Zap + ShoppingBag trio. */}
+                  {/* Heart opens list picker popover. Hover: Zap + ShoppingBag reveal. */}
                   <div className="flex items-center justify-end gap-1">
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        const wasFav = fav;
-                        await onToggleFav(p);
-                        if (wasFav) toast('Removed from saved');
-                        else toast.success('Product saved');
-                      }}
-                      aria-label="Save"
-                      className={`inline-flex items-center justify-center p-1.5 rounded-md transition-colors cursor-pointer ${
-                        fav ? 'text-accent' : 'text-muted hover:text-text hover:bg-white/[0.08]'
-                      }`}
-                    >
-                      <Heart size={15} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
-                    </button>
+                    <ListPickerButton product={p} lists={lists} />
                     <button
                       onClick={(e) => { e.stopPropagation(); createAdForProduct(p, navigate); }}
                       aria-label="Create ad"
@@ -1321,10 +1461,11 @@ interface GridCardsProps {
   products: Product[];
   loading: boolean;
   onSelect: (p: Product) => void;
+  lists: ReturnType<typeof useLists>;
   navigate: (path: string) => void;
 }
 
-function GridCards({ products, loading, onSelect }: GridCardsProps) {
+function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
   if (loading && products.length === 0) {
     return (
       <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1426,13 +1567,10 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={(e) => { e.stopPropagation(); }}
-                  className="flex-1 py-1.5 text-xs font-medium text-body bg-white/[0.06] rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-                >
-                  ♡ Save
-                </button>
+              <div className="flex gap-2 items-center">
+                <div className="flex-1 flex items-center justify-center bg-white/[0.06] rounded-lg hover:bg-white/10 transition-colors">
+                  <ListPickerButton product={p} lists={lists} size={14} className="w-full py-1.5" />
+                </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); onSelect(p); }}
                   className="flex-1 py-1.5 text-xs font-medium text-white bg-accent rounded-lg hover:bg-accent-hover transition-colors cursor-pointer"
