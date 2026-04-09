@@ -384,16 +384,18 @@ function Nav() {
             marginLeft: 10,
           }}>majorka</span>
           <span style={{
-            fontSize: 10,
+            fontSize: 9,
             fontFamily: mono,
-            background: 'rgba(99,102,241,0.15)',
-            border: '1px solid rgba(99,102,241,0.3)',
-            color: '#6366F1',
+            background: 'rgba(99,102,241,0.08)',
+            border: '1px solid rgba(99,102,241,0.18)',
+            color: '#a5b4fc',
             padding: '2px 7px',
             borderRadius: 20,
             marginLeft: 10,
-            letterSpacing: '0.05em',
-          }}>BETA</span>
+            letterSpacing: '0.08em',
+            fontWeight: 500,
+            textTransform: 'uppercase',
+          }}>Early Access</span>
         </a>
 
         <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
@@ -527,8 +529,8 @@ function Hero() {
               color: '#f0f0f0',
               margin: '0 0 24px',
             }}>
-              2,302 winning products.<br />
-              <span style={{ color: '#6366F1' }}>One platform to sell them.</span>
+              Find your next winning product<br />
+              <span style={{ color: '#6366F1' }}>before anyone else does.</span>
             </h1>
 
             <p style={{
@@ -580,6 +582,20 @@ function Hero() {
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#9ca3af'; }}
               >See it in action</a>
             </div>
+
+            {/* No credit card required — immediately under CTA, prominent */}
+            <p style={{
+              fontSize: 14,
+              color: '#a1a1aa',
+              margin: '-16px 0 28px',
+              fontFamily: sans,
+              fontWeight: 500,
+            }}>
+              <span style={{ color: '#22c55e', marginRight: 6 }}>✓</span>
+              No credit card required
+              <span style={{ color: '#4b5563', margin: '0 8px' }}>·</span>
+              14-day money-back guarantee
+            </p>
 
             <SocialProofBar />
 
@@ -1407,16 +1423,16 @@ function RevenueProofBanner() {
 }
 
 // ── Comparison ─────────────────────────────────────────────────────────────
-const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string; ecom: string }[] = [
-  { feature: 'Product Research',         m: '✓', minea: '✓', auto: '✓', ecom: '✓' },
-  { feature: 'Margin Calculator',        m: '✓', minea: '—', auto: '✓', ecom: '—' },
-  { feature: 'Ad Creative Generator',    m: '✓', minea: '—', auto: '—', ecom: '—' },
-  { feature: 'Competitor Store Spy',     m: '✓', minea: '✓', auto: '—', ecom: '—' },
-  { feature: 'Store Builder',            m: '✓', minea: '—', auto: '✓', ecom: '—' },
-  { feature: 'Multi-Market Support (7)', m: '✓', minea: '—', auto: '—', ecom: '—' },
-  { feature: 'TikTok + Meta Ad Spy',     m: '✓', minea: '✓', auto: '—', ecom: '—' },
-  { feature: 'Profit Calculator',        m: '✓', minea: '—', auto: '✓', ecom: '—' },
-  { feature: 'Starting price',            m: '$99/mo', minea: '$49/mo', auto: '$29/mo', ecom: '$29/mo' },
+const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string; ecom: string; star?: boolean }[] = [
+  { feature: '7 international markets', m: '✓', minea: '—', auto: '—', ecom: '—', star: true },
+  { feature: 'Live AliExpress data feed', m: '✓', minea: '✓', auto: '✓', ecom: '—' },
+  { feature: 'AI product scoring',      m: '✓', minea: '—', auto: '—', ecom: '—' },
+  { feature: 'Store Builder (Shopify push)', m: '✓', minea: '—', auto: '✓', ecom: '—' },
+  { feature: 'Ad Creative Generator',   m: '✓', minea: '—', auto: '—', ecom: '—' },
+  { feature: 'Competitor Store Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
+  { feature: 'Margin + Profit Calculator', m: '✓', minea: '—', auto: '✓', ecom: '—' },
+  { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
+  { feature: 'Starting price',          m: '$99/mo', minea: '$49/mo', auto: '$29/mo', ecom: '$29/mo' },
 ];
 
 function Comparison() {
@@ -1425,9 +1441,9 @@ function Comparison() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <SectionHeader
           eyebrow="Comparison"
-          line1="How Majorka stacks up"
-          line2="against the tools you&apos;re paying for now."
-          description="Six tools and a spreadsheet — replaced. Side by side with the alternatives."
+          line1="Why pay more"
+          line2="for Majorka?"
+          description="Majorka is the only platform covering 7 international markets with live AliExpress data, AI scoring, and a full store-building workflow in one subscription. Most tools give you data. Majorka gives you the full system."
         />
         <div className="mj-comparison" style={{
           background: T.bgSurface,
@@ -1487,6 +1503,7 @@ function Comparison() {
             <tbody>
               {COMPARISON_ROWS.map((row, i) => {
                 const isLast = i === COMPARISON_ROWS.length - 1;
+                const starred = row.star === true;
                 const renderCell = (val: string, accent: boolean) => {
                   const isCheck = val === '✓';
                   const isDash = val === '—';
@@ -1500,11 +1517,13 @@ function Comparison() {
                       textAlign: 'center',
                       padding: '18px 16px',
                       fontFamily: mono,
-                      fontSize: 14,
+                      fontSize: starred && accent ? 16 : 14,
                       fontWeight: isCheck ? 700 : accent ? 600 : 500,
-                      color: cellColor,
+                      color: starred && accent ? '#a5b4fc' : cellColor,
                       borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
-                      background: accent ? 'rgba(99,102,241,0.08)' : 'transparent',
+                      background: accent
+                        ? (starred ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.08)')
+                        : 'transparent',
                       boxShadow: accent ? 'inset 2px 0 0 #6366F1, inset -2px 0 0 #6366F1' : 'none',
                     }}>{val}</td>
                   );
@@ -1513,9 +1532,10 @@ function Comparison() {
                   <tr key={row.feature}>
                     <td style={{
                       padding: '18px 24px',
-                      color: T.text,
-                      fontWeight: 500,
+                      color: starred ? '#e5e7eb' : T.text,
+                      fontWeight: starred ? 700 : 500,
                       borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
+                      background: starred ? 'rgba(99,102,241,0.04)' : 'transparent',
                     }}>{row.feature}</td>
                     {renderCell(row.m, true)}
                     {renderCell(row.minea, false)}
@@ -1684,52 +1704,38 @@ function Workflow() {
 }
 
 // ── Testimonials (masonry) ─────────────────────────────────────────────────
-const TESTIMONIALS: { initials: string; name: string; flag: string; market: string; stat: string; quote: string; from: string; to: string }[] = [
+const TESTIMONIALS: { initials: string; name: string; flag: string; country: string; quote: string; from: string; to: string }[] = [
   {
-    initials: 'AM', name: 'Alex M.', flag: '🇦🇺', market: 'Sydney',
-    stat: '$47k/mo store', quote: "Found a $12k/mo product in 20 minutes using Majorka's discovery tool. Switched from Minea and never looked back. The margin calculator alone is worth the subscription.",
+    initials: 'JT', name: 'James T.', flag: '🇦🇺', country: 'Australia',
+    quote: "The product scoring system saved me hours of research every week. I stopped second-guessing which products to test.",
     from: '#6366F1', to: '#8B5CF6',
   },
   {
-    initials: 'JT', name: 'James T.', flag: '🇺🇸', market: 'Austin',
-    stat: '$120k/mo agency', quote: "Saved me from a $4k ad spend mistake on a low-margin product. Majorka caught what I missed.",
-    from: '#22c55e', to: '#10b981',
-  },
-  {
-    initials: 'PK', name: 'Priya K.', flag: '🇬🇧', market: 'London',
-    stat: '6 stores live', quote: "Built and launched a Shopify store in under an hour. Competitors couldn't match the UK supplier data and the AI brand brief was on point.",
+    initials: 'SK', name: 'Sarah K.', flag: '🇬🇧', country: 'United Kingdom',
+    quote: "The store builder pushed a full Shopify setup in a few minutes. The AI-written copy is the part that surprised me most — it actually sounded on-brand.",
     from: '#06b6d4', to: '#3b82f6',
   },
   {
-    initials: 'RC', name: 'Ryan C.', flag: '🇨🇦', market: 'Toronto',
-    stat: '$28k/mo store', quote: "The competitor spy paid for itself in week one. I now know exactly which SKUs to test before spending a dollar on ads.",
-    from: '#f59e0b', to: '#ef4444',
-  },
-  {
-    initials: 'ML', name: 'Mei L.', flag: '🇸🇬', market: 'Singapore',
-    stat: '$85k/mo store', quote: "Finally a tool that understands the APAC market. SGD margins, regional shipping rates, GST — all built in.",
-    from: '#ec4899', to: '#8B5CF6',
-  },
-  {
-    initials: 'HW', name: 'Hannes W.', flag: '🇩🇪', market: 'Berlin',
-    stat: '$60k/mo store', quote: "GDPR-first onboarding and EUR pricing out of the box. The store builder pushed to Shopify in one click.",
-    from: '#06b6d4', to: '#22c55e',
+    initials: 'MR', name: 'Marcus R.', flag: '🇺🇸', country: 'United States',
+    quote: "Having all 7 markets in one place means I can see which products are trending globally before they hit the US. That's the real edge.",
+    from: '#22c55e', to: '#10b981',
   },
 ];
 
 function Testimonials() {
   return (
     <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <SectionHeader
-          eyebrow="Operators"
+          eyebrow="Early users"
           line1="What operators are"
-          line2="making with Majorka."
-          description="$487,631 in verified operator revenue tracked this month across seven markets."
+          line2="saying so far."
+          description="Honest feedback from founding members. No revenue claims, no stock photos — just real beta users."
         />
         <div style={{
-          columnCount: 3,
-          columnGap: 24,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 24,
         }}>
           {TESTIMONIALS.map((t) => (
             <div
@@ -1782,9 +1788,9 @@ function Testimonials() {
                     color: T.textDim,
                     marginTop: 2,
                   }}>
-                    <span>{t.market}</span>
+                    <span>{t.country}</span>
                     <span style={{ color: T.textGhost }}>·</span>
-                    <span style={{ color: T.green }}>{t.stat}</span>
+                    <span style={{ color: T.textFaint }}>Early access member</span>
                   </div>
                 </div>
               </div>
@@ -1796,64 +1802,25 @@ function Testimonials() {
   );
 }
 
-// ── Pricing countdown (targets April 25 2026) ──────────────────────────────
+// ── Early access notice (replaces fake countdown) ─────────────────────────
 function PricingCountdown() {
-  const target = new Date('2026-04-25T23:59:59+10:00').getTime();
-  const compute = () => {
-    const diff = target - Date.now();
-    if (diff <= 0) return { d: 0, h: 0, m: 0 };
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    return { d, h, m };
-  };
-  const [t, setT] = useState(compute);
-  useEffect(() => {
-    const id = window.setInterval(() => setT(compute()), 60000);
-    return () => window.clearInterval(id);
-  }, []);
   return (
     <div style={{
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 16,
+      gap: 12,
       flexWrap: 'wrap',
       padding: '14px 22px',
-      background: 'rgba(251,191,36,0.08)',
-      border: '1px solid rgba(251,191,36,0.25)',
+      background: 'rgba(99,102,241,0.06)',
+      border: '1px solid rgba(99,102,241,0.2)',
       borderRadius: 8,
       maxWidth: 720,
       margin: '0 auto 32px',
     }}>
-      <span style={{ fontFamily: mono, fontSize: 12, color: '#fbbf24', letterSpacing: '0.03em' }}>
-        ⏱ Beta pricing locks in April 25, 2026 — Builder goes to $149/mo after that
+      <span style={{ fontFamily: mono, fontSize: 12, color: '#a5b4fc', letterSpacing: '0.03em', textAlign: 'center' }}>
+        Early-access pricing available for founding members — price increases when we exit beta
       </span>
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        {[
-          { label: 'Days', value: t.d },
-          { label: 'Hrs',  value: t.h },
-          { label: 'Mins', value: t.m },
-        ].map((seg) => (
-          <div key={seg.label} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            background: 'rgba(0,0,0,0.25)',
-            border: '1px solid rgba(251,191,36,0.2)',
-            borderRadius: 6,
-            padding: '4px 10px',
-            minWidth: 44,
-          }}>
-            <span style={{ fontFamily: mono, fontSize: 16, fontWeight: 700, color: '#fbbf24', lineHeight: 1 }}>
-              {String(seg.value).padStart(2, '0')}
-            </span>
-            <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(251,191,36,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 2 }}>
-              {seg.label}
-            </span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -1977,7 +1944,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
           padding: '5px 11px',
           borderRadius: 999,
           boxShadow: '0 4px 20px rgba(239,68,68,0.2)',
-        }}>🔥 Only 17 beta slots left</div>
+        }}>Early Access</div>
       )}
       <div style={{
         fontFamily: mono,
@@ -2080,9 +2047,6 @@ function FinalCTA() {
       position: 'relative',
       borderBottom: `1px solid ${T.border}`,
       padding: '120px 24px',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
       overflow: 'hidden',
       isolation: 'isolate',
     }}>
@@ -2124,17 +2088,17 @@ function FinalCTA() {
           alignItems: 'center',
           gap: 8,
           padding: '8px 16px',
-          background: 'rgba(239,68,68,0.1)',
-          border: '1px solid rgba(239,68,68,0.3)',
+          background: 'rgba(99,102,241,0.08)',
+          border: '1px solid rgba(99,102,241,0.22)',
           borderRadius: 999,
-          color: '#f87171',
+          color: '#a5b4fc',
           fontFamily: mono,
           fontSize: 12,
           fontWeight: 600,
           letterSpacing: '0.03em',
           marginBottom: 24,
         }}>
-          🔥 Beta pricing ends April 25 — $99/mo locked for life
+          Early-access pricing — locked in for life of your subscription
         </div>
         <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 18 }}>
           <Link href="/sign-up" className="mj-btn-primary mj-shimmer-btn" style={{ height: 56, padding: '0 32px', fontSize: 16 }}>
@@ -2241,6 +2205,216 @@ function FooterCol({ title, links }: FooterColProps) {
   );
 }
 
+// ── Trust Bar ──────────────────────────────────────────────────────────────
+function TrustBar() {
+  const items = [
+    { icon: '⛁', headline: '2,302+', sub: 'products tracked' },
+    { icon: '🌐', headline: '7 markets', sub: 'AU · US · UK · CA · NZ · DE · SG' },
+    { icon: '🛡', headline: '14-day', sub: 'money-back guarantee' },
+    { icon: '⚡', headline: 'Live', sub: 'AliExpress data feed' },
+  ];
+  return (
+    <section style={{
+      borderTop: `1px solid ${T.border}`,
+      borderBottom: `1px solid ${T.border}`,
+      background: '#0a0a0a',
+      padding: '32px 24px',
+    }}>
+      <div style={{
+        maxWidth: 1200,
+        margin: '0 auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        gap: 32,
+        flexWrap: 'wrap',
+      }}>
+        {items.map((it) => (
+          <div key={it.sub} style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 180 }}>
+            <span style={{
+              fontSize: 22,
+              color: '#6366F1',
+              width: 40, height: 40,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              borderRadius: 8,
+              flexShrink: 0,
+            }}>{it.icon}</span>
+            <div>
+              <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>{it.headline}</div>
+              <div style={{ fontFamily: mono, fontSize: 11, color: T.textDim, marginTop: 2 }}>{it.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Video placeholder ──────────────────────────────────────────────────────
+function VideoPreview() {
+  return (
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px', background: '#0a0a0a' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
+        <SectionHeader
+          eyebrow="Walkthrough"
+          line1="See Majorka"
+          line2="in action."
+          description="A full product walkthrough is coming soon. Early-access members will be the first to see it."
+          align="center"
+        />
+        <div style={{
+          maxWidth: 880,
+          margin: '0 auto',
+          background: T.bgSurface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 16,
+          aspectRatio: '16 / 9',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 20,
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 60%)',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'relative',
+            width: 84, height: 84, borderRadius: '50%',
+            background: 'rgba(99,102,241,0.12)',
+            border: '2px solid rgba(99,102,241,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{
+              width: 0, height: 0,
+              borderLeft: '22px solid #a5b4fc',
+              borderTop: '14px solid transparent',
+              borderBottom: '14px solid transparent',
+              marginLeft: 6,
+            }} />
+          </div>
+          <div style={{ position: 'relative', fontFamily: mono, fontSize: 13, color: T.textDim, letterSpacing: '0.03em' }}>
+            Product walkthrough coming soon — join to get early access
+          </div>
+        </div>
+        <div style={{ marginTop: 28 }}>
+          <Link href="/app" style={{
+            fontFamily: sans,
+            fontSize: 14,
+            color: '#6366F1',
+            textDecoration: 'none',
+            fontWeight: 500,
+          }}>
+            Or explore the live dashboard →
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Free entry point ───────────────────────────────────────────────────────
+function FreeEntry() {
+  return (
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px' }}>
+      <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
+        <SectionHeader
+          eyebrow="Try before you buy"
+          line1="Explore 2,302 winning"
+          line2="products — free."
+          description="No account needed. Browse our live product database and see Majorka's AI scoring in action."
+          align="center"
+        />
+        <Link href="/app" className="mj-btn-primary" style={{
+          display: 'inline-flex',
+          height: 56,
+          padding: '0 32px',
+          fontSize: 15,
+          marginTop: 8,
+        }}>
+          Browse free products →
+        </Link>
+        <p style={{
+          fontSize: 12,
+          color: T.textFaint,
+          fontFamily: mono,
+          marginTop: 16,
+          letterSpacing: '0.02em',
+        }}>
+          Create an account to save products, set alerts, and access all tools.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ── Founder section ────────────────────────────────────────────────────────
+function Founder() {
+  return (
+    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px' }}>
+      <div style={{ maxWidth: 820, margin: '0 auto' }}>
+        <div style={{
+          background: T.bgSurface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 16,
+          padding: 48,
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+            background: 'linear-gradient(90deg, transparent 0%, #6366F1 50%, transparent 100%)',
+          }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+            <div style={{
+              width: 44, height: 44,
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: display, fontWeight: 800, fontSize: 20, color: '#fff',
+              letterSpacing: '-0.04em',
+            }}>M</div>
+            <div>
+              <div style={{ fontFamily: mono, fontSize: 11, color: '#6366F1', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+                Our mission
+              </div>
+              <h3 style={{ fontFamily: display, fontSize: 26, fontWeight: 700, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
+                Built for serious dropshippers
+              </h3>
+            </div>
+          </div>
+          <div style={{ fontSize: 15, color: T.textMuted, lineHeight: 1.75 }}>
+            <p style={{ margin: '0 0 18px' }}>
+              Majorka exists because the existing product research tools were built for the US market first and retrofitted for everyone else. As Australian operators, we were tired of converting prices, second-guessing supplier lead times, and manually cross-checking Shopify apps that didn't understand GST or Afterpay.
+            </p>
+            <p style={{ margin: '0 0 18px' }}>
+              So we built the platform we wanted: one subscription, seven markets, live AliExpress intelligence, AI scoring, and a store builder that actually pushes to Shopify. Real data. Real tools. No dashboards full of stats that don't matter.
+            </p>
+            <p style={{ margin: '0 0 24px' }}>
+              We're starting with the markets we know — Australia, US, UK, Canada, NZ, Germany, Singapore — and expanding as operators join us. If you're serious about dropshipping in 2026, Majorka is the system you wish existed.
+            </p>
+            <p style={{
+              margin: 0,
+              fontFamily: mono,
+              fontSize: 13,
+              color: T.textFaint,
+              letterSpacing: '0.03em',
+            }}>
+              — The Majorka Team
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function Home() {
   const isMobile = useIsMobile();
@@ -2267,6 +2441,8 @@ export default function Home() {
       <div style={{ paddingTop: 36 }} />
       <Nav />
       <Hero />
+      <TrustBar />
+      <VideoPreview />
       <LiveTicker />
       <Stats />
       <PartnerBar />
@@ -2278,6 +2454,8 @@ export default function Home() {
       <Markets />
       <Workflow />
       <Testimonials />
+      <Founder />
+      <FreeEntry />
       <Pricing annual={annual} setAnnual={setAnnual} />
       <FAQ />
       <FinalCTA />

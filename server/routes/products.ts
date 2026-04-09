@@ -551,9 +551,12 @@ router.get('/stats-overview', async (_req: Request, res: Response) => {
       return ts >= twoWeeksAgo && ts < weekAgo;
     }).length;
 
-    const hotDelta = hotNewLastWeek > 0
-      ? Math.round(((hotNewThisWeek - hotNewLastWeek) / hotNewLastWeek) * 100)
-      : null; // null = not enough data for a meaningful delta
+    // Clamp trend percentage: require baseline >= 10 for a meaningful delta,
+    // otherwise surface "insufficient data" (null). Cap at +999% to prevent
+    // absurd jumps from tiny denominators leaking through.
+    const hotDelta = hotNewLastWeek >= 10
+      ? Math.max(-999, Math.min(999, Math.round(((hotNewThisWeek - hotNewLastWeek) / hotNewLastWeek) * 100)))
+      : null; // null = insufficient data
 
     return res.json({
       total,

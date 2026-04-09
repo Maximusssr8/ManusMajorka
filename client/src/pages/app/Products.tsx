@@ -427,12 +427,27 @@ function ProductSheet({
           </div>
 
           {/* Stats grid */}
+          {(() => {
+            // EST REV display: exact value (green) if DB has est_daily_revenue_aud,
+            // otherwise a computed estimate (amber, marked ~ and "est") so the user
+            // knows it's derived from sold_count × price, not a real value.
+            const hasRealRev = product.est_daily_revenue_aud != null && product.est_daily_revenue_aud > 0;
+            const estRevLabel = hasRealRev ? 'Est Rev' : 'Est Rev (est.)';
+            const estRevValue = estMonthly != null
+              ? (hasRealRev
+                  ? `$${Math.round(estMonthly).toLocaleString()}`
+                  : `~$${Math.round(estMonthly).toLocaleString()}`)
+              : '—';
+            const estRevClass = estMonthly == null
+              ? 'text-muted'
+              : hasRealRev ? 'text-green' : 'text-amber';
+            return (
           <div className="px-4 grid grid-cols-2 gap-2.5">
             {[
               { label: 'Sell Price', value: price != null ? `$${price.toFixed(2)}` : '—', className: 'text-text' },
               { label: 'Orders/Mo',  value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
               { label: 'AI Score',   value: score ? `${score}/100` : '—', className: 'text-accent-hover' },
-              { label: 'Est Rev',    value: estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—', className: 'text-green' },
+              { label: estRevLabel,  value: estRevValue, className: estRevClass },
             ].map((cell) => (
               <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3.5">
                 <div className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-1.5">
@@ -444,6 +459,8 @@ function ProductSheet({
               </div>
             ))}
           </div>
+            );
+          })()}
 
           <div className="p-4">
             {product.category && (

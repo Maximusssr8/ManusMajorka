@@ -117,7 +117,7 @@ export default function AppHome() {
       sub: 'Score 65 and above',
       Icon: Flame,
       topLine: 'bg-amber',
-      trendText: hotDelta == null ? null
+      trendText: hotDelta == null ? 'Insufficient data'
                  : hotDelta > 0 ? `+${hotDelta}% vs last week`
                  : hotDelta < 0 ? `${hotDelta}% vs last week`
                  : 'Flat vs last week',
