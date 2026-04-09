@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
-  LayoutDashboard, Package, TrendingUp, Video,
+  LayoutDashboard, Package, Video,
   Sparkles, Megaphone, Store, FileText,
-  Bell, DollarSign, Eye, Calculator, Settings,
-  GraduationCap, ShieldCheck, Search, Radio, Layers,
+  Bell, DollarSign, Eye, Settings,
+  GraduationCap, ShieldCheck, Search,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useTracking } from '@/hooks/useTracking';
+import { GradientM } from '@/components/MajorkaLogo';
 // isPro ⇒ SCALE tier label
 
 interface NavItem {
@@ -26,10 +27,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'Intelligence',
     items: [
       { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
-      { label: 'Radar',    path: '/app/radar',    icon: Radio },
       { label: 'Products', path: '/app/products', icon: Package },
-      { label: 'Niches',   path: '/app/niches',   icon: Layers },
-      { label: 'Market',   path: '/app/market',   icon: TrendingUp },
       { label: 'Creators', path: '/app/creators', icon: Video },
     ],
   },
@@ -48,7 +46,6 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
       { label: 'Alerts',         path: '/app/alerts',         icon: Bell, badge: 'trackedCount' },
       { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye, soon: true },
       { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
-      { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
     ],
   },
   {
@@ -85,16 +82,22 @@ export function Nav({ onNavigate }: NavProps = {}) {
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-accent/[0.04] to-transparent pointer-events-none" />
 
       <div className="relative z-10 flex flex-col h-full">
-        {/* Logo + wordmark */}
+        {/* Logo + wordmark — uses shared MajorkaLogo lockup */}
         <Link
           href="/app"
           onClick={onNavigate}
           className="flex items-center gap-2.5 px-4 pt-5 pb-3 no-underline shrink-0"
         >
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center text-white text-xs font-black">
-            M
-          </div>
-          <span className="text-[15px] font-display font-bold text-text tracking-tight">
+          <GradientM size={32} />
+          <span
+            className="text-[15px] font-display font-bold tracking-tight"
+            style={{
+              background: 'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             Majorka
           </span>
         </Link>

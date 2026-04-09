@@ -287,13 +287,14 @@ function Router() {
 
             {/* Redirects for consolidated pages */}
             <Route path="/app/products">{() => <ProtectedRoute><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/niches">{() => <ProtectedRoute><NewAppShell><NewNiches /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/radar">{() => <ProtectedRoute><NewAppShell><NewRadar /></NewAppShell></ProtectedRoute>}</Route>
+            {/* Removed from nav — kept as redirects so old bookmarks land on Products */}
+            <Route path="/app/niches">{() => { window.location.replace('/app/products'); return null; }}</Route>
+            <Route path="/app/radar">{() => { window.location.replace('/app/products'); return null; }}</Route>
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/market">{() => <ProtectedRoute><NewAppShell><NewMarket /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/market">{() => { window.location.replace('/app/products'); return null; }}</Route>
             <Route path="/app/market-legacy">{() => <ProtectedRoute><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/market-intel">{() => { window.location.replace('/app/market'); return null; }}</Route>
             <Route path="/app/market-dashboard">{() => { window.location.replace('/app/market'); return null; }}</Route>

@@ -136,6 +136,40 @@ function marketRevenue(p: Product): number | null {
  * real DB fields — no AI calls, no hallucinated reasons. Each reason
  * maps to a concrete threshold crossing, so operators can trust them.
  */
+/**
+ * Launch Readiness Score — synthesises 4 signals into a single 0-100
+ * number. The "should I sell this?" answer in one glance.
+ *   Demand (orders):    30 pts
+ *   AI score:           30 pts
+ *   Margin potential:   20 pts (low landed cost = high)
+ *   Freshness:          20 pts (newer = early-mover advantage)
+ */
+interface LaunchReadiness {
+  score: number;
+  tier: 'launch' | 'strong' | 'test' | 'research';
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+}
+function launchReadiness(p: Product): LaunchReadiness {
+  const orders = Number(p.sold_count ?? 0);
+  const score = Number(p.winning_score ?? 0);
+  const price = Number(p.price_aud ?? 999);
+  const days = p.created_at ? daysSince(p.created_at) : 9999;
+
+  const demandPts = orders > 200000 ? 30 : orders > 100000 ? 22 : orders > 50000 ? 15 : orders > 10000 ? 8 : 3;
+  const scorePts = Math.round((score / 100) * 30);
+  const marginPts = price < 8 ? 20 : price < 15 ? 16 : price < 25 ? 12 : 6;
+  const freshPts = days < 7 ? 20 : days < 30 ? 15 : days < 90 ? 10 : 5;
+  const total = Math.min(100, demandPts + scorePts + marginPts + freshPts);
+
+  if (total >= 80) return { score: total, tier: 'launch', label: 'Launch now', color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.28)' };
+  if (total >= 60) return { score: total, tier: 'strong', label: 'Strong bet',  color: '#818cf8', bg: 'rgba(99,102,241,0.10)', border: 'rgba(99,102,241,0.25)' };
+  if (total >= 40) return { score: total, tier: 'test',   label: 'Test first',  color: '#f59e0b', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.25)' };
+  return { score: total, tier: 'research', label: 'Research more', color: '#71717a', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.10)' };
+}
+
 function getWinReasons(p: Product): string[] {
   const reasons: string[] = [];
   const orders = Number(p.sold_count ?? 0);
@@ -696,6 +730,36 @@ function ProductSheet({
               );
             })()}
           </div>
+
+          {/* Launch Readiness Score — single number that answers "should I sell this?" */}
+          {(() => {
+            const lr = launchReadiness(product);
+            return (
+              <div
+                className="mx-4 mb-4 rounded-2xl p-4"
+                style={{ background: lr.bg, border: `1px solid ${lr.border}` }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: lr.color }}>
+                    Launch Readiness
+                  </span>
+                  <span className="text-[10px] text-white/30">What Majorka recommends</span>
+                </div>
+                <div className="flex items-end gap-3">
+                  <div className="text-4xl font-display font-black tabular-nums" style={{ color: lr.color }}>
+                    {lr.score}
+                  </div>
+                  <div className="pb-1">
+                    <div className="text-sm font-bold" style={{ color: lr.color }}>{lr.label}</div>
+                    <div className="text-[10px] text-white/30">out of 100 · demand · margin · trend</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* First Sale Blueprint — collapsible 7-day plan from Claude */}
+          <FirstSaleBlueprint productId={String(product.id)} />
 
           {/* Why This Product Wins — computed reasons from real data */}
           {(() => {
@@ -2119,6 +2183,98 @@ function ProductHistoryChart({ productId }: { productId: string | number }) {
    the same category with similar score range. Pure visual,
    read-only — clicking opens AliExpress directly.
    ────────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────
+   FirstSaleBlueprint — on-demand 7-day action plan from Claude.
+   Collapsed by default. Operator clicks "Generate" to fire one
+   POST /api/products/blueprint call. Result stays mounted while
+   the panel is open. Falls back to a deterministic plan if Claude
+   isn't configured server-side.
+   ────────────────────────────────────────────────────────────── */
+interface BlueprintStep { day: number; title: string; action: string; budget?: string | null }
+
+function FirstSaleBlueprint({ productId }: { productId: string }) {
+  const [steps, setSteps] = useState<BlueprintStep[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  async function generate() {
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch('/api/products/blueprint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, market: 'AU' }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const out = Array.isArray(data?.steps) ? (data.steps as BlueprintStep[]) : [];
+      if (out.length === 0) throw new Error('Empty blueprint');
+      setSteps(out);
+      setOpen(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to generate');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!steps) {
+    return (
+      <div className="mx-4 mb-4">
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="w-full py-3 rounded-xl text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
+          style={{
+            background: loading ? 'rgba(99,102,241,0.4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            borderColor: 'rgba(99,102,241,0.4)',
+            opacity: loading ? 0.7 : 1,
+          }}
+        >
+          <Zap size={14} strokeWidth={2.5} />
+          {loading ? 'Generating your blueprint…' : 'Generate 7-day Blueprint'}
+        </button>
+        {error && <div className="text-[11px] text-red-400 mt-2 text-center">{error}</div>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-4 mb-4 bg-accent/[0.04] border border-accent/20 rounded-xl p-4">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between mb-3"
+      >
+        <div className="flex items-center gap-2">
+          <Zap size={13} className="text-accent-hover" strokeWidth={2.5} />
+          <span className="text-[11px] font-bold uppercase tracking-wider text-accent-hover">
+            7-Day First Sale Blueprint
+          </span>
+        </div>
+        <ChevronRight size={14} className={`text-muted transition-transform ${open ? 'rotate-90' : ''}`} />
+      </button>
+      {open && (
+        <div className="space-y-2.5">
+          {steps.map((s) => (
+            <div key={s.day} className="rounded-lg p-3 bg-card border border-white/[0.06]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[9px] font-black text-accent uppercase tracking-wider">Day {s.day}</span>
+                <span className="text-xs font-semibold text-text">{s.title}</span>
+              </div>
+              <p className="text-[11px] text-body leading-relaxed">{s.action}</p>
+              {s.budget && (
+                <div className="mt-1.5 text-[10px] font-semibold text-amber">Budget: {s.budget}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SimilarProducts({ category, excludeId }: { category: string; excludeId: string }) {
   const { products, loading } = useProducts({
     category,

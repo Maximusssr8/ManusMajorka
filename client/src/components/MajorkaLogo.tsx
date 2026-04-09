@@ -1,7 +1,38 @@
 /**
  * MajorkaLogo — canonical logomark + wordmark component.
  * Uses the official Majorka gradient-M mark.
+ *
+ * Two exports:
+ *  - default (image-based, lockup with wordmark)  → marketing pages
+ *  - { GradientM } pure CSS gradient mark         → app shell, dark UIs
  */
+
+/**
+ * GradientM — pure CSS gradient logomark. Uses no image asset so it
+ * never 404s and renders consistently on dark backgrounds. Square,
+ * sized to its parent's `size` prop, with the bold M centred.
+ */
+export function GradientM({ size = 32, className }: { size?: number; className?: string }) {
+  return (
+    <div
+      className={`flex items-center justify-center font-display font-black text-white shrink-0 ${className ?? ''}`}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.27),
+        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        fontSize: Math.round(size * 0.45),
+        boxShadow: '0 4px 16px rgba(99,102,241,0.4), inset 0 1px 0 rgba(255,255,255,0.18)',
+        letterSpacing: '-0.02em',
+        lineHeight: 1,
+      }}
+      aria-label="Majorka"
+    >
+      M
+    </div>
+  );
+}
+
 
 interface MajorkaLogoProps {
   /** Icon size in px (default 32) */

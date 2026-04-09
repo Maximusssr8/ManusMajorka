@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from
 import CountUp from 'react-countup';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { GradientM } from '@/components/MajorkaLogo';
 import { useProducts, type Product } from '@/hooks/useProducts';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { useFavourites } from '@/hooks/useFavourites';
@@ -207,6 +208,9 @@ export default function AppHome() {
         </div>
       </div>
 
+      {/* Today's 5 — daily-briefing card. Top of page = first thing operators see */}
+      <TodaysFive />
+
       {/* Hero — with a subtle mesh gradient backing the greeting block */}
       <div className="relative z-10 px-4 md:px-8 pt-8 md:pt-10 pb-6">
         <div className="relative">
@@ -214,9 +218,12 @@ export default function AppHome() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(99,102,241,0.06)_0%,transparent_60%)] pointer-events-none" />
           <div className="relative flex items-start justify-between gap-6 flex-wrap">
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-muted uppercase tracking-widest mb-3">
-                {today} · Scale Plan
-              </p>
+              <div className="flex items-center gap-3 mb-3">
+                <GradientM size={36} />
+                <p className="text-xs text-muted uppercase tracking-widest">
+                  {today} · Scale Plan
+                </p>
+              </div>
               <h1 className="text-4xl md:text-5xl font-display font-bold text-text tracking-tight leading-tight">
                 Good {tod}, <span className="text-accent">{firstName}</span>.
               </h1>
@@ -608,3 +615,124 @@ export default function AppHome() {
 
 // timeAgoShort retained for potential future use
 export { timeAgoShort };
+
+/* ──────────────────────────────────────────────────────────────
+   TodaysFive — daily-briefing horizontal scroll of 5 picks.
+   Fetches from /api/products/todays-picks. Caches via useProducts'
+   own caching layer would be ideal but the endpoint shape is bespoke,
+   so we fetch once on mount.
+   ────────────────────────────────────────────────────────────── */
+interface TodaysPick {
+  id: string;
+  product_title: string | null;
+  price_aud: number | null;
+  sold_count: number | null;
+  winning_score: number | null;
+  image_url: string | null;
+  category: string | null;
+}
+
+function TodaysFive() {
+  const [picks, setPicks] = useState<TodaysPick[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products/todays-picks?market=AU&limit=5')
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        setPicks(Array.isArray(d?.picks) ? d.picks : []);
+        setLoading(false);
+      })
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  return (
+    <div className="relative z-10 px-4 md:px-8 pt-6 pb-2">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-accent">Today&apos;s Top 5</span>
+            <span className="text-[10px] text-white/25">
+              · {new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })}
+            </span>
+          </div>
+          <h2 className="text-lg font-display font-bold text-white">Your daily picks</h2>
+        </div>
+        <Link
+          href="/app/products"
+          className="text-xs text-accent hover:text-accent-hover font-medium no-underline"
+        >
+          Browse all →
+        </Link>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+        {loading
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="w-52 shrink-0 h-72 rounded-2xl bg-white/[0.04] animate-pulse" />
+            ))
+          : picks.length === 0
+            ? <div className="text-xs text-muted py-8">No picks today — check back later.</div>
+            : picks.map((p, i) => <TodayCard key={p.id} product={p} rank={i + 1} />)
+        }
+      </div>
+    </div>
+  );
+}
+
+function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
+  const score = Math.round(product.winning_score ?? 0);
+  const orders = product.sold_count ?? 0;
+  return (
+    <Link
+      href={`/app/products?product=${product.id}`}
+      className="w-52 shrink-0 rounded-2xl overflow-hidden cursor-pointer group relative no-underline glass-card glass-card--interactive"
+    >
+      {/* Decorative rank number */}
+      <div className="absolute top-2 left-3 z-10 font-display font-black text-4xl text-white/10 leading-none select-none pointer-events-none">
+        {rank}
+      </div>
+      <div className="relative h-36 overflow-hidden">
+        {product.image_url ? (
+          <img
+            src={proxyImage(product.image_url) ?? product.image_url}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-white/[0.04]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
+        <div
+          className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white"
+          style={{
+            background: score >= 90 ? 'rgba(16,185,129,0.92)' : 'rgba(245,158,11,0.92)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          {score}
+        </div>
+      </div>
+      <div className="p-3">
+        <p
+          className="text-xs font-medium text-text leading-snug mb-2 overflow-hidden"
+          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+          title={product.product_title ?? ''}
+        >
+          {product.product_title ?? 'Untitled'}
+        </p>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-base font-bold text-text tabular-nums">
+            ${product.price_aud != null ? Number(product.price_aud).toFixed(2) : '—'}
+          </span>
+          <span className="text-xs text-green font-semibold tabular-nums">
+            {orders > 0 ? `${fmtK(orders)} sold` : '—'}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}

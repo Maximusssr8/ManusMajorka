@@ -622,6 +622,112 @@ router.get('/stats-categories', async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/todays-picks ────────────────────────────────────────
+// The "Today's 5" home-page hook. Returns the top N high-demand products
+// scoring >= 88 with > 80k orders, ordered by sold_count. Drives the
+// daily-briefing card so operators have a reason to come back every day.
+router.get('/todays-picks', async (req: Request, res: Response) => {
+  try {
+    const market = String(req.query.market ?? 'AU');
+    const limit = Math.min(20, Math.max(1, parseInt(String(req.query.limit ?? '5'), 10) || 5));
+    const sb = getSupabase();
+    const { data, error } = await sb
+      .from('winning_products')
+      .select('id,product_title,price_aud,sold_count,winning_score,image_url,aliexpress_url,category,created_at,est_daily_revenue_aud')
+      .gte('winning_score', 88)
+      .gte('sold_count', 80000)
+      .not('image_url', 'is', null)
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(limit);
+    if (error) {
+      // Fallback: relax thresholds to keep the home page populated even if
+      // the strict gate yields nothing.
+      const { data: fb } = await sb
+        .from('winning_products')
+        .select('id,product_title,price_aud,sold_count,winning_score,image_url,aliexpress_url,category,created_at,est_daily_revenue_aud')
+        .order('sold_count', { ascending: false, nullsFirst: false })
+        .limit(limit);
+      return res.json({ picks: fb ?? [], market, generatedAt: new Date().toISOString(), fallback: true });
+    }
+    return res.json({ picks: data ?? [], market, generatedAt: new Date().toISOString() });
+  } catch (err: unknown) {
+    console.error('[todays-picks]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
+// ── POST /api/products/blueprint ─────────────────────────────────────────
+// First Sale Blueprint — uses Claude Haiku to generate a 7-day action plan
+// for the given product. Returns { steps: [{ day, title, action, budget }] }.
+router.post('/blueprint', async (req: Request, res: Response) => {
+  try {
+    const { productId, market = 'AU' } = (req.body ?? {}) as { productId?: string; market?: string };
+    if (!productId) return res.status(400).json({ error: 'productId required' });
+    const sb = getSupabase();
+    const { data: product, error } = await sb
+      .from('winning_products')
+      .select('product_title,category,price_aud,sold_count,winning_score')
+      .eq('id', productId)
+      .single();
+    if (error || !product) return res.status(404).json({ error: 'Product not found' });
+
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+    if (!ANTHROPIC_KEY) {
+      // Deterministic fallback when Claude isn't configured.
+      return res.json({
+        steps: [
+          { day: 1, title: 'Pick your supplier', action: `Order a sample of ${product.product_title} from AliExpress to verify quality and shipping time.`, budget: `A$${Number(product.price_aud).toFixed(2)}` },
+          { day: 2, title: 'Build the store',    action: 'Use Majorka Store Builder to spin up a Shopify store from this product. Edit the title and copy.', budget: 'A$0' },
+          { day: 3, title: 'Generate ad creative', action: 'Open Ads Studio from this product and generate 3 hook variations. Pick the strongest.', budget: 'A$0' },
+          { day: 4, title: 'Set up Meta campaign', action: 'Create a single ad set with broad targeting in your market. Goal: link clicks. Daily budget A$20.', budget: 'A$20' },
+          { day: 5, title: 'Run the test',        action: 'Let the ad run 24h without changes. Watch CPC and CTR. Aim for CPC under A$1.50 and CTR above 1%.', budget: 'A$20' },
+          { day: 6, title: 'Read the data',       action: 'Check link clicks vs sales. If you have any sales, scale the winning ad set. If zero, swap creative.', budget: 'A$20' },
+          { day: 7, title: 'Scale or pivot',      action: 'If profitable, double daily budget. If not, kill the campaign and test the next product on your saved list.', budget: 'A$40' },
+        ],
+        fallback: true,
+      });
+    }
+
+    const prompt = `You are a senior dropshipping operator. Create a specific 7-day "first sale" action plan for this product:
+
+Product: ${product.product_title}
+Category: ${product.category ?? 'general'}
+Cost (COGS): A$${product.price_aud}
+Orders to date: ${product.sold_count}
+AI score: ${product.winning_score}/100
+Target market: ${market}
+
+Return JSON only with exactly 7 days of specific, actionable steps. Be concrete — exact ad budgets, exact platforms, exact audiences. No fluff.
+
+{"steps":[{"day":1,"title":"short title (max 6 words)","action":"specific action (1-2 sentences)","budget":"A$XX or null"}]}`;
+
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const data = await r.json() as { content?: Array<{ text?: string }> };
+    const text = (data.content?.[0]?.text || '{}').replace(/```json|```/g, '').trim();
+    try {
+      const parsed = JSON.parse(text);
+      return res.json(parsed);
+    } catch {
+      return res.status(500).json({ error: 'Failed to parse Claude response' });
+    }
+  } catch (err: unknown) {
+    console.error('[blueprint]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── POST /api/products/trigger-refresh ────────────────────────────────────
 // Manual trigger for the AliExpress bestseller scrape. Protected by a
 // shared secret in production; open in development. Fires the existing
