@@ -673,7 +673,15 @@ function TodaysFive() {
           Browse all →
         </Link>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+      <div
+        className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide scroll-smooth"
+        style={{
+          scrollSnapType: 'x mandatory',
+          WebkitOverflowScrolling: 'touch',
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+        }}
+      >
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="w-52 shrink-0 h-72 rounded-2xl bg-white/[0.04] animate-pulse" />
@@ -694,6 +702,7 @@ function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
     <Link
       href={`/app/products?product=${product.id}`}
       className="w-52 shrink-0 rounded-2xl overflow-hidden cursor-pointer group relative no-underline glass-card glass-card--interactive"
+      style={{ scrollSnapAlign: 'start' }}
     >
       {/* Decorative rank number */}
       <div className="absolute top-2 left-3 z-10 font-display font-black text-4xl text-white/10 leading-none select-none pointer-events-none">

@@ -1,10 +1,13 @@
 import { useState, type ReactNode } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Bell } from 'lucide-react';
+import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { Toaster } from 'sonner';
 import { Nav } from './Nav';
 import { OnboardingWizard } from './OnboardingWizard';
+import { GradientM } from '@/components/MajorkaLogo';
+import { useTracking } from '@/hooks/useTracking';
 
 interface AppShellProps { children: ReactNode }
 
@@ -18,6 +21,7 @@ interface AppShellProps { children: ReactNode }
  */
 export function AppShell({ children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const { trackedCount } = useTracking();
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try { return localStorage.getItem('majorka_onboarded') !== '1'; } catch { return false; }
@@ -49,19 +53,47 @@ export function AppShell({ children }: AppShellProps) {
 
         {/* Main column */}
         <div className="flex-1 flex flex-col min-w-0 relative z-10">
-          {/* Mobile header bar — visible only below md */}
-          <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-surface shrink-0">
+          {/* Mobile header bar — sticky, blurred, 56px tall, 44px touch targets */}
+          <div
+            className="md:hidden sticky top-0 z-40 flex items-center justify-between px-3 h-14 border-b border-white/[0.06] shrink-0"
+            style={{ background: 'rgba(13,15,20,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+          >
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
-              className="text-muted hover:text-text transition-colors p-1 -ml-1"
+              className="w-11 h-11 flex items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors"
             >
-              <Menu size={20} strokeWidth={1.75} />
+              <Menu size={20} strokeWidth={2} />
             </button>
-            <span className="font-display font-bold text-[15px] text-text tracking-tight">
-              Majorka
-            </span>
-            <div className="w-7" />
+            <Link
+              href="/app"
+              className="flex items-center gap-2 no-underline"
+            >
+              <GradientM size={28} />
+              <span
+                className="text-[15px] font-display font-bold tracking-tight"
+                style={{
+                  background: 'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Majorka
+              </span>
+            </Link>
+            <Link
+              href="/app/alerts"
+              aria-label="Alerts"
+              className="w-11 h-11 flex items-center justify-center rounded-xl text-white/50 hover:text-white hover:bg-white/[0.08] transition-colors relative"
+            >
+              <Bell size={18} strokeWidth={2} />
+              {trackedCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-amber/90 text-[9px] font-bold text-bg flex items-center justify-center">
+                  {trackedCount > 9 ? '9+' : trackedCount}
+                </span>
+              )}
+            </Link>
           </div>
 
           <motion.main
