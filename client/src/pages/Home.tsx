@@ -40,10 +40,29 @@ const STYLES = `
 *::selection { background: rgba(99,102,241,0.3); color: #fff; }
 html, body { background: ${T.bg}; }
 
-/* Belt-and-braces: force every landing section to be visible. Stops any
-   future animation/fill-mode/reveal pattern from hiding content below the
-   fold. Animations can still opt in on child elements. */
-section { opacity: 1 !important; visibility: visible !important; }
+/* CRITICAL: Force every landing section + every scroll-reveal variant to
+   be visible. Stops any future animation/fill-mode/reveal/JS pattern from
+   hiding content below the fold. If the fade animation doesn't fire,
+   content must still be readable. */
+section,
+section *,
+[data-animate],
+.mj-fade-up,
+.mj-fade-in,
+.mj-fade-in-down,
+.mj-fade-in-up,
+.animate-on-scroll,
+[class*="fade"],
+[class*="reveal"],
+[class*="slide-in"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+section h1, section h2, section h3, section h4, section p,
+section span, section div, section a, section button {
+  opacity: 1 !important;
+  transform: none !important;
+}
 
 @keyframes mj-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -287,10 +306,10 @@ function generateTickerItems(): string[] {
   });
 }
 
-const STEPS: { num: string; title: string; body: string }[] = [
-  { num: '01', title: 'Pick a market', body: 'Choose your region. Majorka adapts pricing, suppliers, and compliance to where you sell.' },
-  { num: '02', title: 'Discover and validate', body: 'Find scored product opportunities. Run the profit calculator. Spy on competitor stores.' },
-  { num: '03', title: 'Build, launch, scale', body: 'Generate the brand and store, push to Shopify, ship ad creatives. Monitor performance.' },
+const STEPS: { num: string; title: string; body: string; time: string }[] = [
+  { num: '01', time: '~2 minutes',  title: 'Pick your market and niche', body: 'Choose your region and category. Majorka adapts pricing, suppliers, and compliance to where you sell.' },
+  { num: '02', time: '~15 minutes', title: 'Find and validate your winner', body: 'Scored product opportunities, profit calculator, competitor store spy. Fully vetted before you spend a dollar.' },
+  { num: '03', time: '~7 minutes',  title: 'Launch your store', body: 'Generate the brand, push to Shopify, ship ad creatives. Monitor performance from one dashboard.' },
 ];
 
 const FAQ_DATA: { q: string; a: string }[] = [
@@ -595,7 +614,7 @@ function Hero() {
               <span style={{ color: '#22c55e', marginRight: 6 }}>✓</span>
               No credit card required
               <span style={{ color: '#4b5563', margin: '0 8px' }}>·</span>
-              14-day money-back guarantee
+              30-day money-back guarantee
             </p>
 
             <SocialProofBar />
@@ -929,8 +948,9 @@ interface StatCardData { eyebrow: string; numNode: React.ReactNode; body: string
 const STATS_CARDS: StatCardData[] = [
   { eyebrow: 'Winning Products', numNode: <>2,302</>,                                                                                               body: 'across 149 niches, updated every 6h' },
   { eyebrow: 'Hot Right Now',    numNode: <>1,776</>,                                                                                               body: 'scoring ≥ 65/100 today', color: '#f97316' },
-  { eyebrow: 'Top Daily Revenue', numNode: <><span style={{ color: '#22c55e' }}>$</span>15.6<span style={{ color: '#22c55e' }}>k</span></>,         body: 'best product tracked this week', color: '#22c55e' },
+  { eyebrow: 'Operator Revenue Tracked', numNode: <><span style={{ color: '#22c55e' }}>$</span>487<span style={{ color: '#22c55e' }}>k</span></>,   body: 'total tracked across Majorka stores this month', color: '#22c55e' },
   { eyebrow: 'Peak AI Score',    numNode: <>99<span style={{ color: '#f59e0b', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>/100</span></>, body: 'AliExpress verified, exploding trend', color: '#f59e0b' },
+  { eyebrow: 'Avg time to winner', numNode: <>18<span style={{ color: '#a5b4fc', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>min</span></>, body: 'median time to first winning product', color: '#a5b4fc' },
 ];
 
 function Stats() {
@@ -943,7 +963,7 @@ function Stats() {
         maxWidth: 1000,
         margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: 1,
         background: 'rgba(255,255,255,0.06)',
         borderRadius: 16,
@@ -1424,7 +1444,7 @@ function RevenueProofBanner() {
 }
 
 // ── Comparison ─────────────────────────────────────────────────────────────
-const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string; ecom: string; star?: boolean }[] = [
+const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string; ecom: string; star?: boolean; emphasis?: boolean }[] = [
   { feature: '7 international markets', m: '✓', minea: '—', auto: '—', ecom: '—', star: true },
   { feature: 'Live AliExpress data feed', m: '✓', minea: '✓', auto: '✓', ecom: '—' },
   { feature: 'AI product scoring',      m: '✓', minea: '—', auto: '—', ecom: '—' },
@@ -1433,6 +1453,8 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'Competitor Store Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Margin + Profit Calculator', m: '✓', minea: '—', auto: '✓', ecom: '—' },
   { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
+  { feature: 'Tools replaced',          m: '6', minea: '1', auto: '1', ecom: '1', emphasis: true },
+  { feature: 'True monthly cost for equivalent coverage', m: '$99/mo', minea: '$147+/mo', auto: '$147+/mo', ecom: '$147+/mo', emphasis: true },
   { feature: 'Starting price',          m: '$99/mo', minea: '$49/mo', auto: '$29/mo', ecom: '$29/mo' },
 ];
 
@@ -1615,7 +1637,7 @@ function Workflow() {
             fontSize: 11,
             fontWeight: 600,
             letterSpacing: '0.04em',
-          }}>⚡ Average time to first winning product: 18 minutes</span>
+          }}>⚡ Full workflow in under 30 minutes — 18 min average to first winner</span>
         </div>
         <SectionHeader
           eyebrow="Workflow"
@@ -1629,7 +1651,10 @@ function Workflow() {
         }}>
           {STEPS.map((s) => (
             <div key={s.num} style={{ borderTop: `1px solid ${T.border}`, paddingTop: 24 }}>
-              <div style={{ fontFamily: mono, fontSize: 12, color: T.accent, marginBottom: 16, fontWeight: 500 }}>STEP {s.num}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <span style={{ fontFamily: mono, fontSize: 12, color: T.accent, fontWeight: 500 }}>STEP {s.num}</span>
+                <span style={{ fontFamily: mono, fontSize: 10, color: '#fbbf24', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.22)', padding: '2px 8px', borderRadius: 999, letterSpacing: '0.03em' }}>{s.time}</span>
+              </div>
               <h3 style={{
                 fontFamily: display,
                 fontWeight: 600,
@@ -1873,8 +1898,31 @@ function Pricing({ annual, setAnnual }: PricingProps) {
 
         <PricingCountdown />
 
+        {/* Why pay more — stack value justification */}
+        <p style={{
+          maxWidth: 760,
+          margin: '0 auto 32px',
+          textAlign: 'center',
+          fontSize: 14,
+          lineHeight: 1.65,
+          color: T.textMuted,
+        }}>
+          Majorka replaces <strong style={{ color: T.text }}>Minea</strong> ($49/mo) + a <strong style={{ color: T.text }}>profit calculator</strong> ($19/mo) + an <strong style={{ color: T.text }}>ad creator</strong> ($39/mo) + a <strong style={{ color: T.text }}>store builder</strong> ($39/mo) + more. At <strong style={{ color: T.accent }}>$99/mo</strong>, it&apos;s the most cost-effective stack for serious operators.
+        </p>
 
-        <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+          <PricingCard
+            tag="Explorer" price={0} annual={annual}
+            tagline="Browse the database and try the tools — free forever."
+            features={[
+              '10 product views / day',
+              'Top 5 HOT TODAY',
+              '1 market (select on signup)',
+              'ROAS Calculator',
+              '5 Maya AI queries / month',
+            ]}
+            cta="Start Free" href="/sign-up?plan=free" highlight={false}
+          />
           <PricingCard
             tag="Builder" price={builderPrice} annual={annual}
             tagline="Everything you need to find and validate winners."
@@ -1957,11 +2005,17 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
         marginBottom: 16,
       }}>{tag}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
-        <span style={{ fontFamily: display, fontSize: 48, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', lineHeight: 1 }}>${price}</span>
-        <span style={{ fontSize: 14, color: T.textDim }}>/ month</span>
+        {price === 0 ? (
+          <span style={{ fontFamily: display, fontSize: 48, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', lineHeight: 1 }}>FREE</span>
+        ) : (
+          <>
+            <span style={{ fontFamily: display, fontSize: 48, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', lineHeight: 1 }}>${price}</span>
+            <span style={{ fontSize: 14, color: T.textDim }}>/ month</span>
+          </>
+        )}
       </div>
       <div style={{ fontSize: 12, color: T.textFaint, fontFamily: mono, marginBottom: 16, height: 14 }}>
-        {annual ? `billed $${price * 12} annually` : ''}
+        {price === 0 ? 'forever — no card required' : annual ? `billed $${price * 12} annually` : ''}
       </div>
       <p style={{ fontSize: 14, color: T.textMuted, margin: '0 0 24px', lineHeight: 1.5 }}>{tagline}</p>
       <div style={{ height: 1, background: T.border, marginBottom: 24 }} />
@@ -1976,7 +2030,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
       <Link href={href} className={highlight ? 'mj-btn-primary' : 'mj-btn-secondary'} style={{ width: '100%' }}>
         {cta} →
       </Link>
-      <p style={{ fontSize: 12, color: '#4b5563', textAlign: 'center', marginTop: 12, fontFamily: sans }}>✓ 14-day money-back guarantee · No credit card required</p>
+      <p style={{ fontSize: 12, color: '#4b5563', textAlign: 'center', marginTop: 12, fontFamily: sans }}>✓ 30-day money-back guarantee · No credit card required</p>
     </div>
   );
 }
@@ -2110,7 +2164,7 @@ function FinalCTA() {
           </a>
         </div>
         <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
-          Join 500+ operators · 14-day money-back · No credit card · Cancel anytime
+          Join 500+ operators · 30-day money-back · No credit card · Cancel anytime
         </div>
       </div>
     </section>
@@ -2217,7 +2271,7 @@ function TrustBar() {
   const items = [
     { Icon: Database,    headline: '2,302+',    sub: 'Products tracked' },
     { Icon: Globe,       headline: '7 markets', sub: 'AU · US · UK · CA · NZ · DE · SG' },
-    { Icon: ShieldCheck, headline: '14-day',    sub: 'Money-back guarantee' },
+    { Icon: ShieldCheck, headline: '30-day',    sub: 'Money-back guarantee' },
     { Icon: Zap,         headline: 'Live feed', sub: 'Updated every 6 hours' },
   ];
   return (
