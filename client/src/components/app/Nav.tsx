@@ -8,23 +8,25 @@ import {
 } from 'lucide-react';
 import type { ComponentType, SVGProps, CSSProperties } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { C as TOK } from '@/lib/designTokens';
 
-/* ── Local palette — spec values ── */
+/* ── Local shorthand — pulls from the shared design tokens so
+   nav palette stays consistent with every other page. ── */
 const C = {
-  navBg: '#0a0d14',
-  surface: '#161b27',
-  text: '#f9fafb',
-  body: '#9ca3af',
-  muted: '#6b7280',
+  navBg: '#0a0c12',
+  surface: TOK.surface,
+  text: TOK.text,
+  body: TOK.body,
+  muted: TOK.muted,
   faint: '#4b5563',
-  accent: '#6366f1',
-  accentHover: '#818cf8',
-  accentSubtle: 'rgba(99,102,241,0.12)',
+  accent: TOK.accent,
+  accentHover: TOK.accentHover,
+  accentSubtle: TOK.accentSubtle,
   line: 'rgba(255,255,255,0.06)',
-  lineStrong: 'rgba(255,255,255,0.08)',
+  lineStrong: TOK.borderStrong,
 } as const;
 
-const INTER = "'Inter', sans-serif";
+const INTER = TOK.fontBody;
 
 interface NavItem {
   label: string;

@@ -4,100 +4,81 @@ import {
   ArrowRight, ArrowUp, Package, Flame, Star, Trophy,
 } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { useProducts, useProductStats, type Product } from '@/hooks/useProducts';
+import { useProducts, type Product } from '@/hooks/useProducts';
 import { useNicheStats } from '@/hooks/useNicheStats';
+import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
+import { C } from '@/lib/designTokens';
 
 /* ──────────────────────────────────────────────────────────────
-   Fonts — Syne for headings/big numbers, Inter for everything else.
-   JetBrains Mono is banned from visible UI text per spec.
+   Fonts — Nohemi for display, Inter for body. No mono.
+   Colours — only C tokens, never raw hex.
+   ABSOLUTE RULE — every rendered data value comes from a live
+   hook: useStatsOverview, useProducts, useNicheStats. If any
+   value is missing, render a skeleton.
    ────────────────────────────────────────────────────────────── */
 
-const SYNE = "'Syne', sans-serif";
-const INTER = "'Inter', sans-serif";
+const DISPLAY = C.fontDisplay;
+const BODY = C.fontBody;
 
 /* ──────────────────────────────────────────────────────────────
-   Palette — exact hexes from the spec, local to this file so
-   no token-file indirection gets in the way.
-   ────────────────────────────────────────────────────────────── */
-
-const C = {
-  bg: '#0f1117',
-  surface: '#161b27',
-  raised: '#1a2035',
-  navBg: '#0a0d14',
-  text: '#f9fafb',
-  body: '#9ca3af',
-  muted: '#6b7280',
-  faint: '#4b5563',
-  accent: '#6366f1',
-  accentHover: '#818cf8',
-  green: '#10b981',
-  line: 'rgba(255,255,255,0.08)',
-  lineSoft: 'rgba(255,255,255,0.05)',
-  lineStrong: 'rgba(255,255,255,0.1)',
-} as const;
-
-/* ──────────────────────────────────────────────────────────────
-   Shared CSS — pulse dot, row hover, skeleton
+   Shared CSS
    ────────────────────────────────────────────────────────────── */
 
 const STYLES = `
 @keyframes mj-pulse {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.35; }
+  50%      { opacity: 0.4; }
 }
 .mj-pulse {
   display: inline-block;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10b981;
+  background: ${C.green};
   animation: mj-pulse 2s ease-in-out infinite;
   flex-shrink: 0;
 }
 .mj-kpi {
-  transition: border-color 150ms ${`cubic-bezier(0.16,1,0.3,1)`}, background 150ms ${`cubic-bezier(0.16,1,0.3,1)`};
+  transition: border-color ${C.dur} ${C.ease}, background ${C.dur} ${C.ease};
 }
 .mj-kpi:hover {
-  border-color: rgba(99,102,241,0.3) !important;
-  background: #1a2035 !important;
+  border-color: rgba(99,102,241,0.25);
+  background: #1c2033;
 }
 .mj-chart-row {
-  transition: background 150ms ease, margin 150ms ease, padding 150ms ease;
+  transition: background ${C.dur} ${C.ease};
   border-radius: 6px;
 }
 .mj-chart-row:hover {
-  background: rgba(255,255,255,0.02);
-  margin-left: -4px;
-  padding-left: 4px;
+  background: rgba(255,255,255,0.025);
 }
-.mj-chart-row:hover .mj-chart-bar-fill {
+.mj-chart-row:hover .mj-chart-fill {
   filter: brightness(1.15);
 }
-.mj-chart-bar-fill {
-  transition: filter 150ms ease, width 700ms cubic-bezier(0.16,1,0.3,1);
+.mj-chart-fill {
+  transition: filter ${C.dur} ${C.ease}, width 600ms ${C.ease};
 }
 .mj-row {
-  transition: background 150ms ease;
+  transition: background ${C.dur} ${C.ease};
   cursor: pointer;
 }
 .mj-row:hover {
   background: rgba(99,102,241,0.04);
 }
 .mj-opp {
-  transition: background 150ms ease;
+  transition: background ${C.dur} ${C.ease};
 }
 .mj-opp:hover {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255,255,255,0.025);
 }
 .mj-arrow {
-  transition: color 150ms ease, transform 150ms ease;
+  transition: color ${C.dur} ${C.ease}, transform ${C.dur} ${C.ease};
 }
 .mj-opp:hover .mj-arrow {
-  color: #6366f1;
+  color: ${C.accent};
   transform: translateX(2px);
 }
 @keyframes mj-shim {
@@ -115,21 +96,21 @@ const STYLES = `
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #6366f1;
+  background: ${C.accent};
   color: #ffffff;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: ${C.rSm}px;
+  font-family: ${BODY};
+  font-size: ${C.fBody}px;
+  font-weight: 500;
   text-decoration: none;
   border: none;
   box-shadow: none;
   cursor: pointer;
-  transition: background 150ms ease;
+  transition: background ${C.dur} ${C.ease};
   white-space: nowrap;
 }
-.mj-btn-primary:hover { background: #818cf8; }
+.mj-btn-primary:hover { background: ${C.accentHover}; }
 `;
 
 /* ──────────────────────────────────────────────────────────────
@@ -139,13 +120,36 @@ const STYLES = `
 function timeOfDay(): string {
   const h = new Date().getHours();
   if (h < 12) return 'morning';
-  if (h < 18) return 'afternoon';
+  if (h < 17) return 'afternoon';
   return 'evening';
 }
 
-function fmtNum(n: number | null | undefined): string {
-  if (n == null) return '—';
-  return n.toLocaleString();
+function formatRelativeTime(iso: string | null): string {
+  if (!iso) return '';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '';
+  const diffMs = Date.now() - ts;
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`;
+  const days = Math.round(hrs / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
+function timeAgoShort(iso: string | null): string {
+  if (!iso) return '';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '';
+  const days = Math.round((Date.now() - ts) / (24 * 60 * 60 * 1000));
+  if (days < 1) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  if (days < 14) return '1 week ago';
+  if (days < 30) return `${Math.round(days / 7)} weeks ago`;
+  if (days < 60) return '1 month ago';
+  return `${Math.round(days / 30)} months ago`;
 }
 
 function truncate(s: string, n: number): string {
@@ -168,7 +172,7 @@ function Thumb({ image, title, size, radius }: { image: string | null; title: st
         height: size,
         borderRadius: radius,
         background: C.raised,
-        border: `1px solid ${C.line}`,
+        border: `1px solid ${C.border}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -187,7 +191,7 @@ function Thumb({ image, title, size, radius }: { image: string | null; title: st
       ) : (
         <span
           style={{
-            fontFamily: SYNE,
+            fontFamily: DISPLAY,
             fontSize: size * 0.4,
             fontWeight: 700,
             color: C.muted,
@@ -201,83 +205,102 @@ function Thumb({ image, title, size, radius }: { image: string | null; title: st
 }
 
 /* ──────────────────────────────────────────────────────────────
-   KPI card
+   KPI card — every value and trend is computed from live stats.
    ────────────────────────────────────────────────────────────── */
 
-interface KpiCardData {
+interface KpiCardProps {
   label: string;
   value: string;
   sub: string;
   Icon: typeof Package;
-  trend: { text: string; positive: boolean };
+  trendText: string | null;
+  trendPositive: boolean;
+  accentLine: string;
+  loading: boolean;
 }
 
-function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
-  const Icon = card.Icon;
+function KpiCard({ label, value, sub, Icon, trendText, trendPositive, accentLine, loading }: KpiCardProps) {
   return (
     <div
       className="mj-kpi"
       style={{
         background: C.surface,
-        border: `1px solid ${C.line}`,
-        borderRadius: 14,
-        padding: '20px 24px',
+        border: `1px solid ${C.border}`,
+        borderRadius: C.rLg,
+        padding: '22px 24px',
         cursor: 'default',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
+      {/* Accent top line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: accentLine,
+          borderRadius: `${C.rLg}px ${C.rLg}px 0 0`,
+        }}
+      />
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          fontSize: 11,
-          fontFamily: INTER,
+          fontSize: C.fXxs,
+          fontFamily: BODY,
           fontWeight: 500,
           color: C.muted,
-          letterSpacing: '0.06em',
+          letterSpacing: '0.07em',
           textTransform: 'uppercase',
         }}
       >
-        <span>{card.label}</span>
+        <span>{label}</span>
         <Icon size={14} color={C.muted} strokeWidth={1.75} />
       </div>
       <div
         style={{
-          fontFamily: SYNE,
-          fontSize: 36,
+          fontFamily: DISPLAY,
+          fontSize: 38,
           fontWeight: 700,
           color: C.text,
           fontVariantNumeric: 'tabular-nums',
           letterSpacing: '-0.025em',
           lineHeight: 1,
-          margin: '10px 0 6px',
-          minHeight: 36,
+          margin: '12px 0 6px',
+          minHeight: 38,
           display: 'flex',
           alignItems: 'center',
         }}
       >
-        {loading && (!card.value || card.value === '—') ? (
-          <span className="mj-shim" style={{ height: 24, width: 96 }} />
-        ) : (
-          card.value || '0'
-        )}
+        {loading ? <span className="mj-shim" style={{ height: 24, width: 96 }} /> : value}
       </div>
-      <div style={{ fontSize: 12, fontFamily: INTER, color: C.muted, marginBottom: 10 }}>
-        {card.sub}
+      <div style={{ fontSize: C.fXs, fontFamily: BODY, color: C.muted, marginBottom: 10 }}>
+        {sub}
       </div>
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: 4,
-          fontSize: 11,
-          fontFamily: INTER,
+          fontSize: C.fXs,
+          fontFamily: BODY,
           fontWeight: 500,
-          color: card.trend.positive ? C.green : C.muted,
+          color: trendPositive ? C.green : C.muted,
+          minHeight: 14,
         }}
       >
-        {card.trend.positive && <ArrowUp size={11} strokeWidth={2.25} />}
-        <span>{card.trend.text}</span>
+        {loading ? (
+          <span className="mj-shim" style={{ height: 10, width: 80 }} />
+        ) : trendText ? (
+          <>
+            {trendPositive && <ArrowUp size={11} strokeWidth={2.25} />}
+            <span>{trendText}</span>
+          </>
+        ) : null}
       </div>
     </div>
   );
@@ -289,67 +312,97 @@ function KpiCard({ card, loading }: { card: KpiCardData; loading: boolean }) {
 
 export default function AppHome() {
   const { user } = useAuth();
-  const stats = useProductStats();
+  const { stats, loading: statsLoading } = useStatsOverview();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   const { products, loading: prodLoading, total } = useProducts({ limit: 10, orderBy: 'sold_count' });
-  const { products: highMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc' });
+  const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
-  const { niches: categoryChartData } = useNicheStats(8);
+  const { niches: categoryChartData, loading: nicheLoading } = useNicheStats(8);
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
-  const today = new Date().toLocaleDateString('en-US', {
+  const today = new Date().toLocaleDateString('en-AU', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
   });
   const tod = timeOfDay();
 
-  const topProduct = products[0];
-  const highMarginProduct = highMarginProducts[0] ?? products[0];
-  const newestProduct = newestProducts[0] ?? products[0];
+  /* ── KPI derived values — EVERY number from the API ── */
+  const kpiTotal     = stats?.total ?? null;
+  const kpiHot       = stats?.hotProducts ?? null;
+  const kpiAvgScore  = stats?.avgScore ?? null;
+  const kpiTopScore  = stats?.topScore ?? null;
 
-  const kpiCards: KpiCardData[] = [
+  const totalDelta = stats?.totalDelta ?? 0;
+  const totalTrend =
+    totalDelta > 0 ? { text: `+${totalDelta.toLocaleString()} this week`, positive: true }
+    : totalDelta < 0 ? { text: `${totalDelta.toLocaleString()} this week`, positive: false }
+    : { text: 'No change this week', positive: false };
+
+  const hotDelta = stats?.hotDelta ?? null;
+  const hotTrend =
+    hotDelta == null ? { text: '', positive: false }
+    : hotDelta > 0 ? { text: `+${hotDelta}% vs last week`, positive: true }
+    : hotDelta < 0 ? { text: `${hotDelta}% vs last week`, positive: false }
+    : { text: 'Flat vs last week', positive: false };
+
+  const kpiCards = [
     {
       label: 'Products Tracked',
-      value: fmtNum(stats.total),
+      value: kpiTotal != null ? kpiTotal.toLocaleString() : '—',
       sub: 'Live AliExpress feed',
       Icon: Package,
-      trend: { text: '+142 this week', positive: true },
+      trendText: totalTrend.text || null,
+      trendPositive: totalTrend.positive,
+      accentLine: C.accent,
     },
     {
       label: 'Hot Products',
-      value: fmtNum(stats.hotCount),
+      value: kpiHot != null ? kpiHot.toLocaleString() : '—',
       sub: 'Score 65 and above',
       Icon: Flame,
-      trend: { text: '+8% this week', positive: true },
+      trendText: hotTrend.text || null,
+      trendPositive: hotTrend.positive,
+      accentLine: C.amber,
     },
     {
       label: 'Average Score',
-      value: stats.avgScore ? `${stats.avgScore}` : '—',
+      value: kpiAvgScore != null ? kpiAvgScore.toString() : '—',
       sub: 'Out of 100',
       Icon: Star,
-      trend: { text: '+3pts vs last month', positive: true },
+      trendText: stats ? `${stats.categoryCount} niches tracked` : null,
+      trendPositive: false,
+      accentLine: C.green,
     },
     {
       label: 'Top Score',
-      value: stats.topScore ? `${stats.topScore}` : '—',
+      value: kpiTopScore != null ? kpiTopScore.toString() : '—',
       sub: 'Highest in database',
       Icon: Trophy,
-      trend: { text: 'Consistent · 7 days', positive: false },
+      trendText: stats && stats.newThisWeek === 0 && stats.newLastWeek === 0 ? null : null,
+      trendPositive: false,
+      accentLine: C.cyan,
     },
   ];
 
-  /* Horizontal bar chart data */
-  const chartData = categoryChartData.map((n) => ({
-    name: shortenCategory(n.name).slice(0, 16),
+  /* ── Category chart — real data only ── */
+  const chartRows = categoryChartData.map((n) => ({
+    name: shortenCategory(n.name),
     fullName: n.name,
     orders: n.totalOrders,
   }));
-  const maxOrders = Math.max(1, ...chartData.map((d) => d.orders));
+  const maxOrders = Math.max(1, ...chartRows.map((r) => r.orders));
 
-  /* Top opportunities */
+  /* ── Opportunities — from live queries ── */
+  const topProduct     = products[0];
+  const bestMargin     = bestMarginProducts[0] ?? null;
+  const newestProduct  = newestProducts[0] ?? null;
+
   interface Opportunity {
     label: string;
+    chipBg: string;
+    chipFg: string;
     href: string;
     product: Product | null;
     statText: string;
@@ -357,26 +410,30 @@ export default function AppHome() {
   }
   const opportunities: Opportunity[] = [
     {
-      label: 'Top trending',
+      label: 'Top Trending',
+      chipBg: C.amberSubtle,
+      chipFg: C.amber,
       href: '/app/products?tab=trending',
       product: topProduct ?? null,
-      statText: topProduct?.sold_count ? `${fmtK(topProduct.sold_count)} orders / mo` : '—',
+      statText: topProduct?.sold_count != null ? `${topProduct.sold_count.toLocaleString()} orders / mo` : '',
       statColor: C.green,
     },
     {
-      label: 'Best margin',
+      label: 'Best Margin',
+      chipBg: C.greenSubtle,
+      chipFg: C.green,
       href: '/app/products?tab=highmargin',
-      product: highMarginProduct ?? null,
-      statText: highMarginProduct?.price_aud != null
-        ? `$${Number(highMarginProduct.price_aud).toFixed(2)} landed cost`
-        : '—',
+      product: bestMargin,
+      statText: bestMargin?.price_aud != null ? `$${Number(bestMargin.price_aud).toFixed(2)} landed` : '',
       statColor: C.green,
     },
     {
       label: 'Newest',
+      chipBg: C.accentSubtle,
+      chipFg: C.accentHover,
       href: '/app/products?tab=new',
-      product: newestProduct ?? null,
-      statText: 'Added this week',
+      product: newestProduct,
+      statText: newestProduct?.created_at ? `Added ${timeAgoShort(newestProduct.created_at)}` : '',
       statColor: C.muted,
     },
   ];
@@ -387,6 +444,10 @@ export default function AppHome() {
     { name: 'Stripe Payments', chip: 'Active' },
   ];
 
+  const lastUpdateLabel = stats?.updatedAt
+    ? `Live · AliExpress feed · ${formatRelativeTime(stats.updatedAt)}`
+    : 'Live · AliExpress feed';
+
   return (
     <>
       <style>{STYLES}</style>
@@ -396,59 +457,50 @@ export default function AppHome() {
           position: 'relative',
           background: C.bg,
           minHeight: '100vh',
-          fontFamily: INTER,
+          fontFamily: BODY,
           color: C.text,
         }}
       >
-        {/* Halo glow at top-center */}
+        {/* Halo glow at top */}
         <div
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 600,
             background:
-              'radial-gradient(ellipse 1200px 600px at 50% -200px, rgba(99,102,241,0.12), transparent)',
+              'radial-gradient(ellipse 1400px 700px at 50% -300px, rgba(99,102,241,0.13), transparent)',
             pointerEvents: 'none',
             zIndex: 0,
           }}
         />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* ──────────────────────────────
-              SECTION 1 — Top bar
-              ────────────────────────────── */}
+          {/* ── STATUS BAR ── */}
           <div
             style={{
-              height: 52,
-              background: C.bg,
-              borderBottom: `1px solid ${C.line}`,
+              height: 48,
+              borderBottom: `1px solid ${C.border}`,
               padding: '0 32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}
           >
-            <div
-              style={{
-                fontFamily: INTER,
-                fontSize: 13,
-                color: C.body,
-                fontWeight: 500,
-              }}
-            >
-              Home
-            </div>
+            <div />
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                fontFamily: INTER,
-                fontSize: 12,
+                fontFamily: BODY,
+                fontSize: C.fSm,
                 color: C.muted,
               }}
             >
               <span className="mj-pulse" />
-              <span>Live · Updated 6 hours ago</span>
+              <span>{lastUpdateLabel}</span>
             </div>
             <Link href="/app/products" className="mj-btn-primary">
               Discover products
@@ -456,67 +508,62 @@ export default function AppHome() {
             </Link>
           </div>
 
-          {/* ──────────────────────────────
-              SECTION 2 — Welcome row
-              ────────────────────────────── */}
-          <div style={{ padding: '32px 32px 0' }}>
+          {/* ── HERO ── */}
+          <div style={{ padding: '40px 32px 24px' }}>
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-                gap: 24,
+                fontFamily: BODY,
+                fontSize: C.fSm,
+                color: C.muted,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                marginBottom: 14,
               }}
             >
-              <div>
-                <h1
-                  style={{
-                    fontFamily: SYNE,
-                    fontSize: 40,
-                    fontWeight: 700,
-                    color: C.text,
-                    margin: 0,
-                    letterSpacing: '-0.025em',
-                    lineHeight: 1.1,
-                  }}
-                >
-                  Good {tod}, {firstName}.
-                </h1>
-                <div
-                  style={{
-                    fontFamily: INTER,
-                    fontSize: 13,
-                    color: C.muted,
-                    marginTop: 8,
-                  }}
-                >
-                  {today} · Scale Plan
-                </div>
-              </div>
+              {today} · Scale Plan
             </div>
+            <h1
+              style={{
+                fontFamily: DISPLAY,
+                fontSize: C.fH1,
+                fontWeight: 800,
+                color: C.text,
+                letterSpacing: '-0.03em',
+                margin: 0,
+                lineHeight: 1.1,
+              }}
+            >
+              Good {tod}, {firstName}.
+            </h1>
+            <p
+              style={{
+                fontFamily: BODY,
+                fontSize: C.fLead,
+                color: C.body,
+                margin: '10px 0 0',
+                maxWidth: 540,
+                lineHeight: 1.55,
+              }}
+            >
+              Your product intelligence is live across the Australian market.
+            </p>
           </div>
 
-          {/* ──────────────────────────────
-              SECTION 3 — KPI cards
-              ────────────────────────────── */}
+          {/* ── KPI GRID ── */}
           <div
             style={{
-              padding: '24px 32px',
+              padding: '0 32px 24px',
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 16,
+              gap: 14,
             }}
           >
             {kpiCards.map((card) => (
-              <KpiCard key={card.label} card={card} loading={stats.loading} />
+              <KpiCard key={card.label} {...card} loading={statsLoading} />
             ))}
           </div>
 
-          {/* ──────────────────────────────
-              SECTION 4 — Main content
-              Left: Category Performance (horizontal bars)
-              Right: Top Opportunities + Platform Status
-              ────────────────────────────── */}
+          {/* ── MAIN CONTENT GRID ── */}
           <div
             style={{
               padding: '0 32px 32px',
@@ -525,13 +572,13 @@ export default function AppHome() {
               gap: 20,
             }}
           >
-            {/* ── LEFT: Category Performance ── */}
+            {/* LEFT — Category chart */}
             <div
               style={{
                 background: C.surface,
-                border: `1px solid ${C.line}`,
-                borderRadius: 14,
-                padding: 24,
+                border: `1px solid ${C.border}`,
+                borderRadius: C.rXl,
+                padding: '24px 28px',
               }}
             >
               <div
@@ -544,8 +591,8 @@ export default function AppHome() {
               >
                 <div
                   style={{
-                    fontFamily: INTER,
-                    fontSize: 14,
+                    fontFamily: BODY,
+                    fontSize: C.fBody,
                     fontWeight: 600,
                     color: C.text,
                   }}
@@ -555,11 +602,11 @@ export default function AppHome() {
                 <select
                   style={{
                     background: C.bg,
-                    border: `1px solid ${C.lineStrong}`,
-                    borderRadius: 6,
+                    border: `1px solid ${C.borderStrong}`,
+                    borderRadius: C.rXs,
                     padding: '4px 10px',
-                    fontSize: 12,
-                    fontFamily: INTER,
+                    fontSize: C.fSm,
+                    fontFamily: BODY,
                     color: C.body,
                     cursor: 'pointer',
                     outline: 'none',
@@ -569,17 +616,38 @@ export default function AppHome() {
                 </select>
               </div>
 
-              {/* Horizontal bars */}
-              {chartData.length > 0 ? (
+              {nicheLoading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {chartData.map((d, i) => {
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span className="mj-shim" style={{ width: 100, height: 12 }} />
+                      <span className="mj-shim" style={{ flex: 1, height: 8 }} />
+                      <span className="mj-shim" style={{ width: 48, height: 12 }} />
+                    </div>
+                  ))}
+                </div>
+              ) : chartRows.length === 0 ? (
+                <div
+                  style={{
+                    height: 220,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: C.muted,
+                    fontSize: C.fBody,
+                  }}
+                >
+                  No category data available yet.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {chartRows.map((d, i) => {
                     const pct = Math.max(2, (d.orders / maxOrders) * 100);
-                    const valueLabel =
-                      d.orders >= 1_000_000
-                        ? `${(d.orders / 1_000_000).toFixed(1)}M`
-                        : d.orders >= 1_000
-                          ? `${Math.round(d.orders / 1_000)}k`
-                          : d.orders.toLocaleString();
+                    const label = d.orders >= 1_000_000
+                      ? `${(d.orders / 1_000_000).toFixed(1)}M`
+                      : d.orders >= 1000
+                        ? `${Math.round(d.orders / 1000)}k`
+                        : d.orders.toLocaleString();
                     return (
                       <Link
                         key={i}
@@ -588,23 +656,23 @@ export default function AppHome() {
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 14,
+                          gap: 12,
+                          padding: '6px 8px',
                           textDecoration: 'none',
-                          padding: '2px 0',
                         }}
                       >
                         <div
+                          title={d.fullName}
                           style={{
-                            width: 100,
-                            fontFamily: INTER,
-                            fontSize: 12,
+                            width: 110,
+                            flexShrink: 0,
+                            fontFamily: BODY,
+                            fontSize: C.fBody,
                             color: C.body,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            flexShrink: 0,
                           }}
-                          title={d.fullName}
                         >
                           {d.name}
                         </div>
@@ -612,14 +680,14 @@ export default function AppHome() {
                           style={{
                             flex: 1,
                             height: 8,
-                            background: 'rgba(255,255,255,0.05)',
+                            background: 'rgba(255,255,255,0.06)',
                             borderRadius: 4,
                             overflow: 'hidden',
                             minWidth: 0,
                           }}
                         >
                           <div
-                            className="mj-chart-bar-fill"
+                            className="mj-chart-fill"
                             style={{
                               height: '100%',
                               width: `${pct}%`,
@@ -632,51 +700,37 @@ export default function AppHome() {
                           style={{
                             width: 64,
                             textAlign: 'right',
-                            fontFamily: INTER,
-                            fontSize: 12,
+                            fontFamily: BODY,
+                            fontSize: C.fSm,
                             color: C.muted,
                             fontVariantNumeric: 'tabular-nums',
                             flexShrink: 0,
                           }}
                         >
-                          {valueLabel}
+                          {label}
                         </div>
                       </Link>
                     );
                   })}
                 </div>
-              ) : (
-                <div
-                  style={{
-                    height: 220,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: C.muted,
-                    fontSize: 13,
-                  }}
-                >
-                  Loading category data
-                </div>
               )}
             </div>
 
-            {/* ── RIGHT COLUMN ── */}
+            {/* RIGHT — Opportunities + Status */}
             <div>
-              {/* Quick Wins */}
               <div
                 style={{
                   background: C.surface,
-                  border: `1px solid ${C.line}`,
-                  borderRadius: 14,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: C.rLg,
                   padding: 20,
-                  marginBottom: 16,
+                  marginBottom: 14,
                 }}
               >
                 <div
                   style={{
-                    fontFamily: INTER,
-                    fontSize: 13,
+                    fontFamily: BODY,
+                    fontSize: C.fBody,
                     fontWeight: 600,
                     color: C.text,
                     marginBottom: 4,
@@ -693,19 +747,14 @@ export default function AppHome() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      padding: '12px 0',
+                      padding: '13px 0',
                       borderBottom:
-                        i === opportunities.length - 1 ? 'none' : `1px solid ${C.lineSoft}`,
+                        i === opportunities.length - 1 ? 'none' : `1px solid ${C.border}`,
                       textDecoration: 'none',
                     }}
                   >
                     {o.product ? (
-                      <Thumb
-                        image={o.product.image_url}
-                        title={o.product.product_title}
-                        size={44}
-                        radius={8}
-                      />
+                      <Thumb image={o.product.image_url} title={o.product.product_title} size={44} radius={8} />
                     ) : (
                       <div className="mj-shim" style={{ width: 44, height: 44, borderRadius: 8 }} />
                     )}
@@ -713,14 +762,14 @@ export default function AppHome() {
                       <div
                         style={{
                           display: 'inline-block',
-                          fontFamily: INTER,
-                          fontSize: 9,
+                          fontFamily: BODY,
+                          fontSize: C.fXxs,
                           fontWeight: 600,
-                          color: C.accentHover,
+                          color: o.chipFg,
                           textTransform: 'uppercase',
                           letterSpacing: '0.06em',
-                          background: 'rgba(99,102,241,0.15)',
-                          borderRadius: 4,
+                          background: o.chipBg,
+                          borderRadius: C.rXs,
                           padding: '2px 6px',
                           marginBottom: 5,
                         }}
@@ -729,8 +778,8 @@ export default function AppHome() {
                       </div>
                       <div
                         style={{
-                          fontFamily: INTER,
-                          fontSize: 13,
+                          fontFamily: BODY,
+                          fontSize: C.fBody,
                           fontWeight: 500,
                           color: C.text,
                           overflow: 'hidden',
@@ -739,12 +788,12 @@ export default function AppHome() {
                           marginBottom: 2,
                         }}
                       >
-                        {truncate(o.product?.product_title ?? '—', 28)}
+                        {truncate(o.product?.product_title ?? '—', 32)}
                       </div>
                       <div
                         style={{
-                          fontFamily: INTER,
-                          fontSize: 12,
+                          fontFamily: BODY,
+                          fontSize: C.fSm,
                           color: o.statColor,
                           fontVariantNumeric: 'tabular-nums',
                         }}
@@ -762,19 +811,19 @@ export default function AppHome() {
                 ))}
               </div>
 
-              {/* Platform health */}
+              {/* Platform status */}
               <div
                 style={{
                   background: C.surface,
-                  border: `1px solid ${C.line}`,
-                  borderRadius: 14,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: C.rLg,
                   padding: 20,
                 }}
               >
                 <div
                   style={{
-                    fontFamily: INTER,
-                    fontSize: 13,
+                    fontFamily: BODY,
+                    fontSize: C.fBody,
                     fontWeight: 600,
                     color: C.text,
                     marginBottom: 4,
@@ -791,28 +840,28 @@ export default function AppHome() {
                       gap: 10,
                       padding: '10px 0',
                       borderBottom:
-                        i === platformStatus.length - 1 ? 'none' : `1px solid ${C.lineSoft}`,
+                        i === platformStatus.length - 1 ? 'none' : `1px solid ${C.border}`,
                     }}
                   >
                     <span className="mj-pulse" />
                     <span
                       style={{
                         flex: 1,
-                        fontFamily: INTER,
-                        fontSize: 13,
-                        color: C.text,
+                        fontFamily: BODY,
+                        fontSize: C.fBody,
+                        color: C.body,
                       }}
                     >
                       {row.name}
                     </span>
                     <span
                       style={{
-                        background: 'rgba(16,185,129,0.1)',
+                        background: C.greenSubtle,
                         color: C.green,
-                        borderRadius: 4,
+                        borderRadius: C.rXs,
                         padding: '2px 8px',
-                        fontSize: 11,
-                        fontFamily: INTER,
+                        fontSize: C.fXs,
+                        fontFamily: BODY,
                         fontWeight: 500,
                       }}
                     >
@@ -824,9 +873,7 @@ export default function AppHome() {
             </div>
           </div>
 
-          {/* ──────────────────────────────
-              SECTION 5 — Top Products table
-              ────────────────────────────── */}
+          {/* ── TOP PRODUCTS TABLE ── */}
           <div style={{ margin: '0 32px 48px' }}>
             <div
               style={{
@@ -838,8 +885,8 @@ export default function AppHome() {
             >
               <h2
                 style={{
-                  fontFamily: SYNE,
-                  fontSize: 18,
+                  fontFamily: DISPLAY,
+                  fontSize: C.fH3,
                   fontWeight: 600,
                   color: C.text,
                   margin: 0,
@@ -851,32 +898,26 @@ export default function AppHome() {
               <Link
                 href="/app/products"
                 style={{
-                  fontFamily: INTER,
-                  fontSize: 13,
+                  fontFamily: BODY,
+                  fontSize: C.fBody,
                   color: C.accent,
                   textDecoration: 'none',
                   fontWeight: 500,
                 }}
               >
-                View all {total > 0 ? total.toLocaleString() : ''} →
+                View all {total > 0 ? total.toLocaleString() : '…'} →
               </Link>
             </div>
 
             <div
               style={{
                 background: C.surface,
-                border: `1px solid ${C.line}`,
-                borderRadius: 14,
+                border: `1px solid ${C.border}`,
+                borderRadius: C.rXl,
                 overflow: 'hidden',
               }}
             >
-              <table
-                style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  tableLayout: 'fixed',
-                }}
-              >
+              <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                 <colgroup>
                   <col style={{ width: 60 }} />
                   <col />
@@ -891,14 +932,14 @@ export default function AppHome() {
                       <th
                         key={h}
                         style={{
-                          padding: '12px 20px',
+                          padding: '14px 24px',
                           textAlign: i >= 3 ? 'right' : 'left',
-                          fontFamily: INTER,
-                          fontSize: 10,
+                          fontFamily: BODY,
+                          fontSize: C.fXxs,
                           fontWeight: 500,
                           color: C.muted,
                           textTransform: 'uppercase',
-                          letterSpacing: '0.06em',
+                          letterSpacing: '0.07em',
                         }}
                       >
                         {h}
@@ -909,12 +950,9 @@ export default function AppHome() {
                 <tbody>
                   {prodLoading ? (
                     Array.from({ length: 8 }).map((_, i) => (
-                      <tr key={i} style={{ borderBottom: `1px solid ${C.lineSoft}` }}>
-                        <td colSpan={6} style={{ padding: '16px 20px' }}>
-                          <span
-                            className="mj-shim"
-                            style={{ height: 14, width: '100%', borderRadius: 4 }}
-                          />
+                      <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+                        <td colSpan={6} style={{ padding: '18px 24px' }}>
+                          <span className="mj-shim" style={{ height: 14, width: '100%' }} />
                         </td>
                       </tr>
                     ))
@@ -923,13 +961,13 @@ export default function AppHome() {
                       <td
                         colSpan={6}
                         style={{
-                          padding: '64px 20px',
+                          padding: '64px 24px',
                           textAlign: 'center',
                           color: C.muted,
-                          fontFamily: INTER,
+                          fontFamily: BODY,
                         }}
                       >
-                        No products tracked yet
+                        No products tracked yet.
                       </td>
                     </tr>
                   ) : (
@@ -937,66 +975,73 @@ export default function AppHome() {
                       const score = p.winning_score ?? 0;
                       const orders = p.sold_count ?? 0;
                       const isLast = i === products.length - 1;
+                      const scoreTier =
+                        score >= 90 ? { bg: C.greenSubtle, fg: C.green }
+                        : score >= 70 ? { bg: C.amberSubtle, fg: C.amber }
+                        : { bg: C.orangeSubtle, fg: C.orange };
                       return (
                         <tr
                           key={p.id}
                           className="mj-row"
                           onClick={() => setSelectedProduct(p)}
-                          style={{
-                            borderBottom: isLast ? 'none' : `1px solid ${C.lineSoft}`,
-                          }}
+                          style={{ borderBottom: isLast ? 'none' : `1px solid ${C.border}` }}
                         >
                           <td
                             style={{
-                              padding: '16px 20px',
-                              fontFamily: INTER,
-                              fontSize: 12,
+                              padding: '18px 24px',
+                              fontFamily: BODY,
+                              fontSize: C.fSm,
                               color: C.muted,
                               fontVariantNumeric: 'tabular-nums',
                             }}
                           >
                             {String(i + 1).padStart(2, '0')}
                           </td>
-                          <td style={{ padding: '16px 20px' }}>
+                          <td style={{ padding: '18px 24px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
-                              <Thumb image={p.image_url} title={p.product_title} size={52} radius={10} />
+                              <Thumb image={p.image_url} title={p.product_title} size={56} radius={10} />
                               <div style={{ minWidth: 0, flex: 1 }}>
                                 <div
+                                  title={p.product_title}
                                   style={{
-                                    fontFamily: INTER,
-                                    fontSize: 13,
+                                    fontFamily: BODY,
+                                    fontSize: C.fBody,
                                     fontWeight: 500,
                                     color: C.text,
                                     maxWidth: 440,
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap',
+                                    marginBottom: 4,
                                   }}
-                                  title={p.product_title}
                                 >
                                   {p.product_title}
                                 </div>
-                                <div
+                                <span
                                   style={{
-                                    fontFamily: INTER,
-                                    fontSize: 11,
-                                    color: C.muted,
-                                    marginTop: 3,
+                                    display: 'inline-block',
+                                    background: 'rgba(255,255,255,0.06)',
+                                    borderRadius: 4,
+                                    padding: '2px 8px',
+                                    fontSize: C.fXs,
+                                    fontFamily: BODY,
+                                    color: C.body,
+                                    maxWidth: 160,
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap',
                                   }}
                                 >
                                   {shortenCategory(p.category)}
-                                </div>
+                                </span>
                               </div>
                             </div>
                           </td>
                           <td
                             style={{
-                              padding: '16px 20px',
-                              fontFamily: INTER,
-                              fontSize: 12,
+                              padding: '18px 24px',
+                              fontFamily: BODY,
+                              fontSize: C.fSm,
                               color: C.body,
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
@@ -1005,46 +1050,49 @@ export default function AppHome() {
                           >
                             {shortenCategory(p.category)}
                           </td>
-                          <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                          <td style={{ padding: '18px 24px', textAlign: 'right' }}>
                             {score ? (
                               <span
                                 style={{
                                   display: 'inline-block',
-                                  background: 'rgba(16,185,129,0.1)',
-                                  border: '1px solid rgba(16,185,129,0.2)',
-                                  color: C.green,
+                                  background: scoreTier.bg,
+                                  border: `1px solid ${scoreTier.bg}`,
+                                  color: scoreTier.fg,
                                   borderRadius: 6,
                                   padding: '4px 10px',
-                                  fontSize: 13,
-                                  fontFamily: INTER,
+                                  fontSize: C.fBody,
+                                  fontFamily: BODY,
                                   fontWeight: 600,
                                   fontVariantNumeric: 'tabular-nums',
                                 }}
                               >
-                                {score}
+                                {Math.round(score)}
                               </span>
                             ) : (
-                              <span style={{ color: C.muted, fontSize: 12 }}>—</span>
+                              <span style={{ color: C.muted, fontSize: C.fSm }}>—</span>
                             )}
                           </td>
                           <td
                             style={{
-                              padding: '16px 20px',
+                              padding: '18px 24px',
                               textAlign: 'right',
-                              fontFamily: INTER,
-                              fontSize: 14,
+                              fontFamily: BODY,
+                              fontSize: C.fH4,
                               color: orders > 0 ? C.text : C.muted,
                               fontVariantNumeric: 'tabular-nums',
                             }}
                           >
+                            {orders > 150000 && (
+                              <span style={{ color: C.amber, marginRight: 4 }}>🔥</span>
+                            )}
                             {orders > 0 ? fmtK(orders) : '—'}
                           </td>
                           <td
                             style={{
-                              padding: '16px 20px',
+                              padding: '18px 24px',
                               textAlign: 'right',
-                              fontFamily: INTER,
-                              fontSize: 14,
+                              fontFamily: BODY,
+                              fontSize: C.fH4,
                               color: C.text,
                               fontVariantNumeric: 'tabular-nums',
                             }}

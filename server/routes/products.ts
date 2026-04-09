@@ -484,6 +484,181 @@ router.get('/top20', async (_req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/stats-overview ─────────────────────────────────────
+// One-shot aggregate: total, hotCount, avgScore, topScore, plus real weekly
+// deltas computed from created_at. Replaces the hardcoded trend strings on
+// the Home page so every number on the dashboard is live.
+router.get('/stats-overview', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    // Paginate through the whole table — Supabase REST caps at 1000/page.
+    type Row = { sold_count: number | null; winning_score: number | null; category: string | null; created_at: string | null };
+    const list: Row[] = [];
+    const PAGE = 1000;
+    let from = 0;
+    while (from < 20000) {
+      const { data, error } = await sb
+        .from('winning_products')
+        .select('sold_count,winning_score,category,created_at')
+        .range(from, from + PAGE - 1);
+      if (error) {
+        console.error('[stats-overview] supabase error:', error.message);
+        return res.status(500).json({ error: error.message });
+      }
+      const batch = (data ?? []) as Row[];
+      list.push(...batch);
+      if (batch.length < PAGE) break;
+      from += PAGE;
+    }
+
+    const total = list.length;
+    const scores = list.map((r) => r.winning_score ?? 0).filter((n) => n > 0);
+    const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    const topScore = scores.length ? Math.max(...scores) : 0;
+    const hotProducts = list.filter((r) => (r.winning_score ?? 0) >= 65).length;
+    const categoryCount = new Set(list.map((r) => r.category).filter((c): c is string => !!c && c.trim().length > 0)).size;
+
+    const now = Date.now();
+    const DAY = 24 * 60 * 60 * 1000;
+    const weekAgo = now - 7 * DAY;
+    const twoWeeksAgo = now - 14 * DAY;
+
+    const createdAtMs = (r: Row): number => {
+      if (!r.created_at) return 0;
+      const ts = Date.parse(r.created_at);
+      return Number.isFinite(ts) ? ts : 0;
+    };
+
+    const newThisWeek = list.filter((r) => {
+      const ts = createdAtMs(r);
+      return ts >= weekAgo && ts <= now;
+    }).length;
+
+    const newLastWeek = list.filter((r) => {
+      const ts = createdAtMs(r);
+      return ts >= twoWeeksAgo && ts < weekAgo;
+    }).length;
+
+    const hotNewThisWeek = list.filter((r) => {
+      if ((r.winning_score ?? 0) < 65) return false;
+      const ts = createdAtMs(r);
+      return ts >= weekAgo && ts <= now;
+    }).length;
+
+    const hotNewLastWeek = list.filter((r) => {
+      if ((r.winning_score ?? 0) < 65) return false;
+      const ts = createdAtMs(r);
+      return ts >= twoWeeksAgo && ts < weekAgo;
+    }).length;
+
+    const hotDelta = hotNewLastWeek > 0
+      ? Math.round(((hotNewThisWeek - hotNewLastWeek) / hotNewLastWeek) * 100)
+      : null; // null = not enough data for a meaningful delta
+
+    return res.json({
+      total,
+      hotProducts,
+      avgScore,
+      topScore,
+      categoryCount,
+      newThisWeek,
+      newLastWeek,
+      totalDelta: newThisWeek - newLastWeek,
+      hotDelta, // percentage or null
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (err: unknown) {
+    console.error('[stats-overview]', err);
+    return res.status(500).json({
+      error: err instanceof Error ? err.message : 'Unknown error',
+    });
+  }
+});
+
+// ── GET /api/products/stats-categories ────────────────────────────────────
+// Top-N categories by total orders. Pure aggregate query, no auth needed.
+router.get('/stats-categories', async (req: Request, res: Response) => {
+  try {
+    const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit ?? '8'), 10) || 8));
+    const sb = getSupabase();
+    type Row = { category: string | null; sold_count: number | null };
+    const list: Row[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (from < 20000) {
+      const { data, error } = await sb
+        .from('winning_products')
+        .select('category,sold_count')
+        .not('category', 'is', null)
+        .not('sold_count', 'is', null)
+        .gt('sold_count', 0)
+        .range(from, from + PAGE - 1);
+      if (error) return res.status(500).json({ error: error.message });
+      const batch = (data ?? []) as Row[];
+      list.push(...batch);
+      if (batch.length < PAGE) break;
+      from += PAGE;
+    }
+    const agg = new Map<string, { total_orders: number; product_count: number }>();
+    for (const r of list) {
+      const k = (r.category ?? '').trim();
+      if (!k) continue;
+      const entry = agg.get(k) ?? { total_orders: 0, product_count: 0 };
+      entry.total_orders += r.sold_count ?? 0;
+      entry.product_count += 1;
+      agg.set(k, entry);
+    }
+    const rows = Array.from(agg.entries())
+      .map(([category, v]) => ({ category, total_orders: v.total_orders, product_count: v.product_count }))
+      .sort((a, b) => b.total_orders - a.total_orders)
+      .slice(0, limit);
+    return res.json({ categories: rows });
+  } catch (err: unknown) {
+    console.error('[stats-categories]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
+// ── GET /api/products/opportunities ───────────────────────────────────────
+// Three picks: highest sold_count, lowest price with score > 80 and sold > 1000,
+// and newest by created_at. All from winning_products, no hardcoding.
+router.get('/opportunities', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const [topRes, marginRes, newRes] = await Promise.all([
+      sb.from('winning_products')
+        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
+        .not('sold_count', 'is', null)
+        .order('sold_count', { ascending: false })
+        .limit(1),
+      sb.from('winning_products')
+        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
+        .gte('winning_score', 80)
+        .gte('sold_count', 1000)
+        .not('price_aud', 'is', null)
+        .gt('price_aud', 0)
+        .order('price_aud', { ascending: true })
+        .limit(1),
+      sb.from('winning_products')
+        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
+        .not('created_at', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(1),
+    ]);
+    if (topRes.error)    return res.status(500).json({ error: topRes.error.message });
+    if (marginRes.error) return res.status(500).json({ error: marginRes.error.message });
+    if (newRes.error)    return res.status(500).json({ error: newRes.error.message });
+    return res.json({
+      top_trending: topRes.data?.[0] ?? null,
+      best_margin:  marginRes.data?.[0] ?? null,
+      newest:       newRes.data?.[0] ?? null,
+    });
+  } catch (err: unknown) {
+    console.error('[opportunities]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/ae-live-search — direct AliExpress Affiliate API search ──
 // Layer 2 of the hybrid pipeline: unfiltered live results from AE Affiliate API.
 // Public endpoint (no auth) — read-only, no DB writes, no scoring.
