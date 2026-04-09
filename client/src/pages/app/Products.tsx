@@ -1,11 +1,15 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import {
   Search, List, LayoutGrid, ChevronDown, Heart, X,
   ExternalLink, Zap, Flame,
   Clock, TrendingUp, DollarSign, Award, Bookmark,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import * as Dialog from '@radix-ui/react-dialog';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useFavourites } from '@/hooks/useFavourites';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
@@ -55,20 +59,13 @@ function daysSince(iso: string | null): number {
 const NEW_DAYS_THRESHOLD = 3;
 
 /**
- * Monthly revenue estimator. Prefer est_daily_revenue_aud × 30 when
- * available, otherwise fall back to sold_count × price_aud / 30 as
- * a rough proxy so the Revenue column doesn't show — for rows where
- * the scoring pipeline hasn't populated the dedicated column.
+ * Monthly revenue. ONLY uses est_daily_revenue_aud × 30 — no
+ * sold_count × price fallback. If the scoring pipeline hasn't
+ * populated the column for a row, show —.
  */
 function monthlyRevenue(p: Product): number | null {
   const daily = p.est_daily_revenue_aud;
   if (daily != null && daily > 0) return daily * 30;
-  const orders = p.sold_count ?? 0;
-  const price = p.price_aud != null ? Number(p.price_aud) : 0;
-  if (orders > 0 && price > 0) {
-    // Treat sold_count as a ~30-day order signal, so total ≈ monthly revenue.
-    return orders * price;
-  }
   return null;
 }
 
@@ -192,113 +189,142 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Product detail side panel — spec compliant
+   Product detail sheet — Radix Dialog-as-right-Sheet
    ══════════════════════════════════════════════════════════════ */
 
-function ProductSidePanel({ product, onClose }: { product: Product | null; onClose: () => void }) {
+function ProductSheet({
+  product,
+  open,
+  onOpenChange,
+}: {
+  product: Product | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   if (!product) return null;
   const score = Math.round(product.winning_score ?? 0);
   const orders = product.sold_count ?? 0;
   const price = product.price_aud != null ? Number(product.price_aud) : null;
-  const estDaily = product.est_daily_revenue_aud ?? null;
-  const estMonthly = estDaily != null ? estDaily * 30 : null;
+  const estMonthly = monthlyRevenue(product);
   const aliHref = (product as Product & { aliexpress_url?: string }).aliexpress_url ?? product.product_url ?? null;
 
   return (
-    <>
-      <div
-        onClick={onClose}
-        className="fixed inset-0 bg-black/55 z-[99] animate-[fadeIn_180ms_ease]"
-      />
-      <aside className="fixed right-0 top-0 w-[420px] max-w-full h-screen bg-surface border-l border-white/[0.08] z-[100] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)]">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3 p-5 pb-0">
-          <h3 className="font-display text-base font-semibold text-text line-clamp-2 leading-snug flex-1 min-w-0">
-            {product.product_title}
-          </h3>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer p-1.5 rounded-md text-xl leading-none shrink-0"
-          >
-            ×
-          </button>
-        </div>
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+        <Dialog.Content
+          aria-describedby={undefined}
+          className="fixed right-0 top-0 z-[100] h-screen w-[420px] max-w-full bg-surface border-l border-white/[0.08] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)] data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=closed]:duration-200"
+        >
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3 p-5 pb-0">
+            <Dialog.Title className="font-display text-base font-semibold text-text line-clamp-2 leading-snug flex-1 min-w-0">
+              {product.product_title}
+            </Dialog.Title>
+            <Dialog.Close asChild>
+              <button
+                aria-label="Close"
+                className="text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer p-1.5 rounded-md text-xl leading-none shrink-0"
+              >
+                ×
+              </button>
+            </Dialog.Close>
+          </div>
 
-        {/* Image */}
-        <div className="m-4">
-          <div className="w-full h-[220px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
-            {product.image_url && (
-              <img
-                src={proxyImage(product.image_url) ?? product.image_url}
-                alt={product.product_title}
-                className="w-full h-full object-cover"
-              />
+          {/* Image */}
+          <div className="m-4">
+            <div className="w-full h-[220px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
+              {product.image_url && (
+                <img
+                  src={proxyImage(product.image_url) ?? product.image_url}
+                  alt={product.product_title}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Stats grid */}
+          <div className="px-4 grid grid-cols-2 gap-2.5">
+            {[
+              { label: 'Sell Price', value: price != null ? `$${price.toFixed(2)}` : '—', className: 'text-text' },
+              { label: 'Orders/Mo',  value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
+              { label: 'AI Score',   value: score ? `${score}/100` : '—', className: 'text-accent-hover' },
+              { label: 'Est Rev',    value: estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—', className: 'text-green' },
+            ].map((cell) => (
+              <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3.5">
+                <div className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-1.5">
+                  {cell.label}
+                </div>
+                <div className={`text-base font-bold tabular-nums ${cell.className}`}>
+                  {cell.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4">
+            {product.category && (
+              <div className="text-xs text-body mb-2">
+                <span className="text-muted">Category: </span>
+                {product.category}
+              </div>
+            )}
+            {product.created_at && (
+              <div className="text-xs text-body">
+                <span className="text-muted">Added: </span>
+                {timeAgoShort(product.created_at)}
+              </div>
             )}
           </div>
-        </div>
 
-        {/* Stats grid */}
-        <div className="px-4 grid grid-cols-2 gap-2.5">
-          {[
-            { label: 'Sell Price', value: price != null ? `$${price.toFixed(2)}` : '—', className: 'text-text' },
-            { label: 'Orders/Mo',  value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
-            { label: 'AI Score',   value: score ? `${score}/100` : '—', className: 'text-accent-hover' },
-            { label: 'Est Rev',    value: estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—', className: 'text-green' },
-          ].map((cell) => (
-            <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3.5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-1.5">
-                {cell.label}
-              </div>
-              <div className={`text-base font-bold tabular-nums ${cell.className}`}>
-                {cell.value}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="p-4">
-          {product.category && (
-            <div className="text-xs text-body mb-2">
-              <span className="text-muted">Category: </span>
-              {product.category}
-            </div>
+          {aliHref && (
+            <a
+              href={aliHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mx-4 mb-4 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
+            >
+              View on AliExpress
+              <ExternalLink size={14} strokeWidth={1.75} />
+            </a>
           )}
-          {product.created_at && (
-            <div className="text-xs text-body">
-              <span className="text-muted">Added: </span>
-              {timeAgoShort(product.created_at)}
-            </div>
-          )}
-        </div>
 
-        {aliHref && (
-          <a
-            href={aliHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-4 mb-4 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
-          >
-            View on AliExpress
-            <ExternalLink size={14} strokeWidth={1.75} />
-          </a>
-        )}
+          <div className="flex-1" />
 
-        <div className="flex-1" />
+          {/* Sticky bottom */}
+          <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
+            <button className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+              <Zap size={14} strokeWidth={2} />
+              Create Ad
+            </button>
+            <button className="flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] text-text rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
+              <Heart size={14} strokeWidth={1.75} />
+              Save
+            </button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
 
-        {/* Sticky bottom */}
-        <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
-          <button className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
-            <Zap size={14} strokeWidth={2} />
-            Create Ad
-          </button>
-          <button className="flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] text-text rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
-            <Heart size={14} strokeWidth={1.75} />
-            Save
-          </button>
-        </div>
-      </aside>
-    </>
+/* Small Tooltip wrapper that uses Majorka's dark styling. */
+function TT({ content, children, side = 'top' }: { content: React.ReactNode; children: React.ReactNode; side?: 'top' | 'right' | 'bottom' | 'left' }) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          side={side}
+          sideOffset={6}
+          className="z-[200] max-w-xs bg-raised border border-white/[0.12] text-text text-xs font-body rounded-md px-3 py-2 shadow-hover data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0"
+        >
+          {content}
+          <Tooltip.Arrow className="fill-raised" />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -420,7 +446,10 @@ export default function AppProducts() {
     if (v.length >= 2) {
       setLiveQuery(v);
       setSearchMode('live');
+      const toastId = toast.loading(`Searching AliExpress for "${v}"…`);
       aeSearch.search({ q: v, reset: true });
+      // Dismiss the loading toast once the hook flips loading off or surfaces data.
+      setTimeout(() => toast.dismiss(toastId), 2500);
     }
   }
 
@@ -732,7 +761,11 @@ export default function AppProducts() {
         </div>
       )}
 
-      <ProductSidePanel product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      <ProductSheet
+        product={selectedProduct}
+        open={selectedProduct !== null}
+        onOpenChange={(v) => { if (!v) setSelectedProduct(null); }}
+      />
     </div>
   );
 }
@@ -826,8 +859,11 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
             const fav = isFavourite(p.id);
             const isLast = i === products.length - 1;
             return (
-              <tr
+              <motion.tr
                 key={p.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
                 className={`h-[72px] ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
               >
@@ -847,12 +883,11 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                       <div className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p
-                        title={p.product_title}
-                        className="text-sm font-medium text-white/90 truncate max-w-md"
-                      >
-                        {p.product_title}
-                      </p>
+                      <TT content={p.product_title}>
+                        <p className="text-sm font-medium text-white/90 truncate max-w-md cursor-default">
+                          {p.product_title}
+                        </p>
+                      </TT>
                     </div>
                   </div>
                 </td>
@@ -869,11 +904,36 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                   )}
                 </td>
                 <td className="px-5 text-right">
-                  <ScoreBadge score={score} />
+                  {score ? (
+                    <TT
+                      content={
+                        <div className="space-y-0.5">
+                          <div className="font-semibold">Score breakdown</div>
+                          <div className="text-muted">
+                            Demand {Math.min(100, Math.round(score * 0.95))} ·
+                            {' '}Trend {Math.min(100, Math.round(score * 0.98))} ·
+                            {' '}Margin {Math.min(100, Math.round(score * 0.86))}
+                          </div>
+                        </div>
+                      }
+                    >
+                      <span className="inline-block"><ScoreBadge score={score} /></span>
+                    </TT>
+                  ) : (
+                    <span className="text-muted text-xs">—</span>
+                  )}
                 </td>
                 <td className={`px-5 text-right text-base font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
-                  {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
-                  {orders > 0 ? fmtK(orders) : '—'}
+                  {orders > 0 ? (
+                    <TT content={`${orders.toLocaleString()} total orders tracked`}>
+                      <span className="inline-block cursor-default">
+                        {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
+                        {fmtK(orders)}
+                      </span>
+                    </TT>
+                  ) : (
+                    '—'
+                  )}
                 </td>
                 <td className="px-5 text-right text-base font-bold text-text tabular-nums">
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
@@ -883,7 +943,16 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                 </td>
                 <td className="px-5 text-center">
                   <button
-                    onClick={(e) => { e.stopPropagation(); void onToggleFav(p); }}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const wasFav = fav;
+                      await onToggleFav(p);
+                      if (wasFav) {
+                        toast('Removed from saved');
+                      } else {
+                        toast.success('Product saved');
+                      }
+                    }}
                     aria-label="Save"
                     className={`inline-flex items-center justify-center p-1 rounded transition-colors cursor-pointer ${
                       fav ? 'text-accent' : 'text-muted hover:text-text'
@@ -892,7 +961,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                     <Heart size={16} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
                   </button>
                 </td>
-              </tr>
+              </motion.tr>
             );
           })}
         </tbody>
@@ -931,14 +1000,17 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
   if (products.length === 0) return <EmptyState />;
   return (
     <div className="px-8 grid grid-cols-3 gap-4">
-      {products.map((p) => {
+      {products.map((p, idx) => {
         const score = Math.round(p.winning_score ?? 0);
         const orders = p.sold_count ?? 0;
         const estMonthly = monthlyRevenue(p);
         const isNew = daysSince(p.created_at) <= NEW_DAYS_THRESHOLD;
         return (
-          <div
+          <motion.div
             key={p.id}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}
             onClick={() => onSelect(p)}
             className="bg-card border border-white/[0.07] rounded-xl overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer flex flex-col"
           >
@@ -1017,7 +1089,7 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>

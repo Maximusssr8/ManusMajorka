@@ -1,6 +1,11 @@
 import { Link } from 'wouter';
 import { useState, useEffect } from 'react';
 import { ArrowRight, ArrowUp, Package, Flame, Star, Trophy } from 'lucide-react';
+import { motion } from 'framer-motion';
+import CountUp from 'react-countup';
+import {
+  BarChart as RCBarChart, Bar, XAxis, YAxis, Tooltip as RCTooltip, ResponsiveContainer, Cell,
+} from 'recharts';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, useProductStats, type Product } from '@/hooks/useProducts';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
@@ -99,17 +104,18 @@ export default function AppHome() {
   const bestMargin    = bestMarginProducts[0] ?? null;
   const newestProduct = newestProducts[0] ?? null;
 
-  /* KPI cards — every value from the API */
+  /* KPI cards — every value from the API.
+     numeric = the raw number for CountUp. value = fallback string. */
   const totalDelta = stats?.totalDelta ?? 0;
   const hotDelta = stats?.hotDelta ?? null;
   const kpiCards: {
-    label: string; value: string; sub: string;
+    label: string; numeric: number | null; sub: string;
     Icon: typeof Package; topLine: string;
     trendText: string | null; trendPositive: boolean;
   }[] = [
     {
       label: 'Products Tracked',
-      value: stats?.total != null ? stats.total.toLocaleString() : '—',
+      numeric: stats?.total ?? null,
       sub: 'Live AliExpress feed',
       Icon: Package,
       topLine: 'bg-accent',
@@ -120,7 +126,7 @@ export default function AppHome() {
     },
     {
       label: 'Hot Products',
-      value: stats?.hotProducts != null ? stats.hotProducts.toLocaleString() : '—',
+      numeric: stats?.hotProducts ?? null,
       sub: 'Score 65 and above',
       Icon: Flame,
       topLine: 'bg-amber',
@@ -132,7 +138,7 @@ export default function AppHome() {
     },
     {
       label: 'Average Score',
-      value: stats?.avgScore != null ? `${stats.avgScore}` : '—',
+      numeric: stats?.avgScore ?? null,
       sub: 'Out of 100',
       Icon: Star,
       topLine: 'bg-green',
@@ -141,7 +147,7 @@ export default function AppHome() {
     },
     {
       label: 'Top Score',
-      value: stats?.topScore != null ? `${stats.topScore}` : '—',
+      numeric: stats?.topScore ?? null,
       sub: 'Highest in database',
       Icon: Trophy,
       topLine: 'bg-cyan',
@@ -149,6 +155,16 @@ export default function AppHome() {
       trendPositive: false,
     },
   ];
+
+  /* Framer-motion variants — KPI grid stagger */
+  const gridVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  };
+  const cardVariants = {
+    hidden:  { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  };
 
   /* Category chart rows */
   const chartRows = categoryRows.map((n) => ({
@@ -234,17 +250,22 @@ export default function AppHome() {
         </p>
       </div>
 
-      {/* KPI grid */}
-      <div className="relative z-10 grid grid-cols-4 gap-4 px-8 pb-6">
+      {/* KPI grid — framer-motion stagger on mount */}
+      <motion.div
+        className="relative z-10 grid grid-cols-4 gap-4 px-8 pb-6"
+        variants={gridVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {kpiCards.map((card) => {
           const Icon = card.Icon;
           return (
-            <div
+            <motion.div
               key={card.label}
+              variants={cardVariants}
               className="bg-surface border border-white/[0.07] rounded-xl p-5 pt-6 hover:border-accent/30 hover:bg-card transition-all duration-150 relative isolate"
             >
-              {/* Accent top line — rendered as its own rounded bar inside the
-                  card so the border-radius doesn't clip it. */}
+              {/* Accent top line */}
               <div
                 className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-xl z-10`}
               />
@@ -255,10 +276,16 @@ export default function AppHome() {
                 <Icon size={14} className="text-muted" strokeWidth={1.75} />
               </div>
               <div className="text-4xl font-display font-bold text-text tabular-nums mb-1 min-h-[36px] flex items-center">
-                {statsLoading ? (
+                {statsLoading || card.numeric == null ? (
                   <span className="inline-block h-7 w-24 bg-white/[0.04] rounded animate-pulse" />
                 ) : (
-                  card.value
+                  <CountUp
+                    end={card.numeric}
+                    duration={1.5}
+                    separator=","
+                    useEasing={true}
+                    preserveValue={true}
+                  />
                 )}
               </div>
               <div className="text-[11px] text-muted mb-2">{card.sub}</div>
@@ -270,15 +297,16 @@ export default function AppHome() {
                   </>
                 )}
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
-      {/* Main content — asymmetric 2 col */}
-      <div className="relative z-10 grid grid-cols-[1fr_320px] gap-5 px-8 pb-8">
-        {/* Category chart */}
-        <div className="bg-surface border border-white/[0.07] rounded-2xl p-6">
+      {/* Main content — asymmetric 2 col, chart card self-starts so it
+          doesn't stretch vertically past the right column */}
+      <div className="relative z-10 grid grid-cols-[1fr_320px] gap-5 px-8 pb-8 items-start">
+        {/* Category chart — proper Recharts horizontal BarChart */}
+        <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 h-fit self-start">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-sm font-semibold text-text">Category Performance</h2>
             <span className="text-xs text-muted">Top 8 by order volume</span>
@@ -298,31 +326,60 @@ export default function AppHome() {
               No category data available yet.
             </div>
           ) : (
-            chartRows.map((row, i) => {
-              const pct = Math.max(2, (row.orders / maxOrders) * 100);
-              const label = row.orders >= 1_000_000
-                ? `${(row.orders / 1_000_000).toFixed(1)}M`
-                : row.orders >= 1000 ? `${Math.round(row.orders / 1000)}k`
-                : row.orders.toLocaleString();
-              return (
-                <Link
-                  key={i}
-                  href={`/app/products?category=${encodeURIComponent(row.fullName)}`}
-                  className="flex items-center gap-3 py-1.5 rounded-md px-2 hover:bg-white/[0.025] transition-colors group no-underline"
+            <div style={{ width: '100%', height: 340 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RCBarChart
+                  data={chartRows}
+                  layout="vertical"
+                  margin={{ top: 4, right: 24, left: 0, bottom: 4 }}
+                  barCategoryGap={10}
+                  onClick={(e) => {
+                    const active = e?.activePayload?.[0]?.payload as { fullName?: string } | undefined;
+                    if (active?.fullName) {
+                      window.location.href = `/app/products?category=${encodeURIComponent(active.fullName)}`;
+                    }
+                  }}
                 >
-                  <span className="w-28 shrink-0 text-sm text-body truncate" title={row.fullName}>
-                    {row.name}
-                  </span>
-                  <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-accent to-accent-hover rounded-full group-hover:brightness-110 transition-all duration-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="w-14 text-right text-xs text-muted tabular-nums">{label}</span>
-                </Link>
-              );
-            })
+                  <XAxis
+                    type="number"
+                    stroke="#555a72"
+                    tick={{ fontSize: 10, fill: '#9499b0', fontFamily: "'Inter', sans-serif" }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v: number) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    stroke="#555a72"
+                    tick={{ fontSize: 11, fill: '#9499b0', fontFamily: "'Inter', sans-serif" }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={112}
+                  />
+                  <RCTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload || !payload.length) return null;
+                      const row = payload[0].payload as { fullName: string; orders: number };
+                      return (
+                        <div className="bg-raised border border-white/[0.12] rounded-md px-3 py-2 text-xs font-body">
+                          <div className="text-text font-semibold mb-0.5">{row.fullName}</div>
+                          <div className="text-muted tabular-nums">
+                            {row.orders.toLocaleString()} orders
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Bar dataKey="orders" radius={[0, 4, 4, 0]} cursor="pointer">
+                    {chartRows.map((_, i) => (
+                      <Cell key={i} fill="#6366f1" />
+                    ))}
+                  </Bar>
+                </RCBarChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
 
