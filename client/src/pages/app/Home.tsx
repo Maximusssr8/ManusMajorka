@@ -302,8 +302,125 @@ export default function AppHome() {
         })}
       </motion.div>
 
-      {/* Main content — stacks on mobile, side-by-side on desktop. */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start gap-5 px-4 md:px-8 pb-8">
+      {/* Top products table — full-width hero content, Shopify-style */}
+      <div className="relative z-10 mx-4 md:mx-8 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
+          <Link
+            href="/app/products"
+            className="text-sm text-accent hover:text-accent-hover transition-colors no-underline"
+          >
+            View all {total > 0 ? total.toLocaleString() : '…'} →
+          </Link>
+        </div>
+        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-raised border-b border-white/[0.07]">
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left w-10">#</th>
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Product</th>
+                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Category</th>
+                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Score</th>
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Orders</th>
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {prodLoading ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i} className="border-b border-white/[0.04]">
+                    <td colSpan={6} className="px-5 py-5">
+                      <span className="inline-block h-4 w-full bg-white/[0.04] rounded animate-pulse" />
+                    </td>
+                  </tr>
+                ))
+              ) : products.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-16 text-center text-muted">
+                    No products tracked yet.
+                  </td>
+                </tr>
+              ) : (
+                products.slice(0, 8).map((p, i) => {
+                  const score = Math.round(p.winning_score ?? 0);
+                  const orders = p.sold_count ?? 0;
+                  const isLast = i === Math.min(products.length, 8) - 1;
+                  return (
+                    <tr
+                      key={p.id}
+                      onClick={() => setSelectedProduct(p)}
+                      className={`${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
+                    >
+                      <td className="px-4 py-4 text-xs text-white/20 tabular-nums">
+                        {String(i + 1).padStart(2, '0')}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {p.image_url ? (
+                            <img
+                              src={proxyImage(p.image_url) ?? p.image_url}
+                              alt={p.product_title ?? ''}
+                              loading="lazy"
+                              className="w-12 h-12 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p
+                              title={p.product_title ?? undefined}
+                              className="text-sm font-medium text-text/90 truncate max-w-[320px] lg:max-w-[440px]"
+                            >
+                              {p.product_title ?? 'Untitled product'}
+                            </p>
+                            <p className="text-[11px] text-muted mt-0.5 truncate">
+                              {shortenCategory(p.category) || '—'}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="hidden md:table-cell px-4 py-4">
+                        {p.category ? (
+                          <span
+                            className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-full"
+                            style={categoryColor(p.category)}
+                          >
+                            {shortenCategory(p.category)}
+                          </span>
+                        ) : (
+                          <span className="text-muted text-xs">—</span>
+                        )}
+                      </td>
+                      <td className="hidden md:table-cell px-4 py-4 text-right">
+                        {score ? (
+                          <span
+                            className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
+                            style={scoreTierStyle(score)}
+                          >
+                            {score}
+                          </span>
+                        ) : (
+                          <span className="text-muted text-xs">—</span>
+                        )}
+                      </td>
+                      <td className={`px-4 py-4 text-right text-sm font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
+                        {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
+                        {orders > 0 ? fmtK(orders) : '—'}
+                      </td>
+                      <td className="px-4 py-4 text-right text-sm font-bold text-text tabular-nums">
+                        {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Bottom two-column — Trending Now + Top Opportunities. Stacks on mobile. */}
+      <div className="relative z-10 flex flex-col md:flex-row items-start gap-5 px-4 md:px-8 pb-12">
 
         {/* LEFT — Trending Now */}
         <div className="w-full flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden">
@@ -355,12 +472,12 @@ export default function AppHome() {
                     ) : (
                       <div className="w-[52px] h-[52px] rounded-xl bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
                     )}
-                    <div className="flex-1 min-w-0 max-w-0 overflow-hidden">
+                    <div className="flex-1 min-w-0 overflow-hidden">
                       <p
-                        title={p.product_title}
+                        title={p.product_title ?? undefined}
                         className="text-sm font-semibold text-text truncate mb-1"
                       >
-                        {p.product_title}
+                        {p.product_title ?? 'Untitled product'}
                       </p>
                       {p.category && (
                         <span
@@ -463,142 +580,6 @@ export default function AppHome() {
             })}
           </div>
 
-          {/* Quick Stats — replaces Platform Status */}
-          <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
-            <h3 className="text-sm font-semibold text-text mb-4">Quick Stats</h3>
-            {[
-              { label: 'New products this week', value: stats?.newThisWeek ?? null, color: 'text-green' },
-              { label: 'Categories tracked',     value: stats?.categoryCount ?? null, color: 'text-accent-hover' },
-              { label: 'Avg score',              value: stats?.avgScore ?? null, color: 'text-cyan' },
-            ].map((row, i, arr) => (
-              <div
-                key={row.label}
-                className={`flex items-center justify-between py-2.5 ${i === arr.length - 1 ? '' : 'border-b border-white/[0.05]'}`}
-              >
-                <span className="text-sm text-body">{row.label}</span>
-                <span className={`text-sm font-bold tabular-nums ${row.color}`}>
-                  {row.value != null ? row.value.toLocaleString() : '—'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Top products table */}
-      <div className="relative z-10 mx-4 md:mx-8 mb-12">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
-          <Link
-            href="/app/products"
-            className="text-sm text-accent hover:text-accent-hover transition-colors no-underline"
-          >
-            View all {total > 0 ? total.toLocaleString() : '…'} →
-          </Link>
-        </div>
-        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-raised border-b border-white/[0.07]">
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left w-10">#</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Product</th>
-                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Category</th>
-                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Score</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Orders</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {prodLoading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} className="border-b border-white/[0.04]">
-                    <td colSpan={6} className="px-5 py-5">
-                      <span className="inline-block h-4 w-full bg-white/[0.04] rounded animate-pulse" />
-                    </td>
-                  </tr>
-                ))
-              ) : products.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center text-muted">
-                    No products tracked yet.
-                  </td>
-                </tr>
-              ) : (
-                products.map((p, i) => {
-                  const score = Math.round(p.winning_score ?? 0);
-                  const orders = p.sold_count ?? 0;
-                  const isLast = i === products.length - 1;
-                  return (
-                    <tr
-                      key={p.id}
-                      onClick={() => setSelectedProduct(p)}
-                      className={`${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
-                    >
-                      <td className="px-4 py-4 text-xs text-white/20 tabular-nums">
-                        {String(i + 1).padStart(2, '0')}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {p.image_url ? (
-                            <img
-                              src={proxyImage(p.image_url) ?? p.image_url}
-                              alt={p.product_title}
-                              loading="lazy"
-                              className="w-12 h-12 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p
-                              title={p.product_title}
-                              className="text-sm font-medium text-text/90 truncate"
-                            >
-                              {p.product_title}
-                            </p>
-                            <p className="text-[11px] text-muted mt-0.5 truncate">
-                              {shortenCategory(p.category) || '—'}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="hidden md:table-cell px-4 py-4">
-                        {p.category ? (
-                          <span
-                            className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-full"
-                            style={categoryColor(p.category)}
-                          >
-                            {shortenCategory(p.category)}
-                          </span>
-                        ) : (
-                          <span className="text-muted text-xs">—</span>
-                        )}
-                      </td>
-                      <td className="hidden md:table-cell px-4 py-4 text-right">
-                        {score ? (
-                          <span
-                            className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
-                            style={scoreTierStyle(score)}
-                          >
-                            {score}
-                          </span>
-                        ) : (
-                          <span className="text-muted text-xs">—</span>
-                        )}
-                      </td>
-                      <td className={`px-4 py-4 text-right text-sm font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
-                        {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
-                        {orders > 0 ? fmtK(orders) : '—'}
-                      </td>
-                      <td className="px-4 py-4 text-right text-sm font-bold text-text tabular-nums">
-                        {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
 
