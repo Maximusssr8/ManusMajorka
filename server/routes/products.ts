@@ -622,6 +622,34 @@ router.get('/stats-categories', async (req: Request, res: Response) => {
   }
 });
 
+// ── POST /api/products/trigger-refresh ────────────────────────────────────
+// Manual trigger for the AliExpress bestseller scrape. Protected by a
+// shared secret in production; open in development. Fires the existing
+// launchAEBestsellerScrapes() pipeline which harvest-apify-runs cron
+// will pick up and import.
+router.post('/trigger-refresh', async (req: Request, res: Response) => {
+  try {
+    const secret = req.headers['x-refresh-secret'];
+    const expected = process.env.REFRESH_SECRET;
+    if (process.env.NODE_ENV === 'production') {
+      if (!expected) return res.status(503).json({ error: 'REFRESH_SECRET not configured' });
+      if (secret !== expected) return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const { launchAEBestsellerScrapes } = await import('../scrapers/ae-bestseller-urls');
+    const runIds = await launchAEBestsellerScrapes();
+    console.log(`[trigger-refresh] launched ${runIds.length} Apify runs`);
+    return res.json({
+      ok: true,
+      runs_launched: runIds.length,
+      run_ids: runIds,
+      note: 'Runs are fire-and-forget. The harvest-apify-runs cron (*/15) will pick up results and import them.',
+    });
+  } catch (err: unknown) {
+    console.error('[trigger-refresh]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/categories ──────────────────────────────────────────
 // Returns all unique, non-null category names sorted alphabetically.
 // Drives the Products page category dropdown.
@@ -972,7 +1000,7 @@ router.get('/tab-counts', async (_req: Request, res: Response) => {
 
     const [
       allRes, newRes, trendingRes, highMarginRes, topRes,
-      hotNowRes, highVolumeRes,
+      hotNowRes, highVolumeRes, under10Res,
     ] = await Promise.all([
       sb.from('winning_products').select('*', { count: 'exact', head: true }),
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', seven),
@@ -981,6 +1009,7 @@ router.get('/tab-counts', async (_req: Request, res: Response) => {
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90),
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90).gt('sold_count', 100000).gte('created_at', thirty),
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gt('sold_count', 100000),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).lte('price_aud', 10).gte('winning_score', 70).gt('sold_count', 5000),
     ]);
 
     return res.json({
@@ -991,6 +1020,7 @@ router.get('/tab-counts', async (_req: Request, res: Response) => {
       score90:        topRes.count ?? 0,
       hotNow:         hotNowRes.count ?? 0,
       highVolume:     highVolumeRes.count ?? 0,
+      under10:        under10Res.count ?? 0,
     });
   } catch (err: unknown) {
     console.error('[tab-counts]', err);

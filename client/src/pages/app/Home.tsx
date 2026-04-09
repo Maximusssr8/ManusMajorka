@@ -75,6 +75,7 @@ export default function AppHome() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { products, loading: prodLoading, total } = useProducts({ limit: 10, orderBy: 'sold_count' });
+  const { products: hotTodayProducts } = useProducts({ limit: 4, tab: 'hot-now' });
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
 
@@ -86,8 +87,10 @@ export default function AppHome() {
   const bestMargin    = bestMarginProducts[0] ?? null;
   const newestProduct = newestProducts[0] ?? null;
 
-  /* Trending Now — top 4 by sold_count from the existing products list */
-  const trendingNow = products.slice(0, 4);
+  /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
+     created within 30d). Falls back to the top-volume slice if the strict
+     filter returns nothing so this card always shows real products. */
+  const trendingNow = hotTodayProducts.length > 0 ? hotTodayProducts : products.slice(0, 4);
 
   /* Trending Today — products with sold_count > 100,000 in the loaded set */
   const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
@@ -425,7 +428,10 @@ export default function AppHome() {
         {/* LEFT — Trending Now */}
         <div className="w-full flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-text">Trending Now</h2>
+            <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+              Hot Today
+            </h2>
             <Link
               href="/app/products?tab=trending"
               className="text-xs text-accent hover:text-accent-hover transition-colors no-underline"

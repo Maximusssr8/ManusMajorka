@@ -62,7 +62,7 @@ export type OrderByColumn =
   | 'orders_asc'
   | 'velocity';
 
-export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume';
+export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10';
 
 export interface UseProductsOptions {
   limit?: number;
@@ -163,6 +163,10 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         } else if (tab === 'high-volume') {
           // High Volume: anything with 100k+ orders
           query = query.gt('sold_count', 100000);
+          query = applyOrder(query, 'sold_count');
+        } else if (tab === 'under-10') {
+          // Under $10: budget products for mass market
+          query = query.lte('price_aud', 10).gte('winning_score', 70).gt('sold_count', 5000);
           query = applyOrder(query, 'sold_count');
         } else {
           query = applyOrder(query, orderBy);

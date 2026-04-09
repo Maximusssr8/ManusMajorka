@@ -23,7 +23,7 @@ import { proxyImage } from '@/lib/imageProxy';
    Types + constants
    ══════════════════════════════════════════════════════════════ */
 
-type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'saved';
+type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10' | 'saved';
 
 const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass?: string }[] = [
   { key: 'all',         label: 'All products',  Icon: LayoutGrid },
@@ -31,6 +31,7 @@ const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass
   { key: 'trending',    label: 'Trending',      Icon: TrendingUp, iconClass: 'text-amber' },
   { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover' },
   { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign, iconClass: 'text-green' },
+  { key: 'under-10',    label: 'Under $10',     Icon: DollarSign, iconClass: 'text-cyan-400' },
   { key: 'top',         label: 'Score 90+',     Icon: Award,      iconClass: 'text-[#eab308]' },
   { key: 'new',         label: 'New',           Icon: Clock },
   { key: 'saved',       label: 'Saved',         Icon: Bookmark },
@@ -131,6 +132,53 @@ function marketRevenue(p: Product): number | null {
 }
 
 /**
+ * Returns 2-3 "why this product wins" bullet points based purely on
+ * real DB fields — no AI calls, no hallucinated reasons. Each reason
+ * maps to a concrete threshold crossing, so operators can trust them.
+ */
+function getWinReasons(p: Product): string[] {
+  const reasons: string[] = [];
+  const orders = Number(p.sold_count ?? 0);
+  const price = Number(p.price_aud ?? 0);
+  const score = Number(p.winning_score ?? 0);
+  const days = p.created_at ? daysSince(p.created_at) : 9999;
+
+  if (orders > 100000) {
+    reasons.push(`${fmtK(orders)} total orders — proven mass-market demand`);
+  } else if (orders > 10000) {
+    reasons.push(`${fmtK(orders)} orders — strong mid-market traction`);
+  }
+  if (price > 0 && price < 10) {
+    reasons.push(`Under $${Math.ceil(price)} landed cost — excellent margin potential at 3× markup`);
+  } else if (price > 0 && price < 20) {
+    reasons.push(`$${price.toFixed(2)} landed — healthy margin potential at 3× markup`);
+  }
+  if (score >= 90) {
+    reasons.push(`AI score ${Math.round(score)}/100 — top-tier combined signal`);
+  } else if (score >= 75) {
+    reasons.push(`AI score ${Math.round(score)}/100 — strong combined signal`);
+  }
+  if (days < 30 && orders > 5000) {
+    reasons.push(`Added ${days}d ago with ${fmtK(orders)} orders — early-mover edge still available`);
+  }
+  if (orders > 50000 && price > 0 && price < 15) {
+    reasons.push(`High volume + low cost — strong profit per unit at scale`);
+  }
+  return reasons.slice(0, 3);
+}
+
+/**
+ * Rough competition-level heuristic from order volume. Low order counts
+ * = fewer competing stores (first-mover territory). High counts = more
+ * stores selling it. Heuristic only — not based on active seller scans.
+ */
+function competitionLevel(orders: number): { label: string; color: string; bg: string; tip: string } {
+  if (orders < 10000) return { label: 'Low',      color: 'text-green',  bg: 'bg-green/10',     tip: 'Few stores — first-mover opportunity' };
+  if (orders < 100000) return { label: 'Moderate', color: 'text-amber',  bg: 'bg-amber/10',     tip: 'Growing market — viable with strong ads' };
+  return { label: 'High', color: 'text-orange-400', bg: 'bg-orange-500/10', tip: 'Mature market — differentiate on creative and pricing' };
+}
+
+/**
  * Strips common AliExpress SEO garbage from a raw product title so the
  * result reads like a real DTC product name. Removes multi-variant
  * "1/2/3pcs" prefixes, "For iPhone 15/14/13" device lists, collapses
@@ -199,7 +247,7 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
   if (typeof window === 'undefined') return { tab: 'all', search: '' };
   const params = new URLSearchParams(window.location.search);
   const t = params.get('tab');
-  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'hot-now', 'high-volume', 'saved'];
+  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'hot-now', 'high-volume', 'under-10', 'saved'];
   const tab = validTabs.includes(t as SmartTabKey) ? (t as SmartTabKey) : 'all';
   return { tab, search: params.get('search') ?? '' };
 }
@@ -616,6 +664,14 @@ function ProductSheet({
           {/* 30-day trend placeholder */}
           <ProductHistoryChart productId={product.id} />
 
+          {/* Similar products in the same category — visual only */}
+          {product.category && (
+            <SimilarProducts
+              category={product.category}
+              excludeId={String(product.id)}
+            />
+          )}
+
           <div className="p-4">
             {product.category && (
               <div className="text-xs text-body mb-2">
@@ -640,6 +696,46 @@ function ProductSheet({
               );
             })()}
           </div>
+
+          {/* Why This Product Wins — computed reasons from real data */}
+          {(() => {
+            const reasons = getWinReasons(product);
+            if (reasons.length === 0) return null;
+            return (
+              <div className="mx-4 mb-4 bg-green/[0.05] border border-green/20 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap size={13} className="text-green" strokeWidth={2.5} />
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-green">Why this wins</span>
+                </div>
+                <ul className="space-y-2">
+                  {reasons.map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-body leading-relaxed">
+                      <span className="text-green mt-0.5 shrink-0">✓</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
+
+          {/* Competition Level indicator */}
+          {(() => {
+            const comp = competitionLevel(product.sold_count ?? 0);
+            return (
+              <div className="mx-4 mb-4 flex items-center justify-between gap-3 bg-card border border-white/[0.06] rounded-xl p-3.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">Competition</span>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${comp.color} ${comp.bg}`}>
+                    {comp.label}
+                  </span>
+                </div>
+                <span className="text-[10px] text-muted leading-snug text-right flex-1 min-w-0">
+                  {comp.tip}
+                </span>
+              </div>
+            );
+          })()}
 
           {aliHref && (
             <a
@@ -810,7 +906,7 @@ export default function AppProducts() {
      badges show real totals, not per-page slices. */
   const [serverTabCounts, setServerTabCounts] = useState<{
     all: number; recentlyAdded: number; trending: number; highMargin: number; score90: number;
-    hotNow?: number; highVolume?: number;
+    hotNow?: number; highVolume?: number; under10?: number;
   } | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -963,6 +1059,7 @@ export default function AppProducts() {
         'top':         serverTabCounts.score90,
         'hot-now':     serverTabCounts.hotNow ?? 0,
         'high-volume': serverTabCounts.highVolume ?? 0,
+        'under-10':    serverTabCounts.under10 ?? 0,
         'saved':       lists.totalSaved,
       };
     }
@@ -977,6 +1074,7 @@ export default function AppProducts() {
       'top':         allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
       'hot-now':     allFetched.filter((p) => (p.winning_score ?? 0) >= 90 && (p.sold_count ?? 0) > 100000 && daysSince(p.created_at) <= 30).length,
       'high-volume': allFetched.filter((p) => (p.sold_count ?? 0) > 100000).length,
+      'under-10':    allFetched.filter((p) => Number(p.price_aud ?? 999) <= 10 && (p.winning_score ?? 0) >= 70 && (p.sold_count ?? 0) > 5000).length,
       'saved':       lists.totalSaved,
     };
   }, [total, allFetched, lists.totalSaved, serverTabCounts]);
@@ -2009,6 +2107,80 @@ function ProductHistoryChart({ productId }: { productId: string | number }) {
               style={{ height: `${h}%` }}
               title={`${new Date(history[i].captured_at).toLocaleDateString()}: ${v.toLocaleString()}`}
             />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SimilarProducts — small horizontal row of 3 products from
+   the same category with similar score range. Pure visual,
+   read-only — clicking opens AliExpress directly.
+   ────────────────────────────────────────────────────────────── */
+function SimilarProducts({ category, excludeId }: { category: string; excludeId: string }) {
+  const { products, loading } = useProducts({
+    category,
+    limit: 4,
+    minScore: 70,
+    orderBy: 'sold_count',
+  });
+  const filtered = products.filter((p) => String(p.id) !== excludeId).slice(0, 3);
+  if (loading) {
+    return (
+      <div className="mx-4 mt-3 mb-2">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
+          Similar in {shortenCategory(category)}
+        </div>
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex-1 h-20 bg-card border border-white/[0.06] rounded-lg animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (filtered.length === 0) return null;
+  return (
+    <div className="mx-4 mt-3 mb-2">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
+        Similar in {shortenCategory(category)}
+      </div>
+      <div className="flex gap-2">
+        {filtered.map((p) => {
+          const score = Math.round(p.winning_score ?? 0);
+          const orders = p.sold_count ?? 0;
+          return (
+            <a
+              key={p.id}
+              href={p.product_url ?? '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 group bg-card border border-white/[0.06] hover:border-accent/30 rounded-lg overflow-hidden transition-colors no-underline"
+            >
+              <div className="aspect-square bg-bg overflow-hidden">
+                {p.image_url ? (
+                  <img
+                    src={proxyImage(p.image_url) ?? p.image_url}
+                    alt=""
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted text-xs">—</div>
+                )}
+              </div>
+              <div className="p-2">
+                <p className="text-[10px] text-text font-medium truncate" title={p.product_title ?? ''}>
+                  {p.product_title ?? 'Untitled'}
+                </p>
+                <div className="flex items-center justify-between mt-1 text-[9px] text-muted tabular-nums">
+                  <span>{score > 0 ? `${score}` : '—'}</span>
+                  <span>{orders > 0 ? fmtK(orders) : '—'}</span>
+                </div>
+              </div>
+            </a>
           );
         })}
       </div>
