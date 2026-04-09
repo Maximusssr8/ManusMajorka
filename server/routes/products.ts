@@ -691,15 +691,18 @@ router.get('/radar', async (_req: Request, res: Response) => {
 
   try {
     const sb = getSupabase();
+    // Use * select — named column list was returning empty on the deployed
+    // Supabase JS version. Explicit column projection loses the rows for
+    // reasons that aren't worth debugging when * costs nothing here.
     const result = await sb
       .from('winning_products')
-      .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at, est_daily_revenue_aud')
+      .select('*')
       .order('sold_count', { ascending: false, nullsFirst: false })
       .limit(100);
     if (result.error) {
       console.error('[radar] winning_products select error:', result.error.message);
-    } else if (result.data) {
-      current = result.data;
+    } else if (Array.isArray(result.data)) {
+      current = result.data as typeof current;
     }
   } catch (e) {
     console.error('[radar] winning_products fetch failed:', e instanceof Error ? e.message : e);
