@@ -3,29 +3,28 @@ import { Link, useLocation } from 'wouter';
 import {
   Search, List, LayoutGrid, ChevronDown, Heart, X,
   ExternalLink, Zap, Flame,
+  Clock, TrendingUp, DollarSign, Award, Bookmark,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Clock, TrendingUp, DollarSign, Award, Bookmark } from 'lucide-react';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useFavourites } from '@/hooks/useFavourites';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
-import { C } from '@/lib/designTokens';
 
 /* ══════════════════════════════════════════════════════════════
-   Type definitions
+   Types + constants
    ══════════════════════════════════════════════════════════════ */
 
 type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'saved';
 
-const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon }[] = [
-  { key: 'all',         label: 'All products',  Icon: LayoutGrid },
-  { key: 'new',         label: 'New this week', Icon: Clock },
-  { key: 'trending',    label: 'Trending',      Icon: TrendingUp },
-  { key: 'highmargin',  label: 'High margin',   Icon: DollarSign },
-  { key: 'top',         label: 'Score 90+',     Icon: Award },
-  { key: 'saved',       label: 'Saved',         Icon: Bookmark },
+const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass?: string }[] = [
+  { key: 'all',        label: 'All products',  Icon: LayoutGrid },
+  { key: 'new',        label: 'New this week', Icon: Clock },
+  { key: 'trending',   label: 'Trending',      Icon: TrendingUp,  iconClass: 'text-amber' },
+  { key: 'highmargin', label: 'High margin',   Icon: DollarSign,  iconClass: 'text-green' },
+  { key: 'top',        label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]' },
+  { key: 'saved',      label: 'Saved',         Icon: Bookmark },
 ];
 
 const SORT_OPTIONS: { key: OrderByColumn; label: string }[] = [
@@ -39,79 +38,21 @@ const SORT_OPTIONS: { key: OrderByColumn; label: string }[] = [
 ];
 
 /* ══════════════════════════════════════════════════════════════
-   Shared styles
-   ══════════════════════════════════════════════════════════════ */
-
-const STYLES = `
-@keyframes mj-shim {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
-.mj-shim {
-  background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%);
-  background-size: 400px 100%;
-  animation: mj-shim 1.4s linear infinite;
-  border-radius: 4px;
-  display: inline-block;
-}
-.mj-row {
-  transition: background ${C.dur} ${C.ease};
-  cursor: pointer;
-}
-.mj-row:hover {
-  background: rgba(255,255,255,0.035);
-}
-.mj-row:hover .mj-row-chevron {
-  color: ${C.accent};
-}
-.mj-grid-card:hover .mj-grid-img {
-  transform: scale(1.03);
-  filter: brightness(1.05);
-}
-.mj-grid-img {
-  transition: transform 150ms ease, filter 150ms ease;
-}
-.mj-grid-card {
-  transition: border-color ${C.dur} ${C.ease}, transform ${C.dur} ${C.ease}, box-shadow ${C.dur} ${C.ease};
-  cursor: pointer;
-}
-.mj-grid-card:hover {
-  border-color: rgba(99,102,241,0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-.mj-pill {
-  transition: background ${C.dur} ${C.ease}, border-color ${C.dur} ${C.ease}, color ${C.dur} ${C.ease};
-}
-.mj-pill:hover {
-  border-color: rgba(99,102,241,0.25);
-  color: ${C.text};
-}
-@keyframes mj-slide {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
-}
-.mj-panel {
-  animation: mj-slide 240ms ${C.ease};
-}
-@keyframes mj-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.mj-backdrop {
-  animation: mj-fade 180ms ${C.ease};
-}
-`;
-
-/* ══════════════════════════════════════════════════════════════
    Helpers
    ══════════════════════════════════════════════════════════════ */
+
+function daysSince(iso: string | null): number {
+  if (!iso) return 9999;
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return 9999;
+  return (Date.now() - ts) / 86400000;
+}
 
 function timeAgoShort(iso: string | null): string {
   if (!iso) return '';
   const ts = Date.parse(iso);
   if (!Number.isFinite(ts)) return '';
-  const days = Math.round((Date.now() - ts) / (24 * 60 * 60 * 1000));
+  const days = Math.round((Date.now() - ts) / 86400000);
   if (days < 1) return 'today';
   if (days === 1) return 'yesterday';
   if (days < 7) return `${days} days ago`;
@@ -119,13 +60,6 @@ function timeAgoShort(iso: string | null): string {
   if (days < 30) return `${Math.round(days / 7)} weeks ago`;
   if (days < 60) return '1 month ago';
   return `${Math.round(days / 30)} months ago`;
-}
-
-function daysSince(iso: string | null): number {
-  if (!iso) return 9999;
-  const ts = Date.parse(iso);
-  if (!Number.isFinite(ts)) return 9999;
-  return (Date.now() - ts) / (24 * 60 * 60 * 1000);
 }
 
 function readInitialParams(): { tab: SmartTabKey; search: string } {
@@ -137,48 +71,38 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
   return { tab, search: params.get('search') ?? '' };
 }
 
-function scoreTier(score: number): { bg: string; fg: string } {
-  if (score >= 90) return { bg: 'rgba(16,185,129,0.15)',  fg: '#10b981' };
-  if (score >= 75) return { bg: 'rgba(245,158,11,0.15)',  fg: '#f59e0b' };
-  if (score >= 50) return { bg: 'rgba(249,115,22,0.15)',  fg: '#f97316' };
-  return               { bg: 'rgba(239,68,68,0.15)',   fg: '#ef4444' };
+function scoreTierStyle(score: number): { backgroundColor: string; color: string } {
+  if (score >= 90) return { backgroundColor: 'rgba(16,185,129,0.15)', color: '#10b981' };
+  if (score >= 75) return { backgroundColor: 'rgba(245,158,11,0.15)', color: '#f59e0b' };
+  if (score >= 50) return { backgroundColor: 'rgba(249,115,22,0.15)', color: '#f97316' };
+  return               { backgroundColor: 'rgba(239,68,68,0.15)',  color: '#ef4444' };
 }
 
-/* Category colour — 6 distinct schemes matched by keyword. */
-function categoryColor(cat: string | null): { bg: string; fg: string } {
+function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
   const c = (cat ?? '').toLowerCase();
-  if (c.includes('car') || c.includes('auto'))                            return { bg: 'rgba(249,115,22,0.12)', fg: '#f97316' };
-  if (c.includes('phone') || c.includes('mobile'))                        return { bg: 'rgba(99,102,241,0.12)', fg: '#818cf8' };
-  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { bg: 'rgba(16,185,129,0.12)', fg: '#10b981' };
-  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))    return { bg: 'rgba(236,72,153,0.12)', fg: '#f472b6' };
-  if (c.includes('hardware') || c.includes('tool'))                       return { bg: 'rgba(245,158,11,0.12)', fg: '#f59e0b' };
-  return { bg: 'rgba(255,255,255,0.06)', fg: C.body };
+  if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
+  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(99,102,241,0.12)', color: '#818cf8' };
+  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10b981' };
+  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { backgroundColor: 'rgba(236,72,153,0.12)', color: '#f472b6' };
+  if (c.includes('hardware') || c.includes('tool'))                           return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#f59e0b' };
+  return { backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' };
 }
 
-/* Square score badge — 32x32, rounded corners, bold 13px. */
+/* ══════════════════════════════════════════════════════════════
+   ScoreBadge — 32x32 square, Math.round, 4-tier colour
+   ══════════════════════════════════════════════════════════════ */
+
 function ScoreBadge({ score, size = 32 }: { score: number; size?: number }) {
   const rounded = Math.round(score);
-  if (!rounded) {
-    return (
-      <span style={{ color: C.muted, fontSize: C.fSm, fontFamily: C.fontBody }}>—</span>
-    );
-  }
-  const tier = scoreTier(rounded);
+  if (!rounded) return <span className="text-xs text-muted">—</span>;
   return (
     <span
+      className="inline-flex items-center justify-center rounded font-bold tabular-nums"
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         width: size,
         height: size,
-        borderRadius: 4,
-        background: tier.bg,
-        color: tier.fg,
-        fontSize: 13,
-        fontFamily: C.fontBody,
-        fontWeight: 700,
-        fontVariantNumeric: 'tabular-nums',
+        fontSize: size >= 32 ? 13 : 11,
+        ...scoreTierStyle(rounded),
       }}
     >
       {rounded}
@@ -187,54 +111,7 @@ function ScoreBadge({ score, size = 32 }: { score: number; size?: number }) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Thumbnail
-   ══════════════════════════════════════════════════════════════ */
-
-function Thumb({ image, title, size, radius }: { image: string | null; title: string; size: number; radius: number }) {
-  const [failed, setFailed] = useState(false);
-  const initial = (title?.trim()?.[0] || '?').toUpperCase();
-  const hasImage = image && !failed;
-  return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: radius,
-        background: C.raised,
-        border: `1px solid ${C.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        overflow: 'hidden',
-      }}
-    >
-      {hasImage ? (
-        <img
-          src={proxyImage(image) ?? image}
-          alt={title}
-          loading="lazy"
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <span
-          style={{
-            fontFamily: C.fontDisplay,
-            fontSize: size * 0.38,
-            fontWeight: 700,
-            color: C.muted,
-          }}
-        >
-          {initial}
-        </span>
-      )}
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Filter pill with popover dropdown
+   FilterPill with dropdown popover
    ══════════════════════════════════════════════════════════════ */
 
 interface FilterPillProps {
@@ -258,25 +135,14 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
     return () => document.removeEventListener('mousedown', onDoc);
   }, [open, onClose]);
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="relative">
       <button
-        className="mj-pill"
         onClick={onToggle}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          background: active ? 'rgba(99,102,241,0.15)' : '#1e2640',
-          border: `1px solid ${active ? C.accent : 'rgba(255,255,255,0.08)'}`,
-          borderRadius: 8,
-          padding: '8px 14px',
-          color: active ? C.accentHover : C.text,
-          fontSize: 13,
-          fontFamily: C.fontBody,
-          fontWeight: 500,
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
+        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border whitespace-nowrap ${
+          active
+            ? 'bg-accent/15 border-accent text-accent-hover'
+            : 'bg-card border-white/10 text-body hover:border-white/20'
+        }`}
       >
         <span>{label}</span>
         {active && onClear ? (
@@ -284,42 +150,16 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
             role="button"
             aria-label="Clear filter"
             onClick={(e) => { e.stopPropagation(); onClear(); }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 16,
-              height: 16,
-              borderRadius: 999,
-              background: 'rgba(255,255,255,0.08)',
-              color: C.accentHover,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              marginLeft: 2,
-            }}
+            className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/10 text-accent-hover text-xs font-semibold cursor-pointer ml-0.5"
           >
             ×
           </span>
         ) : (
-          <ChevronDown size={12} color={C.muted} strokeWidth={2} />
+          <ChevronDown size={12} className="text-muted" strokeWidth={2} />
         )}
       </button>
       {open && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 6px)',
-            left: 0,
-            zIndex: 50,
-            background: C.raised,
-            border: `1px solid ${C.borderStrong}`,
-            borderRadius: C.rMd,
-            padding: 16,
-            minWidth: 220,
-            boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
-          }}
-        >
+        <div className="absolute top-[calc(100%+6px)] left-0 z-50 bg-raised border border-white/[0.12] rounded-xl p-4 min-w-[220px] shadow-hover">
           {children}
         </div>
       )}
@@ -328,72 +168,7 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Input + option list primitives used inside dropdowns
-   ══════════════════════════════════════════════════════════════ */
-
-const numberInputStyle: React.CSSProperties = {
-  background: C.bg,
-  border: `1px solid ${C.border}`,
-  borderRadius: C.rXs,
-  padding: '8px 10px',
-  color: C.text,
-  width: 90,
-  outline: 'none',
-  fontSize: C.fBody,
-  fontFamily: C.fontBody,
-  fontVariantNumeric: 'tabular-nums',
-  boxSizing: 'border-box',
-};
-
-function OptionList<T extends string | number>({
-  options,
-  value,
-  onSelect,
-  keyExtractor,
-  renderLabel,
-}: {
-  options: T[];
-  value: T | null;
-  onSelect: (v: T) => void;
-  keyExtractor: (v: T) => string;
-  renderLabel: (v: T) => string;
-}) {
-  return (
-    <div style={{ maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {options.map((opt) => {
-        const k = keyExtractor(opt);
-        const sel = value !== null && keyExtractor(value) === k;
-        return (
-          <div
-            key={k}
-            onClick={() => onSelect(opt)}
-            style={{
-              padding: '8px 12px',
-              cursor: 'pointer',
-              borderRadius: 6,
-              fontSize: C.fBody,
-              fontFamily: C.fontBody,
-              color: sel ? C.text : C.body,
-              background: sel ? C.accentSubtle : 'transparent',
-              transition: `background ${C.dur} ${C.ease}`,
-            }}
-            onMouseEnter={(e) => {
-              if (!sel) (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.05)';
-            }}
-            onMouseLeave={(e) => {
-              if (!sel) (e.currentTarget as HTMLDivElement).style.background = 'transparent';
-            }}
-          >
-            {renderLabel(opt)}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Product detail side panel — spec version
+   Product detail side panel — spec compliant
    ══════════════════════════════════════════════════════════════ */
 
 function ProductSidePanel({ product, onClose }: { product: Product | null; onClose: () => void }) {
@@ -404,273 +179,96 @@ function ProductSidePanel({ product, onClose }: { product: Product | null; onClo
   const estDaily = product.est_daily_revenue_aud ?? null;
   const estMonthly = estDaily != null ? estDaily * 30 : null;
   const aliHref = (product as Product & { aliexpress_url?: string }).aliexpress_url ?? product.product_url ?? null;
-  const tier = scoreTier(score);
 
   return (
     <>
       <div
-        className="mj-backdrop"
         onClick={onClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.55)',
-          zIndex: 99,
-        }}
+        className="fixed inset-0 bg-black/55 z-[99] animate-[fadeIn_180ms_ease]"
       />
-      <aside
-        className="mj-panel"
-        style={{
-          position: 'fixed',
-          right: 0,
-          top: 0,
-          width: 420,
-          maxWidth: '100vw',
-          height: '100vh',
-          background: C.surface,
-          borderLeft: `1px solid ${C.border}`,
-          zIndex: 100,
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          fontFamily: C.fontBody,
-          color: C.text,
-        }}
-      >
+      <aside className="fixed right-0 top-0 w-[420px] max-w-full h-screen bg-surface border-l border-white/[0.08] z-[100] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)]">
         {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            gap: 12,
-            padding: '20px 20px 0',
-          }}
-        >
-          <div
-            style={{
-              fontFamily: C.fontDisplay,
-              fontSize: C.fH4,
-              fontWeight: 600,
-              color: C.text,
-              maxWidth: 320,
-              lineHeight: 1.3,
-            }}
-          >
+        <div className="flex items-start justify-between gap-3 p-5 pb-0">
+          <h3 className="font-display text-base font-semibold text-text line-clamp-2 leading-snug flex-1 min-w-0">
             {product.product_title}
-          </div>
+          </h3>
           <button
             onClick={onClose}
             aria-label="Close"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: C.muted,
-              cursor: 'pointer',
-              padding: 4,
-              transition: `color ${C.dur} ${C.ease}`,
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = C.muted; }}
+            className="text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer p-1.5 rounded-md text-xl leading-none shrink-0"
           >
-            <X size={18} strokeWidth={1.75} />
+            ×
           </button>
         </div>
 
         {/* Image */}
-        <div style={{ margin: 16 }}>
-          <div
-            style={{
-              width: '100%',
-              height: 220,
-              borderRadius: C.rMd,
-              overflow: 'hidden',
-              background: C.raised,
-              border: `1px solid ${C.border}`,
-            }}
-          >
+        <div className="m-4">
+          <div className="w-full h-[220px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
             {product.image_url && (
               <img
                 src={proxyImage(product.image_url) ?? product.image_url}
                 alt={product.product_title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                className="w-full h-full object-cover"
               />
             )}
           </div>
         </div>
 
         {/* Stats grid */}
-        <div
-          style={{
-            padding: '0 16px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 10,
-          }}
-        >
+        <div className="px-4 grid grid-cols-2 gap-2.5">
           {[
-            { label: 'Score', value: score ? String(score) : '—', color: score ? tier.fg : C.muted },
-            { label: 'Orders', value: orders ? orders.toLocaleString() : '—', color: C.text },
-            { label: 'Price', value: price != null ? `$${price.toFixed(2)}` : '—', color: C.text },
-            { label: 'Est. Revenue', value: estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—', color: C.green },
+            { label: 'Sell Price', value: price != null ? `$${price.toFixed(2)}` : '—', className: 'text-text' },
+            { label: 'Orders/Mo',  value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
+            { label: 'AI Score',   value: score ? `${score}/100` : '—', className: 'text-accent-hover' },
+            { label: 'Est Rev',    value: estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—', className: 'text-green' },
           ].map((cell) => (
-            <div
-              key={cell.label}
-              style={{
-                background: C.raised,
-                borderRadius: C.rMd,
-                padding: 14,
-                border: `1px solid ${C.border}`,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: C.fXxs,
-                  fontFamily: C.fontBody,
-                  fontWeight: 500,
-                  color: C.muted,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  marginBottom: 6,
-                }}
-              >
+            <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3.5">
+              <div className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-1.5">
                 {cell.label}
               </div>
-              <div
-                style={{
-                  fontFamily: C.fontDisplay,
-                  fontSize: 22,
-                  fontWeight: 600,
-                  color: cell.color,
-                  fontVariantNumeric: 'tabular-nums',
-                  letterSpacing: '-0.01em',
-                }}
-              >
+              <div className={`text-base font-bold tabular-nums ${cell.className}`}>
                 {cell.value}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Metadata */}
-        <div style={{ padding: '16px 16px 20px' }}>
+        <div className="p-4">
           {product.category && (
-            <div
-              style={{
-                fontSize: C.fSm,
-                fontFamily: C.fontBody,
-                color: C.body,
-                marginBottom: 8,
-              }}
-            >
-              <span style={{ color: C.muted }}>Category: </span>
+            <div className="text-xs text-body mb-2">
+              <span className="text-muted">Category: </span>
               {product.category}
             </div>
           )}
           {product.created_at && (
-            <div
-              style={{
-                fontSize: C.fSm,
-                fontFamily: C.fontBody,
-                color: C.body,
-              }}
-            >
-              <span style={{ color: C.muted }}>Added: </span>
+            <div className="text-xs text-body">
+              <span className="text-muted">Added: </span>
               {timeAgoShort(product.created_at)}
             </div>
           )}
         </div>
 
-        {/* AliExpress link */}
         {aliHref && (
           <a
             href={aliHref}
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              margin: '0 16px 16px',
-              background: 'rgba(255,255,255,0.06)',
-              border: `1px solid ${C.border}`,
-              borderRadius: C.rMd,
-              padding: 12,
-              fontSize: C.fBody,
-              fontFamily: C.fontBody,
-              color: C.text,
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              textDecoration: 'none',
-              transition: `background ${C.dur} ${C.ease}`,
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.1)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.06)'; }}
+            className="mx-4 mb-4 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
           >
             View on AliExpress
             <ExternalLink size={14} strokeWidth={1.75} />
           </a>
         )}
 
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
 
-        {/* Sticky bottom bar */}
-        <div
-          style={{
-            position: 'sticky',
-            bottom: 0,
-            background: C.surface,
-            borderTop: `1px solid ${C.border}`,
-            padding: 16,
-            display: 'flex',
-            gap: 10,
-          }}
-        >
-          <button
-            style={{
-              flex: 1,
-              background: C.accent,
-              color: C.white,
-              border: 'none',
-              borderRadius: C.rMd,
-              padding: 12,
-              fontSize: C.fBody,
-              fontFamily: C.fontBody,
-              fontWeight: 500,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              transition: `background ${C.dur} ${C.ease}`,
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.accentHover; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.accent; }}
-          >
+        {/* Sticky bottom */}
+        <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
+          <button className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
             <Zap size={14} strokeWidth={2} />
             Create Ad
           </button>
-          <button
-            style={{
-              flex: 1,
-              background: 'rgba(255,255,255,0.06)',
-              color: C.text,
-              border: `1px solid ${C.border}`,
-              borderRadius: C.rMd,
-              padding: 12,
-              fontSize: C.fBody,
-              fontFamily: C.fontBody,
-              fontWeight: 500,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              transition: `background ${C.dur} ${C.ease}`,
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; }}
-          >
+          <button className="flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] text-text rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors">
             <Heart size={14} strokeWidth={1.75} />
             Save
           </button>
@@ -717,9 +315,6 @@ export default function AppProducts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* Fetch. We pull `perPage * page` rows so we can slice client-side for
-     pagination, which keeps the existing useProducts hook signature
-     intact while giving us a real Showing X–Y of Z display. */
   const fetchLimit = perPage * page;
   const { products: allFetched, loading, total } = useProducts({
     limit: Math.min(fetchLimit, 200),
@@ -732,7 +327,6 @@ export default function AppProducts() {
     minScore: scoreMin > 0 ? scoreMin : undefined,
   });
 
-  /* Apply saved-tab override + maxScore ceiling client-side */
   const filtered = useMemo<Product[]>(() => {
     if (activeTab === 'saved') {
       return fav.favourites.map((f) => ({
@@ -762,7 +356,6 @@ export default function AppProducts() {
   const pageSlice = filtered.slice(offset, offset + perPage);
   const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
 
-  /* Tab counts — computed from live data */
   const tabCounts = useMemo(() => {
     return {
       all:        total,
@@ -777,7 +370,6 @@ export default function AppProducts() {
     };
   }, [total, allFetched, fav.count]);
 
-  /* Category options for dropdown */
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
     allFetched.forEach((p) => {
@@ -817,541 +409,307 @@ export default function AppProducts() {
 
   const activeSortLabel = SORT_OPTIONS.find((o) => o.key === orderBy)?.label ?? 'Sort';
 
-  /* ══════════════════════════════════════════════════════════════
-     Render
-     ══════════════════════════════════════════════════════════════ */
+  const numberInputClass = 'bg-bg border border-white/[0.07] rounded-md px-2.5 py-2 text-text w-[90px] outline-none text-sm tabular-nums box-border';
 
   return (
-    <>
-      <style>{STYLES}</style>
+    <div className="min-h-screen bg-bg font-body text-text">
+      {/* Breadcrumb */}
+      <div className="px-8 pt-6 pb-2 text-xs text-muted">
+        Home <span className="mx-1.5 text-white/20">/</span> Products
+      </div>
 
-      <div
-        style={{
-          background: C.bg,
-          minHeight: '100vh',
-          fontFamily: C.fontBody,
-          color: C.text,
-        }}
-      >
-        {/* ── SEARCH BAR ── */}
-        <div style={{ padding: '24px 32px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <Search
-              size={16}
-              strokeWidth={2}
-              style={{
-                position: 'absolute',
-                left: 16,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                pointerEvents: 'none',
-                color: C.accent,
-                opacity: 0.6,
-              }}
-            />
-            <input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') runSearch(); }}
-              placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products or explore live from AliExpress`}
-              style={{
-                width: '100%',
-                height: 52,
-                background: '#1e2640',
-                border: '1px solid rgba(255,255,255,0.10)',
-                borderRadius: 12,
-                padding: '0 16px 0 46px',
-                color: C.text,
-                fontFamily: C.fontBody,
-                fontSize: 15,
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: `border-color ${C.dur} ${C.ease}, box-shadow ${C.dur} ${C.ease}`,
-              }}
-              onFocus={(e) => {
-                const el = e.currentTarget as HTMLInputElement;
-                el.style.borderColor = C.accent;
-                el.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)';
-              }}
-              onBlur={(e)  => {
-                const el = e.currentTarget as HTMLInputElement;
-                el.style.borderColor = 'rgba(255,255,255,0.10)';
-                el.style.boxShadow = 'none';
-              }}
-            />
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background: C.raised,
-              border: `1px solid ${C.border}`,
-              borderRadius: C.rSm,
-              padding: 4,
-            }}
+      {/* Search bar */}
+      <div className="px-8 pb-4 flex items-center gap-3">
+        <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-xl h-[52px] px-4 gap-3 transition-all">
+          <Search size={16} strokeWidth={2} className="text-accent/60 shrink-0" />
+          <input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') runSearch(); }}
+            placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products or explore live from AliExpress`}
+            className="flex-1 bg-transparent text-[15px] text-text placeholder-muted outline-none min-w-0"
+          />
+        </div>
+        <div className="flex items-center gap-1 bg-card border border-white/10 rounded-lg p-1">
+          {(['db', 'live'] as const).map((mode) => {
+            const active = searchMode === mode;
+            return (
+              <button
+                key={mode}
+                onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
+                className={`text-sm font-medium rounded-md px-3 py-1.5 transition-colors whitespace-nowrap ${
+                  active
+                    ? 'bg-accent/15 text-accent-hover border border-accent/30'
+                    : 'text-muted border border-transparent hover:text-text'
+                }`}
+              >
+                {mode === 'db' ? 'Database' : 'Live AliExpress'}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {searchMode === 'live' && (
+        <div className="px-8 pb-3 text-sm text-muted">
+          Showing {aeSearch.total.toLocaleString()} live results for <span className="text-text">"{liveQuery}"</span>
+        </div>
+      )}
+
+      {/* Filter bar */}
+      {searchMode === 'db' && (
+        <div className="px-8 pb-4 flex gap-2 flex-wrap items-center">
+          <FilterPill
+            label={priceMin !== null || priceMax !== null
+              ? `Price: $${priceMin ?? 0}–$${priceMax ?? '∞'}`
+              : 'Price'}
+            active={priceMin !== null || priceMax !== null}
+            open={openPill === 'price'}
+            onToggle={() => setOpenPill(openPill === 'price' ? null : 'price')}
+            onClose={closePill}
+            onClear={() => { setPriceMin(null); setPriceMax(null); }}
           >
-            {(['db', 'live'] as const).map((mode) => {
-              const active = searchMode === mode;
+            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
+              Price range
+            </div>
+            <div className="flex gap-2.5 items-center">
+              <input type="number" placeholder="Min" value={priceMin ?? ''}
+                onChange={(e) => setPriceMin(e.target.value ? Number(e.target.value) : null)}
+                className={numberInputClass} />
+              <span className="text-muted text-xs">to</span>
+              <input type="number" placeholder="Max" value={priceMax ?? ''}
+                onChange={(e) => setPriceMax(e.target.value ? Number(e.target.value) : null)}
+                className={numberInputClass} />
+            </div>
+          </FilterPill>
+
+          <FilterPill
+            label={minOrders !== null ? `Min orders: ${minOrders.toLocaleString()}` : 'Min Orders'}
+            active={minOrders !== null}
+            open={openPill === 'minOrders'}
+            onToggle={() => setOpenPill(openPill === 'minOrders' ? null : 'minOrders')}
+            onClose={closePill}
+            onClear={() => setMinOrders(null)}
+          >
+            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
+              Minimum orders
+            </div>
+            <input type="number" placeholder="e.g. 1000" value={minOrders ?? ''}
+              onChange={(e) => setMinOrders(e.target.value ? Number(e.target.value) : null)}
+              className={`${numberInputClass} !w-[180px]`} />
+          </FilterPill>
+
+          <FilterPill
+            label={categoryFilter ? `Category: ${shortenCategory(categoryFilter)}` : 'Category'}
+            active={categoryFilter !== ''}
+            open={openPill === 'category'}
+            onToggle={() => setOpenPill(openPill === 'category' ? null : 'category')}
+            onClose={closePill}
+            onClear={() => setCategoryFilter('')}
+          >
+            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
+              Category
+            </div>
+            {availableCategories.length > 0 ? (
+              <div className="max-h-[220px] overflow-y-auto flex flex-col gap-0.5">
+                {['', ...availableCategories].map((opt) => {
+                  const sel = categoryFilter === opt;
+                  return (
+                    <div
+                      key={opt || '__all__'}
+                      onClick={() => { setCategoryFilter(opt); closePill(); }}
+                      className={`px-3 py-2 cursor-pointer rounded-md text-sm transition-colors ${
+                        sel ? 'bg-accent/15 text-text' : 'text-body hover:bg-white/[0.05]'
+                      }`}
+                    >
+                      {opt ? shortenCategory(opt) : 'All categories'}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-muted text-xs">No categories loaded yet.</div>
+            )}
+          </FilterPill>
+
+          <FilterPill
+            label={scoreMin > 0 || scoreMax < 100 ? `Score: ${scoreMin}–${scoreMax}` : 'Score'}
+            active={scoreMin > 0 || scoreMax < 100}
+            open={openPill === 'score'}
+            onToggle={() => setOpenPill(openPill === 'score' ? null : 'score')}
+            onClose={closePill}
+            onClear={() => { setScoreMin(0); setScoreMax(100); }}
+          >
+            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
+              Score range
+            </div>
+            <div className="flex gap-2.5 items-center">
+              <input type="number" min={0} max={100} placeholder="Min" value={scoreMin || ''}
+                onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
+                className={numberInputClass} />
+              <span className="text-muted text-xs">to</span>
+              <input type="number" min={0} max={100} placeholder="Max" value={scoreMax !== 100 ? scoreMax : ''}
+                onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
+                className={numberInputClass} />
+            </div>
+          </FilterPill>
+
+          <div className="flex-1" />
+
+          <FilterPill
+            label={`Sort: ${activeSortLabel}`}
+            active={false}
+            open={openPill === 'sort'}
+            onToggle={() => setOpenPill(openPill === 'sort' ? null : 'sort')}
+            onClose={closePill}
+          >
+            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
+              Sort by
+            </div>
+            <div className="max-h-[220px] overflow-y-auto flex flex-col gap-0.5">
+              {SORT_OPTIONS.map((opt) => {
+                const sel = orderBy === opt.key;
+                return (
+                  <div
+                    key={opt.key}
+                    onClick={() => { setOrderBy(opt.key); closePill(); }}
+                    className={`px-3 py-2 cursor-pointer rounded-md text-sm transition-colors ${
+                      sel ? 'bg-accent/15 text-text' : 'text-body hover:bg-white/[0.05]'
+                    }`}
+                  >
+                    {opt.label}
+                  </div>
+                );
+              })}
+            </div>
+          </FilterPill>
+
+          {anyFilterActive && (
+            <button
+              onClick={clearFilters}
+              className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium rounded-lg px-3.5 py-2 cursor-pointer hover:bg-red-500/20 transition-colors"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Tab bar */}
+      {searchMode === 'db' && (
+        <div className="px-8 flex items-center gap-1.5 mb-2 overflow-x-auto">
+          {SMART_TABS.map((tab) => {
+            const active = activeTab === tab.key;
+            const count = tabCounts[tab.key];
+            const Icon = tab.Icon;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => { setActiveTab(tab.key); setPage(1); }}
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg cursor-pointer whitespace-nowrap transition-colors border ${
+                  active
+                    ? 'bg-accent/15 border-accent/30 text-accent-hover'
+                    : 'bg-transparent border-transparent text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
+                }`}
+              >
+                <Icon
+                  size={14}
+                  strokeWidth={1.75}
+                  className={active ? 'text-accent-hover' : tab.iconClass ?? ''}
+                />
+                <span>{tab.label}</span>
+                <span className="bg-white/[0.08] rounded-full px-1.5 py-0 text-[11px] tabular-nums ml-0.5">
+                  {count >= 1000 ? `${Math.round(count / 1000)}k` : count}
+                </span>
+              </button>
+            );
+          })}
+          <div className="flex-1" />
+          <div className="flex gap-1 shrink-0">
+            {(['table', 'grid'] as const).map((mode) => {
+              const active = view === mode;
+              const Icon = mode === 'table' ? List : LayoutGrid;
               return (
                 <button
                   key={mode}
-                  onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
-                  style={{
-                    background: active ? C.accentSubtle : 'transparent',
-                    color: active ? C.accentHover : C.muted,
-                    border: `1px solid ${active ? 'rgba(99,102,241,0.3)' : 'transparent'}`,
-                    borderRadius: 6,
-                    padding: '5px 12px',
-                    fontSize: C.fSm,
-                    fontFamily: C.fontBody,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: `all ${C.dur} ${C.ease}`,
-                  }}
+                  onClick={() => setView(mode)}
+                  aria-label={mode}
+                  className={`w-8 h-8 rounded-md flex items-center justify-center cursor-pointer transition-colors ${
+                    active ? 'bg-raised text-text' : 'text-muted hover:text-body'
+                  }`}
                 >
-                  {mode === 'db' ? 'Database' : 'Live AliExpress'}
+                  <Icon size={14} strokeWidth={1.75} />
                 </button>
               );
             })}
           </div>
         </div>
+      )}
 
-        {/* ── LIVE SEARCH NOTICE ── */}
-        {searchMode === 'live' && (
-          <div
-            style={{
-              padding: '0 32px 12px',
-              fontSize: C.fSm,
-              color: C.muted,
-              fontFamily: C.fontBody,
-            }}
-          >
-            Showing {aeSearch.total.toLocaleString()} live results for <span style={{ color: C.text }}>"{liveQuery}"</span>
+      {/* Results header */}
+      {searchMode === 'db' && (
+        <div className="px-8 py-3 flex items-center justify-between">
+          <div className="text-sm text-muted">
+            {loading ? 'Loading products…' : `${filteredTotal.toLocaleString()} products`}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ── FILTER BAR (db mode only) ── */}
-        {searchMode === 'db' && (
-          <div
-            style={{
-              padding: '0 32px 16px',
-              display: 'flex',
-              gap: 8,
-              flexWrap: 'wrap',
-              alignItems: 'center',
-            }}
-          >
-            {/* Price */}
-            <FilterPill
-              label={priceMin !== null || priceMax !== null
-                ? `Price: $${priceMin ?? 0}–$${priceMax ?? '∞'}`
-                : 'Price'}
-              active={priceMin !== null || priceMax !== null}
-              open={openPill === 'price'}
-              onToggle={() => setOpenPill(openPill === 'price' ? null : 'price')}
-              onClose={closePill}
-              onClear={() => { setPriceMin(null); setPriceMax(null); }}
-            >
-              <div
-                style={{
-                  fontSize: C.fXs,
-                  fontFamily: C.fontBody,
-                  color: C.muted,
-                  marginBottom: 10,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                Price range
-              </div>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={priceMin ?? ''}
-                  onChange={(e) => setPriceMin(e.target.value ? Number(e.target.value) : null)}
-                  style={numberInputStyle}
-                />
-                <span style={{ color: C.muted, fontSize: C.fSm }}>to</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={priceMax ?? ''}
-                  onChange={(e) => setPriceMax(e.target.value ? Number(e.target.value) : null)}
-                  style={numberInputStyle}
-                />
-              </div>
-            </FilterPill>
+      {/* Body */}
+      {searchMode === 'live' ? (
+        <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
+      ) : view === 'table' ? (
+        <ListTable
+          products={pageSlice}
+          loading={loading}
+          onSelect={setSelectedProduct}
+          isFavourite={fav.isFavourite}
+          onToggleFav={fav.toggleFavourite}
+        />
+      ) : (
+        <GridCards
+          products={pageSlice}
+          loading={loading}
+          onSelect={setSelectedProduct}
+          navigate={navigate}
+        />
+      )}
 
-            {/* Min Orders */}
-            <FilterPill
-              label={minOrders !== null ? `Min orders: ${minOrders.toLocaleString()}` : 'Min Orders'}
-              active={minOrders !== null}
-              open={openPill === 'minOrders'}
-              onToggle={() => setOpenPill(openPill === 'minOrders' ? null : 'minOrders')}
-              onClose={closePill}
-              onClear={() => setMinOrders(null)}
-            >
-              <div
-                style={{
-                  fontSize: C.fXs,
-                  fontFamily: C.fontBody,
-                  color: C.muted,
-                  marginBottom: 10,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                Minimum orders
-              </div>
-              <input
-                type="number"
-                placeholder="e.g. 1000"
-                value={minOrders ?? ''}
-                onChange={(e) => setMinOrders(e.target.value ? Number(e.target.value) : null)}
-                style={{ ...numberInputStyle, width: 180 }}
-              />
-            </FilterPill>
-
-            {/* Category */}
-            <FilterPill
-              label={categoryFilter ? `Category: ${shortenCategory(categoryFilter)}` : 'Category'}
-              active={categoryFilter !== ''}
-              open={openPill === 'category'}
-              onToggle={() => setOpenPill(openPill === 'category' ? null : 'category')}
-              onClose={closePill}
-              onClear={() => setCategoryFilter('')}
-            >
-              <div
-                style={{
-                  fontSize: C.fXs,
-                  fontFamily: C.fontBody,
-                  color: C.muted,
-                  marginBottom: 10,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                Category
-              </div>
-              {availableCategories.length > 0 ? (
-                <OptionList
-                  options={['', ...availableCategories]}
-                  value={categoryFilter}
-                  onSelect={(v) => { setCategoryFilter(v); closePill(); }}
-                  keyExtractor={(v) => v || '__all__'}
-                  renderLabel={(v) => v ? shortenCategory(v) : 'All categories'}
-                />
-              ) : (
-                <div style={{ color: C.muted, fontSize: C.fSm }}>No categories loaded yet.</div>
-              )}
-            </FilterPill>
-
-            {/* Score */}
-            <FilterPill
-              label={scoreMin > 0 || scoreMax < 100 ? `Score: ${scoreMin}–${scoreMax}` : 'Score'}
-              active={scoreMin > 0 || scoreMax < 100}
-              open={openPill === 'score'}
-              onToggle={() => setOpenPill(openPill === 'score' ? null : 'score')}
-              onClose={closePill}
-              onClear={() => { setScoreMin(0); setScoreMax(100); }}
-            >
-              <div
-                style={{
-                  fontSize: C.fXs,
-                  fontFamily: C.fontBody,
-                  color: C.muted,
-                  marginBottom: 10,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                Score range
-              </div>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  placeholder="Min"
-                  value={scoreMin || ''}
-                  onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
-                  style={numberInputStyle}
-                />
-                <span style={{ color: C.muted, fontSize: C.fSm }}>to</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  placeholder="Max"
-                  value={scoreMax !== 100 ? scoreMax : ''}
-                  onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
-                  style={numberInputStyle}
-                />
-              </div>
-            </FilterPill>
-
-            <div style={{ flex: 1 }} />
-
-            {/* Sort */}
-            <FilterPill
-              label={`Sort: ${activeSortLabel}`}
-              active={false}
-              open={openPill === 'sort'}
-              onToggle={() => setOpenPill(openPill === 'sort' ? null : 'sort')}
-              onClose={closePill}
-            >
-              <div
-                style={{
-                  fontSize: C.fXs,
-                  fontFamily: C.fontBody,
-                  color: C.muted,
-                  marginBottom: 10,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                Sort by
-              </div>
-              <OptionList
-                options={SORT_OPTIONS.map((o) => o.key)}
-                value={orderBy}
-                onSelect={(v) => { setOrderBy(v); closePill(); }}
-                keyExtractor={(v) => String(v)}
-                renderLabel={(v) => SORT_OPTIONS.find((o) => o.key === v)?.label ?? String(v)}
-              />
-            </FilterPill>
-
-            {anyFilterActive && (
-              <button
-                onClick={clearFilters}
-                style={{
-                  background: 'rgba(239,68,68,0.1)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  color: '#f87171',
-                  fontSize: 13,
-                  fontFamily: C.fontBody,
-                  fontWeight: 500,
-                  borderRadius: 8,
-                  padding: '8px 14px',
-                  cursor: 'pointer',
-                  transition: `background ${C.dur} ${C.ease}`,
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.18)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.1)'; }}
-              >
-                Clear filters
-              </button>
-            )}
+      {/* Pagination */}
+      {searchMode === 'db' && filteredTotal > 0 && (
+        <div className="mx-8 mt-4 mb-12 flex items-center gap-3 flex-wrap">
+          <div className="text-sm text-muted tabular-nums">
+            Showing {(offset + 1).toLocaleString()}–{Math.min(offset + perPage, filteredTotal).toLocaleString()} of {filteredTotal.toLocaleString()}
           </div>
-        )}
-
-        {/* ── TAB BAR ── */}
-        {searchMode === 'db' && (
-          <div
-            style={{
-              padding: '0 32px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              overflowX: 'auto',
-              marginBottom: 8,
-            }}
-          >
-            {SMART_TABS.map((tab) => {
-              const active = activeTab === tab.key;
-              const count = tabCounts[tab.key];
-              const Icon = tab.Icon;
-              const iconColor =
-                tab.key === 'trending'   ? C.amber
-                : tab.key === 'highmargin' ? C.green
-                : tab.key === 'top'        ? '#eab308'
-                : undefined;
+          <div className="flex-1" />
+          <div className="flex items-center gap-1.5">
+            <PageBtn disabled={page === 1} onClick={() => setPage(page - 1)}>‹</PageBtn>
+            {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+              const start = Math.max(1, page - 2);
+              const p = start + i;
+              if (p > totalPages) return null;
               return (
-                <button
-                  key={tab.key}
-                  onClick={() => { setActiveTab(tab.key); setPage(1); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 14px',
-                    border: active
-                      ? '1px solid rgba(99,102,241,0.3)'
-                      : '1px solid transparent',
-                    background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
-                    fontSize: 14,
-                    fontFamily: C.fontBody,
-                    fontWeight: 500,
-                    color: active ? '#a5b4fc' : 'rgba(255,255,255,0.45)',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: `background ${C.dur} ${C.ease}, color ${C.dur} ${C.ease}, border-color ${C.dur} ${C.ease}`,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.color = 'rgba(255,255,255,0.75)';
-                      el.style.background = 'rgba(255,255,255,0.04)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.color = 'rgba(255,255,255,0.45)';
-                      el.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  <Icon
-                    size={14}
-                    strokeWidth={1.75}
-                    color={iconColor ?? (active ? '#a5b4fc' : 'rgba(255,255,255,0.45)')}
-                  />
-                  <span>{tab.label}</span>
-                  <span
-                    style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      borderRadius: 999,
-                      padding: '1px 7px',
-                      fontSize: 11,
-                      fontFamily: C.fontBody,
-                      color: active ? '#a5b4fc' : 'rgba(255,255,255,0.55)',
-                      fontVariantNumeric: 'tabular-nums',
-                      marginLeft: 2,
-                    }}
-                  >
-                    {count >= 1000 ? `${Math.round(count / 1000)}k` : count}
-                  </span>
-                </button>
+                <PageBtn key={p} active={p === page} onClick={() => setPage(p)}>
+                  {p}
+                </PageBtn>
               );
             })}
-            <div style={{ flex: 1 }} />
-            <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexShrink: 0 }}>
-              {(['table', 'grid'] as const).map((mode) => {
-                const active = view === mode;
-                const Icon = mode === 'table' ? List : LayoutGrid;
-                return (
-                  <button
-                    key={mode}
-                    onClick={() => setView(mode)}
-                    aria-label={mode}
-                    style={{
-                      background: active ? C.raised : 'transparent',
-                      color: active ? C.text : C.muted,
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: 6,
-                      borderRadius: 6,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: `color ${C.dur} ${C.ease}`,
-                    }}
-                  >
-                    <Icon size={14} strokeWidth={1.75} />
-                  </button>
-                );
-              })}
-            </div>
+            <PageBtn disabled={page >= totalPages} onClick={() => setPage(page + 1)}>›</PageBtn>
+            <select
+              value={perPage}
+              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+              className="bg-raised border border-white/[0.07] rounded-md px-2.5 py-1 text-sm text-body outline-none ml-2"
+            >
+              <option value={25}>25 / page</option>
+              <option value={50}>50 / page</option>
+              <option value={100}>100 / page</option>
+            </select>
           </div>
-        )}
-
-        {/* ── RESULTS HEADER ── */}
-        {searchMode === 'db' && (
-          <div
-            style={{
-              padding: '12px 32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div style={{ fontSize: C.fBody, color: C.muted, fontFamily: C.fontBody }}>
-              {loading
-                ? 'Loading products…'
-                : `${filteredTotal.toLocaleString()} products`}
-            </div>
-          </div>
-        )}
-
-        {/* ── BODY ── */}
-        {searchMode === 'live' ? (
-          <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
-        ) : view === 'table' ? (
-          <ListTable
-            products={pageSlice}
-            loading={loading}
-            onSelect={setSelectedProduct}
-            isFavourite={fav.isFavourite}
-            onToggleFav={fav.toggleFavourite}
-          />
-        ) : (
-          <GridCards
-            products={pageSlice}
-            loading={loading}
-            onSelect={setSelectedProduct}
-            navigate={navigate}
-          />
-        )}
-
-        {/* ── PAGINATION ── */}
-        {searchMode === 'db' && filteredTotal > 0 && (
-          <div
-            style={{
-              margin: '16px 32px 48px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ fontSize: C.fBody, color: C.muted, fontFamily: C.fontBody, fontVariantNumeric: 'tabular-nums' }}>
-              Showing {(offset + 1).toLocaleString()}–{Math.min(offset + perPage, filteredTotal).toLocaleString()} of {filteredTotal.toLocaleString()}
-            </div>
-            <div style={{ flex: 1 }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <PageBtn disabled={page === 1} onClick={() => setPage(page - 1)}>‹</PageBtn>
-              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-                const start = Math.max(1, page - 2);
-                const p = start + i;
-                if (p > totalPages) return null;
-                return (
-                  <PageBtn key={p} active={p === page} onClick={() => setPage(p)}>
-                    {p}
-                  </PageBtn>
-                );
-              })}
-              <PageBtn disabled={page >= totalPages} onClick={() => setPage(page + 1)}>›</PageBtn>
-              <select
-                value={perPage}
-                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-                style={{
-                  background: C.raised,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 6,
-                  padding: '4px 10px',
-                  fontSize: C.fBody,
-                  fontFamily: C.fontBody,
-                  color: C.body,
-                  outline: 'none',
-                  marginLeft: 8,
-                }}
-              >
-                <option value={25}>25 / page</option>
-                <option value={50}>50 / page</option>
-                <option value={100}>100 / page</option>
-              </select>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <ProductSidePanel product={selectedProduct} onClose={() => setSelectedProduct(null)} />
-    </>
+    </div>
   );
 }
 
@@ -1359,37 +717,20 @@ export default function AppProducts() {
    Pagination button
    ══════════════════════════════════════════════════════════════ */
 
-function PageBtn({
-  children,
-  active,
-  disabled,
-  onClick,
-}: {
-  children: React.ReactNode;
-  active?: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
+function PageBtn({ children, active, disabled, onClick }: {
+  children: React.ReactNode; active?: boolean; disabled?: boolean; onClick?: () => void;
 }) {
   return (
     <button
       disabled={disabled}
       onClick={onClick}
-      style={{
-        background: active ? C.accent : C.raised,
-        border: `1px solid ${active ? C.accent : C.border}`,
-        borderRadius: 6,
-        width: 32,
-        height: 32,
-        fontSize: C.fBody,
-        fontFamily: C.fontBody,
-        color: active ? C.white : disabled ? C.muted : C.body,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: `background ${C.dur} ${C.ease}`,
-      }}
+      className={`w-8 h-8 rounded-md text-sm flex items-center justify-center transition-colors border ${
+        active
+          ? 'bg-accent border-accent text-white'
+          : disabled
+            ? 'bg-raised border-white/[0.07] text-muted opacity-50 cursor-not-allowed'
+            : 'bg-raised border-white/[0.07] text-body hover:text-text cursor-pointer'
+      }`}
     >
       {children}
     </button>
@@ -1397,7 +738,7 @@ function PageBtn({
 }
 
 /* ══════════════════════════════════════════════════════════════
-   List view (table)
+   List view
    ══════════════════════════════════════════════════════════════ */
 
 interface ListTableProps {
@@ -1411,75 +752,42 @@ interface ListTableProps {
 function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: ListTableProps) {
   if (loading && products.length === 0) {
     return (
-      <div
-        style={{
-          margin: '0 32px',
-          background: C.surface,
-          border: `1px solid ${C.border}`,
-          borderRadius: C.rXl,
-          overflow: 'hidden',
-        }}
-      >
+      <div className="mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            style={{
-              height: 80,
-              padding: '0 24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              borderBottom: i === 7 ? 'none' : `1px solid ${C.border}`,
-            }}
+            className={`h-[72px] px-6 flex items-center gap-3.5 ${i === 7 ? '' : 'border-b border-white/[0.04]'}`}
           >
-            <span className="mj-shim" style={{ width: 20, height: 12 }} />
-            <span className="mj-shim" style={{ width: 60, height: 60, borderRadius: 10 }} />
-            <span className="mj-shim" style={{ flex: 1, height: 14 }} />
+            <span className="w-5 h-3 bg-white/[0.04] rounded animate-pulse" />
+            <span className="w-14 h-14 bg-white/[0.04] rounded-xl animate-pulse" />
+            <span className="flex-1 h-3.5 bg-white/[0.04] rounded animate-pulse" />
           </div>
         ))}
       </div>
     );
   }
-  if (products.length === 0) {
-    return <EmptyState />;
-  }
+  if (products.length === 0) return <EmptyState />;
   return (
-    <div
-      style={{
-        margin: '0 32px',
-        background: C.contentBg,
-        border: `1px solid ${C.border}`,
-        borderRadius: C.rXl,
-        overflow: 'hidden',
-      }}
-    >
-      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+    <div className="mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
+      <table className="w-full table-fixed">
         <colgroup>
-          <col style={{ width: 48 }} />
-          <col style={{ width: 280 }} />
-          <col style={{ width: 140 }} />
-          <col style={{ width: 100 }} />
-          <col style={{ width: 100 }} />
-          <col style={{ width: 100 }} />
-          <col style={{ width: 120 }} />
+          <col className="w-12" />
+          <col className="w-[280px]" />
+          <col className="w-[140px]" />
+          <col className="w-[100px]" />
+          <col className="w-[100px]" />
+          <col className="w-[100px]" />
+          <col className="w-[120px]" />
           <col />
         </colgroup>
         <thead>
-          <tr style={{ background: '#0f1629', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            {['#', 'Product', 'Category', 'Score', 'Orders', 'Price', 'Revenue', 'Actions'].map((h, i) => (
+          <tr className="bg-[#0f1629] border-b border-white/[0.06]">
+            {['#', 'Product', 'Category', 'Score', 'Orders', 'Price', 'Revenue', ''].map((h, i) => (
               <th
                 key={h + i}
-                style={{
-                  padding: '14px 20px',
-                  textAlign: i === 0 || i === 1 || i === 2 ? 'left' : i === 7 ? 'center' : 'right',
-                  fontSize: 11,
-                  fontFamily: C.fontBody,
-                  fontWeight: 600,
-                  color: 'rgba(255,255,255,0.45)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                }}
+                className={`text-[11px] font-semibold uppercase tracking-widest text-white/45 px-5 py-3.5 ${
+                  i === 0 || i === 1 || i === 2 ? 'text-left' : i === 7 ? 'text-center' : 'text-right'
+                }`}
               >
                 {h}
               </th>
@@ -1493,167 +801,74 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
             const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
             const isNew = daysSince(p.created_at) <= 7;
             const fav = isFavourite(p.id);
-            const catColor = categoryColor(p.category);
+            const isLast = i === products.length - 1;
             return (
               <tr
                 key={p.id}
-                className="mj-row"
                 onClick={() => onSelect(p)}
-                style={{
-                  height: 72,
-                  borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
-                  cursor: 'pointer',
-                }}
+                className={`h-[72px] ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
               >
-                <td
-                  style={{
-                    padding: '0 20px',
-                    fontSize: 12,
-                    color: 'rgba(255,255,255,0.2)',
-                    fontFamily: C.fontBody,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
+                <td className="px-5 text-xs text-white/20 tabular-nums">
                   {String(i + 1).padStart(2, '0')}
                 </td>
-                <td style={{ padding: '0 20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                    <img
-                      src={proxyImage(p.image_url) ?? p.image_url ?? ''}
-                      alt={p.product_title}
-                      loading="lazy"
-                      style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 8,
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        background: C.cardBg,
-                        objectFit: 'cover',
-                        flexShrink: 0,
-                      }}
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
-                    />
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div
-                        title={p.product_title}
-                        style={{
-                          fontSize: 14,
-                          fontFamily: C.fontBody,
-                          fontWeight: 500,
-                          color: 'rgba(255,255,255,0.9)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          marginBottom: 2,
-                        }}
-                      >
+                <td className="px-5">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {p.image_url ? (
+                      <img
+                        src={proxyImage(p.image_url) ?? p.image_url}
+                        alt={p.product_title}
+                        loading="lazy"
+                        className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-white/90 truncate">
                         {p.product_title}
-                      </div>
+                      </p>
                       {isNew && (
-                        <span
-                          style={{
-                            background: C.greenSubtle,
-                            color: C.green,
-                            borderRadius: 4,
-                            padding: '1px 6px',
-                            fontSize: 10,
-                            fontFamily: C.fontBody,
-                            fontWeight: 600,
-                            letterSpacing: '0.05em',
-                            textTransform: 'uppercase',
-                          }}
-                        >
+                        <span className="inline-block mt-0.5 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-green/15 text-green rounded">
                           New
                         </span>
                       )}
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: '0 20px' }}>
+                <td className="px-5">
                   {p.category ? (
                     <span
-                      title={p.category}
-                      style={{
-                        display: 'inline-block',
-                        background: catColor.bg,
-                        color: catColor.fg,
-                        borderRadius: 4,
-                        padding: '3px 8px',
-                        fontSize: 11,
-                        fontFamily: C.fontBody,
-                        fontWeight: 500,
-                        maxWidth: 124,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
+                      className="inline-block text-[11px] font-medium px-2 py-0.5 rounded truncate max-w-[124px]"
+                      style={categoryColor(p.category)}
                     >
                       {shortenCategory(p.category)}
                     </span>
                   ) : (
-                    <span style={{ color: C.muted, fontSize: 12 }}>—</span>
+                    <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td style={{ padding: '0 20px', textAlign: 'right' }}>
+                <td className="px-5 text-right">
                   <ScoreBadge score={score} />
                 </td>
-                <td
-                  style={{
-                    padding: '0 20px',
-                    textAlign: 'right',
-                    fontSize: 16,
-                    fontFamily: C.fontBody,
-                    fontWeight: 700,
-                    color: orders > 0 ? C.text : C.muted,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  {orders > 150000 && <Flame size={12} color={C.amber} style={{ display: 'inline', marginRight: 4 }} />}
+                <td className={`px-5 text-right text-base font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
+                  {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
                   {orders > 0 ? fmtK(orders) : '—'}
                 </td>
-                <td
-                  style={{
-                    padding: '0 20px',
-                    textAlign: 'right',
-                    fontSize: 16,
-                    fontFamily: C.fontBody,
-                    fontWeight: 700,
-                    color: C.text,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
+                <td className="px-5 text-right text-base font-bold text-text tabular-nums">
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                 </td>
-                <td
-                  style={{
-                    padding: '0 20px',
-                    textAlign: 'right',
-                    fontSize: 16,
-                    fontFamily: C.fontBody,
-                    fontWeight: 700,
-                    color: estMonthly != null ? C.green : C.muted,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
+                <td className={`px-5 text-right text-base font-bold tabular-nums ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—'}
                 </td>
-                <td style={{ padding: '0 20px', textAlign: 'center' }}>
+                <td className="px-5 text-center">
                   <button
                     onClick={(e) => { e.stopPropagation(); void onToggleFav(p); }}
                     aria-label="Save"
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: fav ? C.accent : C.muted,
-                      cursor: 'pointer',
-                      padding: 4,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: `color ${C.dur} ${C.ease}`,
-                    }}
+                    className={`inline-flex items-center justify-center p-1 rounded transition-colors cursor-pointer ${
+                      fav ? 'text-accent' : 'text-muted hover:text-text'
+                    }`}
                   >
-                    <Heart size={16} strokeWidth={1.75} fill={fav ? C.accent : 'none'} />
+                    <Heart size={16} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
                   </button>
                 </td>
               </tr>
@@ -1666,7 +881,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Grid view (4-column cards)
+   Grid view — 3 columns, large product images
    ══════════════════════════════════════════════════════════════ */
 
 interface GridCardsProps {
@@ -1679,241 +894,103 @@ interface GridCardsProps {
 function GridCards({ products, loading, onSelect }: GridCardsProps) {
   if (loading && products.length === 0) {
     return (
-      <div
-        style={{
-          padding: '0 32px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 16,
-        }}
-      >
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            style={{
-              background: C.surface,
-              border: `1px solid ${C.border}`,
-              borderRadius: C.rXl,
-              overflow: 'hidden',
-            }}
-          >
-            <div className="mj-shim" style={{ width: '100%', height: 180, display: 'block', borderRadius: 0 }} />
-            <div style={{ padding: 14 }}>
-              <span className="mj-shim" style={{ width: '90%', height: 14, marginBottom: 8 }} />
-              <span className="mj-shim" style={{ width: '60%', height: 12 }} />
+      <div className="px-8 grid grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-card border border-white/[0.07] rounded-xl overflow-hidden">
+            <div className="w-full h-48 bg-white/[0.04] animate-pulse" />
+            <div className="p-3.5">
+              <span className="inline-block w-[90%] h-4 bg-white/[0.04] rounded mb-2 animate-pulse" />
+              <span className="inline-block w-[60%] h-3 bg-white/[0.04] rounded animate-pulse" />
             </div>
           </div>
         ))}
       </div>
     );
   }
-  if (products.length === 0) {
-    return <EmptyState />;
-  }
+  if (products.length === 0) return <EmptyState />;
   return (
-    <div
-      style={{
-        padding: '0 32px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 16,
-      }}
-    >
+    <div className="px-8 grid grid-cols-3 gap-4">
       {products.map((p) => {
         const score = Math.round(p.winning_score ?? 0);
         const orders = p.sold_count ?? 0;
         const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
         const isNew = daysSince(p.created_at) <= 7;
-        const catColor = categoryColor(p.category);
         return (
           <div
             key={p.id}
-            className="mj-grid-card"
             onClick={() => onSelect(p)}
-            style={{
-              background: C.cardBg,
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 12,
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
+            className="bg-card border border-white/[0.07] rounded-xl overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer flex flex-col"
           >
-            {/* Image zone with bottom gradient overlay */}
-            <div style={{ position: 'relative', width: '100%', height: 200, background: C.raised, overflow: 'hidden' }}>
+            <div className="relative h-48 overflow-hidden">
               {p.image_url ? (
                 <img
-                  className="mj-grid-img"
                   src={proxyImage(p.image_url) ?? p.image_url}
                   alt={p.product_title}
                   loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: C.fontDisplay,
-                    fontSize: 56,
-                    fontWeight: 700,
-                    color: C.muted,
-                  }}
-                >
+                <div className="w-full h-full flex items-center justify-center text-5xl font-display font-bold text-muted bg-raised">
                   {(p.product_title?.[0] ?? '?').toUpperCase()}
                 </div>
               )}
-              {/* Bottom gradient overlay for legibility */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(transparent 60%, rgba(0,0,0,0.5) 100%)',
-                  pointerEvents: 'none',
-                }}
-              />
-              {isNew && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 10,
-                    right: 10,
-                    background: C.greenSubtle,
-                    color: C.green,
-                    borderRadius: 4,
-                    padding: '2px 6px',
-                    fontSize: 10,
-                    fontFamily: C.fontBody,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  New
-                </div>
-              )}
-              {isNew === false && score > 0 && (
-                <div style={{ position: 'absolute', top: 10, right: 10 }}>
+              {/* Bottom gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50 pointer-events-none" />
+              {score > 0 && (
+                <div className="absolute top-2 left-2">
                   <ScoreBadge score={score} />
                 </div>
               )}
+              {isNew && (
+                <span className="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 bg-green/20 text-green rounded">
+                  NEW
+                </span>
+              )}
             </div>
-
-            {/* Body */}
-            <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div
-                title={p.product_title}
-                style={{
-                  fontSize: 14,
-                  fontFamily: C.fontBody,
-                  fontWeight: 500,
-                  color: 'rgba(255,255,255,0.9)',
-                  lineHeight: 1.35,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  marginBottom: 8,
-                  minHeight: 38,
-                }}
-              >
+            <div className="p-3.5 flex-1 flex flex-col">
+              <p className="text-sm font-medium text-text line-clamp-2 mb-2 min-h-[36px]">
                 {p.product_title}
-              </div>
-
-              {/* Category tag + score badge row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+              </p>
+              <div className="flex items-center gap-1.5 mb-3">
                 {p.category && (
                   <span
-                    style={{
-                      background: catColor.bg,
-                      color: catColor.fg,
-                      borderRadius: 4,
-                      padding: '3px 8px',
-                      fontSize: 11,
-                      fontFamily: C.fontBody,
-                      fontWeight: 500,
-                      maxWidth: 140,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
+                    className="text-[11px] px-2 py-0.5 rounded truncate max-w-[140px]"
+                    style={categoryColor(p.category)}
                   >
                     {shortenCategory(p.category)}
                   </span>
                 )}
-                {isNew && score > 0 && <ScoreBadge score={score} size={28} />}
               </div>
-
-              {/* Stats row: Orders (16/700), Price (13/muted), Est Rev (13/green) */}
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, marginTop: 'auto' }}>
-                <div
-                  style={{
-                    fontSize: 16,
-                    fontFamily: C.fontBody,
-                    fontWeight: 700,
-                    color: C.text,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  {orders > 0 ? fmtK(orders) : '—'}
+              <div className="grid grid-cols-3 gap-2 mb-3 mt-auto">
+                <div>
+                  <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Orders</p>
+                  <p className="text-sm font-bold text-text tabular-nums">
+                    {orders > 0 ? fmtK(orders) : '—'}
+                  </p>
                 </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontFamily: C.fontBody,
-                    color: C.muted,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
+                <div>
+                  <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Price</p>
+                  <p className="text-sm font-medium text-body tabular-nums">
+                    {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
+                  </p>
                 </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontFamily: C.fontBody,
-                    color: C.green,
-                    fontVariantNumeric: 'tabular-nums',
-                    fontWeight: 500,
-                  }}
-                >
-                  {estMonthly != null ? `$${Math.round(estMonthly / 1000)}k/mo` : ''}
+                <div>
+                  <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Rev</p>
+                  <p className="text-sm font-medium text-green tabular-nums">
+                    {estMonthly != null ? `$${Math.round(estMonthly / 1000)}k` : '—'}
+                  </p>
                 </div>
               </div>
-
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="flex gap-2">
                 <button
                   onClick={(e) => { e.stopPropagation(); }}
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: `1px solid ${C.border}`,
-                    borderRadius: C.rSm,
-                    padding: '6px 14px',
-                    fontSize: C.fSm,
-                    fontFamily: C.fontBody,
-                    color: C.body,
-                    cursor: 'pointer',
-                  }}
+                  className="flex-1 py-1.5 text-xs font-medium text-body bg-white/[0.06] rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
                 >
-                  Save
+                  ♡ Save
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onSelect(p); }}
-                  style={{
-                    flex: 1,
-                    background: C.accent,
-                    border: 'none',
-                    borderRadius: C.rSm,
-                    padding: '6px 14px',
-                    fontSize: C.fSm,
-                    fontFamily: C.fontBody,
-                    color: C.white,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
+                  className="flex-1 py-1.5 text-xs font-medium text-white bg-accent rounded-lg hover:bg-accent-hover transition-colors cursor-pointer"
                 >
                   View →
                 </button>
@@ -1932,51 +1009,14 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
 
 function EmptyState() {
   return (
-    <div
-      style={{
-        margin: '40px 32px',
-        padding: '64px 32px',
-        background: C.surface,
-        border: `1px solid ${C.border}`,
-        borderRadius: C.rXl,
-        textAlign: 'center',
-      }}
-    >
-      <div
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
-          background: C.raised,
-          marginBottom: 16,
-        }}
-      >
-        <Search size={24} color={C.muted} strokeWidth={1.75} />
+    <div className="mx-8 my-10 p-16 bg-surface border border-white/[0.07] rounded-2xl text-center">
+      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-raised mb-4">
+        <Search size={24} className="text-muted" strokeWidth={1.75} />
       </div>
-      <div
-        style={{
-          fontFamily: C.fontDisplay,
-          fontSize: C.fH3,
-          fontWeight: 600,
-          color: C.text,
-          marginBottom: 8,
-        }}
-      >
+      <div className="font-display text-xl font-semibold text-text mb-2">
         No products match
       </div>
-      <div
-        style={{
-          fontSize: C.fBody,
-          fontFamily: C.fontBody,
-          color: C.body,
-          maxWidth: 380,
-          margin: '0 auto',
-          lineHeight: 1.5,
-        }}
-      >
+      <div className="text-sm text-body max-w-sm mx-auto leading-relaxed">
         Try clearing your filters or switching to Live AliExpress search to pull fresh results from the marketplace.
       </div>
     </div>
@@ -1984,43 +1024,28 @@ function EmptyState() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   Live AliExpress search view
+   Live AE search grid
    ══════════════════════════════════════════════════════════════ */
 
-function LiveSearchView({ aeSearch, onSelect }: { aeSearch: ReturnType<typeof useAESearch>; onSelect: (p: Product) => void }) {
+function LiveSearchView({ aeSearch, onSelect }: {
+  aeSearch: ReturnType<typeof useAESearch>;
+  onSelect: (p: Product) => void;
+}) {
   if (aeSearch.loading && aeSearch.products.length === 0) {
     return (
-      <div style={{ padding: '0 32px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            style={{
-              background: C.surface,
-              border: `1px solid ${C.border}`,
-              borderRadius: C.rXl,
-              height: 320,
-            }}
-          />
+      <div className="px-8 grid grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-card border border-white/[0.07] rounded-xl h-[360px] animate-pulse" />
         ))}
       </div>
     );
   }
-  if (aeSearch.products.length === 0) {
-    return <EmptyState />;
-  }
+  if (aeSearch.products.length === 0) return <EmptyState />;
   return (
-    <div
-      style={{
-        padding: '0 32px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 16,
-      }}
-    >
+    <div className="px-8 grid grid-cols-3 gap-4">
       {aeSearch.products.map((p: AELiveProduct, i) => (
         <div
           key={`${p.id}-${i}`}
-          className="mj-grid-card"
           onClick={() => {
             const asProduct: Product = {
               id: p.id,
@@ -2039,47 +1064,24 @@ function LiveSearchView({ aeSearch, onSelect }: { aeSearch: ReturnType<typeof us
             };
             onSelect(asProduct);
           }}
-          style={{
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            borderRadius: C.rXl,
-            overflow: 'hidden',
-          }}
+          className="bg-card border border-white/[0.07] rounded-xl overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer"
         >
-          <div style={{ height: 180, background: C.raised }}>
+          <div className="h-48 bg-raised">
             {p.image_url && (
               <img
                 src={proxyImage(p.image_url) ?? p.image_url}
                 alt={p.product_title}
                 loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                className="w-full h-full object-cover"
               />
             )}
           </div>
-          <div style={{ padding: 14 }}>
-            <div
-              style={{
-                fontSize: C.fBody,
-                fontFamily: C.fontBody,
-                color: C.text,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                marginBottom: 8,
-              }}
-            >
-              {p.product_title}
-            </div>
-            <div
-              style={{
-                fontSize: C.fSm,
-                color: C.body,
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}{p.sold_count ? ` · ${fmtK(p.sold_count)} orders` : ''}
-            </div>
+          <div className="p-3.5">
+            <p className="text-sm text-text line-clamp-2 mb-2">{p.product_title}</p>
+            <p className="text-xs text-body tabular-nums">
+              {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
+              {p.sold_count ? ` · ${fmtK(p.sold_count)} orders` : ''}
+            </p>
           </div>
         </div>
       ))}

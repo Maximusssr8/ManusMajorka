@@ -6,27 +6,8 @@ import {
   Bell, DollarSign, Eye, Calculator, Settings,
   GraduationCap, ShieldCheck, Search,
 } from 'lucide-react';
-import type { ComponentType, SVGProps, CSSProperties } from 'react';
+import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { C as TOK } from '@/lib/designTokens';
-
-/* ── Local shorthand — pulls from the shared design tokens so
-   nav palette stays consistent with every other page. ── */
-const C = {
-  navBg: '#0a0c12',
-  surface: TOK.surface,
-  text: TOK.text,
-  body: TOK.body,
-  muted: TOK.muted,
-  faint: '#4b5563',
-  accent: TOK.accent,
-  accentHover: TOK.accentHover,
-  accentSubtle: TOK.accentSubtle,
-  line: 'rgba(255,255,255,0.06)',
-  lineStrong: TOK.borderStrong,
-} as const;
-
-const INTER = TOK.fontBody;
 
 interface NavItem {
   label: string;
@@ -89,32 +70,11 @@ export function Nav() {
   };
 
   return (
-    <nav
-      style={{
-        width: 220,
-        background: C.navBg,
-        borderRight: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        position: 'sticky',
-        top: 0,
-        flexShrink: 0,
-        overflowY: 'auto',
-        fontFamily: INTER,
-      }}
-    >
-      {/* Top — logo + wordmark */}
+    <nav className="w-[220px] h-screen bg-[#0a0c12] border-r border-white/[0.06] flex flex-col shrink-0 sticky top-0 font-body overflow-y-auto">
+      {/* Logo */}
       <Link
         href="/app"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '20px 16px 12px',
-          textDecoration: 'none',
-          flexShrink: 0,
-        }}
+        className="flex items-center gap-2.5 px-4 pt-5 pb-3 no-underline"
       >
         <img
           src="/majorka-logo.jpg"
@@ -122,43 +82,17 @@ export function Nav() {
           width={24}
           height={24}
           draggable={false}
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: 6,
-            objectFit: 'cover',
-            display: 'block',
-            flexShrink: 0,
-            border: `1px solid ${C.lineStrong}`,
-          }}
+          className="w-6 h-6 rounded-md object-cover border border-white/[0.08] shrink-0"
         />
-        <span
-          style={{
-            fontFamily: INTER,
-            fontWeight: 700,
-            fontSize: 15,
-            color: C.text,
-            letterSpacing: '-0.01em',
-          }}
-        >
+        <span className="text-[15px] font-display font-bold text-text tracking-tight">
           Majorka
         </span>
       </Link>
 
       {/* Search */}
-      <div style={{ margin: '8px 12px' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            background: C.surface,
-            border: `1px solid ${C.lineStrong}`,
-            borderRadius: 8,
-            padding: '8px 12px',
-          }}
-        >
-          <Search size={13} strokeWidth={1.75} color={C.muted} />
+      <div className="mx-2 mb-2">
+        <div className="flex items-center gap-2 px-3 py-2 bg-surface border border-white/[0.08] rounded-lg">
+          <Search size={13} className="text-muted shrink-0" strokeWidth={1.75} />
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -169,187 +103,65 @@ export function Nav() {
               }
             }}
             placeholder="Search products..."
-            style={{
-              flex: 1,
-              minWidth: 0,
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              color: C.text,
-              fontSize: 13,
-              fontFamily: INTER,
-              padding: 0,
-            }}
+            className="bg-transparent text-sm text-text placeholder-muted outline-none w-full min-w-0"
           />
         </div>
       </div>
 
-      {/* Groups */}
-      <div style={{ paddingBottom: 12, flex: 1 }}>
+      {/* Nav sections */}
+      <div className="flex-1 overflow-y-auto px-2 py-1">
         {GROUPS.map((group, gi) => {
           const visible = group.items.filter((i) => !i.adminOnly || isAdmin);
           if (visible.length === 0) return null;
           return (
             <div key={gi}>
-              <div
-                style={{
-                  fontSize: 10,
-                  fontFamily: INTER,
-                  fontWeight: 600,
-                  color: 'rgba(255,255,255,0.25)',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  padding: '16px 16px 4px',
-                }}
-              >
+              <p className="px-3 pt-4 pb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/25">
                 {group.title}
-              </div>
-              {visible.map((item) => (
-                <NavLink
-                  key={item.path}
-                  item={item}
-                  active={isActive(item)}
-                />
-              ))}
+              </p>
+              {visible.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item);
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.soon ? '#' : item.path}
+                    className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg mb-0.5 text-[13px] transition-colors no-underline ${
+                      active
+                        ? 'bg-accent/15 border-l-[3px] border-accent text-text font-medium'
+                        : item.soon
+                          ? 'text-muted cursor-not-allowed'
+                          : 'text-body hover:bg-white/[0.04] hover:text-text'
+                    }`}
+                  >
+                    <Icon size={15} strokeWidth={1.75} className="shrink-0" />
+                    <span className="flex-1 truncate">{item.label}</span>
+                    {item.soon && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 border border-accent/40 text-accent-hover shrink-0">
+                        Soon
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           );
         })}
       </div>
 
-      {/* User footer */}
-      <div
-        style={{
-          borderTop: `1px solid ${C.line}`,
-          padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: '50%',
-            background: C.accent,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: INTER,
-            fontWeight: 600,
-            fontSize: 12,
-            color: '#ffffff',
-            flexShrink: 0,
-          }}
-        >
+      {/* User row */}
+      <div className="border-t border-white/[0.06] px-3 py-3 flex items-center gap-2.5 shrink-0">
+        <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-white shrink-0">
           {initial}
         </div>
-        <div
-          style={{
-            flex: 1,
-            minWidth: 0,
-            fontFamily: INTER,
-            fontSize: 13,
-            color: C.text,
-            fontWeight: 500,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {displayName}
-        </div>
+        <span className="text-[13px] text-text flex-1 truncate">{displayName}</span>
         <Link
           href="/app/settings"
-          style={{
-            color: C.muted,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            transition: 'color 150ms ease',
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = C.text; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = C.muted; }}
           aria-label="Settings"
+          className="text-muted hover:text-text transition-colors cursor-pointer shrink-0 flex items-center no-underline"
         >
           <Settings size={14} strokeWidth={1.75} />
         </Link>
       </div>
     </nav>
-  );
-}
-
-interface NavLinkProps {
-  item: NavItem;
-  active: boolean;
-}
-
-function NavLink({ item, active }: NavLinkProps) {
-  const Icon = item.icon;
-  const baseStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '7px 12px',
-    margin: '1px 8px',
-    borderRadius: 8,
-    cursor: item.soon ? 'not-allowed' : 'pointer',
-    textDecoration: 'none',
-    fontSize: 13,
-    fontFamily: INTER,
-    transition: 'background 150ms ease, color 150ms ease',
-    color: active ? C.text : item.soon ? C.muted : C.body,
-    background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
-    borderLeft: active ? `3px solid ${C.accent}` : '3px solid transparent',
-    fontWeight: active ? 600 : 500,
-  };
-  return (
-    <Link
-      href={item.soon ? '#' : item.path}
-      style={baseStyle}
-      onMouseEnter={(e) => {
-        if (!active && !item.soon) {
-          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.04)';
-          (e.currentTarget as HTMLAnchorElement).style.color = C.text;
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active && !item.soon) {
-          (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-          (e.currentTarget as HTMLAnchorElement).style.color = C.body;
-        }
-      }}
-    >
-      <Icon size={15} strokeWidth={1.75} style={{ flexShrink: 0 }} />
-      <span
-        style={{
-          flex: 1,
-          minWidth: 0,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {item.label}
-      </span>
-      {item.soon && (
-        <span
-          style={{
-            background: 'rgba(99,102,241,0.2)',
-            border: '1px solid rgba(99,102,241,0.4)',
-            color: '#a5b4fc',
-            borderRadius: 4,
-            padding: '2px 8px',
-            fontSize: 10,
-            fontFamily: INTER,
-            fontWeight: 500,
-            flexShrink: 0,
-          }}
-        >
-          Soon
-        </span>
-      )}
-    </Link>
   );
 }

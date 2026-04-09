@@ -1,5 +1,50 @@
 @import "tailwindcss";
 
+/* ────────────────────────────────────────────────────────────────
+   Tailwind v4 @theme block — generates utilities (bg-card,
+   text-text, border-accent, etc.) from the Majorka design system.
+   Every one of these lines creates a utility class.
+   ──────────────────────────────────────────────────────────────── */
+@theme {
+  /* Surface ramp — page → content → card */
+  --color-bg:      #0d0f14;
+  --color-surface: #13151c;
+  --color-raised:  #1a1d27;
+  --color-card:    #1e2235;
+
+  /* Accent — indigo */
+  --color-accent:         #6366f1;
+  --color-accent-hover:   #818cf8;
+  --color-accent-subtle:  rgba(99,102,241,0.12);
+  --color-brand:          #6366f1;
+
+  /* Status */
+  --color-green: #10b981;
+  --color-amber: #f59e0b;
+  --color-cyan:  #22d3ee;
+  --color-orange: #f97316;
+
+  /* Text */
+  --color-text:  #f0f4ff;
+  --color-body:  #9499b0;
+  --color-muted: #555a72;
+
+  /* Fonts */
+  --font-display: 'Nohemi', 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* Radii */
+  --radius:     8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+
+  /* Shadows */
+  --shadow-card:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-hover: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-glow:  0 0 0 3px rgba(99,102,241,0.2);
+}
+
 :root {
   /* ── Design System: tokens (landing-page parity) ─────────────── */
   --color-bg: #0a0a0a;
