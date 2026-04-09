@@ -1106,7 +1106,9 @@ router.get('/radar', async (_req: Request, res: Response) => {
 router.get('/tab-counts', async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
-    const seven = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    // Tab criteria — must match the client-side useProducts tab branch
+    // exactly so badge counts equal the actual rendered result count.
+    const fourteen = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
     const thirty = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
     const [
@@ -1114,13 +1116,20 @@ router.get('/tab-counts', async (_req: Request, res: Response) => {
       hotNowRes, highVolumeRes, under10Res,
     ] = await Promise.all([
       sb.from('winning_products').select('*', { count: 'exact', head: true }),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', seven),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).gt('sold_count', 50000).gte('winning_score', 80),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).lt('price_aud', 15).gte('winning_score', 75).gt('sold_count', 500),
+      // New: added in the last 14 days
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', fourteen),
+      // Trending: added in the last 30 days AND score >= 75
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', thirty).gte('winning_score', 75),
+      // High Profit: $1-$12 cost, score >= 80, >= 5K orders
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('price_aud', 1).lte('price_aud', 12).gte('winning_score', 80).gte('sold_count', 5000),
+      // Score 90+
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90).gt('sold_count', 100000).gte('created_at', thirty),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).gt('sold_count', 100000),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).lte('price_aud', 10).gte('winning_score', 70).gt('sold_count', 5000),
+      // Hot Now: score >= 90 AND >= 80K orders (no date gate)
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90).gte('sold_count', 80000),
+      // High Volume: >= 150K orders
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('sold_count', 150000),
+      // Under $10: < $10, score >= 70, >= 5K orders
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).lt('price_aud', 10).gte('winning_score', 70).gte('sold_count', 5000),
     ]);
 
     return res.json({

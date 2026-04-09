@@ -139,35 +139,45 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         let query = baseSelect();
 
         // ── Tab filters (server-side) ────────────────────────────────────
+        // Each curated tab has its own hardcoded criteria. Products.tsx
+        // strips user filter state when not on the All Products tab so
+        // these queries are stable and never bleed into one another.
         if (tab === 'new') {
-          // Newly Added tab — 7-day window per spec.
-          const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+          // New: added in the last 14 days (per spec). 7d was too tight
+          // for the current refresh cadence.
+          const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
           query = query.gte('created_at', cutoff);
-          query = applyOrder(query, orderBy);
+          query = query.order('created_at', { ascending: false, nullsFirst: false });
         } else if (tab === 'trending') {
-          // Trending: sold_count > 50k AND winning_score >= 80
-          query = query.gt('sold_count', 50000).gte('winning_score', 80);
-          query = applyOrder(query, orderBy === 'sold_count' ? 'sold_count' : orderBy);
-        } else if (tab === 'highmargin') {
-          // High margin: cheap price (<15) with strong score (>=75) and real volume (>500)
-          query = query.lt('price_aud', 15).gte('winning_score', 75).gt('sold_count', 500);
-          query = applyOrder(query, orderBy === 'sold_count' ? 'sold_count' : orderBy);
-        } else if (tab === 'top') {
-          query = query.gte('winning_score', 90);
-          query = applyOrder(query, 'winning_score');
-        } else if (tab === 'hot-now') {
-          // Hot Right Now: elite score + high volume + added in the last 30 days
+          // Trending: added in the last 30 days AND already gaining
+          // traction (score >= 75). Recently-added winners.
           const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-          query = query.gte('winning_score', 90).gt('sold_count', 100000).gte('created_at', cutoff);
-          query = applyOrder(query, 'sold_count');
+          query = query.gte('created_at', cutoff).gte('winning_score', 75);
+          query = query.order('sold_count', { ascending: false, nullsFirst: false });
+        } else if (tab === 'highmargin') {
+          // High Profit: $1-$12 cost, score >= 80, >= 5k orders.
+          // Sorted by winning_score (proxy for margin × score quality).
+          query = query.gte('price_aud', 1).lte('price_aud', 12).gte('winning_score', 80).gte('sold_count', 5000);
+          query = query.order('winning_score', { ascending: false, nullsFirst: false });
+        } else if (tab === 'top') {
+          // Score 90+: only the AI-top-rated products
+          query = query.gte('winning_score', 90);
+          query = query
+            .order('winning_score', { ascending: false, nullsFirst: false })
+            .order('sold_count', { ascending: false, nullsFirst: false });
+        } else if (tab === 'hot-now') {
+          // Hot Now: highest AI scores AND proven volume. No date gate —
+          // a 6-month-old product still selling 200k/month is "hot now".
+          query = query.gte('winning_score', 90).gte('sold_count', 80000);
+          query = query.order('sold_count', { ascending: false, nullsFirst: false });
         } else if (tab === 'high-volume') {
-          // High Volume: anything with 100k+ orders
-          query = query.gt('sold_count', 100000);
-          query = applyOrder(query, 'sold_count');
+          // High Volume: the highest-order products in the entire DB
+          query = query.gte('sold_count', 150000);
+          query = query.order('sold_count', { ascending: false, nullsFirst: false });
         } else if (tab === 'under-10') {
-          // Under $10: budget products for mass market
-          query = query.lte('price_aud', 10).gte('winning_score', 70).gt('sold_count', 5000);
-          query = applyOrder(query, 'sold_count');
+          // Under $10: budget mass-market with proven demand
+          query = query.lt('price_aud', 10).gte('winning_score', 70).gte('sold_count', 5000);
+          query = query.order('sold_count', { ascending: false, nullsFirst: false });
         } else {
           query = applyOrder(query, orderBy);
         }

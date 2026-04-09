@@ -1054,21 +1054,43 @@ export default function AppProducts() {
   // When sorting by velocity we still fetch by sold_count and re-sort
   // client-side using dailyVelocity().
   const serverOrderBy: OrderByColumn = orderBy === 'velocity' ? 'sold_count' : orderBy;
-  const { products: allFetchedRaw, loading, total } = useProducts({
-    limit: Math.min(fetchLimit, 200),
-    orderBy: serverOrderBy,
-    tab: activeTab === 'saved' ? 'all' : activeTab,
-    category: categoryFilter || undefined,
-    minPrice: priceMin ?? undefined,
-    maxPrice: priceMax ?? undefined,
-    minOrders: minOrders ?? undefined,
-    maxOrders: maxOrders ?? undefined,
-    minScore: scoreMin > 0 ? scoreMin : undefined,
-    // DB keyword search — only when in db mode and a query is present
-    searchQuery: searchMode === 'db' && searchInput.trim().length >= 2
-      ? searchInput.trim()
-      : undefined,
-  });
+
+  // Tab independence rule:
+  //   - 'all' tab → user filter bar drives the query (legacy behaviour)
+  //   - any other tab → that tab's hardcoded server-side criteria runs
+  //     standalone, user filter state is intentionally ignored. The
+  //     filter bar is hidden in this mode (see render below).
+  // Saved tab is special — it's purely localStorage-driven and skips
+  // the server query entirely, so we route it as 'all' here and the
+  // filtered useMemo below substitutes the saved-products list.
+  const isFilterableTab = activeTab === 'all' || activeTab === 'saved';
+
+  const useProductsParams = isFilterableTab
+    ? {
+        limit: Math.min(fetchLimit, 200),
+        orderBy: serverOrderBy,
+        tab: ('all' as SmartTabKey),
+        category: categoryFilter || undefined,
+        minPrice: priceMin ?? undefined,
+        maxPrice: priceMax ?? undefined,
+        minOrders: minOrders ?? undefined,
+        maxOrders: maxOrders ?? undefined,
+        minScore: scoreMin > 0 ? scoreMin : undefined,
+        searchQuery: searchMode === 'db' && searchInput.trim().length >= 2
+          ? searchInput.trim()
+          : undefined,
+      }
+    : {
+        // Curated tab — only the tab key + a fetch limit. The hook's
+        // built-in tab branch applies the criteria server-side. NO
+        // category, NO price range, NO orders gate, NO user search —
+        // those are deliberately stripped so curated tabs are stable.
+        limit: Math.min(fetchLimit, 200),
+        orderBy: serverOrderBy,
+        tab: activeTab,
+      };
+
+  const { products: allFetchedRaw, loading, total } = useProducts(useProductsParams);
 
   // Client-side velocity re-sort when 'velocity' is selected
   const allFetched = useMemo<Product[]>(() => {
@@ -1265,8 +1287,29 @@ export default function AppProducts() {
         </div>
       )}
 
-      {/* Filter bar */}
-      {searchMode === 'db' && (
+      {/* Curated-tab notice — replaces the filter bar when on a curated tab */}
+      {searchMode === 'db' && !isFilterableTab && (
+        <div
+          className="mx-4 md:mx-8 mb-4 px-4 py-3 flex items-center gap-3 flex-wrap rounded-xl"
+          style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)' }}
+        >
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-accent-hover">
+            Curated view
+          </span>
+          <span className="text-xs text-body">
+            Showing {SMART_TABS.find((t) => t.key === activeTab)?.label ?? activeTab} — filters don&apos;t apply in this view.
+          </span>
+          <button
+            onClick={() => setActiveTab('all')}
+            className="ml-auto text-xs text-accent hover:text-accent-hover transition-colors font-medium"
+          >
+            ← Back to All Products with filters
+          </button>
+        </div>
+      )}
+
+      {/* Filter bar — only rendered on the All Products tab */}
+      {searchMode === 'db' && isFilterableTab && (
         <div className="px-4 md:px-8 pb-4 flex gap-2 flex-wrap items-center">
           <FilterPill
             label={priceMin !== null || priceMax !== null
