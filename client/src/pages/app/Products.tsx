@@ -48,6 +48,30 @@ function daysSince(iso: string | null): number {
   return (Date.now() - ts) / 86400000;
 }
 
+/**
+ * Threshold for the NEW badge. Set to 3 days because the Apify
+ * pipeline seeds rows daily — a 7-day window flags everything.
+ */
+const NEW_DAYS_THRESHOLD = 3;
+
+/**
+ * Monthly revenue estimator. Prefer est_daily_revenue_aud × 30 when
+ * available, otherwise fall back to sold_count × price_aud / 30 as
+ * a rough proxy so the Revenue column doesn't show — for rows where
+ * the scoring pipeline hasn't populated the dedicated column.
+ */
+function monthlyRevenue(p: Product): number | null {
+  const daily = p.est_daily_revenue_aud;
+  if (daily != null && daily > 0) return daily * 30;
+  const orders = p.sold_count ?? 0;
+  const price = p.price_aud != null ? Number(p.price_aud) : 0;
+  if (orders > 0 && price > 0) {
+    // Treat sold_count as a ~30-day order signal, so total ≈ monthly revenue.
+    return orders * price;
+  }
+  return null;
+}
+
 function timeAgoShort(iso: string | null): string {
   if (!iso) return '';
   const ts = Date.parse(iso);
@@ -359,7 +383,7 @@ export default function AppProducts() {
   const tabCounts = useMemo(() => {
     return {
       all:        total,
-      new:        allFetched.filter((p) => daysSince(p.created_at) <= 7).length,
+      new:        allFetched.filter((p) => daysSince(p.created_at) <= NEW_DAYS_THRESHOLD).length,
       trending:   allFetched.filter((p) => (p.sold_count ?? 0) > 50000).length,
       highmargin: allFetched.filter((p) => {
         const price = Number(p.price_aud ?? 999);
@@ -772,12 +796,12 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
       <table className="w-full table-fixed">
         <colgroup>
           <col className="w-12" />
-          <col className="w-[280px]" />
+          <col className="w-[420px]" />
           <col className="w-[140px]" />
           <col className="w-[100px]" />
           <col className="w-[100px]" />
           <col className="w-[100px]" />
-          <col className="w-[120px]" />
+          <col className="w-[140px]" />
           <col />
         </colgroup>
         <thead>
@@ -798,8 +822,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
           {products.map((p, i) => {
             const score = Math.round(p.winning_score ?? 0);
             const orders = p.sold_count ?? 0;
-            const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
-            const isNew = daysSince(p.created_at) <= 7;
+            const estMonthly = monthlyRevenue(p);
             const fav = isFavourite(p.id);
             const isLast = i === products.length - 1;
             return (
@@ -824,14 +847,12 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                       <div className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-white/90 truncate">
+                      <p
+                        title={p.product_title}
+                        className="text-sm font-medium text-white/90 truncate max-w-md"
+                      >
                         {p.product_title}
                       </p>
-                      {isNew && (
-                        <span className="inline-block mt-0.5 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-green/15 text-green rounded">
-                          New
-                        </span>
-                      )}
                     </div>
                   </div>
                 </td>
@@ -858,7 +879,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                 </td>
                 <td className={`px-5 text-right text-base font-bold tabular-nums ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
-                  {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—'}
+                  {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
                 <td className="px-5 text-center">
                   <button
@@ -913,8 +934,8 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
       {products.map((p) => {
         const score = Math.round(p.winning_score ?? 0);
         const orders = p.sold_count ?? 0;
-        const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
-        const isNew = daysSince(p.created_at) <= 7;
+        const estMonthly = monthlyRevenue(p);
+        const isNew = daysSince(p.created_at) <= NEW_DAYS_THRESHOLD;
         return (
           <div
             key={p.id}

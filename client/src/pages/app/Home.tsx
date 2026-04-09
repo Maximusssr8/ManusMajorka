@@ -241,9 +241,13 @@ export default function AppHome() {
           return (
             <div
               key={card.label}
-              className="bg-surface border border-white/[0.07] rounded-xl p-5 hover:border-accent/30 hover:bg-card transition-all duration-150 relative overflow-hidden"
+              className="bg-surface border border-white/[0.07] rounded-xl p-5 pt-6 hover:border-accent/30 hover:bg-card transition-all duration-150 relative isolate"
             >
-              <div className={`absolute top-0 left-0 right-0 h-0.5 ${card.topLine}`} />
+              {/* Accent top line — rendered as its own rounded bar inside the
+                  card so the border-radius doesn't clip it. */}
+              <div
+                className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-xl z-10`}
+              />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                   {card.label}
