@@ -279,24 +279,24 @@ export default function AppProducts() {
     <>
       <style>{SHIMMER}</style>
 
-      {/* Page header — no gradient text, no pulsing dot, no mock status pills. */}
-      <div style={{ padding: `${t.s8}px ${t.s8}px ${t.s5}px` }}>
+      {/* Editorial hero — massive H1, quiet grey subhead. */}
+      <div style={{ padding: `${t.s10}px ${t.s9}px ${t.s7}px`, maxWidth: 1320, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
         <h1 style={{
           fontFamily: t.fontDisplay,
           fontSize: t.fH1,
-          fontWeight: 700,
-          letterSpacing: '-0.025em',
+          fontWeight: 600,
+          letterSpacing: '-0.03em',
           margin: 0,
           color: t.text,
-          lineHeight: 1.1,
+          lineHeight: 1.05,
         }}>Products</h1>
         <p style={{
           fontFamily: t.fontBody,
           fontSize: t.fLead,
           color: t.body,
-          margin: `${t.s3}px 0 0`,
-          maxWidth: '52ch',
-          lineHeight: 1.5,
+          margin: `${t.s5}px 0 0`,
+          maxWidth: '56ch',
+          lineHeight: 1.55,
         }}>
           {searchMode === 'live'
             ? `${aeSearch.total.toLocaleString()} live AliExpress results for "${aeSearch.query}"`
@@ -304,28 +304,24 @@ export default function AppProducts() {
         </p>
       </div>
 
-      {/* Search bar — flat, Linear-style. Focus ring is 1px, not 3px glow. */}
-      <div style={{ padding: `0 ${t.s8}px ${t.s4}px`, display: 'flex', gap: t.s3, alignItems: 'center' }}>
-        <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <Search size={14} strokeWidth={2} color={t.muted} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+      {/* Search bar — borderless except for a single hairline underline. */}
+      <div style={{ padding: `0 ${t.s9}px ${t.s6}px`, maxWidth: 1320, margin: '0 auto', width: '100%', boxSizing: 'border-box', display: 'flex', gap: t.s3, alignItems: 'center' }}>
+        <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', borderBottom: `1px solid ${t.line}` }}>
+          <Search size={14} strokeWidth={1.75} color={t.muted} style={{ pointerEvents: 'none', flexShrink: 0 }} />
           <input
             placeholder={`Search ${total > 0 ? total.toLocaleString() : '2,302'} products or 829k live from AliExpress`}
             defaultValue={liveQuery}
             style={{
               width: '100%',
-              background: t.surface,
-              border: `1px solid ${t.line}`,
-              borderRadius: t.rSm,
-              padding: `${t.s3}px ${t.s5}px ${t.s3}px 40px`,
+              background: 'transparent',
+              border: 'none',
+              padding: `${t.s3}px ${t.s4}px`,
               color: t.text,
               fontFamily: t.fontBody,
-              fontSize: t.fBody,
+              fontSize: t.fLead,
               outline: 'none',
               boxSizing: 'border-box',
-              transition: `border-color ${t.dur} ${t.ease}`,
             }}
-            onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = t.lineFocus; }}
-            onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = t.line; }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 const val = (e.currentTarget as HTMLInputElement).value.trim();
@@ -344,8 +340,8 @@ export default function AppProducts() {
             style={{
               padding: `${t.s3}px ${t.s4}px`,
               background: 'transparent',
-              border: `1px solid ${t.lineStrong}`,
-              borderRadius: t.rSm,
+              border: `1px solid ${t.line}`,
+              borderRadius: t.rMd,
               color: t.body,
               fontFamily: t.fontBody,
               fontSize: t.fBody,
@@ -358,26 +354,28 @@ export default function AppProducts() {
         )}
       </div>
 
-      {/* Filter bar — mixed-weight labels (not uppercase mono), flat inputs,
-          emoji stripped from sort values. */}
+      {/* Filter bar — flush with the page, no card, no fill. */}
       {searchMode === 'db' && (
         <div style={{
-          margin: `0 ${t.s8}px ${t.s4}px`,
-          padding: `${t.s4}px ${t.s5}px`,
-          background: t.surface,
-          border: `1px solid ${t.line}`,
-          borderRadius: t.rMd,
+          margin: `0 ${t.s9}px ${t.s6}px`,
+          maxWidth: 1320,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          padding: `${t.s5}px ${t.s9}px`,
+          borderTop: `1px solid ${t.line}`,
+          borderBottom: `1px solid ${t.line}`,
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: t.s4,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: t.s5,
+          boxSizing: 'border-box',
         }}>
           {[
-            { label: 'Min price', value: priceMin, set: setPriceMin, ph: '$0' },
-            { label: 'Max price', value: priceMax, set: setPriceMax, ph: '$999' },
-            { label: 'Min orders',    value: minOrders, set: setMinOrders, ph: '0' },
+            { label: 'Min price', value: priceMin, set: setPriceMin, ph: '0' },
+            { label: 'Max price', value: priceMax, set: setPriceMax, ph: '999' },
+            { label: 'Min orders', value: minOrders, set: setMinOrders, ph: '0' },
           ].map((f) => (
             <div key={f.label}>
-              <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>{f.label}</div>
+              <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{f.label}</div>
               <input
                 type="number"
                 placeholder={f.ph}
@@ -385,10 +383,11 @@ export default function AppProducts() {
                 onChange={(e) => f.set(e.target.value ? Number(e.target.value) : null)}
                 style={{
                   width: '100%',
-                  background: t.bg,
-                  border: `1px solid ${t.line}`,
-                  borderRadius: t.rSm,
-                  padding: `${t.s2}px ${t.s3}px`,
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: `1px solid ${t.line}`,
+                  borderRadius: 0,
+                  padding: `${t.s2}px 0`,
                   color: t.text,
                   fontFamily: t.fontBody,
                   fontSize: t.fBody,
@@ -400,16 +399,17 @@ export default function AppProducts() {
             </div>
           ))}
           <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Category</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Category</div>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               style={{
                 width: '100%',
-                background: t.bg,
-                border: `1px solid ${t.line}`,
-                borderRadius: t.rSm,
-                padding: `${t.s2}px ${t.s3}px`,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: `1px solid ${t.line}`,
+                borderRadius: 0,
+                padding: `${t.s2}px 0`,
                 color: t.text,
                 fontFamily: t.fontBody,
                 fontSize: t.fBody,
@@ -425,7 +425,7 @@ export default function AppProducts() {
             </select>
           </div>
           <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Min score</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Min score</div>
             <input
               type="number"
               min={0}
@@ -435,10 +435,11 @@ export default function AppProducts() {
               onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
               style={{
                 width: '100%',
-                background: t.bg,
-                border: `1px solid ${t.line}`,
-                borderRadius: t.rSm,
-                padding: `${t.s2}px ${t.s3}px`,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: `1px solid ${t.line}`,
+                borderRadius: 0,
+                padding: `${t.s2}px 0`,
                 color: t.text,
                 fontFamily: t.fontBody,
                 fontSize: t.fBody,
@@ -449,7 +450,7 @@ export default function AppProducts() {
             />
           </div>
           <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Max score</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Max score</div>
             <input
               type="number"
               min={0}
@@ -459,10 +460,11 @@ export default function AppProducts() {
               onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
               style={{
                 width: '100%',
-                background: t.bg,
-                border: `1px solid ${t.line}`,
-                borderRadius: t.rSm,
-                padding: `${t.s2}px ${t.s3}px`,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: `1px solid ${t.line}`,
+                borderRadius: 0,
+                padding: `${t.s2}px 0`,
                 color: t.text,
                 fontFamily: t.fontBody,
                 fontSize: t.fBody,
@@ -473,16 +475,17 @@ export default function AppProducts() {
             />
           </div>
           <div>
-            <div style={{ fontFamily: t.fontBody, fontSize: t.fCaption, fontWeight: 500, color: t.muted, marginBottom: t.s2 }}>Sort by</div>
+            <div style={{ fontFamily: t.fontBody, fontSize: t.fMicro, fontWeight: 500, color: t.muted, marginBottom: t.s2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Sort by</div>
             <select
               value={orderBy}
               onChange={(e) => setOrderBy(e.target.value as OrderByColumn)}
               style={{
                 width: '100%',
-                background: t.bg,
-                border: `1px solid ${t.line}`,
-                borderRadius: t.rSm,
-                padding: `${t.s2}px ${t.s3}px`,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: `1px solid ${t.line}`,
+                borderRadius: 0,
+                padding: `${t.s2}px 0`,
                 color: t.text,
                 fontFamily: t.fontBody,
                 fontSize: t.fBody,
@@ -504,15 +507,16 @@ export default function AppProducts() {
             <button
               onClick={() => { setPriceMin(null); setPriceMax(null); setMinOrders(null); setCategoryFilter(''); setScoreMin(0); setScoreMax(100); setOrderBy('sold_count'); }}
               style={{
-                padding: `${t.s2}px ${t.s3}px`,
+                padding: `${t.s2}px 0`,
                 background: 'transparent',
-                border: `1px solid ${t.line}`,
-                borderRadius: t.rSm,
+                border: 'none',
                 color: t.muted,
                 fontFamily: t.fontBody,
                 fontSize: t.fBody,
                 fontWeight: 500,
                 cursor: 'pointer',
+                textDecoration: 'underline',
+                textUnderlineOffset: 3,
               }}
             >Clear filters</button>
           </div>
@@ -526,17 +530,18 @@ export default function AppProducts() {
       )}
 
       {searchMode === 'db' && (<>
-      {/* Tabs — quiet, Linear-style. Active tab gets a single underline,
-          not a tinted pill. No count badge on the inactive tabs. */}
+      {/* Tabs — quiet, editorial underline. Active = white + 2px rule below. */}
       <div style={{
         display: 'flex',
-        gap: t.s1,
-        padding: `0 ${t.s8}px`,
-        marginBottom: t.s4,
+        gap: t.s2,
+        margin: `0 auto ${t.s6}`,
+        padding: `0 ${t.s9}px`,
+        maxWidth: 1320,
         borderBottom: `1px solid ${t.line}`,
         overflowX: 'auto',
         scrollbarWidth: 'none',
         alignItems: 'center',
+        boxSizing: 'border-box',
       }}>
         {SMART_TABS.map((tab) => {
           const active = activeTab === tab.key;
@@ -550,15 +555,15 @@ export default function AppProducts() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: t.s2,
-                padding: `${t.s3}px ${t.s3}px`,
+                padding: `${t.s3}px ${t.s2}px`,
                 marginBottom: -1,
                 fontFamily: t.fontBody,
                 fontSize: t.fBody,
-                fontWeight: active ? 600 : 500,
+                fontWeight: active ? 600 : 400,
                 color: active ? t.text : t.muted,
                 background: 'transparent',
                 border: 'none',
-                borderBottom: `2px solid ${active ? t.accent : 'transparent'}`,
+                borderBottom: `2px solid ${active ? t.text : 'transparent'}`,
                 cursor: 'pointer',
                 transition: `color ${t.dur} ${t.ease}`,
                 whiteSpace: 'nowrap',
@@ -585,12 +590,9 @@ export default function AppProducts() {
         <div style={{ flex: 1 }} />
         <div style={{
           display: 'inline-flex',
-          background: t.surface,
-          border: `1px solid ${t.line}`,
-          borderRadius: t.rSm,
-          padding: 2,
-          marginBottom: t.s2,
-          marginLeft: t.s2,
+          gap: t.s1,
+          marginLeft: t.s4,
+          marginBottom: t.s3,
           flexShrink: 0,
         }}>
           {(['table', 'grid'] as const).map((mode) => {
@@ -601,18 +603,20 @@ export default function AppProducts() {
                 onClick={() => setView(mode)}
                 aria-label={mode}
                 style={{
-                  width: 30,
-                  height: 26,
+                  width: 28,
+                  height: 28,
                   border: 'none',
-                  background: active ? t.raised : 'transparent',
-                  color: active ? t.text : t.muted,
+                  background: 'transparent',
+                  color: active ? t.text : t.faint,
                   cursor: 'pointer',
-                  borderRadius: 4,
+                  borderRadius: t.rSm,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: `all ${t.dur} ${t.ease}`,
+                  transition: `color ${t.dur} ${t.ease}`,
                 }}
+                onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.muted; }}
+                onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = t.faint; }}
               >
                 {mode === 'table' ? <List size={13} /> : <LayoutGrid size={13} />}
               </button>

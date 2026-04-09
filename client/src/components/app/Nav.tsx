@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import type { ComponentType, SVGProps, CSSProperties } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { useProductStats } from '@/hooks/useProducts';
 import { t } from '@/lib/designTokens';
 
 interface NavItem {
@@ -20,11 +19,6 @@ interface NavItem {
   adminOnly?: boolean;
 }
 
-/**
- * Nav groups — labelled so the eye can parse the sections.
- * Labels render as tiny uppercase captions, not dividers,
- * which gives the sidebar real information architecture.
- */
 const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Intelligence',
@@ -63,10 +57,14 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
   },
 ];
 
+/**
+ * Nav — pure black, no background on the sidebar itself.
+ * Section labels are 10px uppercase tracked grey. The active item
+ * gets a 2px white inset left line and pure white text. That's it.
+ */
 export function Nav() {
   const [location, navigate] = useLocation();
   const { user, isPro } = useAuth();
-  const { hotCount } = useProductStats();
   const [searchTerm, setSearchTerm] = useState('');
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
@@ -92,58 +90,43 @@ export function Nav() {
         overflowY: 'auto',
       }}
     >
-      {/* Brand mark — clean, no gradient, no glow. */}
+      {/* Brand — wordmark only, no logo tile */}
       <div
         style={{
-          height: 64,
+          height: 72,
           display: 'flex',
           alignItems: 'center',
-          padding: `0 ${t.s5}px`,
-          gap: t.s3,
+          padding: `0 ${t.s6}px`,
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: t.rSm,
-            background: t.accent,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ fontFamily: t.fontDisplay, fontWeight: 800, fontSize: 15, color: '#fff' }}>M</span>
-        </div>
         <span
           style={{
             fontFamily: t.fontDisplay,
-            fontWeight: 700,
-            fontSize: 17,
+            fontWeight: 600,
+            fontSize: 20,
             color: t.text,
-            letterSpacing: '-0.02em',
+            letterSpacing: '-0.025em',
           }}
         >
           Majorka
         </span>
       </div>
 
-      {/* Search — single flat input. No mock-keyboard shortcut noise. */}
-      <div style={{ padding: `0 ${t.s3}px ${t.s3}px` }}>
+      {/* Search — single hairline field, no fake kbd */}
+      <div style={{ padding: `0 ${t.s4}px ${t.s6}px` }}>
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: t.s2,
-            background: t.surface,
+            background: 'transparent',
             border: `1px solid ${t.line}`,
-            borderRadius: t.rSm,
+            borderRadius: t.rMd,
             padding: `${t.s2}px ${t.s3}px`,
           }}
         >
-          <Search size={14} color={t.faint} strokeWidth={2} />
+          <Search size={13} color={t.muted} strokeWidth={1.75} />
           <input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -153,7 +136,7 @@ export function Nav() {
                 setSearchTerm('');
               }
             }}
-            placeholder="Search products"
+            placeholder="Search"
             style={{
               flex: 1,
               minWidth: 0,
@@ -169,21 +152,21 @@ export function Nav() {
         </div>
       </div>
 
-      {/* Nav groups — section titles give real IA, not just coloured dividers. */}
-      <div style={{ paddingBottom: t.s4 }}>
+      {/* Groups */}
+      <div style={{ paddingBottom: t.s6 }}>
         {GROUPS.map((group, gi) => {
           const visible = group.items.filter((i) => !i.adminOnly || isAdmin);
           if (visible.length === 0) return null;
           return (
-            <div key={gi} style={{ marginBottom: t.s4 }}>
+            <div key={gi} style={{ marginBottom: t.s6 }}>
               <div
                 style={{
-                  padding: `${t.s2}px ${t.s5}px ${t.s1}px`,
+                  padding: `0 ${t.s6}px ${t.s3}px`,
                   fontFamily: t.fontBody,
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: t.faint,
-                  letterSpacing: '0.08em',
+                  fontSize: t.fMicro,
+                  fontWeight: 500,
+                  color: t.muted,
+                  letterSpacing: '0.1em',
                   textTransform: 'uppercase',
                 }}
               >
@@ -194,7 +177,6 @@ export function Nav() {
                   key={item.path}
                   item={item}
                   active={isActive(item)}
-                  hotCount={item.label === 'Products' ? hotCount : 0}
                 />
               ))}
             </div>
@@ -202,12 +184,12 @@ export function Nav() {
         })}
       </div>
 
-      {/* User footer — single row, no emoji, no fake plan pill. */}
+      {/* User footer — single hairline, no avatar tile */}
       <div
         style={{
           marginTop: 'auto',
           borderTop: `1px solid ${t.line}`,
-          padding: `${t.s3}px ${t.s4}px`,
+          padding: `${t.s4}px ${t.s6}px`,
           display: 'flex',
           alignItems: 'center',
           gap: t.s3,
@@ -215,17 +197,16 @@ export function Nav() {
       >
         <div
           style={{
-            width: 30,
-            height: 30,
-            borderRadius: t.rSm,
-            background: t.surface,
-            border: `1px solid ${t.lineStrong}`,
+            width: 26,
+            height: 26,
+            borderRadius: t.rMd,
+            border: `1px solid ${t.line}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: t.fontDisplay,
-            fontWeight: 700,
-            fontSize: 13,
+            fontFamily: t.fontBody,
+            fontWeight: 600,
+            fontSize: 11,
             color: t.text,
             flexShrink: 0,
           }}
@@ -237,7 +218,7 @@ export function Nav() {
             style={{
               fontFamily: t.fontBody,
               fontSize: t.fBody,
-              fontWeight: 600,
+              fontWeight: 500,
               color: t.text,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -249,30 +230,31 @@ export function Nav() {
           <div
             style={{
               fontFamily: t.fontBody,
-              fontSize: t.fCaption,
+              fontSize: t.fMicro,
               color: t.muted,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              marginTop: 1,
             }}
           >
-            {isPro ? 'Scale' : 'Builder'} · AUD
+            {isPro ? 'Scale' : 'Builder'}
           </div>
         </div>
         <Link
           href="/app/settings"
           style={{
-            color: t.faint,
+            color: t.muted,
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
             transition: `color ${t.dur} ${t.ease}`,
           }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = t.text; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = t.faint; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = t.muted; }}
           aria-label="Settings"
         >
-          <Settings size={14} strokeWidth={2} />
+          <Settings size={13} strokeWidth={1.75} />
         </Link>
       </div>
     </nav>
@@ -282,48 +264,39 @@ export function Nav() {
 interface NavLinkProps {
   item: NavItem;
   active: boolean;
-  hotCount: number;
 }
 
-function NavLink({ item, active, hotCount }: NavLinkProps) {
+function NavLink({ item, active }: NavLinkProps) {
   const Icon = item.icon;
   const baseStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: t.s3,
-    padding: `${t.s2}px ${t.s3}px`,
-    margin: `1px ${t.s2}px`,
-    borderRadius: t.rSm,
+    padding: `${t.s2}px ${t.s6}px`,
+    // 2px white inset line on the left for active state — the only decoration.
+    boxShadow: active ? `inset 2px 0 0 ${t.text}` : 'none',
     cursor: item.soon ? 'not-allowed' : 'pointer',
     textDecoration: 'none',
     fontSize: t.fBody,
     fontFamily: t.fontBody,
-    transition: `background ${t.dur} ${t.ease}, color ${t.dur} ${t.ease}`,
-    color: active ? t.text : item.soon ? t.faint : t.body,
-    background: active ? t.surface : 'transparent',
-    fontWeight: active ? 600 : 500,
-    // Active state uses a 1px inner line in place of a heavy border
-    // — quiet, Linear-style.
-    boxShadow: active ? `inset 0 0 0 1px ${t.line}` : 'none',
+    transition: `color ${t.dur} ${t.ease}`,
+    color: active ? t.text : item.soon ? t.faint : t.muted,
+    background: 'transparent',
+    fontWeight: active ? 600 : 400,
+    minHeight: 32,
   };
   return (
     <Link
       href={item.soon ? '#' : item.path}
       style={baseStyle}
       onMouseEnter={(e) => {
-        if (!active && !item.soon) {
-          (e.currentTarget as HTMLAnchorElement).style.background = t.surface;
-          (e.currentTarget as HTMLAnchorElement).style.color = t.text;
-        }
+        if (!active && !item.soon) (e.currentTarget as HTMLAnchorElement).style.color = t.text;
       }}
       onMouseLeave={(e) => {
-        if (!active && !item.soon) {
-          (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-          (e.currentTarget as HTMLAnchorElement).style.color = t.body;
-        }
+        if (!active && !item.soon) (e.currentTarget as HTMLAnchorElement).style.color = t.muted;
       }}
     >
-      <Icon size={15} strokeWidth={1.75} style={{ flexShrink: 0, color: active ? t.accent : 'currentColor' }} />
+      <Icon size={14} strokeWidth={1.5} style={{ flexShrink: 0 }} />
       <span
         style={{
           flex: 1,
@@ -339,31 +312,13 @@ function NavLink({ item, active, hotCount }: NavLinkProps) {
         <span
           style={{
             fontFamily: t.fontBody,
-            fontSize: 10,
-            fontWeight: 600,
+            fontSize: t.fMicro,
+            fontWeight: 400,
             color: t.faint,
-            letterSpacing: '0.04em',
             flexShrink: 0,
           }}
         >
           Soon
-        </span>
-      )}
-      {hotCount > 0 && (
-        <span
-          style={{
-            background: t.accentDim,
-            color: t.accent,
-            borderRadius: t.rPill,
-            padding: '1px 7px',
-            fontSize: 10,
-            fontWeight: 700,
-            fontFamily: t.fontBody,
-            fontVariantNumeric: 'tabular-nums',
-            flexShrink: 0,
-          }}
-        >
-          {hotCount}
         </span>
       )}
     </Link>

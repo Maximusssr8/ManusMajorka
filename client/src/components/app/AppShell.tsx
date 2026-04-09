@@ -5,13 +5,8 @@ import { t } from '@/lib/designTokens';
 interface AppShellProps { children: ReactNode }
 
 /**
- * AppShell — the root layout for all `/app/*` routes.
- *
- * Design notes:
- *   - Page background is the single source of truth (t.bg).
- *   - No radial violet glow — that was the AI-purple tell.
- *   - The nav sits flush against the page; its only separator is
- *     a 1px hairline, not a surface change.
+ * AppShell — pure black editorial canvas.
+ * No gradients, no tint, no decoration. Just black + a hairline.
  */
 export function AppShell({ children }: AppShellProps) {
   return (
