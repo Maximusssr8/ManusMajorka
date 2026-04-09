@@ -90,28 +90,47 @@ export function Nav() {
         overflowY: 'auto',
       }}
     >
-      {/* Brand — wordmark only, no logo tile */}
-      <div
+      {/* Brand — real Majorka logo + wordmark */}
+      <Link
+        href="/app"
         style={{
           height: 72,
           display: 'flex',
           alignItems: 'center',
+          gap: t.s3,
           padding: `0 ${t.s6}px`,
           flexShrink: 0,
+          textDecoration: 'none',
         }}
       >
+        <img
+          src="/majorka-logo.jpg"
+          alt="Majorka"
+          width={30}
+          height={30}
+          draggable={false}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: t.rMd,
+            objectFit: 'cover',
+            display: 'block',
+            flexShrink: 0,
+            border: `1px solid ${t.line}`,
+          }}
+        />
         <span
           style={{
             fontFamily: t.fontDisplay,
             fontWeight: 600,
-            fontSize: 20,
+            fontSize: 19,
             color: t.text,
             letterSpacing: '-0.025em',
           }}
         >
           Majorka
         </span>
-      </div>
+      </Link>
 
       {/* Search — single hairline field, no fake kbd */}
       <div style={{ padding: `0 ${t.s4}px ${t.s6}px` }}>
