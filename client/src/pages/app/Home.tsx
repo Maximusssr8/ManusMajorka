@@ -290,11 +290,15 @@ export default function AppHome() {
         })}
       </motion.div>
 
-      {/* Main content — asymmetric 2 col, cards self-start so heights match content */}
-      <div className="relative z-10 grid grid-cols-[1fr_320px] gap-5 px-8 pb-8 items-start">
+      {/* Main content — asymmetric 2 col via flex (not grid) so neither
+          column stretches to match the taller one. Each column is an
+          independent h-fit container and the bottom of the shorter one
+          sits right against the next section. */}
+      <div className="relative z-10 flex items-start gap-5 px-8 pb-8">
 
-        {/* LEFT — Trending Now */}
-        <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 h-fit self-start">
+        {/* LEFT — Trending Now. overflow-hidden prevents any child from
+            breaking the card boundary. */}
+        <div className="flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl p-6 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-sm font-semibold text-text">Trending Now</h2>
             <Link
@@ -343,7 +347,7 @@ export default function AppHome() {
                     ) : (
                       <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
                     )}
-                    <div className="min-w-0 flex-1">
+                    <div className="flex-1 min-w-0 max-w-0 overflow-hidden">
                       <p
                         title={p.product_title}
                         className="text-sm font-medium text-text/90 truncate mb-1"
@@ -380,8 +384,8 @@ export default function AppHome() {
           )}
         </div>
 
-        {/* RIGHT — Opportunities + Quick Stats */}
-        <div className="flex flex-col gap-4">
+        {/* RIGHT — Opportunities + Quick Stats stacked, fixed 320px */}
+        <div className="w-[320px] shrink-0 flex flex-col gap-4">
 
           {/* Top Opportunities */}
           <div className="bg-surface border border-white/[0.07] rounded-xl p-5">
