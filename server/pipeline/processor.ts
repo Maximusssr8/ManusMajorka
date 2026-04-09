@@ -27,6 +27,21 @@ interface RawProduct {
   extra_data: Record<string, any>;
 }
 
+/**
+ * Strip stray parentheses, brackets, and double-spaces from raw category
+ * strings before they reach winning_products. AliExpress occasionally
+ * returns mangled categories like "Human Wigs( For Black)" — these get
+ * normalised to "Human Wigs" so the dropdown stays clean.
+ */
+function cleanCategory(raw: string | null | undefined): string {
+  if (!raw) return '';
+  return raw
+    .replace(/[()[\]]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+for\s+\w+\s*$/i, '')
+    .trim();
+}
+
 function hardFilter(p: RawProduct): boolean {
   // Strict quality gate — nothing with null/zero sold_count, null/zero price,
   // missing image, or a junk title ever reaches winning_products. Prevents
@@ -189,7 +204,7 @@ export async function runProcessor(): Promise<ProcessorResult> {
         const record: Record<string, any> = {
           product_title: raw.title.slice(0, 500),
           image_url: raw.image_url,
-          category: enrich.niche || raw.category || 'general',
+          category: cleanCategory(enrich.niche || raw.category) || 'general',
           platform: raw.source.includes('amazon') ? 'amazon' : raw.source.includes('tiktok') ? 'TikTok Shop' : 'aliexpress',
           price_aud: sellPrice,
           cost_price_aud: costPrice,

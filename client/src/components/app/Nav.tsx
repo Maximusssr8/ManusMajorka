@@ -67,6 +67,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
   const { user, isPro } = useAuth();
   const { trackedCount } = useTracking();
   const [searchTerm, setSearchTerm] = useState('');
+  const [comingSoonItem, setComingSoonItem] = useState<NavItem | null>(null);
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
@@ -140,7 +141,14 @@ export function Nav({ onNavigate }: NavProps = {}) {
                     <Link
                       key={item.path}
                       href={item.soon ? '#' : item.path}
-                      onClick={() => { if (!item.soon) onNavigate?.(); }}
+                      onClick={(e) => {
+                        if (item.soon) {
+                          e.preventDefault();
+                          setComingSoonItem(item);
+                          return;
+                        }
+                        onNavigate?.();
+                      }}
                       className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg mb-0.5 text-[13px] transition-colors no-underline ${
                         active
                           ? 'bg-accent/15 border-l-2 border-accent text-text font-medium shadow-[inset_0_0_12px_rgba(99,102,241,0.08)]'
@@ -190,6 +198,52 @@ export function Nav({ onNavigate }: NavProps = {}) {
           </Link>
         </div>
       </div>
+
+      {/* Coming-soon modal — fires when an item with `soon: true` is clicked */}
+      {comingSoonItem && (
+        <div
+          className="fixed inset-0 z-[150] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+          onClick={() => setComingSoonItem(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl p-7 glass-card glass-card--elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)' }}
+            >
+              {(() => {
+                const Icon = comingSoonItem.icon;
+                return <Icon size={20} className="text-accent" strokeWidth={2} />;
+              })()}
+            </div>
+            <h2 className="text-xl font-display font-bold text-text mb-2 tracking-tight">
+              {comingSoonItem.label}
+            </h2>
+            <p className="text-sm text-body leading-relaxed mb-6">
+              {comingSoonItem.label === 'Competitor Spy'
+                ? 'Enter any Shopify store URL to see their best-selling products, estimated revenue, traffic sources, and full app stack. Coming in the next update.'
+                : `${comingSoonItem.label} is in active development and will land in the next release. We'll notify all users when it's live.`}
+            </p>
+            <div className="flex items-center gap-2 text-[11px] text-muted mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              <span className="font-mono">In development · ETA next update</span>
+            </div>
+            <button
+              onClick={() => setComingSoonItem(null)}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01]"
+              style={{
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -16,6 +16,15 @@ import {
   incrementAffiliateSignups,
 } from '../db';
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function generateCode(length = 8): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let code = '';
@@ -40,6 +49,48 @@ async function authenticateUser(req: Request): Promise<string | null> {
 }
 
 export function registerAffiliateRoutes(app: Express) {
+  // ─── Public contact form (no auth) ─────────────────────────────────────
+  // Dedicated endpoint for the /contact page form. Sends a Resend email
+  // to hello@majorka.io with reply-to set to the visitor so the support
+  // team can hit reply directly.
+  app.post('/api/contact', async (req: Request, res: Response) => {
+    try {
+      const { name, email, subject, message } = (req.body ?? {}) as {
+        name?: string; email?: string; subject?: string; message?: string;
+      };
+      if (!name?.trim() || !email?.trim() || !message?.trim()) {
+        return res.status(400).json({ error: 'name, email, and message are required' });
+      }
+      const safeSubject = (subject?.trim() || 'New contact form message').slice(0, 200);
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const { Resend } = await import('resend');
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: 'Majorka Contact <noreply@majorka.io>',
+            to: ['hello@majorka.io'],
+            replyTo: email,
+            subject: `[Contact] ${safeSubject} — from ${name}`,
+            html: `
+              <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+              <p><strong>Subject:</strong> ${escapeHtml(safeSubject)}</p>
+              <p><strong>Message:</strong></p>
+              <pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(message)}</pre>
+            `,
+          });
+        } catch (mailErr) {
+          console.warn('[contact] Resend send failed:', mailErr);
+        }
+      } else {
+        console.log('[contact] (no Resend key) message:', { name, email, subject: safeSubject, messageLen: message.length });
+      }
+      return res.json({ success: true });
+    } catch (err: unknown) {
+      console.error('[contact]', err);
+      return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+  });
+
   // ─── Public affiliate application (no auth) ────────────────────────────
   // Captures leads from /affiliates page and emails hello@majorka.io via Resend.
   app.post('/api/affiliates/apply', async (req: Request, res: Response) => {

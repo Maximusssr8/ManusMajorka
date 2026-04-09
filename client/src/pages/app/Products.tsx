@@ -2122,29 +2122,30 @@ function ProductHistoryChart({ productId }: { productId: string | number }) {
     return () => { cancelled = true; };
   }, [productId]);
 
-  // Not-yet-collected placeholder
+  // Skeleton state — looks designed, not broken. No "Placeholder" text.
   if (loading || !tableReady || history.length < 2) {
+    // Pre-computed bar heights so the skeleton looks intentional, not random
+    const heights = [40, 65, 45, 80, 55, 70, 90, 60, 75, 85, 50, 95, 62, 78, 48, 88, 58, 72, 82, 55, 68, 92, 50, 76, 64, 84, 58, 70, 80, 65];
     return (
       <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
-          <div className="text-[10px] text-white/30">Placeholder</div>
+          <div className="text-[10px] text-white/25">Collecting data…</div>
         </div>
-        <div className="relative h-16 flex items-end gap-0.5">
-          {Array.from({ length: 30 }).map((_, i) => {
-            const h = 20 + Math.round(Math.sin(i / 4) * 10 + Math.cos(i / 3) * 8 + 20);
-            return (
-              <div
-                key={i}
-                className="flex-1 bg-white/[0.05] rounded-sm"
-                style={{ height: `${h}%` }}
-              />
-            );
-          })}
+        <div className="relative h-12 flex items-end gap-1">
+          {heights.map((h, i) => (
+            <div
+              key={i}
+              className="flex-1 rounded-sm animate-pulse"
+              style={{
+                height: `${h}%`,
+                background: 'rgba(99,102,241,0.12)',
+                animationDelay: `${i * 60}ms`,
+              }}
+            />
+          ))}
         </div>
-        <p className="text-[11px] text-muted mt-2 leading-snug">
-          Historical trend data collection started. Check back in 24 hours for real order velocity data.
-        </p>
+        <p className="text-[10px] text-white/25 text-center mt-2">Historical data builds automatically over time</p>
       </div>
     );
   }

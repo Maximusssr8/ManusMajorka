@@ -31,14 +31,12 @@ export default function Contact() {
     setStatus('submitting');
     setErrMsg(null);
     try {
-      // Re-uses the existing affiliates/apply pipeline; backend forwards
-      // to hello@majorka.io via Resend regardless of the source label.
-      const res = await fetch('/api/affiliates/apply', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, channel: '[contact-form]', audienceBracket: message.slice(0, 240) }),
+        body: JSON.stringify({ name, email, subject: 'Contact form message', message }),
       });
-      if (!res.ok && res.status !== 404) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setStatus('success');
     } catch (err) {
       setErrMsg(err instanceof Error ? err.message : 'Network error');
