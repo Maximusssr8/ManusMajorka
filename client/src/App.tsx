@@ -89,6 +89,7 @@ const WinningProductsAustralia = lazy(() => import('./pages/seo/WinningProductsA
 const NewAppShell = lazyWithRetry(() => import('./components/app/AppShell').then((m) => ({ default: m.AppShell })));
 const NewHome = lazyWithRetry(() => import('./pages/app/Home'));
 const NewProducts = lazyWithRetry(() => import('./pages/app/Products'));
+const NewRadar = lazyWithRetry(() => import('./pages/app/Radar'));
 const NewMarket = lazyWithRetry(() => import('./pages/app/Market'));
 const NewCreators = lazyWithRetry(() => import('./pages/app/Creators'));
 const NewAlerts = lazyWithRetry(() => import('./pages/app/Alerts'));
@@ -279,6 +280,7 @@ function Router() {
 
             {/* Redirects for consolidated pages */}
             <Route path="/app/products">{() => <ProtectedRoute><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/radar">{() => <ProtectedRoute><NewAppShell><NewRadar /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}

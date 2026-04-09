@@ -31,8 +31,10 @@ const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass
   { key: 'saved',      label: 'Saved',         Icon: Bookmark },
 ];
 
-const SORT_OPTIONS: { key: OrderByColumn; label: string }[] = [
+type SortKey = OrderByColumn | 'velocity';
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'sold_count',            label: 'Most orders' },
+  { key: 'velocity',              label: 'Fastest growing' },
   { key: 'winning_score',         label: 'Highest score' },
   { key: 'est_daily_revenue_aud', label: 'Highest revenue' },
   { key: 'price_asc',             label: 'Price: low to high' },
@@ -40,6 +42,26 @@ const SORT_OPTIONS: { key: OrderByColumn; label: string }[] = [
   { key: 'created_at',            label: 'Newest first' },
   { key: 'orders_asc',            label: 'Orders: low to high' },
 ];
+
+/**
+ * Velocity = estimated daily order rate over the product's lifetime.
+ * Simple proxy: sold_count / days_since_created.
+ */
+function dailyVelocity(p: Product): number {
+  const orders = p.sold_count ?? 0;
+  if (!orders) return 0;
+  const days = Math.max(1, Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000));
+  return orders / days;
+}
+
+function velocityBadge(p: Product): { label: string; color: string; icon: string } | null {
+  const rate = Math.round(dailyVelocity(p));
+  if (rate <= 0) return null;
+  const label = rate >= 1000 ? `${Math.round(rate / 1000)}k/day` : `${rate}/day`;
+  if (rate > 500) return { label: `~${label}`, color: 'text-green', icon: '↑' };
+  if (rate > 100) return { label: `~${label}`, color: 'text-amber', icon: '↗' };
+  return { label: `~${label}`, color: 'text-muted', icon: '→' };
+}
 
 /* ══════════════════════════════════════════════════════════════
    Helpers
@@ -341,11 +363,21 @@ function ProductSheet({
               </div>
             )}
             {product.created_at && (
-              <div className="text-xs text-body">
+              <div className="text-xs text-body mb-2">
                 <span className="text-muted">Added: </span>
-                {timeAgoShort(product.created_at)}
+                {timeAgoShort(product.created_at)} ({daysSince(product.created_at)}d active)
               </div>
             )}
+            {(() => {
+              const v = velocityBadge(product);
+              if (!v) return null;
+              return (
+                <div className={`text-xs ${v.color} font-medium`}>
+                  <span className="text-muted">Daily velocity: </span>
+                  <span>{v.icon} {v.label.replace('~', '')} orders/day</span>
+                </div>
+              );
+            })()}
           </div>
 
           {aliHref && (
@@ -481,7 +513,7 @@ function TT({ content, children, side = 'top' }: { content: React.ReactNode; chi
 export default function AppProducts() {
   const initial = readInitialParams();
   const [, navigate] = useLocation();
-  const [orderBy, setOrderBy] = useState<OrderByColumn>('sold_count');
+  const [orderBy, setOrderBy] = useState<SortKey>('sold_count');
   const [view, setView] = useState<'table' | 'grid'>('table');
   const [perPage, setPerPage] = useState<number>(25);
   const [page, setPage] = useState<number>(1);
@@ -538,10 +570,45 @@ export default function AppProducts() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  /* Filter persistence — restore on mount */
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('majorka_filters_v1');
+      if (!stored) return;
+      const f = JSON.parse(stored) as Partial<{
+        priceMin: number | null;
+        priceMax: number | null;
+        minOrders: number | null;
+        categoryFilter: string;
+        scoreMin: number;
+        scoreMax: number;
+        orderBy: SortKey;
+      }>;
+      if (f.priceMin != null) setPriceMin(f.priceMin);
+      if (f.priceMax != null) setPriceMax(f.priceMax);
+      if (f.minOrders != null) setMinOrders(f.minOrders);
+      if (typeof f.categoryFilter === 'string') setCategoryFilter(f.categoryFilter);
+      if (typeof f.scoreMin === 'number') setScoreMin(f.scoreMin);
+      if (typeof f.scoreMax === 'number') setScoreMax(f.scoreMax);
+      if (typeof f.orderBy === 'string') setOrderBy(f.orderBy as SortKey);
+    } catch { /* ignore */ }
+  }, []);
+
+  /* Filter persistence — save on change */
+  useEffect(() => {
+    try {
+      const filters = { priceMin, priceMax, minOrders, categoryFilter, scoreMin, scoreMax, orderBy };
+      localStorage.setItem('majorka_filters_v1', JSON.stringify(filters));
+    } catch { /* ignore */ }
+  }, [priceMin, priceMax, minOrders, categoryFilter, scoreMin, scoreMax, orderBy]);
+
   const fetchLimit = perPage * page;
-  const { products: allFetched, loading, total } = useProducts({
+  // When sorting by velocity we still fetch by sold_count and re-sort
+  // client-side using dailyVelocity().
+  const serverOrderBy: OrderByColumn = orderBy === 'velocity' ? 'sold_count' : orderBy;
+  const { products: allFetchedRaw, loading, total } = useProducts({
     limit: Math.min(fetchLimit, 200),
-    orderBy,
+    orderBy: serverOrderBy,
     tab: activeTab === 'saved' ? 'all' : activeTab,
     category: categoryFilter || undefined,
     minPrice: priceMin ?? undefined,
@@ -553,6 +620,12 @@ export default function AppProducts() {
       ? searchInput.trim()
       : undefined,
   });
+
+  // Client-side velocity re-sort when 'velocity' is selected
+  const allFetched = useMemo<Product[]>(() => {
+    if (orderBy !== 'velocity') return allFetchedRaw;
+    return [...allFetchedRaw].sort((a, b) => dailyVelocity(b) - dailyVelocity(a));
+  }, [allFetchedRaw, orderBy]);
 
   const filtered = useMemo<Product[]>(() => {
     if (activeTab === 'saved') {
@@ -1113,6 +1186,9 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                         <span className="text-muted tabular-nums">
                           {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
                         </span>
+                        <span className="text-muted">
+                          {daysSince(p.created_at)}d
+                        </span>
                       </div>
                     </div>
                     <button
@@ -1162,14 +1238,25 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                     <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td className={`px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${orders > 0 ? 'text-text' : 'text-muted'}`}>
+                <td className={`px-4 text-right whitespace-nowrap ${orders > 0 ? 'text-text' : 'text-muted'}`}>
                   {orders > 0 ? (
-                    <TT content={`${orders.toLocaleString()} total orders tracked`}>
-                      <span className="inline-block cursor-default">
-                        {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
-                        {fmtK(orders)}
-                      </span>
-                    </TT>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <TT content={`${orders.toLocaleString()} total orders tracked`}>
+                        <span className="inline-block cursor-default text-base font-bold tabular-nums">
+                          {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
+                          {fmtK(orders)}
+                        </span>
+                      </TT>
+                      {(() => {
+                        const v = velocityBadge(p);
+                        if (!v) return null;
+                        return (
+                          <span className={`text-[10px] ${v.color} tabular-nums font-medium`}>
+                            {v.icon} {v.label}
+                          </span>
+                        );
+                      })()}
+                    </div>
                   ) : (
                     '—'
                   )}
@@ -1294,6 +1381,10 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                   {shortenCategory(p.category)}
                 </span>
               )}
+              {/* Days-active badge bottom-right on image */}
+              <span className="absolute bottom-2 right-2 text-[9px] font-semibold text-white/70 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded">
+                {daysSince(p.created_at)}d active
+              </span>
               {/* Score top-right */}
               {score > 0 && (
                 <div className="absolute top-2 right-2">

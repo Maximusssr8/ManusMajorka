@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, TrendingUp, Video,
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Calculator, Settings,
-  GraduationCap, ShieldCheck, Search,
+  GraduationCap, ShieldCheck, Search, Radio,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -24,6 +24,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'Intelligence',
     items: [
       { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
+      { label: 'Radar',    path: '/app/radar',    icon: Radio },
       { label: 'Products', path: '/app/products', icon: Package },
       { label: 'Market',   path: '/app/market',   icon: TrendingUp },
       { label: 'Creators', path: '/app/creators', icon: Video },

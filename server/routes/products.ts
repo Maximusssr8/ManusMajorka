@@ -659,6 +659,77 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/radar ──────────────────────────────────────────────
+// Success Radar — top 100 products ranked by sold_count, each row annotated
+// with current rank, previous rank (from product_rank_snapshots), delta,
+// and isNew flag. Writes a new snapshot asynchronously on every call so
+// the "previous" view is always the last time someone loaded the page.
+//
+// REQUIRED TABLE (run once in Supabase SQL editor):
+//   CREATE TABLE IF NOT EXISTS product_rank_snapshots (
+//     product_id text PRIMARY KEY,
+//     rank integer NOT NULL,
+//     captured_at timestamptz NOT NULL DEFAULT now()
+//   );
+// If the table doesn't exist yet the endpoint degrades gracefully —
+// every row is flagged isNew=true until the table is created.
+router.get('/radar', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+
+    // Current top 100 by orders
+    const { data: current, error } = await sb
+      .from('winning_products')
+      .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at, est_daily_revenue_aud')
+      .not('sold_count', 'is', null)
+      .order('sold_count', { ascending: false })
+      .limit(100);
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Read previous rank snapshot — tolerate missing table
+    let snapshotMap = new Map<string, number>();
+    try {
+      const { data: snapshots } = await sb
+        .from('product_rank_snapshots')
+        .select('product_id, rank');
+      for (const row of (snapshots ?? []) as Array<{ product_id: string; rank: number }>) {
+        snapshotMap.set(String(row.product_id), row.rank);
+      }
+    } catch { /* table may not exist yet */ }
+
+    const ranked = (current ?? []).map((p, i) => {
+      const currentRank = i + 1;
+      const prev = snapshotMap.get(String(p.id));
+      return {
+        ...p,
+        currentRank,
+        previousRank: prev ?? null,
+        delta: prev != null ? prev - currentRank : null,
+        isNew: prev == null,
+      };
+    });
+
+    // Fire-and-forget: write new snapshot so the next call computes deltas
+    // against this one. Swallow errors so missing table doesn't 500 the
+    // endpoint.
+    (async () => {
+      try {
+        const rows = ranked.map((r) => ({
+          product_id: String(r.id),
+          rank: r.currentRank,
+          captured_at: new Date().toISOString(),
+        }));
+        await sb.from('product_rank_snapshots').upsert(rows, { onConflict: 'product_id' });
+      } catch { /* ignore */ }
+    })();
+
+    return res.json({ ranked, updatedAt: new Date().toISOString() });
+  } catch (err: unknown) {
+    console.error('[radar]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/tab-counts ──────────────────────────────────────────
 // Returns exact server-side COUNT(*) totals for each Products-page tab so
 // the badge numbers on the UI match the real table size instead of
