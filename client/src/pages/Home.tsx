@@ -61,12 +61,19 @@ section *,
 section h1, section h2, section h3, section h4, section p,
 section span, section div, section a, section button {
   opacity: 1 !important;
-  transform: none !important;
+}
+/* Allow transforms on explicitly-animated hover elements */
+section [data-transform-ok] {
+  transform: revert !important;
 }
 
 @keyframes mj-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.85); }
+}
+@keyframes mj-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
 }
 @keyframes mj-marquee {
   from { transform: translateX(0); }
@@ -520,23 +527,31 @@ function Hero() {
           alignItems: 'center',
         }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* Eyebrow */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
-              <span style={{
-                width: 6, height: 6, borderRadius: '50%',
+            {/* Eyebrow — interactive pill format */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '7px 16px 7px 12px',
+              background: 'rgba(99,102,241,0.1)',
+              border: '1px solid rgba(99,102,241,0.25)',
+              borderRadius: 100,
+              marginBottom: 24,
+              fontFamily: sans,
+              fontSize: 13,
+              color: '#c7d2fe',
+              fontWeight: 500,
+              width: 'fit-content',
+            }}>
+              <span className="mj-pulse-dot" style={{
+                width: 7, height: 7, borderRadius: '50%',
                 background: '#22c55e',
-                boxShadow: '0 0 8px rgba(34,197,94,0.8)',
+                boxShadow: '0 0 10px rgba(34,197,94,0.9)',
                 animation: 'mj-pulse 1.6s infinite',
                 display: 'inline-block',
               }} />
-              <span style={{
-                fontFamily: mono,
-                fontSize: 11,
-                fontWeight: 500,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: '#6366F1',
-              }}>The Ecommerce Operating System</span>
+              <span>1,776 products trending hot right now</span>
+              <span style={{ color: '#818cf8', fontSize: 12, marginLeft: -4 }}>→</span>
             </div>
 
             {/* Headline */}
@@ -641,7 +656,68 @@ function Hero() {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <BrowserWindow />
             </div>
-            {/* Floating LIVE badge */}
+
+            {/* Floating stat card — top right of mockup */}
+            <div style={{
+              position: 'absolute',
+              top: -22,
+              right: -28,
+              background: 'rgba(17,17,20,0.92)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 14,
+              padding: '14px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              zIndex: 3,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.12)',
+              pointerEvents: 'none',
+              animation: 'mj-float 4s ease-in-out infinite',
+            }}>
+              <span style={{ fontSize: 22 }}>📈</span>
+              <div>
+                <div style={{ fontFamily: display, fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  $15,600
+                </div>
+                <div style={{ fontSize: 11, color: '#71717a', marginTop: 3 }}>Best product today · Kitchen</div>
+                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 3 }}>↑ +41% this week</div>
+              </div>
+            </div>
+
+            {/* Floating notification card — bottom left */}
+            <div style={{
+              position: 'absolute',
+              bottom: 24,
+              left: -32,
+              background: 'rgba(17,17,20,0.92)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 14,
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              zIndex: 3,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.12)',
+              pointerEvents: 'none',
+              animation: 'mj-float 4s ease-in-out 1.5s infinite',
+            }}>
+              <span style={{
+                width: 8, height: 8, borderRadius: '50%',
+                background: '#6366f1',
+                boxShadow: '0 0 8px rgba(99,102,241,0.7)',
+                flexShrink: 0,
+              }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#ededed' }}>🔥 New: Nano Tape Strong</div>
+                <div style={{ fontSize: 11, color: '#71717a', marginTop: 2 }}>99/100 · +41% this week</div>
+              </div>
+            </div>
+
+            {/* Floating LIVE badge — bottom right (kept) */}
             <div style={{
               position: 'absolute',
               bottom: -16,
@@ -1753,9 +1829,9 @@ function Testimonials() {
     <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <SectionHeader
-          eyebrow="Early users"
-          line1="What operators are"
-          line2="saying so far."
+          eyebrow="Operators"
+          line1="Real operators. Real stores."
+          line2="Real results."
           description="Honest feedback from founding members. No revenue claims, no stock photos — just real beta users."
         />
         <div style={{
@@ -1894,6 +1970,24 @@ function Pricing({ annual, setAnnual }: PricingProps) {
               <span style={{ fontFamily: mono, fontSize: 10, color: annual ? '#fff' : T.green }}>−20%</span>
             </button>
           </div>
+          {annual && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 14px',
+              background: 'rgba(34,197,94,0.1)',
+              border: '1px solid rgba(34,197,94,0.22)',
+              borderRadius: 100,
+              fontSize: 12,
+              color: '#4ade80',
+              fontWeight: 500,
+              marginTop: 16,
+              fontFamily: sans,
+            }}>
+              💰 Save $240/yr with annual billing
+            </div>
+          )}
         </div>
 
         <PricingCountdown />
@@ -2485,8 +2579,34 @@ export default function Home() {
   void isMobile;
   const [annual, setAnnual] = useState(false);
 
+  // Nuclear void failsafe — runs on mount and after 2s. Walks every element
+  // in <main> and if computed opacity is 0 (with no legitimate reason)
+  // forces it back to 1. This is the last line of defence against any
+  // third-party script, animation, or stray CSS class that could hide
+  // content below the fold.
+  useEffect(() => {
+    function forceVisible() {
+      if (typeof document === 'undefined') return;
+      const root = document.querySelector('[data-majorka-landing]');
+      if (!root) return;
+      root.querySelectorAll<HTMLElement>('*').forEach((el) => {
+        // Keep intentional zero-opacity decorations working.
+        if (el.closest('.mj-shimmer-btn') || el.classList.contains('mj-pulse-dot')) return;
+        const cs = window.getComputedStyle(el);
+        if (cs.opacity === '0') {
+          el.style.setProperty('opacity', '1', 'important');
+          el.style.setProperty('visibility', 'visible', 'important');
+        }
+      });
+    }
+    forceVisible();
+    const t1 = window.setTimeout(forceVisible, 500);
+    const t2 = window.setTimeout(forceVisible, 2000);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+  }, []);
+
   return (
-    <div style={{
+    <div data-majorka-landing style={{
       background: T.bg,
       color: T.text,
       fontFamily: sans,
