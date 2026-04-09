@@ -83,7 +83,7 @@
 
   /* fonts */
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 
   /* legacy compat */
@@ -323,7 +323,7 @@ select option { background: #111114; color: #ededed; }
 .mkr-table tbody td {
   padding: 0 16px;
   font-size: 14px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   color: #ededed;
 }
 

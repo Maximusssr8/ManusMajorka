@@ -1,26 +1,26 @@
 /**
- * Majorka Design Tokens — futuristic light-dark hybrid.
- * Inspired by Linear, Vercel, Raycast.
+ * Majorka Design Tokens — Shopify-analytics inspired,
+ * Linear/Vercel surface palette, Syne + Inter type.
  */
 
 export const t = {
-  // Backgrounds — dark but not black
-  bg: '#0d0f14',
-  surface: '#13151c',
-  raised: '#1a1d27',
+  // Backgrounds
+  bg: '#0f1117',
+  surface: '#161b27',
+  raised: '#1a2035',
   overlay: '#20243380',
 
   // Text
-  text: '#f0f2ff',
-  body: '#9499b0',
-  muted: '#555a72',
+  text: '#f9fafb',
+  body: '#9ca3af',
+  muted: '#6b7280',
 
-  // Accent — electric blue/violet, NOT gold
+  // Accent — electric indigo
   accent: '#6366f1',
   accentHover: '#818cf8',
   accentSubtle: 'rgba(99,102,241,0.12)',
 
-  // Cyan highlight for data/numbers
+  // Cyan highlight
   cyan: '#22d3ee',
   cyanSubtle: 'rgba(34,211,238,0.1)',
 
@@ -29,21 +29,21 @@ export const t = {
   greenSubtle: 'rgba(16,185,129,0.1)',
 
   // Borders
-  line: 'rgba(255,255,255,0.07)',
+  line: 'rgba(255,255,255,0.08)',
   lineStrong: 'rgba(255,255,255,0.12)',
   lineFocus: '#6366f1',
 
-  // Typography
+  // Typography — Syne for headings/big numbers, Inter for everything else.
   fontDisplay: "'Syne', sans-serif",
-  fontBody: "'DM Sans', sans-serif",
-  fontMono: "'JetBrains Mono', monospace",
+  fontBody: "'Inter', sans-serif",
+  fontMono: "'Inter', sans-serif",
 
   // Type scale
-  fH1: 48,
+  fH1: 40,
   fH2: 28,
   fH3: 18,
   fLead: 15,
-  fBody: 14,
+  fBody: 13,
   fCaption: 11,
 
   // Spacing (8pt grid)
@@ -59,22 +59,20 @@ export const t = {
   // Radius
   rSm: 8,
   rMd: 12,
-  rLg: 16,
+  rLg: 14,
   rXl: 24,
 
   // Motion
   dur: '150ms',
   ease: 'cubic-bezier(0.16,1,0.3,1)',
 
-  // ── Compat aliases (used by Products.tsx and other legacy pages) ──
-  // These let us ship the new Home + Nav without a full rewrite of
-  // every page. They map cleanly onto the new palette.
+  // ── Compat aliases — Products.tsx legacy references ──
   fMicro: 10,
   fKpi: 40,
   s9: 48,
   s10: 64,
   rPill: 999,
-  faint: '#3a3f52',
+  faint: '#4b5563',
   accentInk: '#ffffff',
   accentTint: 'rgba(99,102,241,0.06)',
   amber: '#f59e0b',
@@ -83,5 +81,4 @@ export const t = {
   redDim: 'rgba(239,68,68,0.15)',
   greenDim: 'rgba(16,185,129,0.15)',
   fLabel: 12,
-  rLgCompat: 14,
 } as const;
