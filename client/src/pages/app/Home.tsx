@@ -1,14 +1,13 @@
 import { Link } from 'wouter';
-import { useState, useEffect } from 'react';
-import { ArrowRight, ArrowUp, Package, Flame, Star, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
-import {
-  BarChart as RCBarChart, Bar, XAxis, YAxis, Tooltip as RCTooltip, ResponsiveContainer, Cell,
-} from 'recharts';
+import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { useProducts, useProductStats, type Product } from '@/hooks/useProducts';
+import { useProducts, type Product } from '@/hooks/useProducts';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
+import { useFavourites } from '@/hooks/useFavourites';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
@@ -48,7 +47,6 @@ function timeAgoShort(iso: string | null): string {
   return `${Math.round(days / 30)}mo ago`;
 }
 
-/* Category keyword → tinted colour scheme for chips */
 function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
   const c = (cat ?? '').toLowerCase();
   if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
@@ -73,28 +71,12 @@ function scoreTierStyle(score: number): { backgroundColor: string; color: string
 export default function AppHome() {
   const { user } = useAuth();
   const { stats, loading: statsLoading } = useStatsOverview();
-  const productStats = useProductStats();
+  const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { products, loading: prodLoading, total } = useProducts({ limit: 10, orderBy: 'sold_count' });
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
-
-  interface CategoryRow { category: string; total_orders: number; product_count: number; }
-  const [categoryRows, setCategoryRows] = useState<CategoryRow[]>([]);
-  const [nicheLoading, setNicheLoading] = useState(true);
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/products/stats-categories?limit=8', { credentials: 'include' })
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then((data: { categories?: CategoryRow[] }) => {
-        if (cancelled) return;
-        setCategoryRows(Array.isArray(data.categories) ? data.categories : []);
-        setNicheLoading(false);
-      })
-      .catch(() => { if (!cancelled) setNicheLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -104,8 +86,13 @@ export default function AppHome() {
   const bestMargin    = bestMarginProducts[0] ?? null;
   const newestProduct = newestProducts[0] ?? null;
 
-  /* KPI cards — every value from the API.
-     numeric = the raw number for CountUp. value = fallback string. */
+  /* Trending Now — top 4 by sold_count from the existing products list */
+  const trendingNow = products.slice(0, 4);
+
+  /* Trending Today — products with sold_count > 100,000 in the loaded set */
+  const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
+
+  /* KPI cards */
   const totalDelta = stats?.totalDelta ?? 0;
   const hotDelta = stats?.hotDelta ?? null;
   const kpiCards: {
@@ -137,26 +124,25 @@ export default function AppHome() {
       trendPositive: hotDelta != null && hotDelta > 0,
     },
     {
-      label: 'Average Score',
-      numeric: stats?.avgScore ?? null,
-      sub: 'Out of 100',
-      Icon: Star,
+      label: 'Saved Products',
+      numeric: fav.count,
+      sub: fav.count === 0 ? 'Start saving winners' : 'In your library',
+      Icon: Bookmark,
       topLine: 'bg-green',
-      trendText: stats ? `${stats.categoryCount} niches tracked` : null,
+      trendText: null,
       trendPositive: false,
     },
     {
-      label: 'Top Score',
-      numeric: stats?.topScore ?? null,
-      sub: 'Highest in database',
-      Icon: Trophy,
+      label: 'Trending Today',
+      numeric: trendingTodayCount,
+      sub: 'Orders above 100K',
+      Icon: TrendingUp,
       topLine: 'bg-cyan',
       trendText: null,
       trendPositive: false,
     },
   ];
 
-  /* Framer-motion variants — KPI grid stagger */
   const gridVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
@@ -166,54 +152,50 @@ export default function AppHome() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
   };
 
-  /* Category chart rows */
-  const chartRows = categoryRows.map((n) => ({
-    name: shortenCategory(n.category),
-    fullName: n.category,
-    orders: n.total_orders,
-  }));
-  const maxOrders = Math.max(1, ...chartRows.map((r) => r.orders));
-
-  /* Opportunities */
-  const opportunities: { label: string; chipBg: string; chipFg: string; href: string; product: Product | null; stat: string; statClass: string }[] = [
+  /* Top Opportunities — pulled from live data */
+  const opportunities: {
+    label: string; chipBg: string; chipFg: string; href: string;
+    product: Product | null;
+  }[] = [
     {
       label: 'Top Trending',
-      chipBg: 'rgba(245,158,11,0.15)',
-      chipFg: '#f59e0b',
+      chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b',
       href: '/app/products?tab=trending',
       product: topProduct ?? null,
-      stat: topProduct?.sold_count != null ? `${topProduct.sold_count.toLocaleString()} orders / mo` : '',
-      statClass: 'text-green',
     },
     {
       label: 'Best Margin',
-      chipBg: 'rgba(16,185,129,0.15)',
-      chipFg: '#10b981',
+      chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981',
       href: '/app/products?tab=highmargin',
       product: bestMargin,
-      stat: bestMargin?.price_aud != null ? `$${Number(bestMargin.price_aud).toFixed(2)} landed` : '',
-      statClass: 'text-green',
     },
     {
       label: 'Newest',
-      chipBg: 'rgba(99,102,241,0.15)',
-      chipFg: '#818cf8',
+      chipBg: 'rgba(99,102,241,0.15)', chipFg: '#818cf8',
       href: '/app/products?tab=new',
       product: newestProduct,
-      stat: newestProduct?.created_at ? `Added ${timeAgoShort(newestProduct.created_at)}` : '',
-      statClass: 'text-muted',
     },
-  ];
-
-  const platformStatus = [
-    { name: 'AliExpress Feed', chip: 'Live' },
-    { name: 'Apify Pipeline',  chip: 'Running' },
-    { name: 'Stripe Payments', chip: 'Active' },
   ];
 
   const liveLabel = stats?.updatedAt
     ? `Live · AliExpress feed · updated ${formatRelative(stats.updatedAt)}`
     : 'Live · AliExpress feed';
+
+  /* Dynamic insight — live-derived, never hardcoded */
+  const insight = stats && stats.newThisWeek > 0
+    ? `${stats.newThisWeek} new products added this week across ${stats.categoryCount} categories.`
+    : stats
+      ? `${stats.total.toLocaleString()} products tracked across ${stats.categoryCount} categories.`
+      : '';
+
+  async function handleSaveFromOpportunity(p: Product, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const wasFav = fav.isFavourite(p.id);
+    await fav.toggleFavourite(p);
+    if (wasFav) toast('Removed from saved');
+    else toast.success('Product saved');
+  }
 
   return (
     <div className="min-h-screen bg-bg font-body text-text relative">
@@ -222,35 +204,44 @@ export default function AppHome() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-accent/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* Status bar */}
+      {/* Status bar — ONLY the live indicator now, CTA moved to hero */}
       <div className="relative z-10 flex items-center justify-between px-8 h-12 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 text-xs text-muted">
           <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
           <span>{liveLabel}</span>
         </div>
-        <Link
-          href="/app/products"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors"
-        >
-          Discover products
-          <ArrowRight size={13} strokeWidth={2.25} />
-        </Link>
       </div>
 
       {/* Hero */}
       <div className="relative z-10 px-8 pt-10 pb-6">
-        <p className="text-xs text-muted uppercase tracking-widest mb-3">
-          {today} · Scale Plan
-        </p>
-        <h1 className="text-5xl font-display font-bold text-text leading-tight">
-          Good {tod}, {firstName}.
-        </h1>
-        <p className="mt-3 text-base text-body max-w-lg">
-          Your product intelligence is live across the Australian market.
-        </p>
+        <div className="flex items-start justify-between gap-6 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted uppercase tracking-widest mb-3">
+              {today} · Scale Plan
+            </p>
+            <h1 className="text-5xl font-display font-bold text-text leading-tight">
+              Good {tod}, {firstName}.
+            </h1>
+            <p className="mt-3 text-base text-body max-w-lg">
+              Your product intelligence is live across the Australian market.
+            </p>
+            {insight && (
+              <p className="mt-2 text-sm text-accent font-medium">
+                {insight}
+              </p>
+            )}
+          </div>
+          <Link
+            href="/app/products"
+            className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.25)]"
+          >
+            Discover products
+            <ArrowRight size={14} strokeWidth={2.25} />
+          </Link>
+        </div>
       </div>
 
-      {/* KPI grid — framer-motion stagger on mount */}
+      {/* KPI grid */}
       <motion.div
         className="relative z-10 grid grid-cols-4 gap-4 px-8 pb-6"
         variants={gridVariants}
@@ -265,10 +256,7 @@ export default function AppHome() {
               variants={cardVariants}
               className="bg-surface border border-white/[0.07] rounded-xl p-5 pt-6 hover:border-accent/30 hover:bg-card transition-all duration-150 relative isolate"
             >
-              {/* Accent top line */}
-              <div
-                className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-xl z-10`}
-              />
+              <div className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-xl z-10`} />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                   {card.label}
@@ -302,139 +290,178 @@ export default function AppHome() {
         })}
       </motion.div>
 
-      {/* Main content — asymmetric 2 col, chart card self-starts so it
-          doesn't stretch vertically past the right column */}
+      {/* Main content — asymmetric 2 col, cards self-start so heights match content */}
       <div className="relative z-10 grid grid-cols-[1fr_320px] gap-5 px-8 pb-8 items-start">
-        {/* Category chart — proper Recharts horizontal BarChart */}
+
+        {/* LEFT — Trending Now */}
         <div className="bg-surface border border-white/[0.07] rounded-2xl p-6 h-fit self-start">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-text">Category Performance</h2>
-            <span className="text-xs text-muted">Top 8 by order volume</span>
+            <h2 className="text-sm font-semibold text-text">Trending Now</h2>
+            <Link
+              href="/app/products?tab=trending"
+              className="text-xs text-accent hover:text-accent-hover transition-colors no-underline"
+            >
+              View all →
+            </Link>
           </div>
-          {nicheLoading ? (
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 py-1.5 px-2">
-                  <span className="w-28 h-3 bg-white/[0.04] rounded animate-pulse" />
-                  <span className="flex-1 h-2 bg-white/[0.04] rounded-full animate-pulse" />
-                  <span className="w-10 h-3 bg-white/[0.04] rounded animate-pulse" />
+          {prodLoading ? (
+            <div className="flex flex-col gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 py-2">
+                  <div className="w-12 h-12 bg-white/[0.04] rounded-lg animate-pulse" />
+                  <div className="flex-1 h-4 bg-white/[0.04] rounded animate-pulse" />
+                  <div className="w-10 h-6 bg-white/[0.04] rounded animate-pulse" />
+                  <div className="w-14 h-4 bg-white/[0.04] rounded animate-pulse" />
+                  <div className="w-12 h-4 bg-white/[0.04] rounded animate-pulse" />
                 </div>
               ))}
             </div>
-          ) : chartRows.length === 0 ? (
-            <div className="h-44 flex items-center justify-center text-sm text-muted">
-              No category data available yet.
+          ) : trendingNow.length === 0 ? (
+            <div className="py-10 text-center text-sm text-muted">
+              No trending products yet.
             </div>
           ) : (
-            <div style={{ width: '100%', height: 340 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <RCBarChart
-                  data={chartRows}
-                  layout="vertical"
-                  margin={{ top: 4, right: 24, left: 0, bottom: 4 }}
-                  barCategoryGap={10}
-                  onClick={(e) => {
-                    const active = e?.activePayload?.[0]?.payload as { fullName?: string } | undefined;
-                    if (active?.fullName) {
-                      window.location.href = `/app/products?category=${encodeURIComponent(active.fullName)}`;
-                    }
-                  }}
-                >
-                  <XAxis
-                    type="number"
-                    stroke="#555a72"
-                    tick={{ fontSize: 10, fill: '#9499b0', fontFamily: "'Inter', sans-serif" }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v: number) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    stroke="#555a72"
-                    tick={{ fontSize: 11, fill: '#9499b0', fontFamily: "'Inter', sans-serif" }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={112}
-                  />
-                  <RCTooltip
-                    cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                    content={({ active, payload }) => {
-                      if (!active || !payload || !payload.length) return null;
-                      const row = payload[0].payload as { fullName: string; orders: number };
-                      return (
-                        <div className="bg-raised border border-white/[0.12] rounded-md px-3 py-2 text-xs font-body">
-                          <div className="text-text font-semibold mb-0.5">{row.fullName}</div>
-                          <div className="text-muted tabular-nums">
-                            {row.orders.toLocaleString()} orders
-                          </div>
-                        </div>
-                      );
-                    }}
-                  />
-                  <Bar dataKey="orders" radius={[0, 4, 4, 0]} cursor="pointer">
-                    {chartRows.map((_, i) => (
-                      <Cell key={i} fill="#6366f1" />
-                    ))}
-                  </Bar>
-                </RCBarChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col">
+              {trendingNow.map((p, i) => {
+                const score = Math.round(p.winning_score ?? 0);
+                const orders = p.sold_count ?? 0;
+                const catStyle = categoryColor(p.category);
+                const isLast = i === trendingNow.length - 1;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedProduct(p)}
+                    className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.025] -mx-2 px-2 rounded-lg transition-colors text-left`}
+                  >
+                    {p.image_url ? (
+                      <img
+                        src={proxyImage(p.image_url) ?? p.image_url}
+                        alt={p.product_title}
+                        loading="lazy"
+                        className="w-12 h-12 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p
+                        title={p.product_title}
+                        className="text-sm font-medium text-text/90 truncate mb-1"
+                      >
+                        {p.product_title}
+                      </p>
+                      {p.category && (
+                        <span
+                          className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded truncate max-w-[140px]"
+                          style={catStyle}
+                        >
+                          {shortenCategory(p.category)}
+                        </span>
+                      )}
+                    </div>
+                    {score > 0 && (
+                      <span
+                        className="inline-flex items-center justify-center w-8 h-8 rounded text-sm font-bold tabular-nums shrink-0"
+                        style={scoreTierStyle(score)}
+                      >
+                        {score}
+                      </span>
+                    )}
+                    <div className="text-sm font-bold text-text tabular-nums w-14 text-right shrink-0">
+                      {orders > 0 ? fmtK(orders) : '—'}
+                    </div>
+                    <div className="text-sm text-body tabular-nums w-14 text-right shrink-0">
+                      {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Right column */}
+        {/* RIGHT — Opportunities + Quick Stats */}
         <div className="flex flex-col gap-4">
-          {/* Opportunities */}
+
+          {/* Top Opportunities */}
           <div className="bg-surface border border-white/[0.07] rounded-xl p-5">
             <h3 className="text-sm font-semibold text-text mb-4">Top Opportunities</h3>
-            {opportunities.map((o, i) => (
-              <Link
-                key={o.label}
-                href={o.href}
-                className={`flex items-center gap-3 py-3 ${i === opportunities.length - 1 ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors group no-underline`}
-              >
-                {o.product?.image_url ? (
-                  <img
-                    src={proxyImage(o.product.image_url) ?? o.product.image_url}
-                    alt={o.product.product_title}
-                    loading="lazy"
-                    className="w-11 h-11 rounded-lg object-cover shrink-0 border border-white/[0.08] bg-card"
-                  />
-                ) : (
-                  <div className="w-11 h-11 rounded-lg shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <span
-                    className="inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mb-1"
-                    style={{ background: o.chipBg, color: o.chipFg }}
+            {opportunities.map((o, i) => {
+              const p = o.product;
+              const score = Math.round(p?.winning_score ?? 0);
+              const isLast = i === opportunities.length - 1;
+              const isFav = p ? fav.isFavourite(p.id) : false;
+              return (
+                <div
+                  key={o.label}
+                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors group`}
+                >
+                  <Link
+                    href={o.href}
+                    className="flex items-center gap-3 min-w-0 flex-1 no-underline"
                   >
-                    {o.label}
-                  </span>
-                  <p className="text-sm text-text truncate font-medium">
-                    {o.product?.product_title ?? '—'}
-                  </p>
-                  <p className={`text-xs ${o.statClass} tabular-nums`}>{o.stat}</p>
+                    {p?.image_url ? (
+                      <img
+                        src={proxyImage(p.image_url) ?? p.image_url}
+                        alt={p.product_title}
+                        loading="lazy"
+                        className="w-11 h-11 rounded-lg object-cover shrink-0 border border-white/[0.08] bg-card"
+                      />
+                    ) : (
+                      <div className="w-11 h-11 rounded-lg shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <span
+                        className="inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mb-1"
+                        style={{ background: o.chipBg, color: o.chipFg }}
+                      >
+                        {o.label}
+                      </span>
+                      <p className="text-sm text-text truncate font-medium">
+                        {p?.product_title ?? '—'}
+                      </p>
+                      <p className="text-xs text-muted tabular-nums">
+                        {p?.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
+                      </p>
+                    </div>
+                  </Link>
+                  {score > 0 && (
+                    <span
+                      className="inline-flex items-center justify-center px-1.5 h-6 rounded text-xs font-bold tabular-nums shrink-0"
+                      style={scoreTierStyle(score)}
+                    >
+                      {score}
+                    </span>
+                  )}
+                  {p && (
+                    <button
+                      onClick={(e) => handleSaveFromOpportunity(p, e)}
+                      aria-label="Save"
+                      className={`shrink-0 p-1.5 rounded transition-colors cursor-pointer ${isFav ? 'text-accent' : 'text-muted hover:text-text'}`}
+                    >
+                      <Heart size={14} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
+                    </button>
+                  )}
                 </div>
-                <ArrowRight size={14} className="text-muted group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
-              </Link>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Platform status */}
+          {/* Quick Stats — replaces Platform Status */}
           <div className="bg-surface border border-white/[0.07] rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-text mb-4">Platform Status</h3>
-            {platformStatus.map((row, i) => (
+            <h3 className="text-sm font-semibold text-text mb-4">Quick Stats</h3>
+            {[
+              { label: 'New products this week', value: stats?.newThisWeek ?? null, color: 'text-green' },
+              { label: 'Categories tracked',     value: stats?.categoryCount ?? null, color: 'text-accent-hover' },
+              { label: 'Avg score',              value: stats?.avgScore ?? null, color: 'text-cyan' },
+            ].map((row, i, arr) => (
               <div
-                key={row.name}
-                className={`flex items-center justify-between py-2.5 ${i === platformStatus.length - 1 ? '' : 'border-b border-white/[0.05]'}`}
+                key={row.label}
+                className={`flex items-center justify-between py-2.5 ${i === arr.length - 1 ? '' : 'border-b border-white/[0.05]'}`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
-                  <span className="text-sm text-body">{row.name}</span>
-                </div>
-                <span className="text-[11px] px-2 py-0.5 rounded bg-green/10 text-green font-medium">
-                  {row.chip}
+                <span className="text-sm text-body">{row.label}</span>
+                <span className={`text-sm font-bold tabular-nums ${row.color}`}>
+                  {row.value != null ? row.value.toLocaleString() : '—'}
                 </span>
               </div>
             ))}
@@ -450,25 +477,25 @@ export default function AppHome() {
             href="/app/products"
             className="text-sm text-accent hover:text-accent-hover transition-colors no-underline"
           >
-            View all {total > 0 ? total.toLocaleString() : productStats.total.toLocaleString() || '…'} →
+            View all {total > 0 ? total.toLocaleString() : '…'} →
           </Link>
         </div>
         <div className="bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
           <table className="w-full table-fixed">
             <colgroup>
-              <col className="w-12" />
+              <col style={{ width: 40 }} />
               <col />
-              <col className="w-28" />
-              <col className="w-24" />
-              <col className="w-28" />
-              <col className="w-28" />
+              <col style={{ width: 130 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 90 }} />
+              <col style={{ width: 90 }} />
             </colgroup>
             <thead>
               <tr className="bg-raised border-b border-white/[0.07]">
                 {['#', 'Product', 'Category', 'Score', 'Orders', 'Price'].map((h, i) => (
                   <th
                     key={h}
-                    className={`text-[10px] font-semibold uppercase tracking-widest text-muted px-6 py-3.5 ${i === 0 || i === 1 || i === 2 ? 'text-left' : 'text-right'}`}
+                    className={`text-[10px] font-semibold uppercase tracking-widest text-muted px-5 py-3.5 ${i === 0 || i === 1 || i === 2 ? 'text-left' : 'text-right'}`}
                   >
                     {h}
                   </th>
@@ -479,14 +506,14 @@ export default function AppHome() {
               {prodLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} className="border-b border-white/[0.04]">
-                    <td colSpan={6} className="px-6 py-5">
+                    <td colSpan={6} className="px-5 py-5">
                       <span className="inline-block h-4 w-full bg-white/[0.04] rounded animate-pulse" />
                     </td>
                   </tr>
                 ))
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-muted">
+                  <td colSpan={6} className="px-5 py-16 text-center text-muted">
                     No products tracked yet.
                   </td>
                 </tr>
@@ -501,25 +528,26 @@ export default function AppHome() {
                       onClick={() => setSelectedProduct(p)}
                       className={`${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
                     >
-                      <td className="px-6 py-4 text-xs text-white/20 tabular-nums">
+                      <td className="px-4 py-4 text-xs text-white/20 tabular-nums">
                         {String(i + 1).padStart(2, '0')}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-3 min-w-0">
                           {p.image_url ? (
                             <img
                               src={proxyImage(p.image_url) ?? p.image_url}
                               alt={p.product_title}
                               loading="lazy"
-                              className="w-14 h-14 rounded-xl object-cover border border-white/[0.08] bg-card shrink-0"
+                              className="w-12 h-12 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
                             />
                           ) : (
-                            <div className="w-14 h-14 rounded-xl bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">
-                              —
-                            </div>
+                            <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-text/90 truncate max-w-sm">
+                            <p
+                              title={p.product_title}
+                              className="text-sm font-medium text-text/90 truncate"
+                            >
                               {p.product_title}
                             </p>
                             <p className="text-[11px] text-muted mt-0.5 truncate">
@@ -528,7 +556,7 @@ export default function AppHome() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         {p.category ? (
                           <span
                             className="inline-block text-[11px] font-medium px-2 py-0.5 rounded truncate max-w-full"
@@ -540,7 +568,7 @@ export default function AppHome() {
                           <span className="text-muted text-xs">—</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-4 text-right">
                         {score ? (
                           <span
                             className="inline-flex items-center justify-center w-8 h-8 rounded text-sm font-bold tabular-nums"
@@ -552,11 +580,11 @@ export default function AppHome() {
                           <span className="text-muted text-xs">—</span>
                         )}
                       </td>
-                      <td className={`px-6 py-4 text-right text-base font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
+                      <td className={`px-4 py-4 text-right text-sm font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
                         {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
                         {orders > 0 ? fmtK(orders) : '—'}
                       </td>
-                      <td className="px-6 py-4 text-right text-base font-bold text-text tabular-nums">
+                      <td className="px-4 py-4 text-right text-sm font-bold text-text tabular-nums">
                         {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                       </td>
                     </tr>
@@ -572,3 +600,6 @@ export default function AppHome() {
     </div>
   );
 }
+
+// timeAgoShort retained for potential future use
+export { timeAgoShort };
