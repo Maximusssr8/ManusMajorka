@@ -16,6 +16,22 @@ const { execSync, exec } = require('child_process')
 const http  = require('http')
 const https = require('https')
 const fs    = require('fs')
+const PORT = 3001
+
+// HTTP bridge server for external posting
+const server = http.createServer((req, res) => {
+  if (req.url === '/status') {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ status: 'ok' }))
+  } else {
+    res.writeHead(404)
+    res.end()
+  }
+})
+
+server.listen(PORT, () => {
+  console.log(`[bot] HTTP bridge listening on http://localhost:${PORT}`)
+})
 
 const TOKEN     = process.env.DISCORD_BOT_TOKEN
 const CLIENT_ID = '1481859264057442325'

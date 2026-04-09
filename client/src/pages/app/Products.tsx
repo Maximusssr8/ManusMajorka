@@ -410,10 +410,10 @@ export default function AppProducts() {
     return {
       all:        total,
       new:        allFetched.filter((p) => daysSince(p.created_at) <= NEW_DAYS_THRESHOLD).length,
-      trending:   allFetched.filter((p) => (p.sold_count ?? 0) > 50000).length,
+      trending:   allFetched.filter((p) => (p.sold_count ?? 0) > 50000 && (p.winning_score ?? 0) >= 80).length,
       highmargin: allFetched.filter((p) => {
         const price = Number(p.price_aud ?? 999);
-        return price < 15 && (p.winning_score ?? 0) > 75;
+        return price < 15 && (p.winning_score ?? 0) >= 75 && (p.sold_count ?? 0) > 500;
       }).length,
       top:        allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
       saved:      fav.count,

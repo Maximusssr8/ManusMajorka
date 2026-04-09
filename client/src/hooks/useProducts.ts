@@ -140,10 +140,12 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           query = query.gte('created_at', cutoff);
           query = applyOrder(query, orderBy);
         } else if (tab === 'trending') {
-          query = query.gte('sold_count', 50000);
+          // Trending: sold_count > 50k AND winning_score >= 80
+          query = query.gt('sold_count', 50000).gte('winning_score', 80);
           query = applyOrder(query, orderBy === 'sold_count' ? 'sold_count' : orderBy);
         } else if (tab === 'highmargin') {
-          query = query.gte('price_aud', 2).lte('price_aud', 15).gte('sold_count', 10000);
+          // High margin: cheap price (<15) with strong score (>=75) and real volume (>500)
+          query = query.lt('price_aud', 15).gte('winning_score', 75).gt('sold_count', 500);
           query = applyOrder(query, orderBy === 'sold_count' ? 'sold_count' : orderBy);
         } else if (tab === 'top') {
           query = query.gte('winning_score', 90);
@@ -163,9 +165,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         let { data, error: err, count } = await query;
 
-        // Fallback for Trending: if 50k threshold yields fewer than 10, drop to 30k
+        // Fallback for Trending: if 50k + score≥80 yields <10, relax score gate first
         if (!err && tab === 'trending' && (data ?? []).length < 10) {
-          let fb = baseSelect().gte('sold_count', 30000);
+          let fb = baseSelect().gt('sold_count', 50000);
           fb = applyOrder(fb, 'sold_count').limit(limit);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }
