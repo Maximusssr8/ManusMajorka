@@ -694,13 +694,15 @@ router.get('/radar', async (_req: Request, res: Response) => {
     const result = await sb
       .from('winning_products')
       .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at, est_daily_revenue_aud')
-      .not('sold_count', 'is', null)
-      .order('sold_count', { ascending: false })
+      .order('sold_count', { ascending: false, nullsFirst: false })
       .limit(100);
-    if (!result.error && result.data) current = result.data;
+    if (result.error) {
+      console.error('[radar] winning_products select error:', result.error.message);
+    } else if (result.data) {
+      current = result.data;
+    }
   } catch (e) {
     console.error('[radar] winning_products fetch failed:', e instanceof Error ? e.message : e);
-    // fall through with empty current list — page will render empty state
   }
 
   // Try to read snapshots. Any failure → empty map, all products = NEW.
