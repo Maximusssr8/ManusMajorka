@@ -4,8 +4,11 @@
  */
 
 export const C = {
-  // Backgrounds
+  // Backgrounds — 3-layer surface system for visible depth
   bg:           '#0d0f14',
+  pageBg:       '#0d0f14',
+  contentBg:    '#111827',
+  cardBg:       '#1a2035',
   surface:      '#13151c',
   raised:       '#1a1d27',
 

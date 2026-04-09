@@ -11,6 +11,17 @@ import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
 import { C } from '@/lib/designTokens';
 
+/* Category keyword → colour scheme, shared visual language with Products. */
+function categoryColor(cat: string | null): { bg: string; fg: string } {
+  const c = (cat ?? '').toLowerCase();
+  if (c.includes('car') || c.includes('auto'))                                return { bg: 'rgba(249,115,22,0.12)', fg: '#f97316' };
+  if (c.includes('phone') || c.includes('mobile'))                            return { bg: 'rgba(99,102,241,0.12)', fg: '#818cf8' };
+  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { bg: 'rgba(16,185,129,0.12)', fg: '#10b981' };
+  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { bg: 'rgba(236,72,153,0.12)', fg: '#f472b6' };
+  if (c.includes('hardware') || c.includes('tool'))                           return { bg: 'rgba(245,158,11,0.12)', fg: '#f59e0b' };
+  return { bg: 'rgba(255,255,255,0.06)', fg: 'rgba(255,255,255,0.55)' };
+}
+
 /* ──────────────────────────────────────────────────────────────
    Fonts — Nohemi for display, Inter for body. No mono.
    Colours — only C tokens, never raw hex.
@@ -1034,23 +1045,29 @@ export default function AppHome() {
                                 >
                                   {p.product_title}
                                 </div>
-                                <span
-                                  style={{
-                                    display: 'inline-block',
-                                    background: 'rgba(255,255,255,0.06)',
-                                    borderRadius: 4,
-                                    padding: '2px 8px',
-                                    fontSize: C.fXs,
-                                    fontFamily: BODY,
-                                    color: C.body,
-                                    maxWidth: 160,
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                  }}
-                                >
-                                  {shortenCategory(p.category)}
-                                </span>
+                                {(() => {
+                                  const cc = categoryColor(p.category);
+                                  return (
+                                    <span
+                                      style={{
+                                        display: 'inline-block',
+                                        background: cc.bg,
+                                        color: cc.fg,
+                                        borderRadius: 4,
+                                        padding: '2px 8px',
+                                        fontSize: 11,
+                                        fontFamily: BODY,
+                                        fontWeight: 500,
+                                        maxWidth: 160,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                      }}
+                                    >
+                                      {shortenCategory(p.category)}
+                                    </span>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </td>

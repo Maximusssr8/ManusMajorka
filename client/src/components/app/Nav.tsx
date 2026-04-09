@@ -93,7 +93,7 @@ export function Nav() {
       style={{
         width: 220,
         background: C.navBg,
-        borderRight: `1px solid ${C.line}`,
+        borderRight: '1px solid rgba(255,255,255,0.06)',
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
@@ -195,9 +195,9 @@ export function Nav() {
                 style={{
                   fontSize: 10,
                   fontFamily: INTER,
-                  fontWeight: 500,
-                  color: C.faint,
-                  letterSpacing: '0.1em',
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.25)',
+                  letterSpacing: '0.12em',
                   textTransform: 'uppercase',
                   padding: '16px 16px 4px',
                 }}
@@ -300,8 +300,8 @@ function NavLink({ item, active }: NavLinkProps) {
     fontFamily: INTER,
     transition: 'background 150ms ease, color 150ms ease',
     color: active ? C.text : item.soon ? C.muted : C.body,
-    background: active ? C.accentSubtle : 'transparent',
-    borderLeft: active ? `2px solid ${C.accent}` : '2px solid transparent',
+    background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
+    borderLeft: active ? `3px solid ${C.accent}` : '3px solid transparent',
     fontWeight: active ? 600 : 500,
   };
   return (
@@ -310,7 +310,7 @@ function NavLink({ item, active }: NavLinkProps) {
       style={baseStyle}
       onMouseEnter={(e) => {
         if (!active && !item.soon) {
-          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.05)';
+          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.04)';
           (e.currentTarget as HTMLAnchorElement).style.color = C.text;
         }
       }}
@@ -336,10 +336,11 @@ function NavLink({ item, active }: NavLinkProps) {
       {item.soon && (
         <span
           style={{
-            background: 'rgba(99,102,241,0.15)',
-            color: C.accentHover,
+            background: 'rgba(99,102,241,0.2)',
+            border: '1px solid rgba(99,102,241,0.4)',
+            color: '#a5b4fc',
             borderRadius: 4,
-            padding: '1px 6px',
+            padding: '2px 8px',
             fontSize: 10,
             fontFamily: INTER,
             fontWeight: 500,

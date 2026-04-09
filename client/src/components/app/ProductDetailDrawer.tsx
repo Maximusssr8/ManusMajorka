@@ -47,18 +47,48 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: 'flex-start',
+          gap: 12,
         }}>
-          <span style={{
-            fontFamily: mono,
-            fontSize: 11,
-            color: '#7c6aff',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}>Product Intelligence</span>
+          <h3 style={{
+            fontFamily: "'Nohemi', 'Inter', sans-serif",
+            fontSize: 16,
+            fontWeight: 600,
+            color: '#f0f4ff',
+            margin: 0,
+            lineHeight: 1.35,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            flex: 1,
+            minWidth: 0,
+          }}>{product.product_title}</h3>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}
+            aria-label="Close"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#6b7280',
+              cursor: 'pointer',
+              fontSize: 20,
+              lineHeight: 1,
+              padding: 6,
+              borderRadius: 6,
+              flexShrink: 0,
+              transition: 'background 150ms ease, color 150ms ease',
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              el.style.background = 'rgba(255,255,255,0.08)';
+              el.style.color = '#f0f4ff';
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLButtonElement;
+              el.style.background = 'none';
+              el.style.color = '#6b7280';
+            }}
           >×</button>
         </div>
 
@@ -86,16 +116,6 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             )}
           </div>
 
-          <h3 style={{
-            fontFamily: display,
-            fontSize: 17,
-            fontWeight: 700,
-            color: '#ededed',
-            margin: '0 0 8px',
-            lineHeight: 1.3,
-            letterSpacing: '-0.015em',
-          }}>{product.product_title}</h3>
-
           <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
             <span style={{
               ...scorePillStyle(product.winning_score ?? 0),
@@ -116,29 +136,36 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             )}
           </div>
 
-          {/* KPI grid */}
+          {/* KPI grid — spec colours */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
-              { label: 'Sell Price', value: price > 0 ? `$${price.toFixed(2)}` : '—', color: '#ededed' },
-              { label: 'Orders/mo', value: product.sold_count ? product.sold_count.toLocaleString() : 'pending', color: product.sold_count ? '#10b981' : '#4b5563' },
-              { label: 'AI Score',  value: `${product.winning_score ?? 0}/100`, color: '#7c6aff' },
+              { label: 'Sell Price', value: price > 0 ? `$${price.toFixed(2)}` : '—', color: '#f0f4ff' },
+              { label: 'Orders/Mo', value: product.sold_count ? product.sold_count.toLocaleString() : 'pending', color: product.sold_count ? '#10b981' : '#4b5563' },
+              { label: 'AI Score',  value: `${Math.round(product.winning_score ?? 0)}/100`, color: '#818cf8' },
               { label: 'Source',    value: product.platform ?? 'AliExpress', color: '#a1a1aa' },
             ].map((m) => (
               <div key={m.label} style={{
-                background: '#1c1c1c',
+                background: '#1a2035',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: 8,
                 padding: '12px 14px',
               }}>
                 <div style={{
-                  fontFamily: mono,
-                  fontSize: 10,
-                  color: '#52525b',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: 'rgba(255,255,255,0.4)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
                   marginBottom: 6,
                 }}>{m.label}</div>
-                <div style={{ fontFamily: mono, fontSize: 15, fontWeight: 700, color: m.color }}>{m.value}</div>
+                <div style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: m.color,
+                  fontVariantNumeric: 'tabular-nums',
+                }}>{m.value}</div>
               </div>
             ))}
           </div>
@@ -161,17 +188,17 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             }}>Score Breakdown</div>
             {([
               { label: 'Demand',         pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.92 + ((Number(String(product.id).slice(-2)) || 0) % 10))), color: '#10b981' },
-              { label: 'Margin Signal',  pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.86 + ((Number(String(product.id).slice(-2)) || 0) % 14))), color: '#3b82f6' },
-              { label: 'Trend',          pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.95 + ((Number(String(product.id).slice(-2)) || 0) % 5))),  color: '#f59e0b' },
-              { label: 'Competition',    pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.72 + ((Number(String(product.id).slice(-2)) || 0) % 18))), color: '#a855f7' },
+              { label: 'Trend',          pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.95 + ((Number(String(product.id).slice(-2)) || 0) % 5))),  color: '#10b981' },
+              { label: 'Margin Signal',  pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.86 + ((Number(String(product.id).slice(-2)) || 0) % 14))), color: '#f59e0b' },
+              { label: 'Competition',    pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.72 + ((Number(String(product.id).slice(-2)) || 0) % 18))), color: '#f59e0b' },
             ] as const).map((item) => (
               <div key={item.label} style={{ marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontFamily: sans, fontSize: 12, color: '#71717a' }}>{item.label}</span>
                   <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: item.color }}>{item.pct}</span>
                 </div>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
-                  <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: 2, opacity: 0.85 }} />
+                <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
+                  <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: 2, opacity: 0.9 }} />
                 </div>
               </div>
             ))}

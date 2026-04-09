@@ -59,10 +59,17 @@ const STYLES = `
   cursor: pointer;
 }
 .mj-row:hover {
-  background: rgba(99,102,241,0.04);
+  background: rgba(255,255,255,0.035);
 }
 .mj-row:hover .mj-row-chevron {
   color: ${C.accent};
+}
+.mj-grid-card:hover .mj-grid-img {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+.mj-grid-img {
+  transition: transform 150ms ease, filter 150ms ease;
 }
 .mj-grid-card {
   transition: border-color ${C.dur} ${C.ease}, transform ${C.dur} ${C.ease}, box-shadow ${C.dur} ${C.ease};
@@ -131,9 +138,52 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
 }
 
 function scoreTier(score: number): { bg: string; fg: string } {
-  if (score >= 90) return { bg: C.greenSubtle, fg: C.green };
-  if (score >= 70) return { bg: C.amberSubtle, fg: C.amber };
-  return { bg: C.orangeSubtle, fg: C.orange };
+  if (score >= 90) return { bg: 'rgba(16,185,129,0.15)',  fg: '#10b981' };
+  if (score >= 75) return { bg: 'rgba(245,158,11,0.15)',  fg: '#f59e0b' };
+  if (score >= 50) return { bg: 'rgba(249,115,22,0.15)',  fg: '#f97316' };
+  return               { bg: 'rgba(239,68,68,0.15)',   fg: '#ef4444' };
+}
+
+/* Category colour — 6 distinct schemes matched by keyword. */
+function categoryColor(cat: string | null): { bg: string; fg: string } {
+  const c = (cat ?? '').toLowerCase();
+  if (c.includes('car') || c.includes('auto'))                            return { bg: 'rgba(249,115,22,0.12)', fg: '#f97316' };
+  if (c.includes('phone') || c.includes('mobile'))                        return { bg: 'rgba(99,102,241,0.12)', fg: '#818cf8' };
+  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { bg: 'rgba(16,185,129,0.12)', fg: '#10b981' };
+  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))    return { bg: 'rgba(236,72,153,0.12)', fg: '#f472b6' };
+  if (c.includes('hardware') || c.includes('tool'))                       return { bg: 'rgba(245,158,11,0.12)', fg: '#f59e0b' };
+  return { bg: 'rgba(255,255,255,0.06)', fg: C.body };
+}
+
+/* Square score badge — 32x32, rounded corners, bold 13px. */
+function ScoreBadge({ score, size = 32 }: { score: number; size?: number }) {
+  const rounded = Math.round(score);
+  if (!rounded) {
+    return (
+      <span style={{ color: C.muted, fontSize: C.fSm, fontFamily: C.fontBody }}>—</span>
+    );
+  }
+  const tier = scoreTier(rounded);
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: size,
+        height: size,
+        borderRadius: 4,
+        background: tier.bg,
+        color: tier.fg,
+        fontSize: 13,
+        fontFamily: C.fontBody,
+        fontWeight: 700,
+        fontVariantNumeric: 'tabular-nums',
+      }}
+    >
+      {rounded}
+    </span>
+  );
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -193,10 +243,11 @@ interface FilterPillProps {
   open: boolean;
   onToggle: () => void;
   onClose: () => void;
+  onClear?: () => void;
   children?: React.ReactNode;
 }
 
-function FilterPill({ label, active, open, onToggle, onClose, children }: FilterPillProps) {
+function FilterPill({ label, active, open, onToggle, onClose, onClear, children }: FilterPillProps) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -215,12 +266,12 @@ function FilterPill({ label, active, open, onToggle, onClose, children }: Filter
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          background: active ? C.accentSubtle : C.raised,
-          border: `1px solid ${active ? C.borderFocus : C.border}`,
-          borderRadius: C.rSm,
-          padding: '7px 14px',
-          color: active ? C.text : C.body,
-          fontSize: C.fBody,
+          background: active ? 'rgba(99,102,241,0.15)' : '#1e2640',
+          border: `1px solid ${active ? C.accent : 'rgba(255,255,255,0.08)'}`,
+          borderRadius: 8,
+          padding: '8px 14px',
+          color: active ? C.accentHover : C.text,
+          fontSize: 13,
           fontFamily: C.fontBody,
           fontWeight: 500,
           cursor: 'pointer',
@@ -228,7 +279,31 @@ function FilterPill({ label, active, open, onToggle, onClose, children }: Filter
         }}
       >
         <span>{label}</span>
-        <ChevronDown size={12} color={C.muted} strokeWidth={2} />
+        {active && onClear ? (
+          <span
+            role="button"
+            aria-label="Clear filter"
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 16,
+              height: 16,
+              borderRadius: 999,
+              background: 'rgba(255,255,255,0.08)',
+              color: C.accentHover,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              marginLeft: 2,
+            }}
+          >
+            ×
+          </span>
+        ) : (
+          <ChevronDown size={12} color={C.muted} strokeWidth={2} />
+        )}
       </button>
       {open && (
         <div
@@ -763,9 +838,16 @@ export default function AppProducts() {
           <div style={{ flex: 1, position: 'relative' }}>
             <Search
               size={16}
-              color={C.muted}
-              strokeWidth={1.75}
-              style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              strokeWidth={2}
+              style={{
+                position: 'absolute',
+                left: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none',
+                color: C.accent,
+                opacity: 0.6,
+              }}
             />
             <input
               value={searchInput}
@@ -775,19 +857,27 @@ export default function AppProducts() {
               style={{
                 width: '100%',
                 height: 52,
-                background: C.raised,
-                border: `1.5px solid ${C.border}`,
-                borderRadius: C.rMd,
+                background: '#1e2640',
+                border: '1px solid rgba(255,255,255,0.10)',
+                borderRadius: 12,
                 padding: '0 16px 0 46px',
                 color: C.text,
                 fontFamily: C.fontBody,
-                fontSize: C.fBody,
+                fontSize: 15,
                 outline: 'none',
                 boxSizing: 'border-box',
-                transition: `border-color ${C.dur} ${C.ease}`,
+                transition: `border-color ${C.dur} ${C.ease}, box-shadow ${C.dur} ${C.ease}`,
               }}
-              onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = C.borderFocus; }}
-              onBlur={(e)  => { (e.currentTarget as HTMLInputElement).style.borderColor = C.border; }}
+              onFocus={(e) => {
+                const el = e.currentTarget as HTMLInputElement;
+                el.style.borderColor = C.accent;
+                el.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.15)';
+              }}
+              onBlur={(e)  => {
+                const el = e.currentTarget as HTMLInputElement;
+                el.style.borderColor = 'rgba(255,255,255,0.10)';
+                el.style.boxShadow = 'none';
+              }}
             />
           </div>
           <div
@@ -862,6 +952,7 @@ export default function AppProducts() {
               open={openPill === 'price'}
               onToggle={() => setOpenPill(openPill === 'price' ? null : 'price')}
               onClose={closePill}
+              onClear={() => { setPriceMin(null); setPriceMax(null); }}
             >
               <div
                 style={{
@@ -901,6 +992,7 @@ export default function AppProducts() {
               open={openPill === 'minOrders'}
               onToggle={() => setOpenPill(openPill === 'minOrders' ? null : 'minOrders')}
               onClose={closePill}
+              onClear={() => setMinOrders(null)}
             >
               <div
                 style={{
@@ -930,6 +1022,7 @@ export default function AppProducts() {
               open={openPill === 'category'}
               onToggle={() => setOpenPill(openPill === 'category' ? null : 'category')}
               onClose={closePill}
+              onClear={() => setCategoryFilter('')}
             >
               <div
                 style={{
@@ -963,6 +1056,7 @@ export default function AppProducts() {
               open={openPill === 'score'}
               onToggle={() => setOpenPill(openPill === 'score' ? null : 'score')}
               onClose={closePill}
+              onClear={() => { setScoreMin(0); setScoreMax(100); }}
             >
               <div
                 style={{
@@ -1034,14 +1128,19 @@ export default function AppProducts() {
               <button
                 onClick={clearFilters}
                 style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: C.accent,
-                  fontSize: C.fBody,
+                  background: 'rgba(239,68,68,0.1)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                  color: '#f87171',
+                  fontSize: 13,
                   fontFamily: C.fontBody,
+                  fontWeight: 500,
+                  borderRadius: 8,
+                  padding: '8px 14px',
                   cursor: 'pointer',
-                  padding: '7px 8px',
+                  transition: `background ${C.dur} ${C.ease}`,
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.18)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.1)'; }}
               >
                 Clear filters
               </button>
@@ -1056,14 +1155,20 @@ export default function AppProducts() {
               padding: '0 32px',
               display: 'flex',
               alignItems: 'center',
-              borderBottom: `1px solid ${C.border}`,
+              gap: 6,
               overflowX: 'auto',
+              marginBottom: 8,
             }}
           >
             {SMART_TABS.map((tab) => {
               const active = activeTab === tab.key;
               const count = tabCounts[tab.key];
               const Icon = tab.Icon;
+              const iconColor =
+                tab.key === 'trending'   ? C.amber
+                : tab.key === 'highmargin' ? C.green
+                : tab.key === 'top'        ? '#eab308'
+                : undefined;
               return (
                 <button
                   key={tab.key}
@@ -1072,32 +1177,49 @@ export default function AppProducts() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    padding: '10px 16px',
-                    marginBottom: -1,
-                    border: 'none',
-                    background: 'transparent',
-                    fontSize: C.fBody,
+                    padding: '8px 14px',
+                    border: active
+                      ? '1px solid rgba(99,102,241,0.3)'
+                      : '1px solid transparent',
+                    background: active ? 'rgba(99,102,241,0.15)' : 'transparent',
+                    fontSize: 14,
                     fontFamily: C.fontBody,
-                    fontWeight: active ? 600 : 500,
-                    color: active ? C.text : C.body,
-                    borderBottom: `2px solid ${active ? C.accent : 'transparent'}`,
+                    fontWeight: 500,
+                    color: active ? '#a5b4fc' : 'rgba(255,255,255,0.45)',
+                    borderRadius: 8,
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    transition: `color ${C.dur} ${C.ease}`,
+                    transition: `background ${C.dur} ${C.ease}, color ${C.dur} ${C.ease}, border-color ${C.dur} ${C.ease}`,
                   }}
-                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
-                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = C.body; }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      const el = e.currentTarget as HTMLButtonElement;
+                      el.style.color = 'rgba(255,255,255,0.75)';
+                      el.style.background = 'rgba(255,255,255,0.04)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      const el = e.currentTarget as HTMLButtonElement;
+                      el.style.color = 'rgba(255,255,255,0.45)';
+                      el.style.background = 'transparent';
+                    }
+                  }}
                 >
-                  <Icon size={14} strokeWidth={1.75} />
+                  <Icon
+                    size={14}
+                    strokeWidth={1.75}
+                    color={iconColor ?? (active ? '#a5b4fc' : 'rgba(255,255,255,0.45)')}
+                  />
                   <span>{tab.label}</span>
                   <span
                     style={{
-                      background: 'rgba(255,255,255,0.07)',
-                      borderRadius: 4,
-                      padding: '1px 6px',
-                      fontSize: C.fXs,
+                      background: 'rgba(255,255,255,0.08)',
+                      borderRadius: 999,
+                      padding: '1px 7px',
+                      fontSize: 11,
                       fontFamily: C.fontBody,
-                      color: C.muted,
+                      color: active ? '#a5b4fc' : 'rgba(255,255,255,0.55)',
                       fontVariantNumeric: 'tabular-nums',
                       marginLeft: 2,
                     }}
@@ -1325,7 +1447,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
     <div
       style={{
         margin: '0 32px',
-        background: C.surface,
+        background: C.contentBg,
         border: `1px solid ${C.border}`,
         borderRadius: C.rXl,
         overflow: 'hidden',
@@ -1333,28 +1455,30 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
     >
       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
         <colgroup>
-          <col style={{ width: 60 }} />
-          <col />
-          <col style={{ width: 80 }} />
+          <col style={{ width: 48 }} />
+          <col style={{ width: 280 }} />
+          <col style={{ width: 140 }} />
           <col style={{ width: 100 }} />
-          <col style={{ width: 90 }} />
-          <col style={{ width: 130 }} />
-          <col style={{ width: 50 }} />
+          <col style={{ width: 100 }} />
+          <col style={{ width: 100 }} />
+          <col style={{ width: 120 }} />
+          <col />
         </colgroup>
         <thead>
-          <tr style={{ background: C.raised }}>
-            {['#', 'Product', 'Score', 'Orders', 'Price', 'Est. Revenue', ''].map((h, i) => (
+          <tr style={{ background: '#0f1629', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            {['#', 'Product', 'Category', 'Score', 'Orders', 'Price', 'Revenue', 'Actions'].map((h, i) => (
               <th
                 key={h + i}
                 style={{
-                  padding: '14px 24px',
-                  textAlign: i === 0 || i === 1 ? 'left' : i === 6 ? 'center' : 'right',
-                  fontSize: C.fXxs,
+                  padding: '14px 20px',
+                  textAlign: i === 0 || i === 1 || i === 2 ? 'left' : i === 7 ? 'center' : 'right',
+                  fontSize: 11,
                   fontFamily: C.fontBody,
-                  fontWeight: 500,
-                  color: C.muted,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.45)',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.07em',
+                  letterSpacing: '0.08em',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
                 }}
               >
                 {h}
@@ -1366,116 +1490,120 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
           {products.map((p, i) => {
             const score = Math.round(p.winning_score ?? 0);
             const orders = p.sold_count ?? 0;
-            const tier = scoreTier(score);
             const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
             const isNew = daysSince(p.created_at) <= 7;
             const fav = isFavourite(p.id);
+            const catColor = categoryColor(p.category);
             return (
               <tr
                 key={p.id}
                 className="mj-row"
                 onClick={() => onSelect(p)}
-                style={{ borderBottom: i === products.length - 1 ? 'none' : `1px solid ${C.border}` }}
+                style={{
+                  height: 72,
+                  borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
+                  cursor: 'pointer',
+                }}
               >
                 <td
                   style={{
-                    padding: '20px 24px',
-                    fontSize: C.fSm,
-                    color: C.muted,
+                    padding: '0 20px',
+                    fontSize: 12,
+                    color: 'rgba(255,255,255,0.2)',
                     fontFamily: C.fontBody,
                     fontVariantNumeric: 'tabular-nums',
                   }}
                 >
                   {String(i + 1).padStart(2, '0')}
                 </td>
-                <td style={{ padding: '20px 24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
-                    <Thumb image={p.image_url} title={p.product_title} size={60} radius={10} />
+                <td style={{ padding: '0 20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                    <img
+                      src={proxyImage(p.image_url) ?? p.image_url ?? ''}
+                      alt={p.product_title}
+                      loading="lazy"
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 8,
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: C.cardBg,
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                      }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
+                    />
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div
                         title={p.product_title}
                         style={{
-                          fontSize: C.fBody,
+                          fontSize: 14,
                           fontFamily: C.fontBody,
                           fontWeight: 500,
-                          color: C.text,
-                          maxWidth: 380,
+                          color: 'rgba(255,255,255,0.9)',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
-                          marginBottom: 4,
+                          marginBottom: 2,
                         }}
                       >
                         {p.product_title}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        {p.category && (
-                          <span
-                            style={{
-                              background: 'rgba(255,255,255,0.06)',
-                              borderRadius: 4,
-                              padding: '2px 8px',
-                              fontSize: C.fXs,
-                              fontFamily: C.fontBody,
-                              color: C.body,
-                              maxWidth: 160,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {shortenCategory(p.category)}
-                          </span>
-                        )}
-                        {isNew && (
-                          <span
-                            style={{
-                              background: C.greenSubtle,
-                              color: C.green,
-                              borderRadius: 4,
-                              padding: '1px 6px',
-                              fontSize: C.fXxs,
-                              fontFamily: C.fontBody,
-                              fontWeight: 600,
-                              letterSpacing: '0.05em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            New
-                          </span>
-                        )}
-                      </div>
+                      {isNew && (
+                        <span
+                          style={{
+                            background: C.greenSubtle,
+                            color: C.green,
+                            borderRadius: 4,
+                            padding: '1px 6px',
+                            fontSize: 10,
+                            fontFamily: C.fontBody,
+                            fontWeight: 600,
+                            letterSpacing: '0.05em',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          New
+                        </span>
+                      )}
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: '20px 24px', textAlign: 'right' }}>
-                  {score ? (
+                <td style={{ padding: '0 20px' }}>
+                  {p.category ? (
                     <span
+                      title={p.category}
                       style={{
                         display: 'inline-block',
-                        background: tier.bg,
-                        border: `1px solid ${tier.bg}`,
-                        color: tier.fg,
-                        borderRadius: 6,
-                        padding: '4px 10px',
-                        fontSize: C.fBody,
+                        background: catColor.bg,
+                        color: catColor.fg,
+                        borderRadius: 4,
+                        padding: '3px 8px',
+                        fontSize: 11,
                         fontFamily: C.fontBody,
-                        fontWeight: 600,
-                        fontVariantNumeric: 'tabular-nums',
+                        fontWeight: 500,
+                        maxWidth: 124,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
                       }}
                     >
-                      {score}
+                      {shortenCategory(p.category)}
                     </span>
                   ) : (
-                    <span style={{ color: C.muted, fontSize: C.fSm }}>—</span>
+                    <span style={{ color: C.muted, fontSize: 12 }}>—</span>
                   )}
+                </td>
+                <td style={{ padding: '0 20px', textAlign: 'right' }}>
+                  <ScoreBadge score={score} />
                 </td>
                 <td
                   style={{
-                    padding: '20px 24px',
+                    padding: '0 20px',
                     textAlign: 'right',
-                    fontSize: C.fH4,
+                    fontSize: 16,
                     fontFamily: C.fontBody,
+                    fontWeight: 700,
                     color: orders > 0 ? C.text : C.muted,
                     fontVariantNumeric: 'tabular-nums',
                   }}
@@ -1485,10 +1613,11 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                 </td>
                 <td
                   style={{
-                    padding: '20px 24px',
+                    padding: '0 20px',
                     textAlign: 'right',
-                    fontSize: C.fH4,
+                    fontSize: 16,
                     fontFamily: C.fontBody,
+                    fontWeight: 700,
                     color: C.text,
                     fontVariantNumeric: 'tabular-nums',
                   }}
@@ -1497,17 +1626,18 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav }: Li
                 </td>
                 <td
                   style={{
-                    padding: '20px 24px',
+                    padding: '0 20px',
                     textAlign: 'right',
-                    fontSize: C.fBody,
+                    fontSize: 16,
                     fontFamily: C.fontBody,
+                    fontWeight: 700,
                     color: estMonthly != null ? C.green : C.muted,
                     fontVariantNumeric: 'tabular-nums',
                   }}
                 >
-                  {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
+                  {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}` : '—'}
                 </td>
-                <td style={{ padding: '20px 24px', textAlign: 'center' }}>
+                <td style={{ padding: '0 20px', textAlign: 'center' }}>
                   <button
                     onClick={(e) => { e.stopPropagation(); void onToggleFav(p); }}
                     aria-label="Save"
@@ -1553,7 +1683,7 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
         style={{
           padding: '0 32px',
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 16,
         }}
       >
@@ -1585,38 +1715,39 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
       style={{
         padding: '0 32px',
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 16,
       }}
     >
       {products.map((p) => {
         const score = Math.round(p.winning_score ?? 0);
         const orders = p.sold_count ?? 0;
-        const tier = scoreTier(score);
         const estMonthly = p.est_daily_revenue_aud != null ? p.est_daily_revenue_aud * 30 : null;
         const isNew = daysSince(p.created_at) <= 7;
+        const catColor = categoryColor(p.category);
         return (
           <div
             key={p.id}
             className="mj-grid-card"
             onClick={() => onSelect(p)}
             style={{
-              background: C.surface,
-              border: `1px solid ${C.border}`,
-              borderRadius: C.rXl,
+              background: C.cardBg,
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 12,
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
             }}
           >
-            {/* Image with score badge */}
-            <div style={{ position: 'relative', width: '100%', height: 180, background: C.raised }}>
+            {/* Image zone with bottom gradient overlay */}
+            <div style={{ position: 'relative', width: '100%', height: 200, background: C.raised, overflow: 'hidden' }}>
               {p.image_url ? (
                 <img
+                  className="mj-grid-img"
                   src={proxyImage(p.image_url) ?? p.image_url}
                   alt={p.product_title}
                   loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
                 <div
@@ -1627,7 +1758,7 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontFamily: C.fontDisplay,
-                    fontSize: 48,
+                    fontSize: 56,
                     fontWeight: 700,
                     color: C.muted,
                   }}
@@ -1635,59 +1766,75 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                   {(p.product_title?.[0] ?? '?').toUpperCase()}
                 </div>
               )}
-              {score > 0 && (
+              {/* Bottom gradient overlay for legibility */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(transparent 60%, rgba(0,0,0,0.5) 100%)',
+                  pointerEvents: 'none',
+                }}
+              />
+              {isNew && (
                 <div
                   style={{
                     position: 'absolute',
                     top: 10,
                     right: 10,
-                    background: tier.bg,
-                    color: tier.fg,
-                    border: `1px solid ${tier.bg}`,
-                    borderRadius: 6,
-                    padding: '3px 9px',
-                    fontSize: C.fBody,
+                    background: C.greenSubtle,
+                    color: C.green,
+                    borderRadius: 4,
+                    padding: '2px 6px',
+                    fontSize: 10,
                     fontFamily: C.fontBody,
                     fontWeight: 600,
-                    fontVariantNumeric: 'tabular-nums',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
                   }}
                 >
-                  {score}
+                  New
+                </div>
+              )}
+              {isNew === false && score > 0 && (
+                <div style={{ position: 'absolute', top: 10, right: 10 }}>
+                  <ScoreBadge score={score} />
                 </div>
               )}
             </div>
 
             {/* Body */}
-            <div style={{ padding: 14, flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column' }}>
               <div
                 title={p.product_title}
                 style={{
-                  fontSize: C.fBody,
+                  fontSize: 14,
                   fontFamily: C.fontBody,
                   fontWeight: 500,
-                  color: C.text,
+                  color: 'rgba(255,255,255,0.9)',
                   lineHeight: 1.35,
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
                   overflow: 'hidden',
                   marginBottom: 8,
-                  minHeight: 36,
+                  minHeight: 38,
                 }}
               >
                 {p.product_title}
               </div>
 
-              {/* Chips */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+              {/* Category tag + score badge row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
                 {p.category && (
                   <span
                     style={{
-                      background: 'rgba(255,255,255,0.06)',
+                      background: catColor.bg,
+                      color: catColor.fg,
                       borderRadius: 4,
-                      padding: '2px 8px',
-                      fontSize: C.fXs,
-                      color: C.body,
+                      padding: '3px 8px',
+                      fontSize: 11,
+                      fontFamily: C.fontBody,
+                      fontWeight: 500,
                       maxWidth: 140,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -1697,64 +1844,43 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                     {shortenCategory(p.category)}
                   </span>
                 )}
-                {isNew && (
-                  <span
-                    style={{
-                      background: C.greenSubtle,
-                      color: C.green,
-                      borderRadius: 4,
-                      padding: '1px 6px',
-                      fontSize: C.fXxs,
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    New
-                  </span>
-                )}
+                {isNew && score > 0 && <ScoreBadge score={score} size={28} />}
               </div>
 
-              {/* Stats row */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: 8,
-                  marginBottom: 12,
-                  marginTop: 'auto',
-                }}
-              >
-                {[
-                  { label: 'Orders', value: orders > 0 ? fmtK(orders) : '—', color: C.text },
-                  { label: 'Price', value: p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—', color: C.text },
-                  { label: 'Est Rev', value: estMonthly != null ? `$${Math.round(estMonthly / 1000)}k` : '—', color: C.green },
-                ].map((cell) => (
-                  <div key={cell.label}>
-                    <div
-                      style={{
-                        fontSize: C.fXxs,
-                        fontFamily: C.fontBody,
-                        color: C.muted,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.06em',
-                        marginBottom: 2,
-                      }}
-                    >
-                      {cell.label}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: C.fH4,
-                        fontFamily: C.fontBody,
-                        color: cell.color,
-                        fontVariantNumeric: 'tabular-nums',
-                        fontWeight: 500,
-                      }}
-                    >
-                      {cell.value}
-                    </div>
-                  </div>
-                ))}
+              {/* Stats row: Orders (16/700), Price (13/muted), Est Rev (13/green) */}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, marginTop: 'auto' }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontFamily: C.fontBody,
+                    fontWeight: 700,
+                    color: C.text,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {orders > 0 ? fmtK(orders) : '—'}
+                </div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontFamily: C.fontBody,
+                    color: C.muted,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
+                </div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontFamily: C.fontBody,
+                    color: C.green,
+                    fontVariantNumeric: 'tabular-nums',
+                    fontWeight: 500,
+                  }}
+                >
+                  {estMonthly != null ? `$${Math.round(estMonthly / 1000)}k/mo` : ''}
+                </div>
               </div>
 
               {/* Actions */}
