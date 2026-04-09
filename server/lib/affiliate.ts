@@ -40,6 +40,47 @@ async function authenticateUser(req: Request): Promise<string | null> {
 }
 
 export function registerAffiliateRoutes(app: Express) {
+  // ─── Public affiliate application (no auth) ────────────────────────────
+  // Captures leads from /affiliates page and emails hello@majorka.io via Resend.
+  app.post('/api/affiliates/apply', async (req: Request, res: Response) => {
+    try {
+      const { name, email, channel, audienceBracket } = (req.body ?? {}) as {
+        name?: string; email?: string; channel?: string; audienceBracket?: string;
+      };
+      if (!name?.trim() || !email?.trim() || !channel?.trim()) {
+        return res.status(400).json({ error: 'name, email, and channel are required' });
+      }
+      // Fire-and-forget Resend email if configured
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const { Resend } = await import('resend');
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: 'Majorka Affiliates <affiliates@majorka.io>',
+            to: ['hello@majorka.io'],
+            subject: `New affiliate application: ${name}`,
+            text: `New affiliate application received
+
+Name: ${name}
+Email: ${email}
+Channel: ${channel}
+Audience: ${audienceBracket ?? 'not specified'}
+
+Reply directly to ${email} to onboard them.`,
+          });
+        } catch (mailErr) {
+          console.warn('[affiliates/apply] Resend send failed:', mailErr);
+        }
+      } else {
+        console.log('[affiliates/apply] (no Resend key) new application:', { name, email, channel, audienceBracket });
+      }
+      return res.json({ ok: true });
+    } catch (err: unknown) {
+      console.error('[affiliates/apply]', err);
+      return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+  });
+
   // ─── Affiliate: Join ────────────────────────────────────────────────────
   app.post('/api/affiliate/join', async (req: Request, res: Response) => {
     const userId = await authenticateUser(req);

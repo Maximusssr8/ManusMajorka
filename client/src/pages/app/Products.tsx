@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import {
   Search, List, LayoutGrid, ChevronDown, Heart,
   ExternalLink, Zap, Flame, ShoppingBag, Store, Calculator, ChevronRight,
-  Clock, TrendingUp, DollarSign, Award, Bookmark,
+  Clock, TrendingUp, DollarSign, Award, Bookmark, Bell,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -13,6 +13,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useFavourites } from '@/hooks/useFavourites';
+import { useTracking } from '@/hooks/useTracking';
 import { useLists } from '@/hooks/useLists';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
@@ -99,6 +100,25 @@ function monthlyRevenue(p: Product): number | null {
     return Math.round((orders / 365) * price * 30);
   }
   return null;
+}
+
+/**
+ * Market Revenue estimate — approximates the TOTAL monthly market across
+ * all sellers for this product. Majorka's retail price in the DB is
+ * typically the landed cost; multiply by 3 to approximate retail, then
+ * by monthly order velocity.
+ *
+ *   (sold_count / 365) × (price_aud × 3) × 30
+ *
+ * This is the "size of the prize" metric. Always shown with a ~ prefix
+ * because it's an approximation.
+ */
+function marketRevenue(p: Product): number | null {
+  const orders = p.sold_count ?? 0;
+  const price = p.price_aud != null ? Number(p.price_aud) : 0;
+  if (orders <= 0 || price <= 0) return null;
+  const retailPrice = price * 3;
+  return Math.round((orders / 365) * retailPrice * 30);
 }
 
 function timeAgoShort(iso: string | null): string {
@@ -328,6 +348,8 @@ function ProductSheet({
   onToggleFav: (p: Product) => Promise<void> | void;
   isFav: boolean;
 }) {
+  const { isTracked, track, untrack } = useTracking();
+  const isTrackedNow = product ? isTracked(product.id) : false;
   const [calcOpen, setCalcOpen] = useState(false);
   const [sellPrice,  setSellPrice]  = useState<number>(0);
   const [landedCost, setLandedCost] = useState<number>(0);
@@ -349,7 +371,25 @@ function ProductSheet({
   const orders = product.sold_count ?? 0;
   const price = product.price_aud != null ? Number(product.price_aud) : null;
   const estMonthly = monthlyRevenue(product);
+  const marketRev = marketRevenue(product);
   const aliHref = (product as Product & { aliexpress_url?: string }).aliexpress_url ?? product.product_url ?? null;
+
+  function handleToggleTrack() {
+    if (!product) return;
+    if (isTrackedNow) {
+      untrack(product.id);
+      toast('Stopped tracking');
+      return;
+    }
+    const result = track(product);
+    if (result.ok) {
+      toast.success('Tracking this product');
+    } else if (result.reason === 'already') {
+      toast('Already tracked');
+    } else {
+      toast.error('Tracking limit reached (20). Upgrade to Scale for unlimited.');
+    }
+  }
 
   const grossProfit = sellPrice - landedCost - shipping;
   const marginPct = sellPrice > 0 ? (grossProfit / sellPrice) * 100 : 0;
@@ -461,6 +501,44 @@ function ProductSheet({
           </div>
             );
           })()}
+
+          {/* Market Revenue — total market size estimate */}
+          {marketRev != null && (
+            <div className="mx-4 mt-3 p-4 bg-cyan-500/[0.05] border border-cyan-500/20 rounded-xl">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-1">
+                    Market Revenue / mo
+                  </div>
+                  <div className="text-2xl font-display font-bold text-cyan-300 tabular-nums">
+                    ~${marketRev.toLocaleString()}
+                  </div>
+                </div>
+                <span
+                  className="text-[10px] text-cyan-400/70 max-w-[140px] text-right leading-snug"
+                  title="Estimated total market revenue across all sellers for this product. Computed as (orders / 365) × (landed price × 3) × 30."
+                >
+                  Total across all sellers (~3x markup assumed)
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Track button */}
+          <button
+            onClick={handleToggleTrack}
+            className={`mx-4 mt-3 mb-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-colors border ${
+              isTrackedNow
+                ? 'bg-amber/15 border-amber/40 text-amber hover:bg-amber/20'
+                : 'bg-amber/10 border-amber/20 text-amber hover:bg-amber/15'
+            }`}
+          >
+            <Bell size={14} strokeWidth={2} fill={isTrackedNow ? 'currentColor' : 'none'} />
+            {isTrackedNow ? 'Tracking — click to stop' : 'Track this product'}
+          </button>
+
+          {/* 30-day trend placeholder */}
+          <ProductHistoryChart productId={product.id} />
 
           <div className="p-4">
             {product.category && (
@@ -1685,6 +1763,94 @@ function LiveSearchView({ aeSearch, onSelect }: {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   ProductHistoryChart — 30-day snapshot trend
+   Shows a placeholder if snapshots haven't started yet, or a
+   tiny sparkline if data exists. Fetches from /api/products/:id/history
+   which gracefully returns { history: [], tableReady: false } when the
+   product_daily_snapshots table hasn't been created yet.
+   ────────────────────────────────────────────────────────────── */
+interface HistoryPoint { captured_at: string; sold_count: number | null; winning_score: number | null }
+
+function ProductHistoryChart({ productId }: { productId: string | number }) {
+  const [history, setHistory] = useState<HistoryPoint[]>([]);
+  const [tableReady, setTableReady] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetch(`/api/products/${encodeURIComponent(String(productId))}/history`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        setHistory(Array.isArray(data?.history) ? data.history : []);
+        setTableReady(data?.tableReady !== false);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) { setLoading(false); setTableReady(false); }
+      });
+    return () => { cancelled = true; };
+  }, [productId]);
+
+  // Not-yet-collected placeholder
+  if (loading || !tableReady || history.length < 2) {
+    return (
+      <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
+          <div className="text-[10px] text-white/30">Placeholder</div>
+        </div>
+        <div className="relative h-16 flex items-end gap-0.5">
+          {Array.from({ length: 30 }).map((_, i) => {
+            const h = 20 + Math.round(Math.sin(i / 4) * 10 + Math.cos(i / 3) * 8 + 20);
+            return (
+              <div
+                key={i}
+                className="flex-1 bg-white/[0.05] rounded-sm"
+                style={{ height: `${h}%` }}
+              />
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-muted mt-2 leading-snug">
+          Historical trend data collection started. Check back in 24 hours for real order velocity data.
+        </p>
+      </div>
+    );
+  }
+
+  // Real sparkline from data
+  const vals = history.map((h) => h.sold_count ?? 0);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = Math.max(1, max - min);
+  return (
+    <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
+        <div className="text-[10px] text-accent-hover tabular-nums">
+          {vals[vals.length - 1].toLocaleString()} orders
+        </div>
+      </div>
+      <div className="relative h-16 flex items-end gap-0.5">
+        {vals.map((v, i) => {
+          const h = 20 + ((v - min) / range) * 80;
+          return (
+            <div
+              key={i}
+              className="flex-1 bg-accent/40 hover:bg-accent/70 transition-colors rounded-sm"
+              style={{ height: `${h}%` }}
+              title={`${new Date(history[i].captured_at).toLocaleDateString()}: ${v.toLocaleString()}`}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

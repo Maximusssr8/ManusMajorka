@@ -4,10 +4,11 @@ import {
   LayoutDashboard, Package, TrendingUp, Video,
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Calculator, Settings,
-  GraduationCap, ShieldCheck, Search, Radio,
+  GraduationCap, ShieldCheck, Search, Radio, Layers,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useTracking } from '@/hooks/useTracking';
 // isPro ⇒ SCALE tier label
 
 interface NavItem {
@@ -17,6 +18,7 @@ interface NavItem {
   exact?: boolean;
   soon?: boolean;
   adminOnly?: boolean;
+  badge?: 'trackedCount';
 }
 
 const GROUPS: { title: string; items: NavItem[] }[] = [
@@ -26,6 +28,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
       { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
       { label: 'Radar',    path: '/app/radar',    icon: Radio },
       { label: 'Products', path: '/app/products', icon: Package },
+      { label: 'Niches',   path: '/app/niches',   icon: Layers },
       { label: 'Market',   path: '/app/market',   icon: TrendingUp },
       { label: 'Creators', path: '/app/creators', icon: Video },
     ],
@@ -42,7 +45,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Operate',
     items: [
-      { label: 'Alerts',         path: '/app/alerts',         icon: Bell },
+      { label: 'Alerts',         path: '/app/alerts',         icon: Bell, badge: 'trackedCount' },
       { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye, soon: true },
       { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
       { label: 'Profit Calc',    path: '/app/profit',         icon: Calculator },
@@ -65,6 +68,7 @@ interface NavProps {
 export function Nav({ onNavigate }: NavProps = {}) {
   const [location, navigate] = useLocation();
   const { user, isPro } = useAuth();
+  const { trackedCount } = useTracking();
   const [searchTerm, setSearchTerm] = useState('');
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
@@ -144,6 +148,11 @@ export function Nav({ onNavigate }: NavProps = {}) {
                     >
                       <Icon size={16} strokeWidth={1.5} className="shrink-0" />
                       <span className="flex-1 truncate">{item.label}</span>
+                      {item.badge === 'trackedCount' && trackedCount > 0 && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber/15 border border-amber/40 text-amber font-bold tabular-nums shrink-0 min-w-[18px] text-center">
+                          {trackedCount}
+                        </span>
+                      )}
                       {item.soon && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 border border-accent/40 text-accent-hover shrink-0">
                           Soon

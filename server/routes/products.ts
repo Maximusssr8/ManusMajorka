@@ -622,6 +622,172 @@ router.get('/stats-categories', async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/niches-overview ─────────────────────────────────────
+// Rich per-category aggregates for the Niches Intelligence page.
+// Returns product_count, avg_score, hot_count, total_orders, avg_price, and
+// a single top_product preview (by sold_count) per category.
+router.get('/niches-overview', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    type Row = {
+      category: string | null;
+      sold_count: number | null;
+      winning_score: number | null;
+      price_aud: number | null;
+      product_title: string | null;
+      image_url: string | null;
+    };
+    const list: Row[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (from < 20000) {
+      const { data, error } = await sb
+        .from('winning_products')
+        .select('category,sold_count,winning_score,price_aud,product_title,image_url')
+        .not('category', 'is', null)
+        .range(from, from + PAGE - 1);
+      if (error) return res.status(500).json({ error: error.message });
+      const batch = (data ?? []) as Row[];
+      list.push(...batch);
+      if (batch.length < PAGE) break;
+      from += PAGE;
+    }
+    const agg = new Map<string, {
+      count: number;
+      score_sum: number;
+      score_n: number;
+      price_sum: number;
+      price_n: number;
+      hot_count: number;
+      total_orders: number;
+      top_product_title: string | null;
+      top_product_image: string | null;
+      top_product_orders: number;
+    }>();
+    for (const r of list) {
+      const k = (r.category ?? '').trim();
+      if (!k) continue;
+      const entry = agg.get(k) ?? {
+        count: 0,
+        score_sum: 0,
+        score_n: 0,
+        price_sum: 0,
+        price_n: 0,
+        hot_count: 0,
+        total_orders: 0,
+        top_product_title: null,
+        top_product_image: null,
+        top_product_orders: 0,
+      };
+      entry.count += 1;
+      if (r.winning_score != null) {
+        entry.score_sum += Number(r.winning_score);
+        entry.score_n += 1;
+        if (Number(r.winning_score) >= 65) entry.hot_count += 1;
+      }
+      if (r.price_aud != null) {
+        entry.price_sum += Number(r.price_aud);
+        entry.price_n += 1;
+      }
+      const orders = r.sold_count ?? 0;
+      entry.total_orders += orders;
+      if (orders > entry.top_product_orders) {
+        entry.top_product_orders = orders;
+        entry.top_product_title = r.product_title;
+        entry.top_product_image = r.image_url;
+      }
+      agg.set(k, entry);
+    }
+    const niches = Array.from(agg.entries())
+      .map(([name, v]) => ({
+        name,
+        product_count: v.count,
+        avg_score: v.score_n > 0 ? Math.round(v.score_sum / v.score_n) : null,
+        hot_count: v.hot_count,
+        total_orders: v.total_orders,
+        avg_price: v.price_n > 0 ? Number((v.price_sum / v.price_n).toFixed(2)) : null,
+        top_product: v.top_product_title
+          ? { title: v.top_product_title, image: v.top_product_image, orders: v.top_product_orders }
+          : null,
+      }))
+      .filter((n) => n.product_count >= 2)
+      .sort((a, b) => b.product_count - a.product_count);
+    return res.json({ niches, updatedAt: new Date().toISOString() });
+  } catch (err: unknown) {
+    console.error('[niches-overview]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
+// ── POST /api/products/snapshot ───────────────────────────────────────────
+// Writes a daily snapshot of the top 500 products by sold_count to
+// product_daily_snapshots. Gracefully no-ops if the table doesn't exist.
+//
+// SQL to create the table (run in Supabase SQL editor):
+//   CREATE TABLE product_daily_snapshots (
+//     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+//     product_id text NOT NULL,
+//     sold_count bigint,
+//     winning_score numeric,
+//     captured_at timestamptz DEFAULT now()
+//   );
+//   CREATE INDEX ON product_daily_snapshots(product_id, captured_at);
+router.post('/snapshot', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const { data: top, error: fetchErr } = await sb
+      .from('winning_products')
+      .select('id,sold_count,winning_score')
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(500);
+    if (fetchErr) return res.status(500).json({ error: fetchErr.message });
+    const rows = (top ?? []).map((r) => ({
+      product_id: String((r as { id: unknown }).id),
+      sold_count: (r as { sold_count: number | null }).sold_count,
+      winning_score: (r as { winning_score: number | null }).winning_score,
+    }));
+    const { error: insertErr } = await sb.from('product_daily_snapshots').insert(rows);
+    if (insertErr) {
+      if (/does not exist|relation .* does not exist/i.test(insertErr.message)) {
+        console.warn('[snapshot] product_daily_snapshots table missing — skipped');
+        return res.json({ skipped: true, reason: 'table_missing', count: 0 });
+      }
+      return res.status(500).json({ error: insertErr.message });
+    }
+    return res.json({ ok: true, count: rows.length });
+  } catch (err: unknown) {
+    console.error('[snapshot]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
+// ── GET /api/products/:id/history ─────────────────────────────────────────
+// Returns the 30-day snapshot history for a single product, or an empty
+// array if the table doesn't exist yet.
+router.get('/:id/history', async (req: Request, res: Response) => {
+  try {
+    const id = String(req.params.id);
+    const sb = getSupabase();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data, error } = await sb
+      .from('product_daily_snapshots')
+      .select('sold_count,winning_score,captured_at')
+      .eq('product_id', id)
+      .gte('captured_at', thirtyDaysAgo)
+      .order('captured_at', { ascending: true });
+    if (error) {
+      if (/does not exist|relation .* does not exist/i.test(error.message)) {
+        return res.json({ history: [], tableReady: false });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+    return res.json({ history: data ?? [], tableReady: true });
+  } catch (err: unknown) {
+    console.error('[product-history]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/opportunities ───────────────────────────────────────
 // Three picks: highest sold_count, lowest price with score > 80 and sold > 1000,
 // and newest by created_at. All from winning_products, no hardcoding.

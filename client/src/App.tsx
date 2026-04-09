@@ -95,6 +95,10 @@ const NewCreators = lazyWithRetry(() => import('./pages/app/Creators'));
 const NewAlerts = lazyWithRetry(() => import('./pages/app/Alerts'));
 const NewRevenue = lazyWithRetry(() => import('./pages/app/Revenue'));
 const NewAdBriefs = lazyWithRetry(() => import('./pages/app/AdBriefs'));
+const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
+const ROASCalculator = lazy(() => import('./pages/tools/ROASCalculator'));
+const OperatorWall = lazy(() => import('./pages/OperatorWall'));
+const Affiliates = lazy(() => import('./pages/Affiliates'));
 
 interface ComingSoonProps { page: string }
 function ComingSoon({ page }: ComingSoonProps) {
@@ -217,6 +221,9 @@ function Router() {
             <Route path="/app/settings/profile" component={SettingsProfile} />
             <Route path="/store/:slug" component={Storefront} />
             <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
+            <Route path="/tools/roas-calculator" component={ROASCalculator} />
+            <Route path="/operators" component={OperatorWall} />
+            <Route path="/affiliates" component={Affiliates} />
             <Route path="/share/profit">{() => <PublicProfitShare />}</Route>
             <Route path="/app/affiliate">
               {() => (
@@ -280,6 +287,7 @@ function Router() {
 
             {/* Redirects for consolidated pages */}
             <Route path="/app/products">{() => <ProtectedRoute><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/niches">{() => <ProtectedRoute><NewAppShell><NewNiches /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/radar">{() => <ProtectedRoute><NewAppShell><NewRadar /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>

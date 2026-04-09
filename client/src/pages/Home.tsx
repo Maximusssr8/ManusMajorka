@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
+import { Database, Globe, ShieldCheck, Zap } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
@@ -2123,8 +2124,8 @@ function Footer() {
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="mj-footer-grid" style={{
           display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr',
-          gap: 48,
+          gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+          gap: 40,
           marginBottom: 48,
         }}>
           <div>
@@ -2141,6 +2142,12 @@ function Footer() {
             { label: 'Pricing', href: '#pricing' },
             { label: 'Compare', href: '#compare' },
             { label: 'Workflow', href: '#workflow' },
+            { label: 'Operators', href: '/operators' },
+          ]} />
+          <FooterCol title="Free Tools" links={[
+            { label: 'ROAS Calculator', href: '/tools/roas-calculator' },
+            { label: 'Profit Calculator', href: '/tools/profit-calculator' },
+            { label: 'Affiliates', href: '/affiliates' },
           ]} />
           <FooterCol title="Company" links={[
             { label: 'Blog', href: '/blog' },
@@ -2208,10 +2215,10 @@ function FooterCol({ title, links }: FooterColProps) {
 // ── Trust Bar ──────────────────────────────────────────────────────────────
 function TrustBar() {
   const items = [
-    { icon: '⛁', headline: '2,302+', sub: 'products tracked' },
-    { icon: '🌐', headline: '7 markets', sub: 'AU · US · UK · CA · NZ · DE · SG' },
-    { icon: '🛡', headline: '14-day', sub: 'money-back guarantee' },
-    { icon: '⚡', headline: 'Live', sub: 'AliExpress data feed' },
+    { Icon: Database,    headline: '2,302+',    sub: 'Products tracked' },
+    { Icon: Globe,       headline: '7 markets', sub: 'AU · US · UK · CA · NZ · DE · SG' },
+    { Icon: ShieldCheck, headline: '14-day',    sub: 'Money-back guarantee' },
+    { Icon: Zap,         headline: 'Live feed', sub: 'Updated every 6 hours' },
   ];
   return (
     <section style={{
@@ -2229,24 +2236,27 @@ function TrustBar() {
         gap: 32,
         flexWrap: 'wrap',
       }}>
-        {items.map((it) => (
-          <div key={it.sub} style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 180 }}>
-            <span style={{
-              fontSize: 22,
-              color: '#6366F1',
-              width: 40, height: 40,
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(99,102,241,0.08)',
-              border: '1px solid rgba(99,102,241,0.2)',
-              borderRadius: 8,
-              flexShrink: 0,
-            }}>{it.icon}</span>
-            <div>
-              <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>{it.headline}</div>
-              <div style={{ fontFamily: mono, fontSize: 11, color: T.textDim, marginTop: 2 }}>{it.sub}</div>
+        {items.map((it) => {
+          const Icon = it.Icon;
+          return (
+            <div key={it.sub} style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 200 }}>
+              <div style={{
+                width: 40, height: 40,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(99,102,241,0.08)',
+                border: '1px solid rgba(99,102,241,0.2)',
+                borderRadius: 10,
+                flexShrink: 0,
+              }}>
+                <Icon size={18} color="#6366F1" strokeWidth={2} />
+              </div>
+              <div>
+                <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>{it.headline}</div>
+                <div style={{ fontFamily: mono, fontSize: 11, color: T.textDim, marginTop: 2 }}>{it.sub}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -2406,7 +2416,7 @@ function Founder() {
               color: T.textFaint,
               letterSpacing: '0.03em',
             }}>
-              — The Majorka Team
+              — The Majorka Team · Gold Coast, Australia
             </p>
           </div>
         </div>

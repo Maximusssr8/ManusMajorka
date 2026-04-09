@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Bell, Plus } from 'lucide-react';
+import { Link } from 'wouter';
+import { Bell, Plus, Package, X } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useNicheStats } from '@/hooks/useNicheStats';
+import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
 import { shortenCategory } from '@/lib/categoryColor';
+import { proxyImage } from '@/lib/imageProxy';
 
 import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
@@ -43,8 +46,9 @@ function saveAlerts(alerts: StoredAlert[]) {
 }
 
 export default function Alerts() {
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const { niches } = useNicheStats(20);
+  const { tracked, trackedCount, untrack } = useTracking();
   const [alerts, setAlerts] = useState<StoredAlert[]>([]);
   const [type, setType] = useState<AlertType>('score');
   const [category, setCategory] = useState<string>('');
@@ -111,6 +115,126 @@ export default function Alerts() {
           fontSize: 13,
         }}>{toast}</div>
       )}
+
+      {/* Section 0 — Tracked Products (from useTracking — product-level alerts) */}
+      <section style={{ marginBottom: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div>
+            <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: 0 }}>Tracked Products</h2>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>
+              Track up to {isPro ? 'unlimited' : TRACK_LIMIT_BUILDER} products ({isPro ? 'Scale' : 'Builder'} tier) — {trackedCount} used
+            </p>
+          </div>
+          <Link href="/app/products" style={{
+            fontSize: 12,
+            color: C.accentHover,
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}>Browse products →</Link>
+        </div>
+
+        {trackedCount === 0 ? (
+          <div style={{
+            background: C.raised,
+            border: '1px dashed rgba(255,255,255,0.1)',
+            borderRadius: 12,
+            padding: '40px 24px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: 'rgba(245,158,11,0.1)',
+              border: '1px solid rgba(245,158,11,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 14px',
+              color: '#f59e0b',
+            }}>
+              <Bell size={22} />
+            </div>
+            <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+              No products tracked yet
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16, maxWidth: 420, marginInline: 'auto' }}>
+              Track products to get notified when their order velocity increases significantly. Click Track on any product detail panel.
+            </div>
+            <Link href="/app/products" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '10px 18px',
+              borderRadius: 9,
+              background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+              color: 'white',
+              fontFamily: sans, fontSize: 13, fontWeight: 600,
+              textDecoration: 'none',
+              boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
+            }}>
+              <Package size={13} /> Browse products →
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 12, marginBottom: 14 }}>
+              {tracked.map((t) => (
+                <div key={t.productId} style={{
+                  background: C.raised,
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 12,
+                  padding: 14,
+                  display: 'flex',
+                  gap: 12,
+                  alignItems: 'center',
+                  position: 'relative',
+                }}>
+                  {t.productImage ? (
+                    <img
+                      src={proxyImage(t.productImage) ?? t.productImage}
+                      alt={t.productTitle ?? ''}
+                      loading="lazy"
+                      style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}
+                    />
+                  ) : (
+                    <div style={{ width: 52, height: 52, borderRadius: 10, background: 'rgba(255,255,255,0.04)', flexShrink: 0 }} />
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {t.productTitle ?? 'Untitled'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: mono }}>
+                      <span>Score {t.aiScore ?? '—'}</span>
+                      <span>·</span>
+                      <span>{t.soldCount != null ? t.soldCount.toLocaleString() : '—'} orders</span>
+                      <span>·</span>
+                      <span>${t.priceAud != null ? t.priceAud.toFixed(0) : '—'}</span>
+                    </div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>
+                      Tracked {new Date(t.addedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => untrack(t.productId)}
+                    aria-label="Untrack"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      color: 'rgba(255,255,255,0.5)',
+                      borderRadius: 8,
+                      padding: '6px 8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: 11,
+                      flexShrink: 0,
+                    }}
+                  ><X size={11} /> Untrack</button>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontStyle: 'italic' }}>
+              Alerts are sent to your email when a tracked product&apos;s order velocity increases significantly. Email alerts require account verification.
+            </p>
+          </>
+        )}
+      </section>
 
       {/* Section 1 — Active alerts */}
       <section style={{ marginBottom: 36 }}>
