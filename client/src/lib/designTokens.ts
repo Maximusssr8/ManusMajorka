@@ -1,62 +1,52 @@
 /**
- * Majorka Design Tokens — Codex editorial black aesthetic.
- *
- * Reference: openai.com/codex
- *
- * Rules this file enforces:
- *   - Pure black background. #000000. Not dark grey.
- *   - Typography is the whole design. White text, generous scale.
- *   - Zero decorative chrome. No gradients, no glows, no sparklines.
- *   - One accent — gold — used at most once per screen, on the
- *     primary CTA only. Everything else is white or grey.
- *   - Surfaces are either flush (no card at all) or separated by
- *     a single 1px hairline. Never a filled card on a filled page.
- *   - Radii never exceed 6px.
- *   - 48px+ gaps between sections. Generous rhythm.
+ * Majorka Design Tokens — futuristic light-dark hybrid.
+ * Inspired by Linear, Vercel, Raycast.
  */
 
 export const t = {
-  // ── SURFACES ────────────────────────────────────────────
-  // Pure black. One level. That's it.
-  bg: '#000000',
-  // Raised is used sparingly — only for popover menus, hover rows,
-  // drawers. Not for cards.
-  raised: 'rgba(255,255,255,0.04)',
+  // Backgrounds — dark but not black
+  bg: '#0d0f14',
+  surface: '#13151c',
+  raised: '#1a1d27',
+  overlay: '#20243380',
 
-  // ── BORDERS ─────────────────────────────────────────────
-  // One hairline. That's the whole border system.
-  line: 'rgba(255,255,255,0.08)',
-  lineStrong: 'rgba(255,255,255,0.16)',
-  lineFocus: 'rgba(255,255,255,0.35)',
+  // Text
+  text: '#f0f2ff',
+  body: '#9499b0',
+  muted: '#555a72',
 
-  // ── TEXT ────────────────────────────────────────────────
-  // Four steps, all white with descending opacity.
-  text: '#ffffff',
-  body: 'rgba(255,255,255,0.72)',
-  muted: 'rgba(255,255,255,0.48)',
-  faint: 'rgba(255,255,255,0.28)',
+  // Accent — electric blue/violet, NOT gold
+  accent: '#6366f1',
+  accentHover: '#818cf8',
+  accentSubtle: 'rgba(99,102,241,0.12)',
 
-  // ── ACCENT (ONE ONLY — PRIMARY CTA) ─────────────────────
-  // Gold. Used at most once per screen.
-  accent: '#d4af37',
-  accentHover: '#e6c14a',
-  accentInk: '#000000',
+  // Cyan highlight for data/numbers
+  cyan: '#22d3ee',
+  cyanSubtle: 'rgba(34,211,238,0.1)',
 
-  // ── STATUS COLORS (for data only) ───────────────────────
-  // Less saturated. No glows. Used in score pills and deltas only.
+  // Success
   green: '#10b981',
-  greenDim: 'rgba(16,185,129,0.15)',
-  amber: '#f59e0b',
-  amberDim: 'rgba(245,158,11,0.15)',
-  red: '#ef4444',
-  redDim: 'rgba(239,68,68,0.15)',
+  greenSubtle: 'rgba(16,185,129,0.1)',
 
-  // ── RADII (NEVER > 6) ───────────────────────────────────
-  rSm: 4,
-  rMd: 6,
-  rPill: 999,
+  // Borders
+  line: 'rgba(255,255,255,0.07)',
+  lineStrong: 'rgba(255,255,255,0.12)',
+  lineFocus: '#6366f1',
 
-  // ── SPACING — generous. Section gaps live at s8+ ────────
+  // Typography
+  fontDisplay: "'Syne', sans-serif",
+  fontBody: "'DM Sans', sans-serif",
+  fontMono: "'JetBrains Mono', monospace",
+
+  // Type scale
+  fH1: 48,
+  fH2: 28,
+  fH3: 18,
+  fLead: 15,
+  fBody: 14,
+  fCaption: 11,
+
+  // Spacing (8pt grid)
   s1: 4,
   s2: 8,
   s3: 12,
@@ -64,112 +54,34 @@ export const t = {
   s5: 20,
   s6: 24,
   s7: 32,
-  s8: 48,
-  s9: 64,
-  s10: 96,
+  s8: 40,
 
-  // ── TYPE SCALE ──────────────────────────────────────────
-  // Editorial rhythm. H1 is massive; everything else falls
-  // back to quiet, functional sizes.
+  // Radius
+  rSm: 8,
+  rMd: 12,
+  rLg: 16,
+  rXl: 24,
+
+  // Motion
+  dur: '150ms',
+  ease: 'cubic-bezier(0.16,1,0.3,1)',
+
+  // ── Compat aliases (used by Products.tsx and other legacy pages) ──
+  // These let us ship the new Home + Nav without a full rewrite of
+  // every page. They map cleanly onto the new palette.
   fMicro: 10,
-  fCaption: 12,
-  fBody: 13,
-  fLead: 15,
-  fH3: 18,
-  fH2: 28,
-  fH1: 52,
-  fKpi: 44,
-
-  // ── FONTS ───────────────────────────────────────────────
-  fontDisplay: "'Bricolage Grotesque', system-ui, sans-serif",
-  fontBody: "'DM Sans', system-ui, sans-serif",
-  fontMono: "'JetBrains Mono', 'SF Mono', ui-monospace, monospace",
-
-  // ── MOTION ──────────────────────────────────────────────
-  ease: 'cubic-bezier(0.22, 1, 0.36, 1)',
-  dur: '160ms',
-  durSlow: '280ms',
+  fKpi: 40,
+  s9: 48,
+  s10: 64,
+  rPill: 999,
+  faint: '#3a3f52',
+  accentInk: '#ffffff',
+  accentTint: 'rgba(99,102,241,0.06)',
+  amber: '#f59e0b',
+  amberDim: 'rgba(245,158,11,0.15)',
+  red: '#ef4444',
+  redDim: 'rgba(239,68,68,0.15)',
+  greenDim: 'rgba(16,185,129,0.15)',
+  fLabel: 12,
+  rLgCompat: 14,
 } as const;
-
-/**
- * Section label — 10px uppercase tracked grey.
- * The workhorse eyebrow above every block.
- */
-export const labelStyle: React.CSSProperties = {
-  fontFamily: t.fontBody,
-  fontSize: t.fMicro,
-  fontWeight: 500,
-  color: t.muted,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-};
-
-/**
- * Primary CTA — the only thing on the page that uses the accent.
- * Gold on black, thin, no glow, no border radius greater than 4.
- */
-export const btnPrimaryStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: t.s2,
-  padding: `${t.s3}px ${t.s5}px`,
-  background: t.accent,
-  color: t.accentInk,
-  border: 'none',
-  borderRadius: t.rSm,
-  fontFamily: t.fontBody,
-  fontSize: t.fBody,
-  fontWeight: 600,
-  textDecoration: 'none',
-  cursor: 'pointer',
-  transition: `background ${t.dur} ${t.ease}`,
-};
-
-/**
- * Secondary — white text, hairline border, transparent fill.
- */
-export const btnSecondaryStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: t.s2,
-  padding: `${t.s3}px ${t.s5}px`,
-  background: 'transparent',
-  color: t.text,
-  border: `1px solid ${t.line}`,
-  borderRadius: t.rSm,
-  fontFamily: t.fontBody,
-  fontSize: t.fBody,
-  fontWeight: 500,
-  textDecoration: 'none',
-  cursor: 'pointer',
-  transition: `border-color ${t.dur} ${t.ease}`,
-};
-
-/**
- * Numeric display — editorial serif-ish weighting via Bricolage.
- * Tabular figures so columns align.
- */
-export const numStyle: React.CSSProperties = {
-  fontFamily: t.fontDisplay,
-  fontWeight: 600,
-  fontVariantNumeric: 'tabular-nums',
-  letterSpacing: '-0.02em',
-  color: t.text,
-};
-
-/**
- * Input — borderless flat field with a single bottom hairline.
- * No rounded >6px, no filled background unless focused.
- */
-export const inputStyle: React.CSSProperties = {
-  background: 'transparent',
-  border: `1px solid ${t.line}`,
-  borderRadius: t.rMd,
-  padding: `${t.s3}px ${t.s4}px`,
-  color: t.text,
-  fontFamily: t.fontBody,
-  fontSize: t.fBody,
-  outline: 'none',
-  boxSizing: 'border-box',
-  transition: `border-color ${t.dur} ${t.ease}`,
-};

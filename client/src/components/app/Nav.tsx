@@ -57,14 +57,11 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
   },
 ];
 
-/**
- * Nav — pure black, no background on the sidebar itself.
- * Section labels are 10px uppercase tracked grey. The active item
- * gets a 2px white inset left line and pure white text. That's it.
- */
+const NAV_BG = '#0a0c12';
+
 export function Nav() {
   const [location, navigate] = useLocation();
-  const { user, isPro } = useAuth();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
@@ -78,8 +75,8 @@ export function Nav() {
   return (
     <nav
       style={{
-        width: 232,
-        background: t.bg,
+        width: 200,
+        background: NAV_BG,
         borderRight: `1px solid ${t.line}`,
         display: 'flex',
         flexDirection: 'column',
@@ -90,29 +87,28 @@ export function Nav() {
         overflowY: 'auto',
       }}
     >
-      {/* Brand — real Majorka logo + wordmark */}
+      {/* Brand — logo + wordmark */}
       <Link
         href="/app"
         style={{
-          height: 72,
           display: 'flex',
           alignItems: 'center',
-          gap: t.s3,
-          padding: `0 ${t.s6}px`,
-          flexShrink: 0,
+          gap: 10,
+          padding: '20px 16px',
           textDecoration: 'none',
+          flexShrink: 0,
         }}
       >
         <img
           src="/majorka-logo.jpg"
           alt="Majorka"
-          width={30}
-          height={30}
+          width={26}
+          height={26}
           draggable={false}
           style={{
-            width: 30,
-            height: 30,
-            borderRadius: t.rMd,
+            width: 26,
+            height: 26,
+            borderRadius: 6,
             objectFit: 'cover',
             display: 'block',
             flexShrink: 0,
@@ -122,27 +118,27 @@ export function Nav() {
         <span
           style={{
             fontFamily: t.fontDisplay,
-            fontWeight: 600,
-            fontSize: 19,
+            fontWeight: 800,
+            fontSize: 15,
             color: t.text,
-            letterSpacing: '-0.025em',
+            letterSpacing: '-0.02em',
           }}
         >
           Majorka
         </span>
       </Link>
 
-      {/* Search — single hairline field, no fake kbd */}
-      <div style={{ padding: `0 ${t.s4}px ${t.s6}px` }}>
+      {/* Search */}
+      <div style={{ padding: '0 12px 8px' }}>
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: t.s2,
-            background: 'transparent',
-            border: `1px solid ${t.line}`,
-            borderRadius: t.rMd,
-            padding: `${t.s2}px ${t.s3}px`,
+            gap: 8,
+            background: t.surface,
+            border: `1px solid ${t.lineStrong}`,
+            borderRadius: 8,
+            padding: '8px 12px',
           }}
         >
           <Search size={13} color={t.muted} strokeWidth={1.75} />
@@ -163,7 +159,7 @@ export function Nav() {
               border: 'none',
               outline: 'none',
               color: t.text,
-              fontSize: t.fBody,
+              fontSize: 13,
               fontFamily: t.fontBody,
               padding: 0,
             }}
@@ -172,21 +168,21 @@ export function Nav() {
       </div>
 
       {/* Groups */}
-      <div style={{ paddingBottom: t.s6 }}>
+      <div style={{ paddingBottom: 16, flex: 1 }}>
         {GROUPS.map((group, gi) => {
           const visible = group.items.filter((i) => !i.adminOnly || isAdmin);
           if (visible.length === 0) return null;
           return (
-            <div key={gi} style={{ marginBottom: t.s6 }}>
+            <div key={gi}>
               <div
                 style={{
-                  padding: `0 ${t.s6}px ${t.s3}px`,
+                  fontSize: 9,
                   fontFamily: t.fontBody,
-                  fontSize: t.fMicro,
-                  fontWeight: 500,
+                  fontWeight: 600,
                   color: t.muted,
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
+                  margin: '20px 0 4px 16px',
                 }}
               >
                 {group.title}
@@ -203,30 +199,29 @@ export function Nav() {
         })}
       </div>
 
-      {/* User footer — single hairline, no avatar tile */}
+      {/* User footer */}
       <div
         style={{
-          marginTop: 'auto',
           borderTop: `1px solid ${t.line}`,
-          padding: `${t.s4}px ${t.s6}px`,
+          padding: '14px 16px',
           display: 'flex',
           alignItems: 'center',
-          gap: t.s3,
+          gap: 10,
         }}
       >
         <div
           style={{
-            width: 26,
-            height: 26,
-            borderRadius: t.rMd,
-            border: `1px solid ${t.line}`,
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: t.accent,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: t.fontBody,
-            fontWeight: 600,
-            fontSize: 11,
-            color: t.text,
+            fontFamily: t.fontDisplay,
+            fontWeight: 700,
+            fontSize: 12,
+            color: '#ffffff',
             flexShrink: 0,
           }}
         >
@@ -236,7 +231,7 @@ export function Nav() {
           <div
             style={{
               fontFamily: t.fontBody,
-              fontSize: t.fBody,
+              fontSize: 13,
               fontWeight: 500,
               color: t.text,
               overflow: 'hidden',
@@ -245,19 +240,6 @@ export function Nav() {
             }}
           >
             {displayName}
-          </div>
-          <div
-            style={{
-              fontFamily: t.fontBody,
-              fontSize: t.fMicro,
-              color: t.muted,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              marginTop: 1,
-            }}
-          >
-            {isPro ? 'Scale' : 'Builder'}
           </div>
         </div>
         <Link
@@ -290,32 +272,38 @@ function NavLink({ item, active }: NavLinkProps) {
   const baseStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: t.s3,
-    padding: `${t.s2}px ${t.s6}px`,
-    // 2px white inset line on the left for active state — the only decoration.
-    boxShadow: active ? `inset 2px 0 0 ${t.text}` : 'none',
+    gap: 10,
+    padding: '7px 12px',
+    margin: '1px 8px',
+    borderRadius: 6,
     cursor: item.soon ? 'not-allowed' : 'pointer',
     textDecoration: 'none',
-    fontSize: t.fBody,
+    fontSize: 13,
     fontFamily: t.fontBody,
-    transition: `color ${t.dur} ${t.ease}`,
-    color: active ? t.text : item.soon ? t.faint : t.muted,
-    background: 'transparent',
-    fontWeight: active ? 600 : 400,
-    minHeight: 32,
+    transition: `background ${t.dur} ${t.ease}, color ${t.dur} ${t.ease}`,
+    color: active ? t.text : item.soon ? t.muted : t.body,
+    background: active ? t.accentSubtle : 'transparent',
+    borderLeft: active ? `2px solid ${t.accent}` : '2px solid transparent',
+    fontWeight: active ? 600 : 500,
   };
   return (
     <Link
       href={item.soon ? '#' : item.path}
       style={baseStyle}
       onMouseEnter={(e) => {
-        if (!active && !item.soon) (e.currentTarget as HTMLAnchorElement).style.color = t.text;
+        if (!active && !item.soon) {
+          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.04)';
+          (e.currentTarget as HTMLAnchorElement).style.color = t.text;
+        }
       }}
       onMouseLeave={(e) => {
-        if (!active && !item.soon) (e.currentTarget as HTMLAnchorElement).style.color = t.muted;
+        if (!active && !item.soon) {
+          (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+          (e.currentTarget as HTMLAnchorElement).style.color = t.body;
+        }
       }}
     >
-      <Icon size={14} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+      <Icon size={14} strokeWidth={1.75} style={{ flexShrink: 0 }} />
       <span
         style={{
           flex: 1,
@@ -331,9 +319,9 @@ function NavLink({ item, active }: NavLinkProps) {
         <span
           style={{
             fontFamily: t.fontBody,
-            fontSize: t.fMicro,
-            fontWeight: 400,
-            color: t.faint,
+            fontSize: 9,
+            fontWeight: 500,
+            color: t.muted,
             flexShrink: 0,
           }}
         >

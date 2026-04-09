@@ -4,10 +4,6 @@ import { t } from '@/lib/designTokens';
 
 interface AppShellProps { children: ReactNode }
 
-/**
- * AppShell — pure black editorial canvas.
- * No gradients, no tint, no decoration. Just black + a hairline.
- */
 export function AppShell({ children }: AppShellProps) {
   return (
     <div
