@@ -99,6 +99,7 @@ const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
 const ROASCalculator = lazy(() => import('./pages/tools/ROASCalculator'));
 const OperatorWall = lazy(() => import('./pages/OperatorWall'));
 const Affiliates = lazy(() => import('./pages/Affiliates'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 interface ComingSoonProps { page: string }
 function ComingSoon({ page }: ComingSoonProps) {
@@ -389,6 +390,8 @@ function Router() {
             <Route path="/terms">{() => <LegalPage title="Terms of Service" slug="terms" />}</Route>
             <Route path="/cookies">{() => <LegalPage title="Cookie Policy" slug="cookie-policy" />}</Route>
             <Route path="/refund-policy">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
+            <Route path="/refunds">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
+            <Route path="/contact">{() => <Contact />}</Route>
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />
           </Switch>

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { Toaster } from 'sonner';
 import { Nav } from './Nav';
+import { OnboardingWizard } from './OnboardingWizard';
 
 interface AppShellProps { children: ReactNode }
 
@@ -17,6 +18,10 @@ interface AppShellProps { children: ReactNode }
  */
 export function AppShell({ children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try { return localStorage.getItem('majorka_onboarded') !== '1'; } catch { return false; }
+  });
 
   return (
     <Tooltip.Provider delayDuration={200} skipDelayDuration={100}>
@@ -70,6 +75,10 @@ export function AppShell({ children }: AppShellProps) {
           </motion.main>
         </div>
       </div>
+
+      {showOnboarding && (
+        <OnboardingWizard onComplete={() => setShowOnboarding(false)} />
+      )}
 
       <Toaster
         position="bottom-right"

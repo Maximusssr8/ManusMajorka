@@ -171,9 +171,15 @@ export default function SettingsProfile() {
           clearTimeout(subTimeout);
           if (data) {
             const planName = data.plan || 'free';
-            const renewalDate = data.periodEnd
-              ? new Date(data.periodEnd).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
-              : 'monthly';
+            // Reject any "2099" placeholder from manual-override seeds —
+            // those should never reach the UI as a real renewal date.
+            let renewalDate = 'monthly';
+            if (data.periodEnd) {
+              const end = new Date(data.periodEnd);
+              if (Number.isFinite(end.getTime()) && end.getFullYear() < 2099) {
+                renewalDate = end.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+              }
+            }
             setSubInfo({ plan: planName, renewalDate, status: data.status || 'inactive' });
           } else {
             setSubInfo({ plan: 'free', renewalDate: 'N/A', status: 'inactive' });

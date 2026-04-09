@@ -46,6 +46,7 @@ function saveAlerts(alerts: StoredAlert[]) {
 }
 
 export default function Alerts() {
+  useEffect(() => { document.title = 'Alerts — Majorka'; }, []);
   const { user, isPro } = useAuth();
   const { niches } = useNicheStats(20);
   const { tracked, trackedCount, untrack } = useTracking();

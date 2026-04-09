@@ -938,6 +938,7 @@ function TT({ content, children, side = 'top' }: { content: React.ReactNode; chi
    ══════════════════════════════════════════════════════════════ */
 
 export default function AppProducts() {
+  useEffect(() => { document.title = 'Products — Majorka'; }, []);
   const initial = readInitialParams();
   const [, navigate] = useLocation();
   const [orderBy, setOrderBy] = useState<SortKey>('sold_count');

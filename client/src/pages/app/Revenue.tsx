@@ -1,271 +1,259 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'wouter';
-import { useProducts } from '@/hooks/useProducts';
-import { scorePillStyle, fmtScore } from '@/lib/scorePill';
-import { shortenCategory, fmtK } from '@/lib/categoryColor';
-import { ProductSparkline } from '@/components/app/Sparkline';
+import { useEffect, useState } from 'react';
+import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
 
-import { C } from '@/lib/designTokens';
-const display = C.fontDisplay;
-const sans = C.fontBody;
-const mono = C.fontBody;
+/**
+ * Revenue.tsx — personal profit log for the operator.
+ *
+ * Pure localStorage-backed (key: majorka_revenue_v1). No server, no
+ * Supabase — operator's data stays on their device. Each entry tracks
+ * a product they're running with daily revenue, daily ad spend, and
+ * days running. The page aggregates totals + ROAS across all entries.
+ *
+ * The point of this page is retention: it turns Majorka from a research
+ * tool into a business management tool — the operator's daily check-in
+ * spot for "am I making money?".
+ */
 
-// Demo data — clearly labelled. Revenue pipeline is unconnected; when a user
-// connects Shopify this is replaced with real figures.
-const DEMO_TOTAL_REVENUE = 24750;
-const DEMO_ORDERS = 847;
-const DEMO_AOV = 29.22;
-const DEMO_DAYS = 30;
-
-function generateDemoSeries(days: number, total: number): number[] {
-  const avg = total / days;
-  const out: number[] = [];
-  for (let i = 0; i < days; i++) {
-    const dayOfWeek = (i + 1) % 7;
-    const weekendDip = dayOfWeek === 0 || dayOfWeek === 6 ? 0.7 : 1;
-    const growth = 0.7 + (i / days) * 0.6; // gradual upward trend
-    const noise = 0.85 + Math.sin(i * 1.3) * 0.2;
-    out.push(Math.round(avg * weekendDip * growth * noise));
-  }
-  return out;
+interface RevenueEntry {
+  id: string;
+  productTitle: string;
+  startDate: string;
+  dailyRevenue: number;
+  dailyAdSpend: number;
+  daysRunning: number;
+  notes?: string;
 }
 
-function LineChart({ data, width = 800, height = 200, color = C.green }: { data: number[]; width?: number; height?: number; color?: string }) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const pad = 16;
-  const usableW = width - pad * 2;
-  const usableH = height - pad * 2;
-  const norm = (v: number) => pad + usableH - ((v - min) / (max - min || 1)) * usableH;
-  const stride = usableW / (data.length - 1);
-  const points = data.map((v, i) => `${pad + i * stride},${norm(v)}`).join(' ');
-  const areaPoints = `${pad},${pad + usableH} ${points} ${pad + usableW},${pad + usableH}`;
-  return (
-    <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ display: 'block' }}>
-      <defs>
-        <linearGradient id="rev-gradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={areaPoints} fill="url(#rev-gradient)" />
-      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+const STORAGE_KEY = 'majorka_revenue_v1';
+
+function loadEntries(): RevenueEntry[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as RevenueEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveEntries(entries: RevenueEntry[]): void {
+  if (typeof window === 'undefined') return;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch { /* quota */ }
 }
 
 export default function Revenue() {
-  const [showDemo, setShowDemo] = useState(false);
-  const { products } = useProducts({ limit: 5, orderBy: 'sold_count' });
+  const [entries, setEntries] = useState<RevenueEntry[]>(() => loadEntries());
+  const [showAdd, setShowAdd] = useState(false);
+  const [form, setForm] = useState({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
 
-  const demoSeries = useMemo(() => generateDemoSeries(DEMO_DAYS, DEMO_TOTAL_REVENUE), []);
-  const bestProductTitle = products[0]?.product_title ?? 'Oil Dispenser Bottle';
+  useEffect(() => { document.title = 'Revenue — Majorka'; }, []);
+
+  function persist(updated: RevenueEntry[]) {
+    setEntries(updated);
+    saveEntries(updated);
+  }
+
+  function addEntry() {
+    if (!form.productTitle.trim() || !form.dailyRevenue) return;
+    const entry: RevenueEntry = {
+      id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `rev_${Date.now()}`,
+      productTitle: form.productTitle.trim(),
+      startDate: new Date().toISOString().split('T')[0],
+      dailyRevenue: Number(form.dailyRevenue) || 0,
+      dailyAdSpend: Number(form.dailyAdSpend) || 0,
+      daysRunning: Number(form.daysRunning) || 1,
+    };
+    persist([entry, ...entries]);
+    setForm({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
+    setShowAdd(false);
+  }
+
+  function deleteEntry(id: string) {
+    persist(entries.filter((e) => e.id !== id));
+  }
+
+  // Aggregate stats
+  const totalRevenue = entries.reduce((s, e) => s + e.dailyRevenue * e.daysRunning, 0);
+  const totalAdSpend = entries.reduce((s, e) => s + e.dailyAdSpend * e.daysRunning, 0);
+  const totalProfit = totalRevenue - totalAdSpend;
+  const avgROAS = totalAdSpend > 0 ? (totalRevenue / totalAdSpend).toFixed(2) : '—';
 
   return (
-    <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
-        <div>
-          <h1 style={{
-            fontFamily: display, fontSize: 28, fontWeight: 800,
-            letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-            background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>Revenue Tracker</h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-            Connect your store to track real performance
-          </p>
+    <div className="min-h-full bg-bg font-body text-text">
+      <div className="px-4 md:px-8 pt-8 pb-6 max-w-5xl">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-text tracking-tight leading-tight">
+              Revenue Tracker
+            </h1>
+            <p className="text-sm text-muted mt-2 max-w-md">
+              Your personal profit log. Data stays on your device — only you can see this.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02]"
+            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            Add product
+          </button>
         </div>
-        <Link href="/app/store-builder" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '10px 18px',
-          background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
-          color: 'white', borderRadius: 9,
-          fontFamily: sans, fontSize: 13, fontWeight: 600,
-          textDecoration: 'none',
-          boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
-        }}>Connect Store →</Link>
+
+        {/* KPI row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: 'Total Revenue', value: `A$${totalRevenue.toLocaleString()}`, Icon: DollarSign, color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+            {
+              label: 'Net Profit',
+              value: `A$${totalProfit.toLocaleString()}`,
+              Icon: TrendingUp,
+              color: totalProfit >= 0 ? '#10b981' : '#ef4444',
+              bg: totalProfit >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+            },
+            { label: 'Ad Spend', value: `A$${totalAdSpend.toLocaleString()}`, Icon: Target, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+            { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
+          ].map(({ label, value, Icon, color, bg }) => (
+            <div key={label} className="glass-card glass-card--elevated rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.1em] text-white/30">{label}</span>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
+                  <Icon size={13} strokeWidth={2} style={{ color }} />
+                </div>
+              </div>
+              <div className="text-2xl font-display font-bold tabular-nums" style={{ color, letterSpacing: '-0.03em' }}>
+                {entries.length === 0 ? '—' : value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Empty state OR table */}
+        {entries.length === 0 ? (
+          <div className="glass-card rounded-2xl p-12 text-center">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+            >
+              <TrendingUp size={20} className="text-accent" />
+            </div>
+            <p className="text-text font-semibold mb-1">No products tracked yet</p>
+            <p className="text-sm text-muted mb-5 max-w-sm mx-auto">
+              Log your first product to start tracking your real profit from Majorka. Takes 30 seconds.
+            </p>
+            <button
+              onClick={() => setShowAdd(true)}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+              style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)' }}
+            >
+              Add your first product
+            </button>
+          </div>
+        ) : (
+          <div className="glass-card rounded-2xl overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-white/[0.03] border-b border-white/[0.06]">
+                  {['Product', 'Days', 'Rev/day', 'Ad/day', 'Net Profit', 'ROAS', ''].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-[9px] font-semibold uppercase tracking-[0.1em] text-white/30">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((e) => {
+                  const totalRev = e.dailyRevenue * e.daysRunning;
+                  const totalSpend = e.dailyAdSpend * e.daysRunning;
+                  const profit = totalRev - totalSpend;
+                  const roas = totalSpend > 0 ? (totalRev / totalSpend).toFixed(2) : '—';
+                  return (
+                    <tr key={e.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                      <td className="px-4 py-4">
+                        <div className="text-sm font-medium text-text">{e.productTitle}</div>
+                        <div className="text-[10px] text-white/30 mt-0.5">Started {e.startDate}</div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-body tabular-nums">{e.daysRunning}d</td>
+                      <td className="px-4 py-4 text-sm font-semibold text-text tabular-nums">A${e.dailyRevenue}</td>
+                      <td className="px-4 py-4 text-sm text-body tabular-nums">A${e.dailyAdSpend}</td>
+                      <td
+                        className="px-4 py-4 text-sm font-bold tabular-nums"
+                        style={{ color: profit >= 0 ? '#10b981' : '#ef4444' }}
+                      >
+                        A${profit.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-4 text-sm font-semibold text-accent-hover tabular-nums">{roas}x</td>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => deleteEntry(e.id)}
+                          aria-label="Delete entry"
+                          className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/20 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {!showDemo ? (
-        <div style={{
-          background: C.raised,
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 14,
-          padding: '48px 32px',
-          textAlign: 'center',
-          maxWidth: 640,
-          margin: '48px auto 0',
-        }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 16,
-            background: 'rgba(124,106,255,0.1)',
-            border: '1px solid rgba(124,106,255,0.25)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 20px',
-          }}>
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={C.accentHover} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 9l3-6h12l3 6" />
-              <path d="M3 9v12h18V9" />
-              <path d="M9 21V12h6v9" />
-            </svg>
-          </div>
-          <h2 style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>
-            Connect your Shopify store to unlock Revenue tracking
-          </h2>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, margin: '0 0 24px', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
-            See real-time revenue, top products, daily trends, and profit margins — all in one place.
-          </p>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/app/store-builder" style={{
-              padding: '12px 22px', borderRadius: 9,
-              background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
-              color: 'white', fontFamily: sans, fontSize: 14, fontWeight: 600,
-              textDecoration: 'none',
-              boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
-            }}>Connect Shopify →</Link>
-            <button
-              onClick={() => setShowDemo(true)}
-              style={{
-                padding: '12px 22px', borderRadius: 9,
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.8)',
-                fontFamily: sans, fontSize: 14, fontWeight: 500,
-                cursor: 'pointer',
-              }}
-            >Or explore with demo data →</button>
+      {/* Add product modal */}
+      {showAdd && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+          onClick={() => setShowAdd(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl p-6 glass-card glass-card--elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-display font-bold text-text mb-4">Add product</h3>
+            <div className="space-y-3">
+              {[
+                { key: 'productTitle' as const, label: 'Product name', placeholder: 'e.g. Nano Tape Strong', type: 'text' },
+                { key: 'dailyRevenue' as const, label: 'Daily revenue (A$)', placeholder: '0', type: 'number' },
+                { key: 'dailyAdSpend' as const, label: 'Daily ad spend (A$)', placeholder: '0', type: 'number' },
+                { key: 'daysRunning' as const, label: 'Days running', placeholder: '1', type: 'number' },
+              ].map((field) => (
+                <div key={field.key}>
+                  <label className="block text-[10px] text-white/40 uppercase tracking-wider mb-1">{field.label}</label>
+                  <input
+                    type={field.type}
+                    placeholder={field.placeholder}
+                    value={form[field.key]}
+                    onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
+                    className="w-full px-4 py-3 rounded-xl text-sm text-text placeholder-white/20 outline-none bg-white/[0.05] border border-white/[0.08] focus:border-accent transition-colors"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setShowAdd(false)}
+                className="flex-1 py-3 rounded-xl text-sm text-white/40 border border-white/[0.08]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addEntry}
+                disabled={!form.productTitle.trim() || !form.dailyRevenue}
+                className="flex-1 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </div>
-      ) : (
-        <>
-          {/* Demo banner */}
-          <div style={{
-            background: 'rgba(245,158,11,0.08)',
-            border: '1px solid rgba(245,158,11,0.25)',
-            borderRadius: 10,
-            padding: '10px 16px',
-            marginBottom: 20,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}>
-            <span style={{ fontSize: 16 }}>📊</span>
-            <span style={{ fontSize: 12, color: C.amber, fontWeight: 500 }}>
-              Demo data — connect your store to see real numbers
-            </span>
-            <button
-              onClick={() => setShowDemo(false)}
-              style={{
-                marginLeft: 'auto',
-                background: 'none',
-                border: 'none',
-                color: 'rgba(245,158,11,0.6)',
-                cursor: 'pointer',
-                fontSize: 12,
-              }}
-            >Hide demo</button>
-          </div>
-
-          {/* Stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 28 }}>
-            <StatCard label="Total Revenue"   value={`$${DEMO_TOTAL_REVENUE.toLocaleString()}`} sub="Last 30 days" accent={C.green} glow="rgba(16,185,129,0.25)" />
-            <StatCard label="Orders"          value={DEMO_ORDERS.toLocaleString()}              sub="This month"  accent={C.accent} glow="rgba(124,106,255,0.25)" />
-            <StatCard label="Best Product"    value={shortenCategory(bestProductTitle.slice(0, 22))} sub="Top seller" accent={C.amber} glow="rgba(245,158,11,0.2)" />
-            <StatCard label="Avg Order Value" value={`$${DEMO_AOV.toFixed(2)}`}                  sub="Per order"   accent="#a855f7" glow="rgba(168,85,247,0.25)" />
-          </div>
-
-          {/* Line chart */}
-          <div style={{
-            background: C.raised,
-            border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 28,
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div>
-                <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>30-Day Revenue</div>
-                <div style={{ fontFamily: display, fontSize: 22, fontWeight: 700, color: C.text, marginTop: 2 }}>${DEMO_TOTAL_REVENUE.toLocaleString()}</div>
-              </div>
-              <div style={{ fontFamily: mono, fontSize: 11, color: C.green }}>↑ 18.4%</div>
-            </div>
-            <LineChart data={demoSeries} height={200} />
-          </div>
-
-          {/* Top products table */}
-          <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Top Products</h2>
-          <div style={{
-            background: C.raised,
-            border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 12,
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              display: 'grid', gridTemplateColumns: '30px minmax(0,2fr) 120px 110px 90px 110px',
-              gap: 14,
-              padding: '10px 16px', background: '#222222',
-              borderBottom: '1px solid rgba(255,255,255,0.07)',
-              fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.2)',
-              textTransform: 'uppercase', letterSpacing: '0.1em',
-            }}>
-              <span>#</span><span>Product</span><span>Score</span>
-              <span style={{ textAlign: 'right' }}>Orders</span>
-              <span style={{ textAlign: 'right' }}>Revenue</span>
-              <span>Trend</span>
-            </div>
-            {products.map((p, i) => {
-              const score = p.winning_score ?? 0;
-              const orders = p.sold_count ?? 0;
-              const sp = scorePillStyle(score);
-              const demoRev = Math.round((orders / 10000) * 1200 + 800);
-              return (
-                <div key={p.id} style={{
-                  display: 'grid', gridTemplateColumns: '30px minmax(0,2fr) 120px 110px 90px 110px',
-                  gap: 14, padding: '14px 16px', alignItems: 'center', minHeight: 60,
-                  borderBottom: i === products.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.04)',
-                }}>
-                  <span style={{ fontFamily: mono, fontSize: 12, color: '#52525b' }}>{String(i + 1).padStart(2, '0')}</span>
-                  <span style={{
-                    fontFamily: sans, fontSize: 13, fontWeight: 500, color: C.text,
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0,
-                  }}>{p.product_title}</span>
-                  <span>
-                    <span style={{
-                      background: sp.background, color: sp.color, border: sp.border,
-                      fontFamily: mono, fontSize: 11, fontWeight: 700,
-                      padding: '3px 9px', borderRadius: 999, display: 'inline-block',
-                    }}>{fmtScore(score)}</span>
-                  </span>
-                  <span style={{ fontFamily: mono, fontSize: 13, color: C.green, textAlign: 'right' }}>{fmtK(orders)}</span>
-                  <span style={{ fontFamily: mono, fontSize: 13, color: C.text, textAlign: 'right' }}>${demoRev.toLocaleString()}</span>
-                  <span><ProductSparkline productId={p.id} score={score} width={80} height={22} /></span>
-                </div>
-              );
-            })}
-          </div>
-        </>
       )}
-    </div>
-  );
-}
-
-function StatCard({ label, value, sub, accent, glow }: { label: string; value: string; sub: string; accent: string; glow: string }) {
-  return (
-    <div style={{
-      background: C.raised,
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderLeft: `3px solid ${accent}`,
-      borderRadius: 12,
-      padding: '18px 20px',
-      position: 'relative',
-      overflow: 'hidden',
-      minHeight: 110,
-    }}>
-      <div style={{ position: 'absolute', top: -30, right: -30, width: 90, height: 90, borderRadius: '50%', background: glow, filter: 'blur(28px)', pointerEvents: 'none' }} />
-      <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>{label}</div>
-      <div style={{ fontFamily: display, fontSize: 26, fontWeight: 800, color: C.text, letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: 6 }}>{value}</div>
-      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{sub}</div>
     </div>
   );
 }

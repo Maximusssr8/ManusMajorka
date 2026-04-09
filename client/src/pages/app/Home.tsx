@@ -69,6 +69,7 @@ function scoreTierStyle(score: number): { backgroundColor: string; color: string
    ────────────────────────────────────────────────────────────── */
 
 export default function AppHome() {
+  useEffect(() => { document.title = 'Dashboard — Majorka'; }, []);
   const { user } = useAuth();
   const { stats, loading: statsLoading } = useStatsOverview();
   const fav = useFavourites();
@@ -109,9 +110,11 @@ export default function AppHome() {
       sub: 'Live AliExpress feed',
       Icon: Package,
       accent: '#6366f1',
+      // Only show a trend pill when we actually have movement — empty
+      // weeks shouldn't render a "No change" pill that ages badly
       trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week`
                  : totalDelta < 0 ? `${totalDelta.toLocaleString()} this week`
-                 : 'No change this week',
+                 : null,
       trendPositive: totalDelta > 0,
     },
     {
@@ -120,7 +123,9 @@ export default function AppHome() {
       sub: 'Score 65 and above',
       Icon: Flame,
       accent: '#f59e0b',
-      trendText: hotDelta == null ? 'Insufficient data'
+      // Hide the pill entirely when we don't have a meaningful delta —
+      // null reads as "no claim", which is cleaner than +999% or "insufficient data"
+      trendText: hotDelta == null ? null
                  : hotDelta > 0 ? `+${hotDelta}% vs last week`
                  : hotDelta < 0 ? `${hotDelta}% vs last week`
                  : 'Flat vs last week',

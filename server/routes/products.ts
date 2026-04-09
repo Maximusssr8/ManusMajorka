@@ -551,12 +551,16 @@ router.get('/stats-overview', async (_req: Request, res: Response) => {
       return ts >= twoWeeksAgo && ts < weekAgo;
     }).length;
 
-    // Clamp trend percentage: require baseline >= 10 for a meaningful delta,
-    // otherwise surface "insufficient data" (null). Cap at +999% to prevent
-    // absurd jumps from tiny denominators leaking through.
-    const hotDelta = hotNewLastWeek >= 10
-      ? Math.max(-999, Math.min(999, Math.round(((hotNewThisWeek - hotNewLastWeek) / hotNewLastWeek) * 100)))
-      : null; // null = insufficient data
+    // Clamp trend percentage: require baseline >= 20 for a meaningful delta,
+    // and return null (not a capped value) for any result above 999% so the
+    // client can HIDE the pill entirely. Showing "+999% vs last week" reads
+    // as a bug; absence reads as honesty.
+    const hotDelta = (() => {
+      if (!hotNewLastWeek || hotNewLastWeek < 20) return null;
+      const raw = Math.round(((hotNewThisWeek - hotNewLastWeek) / hotNewLastWeek) * 100);
+      if (raw > 999 || raw < -999) return null;
+      return raw;
+    })();
 
     return res.json({
       total,
@@ -966,12 +970,13 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
         .not('sold_count', 'is', null)
         .order('sold_count', { ascending: false })
         .limit(1),
+      // Best Margin: cheapest viable product. Floor at A$1 to exclude
+      // bad-data rows (we've seen $0.02 garlic presses leak through).
       sb.from('winning_products')
         .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
         .gte('winning_score', 80)
         .gte('sold_count', 1000)
-        .not('price_aud', 'is', null)
-        .gt('price_aud', 0)
+        .gte('price_aud', 1.00)
         .order('price_aud', { ascending: true })
         .limit(1),
       sb.from('winning_products')
