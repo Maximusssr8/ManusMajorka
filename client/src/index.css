@@ -1,6 +1,105 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────────
+   Majorka signature visual system — gradient backdrop, glass cards,
+   ambient glow, micro-animations. Used across the app shell + Home
+   + Products to give the dashboard its premium "screenshot-worthy"
+   feel. Consumed by .app-bg / .glass-card / .animate-in classes.
+   ──────────────────────────────────────────────────────────────── */
+.app-bg {
+  background:
+    radial-gradient(ellipse 120% 80% at 15% -10%, rgba(99,102,241,0.18) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 85% 110%, rgba(139,92,246,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(34,211,238,0.04) 0%, transparent 60%),
+    #0d0f14;
+}
+
+.app-glow {
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 70%;
+  height: 60%;
+  background: radial-gradient(ellipse, rgba(99,102,241,0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(40px);
+  animation: mj-glow-shift 10s ease-in-out infinite;
+}
+
+@keyframes mj-glow-shift {
+  0%, 100% { opacity: 0.75; transform: scale(1) translateX(0); }
+  50%      { opacity: 1;    transform: scale(1.06) translateX(2%); }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.2) inset;
+}
+
+.glass-card--elevated {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.glass-card--accent {
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(99, 102, 241, 0.1),
+    0 0 60px rgba(99, 102, 241, 0.08);
+}
+
+.glass-card--interactive {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.glass-card--interactive:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(99, 102, 241, 0.2),
+    0 0 80px rgba(99, 102, 241, 0.1);
+}
+
+@keyframes mj-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: mj-fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.10s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.20s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+@keyframes mj-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card-animate { animation: mj-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes mj-score-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.45); }
+  50%      { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+}
+.score-hot { animation: mj-score-pulse 2s ease-in-out infinite; }
+
+
+/* ────────────────────────────────────────────────────────────────
    Tailwind v4 @theme block — generates utilities (bg-card,
    text-text, border-accent, etc.) from the Majorka design system.
    Every one of these lines creates a utility class.

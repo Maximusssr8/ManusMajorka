@@ -20,7 +20,8 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <Tooltip.Provider delayDuration={200} skipDelayDuration={100}>
-      <div className="flex h-screen overflow-hidden bg-bg text-text font-body">
+      <div className="app-bg flex h-screen overflow-hidden text-text font-body relative">
+        <div className="app-glow" aria-hidden="true" />
         {/* Mobile backdrop */}
         {sidebarOpen && (
           <div
@@ -42,7 +43,7 @@ export function AppShell({ children }: AppShellProps) {
         </div>
 
         {/* Main column */}
-        <div className="flex-1 flex flex-col min-w-0 bg-bg">
+        <div className="flex-1 flex flex-col min-w-0 relative z-10">
           {/* Mobile header bar — visible only below md */}
           <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-surface shrink-0">
             <button

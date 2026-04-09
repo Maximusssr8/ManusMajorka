@@ -1,7 +1,6 @@
 import { Link } from 'wouter';
 import { useState } from 'react';
 import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
-import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -100,7 +99,7 @@ export default function AppHome() {
   const hotDelta = stats?.hotDelta ?? null;
   const kpiCards: {
     label: string; numeric: number | null; sub: string;
-    Icon: typeof Package; topLine: string;
+    Icon: typeof Package; accent: string;
     trendText: string | null; trendPositive: boolean;
   }[] = [
     {
@@ -108,7 +107,7 @@ export default function AppHome() {
       numeric: stats?.total ?? null,
       sub: 'Live AliExpress feed',
       Icon: Package,
-      topLine: 'bg-accent',
+      accent: '#6366f1',
       trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week`
                  : totalDelta < 0 ? `${totalDelta.toLocaleString()} this week`
                  : 'No change this week',
@@ -119,7 +118,7 @@ export default function AppHome() {
       numeric: stats?.hotProducts ?? null,
       sub: 'Score 65 and above',
       Icon: Flame,
-      topLine: 'bg-amber',
+      accent: '#f59e0b',
       trendText: hotDelta == null ? 'Insufficient data'
                  : hotDelta > 0 ? `+${hotDelta}% vs last week`
                  : hotDelta < 0 ? `${hotDelta}% vs last week`
@@ -131,7 +130,7 @@ export default function AppHome() {
       numeric: fav.count,
       sub: fav.count === 0 ? 'Start saving winners' : 'In your library',
       Icon: Bookmark,
-      topLine: 'bg-green',
+      accent: '#10b981',
       trendText: null,
       trendPositive: false,
     },
@@ -140,20 +139,13 @@ export default function AppHome() {
       numeric: trendingTodayCount,
       sub: 'Orders above 100K',
       Icon: TrendingUp,
-      topLine: 'bg-cyan',
+      accent: '#22d3ee',
       trendText: null,
       trendPositive: false,
     },
   ];
 
-  const gridVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-  };
-  const cardVariants = {
-    hidden:  { opacity: 0, y: 12 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
-  };
+  // Animation variants now driven by CSS .animate-in / .stagger-N classes
 
   /* Top Opportunities — pulled from live data */
   const opportunities: {
@@ -252,58 +244,78 @@ export default function AppHome() {
         </div>
       </div>
 
-      {/* KPI grid — 2 col mobile, 4 col desktop, glassmorphism cards */}
-      <motion.div
-        className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-8 pb-6"
-        variants={gridVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {kpiCards.map((card) => {
+      {/* KPI grid — premium glass cards with per-card accent glow */}
+      <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-8 pb-6">
+        {kpiCards.map((card, i) => {
           const Icon = card.Icon;
           return (
-            <motion.div
+            <div
               key={card.label}
-              variants={cardVariants}
-              className="relative isolate rounded-2xl p-5 pt-6 bg-gradient-to-br from-surface to-raised/80 backdrop-blur-sm shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_0_0_1px_rgba(99,102,241,0.3),0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-200"
+              className={`glass-card glass-card--elevated glass-card--interactive relative overflow-hidden p-6 animate-in stagger-${i + 1}`}
             >
-              <div className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-2xl z-10`} />
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-muted">
+              {/* Decorative oversized icon — sits behind the number */}
+              <div className="pointer-events-none absolute -top-4 -right-4 opacity-[0.05]">
+                <Icon size={120} strokeWidth={1} />
+              </div>
+
+              {/* Top accent line — full width, fades to transparent edges */}
+              <div
+                className="absolute top-0 left-0 right-0 h-px"
+                style={{ background: `linear-gradient(90deg, transparent, ${card.accent}, transparent)` }}
+              />
+
+              {/* Soft ambient glow at the top, behind the label */}
+              <div
+                className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-16 blur-2xl opacity-30"
+                style={{ background: card.accent }}
+              />
+
+              {/* Label + accent icon tile */}
+              <div className="relative z-10 flex items-center justify-between mb-4">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
                   {card.label}
                 </span>
-                <Icon size={14} className="text-muted" strokeWidth={1.75} />
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{ background: `${card.accent}20`, border: `1px solid ${card.accent}30` }}
+                >
+                  <Icon size={13} strokeWidth={2} style={{ color: card.accent }} />
+                </div>
               </div>
-              <div className="text-4xl md:text-5xl font-display font-bold text-text tabular-nums tracking-tight mb-2 min-h-[40px] flex items-center">
+
+              {/* Hero number — full bleed with subtle glow */}
+              <div
+                className="relative z-10 text-4xl md:text-5xl font-display font-bold text-white leading-none mb-2 min-h-[40px] flex items-center tabular-nums tracking-tight"
+                style={{ textShadow: `0 0 40px ${card.accent}40` }}
+              >
                 {statsLoading || card.numeric == null ? (
                   <span className="inline-block h-8 w-24 bg-white/[0.04] rounded animate-pulse" />
                 ) : (
-                  <CountUp
-                    end={card.numeric}
-                    duration={1.5}
-                    separator=","
-                    useEasing={true}
-                    preserveValue={true}
-                  />
+                  <CountUp end={card.numeric} duration={1.5} separator="," useEasing preserveValue />
                 )}
               </div>
-              <div className="text-[11px] text-muted mb-2.5">{card.sub}</div>
-              <div className="min-h-[22px] flex items-center">
+
+              <div className="relative z-10 text-[11px] text-white/35 mb-3">{card.sub}</div>
+
+              <div className="relative z-10 min-h-[22px] flex items-center">
                 {card.trendText && (
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                      card.trendPositive ? 'bg-green/10 text-green' : 'bg-white/[0.06] text-muted'
-                    }`}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+                    style={{
+                      background: card.trendPositive ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
+                      color: card.trendPositive ? '#10b981' : 'rgba(255,255,255,0.45)',
+                      border: `1px solid ${card.trendPositive ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`,
+                    }}
                   >
                     {card.trendPositive && <ArrowUp size={10} strokeWidth={2.5} />}
                     {card.trendText}
                   </span>
                 )}
               </div>
-            </motion.div>
+            </div>
           );
         })}
-      </motion.div>
+      </div>
 
       {/* Top products table — full-width hero content, Shopify-style */}
       <div className="relative z-10 mx-4 md:mx-8 mb-6">
