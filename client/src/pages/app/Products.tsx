@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import {
   Search, List, LayoutGrid, ChevronDown, Heart,
   ExternalLink, Zap, Flame, ShoppingBag, Store, Calculator, ChevronRight,
-  Clock, TrendingUp, DollarSign, Award, Bookmark, Bell,
+  Clock, TrendingUp, DollarSign, Award, Bookmark, Bell, X, Download,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -74,7 +74,7 @@ function daysSince(iso: string | null): number {
   if (!iso) return 9999;
   const ts = Date.parse(iso);
   if (!Number.isFinite(ts)) return 9999;
-  return (Date.now() - ts) / 86400000;
+  return Math.floor((Date.now() - ts) / 86400000);
 }
 
 /**
@@ -82,6 +82,13 @@ function daysSince(iso: string | null): number {
  * per the latest audit spec.
  */
 const NEW_DAYS_THRESHOLD = 30;
+
+/**
+ * Live AliExpress search toggle. Hidden until the backend search is
+ * reliable (Apify account hard-capped on monthly usage as of 2026-04-09).
+ * When re-enabling, flip this flag and re-test the full search flow.
+ */
+const LIVE_SEARCH_ENABLED = false;
 
 /**
  * Monthly revenue estimator.
@@ -119,6 +126,39 @@ function marketRevenue(p: Product): number | null {
   if (orders <= 0 || price <= 0) return null;
   const retailPrice = price * 3;
   return Math.round((orders / 365) * retailPrice * 30);
+}
+
+/**
+ * Exports a product list to CSV and triggers a browser download.
+ * Columns: Title, Category, Score, Orders, Price (AUD), Est Rev/mo, Added.
+ */
+function exportToCSV(products: Product[]): void {
+  const headers = ['Title', 'Category', 'Score', 'Orders', 'Price (AUD)', 'Est Revenue/mo', 'Added'];
+  const escape = (v: string | number | null | undefined): string => {
+    if (v == null) return '';
+    const s = String(v).replace(/"/g, '""');
+    return /[",\n]/.test(s) ? `"${s}"` : s;
+  };
+  const rows = products.map((p) => [
+    escape(p.product_title ?? ''),
+    escape(p.category ?? ''),
+    Math.round(p.winning_score ?? 0),
+    p.sold_count ?? 0,
+    p.price_aud ?? '',
+    p.est_daily_revenue_aud != null ? Math.round(Number(p.est_daily_revenue_aud) * 30) : '',
+    p.created_at ? new Date(p.created_at).toLocaleDateString() : '',
+  ]);
+  const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `majorka-products-${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast.success(`Exported ${products.length} products to CSV`);
 }
 
 function timeAgoShort(iso: string | null): string {
@@ -392,9 +432,12 @@ function ProductSheet({
   }
 
   const grossProfit = sellPrice - landedCost - shipping;
-  const marginPct = sellPrice > 0 ? (grossProfit / sellPrice) * 100 : 0;
-  const netAfterFees = grossProfit * (1 - feePct / 100);
+  const netAfterFees = grossProfit - (sellPrice * (feePct / 100));
+  const marginPct = sellPrice > 0 ? (netAfterFees / sellPrice) * 100 : 0;
+  const breakEvenRoas = grossProfit > 0 ? sellPrice / grossProfit : null;
+  const maxCpa = grossProfit > 0 ? grossProfit - (sellPrice * (feePct / 100)) : null;
   const profitColor = grossProfit >= 0 ? 'text-green' : 'text-red-400';
+  const marginTier = marginPct >= 30 ? 'text-green' : marginPct >= 15 ? 'text-amber' : 'text-red-400';
 
   function handleCreateAd() {
     sessionStorage.setItem('majorka_ad_product', JSON.stringify({
@@ -446,9 +489,9 @@ function ProductSheet({
             <Dialog.Close asChild>
               <button
                 aria-label="Close"
-                className="text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer p-1.5 rounded-md text-xl leading-none shrink-0"
+                className="w-11 h-11 flex items-center justify-center text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer rounded-xl shrink-0"
               >
-                ×
+                <X size={18} strokeWidth={2} />
               </button>
             </Dialog.Close>
           </div>
@@ -550,7 +593,7 @@ function ProductSheet({
             {product.created_at && (
               <div className="text-xs text-body mb-2">
                 <span className="text-muted">Added: </span>
-                {timeAgoShort(product.created_at)} ({daysSince(product.created_at)}d active)
+                {timeAgoShort(product.created_at)}
               </div>
             )}
             {(() => {
@@ -623,23 +666,29 @@ function ProductSheet({
                     </div>
                   </div>
                 ))}
-                <div className="border-t border-white/[0.08] pt-3 mt-3 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted">Gross profit</span>
+                <div className="mt-4 bg-raised rounded-xl p-4 space-y-2.5 border border-white/[0.06]">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted">Net profit per unit</span>
                     <span className={`font-bold tabular-nums ${profitColor}`}>
-                      ${grossProfit.toFixed(2)}
+                      ${netAfterFees.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="text-muted">Margin</span>
-                    <span className={`font-bold tabular-nums ${profitColor}`}>
+                    <span className={`font-bold tabular-nums ${marginTier}`}>
                       {marginPct.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm pt-1">
-                    <span className="text-text font-medium">Net after fees</span>
-                    <span className={`font-bold tabular-nums ${profitColor}`}>
-                      ${netAfterFees.toFixed(2)}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted">Break-even ROAS</span>
+                    <span className="font-bold tabular-nums text-accent-hover">
+                      {breakEvenRoas != null ? `${breakEvenRoas.toFixed(2)}x` : '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted">Max CPA</span>
+                    <span className="font-bold tabular-nums text-accent-hover">
+                      {maxCpa != null ? `$${maxCpa.toFixed(2)}` : '—'}
                     </span>
                   </div>
                 </div>
@@ -711,6 +760,7 @@ export default function AppProducts() {
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
   const [minOrders, setMinOrders] = useState<number | null>(null);
+  const [maxOrders, setMaxOrders] = useState<number | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [scoreMin, setScoreMin] = useState<number>(0);
   const [scoreMax, setScoreMax] = useState<number>(100);
@@ -748,10 +798,26 @@ export default function AppProducts() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      // Don't trigger shortcuts when user is typing in an input/textarea
+      const t = e.target as HTMLElement | null;
+      const inField = t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || (t && t.isContentEditable);
+
+      // ⌘K / Ctrl+K or / → focus search
+      if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || (!inField && e.key === '/')) {
         e.preventDefault();
         searchInputRef.current?.focus();
+        return;
       }
+      if (inField) return;
+
+      // Esc → close detail panel
+      if (e.key === 'Escape') {
+        setSelectedProduct(null);
+        return;
+      }
+      // G / L → switch view mode
+      if (e.key === 'g' || e.key === 'G') setView('grid');
+      else if (e.key === 'l' || e.key === 'L') setView('table');
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -801,6 +867,7 @@ export default function AppProducts() {
     minPrice: priceMin ?? undefined,
     maxPrice: priceMax ?? undefined,
     minOrders: minOrders ?? undefined,
+    maxOrders: maxOrders ?? undefined,
     minScore: scoreMin > 0 ? scoreMin : undefined,
     // DB keyword search — only when in db mode and a query is present
     searchQuery: searchMode === 'db' && searchInput.trim().length >= 2
@@ -876,22 +943,41 @@ export default function AppProducts() {
     };
   }, [total, allFetched, lists.totalSaved, serverTabCounts]);
 
+  // Fetch the complete category list from the server on mount. Falls back
+  // to whatever categories are present in the currently-loaded page if the
+  // endpoint fails.
+  const [serverCategories, setServerCategories] = useState<string[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products/categories')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && Array.isArray(d?.categories)) {
+          setServerCategories(d.categories);
+        }
+      })
+      .catch(() => { /* ignore — fallback below */ });
+    return () => { cancelled = true; };
+  }, []);
+
   const availableCategories = useMemo(() => {
+    if (serverCategories.length > 0) return serverCategories;
     const set = new Set<string>();
     allFetched.forEach((p) => {
       if (p.category && p.category.trim().length > 0) set.add(p.category.trim());
     });
     return Array.from(set).sort();
-  }, [allFetched]);
+  }, [serverCategories, allFetched]);
 
   const anyFilterActive =
-    priceMin !== null || priceMax !== null || minOrders !== null ||
+    priceMin !== null || priceMax !== null || minOrders !== null || maxOrders !== null ||
     categoryFilter !== '' || scoreMin > 0 || scoreMax < 100;
 
   function clearFilters(): void {
     setPriceMin(null);
     setPriceMax(null);
     setMinOrders(null);
+    setMaxOrders(null);
     setCategoryFilter('');
     setScoreMin(0);
     setScoreMax(100);
@@ -935,32 +1021,41 @@ export default function AppProducts() {
             ref={searchInputRef}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') runSearch(); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                // Enter in DB mode searches the database (already wired via
+                // searchQuery prop to useProducts). Only live mode triggers a
+                // fresh Apify search on Enter.
+                if (searchMode === 'live') runSearch();
+              }
+            }}
             placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products`}
-            className="flex-1 bg-transparent text-sm md:text-base text-text placeholder-muted outline-none min-w-0"
+            className="flex-1 search-input bg-transparent text-sm md:text-base text-text placeholder-muted outline-none min-w-0"
           />
           <kbd className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono text-muted border border-white/10 rounded shrink-0">
             ⌘K
           </kbd>
         </div>
-        <div className="flex items-center gap-1 bg-card border border-white/10 rounded-lg p-1">
-          {(['db', 'live'] as const).map((mode) => {
-            const active = searchMode === mode;
-            return (
-              <button
-                key={mode}
-                onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
-                className={`text-sm font-medium rounded-md px-3 py-1.5 transition-colors whitespace-nowrap ${
-                  active
-                    ? 'bg-accent/15 text-accent-hover border border-accent/30'
-                    : 'text-muted border border-transparent hover:text-text'
-                }`}
-              >
-                {mode === 'db' ? 'Database' : 'Live AliExpress'}
-              </button>
-            );
-          })}
-        </div>
+        {LIVE_SEARCH_ENABLED && (
+          <div className="flex items-center gap-1 bg-card border border-white/10 rounded-lg p-1">
+            {(['db', 'live'] as const).map((mode) => {
+              const active = searchMode === mode;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
+                  className={`text-sm font-medium rounded-md px-3 py-1.5 transition-colors whitespace-nowrap ${
+                    active
+                      ? 'bg-accent/15 text-accent-hover border border-accent/30'
+                      : 'text-muted border border-transparent hover:text-text'
+                  }`}
+                >
+                  {mode === 'db' ? 'Database' : 'Live AliExpress'}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {searchMode === 'live' && (
@@ -997,19 +1092,31 @@ export default function AppProducts() {
           </FilterPill>
 
           <FilterPill
-            label={minOrders !== null ? `Min orders: ${minOrders.toLocaleString()}` : 'Min Orders'}
-            active={minOrders !== null}
+            label={(() => {
+              if (minOrders == null && maxOrders == null) return 'Orders';
+              const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(0)}K` : String(n);
+              if (minOrders != null && maxOrders != null) return `Orders: ${fmt(minOrders)}–${fmt(maxOrders)}`;
+              if (minOrders != null) return `Orders: ≥ ${fmt(minOrders)}`;
+              return `Orders: ≤ ${fmt(maxOrders!)}`;
+            })()}
+            active={minOrders !== null || maxOrders !== null}
             open={openPill === 'minOrders'}
             onToggle={() => setOpenPill(openPill === 'minOrders' ? null : 'minOrders')}
             onClose={closePill}
-            onClear={() => setMinOrders(null)}
+            onClear={() => { setMinOrders(null); setMaxOrders(null); }}
           >
             <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
-              Minimum orders
+              Order volume range
             </div>
-            <input type="number" placeholder="e.g. 1000" value={minOrders ?? ''}
-              onChange={(e) => setMinOrders(e.target.value ? Number(e.target.value) : null)}
-              className={`${numberInputClass} !w-[180px]`} />
+            <div className="flex gap-2.5 items-center">
+              <input type="number" placeholder="Min" value={minOrders ?? ''}
+                onChange={(e) => setMinOrders(e.target.value ? Number(e.target.value) : null)}
+                className={numberInputClass} />
+              <span className="text-muted text-xs">to</span>
+              <input type="number" placeholder="Max" value={maxOrders ?? ''}
+                onChange={(e) => setMaxOrders(e.target.value ? Number(e.target.value) : null)}
+                className={numberInputClass} />
+            </div>
           </FilterPill>
 
           <FilterPill
@@ -1159,11 +1266,27 @@ export default function AppProducts() {
         </div>
       )}
 
-      {/* Results header */}
+      {/* Results header — results count + CSV export + kbd hints */}
       {searchMode === 'db' && (
-        <div className="px-4 md:px-8 py-3 flex items-center justify-between">
+        <div className="px-4 md:px-8 py-3 flex items-center justify-between gap-3 flex-wrap">
           <div className="text-sm text-muted">
             {loading ? 'Loading products…' : `${filteredTotal.toLocaleString()} products`}
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2 text-[10px] text-white/30">
+              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">G</kbd> grid
+              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">L</kbd> list
+              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">/</kbd> search
+              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">Esc</kbd> close
+            </div>
+            <button
+              onClick={() => exportToCSV(filtered)}
+              disabled={filtered.length === 0}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted hover:text-text border border-white/[0.08] rounded-lg hover:bg-white/[0.04] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Download size={13} />
+              Export CSV
+            </button>
           </div>
         </div>
       )}
@@ -1618,8 +1741,8 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
                 </span>
               )}
               {/* Days-active badge bottom-right on image */}
-              <span className="absolute bottom-2 right-2 text-[9px] font-semibold text-white/70 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded">
-                {daysSince(p.created_at)}d active
+              <span className="absolute bottom-2 right-2 text-[9px] font-semibold text-white/70 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded tabular-nums">
+                {daysSince(p.created_at)}d
               </span>
               {/* Score top-right */}
               {score > 0 && (

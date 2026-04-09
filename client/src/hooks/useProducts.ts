@@ -59,7 +59,8 @@ export type OrderByColumn =
   | 'est_daily_revenue_aud'
   | 'price_asc'
   | 'price_desc'
-  | 'orders_asc';
+  | 'orders_asc'
+  | 'velocity';
 
 export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top';
 
@@ -71,6 +72,7 @@ export interface UseProductsOptions {
   minPrice?: number;
   maxPrice?: number;
   minOrders?: number;
+  maxOrders?: number;
   tab?: SmartTabKey;
   /** Case-insensitive keyword search on product_title. */
   searchQuery?: string;
@@ -107,7 +109,7 @@ function applyOrder(query: any, orderBy: OrderByColumn): any {
 }
 
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
-  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, tab = 'all', searchQuery } = options;
+  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab = 'all', searchQuery } = options;
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +119,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${searchQuery ?? ''}`;
+      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${maxOrders ?? ''}:${searchQuery ?? ''}`;
       const hit = cacheGet<{ products: Product[]; total: number }>(cacheKey);
       if (hit) {
         setProducts(hit.products);
@@ -164,6 +166,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         if (typeof minPrice === 'number') query = query.gte('price_aud', minPrice);
         if (typeof maxPrice === 'number') query = query.lte('price_aud', maxPrice);
         if (typeof minOrders === 'number') query = query.gte('sold_count', minOrders);
+        if (typeof maxOrders === 'number') query = query.lte('sold_count', maxOrders);
         if (searchQuery && searchQuery.trim().length > 0) {
           query = query.ilike('product_title', `%${searchQuery.trim()}%`);
         }
@@ -172,9 +175,27 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         let { data, error: err, count } = await query;
 
+        // Helper: re-apply the stackable filters (category, price, orders,
+        // score, searchQuery) to a fallback query so tab fallbacks don't
+        // silently drop the user's other filters.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        function applyStackable(q: any): any {
+          if (typeof minScore === 'number') q = q.gte('winning_score', minScore);
+          if (category) q = q.ilike('category', category);
+          if (typeof minPrice === 'number') q = q.gte('price_aud', minPrice);
+          if (typeof maxPrice === 'number') q = q.lte('price_aud', maxPrice);
+          if (typeof minOrders === 'number') q = q.gte('sold_count', minOrders);
+          if (typeof maxOrders === 'number') q = q.lte('sold_count', maxOrders);
+          if (searchQuery && searchQuery.trim().length > 0) {
+            q = q.ilike('product_title', `%${searchQuery.trim()}%`);
+          }
+          return q;
+        }
+
         // Fallback for Trending: if 50k + score≥80 yields <10, relax score gate first
         if (!err && tab === 'trending' && (data ?? []).length < 10) {
           let fb = baseSelect().gt('sold_count', 50000);
+          fb = applyStackable(fb);
           fb = applyOrder(fb, 'sold_count').limit(limit);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }
@@ -182,9 +203,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         // Fallback for New: if <5 results, fetch the 20 most recent products
         if (!err && tab === 'new' && (data ?? []).length < 5) {
-          const fb = baseSelect()
-            .order('created_at', { ascending: false, nullsFirst: false })
-            .limit(20);
+          let fb = baseSelect()
+            .order('created_at', { ascending: false, nullsFirst: false });
+          fb = applyStackable(fb).limit(20);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }
         }
@@ -206,7 +227,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
     }
     load();
     return () => { cancelled = true; };
-  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, tab, searchQuery]);
+  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab, searchQuery]);
 
   return { products, loading, error, total, cached };
 }

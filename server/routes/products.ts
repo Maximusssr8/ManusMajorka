@@ -622,6 +622,38 @@ router.get('/stats-categories', async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/categories ──────────────────────────────────────────
+// Returns all unique, non-null category names sorted alphabetically.
+// Drives the Products page category dropdown.
+router.get('/categories', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    type Row = { category: string | null };
+    const list: Row[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (from < 20000) {
+      const { data, error } = await sb
+        .from('winning_products')
+        .select('category')
+        .not('category', 'is', null)
+        .range(from, from + PAGE - 1);
+      if (error) return res.status(500).json({ error: error.message });
+      const batch = (data ?? []) as Row[];
+      list.push(...batch);
+      if (batch.length < PAGE) break;
+      from += PAGE;
+    }
+    const unique = Array.from(new Set(
+      list.map((r) => (r.category ?? '').trim()).filter((c) => c.length > 0)
+    )).sort((a, b) => a.localeCompare(b));
+    return res.json({ categories: unique });
+  } catch (err: unknown) {
+    console.error('[categories]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/niches-overview ─────────────────────────────────────
 // Rich per-category aggregates for the Niches Intelligence page.
 // Returns product_count, avg_score, hot_count, total_orders, avg_price, and
