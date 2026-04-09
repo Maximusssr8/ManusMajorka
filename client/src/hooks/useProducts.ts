@@ -62,7 +62,7 @@ export type OrderByColumn =
   | 'orders_asc'
   | 'velocity';
 
-export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top';
+export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume';
 
 export interface UseProductsOptions {
   limit?: number;
@@ -140,8 +140,8 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         // ── Tab filters (server-side) ────────────────────────────────────
         if (tab === 'new') {
-          // Recently Added tab — 30-day window per spec.
-          const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+          // Newly Added tab — 7-day window per spec.
+          const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
           query = query.gte('created_at', cutoff);
           query = applyOrder(query, orderBy);
         } else if (tab === 'trending') {
@@ -155,6 +155,15 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         } else if (tab === 'top') {
           query = query.gte('winning_score', 90);
           query = applyOrder(query, 'winning_score');
+        } else if (tab === 'hot-now') {
+          // Hot Right Now: elite score + high volume + added in the last 30 days
+          const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+          query = query.gte('winning_score', 90).gt('sold_count', 100000).gte('created_at', cutoff);
+          query = applyOrder(query, 'sold_count');
+        } else if (tab === 'high-volume') {
+          // High Volume: anything with 100k+ orders
+          query = query.gt('sold_count', 100000);
+          query = applyOrder(query, 'sold_count');
         } else {
           query = applyOrder(query, orderBy);
         }
@@ -206,6 +215,23 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           let fb = baseSelect()
             .order('created_at', { ascending: false, nullsFirst: false });
           fb = applyStackable(fb).limit(20);
+          const r = await fb;
+          if (!r.error) { data = r.data; count = r.count; }
+        }
+
+        // Fallback for Hot Now: if strict 90+/100k+/30d yields too few,
+        // relax to score >= 85 + sold_count > 50k (no date gate)
+        if (!err && tab === 'hot-now' && (data ?? []).length < 5) {
+          let fb = baseSelect().gte('winning_score', 85).gt('sold_count', 50000);
+          fb = applyStackable(fb).order('sold_count', { ascending: false, nullsFirst: false }).limit(limit);
+          const r = await fb;
+          if (!r.error) { data = r.data; count = r.count; }
+        }
+
+        // Fallback for High Volume: if <5 results with 100k threshold, drop to 20k
+        if (!err && tab === 'high-volume' && (data ?? []).length < 5) {
+          let fb = baseSelect().gt('sold_count', 20000);
+          fb = applyStackable(fb).order('sold_count', { ascending: false, nullsFirst: false }).limit(limit);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }
         }

@@ -967,22 +967,30 @@ router.get('/radar', async (_req: Request, res: Response) => {
 router.get('/tab-counts', async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
+    const seven = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const thirty = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [allRes, recentRes, trendingRes, highMarginRes, topRes] = await Promise.all([
+    const [
+      allRes, newRes, trendingRes, highMarginRes, topRes,
+      hotNowRes, highVolumeRes,
+    ] = await Promise.all([
       sb.from('winning_products').select('*', { count: 'exact', head: true }),
-      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', thirty),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', seven),
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gt('sold_count', 50000).gte('winning_score', 80),
       sb.from('winning_products').select('*', { count: 'exact', head: true }).lt('price_aud', 15).gte('winning_score', 75).gt('sold_count', 500),
       sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90).gt('sold_count', 100000).gte('created_at', thirty),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gt('sold_count', 100000),
     ]);
 
     return res.json({
       all:            allRes.count ?? 0,
-      recentlyAdded:  recentRes.count ?? 0,
+      recentlyAdded:  newRes.count ?? 0,
       trending:       trendingRes.count ?? 0,
       highMargin:     highMarginRes.count ?? 0,
       score90:        topRes.count ?? 0,
+      hotNow:         hotNowRes.count ?? 0,
+      highVolume:     highVolumeRes.count ?? 0,
     });
   } catch (err: unknown) {
     console.error('[tab-counts]', err);

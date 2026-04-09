@@ -346,16 +346,19 @@ export default function StoreBuilder() {
       const prod = JSON.parse(stored) as {
         id?: string | number;
         title?: string;
+        rawTitle?: string;
         image?: string;
-        price?: number | string;
+        price?: number | string;     // suggested retail (3× markup)
+        cost?: number | string;      // landed cost
         description?: string;
+        category?: string | null;
       };
       if (prod.title) {
         setCustomTitle(String(prod.title));
-        // Seed the store name + niche from the first couple of words so the
-        // AI flow has something to work with.
+        // Seed the store name from the cleaned product title and the
+        // niche from the category (falls back to the title if missing).
         if (!storeName) setStoreName(String(prod.title).split(/\s+/).slice(0, 2).join(' '));
-        if (!niche) setNiche(String(prod.title).split(/\s+/).slice(0, 3).join(' '));
+        if (!niche) setNiche(prod.category ? String(prod.category) : String(prod.title).split(/\s+/).slice(0, 3).join(' '));
       }
       if (prod.image) setCustomImageUrl(String(prod.image));
       if (prod.price != null) setCustomPrice(String(prod.price));

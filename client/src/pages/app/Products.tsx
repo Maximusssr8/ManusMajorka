@@ -23,15 +23,17 @@ import { proxyImage } from '@/lib/imageProxy';
    Types + constants
    ══════════════════════════════════════════════════════════════ */
 
-type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'saved';
+type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'saved';
 
 const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass?: string }[] = [
-  { key: 'all',        label: 'All products',  Icon: LayoutGrid },
-  { key: 'new',        label: 'Recently Added', Icon: Clock },
-  { key: 'trending',   label: 'Trending',      Icon: TrendingUp,  iconClass: 'text-amber' },
-  { key: 'highmargin', label: 'High margin',   Icon: DollarSign,  iconClass: 'text-green' },
-  { key: 'top',        label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]' },
-  { key: 'saved',      label: 'Saved',         Icon: Bookmark },
+  { key: 'all',         label: 'All products',  Icon: LayoutGrid },
+  { key: 'hot-now',     label: 'Hot Now',       Icon: Flame,      iconClass: 'text-orange-400' },
+  { key: 'trending',    label: 'Trending',      Icon: TrendingUp, iconClass: 'text-amber' },
+  { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover' },
+  { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign, iconClass: 'text-green' },
+  { key: 'top',         label: 'Score 90+',     Icon: Award,      iconClass: 'text-[#eab308]' },
+  { key: 'new',         label: 'New',           Icon: Clock },
+  { key: 'saved',       label: 'Saved',         Icon: Bookmark },
 ];
 
 type SortKey = OrderByColumn | 'velocity';
@@ -129,6 +131,24 @@ function marketRevenue(p: Product): number | null {
 }
 
 /**
+ * Strips common AliExpress SEO garbage from a raw product title so the
+ * result reads like a real DTC product name. Removes multi-variant
+ * "1/2/3pcs" prefixes, "For iPhone 15/14/13" device lists, collapses
+ * whitespace, and caps at 60 chars.
+ */
+function cleanProductTitle(raw: string | null | undefined): string {
+  if (!raw) return '';
+  return raw
+    .replace(/\d+(?:\/\d+)+\s*(?:pcs|pc|pack|sets?)?/gi, '')
+    .replace(/for\s+(?:iphone|samsung|xiaomi|huawei|pixel|oneplus)\s+[\d\s\/a-z]*?pro/gi, '')
+    .replace(/for\s+(?:iphone|samsung|xiaomi|huawei|pixel|oneplus)\s+[\d\/\s]+/gi, '')
+    .replace(/[-–—]\s*new\s+2024|-\s*2023/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 60);
+}
+
+/**
  * Exports a product list to CSV and triggers a browser download.
  * Columns: Title, Category, Score, Orders, Price (AUD), Est Rev/mo, Added.
  */
@@ -179,7 +199,7 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
   if (typeof window === 'undefined') return { tab: 'all', search: '' };
   const params = new URLSearchParams(window.location.search);
   const t = params.get('tab');
-  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'saved'];
+  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'hot-now', 'high-volume', 'saved'];
   const tab = validTabs.includes(t as SmartTabKey) ? (t as SmartTabKey) : 'all';
   return { tab, search: params.get('search') ?? '' };
 }
@@ -452,17 +472,30 @@ function ProductSheet({
   }
 
   function handleImportToStore() {
+    const landedCost = Number(product.price_aud ?? 0);
+    const suggestedSell = Math.round(landedCost * 3 * 100) / 100;
+    const orders = product.sold_count ?? 0;
+    const ordersBand = orders >= 1000 ? `${Math.round(orders / 1000)}K+` : `${orders}`;
+    const category = product.category || 'product';
+    const description =
+      `Premium ${category.toLowerCase()} trusted by ${ordersBand} customers worldwide. ` +
+      `High-quality materials, fast shipping, and exceptional value — perfect for everyday use.`;
     sessionStorage.setItem('majorka_import_product', JSON.stringify({
       id: product.id,
-      title: product.product_title,
+      title: cleanProductTitle(product.product_title),
+      rawTitle: product.product_title,
       image: product.image_url,
-      price: product.price_aud,
-      description: product.product_title,
+      price: suggestedSell,            // retail (3× markup)
+      cost: landedCost,                // landed / AliExpress price
+      description,
+      category: product.category,
+      score: product.winning_score,
+      orders: product.sold_count,
       aliexpress_url: product.product_url,
     }));
     onOpenChange(false);
     navigate('/app/store-builder');
-    toast.success('Product imported to Store Builder');
+    toast.success(`Building store from "${cleanProductTitle(product.product_title).slice(0, 40)}"…`);
   }
 
   async function handleToggleSave() {
@@ -620,13 +653,13 @@ function ProductSheet({
             </a>
           )}
 
-          {/* Import to Store */}
+          {/* Build Store for this product — one-click flow */}
           <button
             onClick={handleImportToStore}
-            className="mx-4 mb-4 bg-white/[0.06] border border-white/10 rounded-xl py-3 text-sm font-medium text-text flex items-center justify-center gap-2 hover:bg-white/10 transition-colors cursor-pointer"
+            className="mx-4 mb-4 bg-accent hover:bg-accent-hover text-white rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.2)]"
           >
-            <Store size={14} strokeWidth={1.75} />
-            Import to Store
+            <Store size={16} strokeWidth={2} />
+            Build Store for This Product →
           </button>
 
           {/* Profit calculator — collapsible */}
@@ -777,6 +810,7 @@ export default function AppProducts() {
      badges show real totals, not per-page slices. */
   const [serverTabCounts, setServerTabCounts] = useState<{
     all: number; recentlyAdded: number; trending: number; highMargin: number; score90: number;
+    hotNow?: number; highVolume?: number;
   } | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -919,27 +953,31 @@ export default function AppProducts() {
   const pageSlice = filtered.slice(offset, offset + perPage);
   const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
 
-  const tabCounts = useMemo(() => {
+  const tabCounts = useMemo((): Record<SmartTabKey, number> => {
     if (serverTabCounts) {
       return {
-        all:        serverTabCounts.all,
-        new:        serverTabCounts.recentlyAdded,
-        trending:   serverTabCounts.trending,
-        highmargin: serverTabCounts.highMargin,
-        top:        serverTabCounts.score90,
-        saved:      lists.totalSaved,
+        'all':         serverTabCounts.all,
+        'new':         serverTabCounts.recentlyAdded,
+        'trending':    serverTabCounts.trending,
+        'highmargin':  serverTabCounts.highMargin,
+        'top':         serverTabCounts.score90,
+        'hot-now':     serverTabCounts.hotNow ?? 0,
+        'high-volume': serverTabCounts.highVolume ?? 0,
+        'saved':       lists.totalSaved,
       };
     }
     return {
-      all:        total,
-      new:        allFetched.filter((p) => daysSince(p.created_at) <= NEW_DAYS_THRESHOLD).length,
-      trending:   allFetched.filter((p) => (p.sold_count ?? 0) > 50000 && (p.winning_score ?? 0) >= 80).length,
-      highmargin: allFetched.filter((p) => {
+      'all':         total,
+      'new':         allFetched.filter((p) => daysSince(p.created_at) <= 7).length,
+      'trending':    allFetched.filter((p) => (p.sold_count ?? 0) > 50000 && (p.winning_score ?? 0) >= 80).length,
+      'highmargin':  allFetched.filter((p) => {
         const price = Number(p.price_aud ?? 999);
         return price < 15 && (p.winning_score ?? 0) >= 75 && (p.sold_count ?? 0) > 500;
       }).length,
-      top:        allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
-      saved:      lists.totalSaved,
+      'top':         allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
+      'hot-now':     allFetched.filter((p) => (p.winning_score ?? 0) >= 90 && (p.sold_count ?? 0) > 100000 && daysSince(p.created_at) <= 30).length,
+      'high-volume': allFetched.filter((p) => (p.sold_count ?? 0) > 100000).length,
+      'saved':       lists.totalSaved,
     };
   }, [total, allFetched, lists.totalSaved, serverTabCounts]);
 

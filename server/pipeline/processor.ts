@@ -28,9 +28,14 @@ interface RawProduct {
 }
 
 function hardFilter(p: RawProduct): boolean {
+  // Strict quality gate — nothing with null/zero sold_count, null/zero price,
+  // missing image, or a junk title ever reaches winning_products. Prevents
+  // the "AI slop" that showed up in early test runs.
   if (!p.title || p.title.length < 10) return false;
-  if (!p.image_url) return false;
-  if (p.price_usd > 0 && (p.price_usd < 2 || p.price_usd > 200)) return false;
+  if (!p.image_url || !/^https?:\/\//.test(p.image_url)) return false;
+  if (!p.price_usd || p.price_usd <= 0) return false;
+  if (p.price_usd < 2 || p.price_usd > 200) return false;
+  if (!Number.isFinite(p.orders_count) || p.orders_count <= 0) return false;
   if (p.rating != null && p.rating > 0 && p.rating < 3.7) return false;
 
   const blocked = ['lot of', 'bulk', ' pcs', 'pack of', 'wholesale', 'sample', 'test product',
