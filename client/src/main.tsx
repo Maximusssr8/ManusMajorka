@@ -76,9 +76,11 @@ import { trpc } from '@/lib/trpc';
 import App from './App';
 import './index.css';
 
-// Initialise Sentry error tracking — conditional on DSN (works in any env when DSN is set)
+// Initialise Sentry error tracking — only when a valid DSN URL is set.
+// Skips all 'pending', empty-string, or non-https values to avoid the
+// 'Invalid Sentry DSN' console error that was firing on every page load.
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-if (SENTRY_DSN && SENTRY_DSN !== 'pending') {
+if (SENTRY_DSN && typeof SENTRY_DSN === 'string' && SENTRY_DSN.startsWith('https://') && SENTRY_DSN !== 'pending') {
   Sentry.init({
     dsn: SENTRY_DSN as string,
     environment: import.meta.env.MODE || 'production',

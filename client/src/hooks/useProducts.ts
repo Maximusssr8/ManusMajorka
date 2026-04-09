@@ -72,6 +72,8 @@ export interface UseProductsOptions {
   maxPrice?: number;
   minOrders?: number;
   tab?: SmartTabKey;
+  /** Case-insensitive keyword search on product_title. */
+  searchQuery?: string;
 }
 
 export interface UseProductsResult {
@@ -105,7 +107,7 @@ function applyOrder(query: any, orderBy: OrderByColumn): any {
 }
 
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
-  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, tab = 'all' } = options;
+  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, tab = 'all', searchQuery } = options;
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -115,7 +117,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}`;
+      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${searchQuery ?? ''}`;
       const hit = cacheGet<{ products: Product[]; total: number }>(cacheKey);
       if (hit) {
         setProducts(hit.products);
@@ -136,9 +138,8 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
 
         // ── Tab filters (server-side) ────────────────────────────────────
         if (tab === 'new') {
-          // 90 days while the seed is the same-day import; reduce to 7
-          // once fresh Apify scrapes are flowing in.
-          const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+          // Recently Added tab — 30-day window per spec.
+          const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
           query = query.gte('created_at', cutoff);
           query = applyOrder(query, orderBy);
         } else if (tab === 'trending') {
@@ -163,6 +164,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         if (typeof minPrice === 'number') query = query.gte('price_aud', minPrice);
         if (typeof maxPrice === 'number') query = query.lte('price_aud', maxPrice);
         if (typeof minOrders === 'number') query = query.gte('sold_count', minOrders);
+        if (searchQuery && searchQuery.trim().length > 0) {
+          query = query.ilike('product_title', `%${searchQuery.trim()}%`);
+        }
 
         query = query.limit(limit);
 
@@ -202,7 +206,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
     }
     load();
     return () => { cancelled = true; };
-  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, tab]);
+  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, tab, searchQuery]);
 
   return { products, loading, error, total, cached };
 }

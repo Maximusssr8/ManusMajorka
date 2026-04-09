@@ -144,6 +144,26 @@ export default function AdsStudio() {
       if (data.session) setToken(data.session.access_token);
     });
     setSaved(loadSavedAds());
+
+    // Pre-fill from a 'Create Ad' click on the Products page.
+    // sessionStorage key written by ProductSheet handleCreateAd.
+    try {
+      const stored = sessionStorage.getItem('majorka_ad_product');
+      if (stored) {
+        const prod = JSON.parse(stored) as {
+          id?: string | number;
+          title?: string;
+          image?: string;
+          price?: number | string;
+        };
+        if (prod.title) setProductName(String(prod.title));
+        if (prod.price != null) setPricePoint(`$${Number(prod.price).toFixed(2)} AUD`);
+        if (typeof prod.image === 'string') setProductUrl(prod.image);
+        sessionStorage.removeItem('majorka_ad_product');
+      }
+    } catch {
+      // ignore malformed payload
+    }
   }, []);
 
   async function openPicker() {

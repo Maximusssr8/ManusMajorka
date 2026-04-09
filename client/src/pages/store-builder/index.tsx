@@ -337,6 +337,37 @@ export default function StoreBuilder() {
   // Preview
   const [isMobilePreview, setIsMobilePreview] = useState(false);
 
+  // Pre-fill from a 'Import to Store' click on the Products page.
+  // sessionStorage key written by ProductSheet handleImportToStore.
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('majorka_import_product');
+      if (!stored) return;
+      const prod = JSON.parse(stored) as {
+        id?: string | number;
+        title?: string;
+        image?: string;
+        price?: number | string;
+        description?: string;
+      };
+      if (prod.title) {
+        setCustomTitle(String(prod.title));
+        // Seed the store name + niche from the first couple of words so the
+        // AI flow has something to work with.
+        if (!storeName) setStoreName(String(prod.title).split(/\s+/).slice(0, 2).join(' '));
+        if (!niche) setNiche(String(prod.title).split(/\s+/).slice(0, 3).join(' '));
+      }
+      if (prod.image) setCustomImageUrl(String(prod.image));
+      if (prod.price != null) setCustomPrice(String(prod.price));
+      if (prod.description) setCustomDesc(String(prod.description));
+      setCustomProductModal(true);
+      sessionStorage.removeItem('majorka_import_product');
+    } catch {
+      // ignore malformed payload
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Publish
   const [subdomain, setSubdomain] = useState('');
   const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);

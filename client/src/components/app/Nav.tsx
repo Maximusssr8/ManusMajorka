@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+// isPro ⇒ SCALE tier label
 
 interface NavItem {
   label: string;
@@ -62,7 +63,7 @@ interface NavProps {
 
 export function Nav({ onNavigate }: NavProps = {}) {
   const [location, navigate] = useLocation();
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const isAdmin = (user as { role?: string } | null)?.role === 'admin';
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
@@ -120,6 +121,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
             if (visible.length === 0) return null;
             return (
               <div key={gi} className="mt-2">
+                {gi > 0 && <div className="h-px bg-white/[0.04] mx-3 my-1" />}
                 <p className="px-3 pt-4 pb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/25">
                   {group.title}
                 </p>
@@ -159,7 +161,12 @@ export function Nav({ onNavigate }: NavProps = {}) {
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center text-xs font-semibold text-white shrink-0">
             {initial}
           </div>
-          <span className="text-[13px] text-text flex-1 truncate">{displayName}</span>
+          <span className="text-[13px] text-text flex-1 truncate flex items-center gap-1.5 min-w-0">
+            <span className="truncate">{displayName}</span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold shrink-0">
+              {isPro ? 'SCALE' : 'BUILDER'}
+            </span>
+          </span>
           <Link
             href="/app/settings"
             onClick={onNavigate}

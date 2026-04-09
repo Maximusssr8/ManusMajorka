@@ -659,6 +659,36 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/tab-counts ──────────────────────────────────────────
+// Returns exact server-side COUNT(*) totals for each Products-page tab so
+// the badge numbers on the UI match the real table size instead of
+// whatever slice the paginated useProducts() call happens to have loaded.
+router.get('/tab-counts', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const thirty = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [allRes, recentRes, trendingRes, highMarginRes, topRes] = await Promise.all([
+      sb.from('winning_products').select('*', { count: 'exact', head: true }),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('created_at', thirty),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gt('sold_count', 50000).gte('winning_score', 80),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).lt('price_aud', 15).gte('winning_score', 75).gt('sold_count', 500),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90),
+    ]);
+
+    return res.json({
+      all:            allRes.count ?? 0,
+      recentlyAdded:  recentRes.count ?? 0,
+      trending:       trendingRes.count ?? 0,
+      highMargin:     highMarginRes.count ?? 0,
+      score90:        topRes.count ?? 0,
+    });
+  } catch (err: unknown) {
+    console.error('[tab-counts]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/ae-live-search — direct AliExpress Affiliate API search ──
 // Layer 2 of the hybrid pipeline: unfiltered live results from AE Affiliate API.
 // Public endpoint (no auth) — read-only, no DB writes, no scoring.

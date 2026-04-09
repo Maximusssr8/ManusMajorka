@@ -53,20 +53,27 @@ function daysSince(iso: string | null): number {
 }
 
 /**
- * Threshold for the NEW badge + Recently Added tab. Temporarily 90
- * days because the entire seed was imported at once — a 7-day window
- * shows 0 rows. Drop back to 7 once fresh scrapes are flowing in.
+ * Threshold for the NEW badge + Recently Added tab. 30-day window
+ * per the latest audit spec.
  */
-const NEW_DAYS_THRESHOLD = 90;
+const NEW_DAYS_THRESHOLD = 30;
 
 /**
- * Monthly revenue. ONLY uses est_daily_revenue_aud × 30 — no
- * sold_count × price fallback. If the scoring pipeline hasn't
- * populated the column for a row, show —.
+ * Monthly revenue estimator.
+ * Prefers est_daily_revenue_aud × 30 when the scoring pipeline has
+ * populated it. Otherwise computes from lifetime orders × price:
+ *   (sold_count / 365) × price × 30  ≈  monthly revenue proxy
+ * This matches the spec formula and gives every row a meaningful
+ * value instead of "—".
  */
 function monthlyRevenue(p: Product): number | null {
   const daily = p.est_daily_revenue_aud;
   if (daily != null && daily > 0) return daily * 30;
+  const orders = p.sold_count ?? 0;
+  const price = p.price_aud != null ? Number(p.price_aud) : 0;
+  if (orders > 0 && price > 0) {
+    return Math.round((orders / 365) * price * 30);
+  }
   return null;
 }
 
@@ -276,6 +283,7 @@ function ProductSheet({
         <Dialog.Overlay className="fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
           aria-describedby={undefined}
+          style={{ overscrollBehavior: 'contain' }}
           className="fixed right-0 top-0 z-[100] h-screen w-full md:w-[420px] bg-surface border-l border-white/[0.08] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)] data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=closed]:duration-200"
         >
           {/* Header */}
@@ -496,11 +504,38 @@ export default function AppProducts() {
   const aeSearch = useAESearch();
   const fav = useFavourites();
 
+  /* Pre-fetched exact tab counts from /api/products/tab-counts so
+     badges show real totals, not per-page slices. */
+  const [serverTabCounts, setServerTabCounts] = useState<{
+    all: number; recentlyAdded: number; trending: number; highMargin: number; score90: number;
+  } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products/tab-counts', { credentials: 'include' })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((data) => { if (!cancelled) setServerTabCounts(data); })
+      .catch(() => { /* fall back to client-computed counts */ });
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     if (initial.search && initial.search.trim().length >= 2) {
       aeSearch.search({ q: initial.search.trim(), reset: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* Cmd+K / Ctrl+K focuses the search input */
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   const fetchLimit = perPage * page;
@@ -513,6 +548,10 @@ export default function AppProducts() {
     maxPrice: priceMax ?? undefined,
     minOrders: minOrders ?? undefined,
     minScore: scoreMin > 0 ? scoreMin : undefined,
+    // DB keyword search — only when in db mode and a query is present
+    searchQuery: searchMode === 'db' && searchInput.trim().length >= 2
+      ? searchInput.trim()
+      : undefined,
   });
 
   const filtered = useMemo<Product[]>(() => {
@@ -545,6 +584,18 @@ export default function AppProducts() {
   const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
 
   const tabCounts = useMemo(() => {
+    // Prefer server-side COUNT(*) totals when available
+    if (serverTabCounts) {
+      return {
+        all:        serverTabCounts.all,
+        new:        serverTabCounts.recentlyAdded,
+        trending:   serverTabCounts.trending,
+        highmargin: serverTabCounts.highMargin,
+        top:        serverTabCounts.score90,
+        saved:      fav.count,
+      };
+    }
+    // Fallback: client-side counts from the already-loaded slice
     return {
       all:        total,
       new:        allFetched.filter((p) => daysSince(p.created_at) <= NEW_DAYS_THRESHOLD).length,
@@ -556,7 +607,7 @@ export default function AppProducts() {
       top:        allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
       saved:      fav.count,
     };
-  }, [total, allFetched, fav.count]);
+  }, [total, allFetched, fav.count, serverTabCounts]);
 
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
@@ -614,12 +665,16 @@ export default function AppProducts() {
         <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-xl h-[52px] px-4 gap-3 transition-all shadow-lg">
           <Search size={16} strokeWidth={2} className="text-accent/60 shrink-0" />
           <input
+            ref={searchInputRef}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') runSearch(); }}
             placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products`}
             className="flex-1 bg-transparent text-sm md:text-base text-text placeholder-muted outline-none min-w-0"
           />
+          <kbd className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono text-muted border border-white/10 rounded shrink-0">
+            ⌘K
+          </kbd>
         </div>
         <div className="flex items-center gap-1 bg-card border border-white/10 rounded-lg p-1">
           {(['db', 'live'] as const).map((mode) => {
@@ -1022,7 +1077,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
-                className={`group h-20 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
+                className={`group h-20 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-gradient-to-r hover:from-accent/[0.03] hover:to-transparent border-l-2 border-l-transparent hover:border-l-accent cursor-pointer transition-colors`}
               >
                 <td className="hidden md:table-cell px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
                   {String(i + 1).padStart(2, '0')}
@@ -1213,9 +1268,9 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}
             onClick={() => onSelect(p)}
-            className="group bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer flex flex-col"
+            className="group bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-all duration-200 cursor-pointer flex flex-col"
           >
-            <div className="relative h-48 md:h-52 overflow-hidden">
+            <div className="relative h-48 md:h-56 overflow-hidden">
               {p.image_url ? (
                 <img
                   src={proxyImage(p.image_url) ?? p.image_url}
@@ -1228,10 +1283,20 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                   {(p.product_title?.[0] ?? '?').toUpperCase()}
                 </div>
               )}
-              {/* Bottom gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50 pointer-events-none" />
+              {/* Bottom gradient overlay — stronger for category chip legibility */}
+              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+              {/* Category chip on the image bottom-left */}
+              {p.category && (
+                <span
+                  className="absolute bottom-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded backdrop-blur-sm"
+                  style={categoryColor(p.category)}
+                >
+                  {shortenCategory(p.category)}
+                </span>
+              )}
+              {/* Score top-right */}
               {score > 0 && (
-                <div className="absolute top-2 left-2">
+                <div className="absolute top-2 right-2">
                   <span
                     className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
                     style={scoreTierStyle(score)}
@@ -1241,25 +1306,15 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
                 </div>
               )}
               {isNew && (
-                <span className="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 bg-green/20 text-green rounded">
+                <span className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 bg-green/20 text-green rounded">
                   NEW
                 </span>
               )}
             </div>
             <div className="p-3.5 flex-1 flex flex-col">
-              <p className="text-sm font-medium text-text line-clamp-2 mb-2 min-h-[36px]">
+              <p className="text-sm font-semibold text-text leading-tight line-clamp-2 mb-3 min-h-[36px]">
                 {p.product_title}
               </p>
-              <div className="flex items-center gap-1.5 mb-3">
-                {p.category && (
-                  <span
-                    className="text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-[140px]"
-                    style={categoryColor(p.category)}
-                  >
-                    {shortenCategory(p.category)}
-                  </span>
-                )}
-              </div>
               <div className="grid grid-cols-3 gap-2 mb-3 mt-auto">
                 <div>
                   <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Orders</p>
