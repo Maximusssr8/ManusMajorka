@@ -166,6 +166,7 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
             : 'bg-card border-white/10 text-body hover:border-white/20'
         }`}
       >
+        {active && <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block" />}
         <span>{label}</span>
         {active && onClear ? (
           <span
@@ -275,7 +276,7 @@ function ProductSheet({
         <Dialog.Overlay className="fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed right-0 top-0 z-[100] h-screen w-[420px] max-w-full bg-surface border-l border-white/[0.08] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)] data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=closed]:duration-200"
+          className="fixed right-0 top-0 z-[100] h-screen w-full md:w-[420px] bg-surface border-l border-white/[0.08] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)] data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=closed]:duration-200"
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-3 p-5 pb-0">
@@ -604,20 +605,20 @@ export default function AppProducts() {
   return (
     <div className="min-h-screen bg-bg font-body text-text">
       {/* Breadcrumb */}
-      <div className="px-8 pt-6 pb-2 text-xs text-muted">
+      <div className="px-4 md:px-8 pt-6 pb-2 text-xs text-muted">
         Home <span className="mx-1.5 text-white/20">/</span> Products
       </div>
 
       {/* Search bar */}
-      <div className="px-8 pb-4 flex items-center gap-3">
-        <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-xl h-[52px] px-4 gap-3 transition-all">
+      <div className="px-4 md:px-8 pb-4 flex items-center gap-3">
+        <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-xl h-[52px] px-4 gap-3 transition-all shadow-lg">
           <Search size={16} strokeWidth={2} className="text-accent/60 shrink-0" />
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') runSearch(); }}
-            placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products or explore live from AliExpress`}
-            className="flex-1 bg-transparent text-[15px] text-text placeholder-muted outline-none min-w-0"
+            placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products`}
+            className="flex-1 bg-transparent text-sm md:text-base text-text placeholder-muted outline-none min-w-0"
           />
         </div>
         <div className="flex items-center gap-1 bg-card border border-white/10 rounded-lg p-1">
@@ -641,14 +642,14 @@ export default function AppProducts() {
       </div>
 
       {searchMode === 'live' && (
-        <div className="px-8 pb-3 text-sm text-muted">
+        <div className="px-4 md:px-8 pb-3 text-sm text-muted">
           Showing {aeSearch.total.toLocaleString()} live results for <span className="text-text">"{liveQuery}"</span>
         </div>
       )}
 
       {/* Filter bar */}
       {searchMode === 'db' && (
-        <div className="px-8 pb-4 flex gap-2 flex-wrap items-center">
+        <div className="px-4 md:px-8 pb-4 flex gap-2 flex-wrap items-center">
           <FilterPill
             label={priceMin !== null || priceMax !== null
               ? `Price: $${priceMin ?? 0}–$${priceMax ?? '∞'}`
@@ -787,7 +788,7 @@ export default function AppProducts() {
 
       {/* Tab bar */}
       {searchMode === 'db' && (
-        <div className="px-8 flex items-center gap-1.5 mb-2 overflow-x-auto">
+        <div className="px-4 md:px-8 flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none bg-surface/50 backdrop-blur-sm border-b border-white/[0.06] py-2">
           {SMART_TABS.map((tab) => {
             const active = activeTab === tab.key;
             const count = tabCounts[tab.key];
@@ -838,7 +839,7 @@ export default function AppProducts() {
 
       {/* Results header */}
       {searchMode === 'db' && (
-        <div className="px-8 py-3 flex items-center justify-between">
+        <div className="px-4 md:px-8 py-3 flex items-center justify-between">
           <div className="text-sm text-muted">
             {loading ? 'Loading products…' : `${filteredTotal.toLocaleString()} products`}
           </div>
@@ -868,7 +869,7 @@ export default function AppProducts() {
 
       {/* Pagination */}
       {searchMode === 'db' && filteredTotal > 0 && (
-        <div className="mx-8 mt-4 mb-12 flex items-center gap-3 flex-wrap">
+        <div className="mx-4 md:mx-8 mt-4 mb-12 flex items-center gap-3 flex-wrap">
           <div className="text-sm text-muted tabular-nums">
             Showing {(offset + 1).toLocaleString()}–{Math.min(offset + perPage, filteredTotal).toLocaleString()} of {filteredTotal.toLocaleString()}
           </div>
@@ -976,7 +977,7 @@ function importToStore(p: Product, navigate: (path: string) => void) {
 function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navigate }: ListTableProps) {
   if (loading && products.length === 0) {
     return (
-      <div className="mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
+      <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
@@ -992,28 +993,19 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
   }
   if (products.length === 0) return <EmptyState />;
   return (
-    <div className="mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
+    <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-[#0f1629] border-b border-white/[0.06]">
-              {[
-                { label: '#',        align: 'text-left'  },
-                { label: 'Product',  align: 'text-left'  },
-                { label: 'Category', align: 'text-left'  },
-                { label: 'Score',    align: 'text-right' },
-                { label: 'Orders',   align: 'text-right' },
-                { label: 'Price',    align: 'text-right' },
-                { label: 'Revenue',  align: 'text-right' },
-                { label: '♡',        align: 'text-center' },
-              ].map((h) => (
-                <th
-                  key={h.label}
-                  className={`text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap ${h.align}`}
-                >
-                  {h.label}
-                </th>
-              ))}
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
+              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Score</th>
+              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Orders</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Price</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Revenue</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-center">♡</th>
             </tr>
           </thead>
         <tbody>
@@ -1030,9 +1022,9 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
-                className={`group h-[72px] ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
+                className={`group h-20 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
               >
-                <td className="px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
+                <td className="hidden md:table-cell px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
                   {String(i + 1).padStart(2, '0')}
                 </td>
                 <td className="px-4">
@@ -1049,17 +1041,44 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                     )}
                     <div className="min-w-0 flex-1">
                       <TT content={p.product_title}>
-                        <p className="text-sm font-medium text-white/90 truncate max-w-[240px] cursor-default">
+                        <p className="text-sm font-semibold text-white/90 truncate max-w-[240px] cursor-default">
                           {p.product_title}
                         </p>
                       </TT>
+                      {/* Mobile-only inline metrics + heart under the title */}
+                      <div className="md:hidden mt-1 flex items-center gap-2 text-[11px]">
+                        {p.category && (
+                          <span
+                            className="inline-block font-semibold px-2 py-0.5 rounded truncate max-w-[120px]"
+                            style={categoryColor(p.category)}
+                          >
+                            {shortenCategory(p.category)}
+                          </span>
+                        )}
+                        <span className="text-muted tabular-nums">
+                          {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
+                        </span>
+                      </div>
                     </div>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const wasFav = fav;
+                        await onToggleFav(p);
+                        if (wasFav) toast('Removed from saved');
+                        else toast.success('Product saved');
+                      }}
+                      aria-label="Save"
+                      className={`md:hidden shrink-0 p-1.5 rounded-md ${fav ? 'text-accent' : 'text-muted'}`}
+                    >
+                      <Heart size={15} strokeWidth={1.75} fill={fav ? 'currentColor' : 'none'} />
+                    </button>
                   </div>
                 </td>
-                <td className="px-4 whitespace-nowrap">
+                <td className="hidden md:table-cell px-4 whitespace-nowrap">
                   {p.category ? (
                     <span
-                      className="inline-block text-[11px] font-medium px-2 py-0.5 rounded truncate max-w-[124px]"
+                      className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-[124px]"
                       style={categoryColor(p.category)}
                     >
                       {shortenCategory(p.category)}
@@ -1068,7 +1087,7 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                     <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td className="px-4 text-right whitespace-nowrap">
+                <td className="hidden md:table-cell px-4 text-right whitespace-nowrap">
                   {score ? (
                     <TT
                       content={
@@ -1100,13 +1119,13 @@ function ListTable({ products, loading, onSelect, isFavourite, onToggleFav, navi
                     '—'
                   )}
                 </td>
-                <td className="px-4 text-right text-base font-bold text-text tabular-nums whitespace-nowrap">
+                <td className="hidden md:table-cell px-4 text-right text-base font-bold text-text tabular-nums whitespace-nowrap">
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                 </td>
-                <td className={`px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
+                <td className={`hidden md:table-cell px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
-                <td className="px-4 text-center whitespace-nowrap">
+                <td className="hidden md:table-cell px-4 text-center whitespace-nowrap">
                   {/* Default: heart icon. Hover: heart + Zap + ShoppingBag trio. */}
                   <div className="flex items-center justify-end gap-1">
                     <button
@@ -1166,9 +1185,9 @@ interface GridCardsProps {
 function GridCards({ products, loading, onSelect }: GridCardsProps) {
   if (loading && products.length === 0) {
     return (
-      <div className="px-8 grid grid-cols-3 gap-4">
+      <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-card border border-white/[0.07] rounded-xl overflow-hidden">
+          <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
             <div className="w-full h-48 bg-white/[0.04] animate-pulse" />
             <div className="p-3.5">
               <span className="inline-block w-[90%] h-4 bg-white/[0.04] rounded mb-2 animate-pulse" />
@@ -1181,7 +1200,7 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
   }
   if (products.length === 0) return <EmptyState />;
   return (
-    <div className="px-8 grid grid-cols-3 gap-4">
+    <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {products.map((p, idx) => {
         const score = Math.round(p.winning_score ?? 0);
         const orders = p.sold_count ?? 0;
@@ -1194,15 +1213,15 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}
             onClick={() => onSelect(p)}
-            className="bg-card border border-white/[0.07] rounded-xl overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer flex flex-col"
+            className="group bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer flex flex-col"
           >
-            <div className="relative h-48 overflow-hidden">
+            <div className="relative h-48 md:h-52 overflow-hidden">
               {p.image_url ? (
                 <img
                   src={proxyImage(p.image_url) ?? p.image_url}
                   alt={p.product_title}
                   loading="lazy"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-5xl font-display font-bold text-muted bg-raised">
@@ -1213,7 +1232,12 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50 pointer-events-none" />
               {score > 0 && (
                 <div className="absolute top-2 left-2">
-                  <ScoreBadge score={score} />
+                  <span
+                    className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
+                    style={scoreTierStyle(score)}
+                  >
+                    {score}
+                  </span>
                 </div>
               )}
               {isNew && (
@@ -1229,7 +1253,7 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
               <div className="flex items-center gap-1.5 mb-3">
                 {p.category && (
                   <span
-                    className="text-[11px] px-2 py-0.5 rounded truncate max-w-[140px]"
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-[140px]"
                     style={categoryColor(p.category)}
                   >
                     {shortenCategory(p.category)}
@@ -1284,7 +1308,7 @@ function GridCards({ products, loading, onSelect }: GridCardsProps) {
 
 function EmptyState() {
   return (
-    <div className="mx-8 my-10 p-16 bg-surface border border-white/[0.07] rounded-2xl text-center">
+    <div className="mx-4 md:mx-8 my-10 p-16 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-center">
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-raised mb-4">
         <Search size={24} className="text-muted" strokeWidth={1.75} />
       </div>
@@ -1308,16 +1332,16 @@ function LiveSearchView({ aeSearch, onSelect }: {
 }) {
   if (aeSearch.loading && aeSearch.products.length === 0) {
     return (
-      <div className="px-8 grid grid-cols-3 gap-4">
+      <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-card border border-white/[0.07] rounded-xl h-[360px] animate-pulse" />
+          <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] h-[360px] animate-pulse" />
         ))}
       </div>
     );
   }
   if (aeSearch.products.length === 0) return <EmptyState />;
   return (
-    <div className="px-8 grid grid-cols-3 gap-4">
+    <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {aeSearch.products.map((p: AELiveProduct, i) => (
         <div
           key={`${p.id}-${i}`}
@@ -1339,7 +1363,7 @@ function LiveSearchView({ aeSearch, onSelect }: {
             };
             onSelect(asProduct);
           }}
-          className="bg-card border border-white/[0.07] rounded-xl overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer"
+          className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer"
         >
           <div className="h-48 bg-raised">
             {p.image_url && (

@@ -198,52 +198,60 @@ export default function AppHome() {
   }
 
   return (
-    <div className="min-h-screen bg-bg font-body text-text relative">
+    <div className="min-h-full bg-bg font-body text-text relative">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-accent/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* Status bar — ONLY the live indicator now, CTA moved to hero */}
-      <div className="relative z-10 flex items-center justify-between px-8 h-12 border-b border-white/[0.06]">
+      {/* Status bar */}
+      <div className="relative z-10 hidden md:flex items-center justify-between px-4 md:px-8 h-12 border-b border-white/[0.06]">
         <div className="flex items-center gap-2 text-xs text-muted">
           <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
           <span>{liveLabel}</span>
         </div>
       </div>
 
-      {/* Hero */}
-      <div className="relative z-10 px-8 pt-10 pb-6">
-        <div className="flex items-start justify-between gap-6 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs text-muted uppercase tracking-widest mb-3">
-              {today} · Scale Plan
-            </p>
-            <h1 className="text-5xl font-display font-bold text-text leading-tight">
-              Good {tod}, {firstName}.
-            </h1>
-            <p className="mt-3 text-base text-body max-w-lg">
-              Your product intelligence is live across the Australian market.
-            </p>
-            {insight && (
-              <p className="mt-2 text-sm text-accent font-medium">
-                {insight}
+      {/* Hero — with a subtle mesh gradient backing the greeting block */}
+      <div className="relative z-10 px-4 md:px-8 pt-8 md:pt-10 pb-6">
+        <div className="relative">
+          {/* Hero mesh gradient */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(99,102,241,0.06)_0%,transparent_60%)] pointer-events-none" />
+          <div className="relative flex items-start justify-between gap-6 flex-wrap">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-muted uppercase tracking-widest mb-3">
+                {today} · Scale Plan
               </p>
-            )}
+              <h1 className="text-4xl md:text-5xl font-display font-bold text-text tracking-tight leading-tight">
+                Good {tod}, <span className="text-accent">{firstName}</span>.
+              </h1>
+              <p className="mt-3 text-base text-body max-w-lg">
+                Your product intelligence is live across the Australian market.
+              </p>
+              {insight && (
+                <Link
+                  href="/app/products"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:text-accent-hover transition-colors no-underline"
+                >
+                  <span>{insight}</span>
+                  <ArrowRight size={13} strokeWidth={2.25} />
+                </Link>
+              )}
+            </div>
+            <Link
+              href="/app/products"
+              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.25)]"
+            >
+              Discover products
+              <ArrowRight size={14} strokeWidth={2.25} />
+            </Link>
           </div>
-          <Link
-            href="/app/products"
-            className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.25)]"
-          >
-            Discover products
-            <ArrowRight size={14} strokeWidth={2.25} />
-          </Link>
         </div>
       </div>
 
-      {/* KPI grid */}
+      {/* KPI grid — 2 col mobile, 4 col desktop, glassmorphism cards */}
       <motion.div
-        className="relative z-10 grid grid-cols-4 gap-4 px-8 pb-6"
+        className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-8 pb-6"
         variants={gridVariants}
         initial="hidden"
         animate="visible"
@@ -254,18 +262,18 @@ export default function AppHome() {
             <motion.div
               key={card.label}
               variants={cardVariants}
-              className="bg-surface border border-white/[0.07] rounded-xl p-5 pt-6 hover:border-accent/30 hover:bg-card transition-all duration-150 relative isolate"
+              className="relative isolate rounded-2xl p-5 pt-6 bg-gradient-to-br from-surface to-raised/80 backdrop-blur-sm shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_0_0_1px_rgba(99,102,241,0.3),0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-200"
             >
-              <div className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-xl z-10`} />
+              <div className={`absolute top-0 left-0 right-0 h-[3px] ${card.topLine} rounded-t-2xl z-10`} />
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted">
                   {card.label}
                 </span>
                 <Icon size={14} className="text-muted" strokeWidth={1.75} />
               </div>
-              <div className="text-4xl font-display font-bold text-text tabular-nums mb-1 min-h-[36px] flex items-center">
+              <div className="text-4xl md:text-5xl font-display font-bold text-text tabular-nums tracking-tight mb-2 min-h-[40px] flex items-center">
                 {statsLoading || card.numeric == null ? (
-                  <span className="inline-block h-7 w-24 bg-white/[0.04] rounded animate-pulse" />
+                  <span className="inline-block h-8 w-24 bg-white/[0.04] rounded animate-pulse" />
                 ) : (
                   <CountUp
                     end={card.numeric}
@@ -276,13 +284,17 @@ export default function AppHome() {
                   />
                 )}
               </div>
-              <div className="text-[11px] text-muted mb-2">{card.sub}</div>
-              <div className={`flex items-center gap-1 text-[11px] font-medium min-h-[14px] ${card.trendPositive ? 'text-green' : 'text-muted'}`}>
+              <div className="text-[11px] text-muted mb-2.5">{card.sub}</div>
+              <div className="min-h-[22px] flex items-center">
                 {card.trendText && (
-                  <>
-                    {card.trendPositive && <ArrowUp size={11} strokeWidth={2.25} />}
-                    <span>{card.trendText}</span>
-                  </>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                      card.trendPositive ? 'bg-green/10 text-green' : 'bg-white/[0.06] text-muted'
+                    }`}
+                  >
+                    {card.trendPositive && <ArrowUp size={10} strokeWidth={2.5} />}
+                    {card.trendText}
+                  </span>
                 )}
               </div>
             </motion.div>
@@ -290,15 +302,11 @@ export default function AppHome() {
         })}
       </motion.div>
 
-      {/* Main content — asymmetric 2 col via flex (not grid) so neither
-          column stretches to match the taller one. Each column is an
-          independent h-fit container and the bottom of the shorter one
-          sits right against the next section. */}
-      <div className="relative z-10 flex items-start gap-5 px-8 pb-8">
+      {/* Main content — stacks on mobile, side-by-side on desktop. */}
+      <div className="relative z-10 flex flex-col md:flex-row items-start gap-5 px-4 md:px-8 pb-8">
 
-        {/* LEFT — Trending Now. overflow-hidden prevents any child from
-            breaking the card boundary. */}
-        <div className="flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl p-6 overflow-hidden">
+        {/* LEFT — Trending Now */}
+        <div className="w-full flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-sm font-semibold text-text">Trending Now</h2>
             <Link
@@ -335,28 +343,28 @@ export default function AppHome() {
                   <button
                     key={p.id}
                     onClick={() => setSelectedProduct(p)}
-                    className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.025] -mx-2 px-2 rounded-lg transition-colors text-left`}
+                    className={`group flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.04] -mx-2 px-2 rounded-xl transition-colors text-left`}
                   >
                     {p.image_url ? (
                       <img
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-12 h-12 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
+                        className="w-[52px] h-[52px] rounded-xl object-cover border border-white/[0.08] bg-card shrink-0"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
+                      <div className="w-[52px] h-[52px] rounded-xl bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="flex-1 min-w-0 max-w-0 overflow-hidden">
                       <p
                         title={p.product_title}
-                        className="text-sm font-medium text-text/90 truncate mb-1"
+                        className="text-sm font-semibold text-text truncate mb-1"
                       >
                         {p.product_title}
                       </p>
                       {p.category && (
                         <span
-                          className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded truncate max-w-[140px]"
+                          className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded truncate max-w-[140px]"
                           style={catStyle}
                         >
                           {shortenCategory(p.category)}
@@ -365,18 +373,21 @@ export default function AppHome() {
                     </div>
                     {score > 0 && (
                       <span
-                        className="inline-flex items-center justify-center w-8 h-8 rounded text-sm font-bold tabular-nums shrink-0"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums shrink-0"
                         style={scoreTierStyle(score)}
                       >
                         {score}
                       </span>
                     )}
-                    <div className="text-sm font-bold text-text tabular-nums w-14 text-right shrink-0">
+                    <div className="hidden sm:block text-sm font-bold text-text tabular-nums w-14 text-right shrink-0">
                       {orders > 0 ? fmtK(orders) : '—'}
                     </div>
-                    <div className="text-sm text-body tabular-nums w-14 text-right shrink-0">
+                    <div className="hidden sm:block text-sm text-muted tabular-nums w-14 text-right shrink-0">
                       {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
                     </div>
+                    <span className="text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      →
+                    </span>
                   </button>
                 );
               })}
@@ -384,11 +395,12 @@ export default function AppHome() {
           )}
         </div>
 
-        {/* RIGHT — Opportunities + Quick Stats stacked, fixed 320px */}
-        <div className="w-[320px] shrink-0 flex flex-col gap-4">
+        {/* RIGHT — Opportunities + Quick Stats stacked. Full width on mobile,
+            fixed 320px on desktop. */}
+        <div className="w-full md:w-[320px] shrink-0 flex flex-col gap-4">
 
           {/* Top Opportunities */}
-          <div className="bg-surface border border-white/[0.07] rounded-xl p-5">
+          <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
             <h3 className="text-sm font-semibold text-text mb-4">Top Opportunities</h3>
             {opportunities.map((o, i) => {
               const p = o.product;
@@ -398,7 +410,7 @@ export default function AppHome() {
               return (
                 <div
                   key={o.label}
-                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors group`}
+                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.03] -mx-3 px-3 rounded-xl transition-colors group`}
                 >
                   <Link
                     href={o.href}
@@ -409,19 +421,19 @@ export default function AppHome() {
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-11 h-11 rounded-lg object-cover shrink-0 border border-white/[0.08] bg-card"
+                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-white/[0.08] bg-card"
                       />
                     ) : (
-                      <div className="w-11 h-11 rounded-lg shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
+                      <div className="w-12 h-12 rounded-xl shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
                     )}
                     <div className="min-w-0 flex-1">
                       <span
-                        className="inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded mb-1"
+                        className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-1"
                         style={{ background: o.chipBg, color: o.chipFg }}
                       >
                         {o.label}
                       </span>
-                      <p className="text-sm text-text truncate font-medium">
+                      <p className="text-sm text-text truncate font-semibold">
                         {p?.product_title ?? '—'}
                       </p>
                       <p className="text-xs text-muted tabular-nums">
@@ -452,7 +464,7 @@ export default function AppHome() {
           </div>
 
           {/* Quick Stats — replaces Platform Status */}
-          <div className="bg-surface border border-white/[0.07] rounded-xl p-5">
+          <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
             <h3 className="text-sm font-semibold text-text mb-4">Quick Stats</h3>
             {[
               { label: 'New products this week', value: stats?.newThisWeek ?? null, color: 'text-green' },
@@ -474,7 +486,7 @@ export default function AppHome() {
       </div>
 
       {/* Top products table */}
-      <div className="relative z-10 mx-8 mb-12">
+      <div className="relative z-10 mx-4 md:mx-8 mb-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
           <Link
@@ -484,26 +496,16 @@ export default function AppHome() {
             View all {total > 0 ? total.toLocaleString() : '…'} →
           </Link>
         </div>
-        <div className="bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
-          <table className="w-full table-fixed">
-            <colgroup>
-              <col style={{ width: 40 }} />
-              <col />
-              <col style={{ width: 130 }} />
-              <col style={{ width: 80 }} />
-              <col style={{ width: 90 }} />
-              <col style={{ width: 90 }} />
-            </colgroup>
+        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
+          <table className="w-full">
             <thead>
               <tr className="bg-raised border-b border-white/[0.07]">
-                {['#', 'Product', 'Category', 'Score', 'Orders', 'Price'].map((h, i) => (
-                  <th
-                    key={h}
-                    className={`text-[10px] font-semibold uppercase tracking-widest text-muted px-5 py-3.5 ${i === 0 || i === 1 || i === 2 ? 'text-left' : 'text-right'}`}
-                  >
-                    {h}
-                  </th>
-                ))}
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left w-10">#</th>
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Product</th>
+                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Category</th>
+                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Score</th>
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Orders</th>
+                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Price</th>
               </tr>
             </thead>
             <tbody>
@@ -560,10 +562,10 @@ export default function AppHome() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="hidden md:table-cell px-4 py-4">
                         {p.category ? (
                           <span
-                            className="inline-block text-[11px] font-medium px-2 py-0.5 rounded truncate max-w-full"
+                            className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-full"
                             style={categoryColor(p.category)}
                           >
                             {shortenCategory(p.category)}
@@ -572,10 +574,10 @@ export default function AppHome() {
                           <span className="text-muted text-xs">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="hidden md:table-cell px-4 py-4 text-right">
                         {score ? (
                           <span
-                            className="inline-flex items-center justify-center w-8 h-8 rounded text-sm font-bold tabular-nums"
+                            className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
                             style={scoreTierStyle(score)}
                           >
                             {score}
