@@ -171,7 +171,7 @@ app.use((_req, res, next) => {
 });
 
 // ── POST /api/images/pexels-search — website generator image fallback ─────────
-app.post("/api/images/pexels-search", async (req: Request, res: Response) => {
+app.post("/api/images/pexels-search", requireAuth, async (req: Request, res: Response) => {
   const pexelsKey = process.env.PEXELS_API_KEY || process.env.VITE_PEXELS_API_KEY;
   if (!pexelsKey) { res.status(503).json({ error: "Pexels not configured", urls: [] }); return; }
   const { query = '', perPage = 5 } = req.body || {};
@@ -423,7 +423,7 @@ app.get("/api/competitor/stores", requireAuth, async (_req: Request, res: Respon
 });
 
 // ── Creator Intelligence API ──────────────────────────────────────────────
-app.get("/api/creators", async (req: Request, res: Response) => {
+app.get("/api/creators", requireAuth, async (req: Request, res: Response) => {
   try {
     const niche = String(req.query.niche || '');
     const region = String(req.query.region || '');
@@ -513,7 +513,7 @@ app.get("/api/videos", async (req: Request, res: Response) => {
 });
 
 // ── Reports API ────────────────────────────────────────────────────────────
-app.post("/api/reports/generate", async (req: Request, res: Response) => {
+app.post("/api/reports/generate", requireAuth, async (req: Request, res: Response) => {
   try {
     const { product_ids = [], report_title = 'Product Report', region_code = 'US' } = req.body;
     if (!product_ids.length) { res.status(400).json({ error: 'product_ids required' }); return; }
@@ -856,7 +856,7 @@ app.get("/api/store/:slug", async (req: Request, res: Response) => {
   }
 });
 
-// ── Store checkout ────────────────────────────────────────────────────────
+// ── Store checkout (public — customer-facing, not Majorka auth) ──────────
 app.post("/api/store/checkout", async (req: Request, res: Response) => {
   const { store_id, storefront_product_id, price, customer } = req.body as {
     store_id?: string;
@@ -866,6 +866,17 @@ app.post("/api/store/checkout", async (req: Request, res: Response) => {
   };
   if (!store_id || !customer?.email || !customer?.name) {
     return res.status(400).json({ error: "store_id, customer.email, and customer.name are required" });
+  }
+  // Rate limit by IP to prevent abuse (5 checkouts per minute per IP)
+  const { rateLimit } = await import('../server/lib/rate-limit');
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const rl = rateLimit(`checkout:${ip}`, 5, 60 * 1000);
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many checkout attempts. Try again shortly.' });
+  }
+  // Validate price range (prevent negative or absurd amounts)
+  if (price !== undefined && (price < 0 || price > 100000)) {
+    return res.status(400).json({ error: 'Invalid price' });
   }
   try {
     const stripeKey = process.env.STRIPE_SECRET_KEY;

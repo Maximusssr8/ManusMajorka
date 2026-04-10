@@ -603,8 +603,7 @@ router.post('/enrich-products', async (req: Request, res: Response) => {
 
   const { limit = 20 } = req.body || {};
 
-  console.log('[enrich] auth:', isServiceKey ? 'service-key' : 'user-jwt');
-  console.log('[enrich] auth header prefix:', req.headers.authorization?.slice(0, 30));
+  console.info('[enrich] auth:', isServiceKey ? 'service-key' : 'user-jwt');
 
   // Column existence check — if aliexpress_url doesn't exist yet, surface a clear error
   const { data: colCheck, error: colErr } = await supabase
