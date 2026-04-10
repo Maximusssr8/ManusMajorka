@@ -5,6 +5,7 @@ import { useFavourites } from '@/hooks/useFavourites';
 import UpgradeModal from '@/components/UpgradeModal';
 import { Check, X, Plus, ChevronDown, ChevronUp, Loader2, ExternalLink, RefreshCw, Eye, Smartphone, Monitor, Copy, ShoppingCart } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 
 // ── Constants ──────────────────────────────────────────────────
 const accent = '#6366F1';
@@ -442,6 +443,10 @@ export default function StoreBuilder() {
 
   // ── Generate copy ────────────────────────────────────────────
   const generateCopy = async () => {
+    if (!storeName.trim()) {
+      toast.error('Enter a store name first');
+      return;
+    }
     setGenerating(true);
     setAiStep('generating');
     setGenStep(0);
@@ -459,21 +464,78 @@ export default function StoreBuilder() {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
-          storeName, niche, targetMarket, tone,
+          storeName, niche: niche || 'General', targetMarket, tone,
           products: selectedProducts.map(p => ({ id: p.id, product_title: p.product_title, price_aud: p.price_aud })),
         }),
       });
-      const data = await res.json();
-      if (data.copy) {
-        setGeneratedCopy(data.copy);
-        setTimeout(() => { setAiStep('template'); setGenerating(false); }, 1000);
-      } else {
-        setGenerating(false);
-        setAiStep('products');
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(errData.error || `Generation failed (${res.status})`);
       }
-    } catch {
-      setGenerating(false);
-      setAiStep('products');
+
+      const data = await res.json();
+      if (data.copy && Object.keys(data.copy).length > 0) {
+        setGeneratedCopy(data.copy);
+        toast.success('Store copy generated');
+        setTimeout(() => { setAiStep('template'); setGenerating(false); }, 800);
+      } else {
+        // API returned but no copy — use a deterministic fallback so the
+        // user can still proceed (the copy can be edited/regenerated later)
+        const fallbackCopy = {
+          tagline: `Quality ${niche || 'products'} delivered fast`,
+          hero_headline: `Welcome to ${storeName}`,
+          hero_subheading: `Discover our curated collection of ${niche || 'products'} — trusted by thousands worldwide.`,
+          hero_cta: 'Shop Now',
+          about_text: `${storeName} is your destination for high-quality ${niche || 'products'}. We source the best items and deliver them to your door.`,
+          trust_badges: ['Free Shipping', 'Secure Checkout', '30-Day Returns', '24/7 Support'],
+          faq: [
+            { question: 'How fast is shipping?', answer: 'Standard shipping takes 7-14 business days. Express options are available at checkout.' },
+            { question: 'What is your return policy?', answer: 'We offer a 30-day money-back guarantee. Contact us for a hassle-free return.' },
+            { question: 'Is checkout secure?', answer: 'Yes. We use SSL encryption and trusted payment processors to keep your data safe.' },
+          ],
+          meta_title: `${storeName} — ${niche || 'Quality Products'}`,
+          meta_description: `Shop ${niche || 'products'} at ${storeName}. Fast shipping, secure checkout, 30-day returns.`,
+          products: selectedProducts.map(p => ({
+            id: String(p.id),
+            seo_title: p.product_title || 'Product',
+            description: `Premium ${(p.category || niche || 'product').toLowerCase()} — fast shipping, excellent quality.`,
+            bullet_points: ['High quality materials', 'Fast worldwide shipping', 'Trusted by thousands'],
+          })),
+        };
+        setGeneratedCopy(fallbackCopy);
+        toast('AI copy unavailable — using template. You can edit everything.', { duration: 4000 });
+        setTimeout(() => { setAiStep('template'); setGenerating(false); }, 800);
+      }
+    } catch (err) {
+      // NEVER silently fail. Show what went wrong and use fallback.
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('[StoreBuilder] generate-copy failed:', msg);
+      toast.error(`Generation error: ${msg.slice(0, 80)}. Using template copy instead.`, { duration: 5000 });
+
+      // Deterministic fallback so the user can still build their store
+      const fallbackCopy = {
+        tagline: `Quality ${niche || 'products'} delivered fast`,
+        hero_headline: `Welcome to ${storeName || 'My Store'}`,
+        hero_subheading: `Discover our curated collection — trusted by thousands worldwide.`,
+        hero_cta: 'Shop Now',
+        about_text: `Your destination for high-quality ${niche || 'products'}.`,
+        trust_badges: ['Free Shipping', 'Secure Checkout', '30-Day Returns', '24/7 Support'],
+        faq: [
+          { question: 'How fast is shipping?', answer: 'Standard shipping takes 7-14 business days.' },
+          { question: 'What is your return policy?', answer: '30-day money-back guarantee.' },
+        ],
+        meta_title: `${storeName || 'My Store'}`,
+        meta_description: `Shop at ${storeName || 'My Store'}.`,
+        products: selectedProducts.map(p => ({
+          id: String(p.id),
+          seo_title: p.product_title || 'Product',
+          description: `Quality product with fast shipping.`,
+          bullet_points: ['Fast shipping', 'Great quality'],
+        })),
+      };
+      setGeneratedCopy(fallbackCopy);
+      setTimeout(() => { setAiStep('template'); setGenerating(false); }, 500);
     }
   };
 
@@ -497,22 +559,44 @@ export default function StoreBuilder() {
 
   // ── Publish store ────────────────────────────────────────────
   const publishStore = async () => {
-    if (!subdomainAvailable) return;
+    if (!subdomain || subdomain.length < 3) {
+      toast.error('Enter a store URL slug (at least 3 characters)');
+      return;
+    }
     setPublishing(true);
     try {
       const res = await fetch('/api/store-builder/publish', {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
-          storeName, niche, targetMarket, tone, primaryColor,
+          storeName: storeName || 'My Store',
+          niche: niche || 'General',
+          targetMarket, tone, primaryColor,
           templateId: selectedTemplate,
-          selectedProducts: selectedProducts.map(p => ({ id: p.id, product_title: p.product_title, price_aud: p.price_aud, image_url: p.image_url })),
+          selectedProducts: selectedProducts.map(p => ({
+            id: p.id,
+            product_title: p.product_title,
+            price_aud: p.price_aud,
+            image_url: p.image_url,
+            category: p.category,
+          })),
           generatedCopy, subdomain, customDomain, mode: 'ai',
         }),
       });
       const data = await res.json();
-      setPublishResult(data);
-    } catch {
+      if (!res.ok) {
+        toast.error(data.error || `Publish failed (${res.status})`);
+        setPublishResult({ success: false });
+      } else if (data.success) {
+        toast.success('Store published!');
+        setPublishResult(data);
+      } else {
+        toast.error(data.error || 'Publish returned no success flag');
+        setPublishResult({ success: false });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Network error';
+      toast.error(`Publish failed: ${msg}`);
       setPublishResult({ success: false });
     }
     setPublishing(false);

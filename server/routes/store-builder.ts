@@ -388,14 +388,51 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 
     const text = (msg.content[0] as { type: string; text: string }).text;
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    const copy = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+    const copy = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
 
-    res.json({ copy });
+    if (copy && Object.keys(copy).length > 0) {
+      return res.json({ copy });
+    }
+    // Claude returned but the parse failed — use server-side fallback
+    console.warn('[generate-copy] Claude returned unparseable text, using fallback');
+    return res.json({ copy: buildFallbackCopy(storeName, niche || 'General', products || []) });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Unknown error';
-    res.status(500).json({ error: msg });
+    const errMsg = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[generate-copy]', errMsg);
+    // Return a deterministic fallback instead of 500 so the user can
+    // still build their store. The copy can be regenerated later.
+    const { storeName: sn, niche: n, products: ps } = req.body || {};
+    return res.json({
+      copy: buildFallbackCopy(sn || 'My Store', n || 'General', ps || []),
+      fallback: true,
+      reason: errMsg,
+    });
   }
 });
+
+function buildFallbackCopy(storeName: string, niche: string, products: Array<{ id?: string; product_title?: string; price_aud?: number }>) {
+  return {
+    tagline: `Quality ${niche} delivered fast`,
+    hero_headline: `Welcome to ${storeName}`,
+    hero_subheading: `Discover our curated ${niche.toLowerCase()} collection — trusted by thousands worldwide.`,
+    hero_cta: 'Shop Now',
+    about_text: `${storeName} offers the best ${niche.toLowerCase()} products with fast shipping and a 30-day guarantee.`,
+    trust_badges: ['Free Shipping', 'Secure Checkout', '30-Day Returns', '24/7 Support'],
+    faq: [
+      { question: 'How fast is shipping?', answer: 'Standard shipping takes 7-14 business days. Express options available at checkout.' },
+      { question: 'What is your return policy?', answer: '30-day money-back guarantee on all orders.' },
+      { question: 'Is checkout secure?', answer: 'Yes — we use SSL encryption and trusted payment processors.' },
+    ],
+    meta_title: `${storeName} — ${niche}`,
+    meta_description: `Shop ${niche.toLowerCase()} at ${storeName}. Fast shipping, secure checkout, 30-day returns.`,
+    products: products.map((p, i) => ({
+      id: String(p.id || i),
+      seo_title: p.product_title || 'Product',
+      description: `Premium quality ${niche.toLowerCase()} product with worldwide shipping.`,
+      bullet_points: ['High quality materials', 'Fast worldwide shipping', 'Trusted by thousands'],
+    })),
+  };
+}
 
 // ── GET /api/store-builder/check-subdomain ─────────────────────
 router.get('/check-subdomain', async (req, res) => {
