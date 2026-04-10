@@ -1098,6 +1098,23 @@ export default function AppProducts() {
     return [...allFetchedRaw].sort((a, b) => dailyVelocity(b) - dailyVelocity(a));
   }, [allFetchedRaw, orderBy]);
 
+  // Auto-open the product detail panel when navigated here with
+  // ?product=ID in the URL (e.g. from Today's Top 5 cards on Home).
+  // Strips the param after opening so the user can close + reopen
+  // freely without re-triggering on subsequent renders.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const wantId = params.get('product');
+    if (!wantId || allFetched.length === 0) return;
+    const found = allFetched.find((p) => String(p.id) === wantId);
+    if (found) {
+      setSelectedProduct(found);
+      const next = window.location.pathname + (params.toString().replace(`product=${wantId}`, '').replace(/^&/, '?').replace(/^\?$/, '') || '');
+      window.history.replaceState({}, '', next);
+    }
+  }, [allFetched]);
+
   const filtered = useMemo<Product[]>(() => {
     if (activeTab === 'saved') {
       // Pull from useLists — either the selected list's products, or

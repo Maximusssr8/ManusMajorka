@@ -1,4 +1,4 @@
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
 import CountUp from 'react-countup';
@@ -71,6 +71,22 @@ function scoreTierStyle(score: number): { backgroundColor: string; color: string
 export default function AppHome() {
   useEffect(() => { document.title = 'Dashboard — Majorka'; }, []);
   const { user } = useAuth();
+  const [, navigate] = useLocation();
+
+  /**
+   * Wipes the persisted Products filters from localStorage so that
+   * navigating to /app/products from Home opens a clean page (no
+   * stale Category/Price/Score chips left over from a previous
+   * session). Returns an onClick handler — call as
+   *   onClick={clearFiltersAndGo('/app/products')}
+   */
+  function clearFiltersAndGo(target: string) {
+    return (e: React.MouseEvent) => {
+      e.preventDefault();
+      try { localStorage.removeItem('majorka_filters_v1'); } catch { /* */ }
+      navigate(target);
+    };
+  }
   const { stats, loading: statsLoading } = useStatsOverview();
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -101,7 +117,7 @@ export default function AppHome() {
   const hotDelta = stats?.hotDelta ?? null;
   const kpiCards: {
     label: string; numeric: number | null; sub: string;
-    Icon: typeof Package; accent: string;
+    Icon: typeof Package; accent: string; href: string;
     trendText: string | null; trendPositive: boolean;
   }[] = [
     {
@@ -110,6 +126,7 @@ export default function AppHome() {
       sub: 'Live AliExpress feed',
       Icon: Package,
       accent: '#6366f1',
+      href: '/app/products',
       // Only show a trend pill when we actually have movement — empty
       // weeks shouldn't render a "No change" pill that ages badly
       trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week`
@@ -123,6 +140,7 @@ export default function AppHome() {
       sub: 'Score 65 and above',
       Icon: Flame,
       accent: '#f59e0b',
+      href: '/app/products?tab=hot-now',
       // Hide the pill entirely when we don't have a meaningful delta —
       // null reads as "no claim", which is cleaner than +999% or "insufficient data"
       trendText: hotDelta == null ? null
@@ -137,6 +155,7 @@ export default function AppHome() {
       sub: fav.count === 0 ? 'Start saving winners' : 'In your library',
       Icon: Bookmark,
       accent: '#10b981',
+      href: '/app/products?tab=saved',
       trendText: null,
       trendPositive: false,
     },
@@ -146,6 +165,7 @@ export default function AppHome() {
       sub: 'Orders above 100K',
       Icon: TrendingUp,
       accent: '#22d3ee',
+      href: '/app/products?tab=trending',
       trendText: null,
       trendPositive: false,
     },
@@ -161,13 +181,13 @@ export default function AppHome() {
     {
       label: 'Top Trending',
       chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b',
-      href: '/app/products?tab=trending',
+      href: '/app/products?tab=hot-now',
       product: topProduct ?? null,
     },
     {
       label: 'Best Margin',
       chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981',
-      href: '/app/products?tab=highmargin',
+      href: '/app/products?tab=high-profit',
       product: bestMargin,
     },
     {
@@ -236,22 +256,24 @@ export default function AppHome() {
                 Your product intelligence is live across the Australian market.
               </p>
               {insight && (
-                <Link
-                  href="/app/products"
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:text-accent-hover transition-colors no-underline"
+                <a
+                  href="/app/products?tab=new"
+                  onClick={clearFiltersAndGo('/app/products?tab=new')}
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:text-accent-hover transition-colors no-underline cursor-pointer"
                 >
                   <span>{insight}</span>
                   <ArrowRight size={13} strokeWidth={2.25} />
-                </Link>
+                </a>
               )}
             </div>
-            <Link
+            <a
               href="/app/products"
-              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.25)]"
+              onClick={clearFiltersAndGo('/app/products')}
+              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.25)] cursor-pointer"
             >
               Discover products
               <ArrowRight size={14} strokeWidth={2.25} />
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -261,13 +283,18 @@ export default function AppHome() {
         {kpiCards.map((card, i) => {
           const Icon = card.Icon;
           return (
-            <div
+            <Link
               key={card.label}
-              className={`glass-card glass-card--elevated glass-card--interactive relative overflow-hidden p-6 animate-in stagger-${i + 1}`}
+              href={card.href}
+              className={`block no-underline group glass-card glass-card--elevated glass-card--interactive relative overflow-hidden p-6 animate-in stagger-${i + 1}`}
             >
               {/* Decorative oversized icon — sits behind the number */}
               <div className="pointer-events-none absolute -top-4 -right-4 opacity-[0.05]">
                 <Icon size={120} strokeWidth={1} />
+              </div>
+              {/* Hover arrow — appears bottom-right */}
+              <div className="pointer-events-none absolute bottom-3 right-3 text-white/0 group-hover:text-accent transition-colors text-base">
+                →
               </div>
 
               {/* Top accent line — full width, fades to transparent edges */}
@@ -301,9 +328,12 @@ export default function AppHome() {
                 style={{ textShadow: `0 0 40px ${card.accent}40` }}
               >
                 {statsLoading || card.numeric == null ? (
-                  <span className="inline-block h-8 w-24 bg-white/[0.04] rounded animate-pulse" />
+                  <span
+                    className="inline-block h-10 w-28 rounded-xl animate-pulse"
+                    style={{ background: 'rgba(255,255,255,0.08)' }}
+                  />
                 ) : (
-                  <CountUp end={card.numeric} duration={1.5} separator="," useEasing preserveValue />
+                  <CountUp start={0} end={card.numeric} duration={1.5} separator="," useEasing preserveValue />
                 )}
               </div>
 
@@ -324,7 +354,7 @@ export default function AppHome() {
                   </span>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -333,12 +363,13 @@ export default function AppHome() {
       <div className="relative z-10 mx-4 md:mx-8 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
-          <Link
+          <a
             href="/app/products"
-            className="text-sm text-accent hover:text-accent-hover transition-colors no-underline"
+            onClick={clearFiltersAndGo('/app/products')}
+            className="text-sm text-accent hover:text-accent-hover transition-colors no-underline cursor-pointer"
           >
             View all {total > 0 ? total.toLocaleString() : '…'} →
-          </Link>
+          </a>
         </div>
         <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
           <table className="w-full">
@@ -555,14 +586,13 @@ export default function AppHome() {
               const isLast = i === opportunities.length - 1;
               const isFav = p ? fav.isFavourite(p.id) : false;
               return (
-                <div
+                <a
                   key={o.label}
-                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.03] -mx-3 px-3 rounded-xl transition-colors group`}
+                  href={o.href}
+                  onClick={clearFiltersAndGo(o.href)}
+                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.03] -mx-3 px-3 rounded-xl transition-colors group cursor-pointer no-underline`}
                 >
-                  <Link
-                    href={o.href}
-                    className="flex items-center gap-3 min-w-0 flex-1 no-underline"
-                  >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {p?.image_url ? (
                       <img
                         src={proxyImage(p.image_url) ?? p.image_url}
@@ -587,7 +617,7 @@ export default function AppHome() {
                         {p?.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
                       </p>
                     </div>
-                  </Link>
+                  </div>
                   {score > 0 && (
                     <span
                       className="inline-flex items-center justify-center px-1.5 h-6 rounded text-xs font-bold tabular-nums shrink-0"
@@ -605,7 +635,7 @@ export default function AppHome() {
                       <Heart size={14} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
                     </button>
                   )}
-                </div>
+                </a>
               );
             })}
           </div>
