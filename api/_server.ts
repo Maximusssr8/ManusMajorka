@@ -773,46 +773,57 @@ app.get("/api/store/:slug", async (req: Request, res: Response) => {
   try {
     // Stores live in generated_stores keyed by `subdomain` (legacy
     // column name from the subdomain-based URL scheme). New storefront
-    // route is /store/<subdomain> served from generated_stores. The
-    // older `stores` table is unused for live storefronts.
+    // route is /store/<subdomain> served from generated_stores.
+    // Real columns: generated_copy + blueprint (jsonb), primary_color,
+    // niche, store_name. There is no `brief` or `published` column.
     const sb = getSupabaseAdmin();
     const { data: store, error } = await sb
       .from('generated_stores')
-      .select('id, store_name, subdomain, niche, brief, html, published, created_at')
+      .select('id, store_name, subdomain, niche, generated_copy, blueprint, primary_color, created_at')
       .eq('subdomain', slug.toLowerCase())
-      .eq('published', true)
-      .single();
+      .maybeSingle();
 
     if (error || !store) {
       return res.status(404).json({ error: 'Store not found' });
     }
 
-    // Brief is JSON-stored — pull theme + colour + product list out
-    const brief = (typeof store.brief === 'string' ? JSON.parse(store.brief) : store.brief) || {};
-    const products = Array.isArray(brief.products)
-      ? brief.products.map((p: any, i: number) => ({
-          id: String(p.id ?? i),
-          productId: String(p.id ?? i),
-          price: String(p.suggested_price ?? p.price ?? p.price_aud ?? 0),
-          comparePrice: p.compare_price ? String(p.compare_price) : undefined,
-          seoTitle: p.title ?? p.product_title ?? '',
-          published: true,
-          product: {
-            name: p.title ?? p.product_title ?? 'Untitled',
-            description: p.description ?? '',
-            niche: p.category ?? store.niche ?? '',
-          },
-        }))
-      : [];
+    // generated_copy / blueprint are JSON columns. Try to find a
+    // products array on either of them — different generation modes
+    // store it in different shapes.
+    function parseJson(v: unknown): any {
+      if (v == null) return null;
+      if (typeof v === 'object') return v;
+      try { return JSON.parse(v as string); } catch { return null; }
+    }
+    const copy = parseJson(store.generated_copy) || {};
+    const blueprint = parseJson(store.blueprint) || {};
+    const rawProducts =
+      (Array.isArray(copy.products) && copy.products) ||
+      (Array.isArray(blueprint.products) && blueprint.products) ||
+      [];
+
+    const products = rawProducts.map((p: any, i: number) => ({
+      id: String(p.id ?? i),
+      productId: String(p.id ?? i),
+      price: String(p.suggested_price ?? p.price ?? p.price_aud ?? 0),
+      comparePrice: p.compare_price ? String(p.compare_price) : undefined,
+      seoTitle: p.title ?? p.product_title ?? '',
+      published: true,
+      product: {
+        name: p.title ?? p.product_title ?? 'Untitled',
+        description: p.description ?? '',
+        niche: p.category ?? store.niche ?? '',
+      },
+    }));
 
     res.json({
       store: {
         id: store.id,
         storeName: store.store_name,
         storeSlug: store.subdomain,
-        logoUrl: brief.logoUrl ?? brief.logo_url ?? null,
-        metaPixelId: brief.metaPixelId ?? null,
-        brandColorPrimary: brief.brandColor ?? brief.primary_color ?? '#6366f1',
+        logoUrl: copy.logoUrl ?? copy.logo_url ?? blueprint.logoUrl ?? null,
+        metaPixelId: copy.metaPixelId ?? null,
+        brandColorPrimary: store.primary_color ?? '#6366f1',
       },
       products,
     });
