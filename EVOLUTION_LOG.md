@@ -106,10 +106,86 @@ Total: 6 Critical, 8 Warning, 6 Suggestion
 - Fixed TypeScript type errors in Alerts, Dashboard, MarketDashboard, FullDatabase
 - Rebuilt serverless bundle with all secrets removed
 
-## NEXT CYCLE FOCUS
+## NEXT CYCLE FOCUS (from Cycle 1)
 
 - **SECRET ROTATION**: Exposed keys must be rotated (Supabase service_role, RapidAPI, Pexels)
 - Bundle size optimization (1.6MB main chunk)
 - Remove gamification components (ScoreRing, useCountUp, StreakWidget)
 - Consolidate duplicate rate-limit files (rate-limit.ts vs ratelimit.ts)
 - Client-side route redirects should use wouter instead of window.location.replace
+
+---
+
+## AUDIT RESULTS — 2026-04-10 — CYCLE 2
+
+Additional critical issues found by 5 parallel audit agents.
+
+### CRITICAL (fix immediately)
+
+21. **api/_server.ts:194** — SSRF vulnerability: `/api/proxy-image` fetches ANY URL with no domain allowlist. Attacker can probe internal services. — Fix: Add domain allowlist + require HTTPS.
+22. **api/_server.ts:457** — `/api/creators/outreach` unauthenticated — burns Anthropic credits. — Fix: Add requireAuth.
+23. **api/_server.ts:928** — `/api/ad-spy/search` unauthenticated — AI endpoint exposed. — Fix: Add requireAuth.
+24. **api/_server.ts:628** — `/api/import-product` JWT decoded without verification. — Fix: Replace with requireAuth middleware.
+25. **api/_server.ts:300** — Hardcoded migration secret fallback 'majorka-intel-2026'. — Fix: Remove fallback.
+
+### WARNING (fix this cycle)
+
+26. **api/_server.ts:365,392** — `/api/competitor/products` and `/api/competitor/stores` unauthenticated — proprietary data exposed. — Fix: Add requireAuth.
+27. **server/middleware/requireSubscription.ts** — Subscription expiry not checked. Users can continue using paid features after `current_period_end`. — Fix: Add expiry check.
+28. **server/routes/products.ts:1922** — CJ products returned without filtering zero-order products. — Fix: Filter `sellsCount > 0`.
+29. **server/lib/stripe.ts:294** — `invoice.payment_failed` sets `past_due` but doesn't block feature access. — Fix: Future cycle.
+30. **server/lib/usageLimits.ts** — Usage limits exist but not enforced on most endpoints. — Fix: Future cycle.
+
+### FIX STATUS — CYCLE 2
+
+| # | Status | Commit |
+|---|--------|--------|
+| 21 | ✅ FIXED | `2446adf` — Domain allowlist + HTTPS-only on /api/proxy-image |
+| 22 | ✅ FIXED | `2446adf` — requireAuth added |
+| 23 | ✅ FIXED | `2446adf` — requireAuth added |
+| 24 | ✅ FIXED | `2446adf` — Replaced with requireAuth middleware |
+| 25 | ✅ FIXED | `2446adf` — Fallback removed |
+| 26 | ✅ FIXED | `2446adf` — requireAuth added to both |
+| 27 | ✅ FIXED | `2446adf` — current_period_end expiry check added |
+| 28 | ✅ FIXED | `2446adf` — CJ products filtered by order count > 0 |
+| 29 | 🔲 TODO | Payment failed → block access (future cycle) |
+| 30 | 🔲 TODO | Usage limit enforcement on all endpoints (future cycle) |
+
+---
+
+## CYCLE 2 SUMMARY — 2026-04-10
+
+- Issues found: 10 (5 Critical, 5 Warning)
+- Issues resolved: 8
+- Critical: ALL 5 CLEARED
+- Warnings: 3 of 5 cleared
+- Commits made: 1
+- Build status: PASSING
+
+## IMPROVEMENTS SHIPPED THIS CYCLE
+
+- SSRF vulnerability patched: /api/proxy-image now allowlists only CDN domains + requires HTTPS
+- 5 unauthenticated endpoints now require auth (creators/outreach, ad-spy/search, competitor/products, competitor/stores, import-product)
+- Removed hardcoded migration secret fallback from source code
+- Replaced unsafe JWT base64 decode with proper requireAuth on import-product
+- Subscription middleware now checks expiry date — expired subs are blocked server-side
+- CJ Dropshipping products without real order data now filtered at API level
+
+## COMBINED TOTALS (Cycle 1 + Cycle 2)
+
+- Total issues found: 30
+- Total issues resolved: 22
+- All critical issues: CLEARED (11/11)
+- Commits made: 7
+- Build status: PASSING
+
+## NEXT CYCLE FOCUS
+
+- **SECRET ROTATION** (manual action by admin)
+- Delete `.env.local.bak` backup file
+- Payment failed → immediate feature lockdown
+- Usage limit enforcement on all protected routes
+- Bundle size optimization
+- Remove gamification components (ScoreRing, useCountUp, StreakWidget)
+- Add skeleton loading states to Dashboard, ProductIntelligence
+- Add empty/error states to data pages
