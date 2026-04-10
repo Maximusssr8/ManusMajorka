@@ -221,7 +221,7 @@ app.get("/api/proxy-image", async (req: Request, res: Response) => {
 });
 
 // ── Pexels search proxy — keeps API key server-side ─────────────────────────
-app.get("/api/pexels/search", async (req: Request, res: Response) => {
+app.get("/api/pexels/search", requireAuth, async (req: Request, res: Response) => {
   const pexelsKey = process.env.PEXELS_API_KEY || process.env.VITE_PEXELS_API_KEY;
   if (!pexelsKey) { res.status(503).json({ error: "Pexels not configured" }); return; }
   const query = req.query.query as string;
@@ -480,7 +480,7 @@ app.post("/api/creators/outreach", requireAuth, async (req: Request, res: Respon
 });
 
 // ── Video Intelligence API ────────────────────────────────────────────────
-app.get("/api/videos", async (req: Request, res: Response) => {
+app.get("/api/videos", requireAuth, async (req: Request, res: Response) => {
   try {
     const niche = String(req.query.niche || '');
     const region = String(req.query.region || '');
@@ -684,7 +684,7 @@ app.post("/api/import-product", requireAuth, async (req: Request, res: Response)
 // are registered via registerStripeRoutes(app) above
 
 // ── Public trend signals API ──────────────────────────────────────────────
-app.get("/api/trend-signals", async (req: Request, res: Response) => {
+app.get("/api/trend-signals", requireAuth, async (req: Request, res: Response) => {
   try {
     const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -1054,7 +1054,7 @@ Be specific and creative. No generic filler.`;
 });
 
 // ── Product URL Extraction ────────────────────────────────────────────────────
-app.get("/api/products/extract-url", async (req: Request, res: Response) => {
+app.get("/api/products/extract-url", requireAuth, async (req: Request, res: Response) => {
   try {
     const url = String(req.query.url || '').trim();
     if (!url || !url.startsWith('http')) {
