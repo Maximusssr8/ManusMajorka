@@ -65,11 +65,9 @@ async function callAPI(method: string, extra: Record<string, string> = {}): Prom
 
 export function getAuthUrl(redirectUri: string): string {
   // Hardcoded fallback so OAuth works even if env var isn't loaded at module init time
-  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
-  console.log('[ae-auth] app_key:', appKey);
-  console.log('[ae-auth] redirect_uri:', redirectUri);
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '';
+  if (!appKey) throw new Error('ALIEXPRESS_APP_KEY not configured');
   const url = `${OAUTH_URL}/authorize?response_type=code&force_auth=true&client_id=${appKey}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-  console.log('[ae-auth] OAuth URL:', url);
   return url;
 }
 
@@ -80,10 +78,9 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
   refresh_token_valid_time: number;
   user_id: string;
 }> {
-  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
-  const appSecret = process.env.ALIEXPRESS_APP_SECRET || '8aHJr5hI76XIqvtKDKc5b1h6FfTytp75';
-
-  console.log('[ae-token] exchanging code, app_key:', appKey);
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '';
+  const appSecret = process.env.ALIEXPRESS_APP_SECRET || '';
+  if (!appKey || !appSecret) throw new Error('AliExpress API keys not configured');
 
   // AliExpress token endpoint — POST to oauth.aliexpress.com/token
   const body = new URLSearchParams({
@@ -102,8 +99,6 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
   });
 
   const raw = await res.text();
-  console.log('[ae-token] response status:', res.status);
-  console.log('[ae-token] response body:', raw.slice(0, 300));
 
   let data: any;
   try { data = JSON.parse(raw); } catch { throw new Error('Non-JSON token response: ' + raw.slice(0, 200)); }

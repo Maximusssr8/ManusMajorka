@@ -111,10 +111,11 @@ router.get('/callback', async (req: Request, res: Response) => {
   }
 });
 
-// ── GET /api/aliexpress/test — raw DS API test (no auth required) ─────────────
-router.get('/test', async (_req: Request, res: Response) => {
-  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
-  const appSecret = process.env.ALIEXPRESS_APP_SECRET || '8aHJr5hI76XIqvtKDKc5b1h6FfTytp75';
+// ── GET /api/aliexpress/test — raw DS API test ─────────────
+router.get('/test', requireAuth, async (_req: Request, res: Response) => {
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '';
+  const appSecret = process.env.ALIEXPRESS_APP_SECRET || '';
+  if (!appKey || !appSecret) { res.status(503).json({ error: 'AliExpress API not configured' }); return; }
 
   try {
     const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
