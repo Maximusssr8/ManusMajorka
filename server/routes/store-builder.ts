@@ -492,10 +492,13 @@ router.post('/publish', requireAuth, async (req, res) => {
 
     if (error) return res.status(500).json({ error: error.message });
 
+    // Path-based URL — no DNS / wildcard cert needed. The subdomain
+    // field is kept for legacy reasons (and as a fallback display name)
+    // but the actual storefront lives at /store/<slug>.
     res.json({
       success: true,
       storeId: store?.id,
-      liveUrl: `https://${subdomain}.majorka.io`,
+      liveUrl: `https://majorka.io/store/${subdomain}`,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';

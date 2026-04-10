@@ -55,6 +55,7 @@ import authRouter from "../server/routes/auth";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
+import { getSupabaseAdmin } from "../server/_core/supabase";
 import { importProductSchema, validateBody } from "../server/lib/validators";
 
 // Run DB migrations on cold start (non-fatal)
@@ -770,16 +771,53 @@ app.get("/api/trend-signals", async (req: Request, res: Response) => {
 app.get("/api/store/:slug", async (req: Request, res: Response) => {
   const { slug } = req.params;
   try {
-    const store = await getStoreBySlug(slug);
-    if (!store || !store.active) return res.status(404).json({ error: "Store not found" });
-    const sfProducts = await getPublishedStorefrontProducts(store.id);
-    // Enrich with product details
-    const enriched = await Promise.all(sfProducts.map(async (sfp) => {
-      const product = await getProductByIdPublic(sfp.productId);
-      return { ...sfp, product };
-    }));
-    res.json({ store, products: enriched });
+    // Stores live in generated_stores keyed by `subdomain` (legacy
+    // column name from the subdomain-based URL scheme). New storefront
+    // route is /store/<subdomain> served from generated_stores. The
+    // older `stores` table is unused for live storefronts.
+    const sb = getSupabaseAdmin();
+    const { data: store, error } = await sb
+      .from('generated_stores')
+      .select('id, store_name, subdomain, niche, brief, html, published, created_at')
+      .eq('subdomain', slug.toLowerCase())
+      .eq('published', true)
+      .single();
+
+    if (error || !store) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    // Brief is JSON-stored — pull theme + colour + product list out
+    const brief = (typeof store.brief === 'string' ? JSON.parse(store.brief) : store.brief) || {};
+    const products = Array.isArray(brief.products)
+      ? brief.products.map((p: any, i: number) => ({
+          id: String(p.id ?? i),
+          productId: String(p.id ?? i),
+          price: String(p.suggested_price ?? p.price ?? p.price_aud ?? 0),
+          comparePrice: p.compare_price ? String(p.compare_price) : undefined,
+          seoTitle: p.title ?? p.product_title ?? '',
+          published: true,
+          product: {
+            name: p.title ?? p.product_title ?? 'Untitled',
+            description: p.description ?? '',
+            niche: p.category ?? store.niche ?? '',
+          },
+        }))
+      : [];
+
+    res.json({
+      store: {
+        id: store.id,
+        storeName: store.store_name,
+        storeSlug: store.subdomain,
+        logoUrl: brief.logoUrl ?? brief.logo_url ?? null,
+        metaPixelId: brief.metaPixelId ?? null,
+        brandColorPrimary: brief.brandColor ?? brief.primary_color ?? '#6366f1',
+      },
+      products,
+    });
   } catch (err: any) {
+    console.error('[store/:slug]', err);
     res.status(500).json({ error: err.message });
   }
 });

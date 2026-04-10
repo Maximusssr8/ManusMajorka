@@ -684,10 +684,10 @@ export default function StoreBuilder() {
                   <div key={store.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '14px 20px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 14 }}>{store.store_name}</div>
-                      <div style={{ fontSize: 12, color: textMuted }}>{store.subdomain ? `${store.subdomain}.majorka.io` : 'Not published'} · {new Date(store.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
+                      <div style={{ fontSize: 12, color: textMuted }}>{store.subdomain ? `majorka.io/store/${store.subdomain}` : 'Not published'} · {new Date(store.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
                     </div>
                     {store.published && store.subdomain && (
-                      <a href={`https://${store.subdomain}.majorka.io`} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' as const, gap: 4 }}>
+                      <a href={`https://majorka.io/store/${store.subdomain}`} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' as const, gap: 4 }}>
                         <ExternalLink size={12} /> View
                       </a>
                     )}
@@ -961,15 +961,15 @@ export default function StoreBuilder() {
               <p style={{ color: textSecondary, marginBottom: 24 }}>Choose your store URL and publish.</p>
 
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Subdomain</label>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Store URL</label>
                 <div style={{ display: 'flex', alignItems: 'center' as const, gap: 0 }}>
+                  <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: '8px 0 0 8px', border: '1px solid rgba(255,255,255,0.12)', borderRight: 'none', fontSize: 14, color: textMuted }}>majorka.io/store/</div>
                   <input
                     value={subdomain}
                     onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     placeholder="yourstore"
-                    style={{ ...inputStyle, borderTopRightRadius: 0, borderBottomRightRadius: 0, flex: 1 }}
+                    style={{ ...inputStyle, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, flex: 1 }}
                   />
-                  <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: '0 8px 8px 0', border: '1px solid rgba(255,255,255,0.12)', borderLeft: 'none', fontSize: 14, color: textMuted }}>.majorka.io</div>
                 </div>
                 {subdomain.length >= 3 && (
                   <div style={{ marginTop: 6, fontSize: 12, color: subdomainAvailable === true ? '#10B981' : subdomainAvailable === false ? '#EF4444' : textMuted }}>
