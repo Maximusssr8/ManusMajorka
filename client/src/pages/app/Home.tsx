@@ -244,7 +244,7 @@ export default function AppHome() {
           <div className="relative flex items-start justify-between gap-6 flex-wrap">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <GradientM size={36} />
+                <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 36, width: 36, borderRadius: 10, objectFit: 'cover' }} />
                 <p className="text-xs text-muted uppercase tracking-widest">
                   {today} · Scale Plan
                 </p>

@@ -72,7 +72,7 @@ export function AppShell({ children }: AppShellProps) {
               href="/app"
               className="flex items-center gap-2 no-underline"
             >
-              <GradientM size={28} />
+              <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 28, width: 28, borderRadius: 7, objectFit: 'cover' }} />
               <span
                 className="text-[15px] font-display font-bold tracking-tight"
                 style={{

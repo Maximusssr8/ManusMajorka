@@ -95,7 +95,12 @@ export function Nav({ onNavigate }: NavProps = {}) {
           onClick={onNavigate}
           className="flex items-center gap-2.5 px-4 pt-5 pb-3 no-underline shrink-0"
         >
-          <GradientM size={32} />
+          <img
+            src="/majorka-logo.jpg"
+            alt="Majorka"
+            className="shrink-0"
+            style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }}
+          />
           <span
             className="text-[15px] font-display font-bold tracking-tight"
             style={{
