@@ -344,7 +344,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       {result.imageUrls.length > 0 ? (
         <div className="w-full overflow-hidden" style={{ height: 160, background: 'rgba(255,255,255,0.03)' }}>
           <img
-            src={proxyImage(result.imageUrls[0])}
+            src={proxyImage(result.imageUrls[0]) ?? undefined}
             alt={result.cleanTitle || result.productTitle}
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -435,7 +435,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 }}
               >
                 <img
-                  src={proxyImage(imgUrl)}
+                  src={proxyImage(imgUrl) ?? undefined}
                   alt=""
                   className="w-full h-full object-cover"
                   onError={(e) => {

@@ -56,7 +56,9 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
-import { FREE_LESSON_IDS, TOTAL_FREE } from '@/pages/LearnHub';
+// Free lesson tracking constants (used for sidebar progress badge)
+const FREE_LESSON_IDS = ['lesson-1', 'lesson-2', 'lesson-3', 'lesson-4', 'lesson-5'] as const;
+const TOTAL_FREE = FREE_LESSON_IDS.length;
 import { CommandPalette } from '@/components/CommandPalette';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

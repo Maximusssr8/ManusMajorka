@@ -789,7 +789,7 @@ function OutputDisplay({ parsed, copied, copyText }: { parsed: ParsedSections; c
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 820 }}>
-      {cards.map((c) => <SectionCard key={c.key} {...c} copied={copied} copyText={copyText} />)}
+      {cards.map(({ key: k, ...rest }) => <SectionCard key={k} {...rest} copied={copied} copyText={copyText} />)}
 
       {/* Hook variations — side by side */}
       {(parsed.hookA || parsed.hookB || parsed.hookC) && (
@@ -802,7 +802,7 @@ function OutputDisplay({ parsed, copied, copyText }: { parsed: ParsedSections; c
               { key: 'hookA', label: 'Hook A', value: parsed.hookA },
               { key: 'hookB', label: 'Hook B', value: parsed.hookB },
               { key: 'hookC', label: 'Hook C', value: parsed.hookC },
-            ].filter((h) => h.value).map((h) => <SectionCard key={h.key} {...h} copied={copied} copyText={copyText} />)}
+            ].filter((h) => h.value).map(({ key: k, ...rest }) => <SectionCard key={k} {...rest} copied={copied} copyText={copyText} />)}
           </div>
         </div>
       )}

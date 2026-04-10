@@ -1142,8 +1142,7 @@ router.get('/radar', async (_req: Request, res: Response) => {
       void sb
         .from('product_rank_snapshots')
         .upsert(rows, { onConflict: 'product_id' })
-        .then(() => {})
-        .catch(() => {});
+        .then(() => {}, () => {});
     } catch {
       // ignore
     }
