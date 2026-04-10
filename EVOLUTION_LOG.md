@@ -52,4 +52,64 @@
 
 Total: 6 Critical, 8 Warning, 6 Suggestion
 
+### FIX STATUS
+
+| # | Status | Commit |
+|---|--------|--------|
+| 1 | ✅ FIXED | `213b877` — Removed hardcoded Supabase SERVICE_ROLE_KEY |
+| 2 | ✅ FIXED | `213b877` — Removed hardcoded RapidAPI key |
+| 3 | ✅ FIXED | `213b877` — Removed hardcoded Pexels API key |
+| 4 | ✅ FIXED | `213b877` — JWT now verified via supabase.auth.getUser() |
+| 5 | ✅ FIXED | `213b877` — requireSubscription fails closed (503) |
+| 6 | ✅ FIXED | `213b877` — drizzle-orm 0.44.7 → 0.45.2 |
+| 7 | ✅ FIXED | `213b877` — ProductIntelligencePreview uses env vars |
+| 8 | ✅ FIXED | `213b877` — requireSubscription fails closed on DB errors |
+| 9 | ⚠️ PARTIAL | npm audit: direct deps updated, transitive (basic-ftp) via apify-client unresolvable |
+| 10 | ✅ FIXED | `02d80e2` — LoadingFallback bg #0d0f14 |
+| 11 | ✅ FIXED | `02d80e2` — AppLayout added to 4 missing /app/* routes |
+| 12 | ✅ REVIEWED | Routes already use requireSubscription where needed; /ai/chat was unauthenticated — fixed |
+| 12b | ✅ FIXED | `eda8330` — /api/ai/chat now requires auth + fixed nesting bug in ai.ts |
+| 13 | 🔲 TODO | Bundle size code-splitting |
+| 14 | ✅ REVIEWED | AlmostWonModal is paywall conversion, not gamification — kept |
+| TS | ✅ FIXED | `0f52e32` — TypeScript fixes in Alerts, Dashboard, MarketDashboard, FullDatabase |
+
+### SECRET ROTATION REQUIRED
+
+⚠️ **The following secrets were previously committed to git history and MUST be rotated:**
+1. Supabase SERVICE_ROLE_KEY — rotate in Supabase dashboard → Settings → API
+2. RapidAPI key — rotate at rapidapi.com
+3. Pexels API key — rotate at pexels.com/api
+4. Update new keys in Vercel env vars and .env.local
+
 ---
+
+## CYCLE 1 SUMMARY — 2026-04-10
+
+- Issues found: 20 (6 Critical, 8 Warning, 6 Suggestion)
+- Issues resolved: 14
+- Critical: ALL 6 CLEARED
+- Warnings: 6 of 8 cleared (remaining: bundle size code-splitting, npm transitive vulns)
+- Suggestions remaining: 6
+- Commits made: 5
+- Build status: PASSING
+
+## IMPROVEMENTS SHIPPED THIS CYCLE
+
+- Removed 3 hardcoded API keys from source code (Supabase service_role, RapidAPI, Pexels)
+- Fixed subscription middleware: JWT now cryptographically verified (was just base64 decoded — spoofable)
+- Subscription middleware now fails closed when service key is missing (was granting access to everyone)
+- Updated drizzle-orm to fix SQL injection vulnerability
+- Added auth middleware to /api/ai/chat endpoint (was completely unauthenticated)
+- Fixed code nesting bug in ai.ts routes (/chat was inside /generate-ads handler)
+- Added AppLayout wrapper to 4 app routes that were missing sidebar navigation
+- Fixed LoadingFallback background color to match design system
+- Fixed TypeScript type errors in Alerts, Dashboard, MarketDashboard, FullDatabase
+- Rebuilt serverless bundle with all secrets removed
+
+## NEXT CYCLE FOCUS
+
+- **SECRET ROTATION**: Exposed keys must be rotated (Supabase service_role, RapidAPI, Pexels)
+- Bundle size optimization (1.6MB main chunk)
+- Remove gamification components (ScoreRing, useCountUp, StreakWidget)
+- Consolidate duplicate rate-limit files (rate-limit.ts vs ratelimit.ts)
+- Client-side route redirects should use wouter instead of window.location.replace
