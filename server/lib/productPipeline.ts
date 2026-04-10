@@ -9,10 +9,10 @@ const hasAffiliateKeys = (): boolean => {
   return !!(process.env.ALIEXPRESS_APP_KEY && process.env.ALIEXPRESS_APP_SECRET);
 };
 
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || '72000f9eeamsh375c31f96187909p1caf20jsn4494e614ec1b';
-const PEXELS_KEY = process.env.PEXELS_API_KEY || 'EZjK9XGsizihc0Kr0mTGiQoglCY5kGQfOQ3QIKOLLODImTaxlg5ztpFB';
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAyMTQ0MCwiZXhwIjoyMDg3NTk3NDQwfQ.VTbTM5BCyAq843T1z1DRpkPI-0X7ZkAoD6K2q3sVX9Q';
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || '';
+const PEXELS_KEY = process.env.PEXELS_API_KEY || '';
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const LIGHT_KEYWORDS = ['posture corrector','LED desk lamp','massage gun mini','dog harness','teeth whitening kit'];
 const AU_HOT_KEYWORDS = ['posture','weighted blanket','massage gun','pet','teeth whitening','hair','smart home','LED'];

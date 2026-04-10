@@ -3,9 +3,8 @@ import { useLocation } from 'wouter';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 // ── Supabase config (anon key — public read only) ─────────────────────────────
-const SUPABASE_URL = 'https://ievekuazsjbdrltsdksn.supabase.co';
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjE0NDAsImV4cCI6MjA4NzU5NzQ0MH0.kW2sMm2BLMi1xQcI6tnfvhyWiAm2CXVGJ1gOqLKFkRM';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // ── Fallback demo data (used if Supabase fetch fails) ─────────────────────────
 const DEMO_PRODUCTS = [

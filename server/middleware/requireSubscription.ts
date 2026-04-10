@@ -19,60 +19,68 @@ declare global {
 // Emails allowed to bypass subscription check (testing/admin)
 const BYPASS_EMAILS = ['maximusmajorka@gmail.com'];
 
-// Valid active statuses
-const ACTIVE_STATUSES = ['active', 'Active'];
-
 // Valid paid plans (case-insensitive)
-const PAID_PLANS = ['builder', 'scale', 'Builder', 'Scale'];
+const PAID_PLANS = ['builder', 'scale'];
 
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   if (!key) {
-    console.warn('[requireSubscription] SUPABASE_SERVICE_ROLE_KEY not set — failing open');
+    console.error('[requireSubscription] SUPABASE_SERVICE_ROLE_KEY not set — failing closed');
     return null;
   }
-  return createClient(url, key);
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }
 
-function getUserFromToken(authHeader: string | undefined): { userId: string; email?: string } | null {
-  if (!authHeader) return null;
-  const token = authHeader.replace(/^Bearer\s+/i, '');
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    return {
-      userId: payload.sub || '',
-      email: payload.email || '',
-    };
-  } catch {
-    return null;
-  }
-}
-
+/**
+ * requireSubscription — verifies JWT via supabase.auth.getUser() (cryptographic verification),
+ * then checks subscription status. Never decodes JWT payload without verification.
+ */
 export const requireSubscription = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const user = getUserFromToken(req.headers.authorization);
-  if (!user?.userId) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ error: 'unauthorized', message: 'Authentication required' });
     return;
   }
 
-  // Admin/dev bypass
-  if (user.email && BYPASS_EMAILS.includes(user.email)) {
-    console.info(`[requireSubscription] Bypass for ${user.email}`);
-    req.subscription = { status: 'active', plan: 'scale', userId: user.userId, email: user.email };
-    next();
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) {
+    res.status(401).json({ error: 'unauthorized', message: 'Authentication required' });
     return;
   }
 
   const supabase = getSupabaseAdmin();
   if (!supabase) {
-    // No service role key — fail open so users aren't blocked on misconfiguration
-    req.subscription = { status: 'active', plan: 'builder', userId: user.userId };
+    // No service role key — fail closed to prevent unauthorized access
+    res.status(503).json({ error: 'service_unavailable', message: 'Subscription verification unavailable' });
+    return;
+  }
+
+  // Verify JWT signature via Supabase (cryptographic verification — cannot be spoofed)
+  let userId: string;
+  let email: string | undefined;
+  try {
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user) {
+      res.status(401).json({ error: 'unauthorized', message: 'Invalid or expired token' });
+      return;
+    }
+    userId = data.user.id;
+    email = data.user.email || undefined;
+  } catch {
+    res.status(401).json({ error: 'unauthorized', message: 'Token verification failed' });
+    return;
+  }
+
+  // Admin/dev bypass
+  if (email && BYPASS_EMAILS.includes(email)) {
+    req.subscription = { status: 'active', plan: 'scale', userId, email };
     next();
     return;
   }
@@ -81,7 +89,7 @@ export const requireSubscription = async (
     const { data, error } = await supabase
       .from('user_subscriptions')
       .select('status, plan')
-      .eq('user_id', user.userId)
+      .eq('user_id', userId)
       .single();
 
     if (error) {
@@ -95,10 +103,9 @@ export const requireSubscription = async (
         });
         return;
       }
-      // Any other DB error (table missing, network error) → fail open
-      console.error('[requireSubscription] DB error (failing open):', error.message, 'code:', code);
-      req.subscription = { status: 'unknown', plan: 'unknown', userId: user.userId };
-      next();
+      // Any other DB error → fail closed
+      console.error('[requireSubscription] DB error:', error.message, 'code:', code);
+      res.status(503).json({ error: 'service_unavailable', message: 'Subscription verification failed' });
       return;
     }
 
@@ -111,13 +118,10 @@ export const requireSubscription = async (
       return;
     }
 
-    const statusOk = ACTIVE_STATUSES.includes(data.status) ||
-      data.status?.toLowerCase() === 'active';
-
-    const planOk = PAID_PLANS.map(p => p.toLowerCase()).includes(data.plan?.toLowerCase());
+    const statusOk = data.status?.toLowerCase() === 'active';
+    const planOk = PAID_PLANS.includes(data.plan?.toLowerCase());
 
     if (!statusOk || !planOk) {
-      console.info(`[requireSubscription] Blocked: userId=${user.userId} status=${data.status} plan=${data.plan}`);
       res.status(403).json({
         error: 'subscription_required',
         message: 'Upgrade to Builder or Scale to access this feature',
@@ -126,12 +130,11 @@ export const requireSubscription = async (
       return;
     }
 
-    req.subscription = { status: data.status, plan: data.plan, userId: user.userId, email: user.email };
+    req.subscription = { status: data.status, plan: data.plan, userId, email };
     next();
   } catch (err: any) {
-    // Uncaught exception → fail open, log it
-    console.error('[requireSubscription] Unexpected error (failing open):', err.message);
-    req.subscription = { status: 'unknown', plan: 'unknown', userId: user.userId };
-    next();
+    // Uncaught exception → fail closed
+    console.error('[requireSubscription] Unexpected error:', err.message);
+    res.status(503).json({ error: 'service_unavailable', message: 'Subscription verification failed' });
   }
 };
