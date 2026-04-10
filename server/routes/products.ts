@@ -627,33 +627,82 @@ router.get('/stats-categories', async (req: Request, res: Response) => {
 });
 
 // ── GET /api/products/todays-picks ────────────────────────────────────────
-// The "Today's 5" home-page hook. Returns the top N high-demand products
-// scoring >= 88 with > 80k orders, ordered by sold_count. Drives the
-// daily-briefing card so operators have a reason to come back every day.
+// The "Today's 5" home-page hook. Must rotate daily so operators see fresh
+// products every morning — the old version just returned the all-time top-5
+// by sold_count which never changed.
+//
+// Algorithm:
+//   1. Fetch a broad pool of quality products (score >= 75, orders >= 5k,
+//      has image), up to 100.
+//   2. Compute a per-product "pick score" that blends:
+//      - winning_score (40%)
+//      - recency bonus (30%) — products added in the last 14d get a boost
+//      - daily rotation seed (30%) — deterministic shuffle using
+//        (dayOfYear XOR product_id_hash) so the ranking changes each day
+//        but stays stable for any given day (no flicker on page refresh).
+//   3. Return the top N by pick score.
+//
+// This means every day the "Today's 5" are different, newer products
+// surface faster, and the list still skews toward genuine quality.
 router.get('/todays-picks', async (req: Request, res: Response) => {
   try {
     const market = String(req.query.market ?? 'AU');
     const limit = Math.min(20, Math.max(1, parseInt(String(req.query.limit ?? '5'), 10) || 5));
     const sb = getSupabase();
-    const { data, error } = await sb
+
+    // Broad pool — relaxed thresholds vs the old 88/80k gate
+    const { data: pool } = await sb
       .from('winning_products')
       .select('id,product_title,price_aud,sold_count,winning_score,image_url,aliexpress_url,category,created_at,est_daily_revenue_aud')
-      .gte('winning_score', 88)
-      .gte('sold_count', 80000)
+      .gte('winning_score', 75)
+      .gte('sold_count', 5000)
       .not('image_url', 'is', null)
-      .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(limit);
-    if (error) {
-      // Fallback: relax thresholds to keep the home page populated even if
-      // the strict gate yields nothing.
+      .order('winning_score', { ascending: false, nullsFirst: false })
+      .limit(100);
+
+    const candidates = pool ?? [];
+    if (candidates.length === 0) {
+      // Ultra-fallback: just return whatever exists
       const { data: fb } = await sb
         .from('winning_products')
         .select('id,product_title,price_aud,sold_count,winning_score,image_url,aliexpress_url,category,created_at,est_daily_revenue_aud')
+        .not('image_url', 'is', null)
         .order('sold_count', { ascending: false, nullsFirst: false })
         .limit(limit);
       return res.json({ picks: fb ?? [], market, generatedAt: new Date().toISOString(), fallback: true });
     }
-    return res.json({ picks: data ?? [], market, generatedAt: new Date().toISOString() });
+
+    // Day-of-year seed — changes daily, stable within a day
+    const now = new Date();
+    const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+
+    // Simple hash for rotation diversity
+    function hashStr(s: string): number {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) {
+        h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+      }
+      return Math.abs(h);
+    }
+
+    const scored = candidates.map((p) => {
+      const ws = Number(p.winning_score ?? 0);
+      // Recency: products added in last 14 days get full 30pts, decaying to 0 at 90 days
+      const createdTs = p.created_at ? new Date(p.created_at).getTime() : 0;
+      const daysOld = createdTs > 0 ? Math.max(0, (now.getTime() - createdTs) / 86400000) : 999;
+      const recencyBonus = daysOld <= 14 ? 30 : daysOld <= 30 ? 20 : daysOld <= 60 ? 10 : daysOld <= 90 ? 5 : 0;
+      // Daily rotation: deterministic pseudo-random offset seeded by dayOfYear + product id
+      const rotationNoise = (hashStr(String(p.id)) ^ (dayOfYear * 2654435761)) % 100;
+      const rotationBonus = (rotationNoise / 100) * 30;
+
+      const pickScore = (ws / 100) * 40 + recencyBonus + rotationBonus;
+      return { ...p, _pickScore: pickScore };
+    });
+
+    scored.sort((a, b) => b._pickScore - a._pickScore);
+    const picks = scored.slice(0, limit).map(({ _pickScore, ...rest }) => rest);
+
+    return res.json({ picks, market, generatedAt: now.toISOString() });
   } catch (err: unknown) {
     console.error('[todays-picks]', err);
     return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
