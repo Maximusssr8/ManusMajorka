@@ -8,6 +8,7 @@ import { Nav } from './Nav';
 import { OnboardingWizard } from './OnboardingWizard';
 import { GradientM } from '@/components/MajorkaLogo';
 import { useTracking } from '@/hooks/useTracking';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 interface AppShellProps { children: ReactNode }
 
@@ -22,6 +23,7 @@ interface AppShellProps { children: ReactNode }
 export function AppShell({ children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const { trackedCount } = useTracking();
+  useKeyboardShortcuts();
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try { return localStorage.getItem('majorka_onboarded') !== '1'; } catch { return false; }
