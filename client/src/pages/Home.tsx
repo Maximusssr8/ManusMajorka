@@ -20,7 +20,7 @@ const T = {
   borderFaint: 'rgba(255,255,255,0.05)',
   text: '#ededed',
   textMuted: '#a1a1aa',
-  textDim: '#71717a',
+  textDim: '#8a8a8f',
   textFaint: '#52525b',
   textGhost: '#3f3f46',
   accent: '#6366F1',
@@ -279,6 +279,8 @@ section [data-transform-ok] {
   .mj-pricing-grid { grid-template-columns: 1fr !important; }
   .mj-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
   .mj-nav-links { display: none !important; }
+  .mj-nav-cta { display: none !important; }
+  .mj-mobile-menu-btn { display: flex !important; }
   .mj-hero-h1 { font-size: 42px !important; }
   .mj-section-h2 { font-size: 32px !important; }
   .mj-cta-h2 { font-size: 48px !important; }
@@ -378,6 +380,7 @@ function SectionHeader({ eyebrow, line1, line2, description, align = 'left', max
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
 function Nav() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <nav style={{
       position: 'fixed',
@@ -426,29 +429,29 @@ function Nav() {
         </a>
 
         <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <a href="#features" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+          <a href="#features" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
           >Features</a>
-          <a href="#compare" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+          <a href="#compare" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
           >Compare</a>
-          <a href="#workflow" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+          <a href="#workflow" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
           >Workflow</a>
-          <a href="#pricing" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+          <a href="#pricing" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
           >Pricing</a>
-          <a href="/blog" style={{ fontSize: 14, color: '#71717a', textDecoration: 'none', transition: 'color 150ms' }}
+          <a href="/blog" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#71717a')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
           >Blog</a>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="mj-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link href="/sign-in" style={{ color: '#9ca3af', fontSize: 14, textDecoration: 'none', marginRight: 8, transition: 'color 150ms' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
@@ -469,7 +472,109 @@ function Nav() {
             onMouseLeave={(e) => (e.currentTarget.style.background = '#6366F1')}
           >Get Started</Link>
         </div>
+
+        {/* Mobile hamburger — visible only below 768px */}
+        <button
+          className="mj-mobile-menu-btn"
+          aria-label="Open menu"
+          onClick={() => setMobileOpen(true)}
+          style={{
+            display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 44,
+            height: 44,
+            background: 'transparent',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 8,
+            cursor: 'pointer',
+            color: '#ededed',
+          }}
+        >
+          <svg width={18} height={14} viewBox="0 0 18 14" fill="none">
+            <rect width={18} height={2} rx={1} fill="currentColor" />
+            <rect y={6} width={18} height={2} rx={1} fill="currentColor" />
+            <rect y={12} width={12} height={2} rx={1} fill="currentColor" />
+          </svg>
+        </button>
       </div>
+
+      {/* Mobile menu overlay */}
+      {mobileOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 2000,
+            background: 'rgba(9,9,15,0.98)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 28,
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setMobileOpen(false); }}
+        >
+          <button
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 20,
+              width: 44,
+              height: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(255,255,255,0.08)',
+              border: 'none',
+              borderRadius: 10,
+              cursor: 'pointer',
+              color: 'white',
+              fontSize: 22,
+              fontFamily: sans,
+            }}
+          >×</button>
+          {[
+            { href: '#features',  label: 'Features' },
+            { href: '#compare',   label: 'Compare' },
+            { href: '#workflow',  label: 'Workflow' },
+            { href: '#pricing',   label: 'Pricing' },
+            { href: '/blog',      label: 'Blog' },
+          ].map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              onClick={() => setMobileOpen(false)}
+              style={{
+                fontFamily: display,
+                fontSize: 28,
+                fontWeight: 700,
+                color: '#f0f4ff',
+                textDecoration: 'none',
+                letterSpacing: '-0.02em',
+              }}
+            >{l.label}</a>
+          ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 280, marginTop: 16 }}>
+            <Link href="/sign-in" onClick={() => setMobileOpen(false)} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 52, border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10,
+              color: '#ededed', textDecoration: 'none', fontSize: 15, fontWeight: 500,
+              fontFamily: sans,
+            }}>Log in</Link>
+            <Link href="/sign-up" onClick={() => setMobileOpen(false)} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 52, background: '#6366f1', borderRadius: 10,
+              color: 'white', textDecoration: 'none', fontSize: 15, fontWeight: 600,
+              fontFamily: sans,
+            }}>Get Started →</Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
@@ -570,7 +675,7 @@ function Hero() {
 
             <p style={{
               fontSize: 18,
-              color: '#71717a',
+              color: '#8a8a8f',
               lineHeight: 1.65,
               margin: '0 0 36px',
               maxWidth: 480,
@@ -615,7 +720,7 @@ function Hero() {
               }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#ededed'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#9ca3af'; }}
-              >See it in action</a>
+              >Explore features ↓</a>
             </div>
 
             {/* No credit card required — immediately under CTA, prominent */}
@@ -681,7 +786,7 @@ function Hero() {
                 <div style={{ fontFamily: display, fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
                   $15,600
                 </div>
-                <div style={{ fontSize: 11, color: '#71717a', marginTop: 3 }}>Best product today · Kitchen</div>
+                <div style={{ fontSize: 11, color: '#8a8a8f', marginTop: 3 }}>Best product today · Kitchen</div>
                 <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 3 }}>↑ +41% this week</div>
               </div>
             </div>
@@ -713,7 +818,7 @@ function Hero() {
               }} />
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#ededed' }}>🔥 New: Nano Tape Strong</div>
-                <div style={{ fontSize: 11, color: '#71717a', marginTop: 2 }}>99/100 · +41% this week</div>
+                <div style={{ fontSize: 11, color: '#8a8a8f', marginTop: 2 }}>99/100 · +41% this week</div>
               </div>
             </div>
 
@@ -831,6 +936,7 @@ const ArtMassageGun = (
   <img
     src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/S67daf35bdca4423987825b41de097c3cw.png')}
     alt="Fascial Massage Gun"
+    loading="lazy"
     style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1e293b,#334155)' }}
     onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
   />
@@ -840,6 +946,7 @@ const ArtOilBottle = (
   <img
     src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/Sd1a0175e1d304c7f9c0bac71d558aa14M.jpg')}
     alt="Oil Dispenser Bottle"
+    loading="lazy"
     style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1a2e1a,#2d4a2d)' }}
     onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
   />
@@ -849,6 +956,7 @@ const ArtTapeReel = (
   <img
     src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/Sef81281b5a114d688f22f42a3f87c0941.jpg')}
     alt="Nano Tape Double-sided"
+    loading="lazy"
     style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1e1e2e,#312e81)' }}
     onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
   />
@@ -981,14 +1089,17 @@ function LiveTicker() {
   const [tickerItems] = useState<string[]>(generateTickerItems);
   const items = [...tickerItems, ...tickerItems];
   return (
-    <section style={{
-      background: '#0d0d10',
-      borderTop: '1px solid rgba(255,255,255,0.05)',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
-      padding: '12px 0',
-      overflow: 'hidden',
-      position: 'relative',
-    }}>
+    <section
+      aria-hidden="true"
+      role="presentation"
+      style={{
+        background: '#0d0d10',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        padding: '12px 0',
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: 120,
         background: 'linear-gradient(to right, #0d0d10, transparent)',
@@ -1168,7 +1279,7 @@ function ThePlatform() {
           }}>
             The unfair advantage<br />serious operators don&apos;t share.
           </h2>
-          <p style={{ fontSize: 18, color: '#71717a', maxWidth: 560, margin: '0 auto' }}>
+          <p style={{ fontSize: 18, color: '#8a8a8f', maxWidth: 560, margin: '0 auto' }}>
             From product discovery to live store — Majorka is the only platform purpose-built for serious dropship operators.
           </p>
         </div>
@@ -1193,7 +1304,7 @@ function ThePlatform() {
             <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 28, color: '#ededed', marginBottom: 12, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
               2,302 winning products.<br />Ranked by real orders.
             </h3>
-            <p style={{ color: '#71717a', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
+            <p style={{ color: '#8a8a8f', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
               Every product is sourced directly from the AliExpress Affiliate API and CJ Dropshipping — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1281,7 +1392,7 @@ function ThePlatform() {
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📡</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your market before your competitor does</h4>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5, marginBottom: 16 }}>
+            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Global, AU, US, UK signals. Today&apos;s top products with revenue-per-day estimates. Category rankings updated in real time.
             </p>
             <div style={{ background: '#0d0d14', borderRadius: 8, padding: 12 }}>
@@ -1307,7 +1418,7 @@ function ThePlatform() {
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📊</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Profit Calculator</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your margin before you launch</h4>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5, marginBottom: 16 }}>
+            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Model product cost, sell price, ad spend, shipping, fees. Get real break-even CPA and monthly projections in seconds.
             </p>
             <div style={{ background: '#0d0d14', borderRadius: 8, padding: 12 }}>
@@ -1346,7 +1457,7 @@ function ThePlatform() {
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🧠</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Maya AI</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Your AI ecommerce strategist</h4>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5, marginBottom: 16 }}>
+            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Maya knows your market, your products, and your plan. Ask anything — she answers with AU pricing, ad angles, and supplier recs.
             </p>
             <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 8, padding: 12, fontSize: 12 }}>
@@ -1366,7 +1477,7 @@ function ThePlatform() {
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🎯</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Meta + TikTok ad creative generator</h4>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Select funnel stage, platform, and creative type. Get 5 headline variants, VSL scripts, and AU-specific ad angles — ready to launch.
             </p>
             <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14, fontSize: 11 }}>
@@ -1384,7 +1495,7 @@ function ThePlatform() {
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🏪</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Store Builder</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Zero to live store in 7 minutes</h4>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Build with AI from your niche. Connect existing Shopify. Or list directly on Majorka — no Shopify needed. Scale plan gets you the full suite.
             </p>
             <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
@@ -1414,7 +1525,7 @@ function ThePlatform() {
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📱</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Creators &amp; Video</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Find your next viral partner</h4>
-            <p style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Browse TOP, ELITE, and RISING creators by niche. Filter by engagement tier. One-click AI Pitch — personalised outreach generated instantly.
             </p>
             <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
@@ -1646,6 +1757,18 @@ function Comparison() {
             </tbody>
           </table>
         </div>
+        <p style={{
+          fontSize: 12,
+          color: '#52525b',
+          marginTop: 14,
+          textAlign: 'center',
+          maxWidth: 720,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          lineHeight: 1.55,
+        }}>
+          † Tools replaced: Product research (Minea/Ecomhunt), Profit calculator, Ad creative generator, Store builder, Competitor spy, Market intelligence. Purchased separately: $147+/mo.
+        </p>
       </div>
     </section>
   );
@@ -1830,9 +1953,9 @@ function Testimonials() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <SectionHeader
           eyebrow="Operators"
-          line1="Real operators. Real stores."
-          line2="Real results."
-          description="Honest feedback from founding members. No revenue claims, no stock photos — just real beta users."
+          line1="What operators say"
+          line2="after their first week."
+          description="Real feedback from early-access members. No revenue claims. No paid endorsements."
         />
         <div style={{
           display: 'grid',
@@ -2278,7 +2401,7 @@ function Footer() {
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
+              <img src="/majorka-logo.jpg" alt="Majorka" loading="lazy" style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
               <span style={{ fontFamily: display, fontWeight: 700, fontSize: 16, color: T.text, letterSpacing: '-0.02em' }}>Majorka</span>
             </div>
             <p style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6, maxWidth: 280, margin: 0 }}>
@@ -2462,14 +2585,14 @@ function VideoPreview() {
           </div>
         </div>
         <div style={{ marginTop: 28 }}>
-          <Link href="/app" style={{
+          <Link href="/sign-up" style={{
             fontFamily: sans,
             fontSize: 14,
             color: '#6366F1',
             textDecoration: 'none',
             fontWeight: 500,
           }}>
-            Or explore the live dashboard →
+            Create a free account to explore the dashboard →
           </Link>
         </div>
       </div>

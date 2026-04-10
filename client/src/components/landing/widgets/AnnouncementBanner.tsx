@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 const STORAGE_KEY = 'majorka-announcement-dismissed-v1';
 
 const MESSAGES = [
-  '⚡ Beta pricing ends April 25 — lock in $99/mo before we raise to $149. Claim your rate →',
-  '🔥 23 new winning products added in the last 24h — See them now →',
-  '🇦🇺 An operator just found a $14,200/mo product using Majorka — Find yours →',
+  '🔥 Founding member pricing — Builder locked at $99/mo for the life of your subscription. See plans →',
+  '🇦🇺 7 markets · live AliExpress data · AI scoring on 3,000+ products. Try free →',
+  '⚡ Find your first winning product in under 18 minutes — Start free →',
 ];
 
 export function AnnouncementBanner() {
