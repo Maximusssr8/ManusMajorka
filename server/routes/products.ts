@@ -1019,13 +1019,15 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
         .not('sold_count', 'is', null)
         .order('sold_count', { ascending: false })
         .limit(1),
-      // Best Margin: cheapest viable product. Floor at A$1 to exclude
-      // bad-data rows (we've seen $0.02 garlic presses leak through).
+      // Best Margin: cheapest viable product with proven demand.
+      // Floor at $2 to exclude data-quality issues ($0.02 garlic
+      // presses, $0.39 brushes). Cap at $15 for margin relevance.
       sb.from('winning_products')
         .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
-        .gte('winning_score', 80)
-        .gte('sold_count', 1000)
-        .gte('price_aud', 1.00)
+        .gte('winning_score', 75)
+        .gte('sold_count', 5000)
+        .gte('price_aud', 2.00)
+        .lte('price_aud', 15.00)
         .order('price_aud', { ascending: true })
         .limit(1),
       sb.from('winning_products')

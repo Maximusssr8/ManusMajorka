@@ -28,11 +28,13 @@ type Tab = 'users' | 'trends' | 'subscriptions' | 'health';
 function apiCall(path: string, opts?: RequestInit) {
   return supabase.auth.getSession().then(({ data }) => {
     const token = data.session?.access_token || '';
+    const adminSecret = import.meta.env.VITE_ADMIN_SECRET || '';
     return fetch(`/api/admin${path}`, {
       ...opts,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        'X-Admin-Token': adminSecret,
         ...(opts?.headers || {}),
       },
     }).then(r => r.json());
