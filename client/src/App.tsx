@@ -123,7 +123,7 @@ function LoadingFallback() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: '#0a0a0a' }}
+      style={{ background: '#0d0f14' }}
     >
       <div className="flex flex-col items-center gap-4">
         <div
@@ -323,30 +323,32 @@ function Router() {
             <Route path="/app/shops/:id">
               {() => (
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <ShopDetail />
-                  </Suspense>
+                  <AppLayout>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <ShopDetail />
+                    </Suspense>
+                  </AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app/store/:subpage">
               {() => (
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app/product-hub/:id">
               {() => (
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app/product-search">
               {() => (
                 <ProtectedRoute>
-                  <ProductSearch />
+                  <AppLayout><ProductSearch /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
