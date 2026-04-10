@@ -9,6 +9,7 @@ import {
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useTracking } from '@/hooks/useTracking';
+import { useAdmin } from '@/hooks/useAdmin';
 import { GradientM } from '@/components/MajorkaLogo';
 // isPro ⇒ SCALE tier label
 
@@ -68,7 +69,12 @@ export function Nav({ onNavigate }: NavProps = {}) {
   const { trackedCount } = useTracking();
   const [searchTerm, setSearchTerm] = useState('');
   const [comingSoonItem, setComingSoonItem] = useState<NavItem | null>(null);
-  const isAdmin = (user as { role?: string } | null)?.role === 'admin';
+  // Admin gate: prefer the strict UUID match from useAdmin (compares
+  // session.user.id against VITE_ADMIN_USER_ID). Falls back to the
+  // legacy profile.role === 'admin' check for backwards compat.
+  const { isAdmin: isAdminByUUID } = useAdmin();
+  const legacyAdmin = (user as { role?: string } | null)?.role === 'admin';
+  const isAdmin = isAdminByUUID || legacyAdmin;
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
 

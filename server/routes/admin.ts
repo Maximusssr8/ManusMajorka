@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { requireAdmin as requireAdminMiddleware } from '../middleware/requireAdmin';
+import { adminAuth } from '../middleware/adminAuth';
 import { createClient } from '@supabase/supabase-js';
 // @ts-ignore — pg types not installed
 import { Pool as PgPool } from 'pg';
@@ -14,6 +15,14 @@ import { collectCJRealProducts } from '../scrapers/cj-real-products';
 import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 
 const router = Router();
+
+// Router-level guard: every /api/admin/* request must clear the
+// X-Admin-Token secret header check + per-IP rate limit BEFORE any
+// route-specific JWT/identity check. This is the second of the
+// 5-layer defence (first is the IP ban inside adminAuth, third is
+// the JWT verification in requireAuth, fourth is the email+userId
+// dual match in requireAdmin, fifth is the client-side route guard).
+router.use(adminAuth);
 
 function getSupabase() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
