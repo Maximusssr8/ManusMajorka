@@ -1015,7 +1015,7 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
     const sb = getSupabase();
     const [topRes, marginRes, newRes] = await Promise.all([
       sb.from('winning_products')
-        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
+        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, aliexpress_url, created_at')
         .not('sold_count', 'is', null)
         .order('sold_count', { ascending: false })
         .limit(1),
@@ -1023,7 +1023,7 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
       // Floor at $2 to exclude data-quality issues ($0.02 garlic
       // presses, $0.39 brushes). Cap at $15 for margin relevance.
       sb.from('winning_products')
-        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
+        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, aliexpress_url, created_at')
         .gte('winning_score', 75)
         .gte('sold_count', 5000)
         .gte('price_aud', 2.00)
@@ -1031,7 +1031,7 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
         .order('price_aud', { ascending: true })
         .limit(1),
       sb.from('winning_products')
-        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, created_at')
+        .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, aliexpress_url, created_at')
         .not('created_at', 'is', null)
         .order('created_at', { ascending: false })
         .limit(1),
