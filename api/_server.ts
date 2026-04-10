@@ -802,19 +802,45 @@ app.get("/api/store/:slug", async (req: Request, res: Response) => {
       (Array.isArray(blueprint.products) && blueprint.products) ||
       [];
 
-    const products = rawProducts.map((p: any, i: number) => ({
-      id: String(p.id ?? i),
-      productId: String(p.id ?? i),
-      price: String(p.suggested_price ?? p.price ?? p.price_aud ?? 0),
-      comparePrice: p.compare_price ? String(p.compare_price) : undefined,
-      seoTitle: p.title ?? p.product_title ?? '',
-      published: true,
-      product: {
-        name: p.title ?? p.product_title ?? 'Untitled',
-        description: p.description ?? '',
-        niche: p.category ?? store.niche ?? '',
-      },
-    }));
+    // Also check storefront_products for this store as a richer source
+    const { data: sfProducts } = await sb
+      .from('storefront_products')
+      .select('*')
+      .eq('store_id', store.id)
+      .eq('published', true);
+
+    // Use storefront_products if they exist (they have real names + prices),
+    // otherwise fall back to generated_copy.products
+    const productSource = (sfProducts && sfProducts.length > 0)
+      ? sfProducts.map((sp: any) => ({
+          id: sp.id,
+          productId: sp.winning_product_id ?? sp.id,
+          price: String(sp.price ?? 0),
+          comparePrice: sp.compare_price ? String(sp.compare_price) : undefined,
+          seoTitle: sp.product_name ?? sp.seo_title ?? '',
+          published: true,
+          product: {
+            name: sp.product_name ?? 'Product',
+            description: sp.description ?? '',
+            niche: sp.category ?? store.niche ?? '',
+          },
+        }))
+      : rawProducts.map((p: any, i: number) => ({
+          id: String(p.id ?? i),
+          productId: String(p.winning_product_id ?? p.id ?? i),
+          // Try every field name the builder might have written
+          price: String(p.suggested_price ?? p.sell_price ?? p.price ?? p.price_aud ?? 0),
+          comparePrice: p.compare_price ?? p.compare_at_price ? String(p.compare_price ?? p.compare_at_price) : undefined,
+          seoTitle: p.seo_title ?? p.title ?? p.product_title ?? p.name ?? '',
+          published: true,
+          product: {
+            name: p.seo_title ?? p.title ?? p.product_title ?? p.name ?? 'Product',
+            description: p.description ?? '',
+            niche: p.category ?? store.niche ?? '',
+          },
+        }));
+
+    const products = productSource;
 
     res.json({
       store: {
