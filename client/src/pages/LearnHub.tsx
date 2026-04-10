@@ -5,7 +5,10 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, CheckCircle2, Lock } from 'lucide-react';
+import { Link } from 'wouter';
+import { ChevronDown, ChevronRight, CheckCircle2, Lock, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/_core/hooks/useAuth';
 
 const display = "'Bricolage Grotesque', sans-serif";
 const sans = "'DM Sans', sans-serif";
@@ -305,6 +308,8 @@ function writeProgress(ids: Set<string>): void {
 }
 
 export default function LearnHub() {
+  useEffect(() => { document.title = 'Academy — Majorka'; }, []);
+  const { isPro } = useAuth();
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -313,20 +318,59 @@ export default function LearnHub() {
   }, []);
 
   const pct = useMemo(() => Math.round((completed.size / TOTAL_LESSONS) * 100), [completed]);
+  const remainingMins = (TOTAL_LESSONS - completed.size) * 6;
+
+  // Motivational copy that adapts to progress so the page never feels static
+  const progressMessage = useMemo(() => {
+    const n = completed.size;
+    if (n === 0) return 'Start with Lesson 1 — it takes 8 minutes';
+    if (n < 6)   return 'Great start — keep the momentum';
+    if (n < 16)  return "You're building real knowledge";
+    if (n < 21)  return "Almost there — you're ahead of 90% of operators";
+    return '🎉 Academy complete — you\'re ready to launch';
+  }, [completed.size]);
 
   const toggleComplete = (id: string) => {
     setCompleted((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      const wasDone = next.has(id);
+      if (wasDone) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        // Find the module this lesson belongs to so we can detect a
+        // module-complete celebration on top of the per-lesson toast.
+        const mod = MODULES.find((m) => m.lessons.some((l) => l.id === id));
+        const modDoneCount = mod ? mod.lessons.filter((l) => next.has(l.id)).length : 0;
+        const modTotal = mod ? mod.lessons.length : 0;
+        toast.success(`Lesson complete — ${next.size}/${TOTAL_LESSONS} done`, { duration: 2500 });
+        if (mod && modDoneCount === modTotal) {
+          setTimeout(() => toast(`🏆 Module complete: ${mod.title}`, { duration: 4000 }), 400);
+        }
+      }
       writeProgress(next);
       return next;
     });
   };
 
-  const toggleExpand = (id: string) => {
+  const toggleExpand = (id: string, lesson: Lesson) => {
+    // Tier gate: SCALE lessons require an active Scale subscription.
+    // Non-Scale users get an upgrade prompt instead of the lesson body.
+    if (lesson.tier === 'SCALE' && !isPro) {
+      toast.error('This is a Scale-tier lesson. Upgrade to unlock the full curriculum.', { duration: 4000 });
+      return;
+    }
     setExpanded((prev) => (prev === id ? null : id));
   };
+
+  function copyShareLink() {
+    try {
+      navigator.clipboard.writeText('https://majorka.io/app/learn');
+      toast.success('Academy link copied');
+    } catch {
+      toast.error('Could not copy — your browser blocked clipboard access');
+    }
+  }
 
   return (
     <div style={{
@@ -380,6 +424,65 @@ export default function LearnHub() {
               transition: 'width 320ms cubic-bezier(0.34,1.56,0.64,1)',
             }} />
           </div>
+          <div style={{
+            marginTop: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+              {progressMessage}
+            </span>
+            {completed.size < TOTAL_LESSONS && (
+              <span style={{ fontFamily: mono, fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                ~{remainingMins} min remaining
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Share banner — encourages organic distribution */}
+        <div style={{
+          marginTop: 16,
+          background: 'rgba(99,102,241,0.08)',
+          border: '1px solid rgba(99,102,241,0.18)',
+          borderRadius: 12,
+          padding: '14px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#f0f4ff' }}>
+              Know a dropshipper who&apos;d find this useful?
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
+              Share the free Academy — direct link to start
+            </div>
+          </div>
+          <button
+            onClick={copyShareLink}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 14px',
+              borderRadius: 8,
+              background: 'rgba(99,102,241,0.18)',
+              border: '1px solid rgba(99,102,241,0.32)',
+              color: '#c7d2fe',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: sans,
+            }}
+          >
+            <Share2 size={12} /> Copy link
+          </button>
         </div>
       </div>
 
@@ -445,7 +548,7 @@ export default function LearnHub() {
                   >
                     {/* Row */}
                     <button
-                      onClick={() => toggleExpand(lesson.id)}
+                      onClick={() => toggleExpand(lesson.id, lesson)}
                       style={{
                         width: '100%',
                         display: 'flex',
@@ -489,13 +592,16 @@ export default function LearnHub() {
                           fontFamily: mono,
                           fontSize: 9,
                           fontWeight: 700,
-                          color: '#a78bfa',
-                          background: 'rgba(124,106,255,0.12)',
-                          border: '1px solid rgba(124,106,255,0.25)',
+                          color: isPro ? '#a78bfa' : '#71717a',
+                          background: isPro ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.04)',
+                          border: `1px solid ${isPro ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
                           borderRadius: 999,
                           padding: '2px 8px',
                           letterSpacing: '0.05em',
-                        }}>SCALE · UNLOCKED</span>
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}>{isPro ? 'SCALE · UNLOCKED' : (<><Lock size={9} /> SCALE</>)}</span>
                       ) : (
                         <span style={{
                           fontFamily: mono,
@@ -561,22 +667,61 @@ export default function LearnHub() {
         );
       })}
 
-      {/* Footer note */}
-      <div style={{
-        marginTop: 40,
-        padding: '16px 20px',
-        background: 'rgba(124,106,255,0.04)',
-        border: '1px solid rgba(124,106,255,0.15)',
-        borderRadius: 12,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.55)',
-      }}>
-        <Lock size={13} style={{ color: '#a78bfa', flexShrink: 0 }} />
-        <span>You're on Scale Plan — all lessons unlocked. Progress is stored locally in your browser.</span>
-      </div>
+      {/* Footer note — tier-aware */}
+      {isPro ? (
+        <div style={{
+          marginTop: 40,
+          padding: '16px 20px',
+          background: 'rgba(124,106,255,0.04)',
+          border: '1px solid rgba(124,106,255,0.15)',
+          borderRadius: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.55)',
+        }}>
+          <CheckCircle2 size={13} style={{ color: '#a78bfa', flexShrink: 0 }} />
+          <span>You&apos;re on Scale Plan — all lessons unlocked. Progress is stored locally in your browser.</span>
+        </div>
+      ) : (
+        <div style={{
+          marginTop: 40,
+          padding: '20px 22px',
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.06))',
+          border: '1px solid rgba(99,102,241,0.25)',
+          borderRadius: 14,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <Lock size={14} style={{ color: '#a78bfa' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#f0f4ff' }}>
+              Unlock all 21 lessons with Scale
+            </span>
+          </div>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, margin: '0 0 14px' }}>
+            The free lessons cover the fundamentals. Scale lessons go deep on ad scaling, profit
+            engineering, retention, and the systems behind $10K+/month operators. Free lessons stay
+            free forever — Scale lessons require a Scale subscription.
+          </p>
+          <Link
+            href="/pricing"
+            style={{
+              display: 'inline-block',
+              padding: '10px 18px',
+              borderRadius: 10,
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              color: '#fff',
+              fontFamily: sans,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              boxShadow: '0 4px 16px rgba(99,102,241,0.3)',
+            }}
+          >
+            See Scale plan →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
