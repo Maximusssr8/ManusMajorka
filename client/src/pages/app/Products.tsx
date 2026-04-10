@@ -87,11 +87,12 @@ function daysSince(iso: string | null): number {
 const NEW_DAYS_THRESHOLD = 30;
 
 /**
- * Live AliExpress search toggle. Hidden until the backend search is
- * reliable (Apify account hard-capped on monthly usage as of 2026-04-09).
- * When re-enabling, flip this flag and re-test the full search flow.
+ * Live AliExpress search toggle. Enabled now that the AE Affiliate API
+ * endpoint (/api/products/ae-live-search) is confirmed working with the
+ * new Apify STARTER plan token. Searches the full AliExpress catalogue
+ * in real time — not limited to what's in our local DB.
  */
-const LIVE_SEARCH_ENABLED = false;
+const LIVE_SEARCH_ENABLED = true;
 
 /**
  * Monthly revenue estimator.
