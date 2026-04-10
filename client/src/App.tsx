@@ -95,6 +95,7 @@ const NewCreators = lazyWithRetry(() => import('./pages/app/Creators'));
 const NewAlerts = lazyWithRetry(() => import('./pages/app/Alerts'));
 const NewRevenue = lazyWithRetry(() => import('./pages/app/Revenue'));
 const NewAdBriefs = lazyWithRetry(() => import('./pages/app/AdBriefs'));
+const NewAnalytics = lazyWithRetry(() => import('./pages/app/Analytics'));
 const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
 const ROASCalculator = lazy(() => import('./pages/tools/ROASCalculator'));
 const OperatorWall = lazy(() => import('./pages/OperatorWall'));
@@ -287,6 +288,7 @@ function Router() {
             <Route path="/app/ai">{() => <ProtectedRoute><NewAppShell><ComingSoon page="AI Tools" /></NewAppShell></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}
+            <Route path="/app/analytics">{() => <ProtectedRoute><NewAppShell><NewAnalytics /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/products">{() => <ProtectedRoute><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
             {/* Removed from nav — kept as redirects so old bookmarks land on Products */}
             <Route path="/app/niches">{() => { window.location.replace('/app/products'); return null; }}</Route>

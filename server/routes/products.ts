@@ -1019,16 +1019,18 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
         .not('sold_count', 'is', null)
         .order('sold_count', { ascending: false })
         .limit(1),
-      // Best Margin: cheapest viable product with proven demand.
-      // Floor at $2 to exclude data-quality issues ($0.02 garlic
-      // presses, $0.39 brushes). Cap at $15 for margin relevance.
+      // Best Margin: highest-scored product in the $3–$12 range with
+      // real demand. Sorted by score DESC (not price ASC) so the card
+      // shows the best OPPORTUNITY, not the cheapest junk item.
       sb.from('winning_products')
         .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, aliexpress_url, created_at')
-        .gte('winning_score', 75)
-        .gte('sold_count', 5000)
-        .gte('price_aud', 2.00)
-        .lte('price_aud', 15.00)
-        .order('price_aud', { ascending: true })
+        .gte('winning_score', 85)
+        .gte('sold_count', 10000)
+        .gte('price_aud', 3.00)
+        .lte('price_aud', 12.00)
+        .not('category', 'ilike', '%wig%')
+        .not('category', 'ilike', '%hair%')
+        .order('winning_score', { ascending: false, nullsFirst: false })
         .limit(1),
       sb.from('winning_products')
         .select('id, product_title, category, price_aud, sold_count, winning_score, image_url, aliexpress_url, created_at')
@@ -1848,6 +1850,48 @@ router.get('/suggestions', requireAuth, async (req: Request, res: Response) => {
     res.json(suggResult);
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to generate suggestions' });
+  }
+});
+
+// ── Analytics endpoints ──────────────────────────────────────────────────
+router.get('/analytics-overview', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const [total, score90, week] = await Promise.all([
+      sb.from('winning_products').select('*', { count: 'exact', head: true }),
+      sb.from('winning_products').select('*', { count: 'exact', head: true }).gte('winning_score', 90),
+      sb.from('winning_products').select('*', { count: 'exact', head: true })
+        .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+    ]);
+    return res.json({ total: total.count ?? 0, score90: score90.count ?? 0, newThisWeek: week.count ?? 0 });
+  } catch (err) {
+    return res.status(500).json({ error: String(err) });
+  }
+});
+
+router.get('/analytics-categories', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    type Row = { category: string | null };
+    const list: Row[] = [];
+    let from = 0;
+    const PAGE = 1000;
+    while (from < 20000) {
+      const { data, error } = await sb.from('winning_products').select('category').not('category', 'is', null).range(from, from + PAGE - 1);
+      if (error) return res.status(500).json({ error: error.message });
+      list.push(...((data ?? []) as Row[]));
+      if ((data ?? []).length < PAGE) break;
+      from += PAGE;
+    }
+    const counts: Record<string, number> = {};
+    for (const r of list) { const c = (r.category ?? '').trim(); if (c) counts[c] = (counts[c] ?? 0) + 1; }
+    const categories = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
+      .map(([category, count]) => ({ category, count }));
+    return res.json({ categories });
+  } catch (err) {
+    return res.status(500).json({ error: String(err) });
   }
 });
 

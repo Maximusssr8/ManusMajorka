@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
-  LayoutDashboard, Package, Video,
+  LayoutDashboard, Package, Video, BarChart2,
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Settings,
   GraduationCap, ShieldCheck, Search,
@@ -27,9 +27,10 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Intelligence',
     items: [
-      { label: 'Home',     path: '/app',          icon: LayoutDashboard, exact: true },
-      { label: 'Products', path: '/app/products', icon: Package },
-      { label: 'Creators', path: '/app/creators', icon: Video },
+      { label: 'Home',      path: '/app',           icon: LayoutDashboard, exact: true },
+      { label: 'Products',  path: '/app/products',  icon: Package },
+      { label: 'Analytics', path: '/app/analytics', icon: BarChart2 },
+      { label: 'Creators',  path: '/app/creators',  icon: Video },
     ],
   },
   {

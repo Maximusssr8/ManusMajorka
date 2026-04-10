@@ -364,64 +364,52 @@ export default function SettingsProfile() {
 
   return (
     <>
-      <div className="h-full overflow-auto" style={{ background: '#0a0a0a' }}>
-        <div className="max-w-3xl mx-auto px-6 py-8">
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <button
-              onClick={() => setLocation('/app')}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                cursor: 'pointer',
-                color: '#94A3B8',
-              }}
-            >
-              <ArrowLeft size={14} />
-            </button>
-            <div>
-              <h1
-                className="text-xl font-bold"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9' }}
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0c12' }}>
+        {/* LEFT PANEL — section nav */}
+        <div style={{
+          width: 220, flexShrink: 0,
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+          padding: '32px 12px',
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+            letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)',
+            paddingLeft: 12, marginBottom: 12,
+          }}>
+            Settings
+          </div>
+          {TABS.map((tab) => {
+            const active = activeTab === tab.id;
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  width: '100%', height: 40, padding: '0 12px',
+                  borderRadius: 8, border: 'none', cursor: 'pointer',
+                  textAlign: 'left', fontSize: 14,
+                  background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
+                  borderLeft: active ? '3px solid #6366f1' : '3px solid transparent',
+                  color: active ? '#818cf8' : 'rgba(255,255,255,0.55)',
+                  fontWeight: active ? 600 : 400,
+                  fontFamily: "'DM Sans', sans-serif",
+                  transition: 'all 0.1s',
+                  marginBottom: 2,
+                }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = active ? 'rgba(99,102,241,0.12)' : 'transparent'; }}
               >
-                Settings
-              </h1>
-              <p className="text-xs" style={{ color: '#9CA3AF' }}>
-                Manage your account and preferences
-              </p>
-            </div>
-          </div>
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Tab navigation */}
-          <div className="flex gap-1 mb-6 overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
-            {TABS.map((tab) => {
-              const active = activeTab === tab.id;
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
-                  style={{
-                    background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
-                    color: active ? '#6366F1' : '#6B7280',
-                    border: active ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
-                    cursor: 'pointer',
-                    fontFamily: 'DM Sans, sans-serif',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) e.currentTarget.style.color = '#6B7280';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) e.currentTarget.style.color = '#6B7280';
-                  }}
-                >
-                  <Icon size={12} /> {tab.label}
-                </button>
-              );
-            })}
-          </div>
+        {/* RIGHT PANEL — content */}
+        <div style={{ flex: 1, padding: '40px 48px', maxWidth: 680, overflowY: 'auto' }}>
 
           {/* ── Profile Tab ─────────────────────────────────────────────── */}
           {activeTab === 'profile' && (
@@ -965,8 +953,8 @@ export default function SettingsProfile() {
               </div>
             </div>
           )}
-        </div>
-      </div>
+        </div>{/* END right panel */}
+      </div>{/* END flex layout */}
     </>
   );
 }
