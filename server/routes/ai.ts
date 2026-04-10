@@ -10,9 +10,7 @@ function getClient() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 }
 
-router.post('/generate-ads', requireAuth, async (req, res) => {
-
-router.post('/chat', async (req, res) => {
+router.post('/chat', requireAuth, async (req, res) => {
   try {
     const { message, demo } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
@@ -27,8 +25,9 @@ router.post('/chat', async (req, res) => {
     console.error('[/api/ai/chat]', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-
 });
+
+router.post('/generate-ads', requireAuth, async (req, res) => {
   const { productName, price, audience } = req.body;
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
