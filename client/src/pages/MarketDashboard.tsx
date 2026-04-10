@@ -68,7 +68,7 @@ interface WinningProduct {
   id: string;
   product_title: string;
   category: string;
-  price_aud: number;
+  price_aud: number | null | undefined;
   winning_score: number;
   trend: string;
   competition_level: string;
@@ -77,7 +77,6 @@ interface WinningProduct {
   image_url: string | null;
   product_main_image_url?: string | null;
   real_orders_count?: number | null;
-  price_aud?: number | null;
   real_price_aud?: number | null;
 }
 
@@ -100,6 +99,7 @@ interface AuCreator {
   display_name: string;
   avatar_url: string | null;
   follower_count: number;
+  followers?: number | string | null;
   gmv_30d_aud: number;
   gmv_growth_rate: number;
   top_categories: string[];

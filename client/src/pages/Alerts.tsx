@@ -207,11 +207,11 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                     <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>Fired 0 times this week</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                       <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
-                      <span style={{ fontSize: 10, padding: '2px 8px', background: _dark ? 'rgba(255,255,255,0.05)' : '#F5F5F5', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', background: true ? 'rgba(255,255,255,0.05)' : '#F5F5F5', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: _dark ? 'rgba(5,150,105,0.1)' : '#ECFDF5', color: '#059669' }}>ACTIVE</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: true ? 'rgba(5,150,105,0.1)' : '#ECFDF5', color: '#059669' }}>ACTIVE</span>
                     {tab === 'active' && (
                       pendingDelete === alert.id ? (
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
