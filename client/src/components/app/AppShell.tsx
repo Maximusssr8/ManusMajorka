@@ -29,7 +29,10 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <Tooltip.Provider delayDuration={200} skipDelayDuration={100}>
-      <div className="app-bg flex h-screen overflow-hidden text-text font-body relative">
+      <div
+        className="app-bg app-shell flex overflow-hidden text-text font-body relative w-full"
+        style={{ height: '100dvh' }}
+      >
         <div className="app-glow" aria-hidden="true" />
         {/* Mobile backdrop */}
         {sidebarOpen && (

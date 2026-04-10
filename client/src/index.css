@@ -250,7 +250,25 @@ html, body, #root {
   line-height: 1.5;
   color-scheme: dark;
   -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 0;
+  width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Full-bleed on mobile — strips any accidental box-shadow/border/margin
+   that Tailwind base or a parent wrapper could introduce around the
+   app shell. Run once at mobile width and leaves desktop layout alone. */
+@media (max-width: 767px) {
+  #root > * {
+    width: 100%;
+    max-width: 100vw;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {

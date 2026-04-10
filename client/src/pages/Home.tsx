@@ -2611,7 +2611,12 @@ export default function Home() {
       color: T.text,
       fontFamily: sans,
       minHeight: '100vh',
+      width: '100%',
+      maxWidth: '100vw',
       overflowX: 'hidden',
+      margin: 0,
+      padding: 0,
+      border: 0,
     }}>
       <SEO
         title="Majorka — The Ecommerce Operating System for Serious Operators"
