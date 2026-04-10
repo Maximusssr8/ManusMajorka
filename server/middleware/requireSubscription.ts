@@ -88,7 +88,7 @@ export const requireSubscription = async (
   try {
     const { data, error } = await supabase
       .from('user_subscriptions')
-      .select('status, plan')
+      .select('status, plan, current_period_end')
       .eq('user_id', userId)
       .single();
 
@@ -120,6 +120,16 @@ export const requireSubscription = async (
 
     const statusOk = data.status?.toLowerCase() === 'active';
     const planOk = PAID_PLANS.includes(data.plan?.toLowerCase());
+
+    // Check subscription expiry
+    if (data.current_period_end && new Date(data.current_period_end) < new Date()) {
+      res.status(403).json({
+        error: 'subscription_expired',
+        message: 'Your subscription has expired. Please renew to continue.',
+        upgradeUrl: '/pricing',
+      });
+      return;
+    }
 
     if (!statusOk || !planOk) {
       res.status(403).json({

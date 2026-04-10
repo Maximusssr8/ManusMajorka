@@ -191,9 +191,19 @@ app.post("/api/images/pexels-search", async (req: Request, res: Response) => {
 });
 
 // ── Image proxy — serves CDN images that block cross-origin requests ──────────
+const ALLOWED_IMAGE_DOMAINS = ['alicdn.com', 'aliexpress-media.com', 'images.pexels.com', 'cdn.shopify.com', 'ae01.alicdn.com', 'ae04.alicdn.com'];
 app.get("/api/proxy-image", async (req: Request, res: Response) => {
   const url = req.query.url as string;
   if (!url) { res.status(400).json({ error: "No URL provided" }); return; }
+  try {
+    const parsedUrl = new URL(url);
+    if (!ALLOWED_IMAGE_DOMAINS.some(d => parsedUrl.hostname.endsWith(d))) {
+      res.status(403).json({ error: "Domain not allowed" }); return;
+    }
+    if (parsedUrl.protocol !== 'https:') {
+      res.status(403).json({ error: "Only HTTPS allowed" }); return;
+    }
+  } catch { res.status(400).json({ error: "Invalid URL" }); return; }
   try {
     const upstream = await fetch(url, {
       headers: {
@@ -287,7 +297,7 @@ app.get("/api/usage/:feature", requireAuth, async (req: Request, res: Response) 
 // One-time intelligence tables migration endpoint
 app.post("/api/internal/run-intel-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+  const migrationSecret = process.env.MIGRATION_SECRET || '';
   if (secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
@@ -303,7 +313,7 @@ app.post("/api/internal/run-intel-migration", async (req: Request, res: Response
 
 app.post("/api/internal/run-stores-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+  const migrationSecret = process.env.MIGRATION_SECRET || '';
   if (secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
@@ -319,7 +329,7 @@ app.post("/api/internal/run-stores-migration", async (req: Request, res: Respons
 
 app.get("/api/migrations/generated-stores", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+  const migrationSecret = process.env.MIGRATION_SECRET || '';
   if (secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
@@ -352,7 +362,7 @@ app.use('/api/health', (req, res, next) => {
 });
 
 // ── Competitor Spy API ──────────────────────────────────────────────────────
-app.get("/api/competitor/products", async (req: Request, res: Response) => {
+app.get("/api/competitor/products", requireAuth, async (req: Request, res: Response) => {
   try {
     const limit = Math.min(100, parseInt(String(req.query.limit || '50')));
     const store = String(req.query.store || '');
@@ -379,7 +389,7 @@ app.get("/api/competitor/products", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/api/competitor/stores", async (_req: Request, res: Response) => {
+app.get("/api/competitor/stores", requireAuth, async (_req: Request, res: Response) => {
   try {
     const { AU_DROPSHIP_STORES } = await import('../server/lib/competitor-shops');
 
@@ -444,7 +454,7 @@ app.get("/api/creators", async (req: Request, res: Response) => {
 });
 
 // ── Creator Outreach AI endpoint ────────────────────────────────────────────
-app.post("/api/creators/outreach", async (req: Request, res: Response) => {
+app.post("/api/creators/outreach", requireAuth, async (req: Request, res: Response) => {
   try {
     const { handle, niche, product_category, products = [], pitch_product } = req.body;
     if (!handle) { res.status(400).json({ error: 'handle required' }); return; }
@@ -603,21 +613,8 @@ app.use('/api/waitlist', waitlistRouter);
 app.use('/api/daily-brief', dailyBriefRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
-app.post("/api/import-product", async (req: Request, res: Response) => {
-  // Auth check — prevent unauthenticated Claude API abuse
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'unauthorized' });
-    return;
-  }
-
-  // Rate limit: 10 imports per hour per user
-  const token = authHeader.replace(/^Bearer\s+/i, '');
-  let userId = 'unknown';
-  try {
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    userId = payload.sub || 'unknown';
-  } catch { /* use unknown */ }
+app.post("/api/import-product", requireAuth, async (req: Request, res: Response) => {
+  const userId = req.user?.userId || 'unknown';
 
   const { rateLimit } = await import('../server/lib/rate-limit');
   const rl = rateLimit(`import-product:${userId}`, 10, 60 * 60 * 1000);
@@ -915,7 +912,7 @@ app.post("/api/store/checkout", async (req: Request, res: Response) => {
 const adSpySearchCache = new Map<string, { ts: number; result: any }>();
 const adSpyUserCooldown = new Map<string, number>();
 
-app.post("/api/ad-spy/search", async (req: Request, res: Response) => {
+app.post("/api/ad-spy/search", requireAuth, async (req: Request, res: Response) => {
   try {
     const { query } = req.body;
     if (!query || typeof query !== 'string' || query.trim().length < 2) {

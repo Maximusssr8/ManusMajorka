@@ -1918,8 +1918,9 @@ router.get('/cj', async (_req: Request, res: Response) => {
       }
     } catch {}
 
-    // Fetch live from CJ
-    const products = await fetchCJProducts();
+    // Fetch live from CJ — filter out products without real order data
+    const rawProducts = await fetchCJProducts();
+    const products = rawProducts.filter((p: any) => (p.sellsCount || p.sells_count || p.orders_count || 0) > 0);
     if (products.length > 0) {
       const expiresAt = new Date(Date.now() + 12 * 3600 * 1000).toISOString();
       await sb.from('apify_cache').upsert(
