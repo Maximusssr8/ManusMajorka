@@ -132,7 +132,7 @@ section [data-transform-ok] {
   height: 44px;
   padding: 0 22px;
   background: ${T.accent};
-  color: #fff;
+  color: ${T.bg};
   font-family: ${sans};
   font-weight: 600;
   font-size: 14px;
@@ -465,15 +465,15 @@ function Nav() {
             display: 'inline-flex',
             alignItems: 'center',
             background: '#ffffff',
-            color: '#fff',
+            color: '#080808',
             padding: '8px 20px',
-            borderRadius: 999,
+            borderRadius: 6,
             fontSize: 14,
             fontWeight: 600,
             textDecoration: 'none',
             transition: 'background 150ms',
           }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#7c83f4')}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#e5e5e5')}
             onMouseLeave={(e) => (e.currentTarget.style.background = '#ffffff')}
           >Get Started</Link>
         </div>
@@ -697,15 +697,15 @@ function Hero() {
                 height: 52,
                 padding: '0 28px',
                 background: '#ffffff',
-                color: '#fff',
+                color: '#080808',
                 fontFamily: sans,
                 fontWeight: 600,
                 fontSize: 15,
-                borderRadius: 999,
+                borderRadius: 6,
                 textDecoration: 'none',
                 transition: 'background 150ms, transform 150ms',
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#7c83f4'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >Find my first winning product →</Link>
               <a href="#features" style={{
@@ -718,7 +718,7 @@ function Hero() {
                 fontFamily: sans,
                 fontWeight: 500,
                 fontSize: 15,
-                borderRadius: 999,
+                borderRadius: 6,
                 border: '1px solid rgba(255,255,255,0.12)',
                 textDecoration: 'none',
                 transition: 'border-color 150ms, color 150ms',
@@ -832,7 +832,7 @@ function Hero() {
               position: 'absolute',
               bottom: -16,
               right: -16,
-              background: '#111114',
+              background: '#111111',
               border: '1px solid rgba(255,255,255,0.3)',
               borderRadius: 10,
               padding: '10px 14px',
@@ -976,7 +976,7 @@ const HERO_PRODUCTS: HeroProductCard[] = [
 function BrowserWindow() {
   return (
     <div className="mj-hero-window" style={{
-      background: '#111118',
+      background: '#111111',
       border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 16,
       overflow: 'hidden',
@@ -985,7 +985,7 @@ function BrowserWindow() {
     }}>
       {/* Window chrome */}
       <div style={{
-        background: '#0d0d14',
+        background: '#0d0d0d',
         padding: '10px 16px',
         display: 'flex',
         alignItems: 'center',
@@ -1011,7 +1011,7 @@ function BrowserWindow() {
           { label: 'Avg Score', value: '80/100', color: '#f59e0b' },
           { label: 'Top Niche', value: 'Fashion', color: '#ffffff' },
         ].map((s) => (
-          <div key={s.label} style={{ background: '#0d0d14', padding: '12px 14px' }}>
+          <div key={s.label} style={{ background: '#0d0d0d', padding: '12px 14px' }}>
             <div style={{ fontFamily: mono, fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
             <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</div>
           </div>
@@ -1019,17 +1019,17 @@ function BrowserWindow() {
       </div>
 
       {/* Product cards grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, padding: 12, background: '#0a0a10' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, padding: 12, background: '#0a0a0a' }}>
         {HERO_PRODUCTS.map((p) => (
           <div key={p.name} style={{
-            background: '#111118',
+            background: '#111111',
             border: p.highlight ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.07)',
             borderRadius: 10,
             overflow: 'hidden',
             boxShadow: p.highlight ? '0 0 12px rgba(255,255,255,0.1)' : 'none',
           }}>
             <div style={{
-              background: '#1a1a24',
+              background: '#1a1a1a',
               height: 110,
               display: 'flex',
               alignItems: 'center',
@@ -1076,7 +1076,7 @@ function BrowserWindow() {
       {/* Bottom bar */}
       <div style={{
         padding: '8px 12px',
-        background: '#0d0d14',
+        background: '#0d0d0d',
         borderTop: '1px solid rgba(255,255,255,0.04)',
         display: 'flex',
         alignItems: 'center',
@@ -1235,7 +1235,7 @@ function PartnerBar() {
               alignItems: 'center',
               gap: 8,
               padding: '8px 16px',
-              background: '#111114',
+              background: '#111111',
               border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: 8,
               transition: 'border-color 200ms',
@@ -1291,7 +1291,7 @@ function ThePlatform() {
 
         {/* Product Intelligence — full-width */}
         <div style={{
-          background: '#111118',
+          background: '#111111',
           border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: 20,
           padding: 40,
@@ -1328,7 +1328,7 @@ function ThePlatform() {
           </div>
 
           <div style={{
-            background: '#0d0d14',
+            background: '#0d0d0d',
             borderRadius: 12,
             border: '1px solid rgba(255,255,255,0.05)',
             overflow: 'hidden',
@@ -1393,14 +1393,14 @@ function ThePlatform() {
 
         {/* Tool grid row 1 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📡</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your market before your competitor does</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Global, AU, US, UK signals. Today&apos;s top products with revenue-per-day estimates. Category rankings updated in real time.
             </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: 12 }}>
+            <div style={{ background: '#0d0d0d', borderRadius: 8, padding: 12 }}>
               {[
                 { name: 'USB C Cable — Mobile',   rev: '$8.5k/day' },
                 { name: 'Ratcheting Crimper Set', rev: '$15.6k/day' },
@@ -1419,14 +1419,14 @@ function ThePlatform() {
             </div>
           </div>
 
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📊</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Profit Calculator</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your margin before you launch</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Model product cost, sell price, ad spend, shipping, fees. Get real break-even CPA and monthly projections in seconds.
             </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: 12 }}>
+            <div style={{ background: '#0d0d0d', borderRadius: 8, padding: 12 }}>
               {[
                 { label: 'Net Margin',     val: '51.4%',  color: '#22c55e' },
                 { label: 'Monthly Profit', val: '$2,275', color: '#ededed' },
@@ -1454,7 +1454,7 @@ function ThePlatform() {
           </div>
 
           <div style={{
-            background: 'linear-gradient(135deg, #111118 0%, #13111f 100%)',
+            background: 'linear-gradient(135deg, #111111 0%, #13111f 100%)',
             border: '1px solid rgba(255,255,255,0.2)',
             borderRadius: 16,
             padding: 28,
@@ -1478,14 +1478,14 @@ function ThePlatform() {
 
         {/* Tool grid row 2 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🎯</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Meta + TikTok ad creative generator</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Select funnel stage, platform, and creative type. Get 5 headline variants, VSL scripts, and AU-specific ad angles — ready to launch.
             </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14, fontSize: 11 }}>
+            <div style={{ background: '#0d0d0d', borderRadius: 8, padding: '10px 12px', marginTop: 14, fontSize: 11 }}>
               <div style={{ color: '#4b5563', marginBottom: 6 }}>Generating for: LED Face Mask Pro</div>
               <div style={{ color: '#ededed', fontWeight: 600, marginBottom: 3 }}>&ldquo;Dermatologists hate this $29 trick.&rdquo;</div>
               <div style={{ color: '#6b7280' }}>Hook · Cold Traffic · Facebook Feed</div>
@@ -1496,14 +1496,14 @@ function ThePlatform() {
               </div>
             </div>
           </div>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🏪</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Store Builder</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Zero to live store in 7 minutes</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Build with AI from your niche. Connect existing Shopify. Or list directly on Majorka — no Shopify needed. Scale plan gets you the full suite.
             </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
+            <div style={{ background: '#0d0d0d', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
               {[
                 { step: '1', label: 'Niche selected',     done: true },
                 { step: '2', label: 'Products imported',  done: true },
@@ -1526,14 +1526,14 @@ function ThePlatform() {
               <div style={{ marginTop: 8, fontSize: 10, color: '#22c55e', fontFamily: mono }}>⚡ Store live in 7 minutes</div>
             </div>
           </div>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📱</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Creators &amp; Video</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Find your next viral partner</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Browse TOP, ELITE, and RISING creators by niche. Filter by engagement tier. One-click AI Pitch — personalised outreach generated instantly.
             </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
+            <div style={{ background: '#0d0d0d', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
               {[
                 { initials: 'KE', name: 'Keeoh',    niche: 'ecommerce', tier: 'TOP' },
                 { initials: 'LB', name: 'Laura B.', niche: 'lifestyle', tier: 'ELITE' },
@@ -1547,7 +1547,7 @@ function ThePlatform() {
                 }}>
                   <div style={{
                     width: 24, height: 24, borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#ffffff,#8b5cf6)',
+                    background: '#ffffff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 9, fontWeight: 700, color: '#fff',
                     flexShrink: 0,
@@ -1579,7 +1579,7 @@ function RevenueProofBanner() {
   ];
   return (
     <section style={{
-      background: 'linear-gradient(135deg, #0d0d14 0%, #111120 100%)',
+      background: 'linear-gradient(135deg, #0d0d0d 0%, #111120 100%)',
       borderTop: '1px solid rgba(255,255,255,0.06)',
       borderBottom: '1px solid rgba(255,255,255,0.06)',
       padding: '60px 0',
@@ -1605,7 +1605,7 @@ function RevenueProofBanner() {
         }}>
           {stats.map((s, i) => (
             <div key={s.label} style={{
-              background: '#0a0a10',
+              background: '#0a0a0a',
               padding: '28px 20px',
               borderRight: i < stats.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
             }}>
@@ -1835,7 +1835,7 @@ function Workflow() {
             padding: '5px 14px',
             background: 'rgba(245,158,11,0.08)',
             border: '1px solid rgba(245,158,11,0.22)',
-            borderRadius: 999,
+            borderRadius: 6,
             color: '#fbbf24',
             fontFamily: mono,
             fontSize: 11,
@@ -1857,7 +1857,7 @@ function Workflow() {
             <div key={s.num} style={{ borderTop: `1px solid ${T.border}`, paddingTop: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                 <span style={{ fontFamily: mono, fontSize: 12, color: T.accent, fontWeight: 500 }}>STEP {s.num}</span>
-                <span style={{ fontFamily: mono, fontSize: 10, color: '#fbbf24', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.22)', padding: '2px 8px', borderRadius: 999, letterSpacing: '0.03em' }}>{s.time}</span>
+                <span style={{ fontFamily: mono, fontSize: 10, color: '#fbbf24', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.22)', padding: '2px 8px', borderRadius: 6, letterSpacing: '0.03em' }}>{s.time}</span>
               </div>
               <h3 style={{
                 fontFamily: display,
@@ -2213,7 +2213,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
           padding: '5px 11px',
-          borderRadius: 999,
+          borderRadius: 6,
           boxShadow: '0 4px 20px rgba(239,68,68,0.2)',
         }}>Early Access</div>
       )}
@@ -2367,7 +2367,7 @@ function FinalCTA() {
           padding: '8px 16px',
           background: 'rgba(255,255,255,0.08)',
           border: '1px solid rgba(255,255,255,0.22)',
-          borderRadius: 999,
+          borderRadius: 6,
           color: '#cccccc',
           fontFamily: mono,
           fontSize: 12,
