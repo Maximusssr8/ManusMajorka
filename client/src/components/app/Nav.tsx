@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTracking } from '@/hooks/useTracking';
 import { useAdmin } from '@/hooks/useAdmin';
 import { GradientM } from '@/components/MajorkaLogo';
@@ -200,6 +201,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
               {isPro ? 'SCALE' : 'BUILDER'}
             </span>
           </span>
+          <ThemeToggle />
           <Link
             href="/app/settings"
             onClick={onNavigate}
@@ -247,8 +249,9 @@ export function Nav({ onNavigate }: NavProps = {}) {
               onClick={() => setComingSoonItem(null)}
               className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01]"
               style={{
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+                background: 'var(--color-accent)',
+                color: 'var(--color-bg)',
+                boxShadow: 'var(--shadow-glow)',
               }}
             >
               Got it
