@@ -272,3 +272,18 @@ export const referrals = pgTable("referrals", {
 
 export type Referral = typeof referrals.$inferSelect;
 export type InsertReferral = typeof referrals.$inferInsert;
+
+/**
+ * Usage counters — tracks monthly/daily feature usage per user for plan limit enforcement.
+ */
+export const usageCounters = pgTable("usage_counters", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  metric: text("metric").notNull(),
+  count: integer("count").notNull().default(0),
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type UsageCounter = typeof usageCounters.$inferSelect;
