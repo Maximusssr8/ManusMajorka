@@ -13,8 +13,8 @@ const C = {
   bg: '#FAFAFA',
   surface: 'white',
   border: '#E5E7EB',
-  gold: '#6366F1',
-  goldBg: 'rgba(99,102,241,0.08)',
+  gold: '#3B82F6',
+  goldBg: 'rgba(59,130,246,0.08)',
   text: '#0A0A0A',
   sub: '#6B7280',
   muted: '#9CA3AF',
@@ -25,63 +25,150 @@ const C = {
 
 type Tab = 'users' | 'trends' | 'subscriptions' | 'health';
 
-function apiCall(path: string, opts?: RequestInit) {
-  return supabase.auth.getSession().then(({ data }) => {
-    const token = data.session?.access_token || '';
-    return fetch(`/api/admin${path}`, {
-      ...opts,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...(opts?.headers || {}),
-      },
-    }).then(r => r.json());
+async function apiCall<T = any>(path: string, opts?: RequestInit): Promise<T> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token || '';
+  if (!token) {
+    throw new Error('Not signed in — refresh the page and sign in again');
+  }
+  const res = await fetch(`/api/admin${path}`, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...(opts?.headers || {}),
+    },
   });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.json();
+      detail = body.error || body.message || '';
+    } catch {
+      detail = await res.text().catch(() => '');
+    }
+    throw new Error(`HTTP ${res.status}${detail ? ` — ${detail}` : ''}`);
+  }
+  return (await res.json()) as T;
 }
 
 // ── Users Tab ─────────────────────────────────────────────────────────────────
 function UsersTab() {
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
+  const [warning, setWarning] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [diag, setDiag] = useState<Record<string, unknown> | null>(null);
+  const [diagLoading, setDiagLoading] = useState(false);
 
   const load = () => {
     setLoading(true);
-    apiCall('/users').then(d => {
-      setUsers(d.users || []);
-      setTotal(d.total || 0);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    setError(null);
+    setWarning(null);
+    apiCall<{ users: any[]; total: number; warning?: string }>('/users')
+      .then((d) => {
+        setUsers(d.users || []);
+        setTotal(d.total || 0);
+        if (d.warning) setWarning(d.warning);
+        setLoading(false);
+      })
+      .catch((e: Error) => {
+        setError(e.message);
+        setLoading(false);
+      });
+  };
+
+  const runDiagnose = async () => {
+    setDiagLoading(true);
+    setDiag(null);
+    try {
+      const d = await apiCall<Record<string, unknown>>('/_diagnose');
+      setDiag(d);
+    } catch (e: any) {
+      setError(e?.message || 'Diagnose failed');
+    } finally {
+      setDiagLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
 
   const updatePlan = async (userId: string, plan: string, status = 'active') => {
     setUpdatingId(userId);
-    await apiCall(`/users/${userId}/plan`, {
-      method: 'POST',
-      body: JSON.stringify({ plan, status }),
-    });
-    load();
-    setUpdatingId(null);
+    setError(null);
+    try {
+      await apiCall(`/users/${userId}/plan`, {
+        method: 'POST',
+        body: JSON.stringify({ plan, status }),
+      });
+      load();
+    } catch (e: any) {
+      setError(e?.message || 'Update failed');
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   const filtered = users.filter(u => !search || u.email?.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, gap: 12 }}>
         <div style={{ fontSize: 13, color: C.sub }}>
           <span style={{ color: C.text, fontWeight: 700 }}>{total}</span> total users
         </div>
-        <input
-          value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search by email..."
-          style={{ padding: '7px 12px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, fontSize: 12, width: 220 }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={runDiagnose}
+            disabled={diagLoading}
+            style={{ padding: '7px 12px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.sub, fontSize: 12, cursor: 'pointer' }}
+          >
+            {diagLoading ? 'Diagnosing…' : 'Diagnose env'}
+          </button>
+          <button
+            onClick={load}
+            style={{ padding: '7px 12px', background: '#3B82F6', border: '1px solid #3B82F6', borderRadius: 8, color: 'white', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}
+          >
+            Refresh
+          </button>
+          <input
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search by email..."
+            style={{ padding: '7px 12px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, fontSize: 12, width: 220 }}
+          />
+        </div>
       </div>
+      {warning && (
+        <div style={{ marginBottom: 12, padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, color: C.amber, fontSize: 12 }}>
+          <strong>Warning:</strong> {warning}
+        </div>
+      )}
+      {diag && (
+        <div style={{ marginBottom: 16, padding: 14, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.text, marginBottom: 8, fontFamily: 'DM Sans, sans-serif' }}>Environment diagnosis</div>
+          {Object.entries(diag).map(([k, v]) => {
+            const isBoolLike = typeof v === 'boolean' || k.endsWith('_set') || k.endsWith('_ok');
+            const good = typeof v === 'boolean' ? v : v !== null && v !== false && v !== '' && v !== undefined;
+            return (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: `1px dashed ${C.border}` }}>
+                <span style={{ color: C.sub }}>{k}</span>
+                <span style={{ color: isBoolLike ? (good ? C.green : C.red) : C.text }}>
+                  {typeof v === 'boolean' ? (v ? '✓ true' : '✗ false') : String(v)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {error && (
+        <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, color: C.red, fontSize: 12 }}>
+          <strong>Request failed:</strong> {error}
+          <button onClick={load} style={{ marginLeft: 12, padding: '2px 8px', background: 'transparent', border: `1px solid ${C.red}`, color: C.red, borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>Retry</button>
+        </div>
+      )}
       {loading ? (
         <div style={{ color: C.muted, fontSize: 13, textAlign: 'center', padding: 40 }}>Loading...</div>
       ) : (

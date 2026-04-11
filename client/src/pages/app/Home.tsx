@@ -120,6 +120,7 @@ export default function AppHome() {
     label: string; numeric: number | null; sub: string;
     Icon: typeof Package; accent: string; href: string;
     trendText: string | null; trendPositive: boolean;
+    spark: number[] | null;
   }[] = [
     {
       label: 'Products Tracked',
@@ -134,6 +135,7 @@ export default function AppHome() {
                  : totalDelta < 0 ? `${totalDelta.toLocaleString()} this week`
                  : null,
       trendPositive: totalDelta > 0,
+      spark: stats?.sparkTotal ?? null,
     },
     {
       label: 'Hot Products',
@@ -149,6 +151,7 @@ export default function AppHome() {
                  : hotDelta < 0 ? `${hotDelta}% vs last week`
                  : 'Flat vs last week',
       trendPositive: hotDelta != null && hotDelta > 0,
+      spark: stats?.sparkHot ?? null,
     },
     {
       label: 'Saved Products',
@@ -159,6 +162,7 @@ export default function AppHome() {
       href: '/app/products?tab=saved',
       trendText: null,
       trendPositive: false,
+      spark: null,
     },
     {
       label: 'Trending Today',
@@ -169,6 +173,7 @@ export default function AppHome() {
       href: '/app/products?tab=trending',
       trendText: null,
       trendPositive: false,
+      spark: null,
     },
   ];
 
@@ -285,11 +290,30 @@ export default function AppHome() {
                     </div>
                   </div>
 
-                  <div className="text-[28px] font-bold text-white tabular-nums leading-none mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    {statsLoading || card.numeric == null
-                      ? <span className="inline-block h-8 w-20 rounded bg-white/[0.04] animate-pulse" />
-                      : card.numeric.toLocaleString()
-                    }
+                  <div className="flex items-end justify-between gap-2 mb-2">
+                    <div className="text-[28px] font-bold text-white tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      {statsLoading || card.numeric == null
+                        ? <span className="inline-block h-8 w-20 rounded bg-white/[0.04] animate-pulse" />
+                        : card.numeric.toLocaleString()
+                      }
+                    </div>
+                    {card.spark && card.spark.length > 1 && (() => {
+                      const w = 56;
+                      const h = 20;
+                      const max = Math.max(...card.spark, 1);
+                      const min = Math.min(...card.spark, 0);
+                      const range = Math.max(max - min, 1);
+                      const points = card.spark.map((v, idx) => {
+                        const x = (idx / (card.spark!.length - 1)) * w;
+                        const y = h - ((v - min) / range) * h;
+                        return `${x.toFixed(1)},${y.toFixed(1)}`;
+                      }).join(' ');
+                      return (
+                        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+                          <polyline fill="none" stroke={card.accent} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" points={points} />
+                        </svg>
+                      );
+                    })()}
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -691,8 +715,7 @@ function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
     <Link
       href={`/app/products?product=${product.id}`}
       className="w-48 shrink-0 rounded-md overflow-hidden cursor-pointer group relative no-underline transition-all hover:translate-y-[-2px]"
-      style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)' }}
-      style={{ scrollSnapAlign: 'start' }}
+      style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}
     >
       {/* Decorative rank number */}
       <div className="absolute top-2 left-3 z-10 font-display font-black text-4xl text-white/10 leading-none select-none pointer-events-none">

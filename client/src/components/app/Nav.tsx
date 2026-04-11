@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Video, BarChart2,
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Settings,
-  GraduationCap, ShieldCheck, Search,
+  GraduationCap, ShieldCheck, Search, Flame,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -46,9 +46,10 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
   {
     title: 'Operate',
     items: [
-      { label: 'Alerts',         path: '/app/alerts',         icon: Bell, badge: 'trackedCount' },
-      { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Eye, soon: true },
-      { label: 'Revenue',        path: '/app/revenue',        icon: DollarSign },
+      { label: 'Alerts',             path: '/app/alerts',             icon: Bell, badge: 'trackedCount' },
+      { label: 'TikTok Leaderboard', path: '/app/tiktok-leaderboard', icon: Flame },
+      { label: 'Competitor Spy',     path: '/app/competitor-spy',     icon: Eye, soon: true },
+      { label: 'Revenue',            path: '/app/revenue',            icon: DollarSign },
     ],
   },
   {
@@ -85,8 +86,15 @@ export function Nav({ onNavigate }: NavProps = {}) {
 
   return (
     <nav className="relative w-[220px] h-full bg-[#050505] border-r border-white/[0.06] flex flex-col shrink-0 font-body overflow-hidden">
-      {/* Top ambient gradient */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-accent/[0.04] to-transparent pointer-events-none" />
+      {/* Subtle top gradient border — electric blue fading to transparent */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none z-20"
+        style={{ background: 'linear-gradient(to right, transparent, rgba(59,130,246,0.35), transparent)' }}
+      />
+      <div
+        className="absolute top-0 left-0 right-0 h-32 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(59,130,246,0.15), transparent)' }}
+      />
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Logo + wordmark — uses shared MajorkaLogo lockup */}
@@ -141,8 +149,8 @@ export function Nav({ onNavigate }: NavProps = {}) {
             if (visible.length === 0) return null;
             return (
               <div key={gi} className="mt-2">
-                {gi > 0 && <div className="h-px bg-white/[0.04] mx-3 my-1" />}
-                <p className="px-3 pt-4 pb-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/25">
+                {gi > 0 && <div className="h-px bg-white/[0.06] mx-3 mt-4 mb-1" />}
+                <p className="px-3 pt-5 pb-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/30">
                   {group.title}
                 </p>
                 {visible.map((item) => {
@@ -160,12 +168,21 @@ export function Nav({ onNavigate }: NavProps = {}) {
                         }
                         onNavigate?.();
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg mb-0.5 text-[13px] transition-colors no-underline ${
+                      style={
                         active
-                          ? 'bg-accent/15 border-l-2 border-accent text-text font-medium shadow-[inset_0_0_12px_rgba(255,255,255,0.08)]'
+                          ? {
+                              boxShadow: '0 0 20px rgba(59,130,246,0.15)',
+                              borderLeft: '3px solid #3B82F6',
+                              background: 'rgba(59,130,246,0.08)',
+                            }
+                          : { borderLeft: '3px solid transparent' }
+                      }
+                      className={`flex items-center gap-2.5 pl-[9px] pr-3 py-1.5 rounded-md mb-0.5 text-[13px] transition-all duration-150 no-underline ${
+                        active
+                          ? 'text-white font-medium'
                           : item.soon
                             ? 'text-muted cursor-not-allowed'
-                            : 'text-body hover:bg-white/[0.04] hover:text-text border-l-2 border-transparent'
+                            : 'text-body hover:bg-white/[0.03] hover:text-text hover:translate-x-[2px]'
                       }`}
                     >
                       <Icon size={16} strokeWidth={1.5} className="shrink-0" />

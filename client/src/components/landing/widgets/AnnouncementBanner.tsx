@@ -43,7 +43,7 @@ export function AnnouncementBanner() {
       insetInline: 0,
       top: 0,
       zIndex: 50,
-      background: 'linear-gradient(90deg, #4338ca, #6366f1)',
+      background: 'linear-gradient(90deg, #2563EB, #3B82F6)',
       width: '100%',
       pointerEvents: 'none',
     }}>

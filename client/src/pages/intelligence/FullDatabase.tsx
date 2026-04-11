@@ -9,7 +9,6 @@ import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
 import { ProductImage } from '@/components/ProductImage';
 import { VelocityBadge } from '@/components/VelocityBadge';
-import { ScoreRing } from '@/components/intelligence/ScoreRing';
 import type { FilterState } from '@/components/ProductFilterSidebar';
 import { useRegion } from '@/context/RegionContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1416,9 +1415,16 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                         {/* Score */}
                         <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <ScoreRing score={score} size={36} />
-                          </div>
+                          <span
+                            className="font-mono tabular-nums"
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444',
+                            }}
+                          >
+                            {Math.round(score)}
+                          </span>
                         </td>
 
                         {/* Creators — link to Creator Intel filtered by niche */}
@@ -1426,7 +1432,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           <a
                             href={`/app/creators?niche=${encodeURIComponent(p.category || p.niche || 'general')}`}
                             onClick={e => { e.stopPropagation(); }}
-                            style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '3px 8px', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 6, background: 'rgba(99,102,241,0.08)', whiteSpace: 'nowrap' as const, display: 'inline-block' }}
+                            style={{ fontSize: 11, color: '#3B82F6', textDecoration: 'none', fontWeight: 600, padding: '3px 8px', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 6, background: 'rgba(59,130,246,0.08)', whiteSpace: 'nowrap' as const, display: 'inline-block' }}
                           >
                             Find →
                           </a>

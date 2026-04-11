@@ -1,5 +1,5 @@
 /**
- * Majorka Design Tokens — Nohemi + Inter, indigo accent, no hardcoded hex in UI.
+ * Majorka Design Tokens — Nohemi + Inter, electric blue accent, no hardcoded hex in UI.
  * Export both `C` and `t` (alias) so existing call sites keep working.
  */
 
@@ -15,17 +15,17 @@ export const C = {
   // Borders
   border:       'rgba(255,255,255,0.07)',
   borderStrong: 'rgba(255,255,255,0.12)',
-  borderFocus:  '#6366f1',
+  borderFocus:  '#3B82F6',
 
   // Text
   text:         '#f0f4ff',
   body:         '#9499b0',
   muted:        '#555a72',
 
-  // Accent — indigo
-  accent:       '#6366f1',
-  accentHover:  '#818cf8',
-  accentSubtle: 'rgba(99,102,241,0.12)',
+  // Accent — electric blue
+  accent:       '#3B82F6',
+  accentHover:  '#60a5fa',
+  accentSubtle: 'rgba(59,130,246,0.12)',
   accentInk:    '#ffffff',
   white:        '#ffffff',
 
@@ -80,7 +80,7 @@ export const t = {
 
   // Old accent vars
   accentInk:    '#ffffff',
-  accentTint:   'rgba(99,102,241,0.06)',
+  accentTint:   'rgba(59,130,246,0.06)',
   faint:        C.muted,
 
   // Old status dims

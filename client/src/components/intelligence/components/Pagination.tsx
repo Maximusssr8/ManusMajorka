@@ -43,7 +43,7 @@ export function Pagination({ currentPage, totalPages, total, limit, onPageChange
         <div className="flex items-center gap-0.5 mx-1">
           {getPageNumbers().map((p, i) =>
             p === '...' ? <span key={`d${i}`} className="w-8 text-center text-[12px] select-none" style={{ color: 'rgba(255,255,255,0.2)' }}>···</span> :
-            <button key={p} onClick={() => onPageChange(p as number)} className={`${btnBase} font-medium`} style={currentPage === p ? { background: '#6366f1', color: 'white', border: '1px solid #6366f1' } : { ...btnStyle, color: 'rgba(255,255,255,0.45)' }}>{p}</button>
+            <button key={p} onClick={() => onPageChange(p as number)} className={`${btnBase} font-medium`} style={currentPage === p ? { background: '#3B82F6', color: 'white', border: '1px solid #3B82F6' } : { ...btnStyle, color: 'rgba(255,255,255,0.45)' }}>{p}</button>
           )}
         </div>
         {[{ label: '›', page: currentPage + 1, disabled: currentPage === totalPages }, { label: '»', page: totalPages, disabled: currentPage === totalPages, title: 'Last' }].map(b => (
@@ -55,7 +55,7 @@ export function Pagination({ currentPage, totalPages, total, limit, onPageChange
         <input type="number" value={jumpInput} onChange={e => setJumpInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleJump()} min={1} max={totalPages} placeholder="—"
           className="w-12 rounded-lg px-2 py-1.5 text-[12px] text-center text-slate-100 outline-none tabular-nums"
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
-        <button onClick={handleJump} className="text-[12px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Go</button>
+        <button onClick={handleJump} className="text-[12px] text-blue-400 hover:text-blue-300 font-medium transition-colors">Go</button>
       </div>
     </div>
   );

@@ -113,7 +113,7 @@ export function ProductIntelligencePage() {
             onClick={() => tab.id !== 'scout' && setActiveTab(tab.id)}
             className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
-                ? 'text-white border-indigo-500'
+                ? 'text-white border-blue-500'
                 : 'border-transparent hover:border-white/10'
             } ${tab.id === 'scout' ? 'cursor-default' : 'cursor-pointer'}`}
             style={{ color: activeTab === tab.id ? '#f1f5f9' : 'rgba(255,255,255,0.4)' }}
@@ -121,8 +121,8 @@ export function ProductIntelligencePage() {
             {tab.label}
             {tab.badge && (
               <span
-                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-indigo-400"
-                style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-blue-400"
+                style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)' }}
               >
                 {tab.badge}
               </span>

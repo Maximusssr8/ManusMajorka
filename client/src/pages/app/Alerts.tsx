@@ -176,15 +176,48 @@ export default function Alerts() {
             <Link href="/app/products" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '10px 18px',
-              borderRadius: 9,
-              background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+              borderRadius: 8,
+              background: '#3B82F6',
               color: 'white',
               fontFamily: sans, fontSize: 13, fontWeight: 600,
               textDecoration: 'none',
-              boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
+              boxShadow: '0 0 0 1px rgba(59,130,246,0.3)',
             }}>
               <Package size={13} /> Browse products →
             </Link>
+
+            {/* Sample preview — shows what a tracked product alert looks like */}
+            <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px dashed #1a1a1a' }}>
+              <div style={{
+                fontFamily: 'JetBrains Mono, monospace', fontSize: 9,
+                color: '#555555', textTransform: 'uppercase', letterSpacing: '0.08em',
+                marginBottom: 10,
+              }}>Example preview</div>
+              <div style={{
+                maxWidth: 460, margin: '0 auto',
+                background: '#0d0d0d',
+                border: '1px solid #1a1a1a',
+                borderRadius: 8,
+                padding: 14,
+                display: 'flex',
+                gap: 12,
+                alignItems: 'center',
+                filter: 'grayscale(1)',
+                opacity: 0.55,
+                textAlign: 'left',
+              }}>
+                <div style={{ width: 52, height: 52, borderRadius: 8, background: '#1a1a1a', flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#ededed', marginBottom: 3 }}>
+                    Silicone Kitchen Spatula Set
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, fontSize: 11, color: '#888888', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <span>Score 94</span><span>·</span><span>12,480 orders</span><span>·</span><span>$18</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: '#555555', marginTop: 3 }}>Tracked 3d ago · alert on +20% velocity</div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <>
@@ -289,15 +322,66 @@ export default function Alerts() {
               onClick={scrollToForm}
               style={{
                 padding: '10px 18px',
-                borderRadius: 9,
-                background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+                borderRadius: 8,
+                background: '#3B82F6',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #3B82F6',
                 fontFamily: sans, fontSize: 13, fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
+                boxShadow: '0 0 0 1px rgba(59,130,246,0.3)',
               }}
             >Create your first alert →</button>
+
+            {/* Sample alert preview (disabled/grayscale) */}
+            <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px dashed #1a1a1a' }}>
+              <div style={{
+                fontFamily: 'JetBrains Mono, monospace', fontSize: 9,
+                color: '#555555', textTransform: 'uppercase', letterSpacing: '0.08em',
+                marginBottom: 10,
+              }}>Example preview</div>
+              <div style={{
+                maxWidth: 420, margin: '0 auto',
+                background: '#0d0d0d',
+                border: '1px solid #1a1a1a',
+                borderRadius: 8,
+                padding: 16,
+                filter: 'grayscale(1)',
+                opacity: 0.55,
+                textAlign: 'left',
+                position: 'relative',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: 9,
+                    fontWeight: 700,
+                    color: '#3B82F6',
+                    background: 'rgba(59,130,246,0.08)',
+                    border: '1px solid rgba(59,130,246,0.3)',
+                    padding: '3px 7px',
+                    borderRadius: 4,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}>Price Drop</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#555555' }}>2h ago</span>
+                </div>
+                <div style={{ fontSize: 13, color: '#ededed', marginBottom: 6 }}>
+                  Price drops below <strong>$10 AUD</strong> in <strong>Kitchen & Bar</strong>
+                </div>
+                <div style={{
+                  fontSize: 11,
+                  color: '#888888',
+                  fontFamily: sans,
+                  background: '#080808',
+                  border: '1px solid #1a1a1a',
+                  borderRadius: 6,
+                  padding: '8px 10px',
+                  lineHeight: 1.5,
+                }}>
+                  "Oil Dispenser dropped to $7.83 AUD — 4,231 orders last week"
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>

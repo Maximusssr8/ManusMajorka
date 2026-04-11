@@ -55,14 +55,14 @@ export function EmptyState({ emoji, title, description, action, secondaryAction 
                 gap: 6,
                 height: 40,
                 padding: '0 18px',
-                background: 'var(--accent, #6366f1)',
+                background: 'var(--accent, #3B82F6)',
                 color: '#fff',
                 fontSize: 13,
                 fontWeight: 600,
                 border: 'none',
                 borderRadius: 'var(--radius-lg, 12px)',
                 cursor: 'pointer',
-                boxShadow: 'var(--shadow-accent, 0 4px 20px rgba(99,102,241,0.25))',
+                boxShadow: 'var(--shadow-accent, 0 4px 20px rgba(59,130,246,0.25))',
                 transition: 'all 150ms ease',
               }}
             >

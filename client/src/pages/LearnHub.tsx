@@ -446,8 +446,8 @@ export default function LearnHub() {
         {/* Share banner — encourages organic distribution */}
         <div style={{
           marginTop: 16,
-          background: 'rgba(99,102,241,0.08)',
-          border: '1px solid rgba(99,102,241,0.18)',
+          background: 'rgba(59,130,246,0.08)',
+          border: '1px solid rgba(59,130,246,0.18)',
           borderRadius: 12,
           padding: '14px 18px',
           display: 'flex',
@@ -472,8 +472,8 @@ export default function LearnHub() {
               gap: 6,
               padding: '8px 14px',
               borderRadius: 8,
-              background: 'rgba(99,102,241,0.18)',
-              border: '1px solid rgba(99,102,241,0.32)',
+              background: 'rgba(59,130,246,0.18)',
+              border: '1px solid rgba(59,130,246,0.32)',
               color: '#c7d2fe',
               fontSize: 12,
               fontWeight: 700,
@@ -688,8 +688,8 @@ export default function LearnHub() {
         <div style={{
           marginTop: 40,
           padding: '20px 22px',
-          background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.06))',
-          border: '1px solid rgba(99,102,241,0.25)',
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.06))',
+          border: '1px solid rgba(59,130,246,0.25)',
           borderRadius: 14,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -709,13 +709,13 @@ export default function LearnHub() {
               display: 'inline-block',
               padding: '10px 18px',
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              background: 'linear-gradient(135deg, #3B82F6, #8b5cf6)',
               color: '#fff',
               fontFamily: sans,
               fontSize: 13,
               fontWeight: 700,
               textDecoration: 'none',
-              boxShadow: '0 4px 16px rgba(99,102,241,0.3)',
+              boxShadow: '0 4px 16px rgba(59,130,246,0.3)',
             }}
           >
             See Scale plan →

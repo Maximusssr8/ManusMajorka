@@ -71,7 +71,7 @@ export function FilterBar({ filters, onFiltersChange, totalCount }: FilterBarPro
           <button
             key={pill.id}
             onClick={() => onFiltersChange({ filter: pill.id })}
-            className={`px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-150 flex-shrink-0 ${filters.filter === pill.id ? 'bg-indigo-600 text-white' : 'text-white/45 hover:text-white/65'}`}
+            className={`px-3 py-1.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-all duration-150 flex-shrink-0 ${filters.filter === pill.id ? 'bg-blue-600 text-white' : 'text-white/45 hover:text-white/65'}`}
             style={filters.filter === pill.id ? {} : { border: '1px solid rgba(255,255,255,0.08)' }}
           >
             {pill.label}

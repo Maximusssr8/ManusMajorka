@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from '../_core/supabase';
 import { cronLimiter } from '../lib/ratelimit';
 // Fire-and-forget launchers
 import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
+import { runDataHubIngest } from '../lib/ingestAliExpressDataHub';
 import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
 import { launchTikTokScrape } from '../lib/apifyTikTokShop';
 // Pipeline modules
@@ -388,6 +389,45 @@ router.get('/scrape-aliexpress-trending', async (req: Request, res: Response) =>
 
     await logPipelineEnd(logId, { startedAt, raw_collected: runId ? 1 : 0 }, runId ? 'success' : 'failed');
     res.json({ success: !!runId, source: source.name, runId, message: 'Fire-and-forget' });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DataHub direct ingest — 500 trending/high-volume items every 6 hours.
+// Runs inline (not fire-and-forget) because the DataHub API is synchronous
+// and deterministic. Quality-filtered and deduped via aeProductPipeline.
+router.get('/ingest-aliexpress-datahub', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('ingest', 'datahub_trending');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const result = await runDataHubIngest(500);
+    await logPipelineEnd(
+      logId,
+      {
+        startedAt,
+        raw_collected: result.candidates_fetched,
+        passed_filter: result.passed_filter,
+        inserted: result.added,
+        updated: result.updated,
+        failed: result.errors.length,
+      },
+      result.errors.length > result.added ? 'failed' : 'success',
+    );
+    res.json({
+      success: true,
+      keywords_hit: result.keywords_hit,
+      candidates_fetched: result.candidates_fetched,
+      unique_candidates: result.unique_candidates,
+      scraped: result.scraped,
+      passed_filter: result.passed_filter,
+      added: result.added,
+      updated: result.updated,
+      errors: result.errors.slice(0, 5),
+    });
   } catch (err: any) {
     await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });

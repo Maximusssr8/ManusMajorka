@@ -347,9 +347,9 @@ OBJECTION KILLER:
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0c', fontFamily: dm, color: '#e8e8f0' }}>
+    <div style={{ minHeight: '100vh', background: '#080808', fontFamily: dm, color: '#ededed' }}>
       {/* Header */}
-      <div style={{ background: '#151515', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#f1f1f3', margin: 0, letterSpacing: '-0.02em' }}>Ads Studio</h1>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '3px 0 0' }}>Expert direct-response ad copy, crafted for AU dropshipping operators</p>
@@ -367,11 +367,11 @@ OBJECTION KILLER:
 
       {/* 3-col */}
       <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 280px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
-        {/* ── LEFT: Form — flex column so generate button can pin to bottom without sticky quirks ── */}
+        {/* ── LEFT: Form — bg-surface ── */}
         <div style={{
           position: 'relative',
-          background: '#151515',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
+          background: '#0d0d0d',
+          borderRight: '1px solid #1a1a1a',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
@@ -634,8 +634,8 @@ OBJECTION KILLER:
           {/* Pinned Generate footer — outside scroll container, flex-shrink:0 */}
           <div style={{
             flexShrink: 0,
-            background: '#151515',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
+            background: '#0d0d0d',
+            borderTop: '1px solid #1a1a1a',
             padding: '14px 18px 18px',
           }}>
             <button
@@ -644,16 +644,14 @@ OBJECTION KILLER:
               style={{
                 width: '100%',
                 height: 44,
-                background: !productName.trim()
-                  ? 'rgba(124,106,255,0.25)'
-                  : 'linear-gradient(135deg, #7c6aff, #6366f1)',
+                background: !productName.trim() ? '#1a1a1a' : '#3B82F6',
                 color: 'white',
                 border: 'none',
-                borderRadius: 10,
+                borderRadius: 6,
                 fontSize: 14, fontWeight: 600,
                 cursor: loading || !productName.trim() ? 'not-allowed' : 'pointer',
                 fontFamily: dm,
-                boxShadow: !productName.trim() ? 'none' : '0 4px 20px rgba(124,106,255,0.35)',
+                boxShadow: !productName.trim() ? 'none' : '0 0 20px rgba(59,130,246,0.3)',
                 opacity: loading ? 0.7 : 1,
                 transition: 'all 150ms ease',
               }}
@@ -661,26 +659,71 @@ OBJECTION KILLER:
           </div>
         </div>
 
-        {/* ── CENTER: Output ── */}
-        <div ref={outputRef} style={{ overflowY: 'auto', padding: '24px 28px' }}>
+        {/* ── CENTER: Output / Canvas — bg-card with inner border ── */}
+        <div ref={outputRef} style={{
+          overflowY: 'auto',
+          padding: '24px 28px',
+          background: '#0f0f0f',
+          border: '1px solid #1a1a1a',
+          borderTop: 'none',
+          borderBottom: 'none',
+        }}>
           {loading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #7c6aff, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
-              <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800 }}>Writing your ad package…</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '80%', gap: 14 }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#3B82F6', boxShadow: '0 0 24px rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
+              <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800, color: '#ededed' }}>Writing your ad package…</div>
             </div>
           ) : parsed ? (
             <OutputDisplay parsed={parsed} copied={copied} copyText={copyText} />
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60%' }}>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', fontFamily: dm }}>
-                Fill in your product details and click Generate
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80%', padding: '24px 0' }}>
+              <div style={{
+                width: '100%',
+                maxWidth: 560,
+                aspectRatio: '4 / 5',
+                border: '2px dashed #1a1a1a',
+                borderRadius: 8,
+                background: '#0d0d0d',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 14,
+                padding: 32,
+              }}>
+                <div style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  color: '#555555',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.14em',
+                  padding: '3px 10px',
+                  border: '1px solid #1a1a1a',
+                  borderRadius: 4,
+                  background: '#0f0f0f',
+                }}>Ad canvas</div>
+                <div style={{
+                  fontFamily: brico,
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: '#ededed',
+                  textAlign: 'center',
+                }}>Your ad will appear here</div>
+                <div style={{
+                  fontFamily: dm,
+                  fontSize: 13,
+                  color: '#555555',
+                  textAlign: 'center',
+                  maxWidth: 320,
+                  lineHeight: 1.5,
+                }}>Fill in your product details on the left, then hit Generate to see hooks, headlines, and body copy rendered here.</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* ── RIGHT: Saved ── */}
-        <div style={{ background: '#151515', borderLeft: '1px solid rgba(255,255,255,0.06)', overflowY: 'auto', padding: 14 }}>
+        {/* ── RIGHT: Saved — bg-raised ── */}
+        <div style={{ background: '#111111', borderLeft: '1px solid #1a1a1a', overflowY: 'auto', padding: 14 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, fontFamily: mono }}>Saved Creatives</div>
           {saved.length === 0 ? (
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '16px 0', lineHeight: 1.55 }}>

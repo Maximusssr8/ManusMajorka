@@ -564,6 +564,29 @@ router.get('/stats-overview', async (_req: Request, res: Response) => {
       return raw;
     })();
 
+    // 14-day sparkline series — real daily additions from created_at.
+    // Oldest bucket first, newest last. Only returned when we have real data
+    // (>= 14 products with parseable created_at); otherwise null so the client
+    // suppresses the sparkline rather than rendering a fake line.
+    const SPARK_DAYS = 14;
+    const buildSparkline = (filter?: (r: Row) => boolean): number[] | null => {
+      const buckets = new Array<number>(SPARK_DAYS).fill(0);
+      let usable = 0;
+      for (const r of list) {
+        if (filter && !filter(r)) continue;
+        const ts = createdAtMs(r);
+        if (!ts) continue;
+        const daysAgo = Math.floor((now - ts) / DAY);
+        if (daysAgo < 0 || daysAgo >= SPARK_DAYS) continue;
+        buckets[SPARK_DAYS - 1 - daysAgo] += 1;
+        usable += 1;
+      }
+      return usable >= SPARK_DAYS ? buckets : null;
+    };
+
+    const sparkTotal = buildSparkline();
+    const sparkHot = buildSparkline((r) => (r.winning_score ?? 0) >= 65);
+
     return res.json({
       total,
       hotProducts,
@@ -574,6 +597,8 @@ router.get('/stats-overview', async (_req: Request, res: Response) => {
       newLastWeek,
       totalDelta: newThisWeek - newLastWeek,
       hotDelta, // percentage or null
+      sparkTotal, // number[14] | null — newest last
+      sparkHot,   // number[14] | null — newest last
       updatedAt: new Date().toISOString(),
     });
   } catch (err: unknown) {
@@ -1865,6 +1890,51 @@ router.get('/analytics-overview', async (_req: Request, res: Response) => {
         .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
     ]);
     return res.json({ total: total.count ?? 0, score90: score90.count ?? 0, newThisWeek: week.count ?? 0 });
+  } catch (err) {
+    return res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── GET /api/products/tiktok-leaderboard ──────────────────────────────────
+// KaloData-style ranked TikTok Shop bestseller feed. Queries winning_products
+// filtered by platform='tiktok_shop', scores each by (score * 0.4) + (velocity * 0.6)
+// where velocity = sold_count / max(1, days_active). Returns the top 100.
+router.get('/tiktok-leaderboard', async (req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const niche = typeof req.query.niche === 'string' ? req.query.niche : null;
+    let q = sb
+      .from('winning_products')
+      .select('id,product_title,category,image_url,price_aud,sold_count,winning_score,est_daily_revenue_aud,created_at,shop_name,aliexpress_url,trend')
+      .eq('platform', 'tiktok_shop')
+      .gt('sold_count', 0)
+      .not('image_url', 'is', null)
+      .order('sold_count', { ascending: false })
+      .limit(250);
+    if (niche) q = q.ilike('category', `%${niche}%`);
+    const { data, error } = await q;
+    if (error) return res.status(500).json({ error: error.message });
+
+    type Row = {
+      id: string; product_title: string; category: string | null; image_url: string | null;
+      price_aud: number | null; sold_count: number | null; winning_score: number | null;
+      est_daily_revenue_aud: number | null; created_at: string | null; shop_name: string | null;
+      aliexpress_url: string | null; trend: string | null;
+    };
+    const now = Date.now();
+    const ranked = (data ?? [])
+      .map((r: Row) => {
+        const created = r.created_at ? Date.parse(r.created_at) : now;
+        const daysActive = Math.max(1, Math.floor((now - created) / 86400000));
+        const velocity = (r.sold_count ?? 0) / daysActive;
+        const score = r.winning_score ?? 0;
+        const rank = score * 0.4 + Math.min(100, Math.log10(Math.max(1, velocity) + 1) * 25) * 0.6;
+        return { ...r, velocity: Math.round(velocity), daysActive, rank: Math.round(rank) };
+      })
+      .sort((a, b) => b.rank - a.rank)
+      .slice(0, 100);
+
+    return res.json({ items: ranked, count: ranked.length, updatedAt: new Date().toISOString() });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }

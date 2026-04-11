@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import {
-  Search, List, LayoutGrid, ChevronDown, Heart,
+  Search, List, LayoutGrid, ChevronDown, ChevronUp, ChevronsUpDown, Heart,
   ExternalLink, Zap, Flame, ShoppingBag, Store, Calculator, ChevronRight,
   Clock, TrendingUp, DollarSign, Award, Bookmark, Bell, X, Download,
 } from 'lucide-react';
@@ -25,16 +25,23 @@ import { proxyImage } from '@/lib/imageProxy';
 
 type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10' | 'saved';
 
-const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass?: string }[] = [
-  { key: 'all',         label: 'All products',  Icon: LayoutGrid },
-  { key: 'hot-now',     label: 'Hot Now',       Icon: Flame,      iconClass: 'text-orange-400' },
-  { key: 'trending',    label: 'Trending',      Icon: TrendingUp, iconClass: 'text-amber' },
-  { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover' },
-  { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign, iconClass: 'text-green' },
-  { key: 'under-10',    label: 'Under $10',     Icon: DollarSign, iconClass: 'text-cyan-400' },
-  { key: 'top',         label: 'Score 90+',     Icon: Award,      iconClass: 'text-[#eab308]' },
-  { key: 'new',         label: 'New',           Icon: Clock },
-  { key: 'saved',       label: 'Saved',         Icon: Bookmark },
+const SMART_TABS: {
+  key: SmartTabKey;
+  label: string;
+  Icon: LucideIcon;
+  iconClass?: string;
+  /** Category-identity colour used for the left border + status dot when active. */
+  dot: string;
+}[] = [
+  { key: 'all',         label: 'All products',  Icon: LayoutGrid,  dot: '#ffffff' },
+  { key: 'hot-now',     label: 'Hot Now',       Icon: Flame,       iconClass: 'text-orange-400',  dot: '#f97316' },
+  { key: 'trending',    label: 'Trending',      Icon: TrendingUp,  iconClass: 'text-amber',       dot: '#f59e0b' },
+  { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover', dot: '#3B82F6' },
+  { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign,  iconClass: 'text-green',       dot: '#10b981' },
+  { key: 'under-10',    label: 'Under $10',     Icon: DollarSign,  iconClass: 'text-cyan-400',    dot: '#22d3ee' },
+  { key: 'top',         label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]',   dot: '#eab308' },
+  { key: 'new',         label: 'New',           Icon: Clock,                                      dot: '#a855f7' },
+  { key: 'saved',       label: 'Saved',         Icon: Bookmark,                                   dot: '#ec4899' },
 ];
 
 type SortKey = OrderByColumn | 'velocity';
@@ -85,6 +92,17 @@ function daysSince(iso: string | null): number {
  * per the latest audit spec.
  */
 const NEW_DAYS_THRESHOLD = 30;
+
+// Items younger than this get a "Just in" highlight — lines up with the 6h
+// DataHub ingest cron so fresh cron output is visible immediately.
+const JUST_ADDED_HOURS = 6;
+
+function hoursSince(iso?: string | null): number {
+  if (!iso) return 9999;
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return 9999;
+  return (Date.now() - ts) / 3600000;
+}
 
 /**
  * Live AliExpress search toggle. Enabled now that the AE Affiliate API
@@ -600,15 +618,26 @@ function ProductSheet({
           style={{ overscrollBehavior: 'contain' }}
           className="fixed right-0 top-0 z-[100] h-screen w-full md:w-[420px] bg-surface border-l border-white/[0.08] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)] data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=closed]:duration-200"
         >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3 p-5 pb-0">
-            <Dialog.Title className="font-display text-base font-semibold text-text line-clamp-2 leading-snug flex-1 min-w-0">
-              {product.product_title}
-            </Dialog.Title>
+          {/* Header — close only, title moves below image for clearer hierarchy */}
+          <div className="flex items-center justify-between gap-3 px-5 pt-4 pb-2">
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">
+              <span>Product detail</span>
+              {product.category && (
+                <>
+                  <span className="text-white/20">/</span>
+                  <span
+                    className="inline-block px-1.5 py-0.5 rounded"
+                    style={categoryColor(product.category)}
+                  >
+                    {shortenCategory(product.category)}
+                  </span>
+                </>
+              )}
+            </div>
             <Dialog.Close asChild>
               <button
                 aria-label="Close"
-                className="w-11 h-11 flex items-center justify-center text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer rounded-xl shrink-0"
+                className="w-11 h-11 flex items-center justify-center text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer rounded-md shrink-0"
               >
                 <X size={18} strokeWidth={2} />
               </button>
@@ -616,16 +645,34 @@ function ProductSheet({
           </div>
 
           {/* Image */}
-          <div className="m-4">
-            <div className="w-full h-[220px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
+          <div className="mx-4 mb-4">
+            <div className="w-full h-[240px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
               {product.image_url && (
                 <img
                   src={proxyImage(product.image_url) ?? product.image_url}
                   alt={product.product_title}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               )}
             </div>
+          </div>
+
+          {/* Title + meta — larger display typography for clearer hierarchy */}
+          <div className="px-5 pb-4 border-b border-white/[0.06]">
+            <Dialog.Title className="font-display text-xl font-bold text-text leading-tight mb-2">
+              {product.product_title}
+            </Dialog.Title>
+            <div className="flex items-center gap-3 text-[11px] text-muted">
+              {product.created_at && <span>Added {timeAgoShort(product.created_at)}</span>}
+              {product.category && product.created_at && <span className="text-white/15">·</span>}
+              {product.category && <span>{product.category}</span>}
+            </div>
+          </div>
+
+          {/* Section label: key metrics */}
+          <div className="px-5 pt-4 pb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/40">
+            Key metrics
           </div>
 
           {/* Stats grid */}
@@ -644,18 +691,18 @@ function ProductSheet({
               ? 'text-muted'
               : hasRealRev ? 'text-green' : 'text-amber';
             return (
-          <div className="px-4 grid grid-cols-2 gap-2.5">
+          <div className="px-5 pb-4 border-b border-white/[0.06] grid grid-cols-2 gap-2">
             {[
               { label: 'Sell Price', value: price != null ? `$${price.toFixed(2)}` : '—', className: 'text-text' },
-              { label: 'Orders/Mo',  value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
+              { label: 'Orders',     value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
               { label: 'AI Score',   value: score ? `${score}/100` : '—', className: 'text-accent-hover' },
               { label: estRevLabel,  value: estRevValue, className: estRevClass },
             ].map((cell) => (
-              <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3.5">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-1.5">
+              <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1">
                   {cell.label}
                 </div>
-                <div className={`text-base font-bold tabular-nums ${cell.className}`}>
+                <div className={`font-mono tabular-nums text-lg font-bold ${cell.className}`}>
                   {cell.value}
                 </div>
               </div>
@@ -1491,16 +1538,26 @@ export default function AppProducts() {
               <button
                 key={tab.key}
                 onClick={() => { setActiveTab(tab.key); setPage(1); }}
-                className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg cursor-pointer whitespace-nowrap transition-colors border ${
+                style={{
+                  borderLeftColor: active ? tab.dot : 'transparent',
+                  borderLeftWidth: 2,
+                  borderLeftStyle: 'solid',
+                }}
+                className={`flex items-center gap-1.5 pl-3 pr-3.5 py-2 text-sm font-medium rounded-md cursor-pointer whitespace-nowrap transition-colors border-t border-r border-b ${
                   active
-                    ? 'bg-accent/15 border-accent/30 text-accent-hover'
-                    : 'bg-transparent border-transparent text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
+                    ? 'bg-white/[0.06] border-t-white/10 border-r-white/10 border-b-white/10 text-text'
+                    : 'bg-transparent border-t-transparent border-r-transparent border-b-transparent text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
                 }`}
               >
+                <span
+                  aria-hidden="true"
+                  className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                  style={{ background: tab.dot, opacity: active ? 1 : 0.55 }}
+                />
                 <Icon
                   size={14}
                   strokeWidth={1.75}
-                  className={active ? 'text-accent-hover' : tab.iconClass ?? ''}
+                  className={active ? 'text-text' : tab.iconClass ?? ''}
                 />
                 <span>{tab.label}</span>
                 <span className="bg-white/[0.08] rounded-full px-1.5 py-0 text-[11px] tabular-nums ml-0.5">
@@ -1633,6 +1690,8 @@ export default function AppProducts() {
           onSelect={setSelectedProduct}
           lists={lists}
           navigate={navigate}
+          orderBy={orderBy}
+          onSort={(k) => { setOrderBy(k); setPage(1); }}
         />
       ) : (
         <GridCards
@@ -1723,6 +1782,54 @@ interface ListTableProps {
   onSelect: (p: Product) => void;
   lists: ReturnType<typeof useLists>;
   navigate: (path: string) => void;
+  orderBy: SortKey;
+  onSort: (key: SortKey) => void;
+}
+
+/** Column → sort key mapping for the table header. `null` means not sortable. */
+const COLUMN_SORT_MAP: Record<string, { asc: SortKey; desc: SortKey } | null> = {
+  score:   { asc: 'winning_score',         desc: 'winning_score' },
+  orders:  { asc: 'orders_asc',            desc: 'sold_count' },
+  price:   { asc: 'price_asc',             desc: 'price_desc' },
+  revenue: { asc: 'est_daily_revenue_aud', desc: 'est_daily_revenue_aud' },
+};
+
+interface SortableThProps {
+  label: string;
+  column: keyof typeof COLUMN_SORT_MAP;
+  orderBy: SortKey;
+  onSort: (key: SortKey) => void;
+  align?: 'left' | 'right';
+}
+
+function SortableTh({ label, column, orderBy, onSort, align = 'right' }: SortableThProps) {
+  const map = COLUMN_SORT_MAP[column];
+  if (!map) {
+    return (
+      <th className={`hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-${align}`}>
+        {label}
+      </th>
+    );
+  }
+  const isActiveDesc = orderBy === map.desc && map.desc !== map.asc;
+  const isActiveAsc = orderBy === map.asc && map.asc !== map.desc;
+  // For score/revenue (same key asc & desc), we still highlight if chosen
+  const isActive = orderBy === map.asc || orderBy === map.desc;
+  const next: SortKey = isActiveDesc ? map.asc : map.desc;
+  const Arrow = isActiveAsc ? ChevronUp : isActiveDesc ? ChevronDown : ChevronsUpDown;
+  return (
+    <th className={`hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest px-4 py-3.5 whitespace-nowrap text-${align} ${isActive ? 'text-text' : 'text-white/45'}`}>
+      <button
+        type="button"
+        onClick={() => onSort(next)}
+        className={`inline-flex items-center gap-1 cursor-pointer hover:text-text transition-colors ${align === 'right' ? 'float-right' : ''}`}
+        aria-label={`Sort by ${label}`}
+      >
+        <span>{label}</span>
+        <Arrow size={11} strokeWidth={2.5} className={isActive ? 'text-accent-hover' : 'text-white/30'} />
+      </button>
+    </th>
+  );
 }
 
 /* Hover-quick-action handlers for the last column of each row. */
@@ -1750,17 +1857,17 @@ function importToStore(p: Product, navigate: (path: string) => void) {
   toast.success('Product imported to Store Builder');
 }
 
-function ListTable({ products, loading, onSelect, lists, navigate }: ListTableProps) {
+function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSort }: ListTableProps) {
   if (loading && products.length === 0) {
     return (
-      <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
+      <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-lg overflow-hidden">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className={`h-[72px] px-6 flex items-center gap-3.5 ${i === 7 ? '' : 'border-b border-white/[0.04]'}`}
+            className={`h-[96px] px-6 flex items-center gap-3.5 ${i === 7 ? '' : 'border-b border-white/[0.04]'}`}
           >
             <span className="w-5 h-3 bg-white/[0.04] rounded animate-pulse" />
-            <span className="w-14 h-14 bg-white/[0.04] rounded-xl animate-pulse" />
+            <span className="w-20 h-20 bg-white/[0.04] rounded-md animate-pulse" />
             <span className="flex-1 h-3.5 bg-white/[0.04] rounded animate-pulse" />
           </div>
         ))}
@@ -1769,7 +1876,7 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
   }
   if (products.length === 0) return <EmptyState />;
   return (
-    <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
+    <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
@@ -1777,10 +1884,25 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
               <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Score</th>
-              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Orders</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Price</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Revenue</th>
+              <SortableTh label="Score" column="score" orderBy={orderBy} onSort={onSort} align="right" />
+              {/* Orders is always visible on mobile — render a plain sortable header that stays inline */}
+              <th className={`text-[11px] font-semibold uppercase tracking-widest px-4 py-3.5 whitespace-nowrap text-right ${orderBy === 'sold_count' || orderBy === 'orders_asc' ? 'text-text' : 'text-white/45'}`}>
+                <button
+                  type="button"
+                  onClick={() => onSort(orderBy === 'sold_count' ? 'orders_asc' : 'sold_count')}
+                  className="inline-flex items-center gap-1 cursor-pointer hover:text-text transition-colors float-right"
+                  aria-label="Sort by Orders"
+                >
+                  <span>Orders</span>
+                  {orderBy === 'sold_count'
+                    ? <ChevronDown size={11} strokeWidth={2.5} className="text-accent-hover" />
+                    : orderBy === 'orders_asc'
+                      ? <ChevronUp size={11} strokeWidth={2.5} className="text-accent-hover" />
+                      : <ChevronsUpDown size={11} strokeWidth={2.5} className="text-white/30" />}
+                </button>
+              </th>
+              <SortableTh label="Price" column="price" orderBy={orderBy} onSort={onSort} align="right" />
+              <SortableTh label="Revenue" column="revenue" orderBy={orderBy} onSort={onSort} align="right" />
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-center">♡</th>
             </tr>
           </thead>
@@ -1797,22 +1919,22 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
-                className={`group h-20 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-gradient-to-r hover:from-accent/[0.03] hover:to-transparent border-l-2 border-l-transparent hover:border-l-accent cursor-pointer transition-colors`}
+                className={`group h-24 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-gradient-to-r hover:from-accent/[0.03] hover:to-transparent border-l-2 border-l-transparent hover:border-l-accent cursor-pointer transition-colors`}
               >
                 <td className="hidden md:table-cell px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
                   {String(i + 1).padStart(2, '0')}
                 </td>
-                <td className="px-4">
-                  <div className="flex items-center gap-3 min-w-0">
+                <td className="px-4 py-2">
+                  <div className="flex items-center gap-4 min-w-0">
                     {p.image_url ? (
                       <img
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card object-cover shrink-0"
+                        className="w-20 h-20 rounded-md border border-white/[0.08] bg-card object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
+                      <div className="w-20 h-20 rounded-md border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="min-w-0 flex-1">
                       <TT content={p.product_title}>
@@ -1972,6 +2094,7 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
         const orders = p.sold_count ?? 0;
         const estMonthly = monthlyRevenue(p);
         const isNew = daysSince(p.created_at) <= NEW_DAYS_THRESHOLD;
+        const isJustIn = hoursSince(p.created_at) <= JUST_ADDED_HOURS;
         return (
           <motion.div
             key={p.id}
@@ -2020,7 +2143,19 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
                   </span>
                 </div>
               )}
-              {isNew && (
+              {isJustIn ? (
+                <span
+                  className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide"
+                  style={{
+                    background: 'rgba(59,130,246,0.18)',
+                    color: '#60A5FA',
+                    border: '1px solid rgba(59,130,246,0.4)',
+                    boxShadow: '0 0 12px rgba(59,130,246,0.25)',
+                  }}
+                >
+                  JUST IN
+                </span>
+              ) : isNew && (
                 <span className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 bg-green/20 text-green rounded">
                   NEW
                 </span>
@@ -2186,59 +2321,73 @@ function ProductHistoryChart({ productId }: { productId: string | number }) {
     return () => { cancelled = true; };
   }, [productId]);
 
-  // Skeleton state — looks designed, not broken. No "Placeholder" text.
-  if (loading || !tableReady || history.length < 2) {
-    // Pre-computed bar heights so the skeleton looks intentional, not random
-    const heights = [40, 65, 45, 80, 55, 70, 90, 60, 75, 85, 50, 95, 62, 78, 48, 88, 58, 72, 82, 55, 68, 92, 50, 76, 64, 84, 58, 70, 80, 65];
+  // Loading state — single spinner row, no fabricated bars.
+  if (loading) {
     return (
-      <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
-        <div className="flex items-center justify-between mb-3">
+      <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-md">
+        <div className="flex items-center justify-between">
           <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
-          <div className="text-[10px] text-white/25">Collecting data…</div>
+          <div className="text-[10px] text-white/25">Loading…</div>
         </div>
-        <div className="relative h-12 flex items-end gap-1">
-          {heights.map((h, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-sm animate-pulse"
-              style={{
-                height: `${h}%`,
-                background: 'rgba(255,255,255,0.12)',
-                animationDelay: `${i * 60}ms`,
-              }}
-            />
-          ))}
-        </div>
-        <p className="text-[10px] text-white/25 text-center mt-2">Historical data builds automatically over time</p>
+        <div className="h-12 mt-3 bg-white/[0.03] rounded animate-pulse" />
       </div>
     );
   }
 
-  // Real sparkline from data
+  // Empty state — honest message, no fake data.
+  if (!tableReady || history.length < 2) {
+    return (
+      <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-md">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
+        </div>
+        <div className="h-12 flex items-center justify-center">
+          <p className="text-[11px] text-white/35 font-medium">Trend data unavailable</p>
+        </div>
+        <p className="text-[10px] text-white/25 text-center mt-1">
+          Daily snapshots will build historical trends once this product has been tracked for 2+ days.
+        </p>
+      </div>
+    );
+  }
+
+  // Real sparkline from data — smooth SVG line, not bars.
   const vals = history.map((h) => h.sold_count ?? 0);
   const min = Math.min(...vals);
   const max = Math.max(...vals);
   const range = Math.max(1, max - min);
+  const width = 100;
+  const height = 40;
+  const points = vals.map((v, i) => {
+    const x = (i / Math.max(1, vals.length - 1)) * width;
+    const y = height - ((v - min) / range) * height;
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ');
+  const last = vals[vals.length - 1];
+  const first = vals[0];
+  const deltaPct = first > 0 ? ((last - first) / first) * 100 : 0;
+  const deltaColor = deltaPct >= 0 ? '#10b981' : '#ef4444';
   return (
-    <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
+    <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-md">
       <div className="flex items-center justify-between mb-2">
         <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
-        <div className="text-[10px] text-accent-hover tabular-nums">
-          {vals[vals.length - 1].toLocaleString()} orders
+        <div className="text-[10px] font-mono tabular-nums" style={{ color: deltaColor }}>
+          {deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(1)}%
         </div>
       </div>
-      <div className="relative h-16 flex items-end gap-0.5">
-        {vals.map((v, i) => {
-          const h = 20 + ((v - min) / range) * 80;
-          return (
-            <div
-              key={i}
-              className="flex-1 bg-accent/40 hover:bg-accent/70 transition-colors rounded-sm"
-              style={{ height: `${h}%` }}
-              title={`${new Date(history[i].captured_at).toLocaleDateString()}: ${v.toLocaleString()}`}
-            />
-          );
-        })}
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" className="w-full h-12">
+        <polyline
+          fill="none"
+          stroke="#3B82F6"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={points}
+        />
+      </svg>
+      <div className="flex items-center justify-between mt-1 text-[10px] text-white/35 font-mono tabular-nums">
+        <span>{first.toLocaleString()}</span>
+        <span>{last.toLocaleString()} orders</span>
       </div>
     </div>
   );

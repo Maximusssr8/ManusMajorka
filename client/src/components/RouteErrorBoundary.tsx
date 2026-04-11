@@ -19,7 +19,7 @@ export class RouteErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
           <p className="text-muted-foreground text-sm">Something went wrong loading this page.</p>
-          <button onClick={this.retry} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors">
+          <button onClick={this.retry} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
             Try again
           </button>
         </div>

@@ -131,7 +131,7 @@ export function HeroDemo() {
   return (
     <div className="relative w-full max-w-[720px]" style={{ margin: '0 auto' }}>
       <div ref={mountRef} id="mkr-demo-mount" />
-      <div className="absolute inset-0 -z-10 rounded-full scale-75 blur-3xl opacity-20 pointer-events-none" style={{ background: '#6366f1' }} />
+      <div className="absolute inset-0 -z-10 rounded-full scale-75 blur-3xl opacity-20 pointer-events-none" style={{ background: '#3B82F6' }} />
     </div>
   );
 }
@@ -195,8 +195,8 @@ function initDemoEngine(mount: HTMLElement, data: DemoData, avgScore: number): (
     : productRowsHTML;
 
   const alertIcons = ['🔥','💰','📈'];
-  const alertIconBgs = ['rgba(251,146,60,0.12)','rgba(99,102,241,0.12)','rgba(52,211,153,0.12)'];
-  const alertBadges = [{ label:'HOT',cls:'orange' },{ label:'RISING',cls:'indigo' },{ label:'TREND',cls:'green' }];
+  const alertIconBgs = ['rgba(251,146,60,0.12)','rgba(59,130,246,0.12)','rgba(52,211,153,0.12)'];
+  const alertBadges = [{ label:'HOT',cls:'orange' },{ label:'RISING',cls:'blue' },{ label:'TREND',cls:'green' }];
 
   const alertsHTML = data.alerts.slice(0, 3).map((p, i) => `
     <div class="mkr-alert mkr-alert-${i}" style="opacity:0;transform:translateX(-8px)">
@@ -347,12 +347,12 @@ function buildDemoHTML(d: DemoHTMLParams): string {
         <div class="mkr-gauge-wrap">
           <svg width="100" height="60" viewBox="0 0 100 60">
             <circle cx="50" cy="30" r="20" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
-            <circle cx="50" cy="30" r="20" fill="none" stroke="#6366f1" stroke-width="5"
+            <circle cx="50" cy="30" r="20" fill="none" stroke="#3B82F6" stroke-width="5"
               stroke-dasharray="${gaugeCircumference}" stroke-dashoffset="${gaugeCircumference}"
               stroke-linecap="round" transform="rotate(-90 50 30)" class="mkr-gauge-fill"/>
           </svg>
           <div class="mkr-gauge-label">
-            <div style="color:#6366f1;font-size:18px;font-weight:700">${d.avgScore}</div>
+            <div style="color:#3B82F6;font-size:18px;font-weight:700">${d.avgScore}</div>
             <div style="color:rgba(255,255,255,0.4);font-size:9px">${d.gaugeVerdict}</div>
           </div>
         </div>
@@ -362,12 +362,12 @@ function buildDemoHTML(d: DemoHTMLParams): string {
           <svg width="300" height="60" viewBox="0 0 300 60" class="mkr-chart-svg">
             <defs>
               <linearGradient id="mkr-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+                <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
               </linearGradient>
             </defs>
             <polygon points="${d.chartPoints} 290,60 10,60" fill="url(#mkr-grad)"/>
-            <polyline points="${d.chartPoints}" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mkr-chart-line"/>
+            <polyline points="${d.chartPoints}" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mkr-chart-line"/>
           </svg>
         </div>
       </div>

@@ -93,11 +93,14 @@
   --color-raised:  #111111;
   --color-card:    #0f0f0f;
 
-  /* Accent — white (dark mode default) */
-  --color-accent:         #ffffff;
-  --color-accent-hover:   #e5e5e5;
-  --color-accent-subtle:  rgba(255,255,255,0.07);
-  --color-brand:          #ffffff;
+  /* Accent — gold (Majorka brand) */
+  --color-accent:         #d4af37;
+  --color-accent-hover:   #e5c158;
+  --color-accent-subtle:  rgba(212,175,55,0.08);
+  --color-brand:          #d4af37;
+  /* CTA blue — used inline for primary buttons */
+  --color-cta:            #3B82F6;
+  --color-cta-hover:      #2563EB;
 
   /* Status */
   --color-green: #22c55e;
@@ -133,10 +136,10 @@
   --color-bg-elevated: #0f0f0f;
   --color-bg-surface: #0d0d0d;
   --color-bg-panel: #111111;
-  --color-accent: #ffffff;
-  --color-accent-hover: #e5e5e5;
-  --color-accent-dim: rgba(255,255,255,0.07);
-  --color-accent-glow: rgba(255,255,255,0.12);
+  --color-accent: #d4af37;
+  --color-accent-hover: #e5c158;
+  --color-accent-dim: rgba(212,175,55,0.08);
+  --color-accent-glow: rgba(212,175,55,0.18);
   --color-border: rgba(255,255,255,0.08);
   --color-border-strong: rgba(255,255,255,0.14);
   --color-border-faint: rgba(255,255,255,0.04);
@@ -180,10 +183,10 @@
   --cell-text: #ededed;
 
   /* accent (short aliases — mirrors --color-accent) */
-  --accent: #ffffff;
-  --accent-hover: #e5e5e5;
-  --accent-subtle: rgba(255,255,255,0.07);
-  --accent-glow: rgba(255,255,255,0.12);
+  --accent: #d4af37;
+  --accent-hover: #e5c158;
+  --accent-subtle: rgba(212,175,55,0.08);
+  --accent-glow: rgba(212,175,55,0.18);
 
   /* status */
   --positive: #22c55e;
@@ -206,7 +209,7 @@
   /* shadows */
   --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
   --shadow-elevated: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
-  --shadow-glow: 0 0 24px rgba(255,255,255,0.08);
+  --shadow-glow: 0 0 24px rgba(212,175,55,0.15);
 
   /* fonts */
   --font-display: 'Syne', 'Bricolage Grotesque', system-ui, sans-serif;

@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavourites } from '@/hooks/useFavourites';
 import UpgradeModal from '@/components/UpgradeModal';
-import { Check, X, Plus, ChevronDown, ChevronUp, Loader2, ExternalLink, RefreshCw, Eye, Smartphone, Monitor, Copy, ShoppingCart } from 'lucide-react';
+import { Check, X, Plus, ChevronDown, ChevronUp, Loader2, ExternalLink, RefreshCw, Eye, Smartphone, Monitor, Copy, ShoppingCart, Store, Package, Rocket, Sparkles, Bot, ShoppingBag, Lock } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 
@@ -136,6 +136,132 @@ function TemplatePreview({ preview }: { preview: { bg: string; text: string; btn
   );
 }
 
+// ── Browser frame mockup preview (used on mode-select landing) ─
+const MOCK_PRODUCTS = [
+  { id: 'm1', title: 'LED Therapy Face Mask', price: 49.95, badge: 'Best Seller' },
+  { id: 'm2', title: 'Ergonomic Posture Corrector', price: 34.00, badge: 'New' },
+  { id: 'm3', title: 'Cordless Pet Grooming Kit', price: 59.95, badge: 'Trending' },
+] as const;
+
+function MockStorePreview() {
+  return (
+    <div style={{
+      background: '#0f0f0f',
+      border: '1px solid #1a1a1a',
+      borderRadius: 8,
+      overflow: 'hidden' as const,
+      boxShadow: '0 0 40px rgba(59,130,246,0.06)',
+    }}>
+      {/* Browser chrome */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center' as const,
+        gap: 12,
+        padding: '10px 14px',
+        background: '#111111',
+        borderBottom: '1px solid #1a1a1a',
+      }}>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1a1a1a' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1a1a1a' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#1a1a1a' }} />
+        </div>
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center' as const,
+          gap: 8,
+          padding: '6px 12px',
+          background: '#080808',
+          border: '1px solid #1a1a1a',
+          borderRadius: 6,
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          color: '#888888',
+        }}>
+          <Lock size={10} strokeWidth={2} />
+          <span>yourstore.myshopify.com</span>
+        </div>
+      </div>
+
+      {/* Site nav */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center' as const,
+        justifyContent: 'space-between' as const,
+        padding: '14px 24px',
+        borderBottom: '1px solid #1a1a1a',
+      }}>
+        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#ededed' }}>Your Store</div>
+        <div style={{ display: 'flex', gap: 18, fontSize: 12, color: '#555555' }}>
+          <span>Shop</span><span>Best Sellers</span><span>About</span>
+        </div>
+        <ShoppingCart size={14} color="#555555" />
+      </div>
+
+      {/* Hero strip */}
+      <div style={{ padding: '22px 24px 18px', textAlign: 'center' as const }}>
+        <div style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, color: '#ededed', marginBottom: 6 }}>Premium products, curated for you</div>
+        <div style={{ fontSize: 11, color: '#555555' }}>Free AU shipping · 4.8★ rated · 30-day returns</div>
+      </div>
+
+      {/* Product grid */}
+      <div style={{ padding: '0 20px 22px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {MOCK_PRODUCTS.map(p => (
+            <div key={p.id} style={{
+              background: '#111111',
+              border: '1px solid #1a1a1a',
+              borderRadius: 6,
+              overflow: 'hidden' as const,
+            }}>
+              <div style={{
+                height: 90,
+                background: 'linear-gradient(135deg, #0d0d0d, #1a1a1a)',
+                display: 'flex',
+                alignItems: 'center' as const,
+                justifyContent: 'center' as const,
+                position: 'relative' as const,
+              }}>
+                <Package size={24} color="#333333" strokeWidth={1.5} />
+                <span style={{
+                  position: 'absolute' as const,
+                  top: 6, left: 6,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 8,
+                  padding: '2px 6px',
+                  background: 'rgba(59,130,246,0.15)',
+                  border: '1px solid rgba(59,130,246,0.3)',
+                  color: '#3B82F6',
+                  borderRadius: 3,
+                  textTransform: 'uppercase' as const,
+                  letterSpacing: '0.08em',
+                  fontWeight: 700,
+                }}>{p.badge}</span>
+              </div>
+              <div style={{ padding: '8px 10px 10px' }}>
+                <div style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: '#ededed',
+                  marginBottom: 4,
+                  overflow: 'hidden' as const,
+                  textOverflow: 'ellipsis' as const,
+                  whiteSpace: 'nowrap' as const,
+                }}>{p.title}</div>
+                <div style={{ display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>${p.price.toFixed(2)}</div>
+                  <div style={{ fontSize: 9, color: '#555555' }}>★★★★★</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Store Preview Component ────────────────────────────────────
 function StorePreview({ copy, template, products, storeName, primaryColor, isMobilePreview }: {
   copy: GeneratedCopy;
@@ -196,7 +322,7 @@ function StorePreview({ copy, template, products, storeName, primaryColor, isMob
                       {p.image_url ? (
                         <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       ) : (
-                        <div style={{ fontSize: 32, opacity: 0.3 }}>📦</div>
+                        <div style={{ opacity: 0.3 }}><Package size={32} /></div>
                       )}
                     </div>
                     <div style={{ padding: 12 }}>
@@ -719,7 +845,9 @@ export default function StoreBuilder() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🤖</div>
+              <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, marginBottom: 16 }}>
+                <Bot size={22} color="#3B82F6" strokeWidth={1.75} />
+              </div>
               <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Build with AI</div>
               <div style={{ fontSize: 13, color: accent, marginBottom: 8 }}>Zero to store in 7 minutes</div>
               <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>AI builds your store from your niche and products</div>
@@ -733,7 +861,9 @@ export default function StoreBuilder() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🛍️</div>
+              <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, marginBottom: 16 }}>
+                <ShoppingBag size={22} color="#3B82F6" strokeWidth={1.75} />
+              </div>
               <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Connect Shopify</div>
               <div style={{ fontSize: 13, color: accent, marginBottom: 8 }}>Already on Shopify?</div>
               <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>Sync your products and orders. Keep Shopify, add Majorka's intelligence layer.</div>
@@ -751,12 +881,30 @@ export default function StoreBuilder() {
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <div style={{ position: 'absolute' as const, top: 16, right: 16, background: 'rgba(139,92,246,0.15)', color: violet, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999 }}>Scale Only</div>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🏪</div>
+              <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, marginBottom: 16 }}>
+                <Store size={22} color="#ededed" strokeWidth={1.75} />
+              </div>
               <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Sell on Majorka</div>
               <div style={{ fontSize: 13, color: violet, marginBottom: 8 }}>No Shopify needed</div>
               <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>List products. We handle the storefront. 5% platform fee per sale.</div>
               <button style={{ ...btnPrimary, width: '100%', background: violet }}>Start Selling →</button>
             </div>
+          </div>
+
+          {/* Store preview mockup */}
+          <div style={{ marginBottom: 40 }}>
+            <div style={{ textAlign: 'center' as const, marginBottom: 16 }}>
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.12em',
+                color: '#555555',
+                marginBottom: 4,
+              }}>Live preview</div>
+              <div style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, color: '#ededed' }}>This is what you're about to build</div>
+            </div>
+            <MockStorePreview />
           </div>
 
           {/* Existing stores */}
@@ -894,14 +1042,14 @@ export default function StoreBuilder() {
                           {p.image_url ? (
                             <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                           ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, fontSize: 24, opacity: 0.3 }}>📦</div>
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, opacity: 0.3 }}><Package size={24} /></div>
                           )}
                         </div>
                         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, lineHeight: 1.3 }}>{p.product_title}</div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: accent, marginBottom: 4 }}>${(p.price_aud || 0).toFixed(2)}</div>
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center' as const }}>
                           <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor, background: `${scoreColor}15`, padding: '2px 6px', borderRadius: 4 }}>{p.winning_score || 0}</span>
-                          {p.trend === 'rising' && <span style={{ fontSize: 11 }}>🔥 Trending</span>}
+                          {p.trend === 'rising' && <span style={{ fontSize: 11, display: 'inline-flex', alignItems: 'center' as const, gap: 3, color: '#F59E0B' }}><Sparkles size={10} /> Trending</span>}
                         </div>
                       </div>
                     );
@@ -1075,7 +1223,7 @@ export default function StoreBuilder() {
                   disabled={!subdomainAvailable || publishing}
                   style={{ ...btnPrimary, flex: 1, opacity: !subdomainAvailable ? 0.4 : 1, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, gap: 8 }}
                 >
-                  {publishing ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Publishing...</> : 'Publish Store 🚀'}
+                  {publishing ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Publishing...</> : <><Rocket size={16} /> Publish Store</>}
                 </button>
               </div>
             </div>
@@ -1099,7 +1247,9 @@ export default function StoreBuilder() {
                 ))}
               </div>
 
-              <div style={{ fontSize: 64, marginBottom: 16 }}>🚀</div>
+              <div style={{ width: 72, height: 72, borderRadius: 16, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', display: 'inline-flex', alignItems: 'center' as const, justifyContent: 'center' as const, marginBottom: 16, boxShadow: '0 0 32px rgba(59,130,246,0.3)' }}>
+                <Rocket size={36} color="#3B82F6" strokeWidth={1.75} />
+              </div>
               <h2 style={{ fontFamily: brico, fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your store is live!</h2>
               {publishResult.liveUrl && (
                 <a href={publishResult.liveUrl} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 16, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' as const, gap: 6, marginBottom: 24 }}>
@@ -1132,7 +1282,11 @@ export default function StoreBuilder() {
 
           {!shopifyStatus.connected ? (
             <div style={{ background: cardBg, border: cardBorder, borderRadius: 20, padding: 32 }}>
-              <div style={{ fontSize: 36, marginBottom: 16, textAlign: 'center' as const }}>🛍️</div>
+              <div style={{ textAlign: 'center' as const, marginBottom: 16, display: 'flex', justifyContent: 'center' as const }}>
+                <div style={{ width: 44, height: 44, borderRadius: 8, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const }}>
+                  <ShoppingBag size={22} color="#3B82F6" strokeWidth={1.75} />
+                </div>
+              </div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Enter your Shopify store URL</label>
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 <input value={shopifyDomain} onChange={e => setShopifyDomain(e.target.value)} placeholder="yourstore.myshopify.com" style={{ ...inputStyle, flex: 1 }} />

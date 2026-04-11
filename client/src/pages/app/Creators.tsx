@@ -186,45 +186,131 @@ export default function Creators() {
       {/* Section 2 — Top Categories */}
       <section style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Top Categories for Creator Collab</h2>
-        <div style={{
-          display: 'flex', gap: 12,
-          overflowX: 'auto', paddingBottom: 8,
-          scrollbarWidth: 'none' as const,
-          minHeight: 0,
-        }}>
+        <div
+          className="mj-creator-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: 14,
+          }}
+        >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="mj-shim" style={{ width: 240, height: 180, borderRadius: 12, flexShrink: 0 }} />
+                <div key={i} className="mj-shim" style={{ height: 140, borderRadius: 8 }} />
               ))
             : niches.slice(0, 8).map((n) => {
-                const tier = creatorTier(n.avgScore);
                 const sp = scorePillStyle(n.avgScore);
+                const short = shortenCategory(n.name);
+                const initial = short.trim().charAt(0).toUpperCase() || '•';
+                const handle = '@' + short.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 16);
                 return (
-                  <div key={n.name} style={{
-                    flexShrink: 0,
-                    width: 240,
-                    background: C.raised,
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    borderRadius: 12,
-                    padding: 18,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 10,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Category</span>
-                      <span style={{
-                        background: sp.background, color: sp.color, border: sp.border,
-                        fontFamily: mono, fontSize: 11, fontWeight: 700,
-                        padding: '3px 9px', borderRadius: 999,
-                      }}>{n.avgScore}</span>
+                  <div
+                    key={n.name}
+                    style={{
+                      background: '#0f0f0f',
+                      border: '1px solid #1a1a1a',
+                      borderRadius: 8,
+                      padding: 20,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 14,
+                    }}
+                  >
+                    {/* Header row — avatar + name/handle + score */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 8,
+                          background: 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)',
+                          border: '1px solid #1a1a1a',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontFamily: display,
+                          fontSize: 16,
+                          fontWeight: 800,
+                          color: '#ededed',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {initial}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontFamily: display,
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color: '#ededed',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {short}
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: 'JetBrains Mono, monospace',
+                            fontSize: 11,
+                            color: '#555555',
+                          }}
+                        >
+                          {handle}
+                        </div>
+                      </div>
+                      <span
+                        style={{
+                          background: sp.background,
+                          color: sp.color,
+                          border: sp.border,
+                          fontFamily: 'JetBrains Mono, monospace',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: '3px 9px',
+                          borderRadius: 6,
+                        }}
+                      >
+                        {n.avgScore}
+                      </span>
                     </div>
-                    <div style={{ fontFamily: display, fontSize: 17, fontWeight: 700, color: C.text }}>{shortenCategory(n.name)}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{n.count} products tracked</div>
-                    <div style={{ marginTop: 'auto', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Recommended</div>
-                      <div style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{tier.label}</div>
+
+                    {/* 3 metrics in mono row */}
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 8,
+                        padding: '10px 0',
+                        borderTop: '1px solid #1a1a1a',
+                        borderBottom: '1px solid #1a1a1a',
+                      }}
+                    >
+                      <Metric label="Products" value={String(n.count)} />
+                      <Metric label="Orders" value={fmtK(n.totalOrders)} />
+                      <Metric label="Score" value={String(n.avgScore)} />
                     </div>
+
+                    {/* CTA */}
+                    <button
+                      onClick={() => setQuery(n.name)}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: 6,
+                        background: '#3B82F6',
+                        border: '1px solid #3B82F6',
+                        color: '#ffffff',
+                        fontFamily: sans,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        boxShadow: '0 0 0 1px rgba(59,130,246,0.3)',
+                      }}
+                    >
+                      Match creators
+                    </button>
                   </div>
                 );
               })}
@@ -271,5 +357,35 @@ export default function Creators() {
       </section>
     </div>
     </motion.div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div
+        style={{
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#ededed',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {value}
+      </div>
+      <div
+        style={{
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 9,
+          color: '#555555',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          marginTop: 2,
+        }}
+      >
+        {label}
+      </div>
+    </div>
   );
 }

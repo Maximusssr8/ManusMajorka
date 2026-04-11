@@ -169,7 +169,7 @@ function StatCard({
           >
             <Icon
               size={10}
-              className="group-hover:text-[#6366F1] transition-colors"
+              className="group-hover:text-[#3B82F6] transition-colors"
               style={{ color: iconColor }}
             />
           </div>
@@ -182,7 +182,7 @@ function StatCard({
 
       <div
         className="font-bold mb-1"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
       >
         {displayValue ??
           (numericValue !== null && inView ? (
@@ -208,8 +208,8 @@ function SellersJoinedBadge() {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
-        background: 'rgba(99,102,241,0.07)',
-        border: '1px solid rgba(99,102,241,0.18)',
+        background: 'rgba(59,130,246,0.07)',
+        border: '1px solid rgba(59,130,246,0.18)',
         borderRadius: 100,
         padding: '4px 12px',
       }}
@@ -223,7 +223,7 @@ function SellersJoinedBadge() {
           boxShadow: '0 0 6px #22c55e',
         }}
       />
-      <span style={{ fontSize: 12, color: '#6366F1', fontWeight: 600 }}>
+      <span style={{ fontSize: 12, color: '#3B82F6', fontWeight: 600 }}>
         Growing community of sellers worldwide
       </span>
     </div>
@@ -271,7 +271,7 @@ function PersonalisedFeed() {
         <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
           {userNiche ? `🔥 Top Products in ${userNiche}` : '🔥 Today\'s Top Revenue Products'}
         </h3>
-        <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>View all →</a>
+        <a href="/app/winning-products" style={{ fontSize: 12, color: '#3B82F6', textDecoration: 'none' }}>View all →</a>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {products.map((p, i) => (
@@ -289,9 +289,9 @@ function PersonalisedFeed() {
         ))}
       </div>
       {!userNiche && (
-        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10 }}>
+        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: 10 }}>
           <span style={{ fontSize: 12, color: '#94A3B8' }}>
-            💡 Set your niche in <a href="/app/settings" style={{ color: '#6366F1' }}>Settings</a> to see personalised product recommendations
+            💡 Set your niche in <a href="/app/settings" style={{ color: '#3B82F6' }}>Settings</a> to see personalised product recommendations
           </span>
         </div>
       )}
@@ -421,8 +421,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Demo badge — subtle, not obtrusive */}
       {isDemo && !bannerDismissed && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '6px 12px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.14)', borderRadius: 8 }}>
-          <span style={{ fontSize: 11, color: 'rgba(99,102,241,0.75)', fontWeight: 500, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '6px 12px', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.14)', borderRadius: 8 }}>
+          <span style={{ fontSize: 11, color: 'rgba(59,130,246,0.75)', fontWeight: 500, flex: 1 }}>
             📊 Showing sample data — orders from your store will appear here automatically
           </span>
           <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', opacity: 0.5 }}>
@@ -441,7 +441,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             <button key={r.key} onClick={() => setRange(r.key)} style={{
               padding: '4px 11px', borderRadius: 6, border: 'none', cursor: 'pointer',
               fontSize: 11, fontWeight: 600, fontFamily: UI, letterSpacing: '-0.01em',
-              background: range === r.key ? '#6366F1' : 'transparent',
+              background: range === r.key ? '#3B82F6' : 'transparent',
               color: range === r.key ? '#FAFAFA' : '#9CA3AF',
               transition: 'all 0.12s',
             }}>
@@ -456,7 +456,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
         {kpiCards.map((k) => (
           <div key={k.label} className="mkr-kpi-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 9 }}>
-              <k.icon size={12} style={{ color: '#818CF8' }} />
+              <k.icon size={12} style={{ color: '#60A5FA' }} />
               <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
             </div>
             <div className="mkr-kpi-number" style={{ marginBottom: 8 }}>
@@ -479,15 +479,15 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#6366F1" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#6366F1" stopOpacity={0.01} />
+                <stop offset="5%"  stopColor="#3B82F6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.01} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 4" stroke="rgba(255,255,255,.04)" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
             <YAxis width={45} tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`} />
-            <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(99,102,241,0.2)', strokeWidth: 1 }} />
-            <Area type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#6366F1', strokeWidth: 0 }} />
+            <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(59,130,246,0.2)', strokeWidth: 1 }} />
+            <Area type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#3B82F6', strokeWidth: 0 }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -496,7 +496,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       <div className="mkr-table-wrap" style={{ marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 0' }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'var(--text-muted)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
-          <a href="/app/winning-products" style={{ fontSize: 12, color: '#818CF8', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
+          <a href="/app/winning-products" style={{ fontSize: 12, color: '#60A5FA', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table className="mkr-table">
@@ -514,7 +514,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                 const isDark = p.cat === 'Supplements';
                 const cc = isDark
                   ? { bg: 'rgba(168,85,247,0.15)', text: '#C084FC' }
-                  : { bg: 'rgba(99,102,241,0.15)', text: '#818CF8' };
+                  : { bg: 'rgba(59,130,246,0.15)', text: '#60A5FA' };
                 return (
                   <tr key={p.rank}>
                     <td style={{ color: i === 0 ? '#FACC15' : '#9CA3AF', fontSize: 12, fontWeight: i === 0 ? 700 : 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
@@ -648,10 +648,10 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366F1', display: 'inline-block', marginRight: 8 }} />
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3B82F6', display: 'inline-block', marginRight: 8 }} />
           <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: '#FFFFFF' }}>This Week&apos;s Leaders</span>
         </div>
-        <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all →</button>
+        <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all →</button>
       </div>
 
       {leaderboardLoading ? (
@@ -687,7 +687,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                 {p.image_url ? (
                   <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
-                  <div style={{ width: 40, height: 40, borderRadius: 6, background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#818CF8', marginBottom: 8 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 6, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#60A5FA', marginBottom: 8 }}>
                     {(p.product_title || 'P').charAt(0)}
                   </div>
                 )}
@@ -717,7 +717,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                 const truncTitle = (p.product_title || '').length > 32 ? (p.product_title || '').slice(0, 32) + '...' : (p.product_title || '');
                 return (
                   <tr key={p.id} style={{ borderBottom: i < leaderboard.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer', transition: 'background 120ms' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(59,130,246,0.06)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                     onClick={() => setLocation('/app/intelligence')}>
                     <td style={{ padding: '10px 16px', width: 40 }}>{getRankDisplay(i)}</td>
@@ -726,7 +726,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                         {p.image_url ? (
                           <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' as const, flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                         ) : (
-                          <div style={{ width: 36, height: 36, borderRadius: 6, background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#818CF8', flexShrink: 0 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 6, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#60A5FA', flexShrink: 0 }}>
                             {(p.product_title || 'P').charAt(0)}
                           </div>
                         )}
@@ -756,7 +756,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                       )}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
-                      <button onClick={e => { e.stopPropagation(); setLocation('/app/intelligence'); }} style={{ background: 'rgba(99,102,241,0.2)', color: '#818CF8', borderRadius: 6, padding: '4px 8px', fontSize: 12, border: 'none', cursor: 'pointer', fontWeight: 600 }}>→</button>
+                      <button onClick={e => { e.stopPropagation(); setLocation('/app/intelligence'); }} style={{ background: 'rgba(59,130,246,0.2)', color: '#60A5FA', borderRadius: 6, padding: '4px 8px', fontSize: 12, border: 'none', cursor: 'pointer', fontWeight: 600 }}>→</button>
                     </td>
                   </tr>
                 );
@@ -814,15 +814,15 @@ function DailyBrief() {
         </span>
       </div>
       {loading ? (
-        <div style={{ height: 56, background: 'rgba(99,102,241,0.06)', borderRadius: 8, animation: 'shimmer 1.8s ease-in-out infinite' }} />
+        <div style={{ height: 56, background: 'rgba(59,130,246,0.06)', borderRadius: 8, animation: 'shimmer 1.8s ease-in-out infinite' }} />
       ) : (
         <>
           <p style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.75, whiteSpace: 'pre-wrap' as const, margin: 0 }}>{brief}</p>
           <button
             onClick={() => setLocation('/app/intelligence')}
-            style={{ marginTop: 12, fontSize: 12, color: '#818CF8', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#A5B4FC')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#818CF8')}
+            style={{ marginTop: 12, fontSize: 12, color: '#60A5FA', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#93C5FD')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#60A5FA')}
           >
             Find these products →
           </button>
@@ -884,7 +884,7 @@ function GettingStartedChecklist({ userId, userCreatedAt, setLocation }: { userI
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 16 }}>🚀</span>
           <span style={{ fontWeight: 600, fontSize: 15, color: '#FFFFFF' }}>Getting Started</span>
-          <span style={{ fontSize: 12, color: '#818CF8', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 20, padding: '2px 10px' }}>
+          <span style={{ fontSize: 12, color: '#60A5FA', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 20, padding: '2px 10px' }}>
             {completedSteps.size}/{GETTING_STARTED_STEPS.length} complete
           </span>
         </div>
@@ -893,7 +893,7 @@ function GettingStartedChecklist({ userId, userCreatedAt, setLocation }: { userI
       {/* Progress bar */}
       <div style={{ padding: '0 20px', marginBottom: checklistOpen ? 12 : 0 }}>
         <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 99 }}>
-          <div style={{ height: 4, background: '#6366F1', borderRadius: 99, width: `${(completedSteps.size / GETTING_STARTED_STEPS.length) * 100}%`, transition: 'width 300ms' }} />
+          <div style={{ height: 4, background: '#3B82F6', borderRadius: 99, width: `${(completedSteps.size / GETTING_STARTED_STEPS.length) * 100}%`, transition: 'width 300ms' }} />
         </div>
       </div>
       {checklistOpen && (
@@ -905,16 +905,16 @@ function GettingStartedChecklist({ userId, userCreatedAt, setLocation }: { userI
               style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: '10px 12px', borderRadius: 8,
-                background: completedSteps.has(step.id) ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.03)',
+                background: completedSteps.has(step.id) ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.03)',
                 cursor: 'pointer', transition: 'background 0.15s',
               }}
               onMouseEnter={e => { if (!completedSteps.has(step.id)) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = completedSteps.has(step.id) ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.03)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = completedSteps.has(step.id) ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.03)'; }}
             >
               <div style={{
                 width: 20, height: 20, borderRadius: '50%',
-                border: completedSteps.has(step.id) ? '2px solid #6366F1' : '2px solid rgba(255,255,255,0.3)',
-                background: completedSteps.has(step.id) ? '#6366F1' : 'transparent',
+                border: completedSteps.has(step.id) ? '2px solid #3B82F6' : '2px solid rgba(255,255,255,0.3)',
+                background: completedSteps.has(step.id) ? '#3B82F6' : 'transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}>
@@ -1021,13 +1021,13 @@ function DashboardHome() {
         <div>
           <div style={{ marginBottom: 4 }}>
             <span style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 24, fontWeight: 500, color: '#a1a1aa' }}>{getGreeting()}, </span>
-            <span style={{ fontFamily: "'Bricolage Grotesque', system-ui, sans-serif", fontSize: 24, fontWeight: 700, color: '#6366F1', letterSpacing: '-0.02em' }}>{firstName}</span>
+            <span style={{ fontFamily: "'Bricolage Grotesque', system-ui, sans-serif", fontSize: 24, fontWeight: 700, color: '#3B82F6', letterSpacing: '-0.02em' }}>{firstName}</span>
           </div>
           <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#52525b' }}>{formatDate()}{planLabel ? ` · ${planLabel}` : ''}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {!isPaid && (
-            <button onClick={() => setLocation('/pricing')} style={{ height: 38, padding: '0 18px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'transform 150ms' }}
+            <button onClick={() => setLocation('/pricing')} style={{ height: 38, padding: '0 18px', background: '#3B82F6', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'transform 150ms' }}
               onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
               onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
               Upgrade to Builder &rarr;
@@ -1057,13 +1057,13 @@ function DashboardHome() {
             const hotCount = card.label === 'Hot Products' ? parseInt(card.value) || 0 : -1;
             return (
             <div key={i} onClick={() => card.path && setLocation(card.path)} className="mkr-kpi-card"
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.08)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(59,130,246,0.08)'; e.currentTarget.style.borderColor = 'rgba(59,130,246,0.3)'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, color: '#9CA3AF' }}>{card.label}</span>
-                <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <card.icon size={16} color="#818CF8" />
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <card.icon size={16} color="#60A5FA" />
                 </div>
               </div>
               <div className="mkr-kpi-number">{card.value}</div>
@@ -1096,16 +1096,16 @@ function DashboardHome() {
             <ResponsiveContainer width="100%" height={140}>
               <AreaChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                 <defs>
-                  <linearGradient id="indigo-grad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366F1" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                  <linearGradient id="blue-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.06)" vertical={false} />
                 <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
                 <YAxis width={46} tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`} />
                 <Tooltip contentStyle={{ background: '#111114', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#F1F5F9' }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
-                <Area type="monotone" dataKey="rev" stroke="#6366F1" strokeWidth={2.5} fill="url(#indigo-grad)" dot={{ fill: '#6366F1', r: 3 }} activeDot={{ r: 5 }} />
+                <Area type="monotone" dataKey="rev" stroke="#3B82F6" strokeWidth={2.5} fill="url(#blue-grad)" dot={{ fill: '#3B82F6', r: 3 }} activeDot={{ r: 5 }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -1114,12 +1114,12 @@ function DashboardHome() {
           <div className="mkr-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Your Workflow</div>
-              <span style={{ fontSize: 11, color: '#818CF8', fontWeight: 600, background: 'rgba(99,102,241,0.15)', padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(99,102,241,0.25)' }}>Click any step →</span>
+              <span style={{ fontSize: 11, color: '#60A5FA', fontWeight: 600, background: 'rgba(59,130,246,0.15)', padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(59,130,246,0.25)' }}>Click any step →</span>
             </div>
             <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 16 }}>The fastest path from zero to first sale</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {([
-                { step: '1', icon: Search, label: 'Find a winning product', sub: 'Filter by niche, margin & trend', path: '/app/product-intelligence', done: false, color: '#6366F1' },
+                { step: '1', icon: Search, label: 'Find a winning product', sub: 'Filter by niche, margin & trend', path: '/app/product-intelligence', done: false, color: '#3B82F6' },
                 { step: '2', icon: BarChart2, label: 'Run the numbers', sub: 'Check margins before buying stock', path: '/app/profit', done: false, color: '#8B5CF6' },
                 { step: '3', icon: Eye, label: 'Spy on competitor ads', sub: 'See what\'s working before spending', path: '/app/ad-spy', done: false, color: '#0891B2' },
                 { step: '4', icon: Megaphone, label: 'Generate your ad creative', sub: 'Maya writes Meta + TikTok ads', path: '/app/ads-studio', done: false, color: '#8B5CF6' },
@@ -1127,7 +1127,7 @@ function DashboardHome() {
               ] as const).map((s, i) => (
                 <button key={i} onClick={() => setLocation(s.path)}
                   style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, background: s.done ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${s.done ? 'rgba(16,185,129,.25)' : 'rgba(255,255,255,0.06)'}`, borderLeft: `3px solid ${s.done ? '#10B981' : s.color}`, cursor: 'pointer', textAlign: 'left' as const, transition: 'all 150ms' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)'; e.currentTarget.style.borderColor = `${s.color}60`; e.currentTarget.style.borderLeftColor = s.color; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.08)'; e.currentTarget.style.borderColor = `${s.color}60`; e.currentTarget.style.borderLeftColor = s.color; }}
                   onMouseLeave={e => { e.currentTarget.style.background = s.done ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = s.done ? 'rgba(16,185,129,.25)' : 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderLeftColor = s.done ? '#10B981' : s.color; }}>
                   <div style={{ width: 22, height: 22, borderRadius: '50%', background: s.done ? 'rgba(16,185,129,.2)' : `${s.color}20`, border: `1.5px solid ${s.done ? '#10B981' : s.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {s.done ? <span style={{ fontSize: 10, color: '#10B981' }}>✓</span> : <span style={{ fontSize: 9, fontWeight: 700, color: s.color }}>{s.step}</span>}
@@ -1150,7 +1150,7 @@ function DashboardHome() {
           <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#F1F5F9' }}>Top Products Today</div>
-              <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#818CF8', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
+              <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#60A5FA', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
             </div>
             {loading ? (
               <div style={{ padding: '0 24px' }}>
@@ -1170,7 +1170,7 @@ function DashboardHome() {
                   <div style={{ padding: '32px 24px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
                     <p style={{ marginBottom: 12 }}>No products yet — let's find your first winner.</p>
-                    <a href="/app/intelligence" style={{ color: '#818CF8', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>Browse Product Intelligence →</a>
+                    <a href="/app/intelligence" style={{ color: '#60A5FA', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>Browse Product Intelligence →</a>
                   </div>
                 ) : null}
                 {(products.slice(0, 5)).map((p: any, i: number) => {
@@ -1183,14 +1183,14 @@ function DashboardHome() {
                   const margin = p.profit_margin ?? 0;
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer', transition: 'background 150ms' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(59,130,246,0.06)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       onClick={() => setLocation('/app/intelligence')}
                     >
                       {p.image_url ? (
                         <img src={String(p.image_url)} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)', background: '#111114' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
                       ) : null}
-                      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(99,102,241,0.15)', display: p.image_url ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#818CF8', flexShrink: 0 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(59,130,246,0.15)', display: p.image_url ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#60A5FA', flexShrink: 0 }}>
                         {(p.product_title ?? p.name ?? 'P').charAt(0)}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -1200,7 +1200,7 @@ function DashboardHome() {
                       <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#22C55E' }}>{revenueDisplay}</div>
                         <div style={{ marginTop: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: '50px', ...(score >= 80 ? { background: '#6366F1', color: 'white' } : score >= 65 ? { background: 'transparent', border: '1.5px solid #6366F1', color: '#818CF8' } : { background: 'rgba(255,255,255,0.06)', color: '#9CA3AF' }) }}>{score}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: '50px', ...(score >= 80 ? { background: '#3B82F6', color: 'white' } : score >= 65 ? { background: 'transparent', border: '1.5px solid #3B82F6', color: '#60A5FA' } : { background: 'rgba(255,255,255,0.06)', color: '#9CA3AF' }) }}>{score}</span>
                         </div>
                       </div>
                     </div>
@@ -1212,8 +1212,8 @@ function DashboardHome() {
 
           {/* Top product spotlight — real data from DB */}
           {products[0] && (
-            <div style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 14, padding: '24px', color: 'white', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#818CF8', marginBottom: 12 }}>🏆 Top Product Right Now</div>
+            <div style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 14, padding: '24px', color: 'white', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#60A5FA', marginBottom: 12 }}>🏆 Top Product Right Now</div>
               {products[0].image_url && (
                 <img src={String(products[0].image_url)} alt="" style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8, marginBottom: 12, opacity: 0.9 }} onError={e => { e.currentTarget.style.display = 'none'; }} />
               )}
@@ -1232,9 +1232,9 @@ function DashboardHome() {
                   return (estRevenue / 1000).toFixed(1);
                 })())}k/mo · {products[0].trend === 'rising' || products[0].tiktok_signal ? '🔥 Trending' : '📈 Active'}
               </div>
-              <button onClick={() => setLocation('/app/intelligence')} style={{ marginTop: 16, padding: '10px 16px', background: 'rgba(99,102,241,0.2)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.2)')}
+              <button onClick={() => setLocation('/app/intelligence')} style={{ marginTop: 16, padding: '10px 16px', background: 'rgba(59,130,246,0.2)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(59,130,246,0.3)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(59,130,246,0.2)')}
               >View full database &rarr;</button>
             </div>
           )}

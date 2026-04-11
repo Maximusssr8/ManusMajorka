@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Sparkles, Zap, AlertTriangle, PackageOpen, MessageSquare, Rocket } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 import { C } from '@/lib/designTokens';
@@ -23,13 +25,50 @@ const AD_TYPES: { key: AdType; label: string }[] = [
   { key: 'story',     label: 'Story' },
 ];
 
-const TEMPLATES = [
-  'Kitchen Gadgets',
-  'Pet Accessories',
-  'Phone Accessories',
-  'Home Organisation',
-  'Fitness Equipment',
-  'Beauty & Skincare',
+interface AdTemplate {
+  name: string;
+  icon: LucideIcon;
+  description: string;
+  prompt: string;
+}
+
+const TEMPLATES: AdTemplate[] = [
+  {
+    name: 'UGC Hook',
+    icon: Sparkles,
+    description: 'Authentic creator-style opener.\nHigh scroll-stop on TikTok & Reels.',
+    prompt: 'UGC-style hook for viral product',
+  },
+  {
+    name: 'Before / After',
+    icon: Zap,
+    description: 'Visual transformation narrative.\nProof-driven, converts cold traffic.',
+    prompt: 'Before / after transformation ad',
+  },
+  {
+    name: 'Problem / Agitation',
+    icon: AlertTriangle,
+    description: 'Identify pain, twist the knife.\nEmotion-led, strong for Facebook.',
+    prompt: 'Problem / agitation angle ad',
+  },
+  {
+    name: 'Feature Drop',
+    icon: PackageOpen,
+    description: 'Spotlight 3 key features.\nClean product-led direct response.',
+    prompt: 'Feature-drop product highlight ad',
+  },
+  {
+    name: 'Testimonial',
+    icon: MessageSquare,
+    description: 'Customer-voice social proof.\nBest for retargeting warm audiences.',
+    prompt: 'Customer testimonial style ad',
+  },
+  {
+    name: 'Launch Teaser',
+    icon: Rocket,
+    description: 'Coming-soon urgency copy.\nEngineered for launch-week reach.',
+    prompt: 'Launch teaser countdown ad',
+  },
 ];
 
 interface StoredBrief {
@@ -300,33 +339,80 @@ export default function AdBriefs() {
 
       {/* Templates */}
       <section>
-        <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Popular Templates</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
-          {TEMPLATES.map((t) => (
-            <button
-              key={t}
-              onClick={() => generate(t)}
-              disabled={loading}
-              style={{
-                background: C.raised,
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 10,
-                padding: 16,
-                textAlign: 'left',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontFamily: sans,
-                color: C.text,
-                fontSize: 13,
-                fontWeight: 500,
-                transition: 'all 150ms ease',
-              }}
-              onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(124,106,255,0.3)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
-            >
-              <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Template</div>
-              {t}
-            </button>
-          ))}
+        <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 6px' }}>Popular Templates</h2>
+        <p style={{ fontSize: 12, color: '#555555', margin: '0 0 14px' }}>
+          Battle-tested ad angles. One click generates a full brief from the template.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
+          {TEMPLATES.map((t) => {
+            const Icon = t.icon;
+            return (
+              <div
+                key={t.name}
+                style={{
+                  background: '#0f0f0f',
+                  border: '1px solid #1a1a1a',
+                  borderRadius: 8,
+                  padding: 20,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      background: 'rgba(59,130,246,0.08)',
+                      border: '1px solid rgba(59,130,246,0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Icon size={16} color="#3B82F6" />
+                  </div>
+                  <div style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: '#ededed' }}>
+                    {t.name}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontFamily: sans,
+                    fontSize: 12,
+                    color: '#888888',
+                    lineHeight: 1.55,
+                    whiteSpace: 'pre-line',
+                    flex: 1,
+                  }}
+                >
+                  {t.description}
+                </div>
+                <button
+                  onClick={() => generate(t.prompt)}
+                  disabled={loading}
+                  style={{
+                    padding: '9px 14px',
+                    borderRadius: 6,
+                    background: loading ? 'rgba(59,130,246,0.2)' : '#3B82F6',
+                    border: '1px solid #3B82F6',
+                    color: '#ffffff',
+                    fontFamily: sans,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    boxShadow: loading ? 'none' : '0 0 0 1px rgba(59,130,246,0.3)',
+                    alignSelf: 'flex-start',
+                  }}
+                >
+                  Use template →
+                </button>
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

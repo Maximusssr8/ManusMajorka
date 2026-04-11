@@ -1,10 +1,38 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
+import { motion, useInView } from 'framer-motion';
 import { Database, Globe, ShieldCheck, Zap } from 'lucide-react';
+
+// Count-up hook: animates a number from 0 → target when the ref enters viewport.
+function useCountUp(target: number, duration: number = 1600): { ref: React.RefObject<HTMLSpanElement | null>; value: number } {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const [value, setValue] = useState<number>(0);
+  useEffect(() => {
+    if (!inView) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, target, duration]);
+  return { ref, value };
+}
+
+function formatCount(n: number): string {
+  return n.toLocaleString('en-US');
+}
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
 import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
+import { DataFlowDiagram } from '@/components/landing/DataFlowDiagram';
+import { Activity, BarChart3, Layers, Radar, Sparkles, Store, Target, Workflow as WorkflowIcon } from 'lucide-react';
 
 const ProductDemoComponent = lazy(() => import('@/components/landing/ProductDemo').then(m => ({ default: m.ProductDemo })));
 function ProductDemoLazy() {
@@ -768,23 +796,25 @@ function Hero() {
             </div>
 
             {/* Floating stat card — top right of mockup */}
-            <div style={{
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
+              style={{
               position: 'absolute',
               top: -22,
               right: -28,
               background: 'rgba(17,17,20,0.92)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              border: '1px solid rgba(59,130,246,0.35)',
               borderRadius: 14,
               padding: '14px 18px',
               display: 'flex',
               alignItems: 'center',
               gap: 12,
               zIndex: 3,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 24px rgba(59,130,246,0.18), 0 0 0 1px rgba(255,255,255,0.12)',
               pointerEvents: 'none',
-              animation: 'mj-float 4s ease-in-out infinite',
             }}>
               <span style={{ fontSize: 22 }}>📈</span>
               <div>
@@ -794,26 +824,28 @@ function Hero() {
                 <div style={{ fontSize: 11, color: '#8a8a8f', marginTop: 3 }}>Best product today · Kitchen</div>
                 <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 3 }}>↑ +41% this week</div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Floating notification card — bottom left */}
-            <div style={{
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 4.5, ease: 'easeInOut', repeat: Infinity, delay: 1.2 }}
+              style={{
               position: 'absolute',
               bottom: 24,
               left: -32,
               background: 'rgba(17,17,20,0.92)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.12)',
+              border: '1px solid rgba(59,130,246,0.35)',
               borderRadius: 14,
               padding: '12px 16px',
               display: 'flex',
               alignItems: 'center',
               gap: 12,
               zIndex: 3,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 24px rgba(59,130,246,0.18), 0 0 0 1px rgba(255,255,255,0.12)',
               pointerEvents: 'none',
-              animation: 'mj-float 4s ease-in-out 1.5s infinite',
             }}>
               <span style={{
                 width: 8, height: 8, borderRadius: '50%',
@@ -825,10 +857,13 @@ function Hero() {
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#ededed' }}>🔥 New: Nano Tape Strong</div>
                 <div style={{ fontSize: 11, color: '#8a8a8f', marginTop: 2 }}>99/100 · +41% this week</div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Floating LIVE badge — bottom right (kept) */}
-            <div style={{
+            <motion.div
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 6, ease: 'easeInOut', repeat: Infinity, delay: 0.6 }}
+              style={{
               position: 'absolute',
               bottom: -16,
               right: -16,
@@ -843,7 +878,7 @@ function Hero() {
             }}>
               <div style={{ fontFamily: mono, fontSize: 11, color: '#22c55e', marginBottom: 2 }}>● LIVE FEED</div>
               <div style={{ fontFamily: mono, fontSize: 10, color: '#6b7280' }}>7 markets · refreshed live</div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -863,59 +898,59 @@ function SocialProofBar() {
     <div className="mj-credibility" style={{
       display: 'flex',
       alignItems: 'center',
-      gap: 20,
-      padding: '14px 20px',
+      gap: 28,
+      padding: '20px 28px',
       background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.07)',
+      border: '1px solid rgba(255,255,255,0.09)',
       borderRadius: 12,
       width: 'fit-content',
     }}>
       <div style={{ display: 'flex' }}>
         {avatars.map((a, i) => (
           <div key={a.i} style={{
-            width: 30,
-            height: 30,
+            width: 40,
+            height: 40,
             borderRadius: '50%',
             background: `linear-gradient(135deg, ${a.from}, ${a.to})`,
             border: '2px solid #0a0a0a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: 700,
             color: '#fff',
-            marginLeft: i === 0 ? 0 : -8,
+            marginLeft: i === 0 ? 0 : -10,
             zIndex: 4 - i,
             position: 'relative',
           }}>{a.i}</div>
         ))}
       </div>
 
-      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
+      <div style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.1)' }} />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ color: '#FBBF24', fontSize: 12, letterSpacing: '1px' }}>★★★★★</div>
-        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>500+ active operators</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ color: '#FBBF24', fontSize: 16, letterSpacing: '2px' }}>★★★★★</div>
+        <div style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa', fontWeight: 500 }}>500+ active operators</div>
       </div>
 
-      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
+      <div style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.1)' }} />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2,302</div>
-        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>winning products scored</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ fontFamily: mono, fontSize: 16, fontWeight: 700, color: '#ededed' }}>2,302</div>
+        <div style={{ fontFamily: mono, fontSize: 12, color: '#a1a1aa' }}>winning products scored</div>
       </div>
 
-      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
+      <div style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.1)' }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{
-          width: 6, height: 6, borderRadius: '50%',
+          width: 8, height: 8, borderRadius: '50%',
           background: '#22c55e',
-          boxShadow: '0 0 6px rgba(34,197,94,0.8)',
+          boxShadow: '0 0 8px rgba(34,197,94,0.9)',
           animation: 'mj-pulse 1.6s infinite',
           display: 'inline-block',
         }} />
-        <span style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>live data</span>
+        <span style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa', fontWeight: 500 }}>live data</span>
       </div>
     </div>
   );
@@ -1136,14 +1171,48 @@ function LiveTicker() {
 }
 
 // ── Stats Section ───────────────────────────────────────────────────────────
-interface StatCardData { eyebrow: string; numNode: React.ReactNode; body: string; color?: string }
+interface StatCardData {
+  eyebrow: string;
+  target: number;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
+  format?: (n: number) => string;
+  body: string;
+  color?: string;
+}
 const STATS_CARDS: StatCardData[] = [
-  { eyebrow: 'Winning Products', numNode: <>2,302</>,                                                                                               body: 'across 149 niches, updated every 6h' },
-  { eyebrow: 'Hot Right Now',    numNode: <>1,776</>,                                                                                               body: 'scoring ≥ 65/100 today', color: '#f97316' },
-  { eyebrow: 'Operator Revenue Tracked', numNode: <><span style={{ color: '#22c55e' }}>$</span>487<span style={{ color: '#22c55e' }}>k</span></>,   body: 'total tracked across Majorka stores this month', color: '#22c55e' },
-  { eyebrow: 'Peak AI Score',    numNode: <>99<span style={{ color: '#f59e0b', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>/100</span></>, body: 'AliExpress verified, exploding trend', color: '#f59e0b' },
-  { eyebrow: 'Avg time to winner', numNode: <>18<span style={{ color: '#cccccc', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>min</span></>, body: 'median time to first winning product', color: '#cccccc' },
+  { eyebrow: 'Winning Products', target: 2302, format: formatCount, body: 'across 149 niches, updated every 6h' },
+  { eyebrow: 'Hot Right Now', target: 1776, format: formatCount, body: 'scoring ≥ 65/100 today', color: '#f97316' },
+  { eyebrow: 'Operator Revenue Tracked', target: 487,
+    prefix: <span style={{ color: '#22c55e' }}>$</span>,
+    suffix: <span style={{ color: '#22c55e' }}>k</span>,
+    body: 'total tracked across Majorka stores this month', color: '#22c55e' },
+  { eyebrow: 'Peak AI Score', target: 99,
+    suffix: <span style={{ color: '#f59e0b', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>/100</span>,
+    body: 'AliExpress verified, exploding trend', color: '#f59e0b' },
+  { eyebrow: 'Avg time to winner', target: 18,
+    suffix: <span style={{ color: '#cccccc', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>min</span>,
+    body: 'median time to first winning product', color: '#cccccc' },
 ];
+
+function StatNumber({ card }: { card: StatCardData }) {
+  const { ref, value } = useCountUp(card.target);
+  const formatted = card.format ? card.format(value) : String(value);
+  return (
+    <div className="mj-stat-num" style={{
+      fontFamily: display,
+      fontSize: 52,
+      fontWeight: 800,
+      color: card.color ?? '#f0f0f0',
+      lineHeight: 1,
+      letterSpacing: '-0.04em',
+    }}>
+      {card.prefix}
+      <span ref={ref}>{formatted}</span>
+      {card.suffix}
+    </div>
+  );
+}
 
 function Stats() {
   return (
@@ -1178,14 +1247,7 @@ function Stats() {
               color: '#ffffff',
               marginBottom: 4,
             }}>{s.eyebrow}</div>
-            <div className="mj-stat-num" style={{
-              fontFamily: display,
-              fontSize: 52,
-              fontWeight: 800,
-              color: s.color ?? '#f0f0f0',
-              lineHeight: 1,
-              letterSpacing: '-0.04em',
-            }}>{s.numNode}</div>
+            <StatNumber card={s} />
             <div style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.5, marginTop: 4 }}>{s.body}</div>
           </div>
         ))}
@@ -1663,8 +1725,9 @@ function Comparison() {
           background: T.bgSurface,
           border: `1px solid ${T.border}`,
           borderRadius: 8,
-          overflow: 'hidden',
           overflowX: 'auto',
+          overflowY: 'visible',
+          marginTop: 18,
         }}>
           <table style={{
             width: '100%',
@@ -1695,10 +1758,29 @@ function Comparison() {
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   color: '#ffffff',
-                  background: 'rgba(255,255,255,0.08)',
-                  borderTop: '2px solid #ffffff',
+                  background: 'rgba(59,130,246,0.12)',
+                  borderTop: '2px solid #3B82F6',
                   borderBottom: `1px solid ${T.border}`,
-                }}>Majorka</th>
+                  position: 'relative',
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: -10,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                    color: '#ffffff',
+                    fontFamily: mono,
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    padding: '3px 10px',
+                    borderRadius: 6,
+                    boxShadow: '0 4px 12px rgba(59,130,246,0.4)',
+                    whiteSpace: 'nowrap',
+                  }}>MOST POPULAR</div>
+                  Majorka
+                </th>
                 {['Ad Spy Tool', 'Automation Tool', 'Research Tool'].map((label) => (
                   <th key={label} style={{
                     textAlign: 'center',
@@ -1736,9 +1818,9 @@ function Comparison() {
                       color: starred && accent ? '#cccccc' : cellColor,
                       borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
                       background: accent
-                        ? (starred ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)')
+                        ? (starred ? 'rgba(59,130,246,0.14)' : 'rgba(59,130,246,0.06)')
                         : 'transparent',
-                      boxShadow: accent ? 'inset 2px 0 0 #ffffff, inset -2px 0 0 #ffffff' : 'none',
+                      boxShadow: accent ? 'inset 2px 0 0 #3B82F6, inset -2px 0 0 #3B82F6' : 'none',
                     }}>{val}</td>
                   );
                 };
@@ -1805,7 +1887,28 @@ function Markets() {
           gap: 16,
         }}>
           {MARKETS.map((m) => (
-            <div key={m.code} className="mj-card" style={{ padding: 24 }}>
+            <div
+              key={m.code}
+              className="mj-card"
+              data-transform-ok="true"
+              style={{
+                padding: 24,
+                transition: 'transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background 220ms ease',
+                cursor: 'default',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.02)';
+                e.currentTarget.style.borderColor = 'rgba(59,130,246,0.55)';
+                e.currentTarget.style.boxShadow = '0 8px 32px rgba(59,130,246,0.18), 0 0 0 1px rgba(59,130,246,0.25)';
+                e.currentTarget.style.background = 'rgba(59,130,246,0.04)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.borderColor = T.border;
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.background = T.bgSurface;
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                 <span style={{ fontSize: 26, lineHeight: 1 }}>{m.flag}</span>
                 <div>
@@ -1933,21 +2036,34 @@ function Workflow() {
 }
 
 // ── Testimonials (masonry) ─────────────────────────────────────────────────
-const TESTIMONIALS: { initials: string; name: string; flag: string; country: string; quote: string; from: string; to: string }[] = [
+interface TestimonialMetric { label: string; value: string }
+const TESTIMONIALS: { initials: string; name: string; flag: string; country: string; quote: string; from: string; to: string; metrics: TestimonialMetric[] }[] = [
   {
     initials: 'JT', name: 'James T.', flag: '🇦🇺', country: 'Australia',
     quote: "The product scoring system saved me hours of research every week. I stopped second-guessing which products to test.",
     from: '#ffffff', to: '#888888',
+    metrics: [
+      { label: 'Revenue', value: '$12k/mo' },
+      { label: 'Winners found', value: '47' },
+    ],
   },
   {
     initials: 'SK', name: 'Sarah K.', flag: '🇬🇧', country: 'United Kingdom',
     quote: "The store builder pushed a full Shopify setup in a few minutes. The AI-written copy is the part that surprised me most — it actually sounded on-brand.",
-    from: '#06b6d4', to: '#3b82f6',
+    from: '#3B82F6', to: '#2563EB',
+    metrics: [
+      { label: 'Time to store', value: '9 min' },
+      { label: 'First sale', value: 'Day 3' },
+    ],
   },
   {
     initials: 'MR', name: 'Marcus R.', flag: '🇺🇸', country: 'United States',
     quote: "Having all 7 markets in one place means I can see which products are trending globally before they hit the US. That's the real edge.",
     from: '#22c55e', to: '#10b981',
+    metrics: [
+      { label: 'Markets tracked', value: '7' },
+      { label: 'Avg margin', value: '48%' },
+    ],
   },
 ];
 
@@ -1990,9 +2106,29 @@ function Testimonials() {
                 fontSize: 16,
                 lineHeight: 1.55,
                 color: T.text,
-                margin: '0 0 22px',
+                margin: '0 0 18px',
                 letterSpacing: '-0.005em',
               }}>&ldquo;{t.quote}&rdquo;</p>
+              <div style={{
+                display: 'flex',
+                gap: 10,
+                marginBottom: 18,
+                paddingBottom: 16,
+                borderBottom: `1px solid ${T.border}`,
+              }}>
+                {t.metrics.map((m) => (
+                  <div key={m.label} style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    background: 'rgba(59,130,246,0.06)',
+                    border: '1px solid rgba(59,130,246,0.22)',
+                    borderRadius: 6,
+                  }}>
+                    <div style={{ fontFamily: mono, fontSize: 10, color: '#8a8a8f', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{m.label}</div>
+                    <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: '#3B82F6', letterSpacing: '-0.01em' }}>{m.value}</div>
+                  </div>
+                ))}
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
                   width: 38, height: 38, borderRadius: '50%',
@@ -2315,66 +2451,120 @@ function FinalCTA() {
       overflow: 'hidden',
       isolation: 'isolate',
     }}>
-      <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 80% 60% at 50% 90%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 60%)',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
+      <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none', zIndex: 0 }} />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 880, margin: '0 auto', textAlign: 'center', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, justifyContent: 'center' }}>
-          <span style={{ display: 'inline-block', width: 4, height: 32, background: T.accent, borderRadius: 2 }} />
-          <span className="mj-eyebrow">Ready when you are</span>
-        </div>
-        <h2 className="mj-cta-h2" style={{
-          fontFamily: display,
-          fontWeight: 700,
-          fontSize: 80,
-          lineHeight: 1.0,
-          letterSpacing: '-0.04em',
-          color: T.text,
-          margin: '0 0 28px',
-        }}>
-          Your competitors are<br />already on this.
-        </h2>
-        <p style={{ fontSize: 18, color: T.accent, margin: '0 0 32px', lineHeight: 1.6, fontWeight: 500 }}>
-          Find your winning product before they do.
-        </p>
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        maxWidth: 1040,
+        margin: '0 auto',
+        width: '100%',
+      }}>
         <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '8px 16px',
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,255,255,0.22)',
+          position: 'relative',
+          background: 'linear-gradient(135deg, #0f0f0f 0%, #0a0a0a 100%)',
+          border: '1px solid rgba(59,130,246,0.25)',
           borderRadius: 6,
-          color: '#cccccc',
-          fontFamily: mono,
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: '0.03em',
-          marginBottom: 24,
+          padding: '88px 56px',
+          textAlign: 'center',
+          overflow: 'hidden',
+          boxShadow: '0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.1)',
         }}>
-          Early-access pricing — locked in for life of your subscription
-        </div>
-        <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 18 }}>
-          <Link href="/sign-up" className="mj-btn-primary mj-shimmer-btn" style={{ height: 56, padding: '0 32px', fontSize: 16 }}>
-            Find my first winning product →
-          </Link>
-          <a href="#pricing" className="mj-btn-secondary" style={{ height: 56, padding: '0 28px', fontSize: 15 }}>
-            See pricing
-          </a>
-        </div>
-        <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
-          Join 500+ operators · 30-day money-back · No credit card · Cancel anytime
+          {/* Blue radial glow */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse 70% 60% at 50% 100%, rgba(59,130,246,0.28) 0%, rgba(59,130,246,0.08) 40%, transparent 72%)',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute',
+            top: -200, left: '50%', transform: 'translateX(-50%)',
+            width: 700, height: 400,
+            background: 'radial-gradient(ellipse at center, rgba(59,130,246,0.18) 0%, transparent 65%)',
+            pointerEvents: 'none',
+          }} />
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, justifyContent: 'center' }}>
+              <span style={{ display: 'inline-block', width: 4, height: 32, background: '#3B82F6', borderRadius: 2, boxShadow: '0 0 12px rgba(59,130,246,0.6)' }} />
+              <span className="mj-eyebrow" style={{ color: '#3B82F6' }}>Ready when you are</span>
+            </div>
+            <h2 className="mj-cta-h2" style={{
+              fontFamily: display,
+              fontWeight: 800,
+              fontSize: 88,
+              lineHeight: 0.98,
+              letterSpacing: '-0.045em',
+              color: T.text,
+              margin: '0 0 28px',
+            }}>
+              Your competitors are<br />
+              <span style={{
+                background: 'linear-gradient(135deg, #3B82F6, #60A5FA)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>already on this.</span>
+            </h2>
+            <p style={{ fontSize: 20, color: '#a1a1aa', margin: '0 0 36px', lineHeight: 1.6, fontWeight: 500 }}>
+              Find your winning product before they do.
+            </p>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 16px',
+              background: 'rgba(59,130,246,0.1)',
+              border: '1px solid rgba(59,130,246,0.3)',
+              borderRadius: 6,
+              color: '#60A5FA',
+              fontFamily: mono,
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: '0.03em',
+              marginBottom: 28,
+            }}>
+              Early-access pricing — locked in for life of your subscription
+            </div>
+            <div className="mj-hero-cta" style={{ display: 'flex', gap: 14, justifyContent: 'center', marginBottom: 22 }}>
+              <Link
+                href="/sign-up"
+                className="mj-shimmer-btn"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 60,
+                  padding: '0 36px',
+                  background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                  color: '#ffffff',
+                  fontFamily: sans,
+                  fontWeight: 700,
+                  fontSize: 17,
+                  borderRadius: 6,
+                  textDecoration: 'none',
+                  boxShadow: '0 10px 32px rgba(59,130,246,0.4), 0 0 0 1px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  transition: 'transform 180ms ease, box-shadow 180ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 16px 40px rgba(59,130,246,0.5), 0 0 0 1px rgba(59,130,246,0.6), inset 0 1px 0 rgba(255,255,255,0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 32px rgba(59,130,246,0.4), 0 0 0 1px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)';
+                }}
+              >
+                Find my first winning product →
+              </Link>
+              <a href="#pricing" className="mj-btn-secondary" style={{ height: 60, padding: '0 28px', fontSize: 15 }}>
+                See pricing
+              </a>
+            </div>
+            <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
+              Join 500+ operators · 30-day money-back · No credit card · Cancel anytime
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -2643,6 +2833,911 @@ function Founder() {
 }
 
 // ── Page ────────────────────────────────────────────────────────────────────
+// ── DeerFlow-inspired redesign: shared reveal wrapper ──────────────────────
+interface RevealProps { children: React.ReactNode; delay?: number }
+function Reveal({ children, delay = 0 }: RevealProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ── Numbered editorial section divider (DeerFlow-style) ───────────────────
+interface NumberedDividerProps { num: string; label: string; description?: string }
+function NumberedDivider({ num, label, description }: NumberedDividerProps) {
+  return (
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: 24,
+          paddingTop: 72,
+          paddingBottom: 28,
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: mono,
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.4)',
+            letterSpacing: '0.12em',
+            fontWeight: 500,
+          }}
+        >
+          {num} / {label}
+        </span>
+        {description && (
+          <span
+            style={{
+              fontFamily: sans,
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.45)',
+              marginLeft: 'auto',
+              fontStyle: 'italic',
+            }}
+          >
+            {description}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── DeerFlow-style hero ─────────────────────────────────────────────────────
+function DeerHero() {
+  return (
+    <section
+      style={{
+        position: 'relative',
+        background: '#080808',
+        padding: '120px 24px 80px',
+        marginTop: 60,
+        overflow: 'hidden',
+        fontFeatureSettings: "'ss01', 'cv11'",
+      }}
+    >
+      {/* Subtle dot grid */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage:
+            'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+          pointerEvents: 'none',
+          maskImage:
+            'radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 80%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 80%)',
+        }}
+      />
+      {/* Electric-blue ambient glow */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: -120,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 900,
+          height: 500,
+          background:
+            'radial-gradient(ellipse at center, rgba(59,130,246,0.18) 0%, rgba(59,130,246,0.04) 40%, transparent 70%)',
+          pointerEvents: 'none',
+          filter: 'blur(8px)',
+        }}
+      />
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: 1200,
+          margin: '0 auto',
+        }}
+      >
+        {/* Editorial eyebrow */}
+        <Reveal>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '6px 14px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 999,
+              background: 'rgba(255,255,255,0.02)',
+              fontFamily: mono,
+              fontSize: 11,
+              letterSpacing: '0.14em',
+              color: 'rgba(255,255,255,0.7)',
+              textTransform: 'uppercase',
+              marginBottom: 28,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#3B82F6',
+                boxShadow: '0 0 10px rgba(59,130,246,0.9)',
+              }}
+            />
+            Ecommerce operating system · v1
+          </div>
+        </Reveal>
+
+        <div
+          className="mj-hero-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1.05fr 1fr',
+            gap: 64,
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <Reveal delay={0.05}>
+              <h1
+                className="mj-hero-h1"
+                style={{
+                  fontFamily: display,
+                  fontSize: 'clamp(46px, 6.2vw, 84px)',
+                  fontWeight: 700,
+                  lineHeight: 0.98,
+                  letterSpacing: '-0.045em',
+                  color: '#ffffff',
+                  margin: '0 0 28px',
+                  fontFeatureSettings: "'ss01', 'cv11'",
+                }}
+              >
+                Research, score and launch
+                <br />
+                <span style={{ color: 'rgba(255,255,255,0.42)' }}>
+                  winning products —
+                </span>
+                <br />
+                <span style={{ color: '#ffffff' }}>on live AliExpress data.</span>
+              </h1>
+            </Reveal>
+
+            <Reveal delay={0.12}>
+              <p
+                style={{
+                  fontFamily: sans,
+                  fontSize: 19,
+                  color: 'rgba(255,255,255,0.6)',
+                  lineHeight: 1.7,
+                  margin: '0 0 40px',
+                  maxWidth: 560,
+                }}
+              >
+                Majorka is a research-grade pipeline for serious dropship
+                operators. Ingest the AliExpress Affiliate API, score every
+                product with AI, then push winners into an ads studio and store
+                builder — from one dark terminal.
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.18}>
+              <div
+                className="mj-hero-cta"
+                style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 28 }}
+              >
+                <Link
+                  href="/sign-up"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    height: 52,
+                    padding: '0 30px',
+                    background:
+                      'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                    color: '#ffffff',
+                    fontFamily: sans,
+                    fontWeight: 600,
+                    fontSize: 15,
+                    borderRadius: 8,
+                    textDecoration: 'none',
+                    boxShadow:
+                      '0 10px 30px rgba(59,130,246,0.35), 0 0 0 1px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                    transition: 'transform 180ms ease, box-shadow 180ms ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow =
+                      '0 14px 38px rgba(59,130,246,0.5), 0 0 0 1px rgba(59,130,246,0.55), inset 0 1px 0 rgba(255,255,255,0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow =
+                      '0 10px 30px rgba(59,130,246,0.35), 0 0 0 1px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+                  }}
+                >
+                  Start the pipeline →
+                </Link>
+                <a
+                  href="#capabilities"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    height: 52,
+                    padding: '0 24px',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.8)',
+                    fontFamily: mono,
+                    fontWeight: 500,
+                    fontSize: 13,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    borderRadius: 8,
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    textDecoration: 'none',
+                    transition: 'border-color 150ms, color 150ms',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)';
+                    e.currentTarget.style.color = 'rgba(255,255,255,0.8)';
+                  }}
+                >
+                  View capabilities
+                </a>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.24}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 18,
+                  fontFamily: mono,
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.4)',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <span>7 markets</span>
+                <span style={{ opacity: 0.3 }}>·</span>
+                <span>2,302 winners</span>
+                <span style={{ opacity: 0.3 }}>·</span>
+                <span>refreshed every 6h</span>
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal delay={0.1}>
+            <DataFlowDiagram />
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Terminal/code block section ────────────────────────────────────────────
+function TerminalSection() {
+  const [copied, setCopied] = useState(false);
+  const snippet = `curl https://majorka.io/api/products/tiktok-leaderboard \\
+  -H "Authorization: Bearer $MAJORKA_TOKEN" \\
+  -H "Accept: application/json"`;
+  const response = `{
+  "market": "AU",
+  "refreshed_at": "2026-04-11T08:00:00Z",
+  "winners": [
+    {
+      "id": "prod_01hxz2k",
+      "title": "Nano Tape Strong — 3M",
+      "score": 99,
+      "margin_pct": 54,
+      "sold_count": 231482,
+      "est_daily_rev_aud": 15600
+    }
+  ]
+}`;
+
+  function onCopy() {
+    try {
+      void navigator.clipboard.writeText(snippet);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  return (
+    <section
+      id="api"
+      style={{
+        position: 'relative',
+        background: '#080808',
+        padding: '96px 24px 120px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1.35fr',
+            gap: 56,
+            alignItems: 'center',
+          }}
+          className="mj-hero-grid"
+        >
+          <Reveal>
+            <div>
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 11,
+                  color: '#3B82F6',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  marginBottom: 18,
+                }}
+              >
+                Developer-grade
+              </div>
+              <h2
+                style={{
+                  fontFamily: display,
+                  fontSize: 'clamp(34px, 3.6vw, 52px)',
+                  fontWeight: 700,
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.035em',
+                  color: '#ffffff',
+                  margin: '0 0 20px',
+                  fontFeatureSettings: "'ss01', 'cv11'",
+                }}
+              >
+                Every signal
+                <br />
+                <span style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  one API call away.
+                </span>
+              </h2>
+              <p
+                style={{
+                  fontFamily: sans,
+                  fontSize: 16,
+                  color: 'rgba(255,255,255,0.55)',
+                  lineHeight: 1.7,
+                  margin: '0 0 28px',
+                  maxWidth: 440,
+                }}
+              >
+                Pipe the Majorka leaderboard into your own dashboards, agents,
+                or n8n workflows. Real AliExpress order counts, AI scores and
+                margin math — refreshed every 6 hours.
+              </p>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                  fontFamily: mono,
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.5)',
+                }}
+              >
+                {[
+                  'REST + JSON · no SDK required',
+                  'Stream updates via webhooks',
+                  'Typed with OpenAPI 3.1 spec',
+                ].map((row) => (
+                  <div key={row} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: '50%',
+                        background: '#3B82F6',
+                        boxShadow: '0 0 8px rgba(59,130,246,0.7)',
+                      }}
+                    />
+                    {row}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div
+              style={{
+                position: 'relative',
+                background: '#0c0c0c',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 10,
+                overflow: 'hidden',
+                boxShadow:
+                  '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.08)',
+              }}
+            >
+              {/* Window chrome */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '12px 16px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(255,255,255,0.02)',
+                }}
+              >
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#2a2a2a' }} />
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#2a2a2a' }} />
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#2a2a2a' }} />
+                <span
+                  style={{
+                    marginLeft: 12,
+                    fontFamily: mono,
+                    fontSize: 11,
+                    color: 'rgba(255,255,255,0.45)',
+                  }}
+                >
+                  ~ / majorka · zsh
+                </span>
+                <span style={{ flex: 1 }} />
+                <button
+                  type="button"
+                  onClick={onCopy}
+                  style={{
+                    fontFamily: mono,
+                    fontSize: 11,
+                    color: copied ? '#22c55e' : 'rgba(255,255,255,0.6)',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    padding: '4px 10px',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+              {/* Command body */}
+              <div
+                style={{
+                  padding: '22px 24px',
+                  fontFamily: mono,
+                  fontSize: 13.5,
+                  lineHeight: 1.7,
+                  color: 'rgba(255,255,255,0.82)',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <span style={{ color: '#3B82F6' }}>$</span>
+                  <pre
+                    style={{
+                      margin: 0,
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: mono,
+                    }}
+                  >
+                    <span style={{ color: '#60A5FA' }}>curl</span>{' '}
+                    <span style={{ color: '#ededed' }}>
+                      https://majorka.io/api/products/tiktok-leaderboard
+                    </span>{' '}
+                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>\</span>
+                    {'\n  '}
+                    <span style={{ color: '#a78bfa' }}>-H</span>{' '}
+                    <span style={{ color: '#22c55e' }}>
+                      &quot;Authorization: Bearer $MAJORKA_TOKEN&quot;
+                    </span>{' '}
+                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>\</span>
+                    {'\n  '}
+                    <span style={{ color: '#a78bfa' }}>-H</span>{' '}
+                    <span style={{ color: '#22c55e' }}>
+                      &quot;Accept: application/json&quot;
+                    </span>
+                  </pre>
+                </div>
+                <div
+                  style={{
+                    marginTop: 18,
+                    paddingTop: 18,
+                    borderTop: '1px dashed rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.55)',
+                  }}
+                >
+                  <pre style={{ margin: 0, fontFamily: mono, whiteSpace: 'pre-wrap' }}>
+                    {response}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Capabilities grid (DeerFlow feature cards) ────────────────────────────
+interface Capability {
+  icon: React.ReactNode;
+  label: string;
+  title: string;
+  body: string;
+}
+const CAPABILITIES: Capability[] = [
+  {
+    icon: <Radar size={18} strokeWidth={1.5} />,
+    label: 'Ingest',
+    title: 'Live AliExpress pipeline',
+    body: 'Affiliate API + CJ Dropshipping feed. Order counts, ratings and prices refresh every 6 hours — never scraped, never estimated.',
+  },
+  {
+    icon: <Sparkles size={18} strokeWidth={1.5} />,
+    label: 'Score',
+    title: 'AI winner ranking',
+    body: 'Every product ranked 0–100 across margin, velocity and sustain. Emerald above 90, amber above 75 — no guessing which tab to trust.',
+  },
+  {
+    icon: <Layers size={18} strokeWidth={1.5} />,
+    label: 'Research',
+    title: 'Competitor spy & niches',
+    body: 'Surface which stores, ads and niches are scaling across 7 markets. Copy what works, skip what doesn’t, without opening Shopify.',
+  },
+  {
+    icon: <Target size={18} strokeWidth={1.5} />,
+    label: 'Creative',
+    title: 'Ads Studio',
+    body: 'Generate hook-tested ad briefs and creative variants from any winner in one click. Stays on-brand, respects the 7-market tone.',
+  },
+  {
+    icon: <Store size={18} strokeWidth={1.5} />,
+    label: 'Launch',
+    title: 'Store Builder',
+    body: 'Ship a Shopify store from a winner in under 10 minutes. AI copy, imagery, pricing and compliance adapt to the destination market.',
+  },
+  {
+    icon: <BarChart3 size={18} strokeWidth={1.5} />,
+    label: 'Operate',
+    title: 'Revenue tracking',
+    body: 'Monitor ad spend, margin and cash across every store from one dashboard. Alerts fire the moment a winner starts cooling off.',
+  },
+];
+
+function CapabilitiesGrid() {
+  return (
+    <section
+      id="capabilities"
+      style={{
+        position: 'relative',
+        background: '#080808',
+        padding: '96px 24px 120px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <Reveal>
+          <h2
+            style={{
+              fontFamily: display,
+              fontSize: 'clamp(38px, 4.2vw, 62px)',
+              fontWeight: 700,
+              lineHeight: 1.02,
+              letterSpacing: '-0.035em',
+              color: '#ffffff',
+              margin: '0 0 18px',
+              maxWidth: 900,
+              fontFeatureSettings: "'ss01', 'cv11'",
+            }}
+          >
+            One pipeline. Six verticals.
+            <br />
+            <span style={{ color: 'rgba(255,255,255,0.42)' }}>
+              No browser tab chaos.
+            </span>
+          </h2>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <p
+            style={{
+              fontFamily: sans,
+              fontSize: 16,
+              color: 'rgba(255,255,255,0.55)',
+              lineHeight: 1.7,
+              margin: '0 0 64px',
+              maxWidth: 640,
+            }}
+          >
+            Every capability shares the same data layer, the same auth model,
+            the same dark terminal. Nothing to glue together.
+          </p>
+        </Reveal>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 1,
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 10,
+            overflow: 'hidden',
+          }}
+        >
+          {CAPABILITIES.map((c, i) => (
+            <Reveal key={c.title} delay={i * 0.05}>
+              <div
+                style={{
+                  background: '#0b0b0b',
+                  padding: '36px 32px 40px',
+                  height: '100%',
+                  transition: 'background 220ms ease',
+                  cursor: 'default',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#0f0f0f')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = '#0b0b0b')}
+              >
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 38,
+                    height: 38,
+                    background: 'rgba(59,130,246,0.08)',
+                    border: '1px solid rgba(59,130,246,0.25)',
+                    borderRadius: 8,
+                    color: '#60A5FA',
+                    marginBottom: 22,
+                  }}
+                >
+                  {c.icon}
+                </div>
+                <div
+                  style={{
+                    fontFamily: mono,
+                    fontSize: 10,
+                    color: 'rgba(255,255,255,0.4)',
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    marginBottom: 10,
+                  }}
+                >
+                  {c.label}
+                </div>
+                <h3
+                  style={{
+                    fontFamily: display,
+                    fontSize: 22,
+                    fontWeight: 700,
+                    letterSpacing: '-0.015em',
+                    color: '#ededed',
+                    margin: '0 0 12px',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {c.title}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: sans,
+                    fontSize: 14,
+                    lineHeight: 1.7,
+                    color: 'rgba(255,255,255,0.55)',
+                    margin: 0,
+                  }}
+                >
+                  {c.body}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── DeerFlow-style workflow (replaces old Workflow) ───────────────────────
+function DeerHowItWorks() {
+  return (
+    <section
+      id="workflow"
+      style={{
+        position: 'relative',
+        background: '#080808',
+        padding: '96px 24px 120px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <Reveal>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              fontFamily: mono,
+              fontSize: 11,
+              color: '#3B82F6',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              marginBottom: 18,
+            }}
+          >
+            <WorkflowIcon size={14} strokeWidth={1.5} />
+            Operator flow
+          </div>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <h2
+            style={{
+              fontFamily: display,
+              fontSize: 'clamp(36px, 4vw, 58px)',
+              fontWeight: 700,
+              lineHeight: 1.02,
+              letterSpacing: '-0.035em',
+              color: '#ffffff',
+              margin: '0 0 56px',
+              fontFeatureSettings: "'ss01', 'cv11'",
+              maxWidth: 820,
+            }}
+          >
+            Three deliberate steps.
+            <br />
+            <span style={{ color: 'rgba(255,255,255,0.42)' }}>
+              Under an hour, start to live store.
+            </span>
+          </h2>
+        </Reveal>
+
+        <div style={{ position: 'relative' }}>
+          {/* Thin vertical rail */}
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: 10,
+              bottom: 10,
+              left: 23,
+              width: 1,
+              background:
+                'linear-gradient(180deg, rgba(59,130,246,0.4) 0%, rgba(59,130,246,0.1) 100%)',
+            }}
+          />
+          {STEPS.map((s, i) => (
+            <Reveal key={s.num} delay={i * 0.06}>
+              <div
+                style={{
+                  position: 'relative',
+                  display: 'grid',
+                  gridTemplateColumns: '72px 1fr',
+                  gap: 24,
+                  padding: '28px 0',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 48,
+                    height: 48,
+                    background: '#0b0b0b',
+                    border: '1px solid rgba(59,130,246,0.35)',
+                    borderRadius: 10,
+                    fontFamily: mono,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#60A5FA',
+                    boxShadow:
+                      '0 0 20px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.06)',
+                    zIndex: 1,
+                  }}
+                >
+                  {s.num}
+                </div>
+                <div style={{ paddingTop: 4 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 14,
+                      marginBottom: 10,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <h3
+                      style={{
+                        fontFamily: display,
+                        fontSize: 24,
+                        fontWeight: 700,
+                        letterSpacing: '-0.015em',
+                        color: '#ededed',
+                        margin: 0,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {s.title}
+                    </h3>
+                    <span
+                      style={{
+                        fontFamily: mono,
+                        fontSize: 10,
+                        color: 'rgba(255,255,255,0.45)',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        padding: '3px 8px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 6,
+                      }}
+                    >
+                      {s.time}
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: sans,
+                      fontSize: 15,
+                      lineHeight: 1.7,
+                      color: 'rgba(255,255,255,0.55)',
+                      margin: 0,
+                      maxWidth: 680,
+                    }}
+                  >
+                    {s.body}
+                  </p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={0.25}>
+          <div
+            style={{
+              marginTop: 44,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              fontFamily: mono,
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.4)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <Activity size={14} strokeWidth={1.5} />
+            Average time to first winner · 18 minutes
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const isMobile = useIsMobile();
   void isMobile;
@@ -2698,21 +3793,28 @@ export default function Home() {
       <SocialProofToasts />
       <div style={{ paddingTop: 36 }} />
       <Nav />
-      <Hero />
+      <DeerHero />
       <TrustBar />
-      <VideoPreview />
       <LiveTicker />
+
+      <NumberedDivider num="01" label="CAPABILITIES" description="What the pipeline ships with" />
+      <CapabilitiesGrid />
+
+      <NumberedDivider num="02" label="DATA FLOW" description="From signal to cash register" />
+      <DeerHowItWorks />
+
+      <NumberedDivider num="03" label="DEVELOPER API" description="Pipe it into your own stack" />
+      <TerminalSection />
+
+      <NumberedDivider num="04" label="BUILT FOR AU OPERATORS" description="Seven markets, one operating model" />
       <Stats />
-      <PartnerBar />
-
-      <ThePlatform />
-      <RevenueProofBanner />
-
-      <Comparison />
       <Markets />
-      <Workflow />
+      <Comparison />
+      <RevenueProofBanner />
       <Testimonials />
       <Founder />
+
+      <NumberedDivider num="05" label="PRICING" description="Locked-in early-access rates" />
       <FreeEntry />
       <Pricing annual={annual} setAnnual={setAnnual} />
       <FAQ />

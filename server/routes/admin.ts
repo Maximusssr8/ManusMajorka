@@ -27,19 +27,79 @@ function getSupabase() {
   return createClient(url, key);
 }
 
+function hasServiceRoleKey(): boolean {
+  return (process.env.SUPABASE_SERVICE_ROLE_KEY || '').length > 20;
+}
+
 // Admin middleware — delegates to shared requireAdmin middleware
 const requireAdmin = requireAdminMiddleware;
 
-// GET /api/admin/users — list all users with subscription info
-router.get('/users', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+// GET /api/admin/users — list all users with subscription info.
+// Surfaces the real Supabase error when listUsers fails (previously swallowed
+// to users=[], producing a silent "0 total users" UI in prod whenever the
+// service-role key was missing/wrong). If listUsers fails, falls back to
+// the user_subscriptions table so the admin still sees paying customers.
+router.get('/users', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
   try {
+    if (!hasServiceRoleKey()) {
+      return res.status(503).json({
+        error: 'service_role_key_missing',
+        message:
+          'SUPABASE_SERVICE_ROLE_KEY is not set in this environment. ' +
+          'The admin panel needs the service role key to list auth.users. ' +
+          'Set it in Vercel → Project → Settings → Environment Variables and redeploy.',
+      });
+    }
+
     const supabase = getSupabase();
-    const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const { data: authData, error: authError } = await supabase.auth.admin.listUsers({
+      perPage: 1000,
+    });
+
+    if (authError) {
+      console.error('[admin/users] auth.admin.listUsers error:', authError);
+
+      // Fallback: query user_subscriptions so the admin panel still shows
+      // the subscribed cohort even if listUsers is misconfigured.
+      const { data: subs, error: subsError } = await supabase
+        .from('user_subscriptions')
+        .select('user_id, plan, status, current_period_end, stripe_customer_id, created_at')
+        .order('created_at', { ascending: false });
+
+      if (subsError || !subs) {
+        return res.status(500).json({
+          error: 'auth_list_users_failed',
+          message: authError.message,
+          fallback_error: subsError?.message || null,
+        });
+      }
+
+      const fallback = subs.map((s: any) => ({
+        id: s.user_id,
+        email: '(hidden — service role key missing)',
+        created_at: s.created_at,
+        last_sign_in: null,
+        plan: s.plan || 'free',
+        status: s.status || 'inactive',
+        period_end: s.current_period_end || null,
+        stripe_customer_id: s.stripe_customer_id || null,
+      }));
+
+      return res.json({
+        users: fallback,
+        total: fallback.length,
+        warning: `auth.admin.listUsers failed (${authError.message}); showing subscription fallback.`,
+      });
+    }
+
     const users = authData?.users || [];
 
-    const { data: subs } = await supabase
+    const { data: subs, error: subsError } = await supabase
       .from('user_subscriptions')
       .select('user_id, plan, status, current_period_end, stripe_customer_id');
+    if (subsError) {
+      console.warn('[admin/users] user_subscriptions read failed:', subsError.message);
+    }
 
     const subMap = new Map((subs || []).map((s: any) => [s.user_id, s]));
 
@@ -54,11 +114,63 @@ router.get('/users', requireAuth, requireAdmin, async (req: Request, res: Respon
       stripe_customer_id: subMap.get(u.id)?.stripe_customer_id || null,
     }));
 
-    res.json({ users: result, total: result.length });
+    res.json({
+      users: result,
+      total: result.length,
+      ...(subsError ? { warning: `subscriptions read failed: ${subsError.message}` } : {}),
+    });
   } catch (err) {
     console.error('[admin/users]', err);
-    res.status(500).json({ error: String(err) });
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
+});
+
+// GET /api/admin/_diagnose — emit minimal safe health signals so we can tell
+// at a glance which env var is missing when the panel goes dark. Does not
+// leak the keys themselves — only booleans + lengths.
+router.get('/_diagnose', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const srk = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const anon = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+  const diag: Record<string, unknown> = {
+    SUPABASE_URL_set: !!supabaseUrl,
+    SUPABASE_URL_host: supabaseUrl ? new URL(supabaseUrl).host : null,
+    SUPABASE_SERVICE_ROLE_KEY_set: srk.length > 20,
+    SUPABASE_SERVICE_ROLE_KEY_len: srk.length,
+    VITE_SUPABASE_ANON_KEY_set: anon.length > 20,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL || '(unset — default used)',
+    ADMIN_USER_ID_set: !!process.env.ADMIN_USER_ID,
+    STRIPE_SECRET_KEY_set: (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_'),
+    STRIPE_BUILDER_PRICE_ID_set: !!process.env.STRIPE_BUILDER_PRICE_ID,
+    STRIPE_SCALE_PRICE_ID_set: !!process.env.STRIPE_SCALE_PRICE_ID,
+    ANTHROPIC_API_KEY_set: (process.env.ANTHROPIC_API_KEY || '').startsWith('sk-ant'),
+  };
+
+  // Probe the auth admin API so the UI can say "listUsers works" or show why
+  try {
+    const sb = getSupabase();
+    const probe = await sb.auth.admin.listUsers({ perPage: 1 });
+    diag.list_users_ok = !probe.error;
+    diag.list_users_error = probe.error ? probe.error.message : null;
+    diag.list_users_sample_count = probe.data?.users?.length || 0;
+  } catch (e) {
+    diag.list_users_ok = false;
+    diag.list_users_error = e instanceof Error ? e.message : String(e);
+  }
+
+  // Probe subscriptions table
+  try {
+    const sb = getSupabase();
+    const { count, error } = await sb
+      .from('user_subscriptions')
+      .select('*', { count: 'exact', head: true });
+    diag.subscriptions_count = count ?? null;
+    diag.subscriptions_error = error ? error.message : null;
+  } catch (e) {
+    diag.subscriptions_error = e instanceof Error ? e.message : String(e);
+  }
+
+  res.json(diag);
 });
 
 // POST /api/admin/users/:userId/plan — update user plan

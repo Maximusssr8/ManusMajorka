@@ -15,6 +15,8 @@ export interface StatsOverview {
   newLastWeek: number;
   totalDelta: number;       // newThisWeek - newLastWeek (absolute count)
   hotDelta: number | null;  // percentage, null if insufficient prior data
+  sparkTotal: number[] | null; // 14-day daily add series, null when insufficient
+  sparkHot: number[] | null;   // 14-day hot-product add series
   updatedAt: string | null;
 }
 

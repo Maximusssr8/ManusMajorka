@@ -111,7 +111,7 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
             <div className="text-[13px] font-medium text-slate-200 group-hover:text-white transition-colors leading-snug truncate">{title}</div>
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
               {product.hot_product_flag && <span className="text-[13px]" title="Hot product" style={{ lineHeight: 1 }}>🔥</span>}
-              {isNew && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-indigo-400" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.15)' }}>New</span>}
+              {isNew && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-blue-400" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.15)' }}>New</span>}
               {product.category && <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>{product.category}</span>}
             </div>
           </div>
@@ -195,9 +195,9 @@ export function ProductRow({ product, rank, onClick }: ProductRowProps) {
               onClick();
             }}
             className="text-[12px] font-medium transition-colors whitespace-nowrap bg-none border-none cursor-pointer"
-            style={{ color: '#818CF8', textDecoration: 'none', padding: 0 }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#A5B4FC')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#818CF8')}
+            style={{ color: '#60A5FA', textDecoration: 'none', padding: 0 }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#93C5FD')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#60A5FA')}
           >
             View ↗
           </button>

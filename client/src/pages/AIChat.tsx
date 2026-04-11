@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Sparkles, Trash2 } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -147,15 +147,17 @@ function renderMarkdown(text: string): React.ReactNode {
 }
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
+const MAYA_GRADIENT = "linear-gradient(135deg, #3B82F6, #1e40af)";
+
 function TypingDots() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", background: MAYA_GRADIENT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
       </div>
-      <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px 18px 18px 4px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
+      <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "6px 6px 6px 2px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
         {[0, 1, 2].map(i => (
-          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#818CF8", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
+          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#3B82F6", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
         ))}
       </div>
     </div>
@@ -183,43 +185,6 @@ function CopyMsgButton({ text }: { text: string }) {
         </>
       )}
     </button>
-  );
-}
-
-function MayaContextChips() {
-  const { user, subPlan } = useAuth();
-  const niche = localStorage.getItem('majorka_niche') || null;
-  const region = localStorage.getItem('majorka_region') || 'AU';
-
-  const planLabel = subPlan
-    ? (subPlan.charAt(0).toUpperCase() + subPlan.slice(1) + ' Plan')
-    : null;
-
-  const chips = [
-    niche ? { label: niche, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' } : null,
-    { label: `${region} market`, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' },
-    planLabel ? { label: planLabel, color: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.2)', text: '#818CF8' } : null,
-  ].filter(Boolean) as Array<{ label: string; color: string; border: string; text: string }>;
-
-  if (!chips.length) return null;
-
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap',
-      padding: '8px 16px 8px',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
-      background: 'rgba(255,255,255,0.01)',
-    }}>
-      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginRight: 2 }}>Maya knows:</span>
-      {chips.map(chip => (
-        <span key={chip.label} style={{
-          fontSize: 11, padding: '2px 8px', borderRadius: 20,
-          background: chip.color, border: `1px solid ${chip.border}`, color: chip.text,
-        }}>
-          {chip.label}
-        </span>
-      ))}
-    </div>
   );
 }
 
@@ -271,20 +236,15 @@ export default function AIChat() {
     return () => clearTimeout(timeout);
   }, [messages]);
 
-  // FIX 4: Dynamic prompt chips based on user niche
-  const suggestedPrompts = userNiche
-    ? [
-        `What ${userNiche} products should I test this week?`,
-        `Write me a TikTok hook for a ${userNiche} product`,
-        "How do I improve my store conversion rate?",
-        `Find me a winning ${userNiche} product under $20 cost`,
-      ]
-    : [
-        "What products should I test this week?",
-        "Write me a TikTok hook for my product",
-        "How do I improve my store conversion rate?",
-        "Find me a winning product under $20 cost",
-      ];
+  // Suggested prompt chips shown on empty state
+  const suggestedPrompts = [
+    userNiche ? `Find winning products in ${userNiche} niche` : "Find winning products in pet niche",
+    "Analyze this AliExpress URL",
+    "Generate ad copy for my product",
+    "What's trending in Australia today",
+    "Write me a TikTok hook for my product",
+    "Find a winning product under $20 cost",
+  ];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -415,58 +375,45 @@ export default function AIChat() {
         .maya-textarea::placeholder { color: #4B5563; }
       `}</style>
 
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "linear-gradient(160deg, #0F0F1A 0%, #1A1330 50%, #0D1117 100%)", overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "#080808", overflow: "hidden" }}>
 
-        {/* ── Header ────────────────────────────────────────────────────────── */}
-        <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        {/* ── Maya brand header ─────────────────────────────────────────────── */}
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid #1a1a1a", background: "#0d0d0d", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(99,102,241,0.4)" }}>
-              <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "white" }}>M</span>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: MAYA_GRADIENT, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(59,130,246,0.3)" }}>
+              <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: "white" }}>M</span>
             </div>
             <div>
-              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "white", lineHeight: 1.1 }}>Maya AI</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", display: "inline-block", animation: "onlinePulse 2s ease-in-out infinite" }} />
-                <span style={{ fontFamily: dm, fontSize: 12, color: "#9CA3AF" }}>Your AI ecommerce strategist</span>
-              </div>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: "#ededed", lineHeight: 1.1 }}>Maya</div>
+              <div style={{ fontFamily: dm, fontSize: 12, color: "#888888", marginTop: 2 }}>Your AliExpress research assistant</div>
             </div>
           </div>
           {messages.length > 0 && (
             <button
               onClick={() => { setMessages([]); localStorage.removeItem('maya_chat_history'); }}
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, cursor: "pointer", color: "#9CA3AF", fontSize: 12, fontFamily: dm, transition: "all 150ms" }}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "#111111", border: "1px solid #1a1a1a", borderRadius: 6, cursor: "pointer", color: "#888888", fontSize: 12, fontFamily: dm, transition: "all 150ms" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; e.currentTarget.style.color = "#F87171"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#9CA3AF"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#1a1a1a"; e.currentTarget.style.color = "#888888"; }}
             >
               <Trash2 size={13} /> Clear chat
             </button>
           )}
         </div>
 
-        {/* Maya context chips */}
-        <MayaContextChips />
-
         {/* ── Messages ─────────────────────────────────────────────────────── */}
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Empty state */}
           {messages.length === 0 && !loading && (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, paddingTop: 40 }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 0 32px rgba(99,102,241,0.3)" }}>
-                  <Sparkles size={28} color="white" />
-                </div>
-                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "white", marginBottom: 8 }}>How can I help you win today?</div>
-                <div style={{ fontFamily: dm, fontSize: 14, color: "#94A3B8" }}>Ask me anything about products, marketing, or your Shopify store</div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", maxWidth: 520 }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, paddingTop: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", maxWidth: 560 }}>
                 {suggestedPrompts.map(prompt => (
                   <button
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
-                    style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, cursor: "pointer", color: "#D1D5DB", fontFamily: dm, fontSize: 13, textAlign: "left" as const, lineHeight: 1.4, transition: "all 150ms" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)"; e.currentTarget.style.background = "rgba(99,102,241,0.08)"; e.currentTarget.style.color = "#E0E7FF"; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = "#D1D5DB"; }}
+                    style={{ padding: "12px 16px", background: "#0f0f0f", border: "1px solid #1a1a1a", borderRadius: 6, cursor: "pointer", color: "#888888", fontFamily: dm, fontSize: 13, textAlign: "left" as const, lineHeight: 1.4, transition: "all 150ms" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; e.currentTarget.style.background = "#111111"; e.currentTarget.style.color = "#ededed"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "#1a1a1a"; e.currentTarget.style.background = "#0f0f0f"; e.currentTarget.style.color = "#888888"; }}
                   >
                     {prompt}
                   </button>
@@ -477,27 +424,33 @@ export default function AIChat() {
 
           {/* Messages */}
           {messages.map(msg => (
-            <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 8 }}>
+            <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-start", gap: 10 }}>
               {msg.role === "assistant" && (
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 18 }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: MAYA_GRADIENT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
                   <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
                 </div>
               )}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: msg.role === "user" ? "70%" : "75%" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: msg.role === "user" ? "70%" : "calc(100% - 44px)" }}>
                 <div
-                  className={msg.role === "user" ? "rounded-xl px-4 py-3" : "bg-[#0d0d10]/[0.04] rounded-xl px-4 py-3"}
                   style={msg.role === "user" ? {
-                    background: 'rgba(99,102,241,0.2)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    color: "white",
+                    background: 'rgba(59,130,246,0.12)',
+                    border: '1px solid rgba(59,130,246,0.3)',
+                    color: "#ededed",
                     fontFamily: dm,
                     fontSize: 14,
                     lineHeight: 1.6,
+                    padding: "10px 14px",
+                    borderRadius: 6,
                   } : {
-                    color: "white",
+                    background: "#0f0f0f",
+                    border: "1px solid #1a1a1a",
+                    borderLeft: "2px solid #3B82F6",
+                    color: "#ededed",
                     fontFamily: dm,
                     fontSize: 14,
                     lineHeight: 1.6,
+                    padding: "12px 16px",
+                    borderRadius: 6,
                   }}
                 >
                   {msg.role === "user" ? msg.content : renderMarkdown(msg.content)}
@@ -505,7 +458,7 @@ export default function AIChat() {
                 {msg.role === "assistant" && msg.content && (
                   <CopyMsgButton text={msg.content} />
                 )}
-                <span style={{ fontFamily: dm, fontSize: 11, color: "#64748B", marginTop: 4 }}>{fmtTime(msg.ts)}</span>
+                <span style={{ fontFamily: dm, fontSize: 11, color: "#555555", marginTop: 4 }}>{fmtTime(msg.ts)}</span>
               </div>
             </div>
           ))}
@@ -515,26 +468,27 @@ export default function AIChat() {
         </div>
 
         {/* ── Input ────────────────────────────────────────────────────────── */}
-        <div style={{ padding: "12px 24px max(20px, env(safe-area-inset-bottom, 20px))", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,17,23,0.98)" }}>
-          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
+        <div style={{ padding: "12px 24px max(20px, env(safe-area-inset-bottom, 20px))", flexShrink: 0, borderTop: "1px solid #1a1a1a", background: "#0d0d0d" }}>
+          <div style={{ background: "#0f0f0f", border: "1px solid #1a1a1a", borderRadius: 8, padding: "10px 12px", display: "flex", gap: 10, alignItems: "flex-end" }}>
             <textarea
               ref={textareaRef}
-              className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-indigo-500/50 resize-none transition-all maya-textarea"
+              className="maya-textarea"
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Maya anything about your ecommerce business..."
+              placeholder="Ask Maya anything..."
               rows={1}
-              style={{ flex: 1, fontFamily: dm, fontSize: 14, lineHeight: 1.5, overflowY: "auto" as const, maxHeight: 120, minHeight: 24 }}
+              style={{ flex: 1, fontFamily: dm, fontSize: 14, lineHeight: 1.5, overflowY: "auto" as const, maxHeight: 120, minHeight: 24, background: "transparent", border: "none", outline: "none", color: "#ededed", resize: "none" as const }}
             />
             <button
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
               style={{
-                width: 36, height: 36, borderRadius: 10, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                width: 34, height: 34, borderRadius: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: input.trim() && !loading ? "pointer" : "not-allowed", border: "none", transition: "all 150ms",
-                background: input.trim() && !loading ? "linear-gradient(135deg, #6366F1, #8B5CF6)" : "rgba(255,255,255,0.06)",
-                opacity: input.trim() && !loading ? 1 : 0.4,
+                background: input.trim() && !loading ? "#3B82F6" : "#1a1a1a",
+                boxShadow: input.trim() && !loading ? "0 0 20px rgba(59,130,246,0.3)" : "none",
+                opacity: input.trim() && !loading ? 1 : 0.5,
               }}
               onMouseEnter={e => { if (input.trim() && !loading) e.currentTarget.style.transform = "scale(1.05)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
@@ -542,7 +496,7 @@ export default function AIChat() {
               <Send size={15} color="white" />
             </button>
           </div>
-          <div style={{ fontFamily: dm, fontSize: 11, color: "#64748B", textAlign: "center" as const, marginTop: 8 }}>
+          <div style={{ fontFamily: dm, fontSize: 11, color: "#555555", textAlign: "center" as const, marginTop: 8 }}>
             Enter to send · Shift+Enter for new line
           </div>
         </div>

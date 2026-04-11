@@ -11,7 +11,7 @@ export function getCategoryColor(category: string): string {
   if (cat.includes('home') || cat.includes('decor') || cat.includes('furniture')) return 'bg-slate-500/20 text-slate-300 border border-slate-500/30';
   if (cat.includes('sport') || cat.includes('fitness') || cat.includes('gym')) return 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
   if (cat.includes('car') || cat.includes('auto') || cat.includes('vehicle')) return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
-  return 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
+  return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
 }
 
 export function getCategoryStyle(category: string): { background: string; color: string; border: string } {
@@ -28,5 +28,5 @@ export function getCategoryStyle(category: string): { background: string; color:
   if (cat.includes('sport') || cat.includes('fitness') || cat.includes('gym')) return { background: 'rgba(6,182,212,0.15)', color: '#22d3ee', border: '1px solid rgba(6,182,212,0.3)' };
   if (cat.includes('supplement')) return { background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' };
   if (cat.includes('car') || cat.includes('auto') || cat.includes('vehicle')) return { background: 'rgba(234,179,8,0.15)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)' };
-  return { background: 'rgba(99,102,241,0.15)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' };
+  return { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' };
 }

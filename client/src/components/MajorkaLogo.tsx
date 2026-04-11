@@ -20,9 +20,9 @@ export function GradientM({ size = 32, className }: { size?: number; className?:
         width: size,
         height: size,
         borderRadius: Math.round(size * 0.27),
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        background: 'linear-gradient(135deg, #3B82F6 0%, #8b5cf6 100%)',
         fontSize: Math.round(size * 0.45),
-        boxShadow: '0 4px 16px rgba(99,102,241,0.4), inset 0 1px 0 rgba(255,255,255,0.18)',
+        boxShadow: '0 4px 16px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.18)',
         letterSpacing: '-0.02em',
         lineHeight: 1,
       }}

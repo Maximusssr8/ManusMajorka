@@ -44,9 +44,16 @@ router.get('/admin-check', async (req, res) => {
     const { data, error } = await sb.auth.getUser(token);
     if (error || !data?.user) return res.json({ isAdmin: false });
 
-    const adminId = process.env.ADMIN_USER_ID || '';
-    const adminEmail = process.env.ADMIN_EMAIL || 'maximusmajorka@gmail.com';
-    const isAdmin = (adminId && data.user.id === adminId) || data.user.email === adminEmail;
+    const adminIds = new Set(
+      (process.env.ADMIN_USER_ID || 'c2ee80e9-1b1b-4988-bea5-8f5278e6d25e')
+        .split(',').map((s) => s.trim()).filter(Boolean),
+    );
+    const adminEmails = new Set(
+      (process.env.ADMIN_EMAIL || 'maximusmajorka@gmail.com')
+        .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
+    );
+    const userEmail = (data.user.email || '').toLowerCase();
+    const isAdmin = adminIds.has(data.user.id) || adminEmails.has(userEmail);
 
     return res.json({ isAdmin });
   } catch {
