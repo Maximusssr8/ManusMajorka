@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/requireAuth';
 const router = Router();
 
 const getSupabaseConfig = () => ({
-  url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co',
+  url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
   key: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 });
 

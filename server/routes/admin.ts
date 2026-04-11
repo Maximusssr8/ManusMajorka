@@ -1298,7 +1298,7 @@ router.get('/aliexpress-status', requireAuth, requireAdmin, async (_req: Request
 // POST /api/admin/backfill-ali-images
 // Backfills image_url from AliExpress affiliate API for products with missing images
 router.post('/backfill-ali-images', requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
   // Check if affiliate keys are configured

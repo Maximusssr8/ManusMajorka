@@ -1,5 +1,5 @@
 const TAVILY_KEY = process.env.TAVILY_API_KEY || '';
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export type VideoFormat = 'POV' | 'REVIEW' | 'UNBOXING' | 'DEMO' | 'LIFESTYLE';
