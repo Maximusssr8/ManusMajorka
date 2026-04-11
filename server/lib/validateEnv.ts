@@ -1,7 +1,7 @@
-const REQUIRED_ENV_VARS = [
-  'SUPABASE_URL',
-  'SUPABASE_SERVICE_ROLE_KEY',
-  'ANTHROPIC_API_KEY',
+const REQUIRED_ENV_PAIRS = [
+  ['SUPABASE_URL', 'VITE_SUPABASE_URL'],
+  ['SUPABASE_SERVICE_ROLE_KEY'],
+  ['ANTHROPIC_API_KEY'],
 ] as const;
 
 const OPTIONAL_ENV_VARS = [
@@ -16,10 +16,15 @@ const OPTIONAL_ENV_VARS = [
 ] as const;
 
 export function validateEnv() {
-  const missing = REQUIRED_ENV_VARS.filter(key => !process.env[key]);
+  const missing = REQUIRED_ENV_PAIRS.filter(
+    alts => !alts.some(key => process.env[key])
+  );
   if (missing.length > 0) {
     console.error('[FATAL] Missing required environment variables:');
-    missing.forEach(key => console.error(`  - ${key}`));
+    missing.forEach(alts => console.error(`  - ${alts.join(' or ')}`));
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Set these in .env.local or your environment');
+    }
     process.exit(1);
   }
 
