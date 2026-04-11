@@ -327,7 +327,7 @@ const STEPS: { num: string; title: string; body: string; time: string }[] = [
 ];
 
 const FAQ_DATA: { q: string; a: string }[] = [
-  { q: 'How is Majorka different from KaloData or Minea?', a: 'Majorka is the operating system, not a single tool. Product research, competitor spying, store building, ad creative, and profit math live in one dashboard with one bill.' },
+  { q: 'How is Majorka different from other product research tools?', a: 'Most tools do one thing — product research OR ad spy OR store building. Majorka is a complete operating system. Product intelligence, competitor spying, store building, ad creative, and profit math all live in one dashboard with one subscription.' },
   { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and CJ Dropshipping. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
   { q: 'Do I need a Shopify store first?',     a: "No. You can use Majorka's built-in Store Builder to generate and launch a store from scratch, or connect an existing Shopify store in one click. Majorka adds an intelligence layer on top of whatever setup you have." },
   { q: 'Which markets are supported?',         a: 'Australia, United States, United Kingdom, Canada, New Zealand, Germany, and Singapore. Each market has localised pricing, supplier recommendations, tax calculations, and regional ad benchmarks built in.' },
@@ -1645,9 +1645,8 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'Competitor Store Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Margin + Profit Calculator', m: '✓', minea: '—', auto: '✓', ecom: '—' },
   { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
-  { feature: 'Tools replaced',          m: '6', minea: '1', auto: '1', ecom: '1', emphasis: true },
-  { feature: 'True monthly cost for equivalent coverage', m: '$99/mo', minea: '$147+/mo', auto: '$147+/mo', ecom: '$147+/mo', emphasis: true },
-  { feature: 'Starting price',          m: '$99/mo', minea: '$49/mo', auto: '$29/mo', ecom: '$29/mo' },
+  { feature: 'Tools included',          m: '6+', minea: '1', auto: '1', ecom: '1', emphasis: true },
+  { feature: 'Price for equivalent coverage', m: '$99/mo', minea: '$147+/mo', auto: '$147+/mo', ecom: '$147+/mo', emphasis: true },
 ];
 
 function Comparison() {
@@ -1656,9 +1655,9 @@ function Comparison() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <SectionHeader
           eyebrow="Comparison"
-          line1="Why pay more"
-          line2="for Majorka?"
-          description="Majorka is the only platform covering 7 international markets with live AliExpress data, AI scoring, and a full store-building workflow in one subscription. Most tools give you data. Majorka gives you the full system."
+          line1="One platform."
+          line2="Six tools replaced."
+          description="Most operators pay for 3-4 separate subscriptions to cover product research, ad creative, store building, and profit analysis. Majorka replaces all of them."
         />
         <div className="mj-comparison" style={{
           background: T.bgSurface,
@@ -1700,7 +1699,7 @@ function Comparison() {
                   borderTop: '2px solid #ffffff',
                   borderBottom: `1px solid ${T.border}`,
                 }}>Majorka</th>
-                {['Minea', 'AutoDS', 'Ecomhunt'].map((label) => (
+                {['Ad Spy Tool', 'Automation Tool', 'Research Tool'].map((label) => (
                   <th key={label} style={{
                     textAlign: 'center',
                     padding: '20px 16px',
@@ -1772,7 +1771,7 @@ function Comparison() {
           marginRight: 'auto',
           lineHeight: 1.55,
         }}>
-          † Tools replaced: Product research (Minea/Ecomhunt), Profit calculator, Ad creative generator, Store builder, Competitor spy, Market intelligence. Purchased separately: $147+/mo.
+          † Tools included: Product research, Profit calculator, Ad creative generator, Store builder, Competitor spy, Market intelligence — all in one subscription.
         </p>
       </div>
     </section>
@@ -2129,45 +2128,35 @@ function Pricing({ annual, setAnnual }: PricingProps) {
           lineHeight: 1.65,
           color: T.textMuted,
         }}>
-          Majorka replaces <strong style={{ color: T.text }}>Minea</strong> ($49/mo) + a <strong style={{ color: T.text }}>profit calculator</strong> ($19/mo) + an <strong style={{ color: T.text }}>ad creator</strong> ($39/mo) + a <strong style={{ color: T.text }}>store builder</strong> ($39/mo) + more. At <strong style={{ color: T.accent }}>$99/mo</strong>, it&apos;s the most cost-effective stack for serious operators.
+          Product research, profit calculator, ad creative generator, store builder, competitor spy, and market intelligence — all included in every plan.
         </p>
 
-        <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
-          <PricingCard
-            tag="Explorer" price={0} annual={annual}
-            tagline="Browse the database and try the tools — free forever."
-            features={[
-              '10 product views / day',
-              'Top 5 HOT TODAY',
-              '1 market (select on signup)',
-              'ROAS Calculator',
-              '5 Maya AI queries / month',
-            ]}
-            cta="Start Free" href="/sign-up?plan=free" highlight={false}
-          />
+        <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 800, margin: '0 auto' }}>
           <PricingCard
             tag="Builder" price={builderPrice} annual={annual}
-            tagline="Everything you need to find and validate winners."
+            tagline="Everything you need to find and launch your first winner."
             features={[
-              '50 product searches / month',
-              '50 video intelligence searches',
-              '50 ad creative generations',
-              '5 competitor shop scans',
-              '3 stores in Store Builder',
-              'All 7 markets supported',
+              'Full product intelligence (50 searches/mo)',
+              'AI-powered ad creative generator',
+              'Profit calculator + margin analysis',
+              'Store Builder — launch in 60 seconds',
+              'All 7 markets (AU, US, UK, CA, NZ, DE, SG)',
+              'Maya AI assistant (50 queries/mo)',
+              'Free Academy access',
             ]}
             cta="Start with Builder" href="/sign-up?plan=builder" highlight={false}
           />
           <PricingCard
             tag="Scale" price={scalePrice} annual={annual}
-            tagline="For operators running real volume."
+            tagline="For operators scaling past their first $10K month."
             features={[
-              'Everything in Builder',
-              'Unlimited searches across all tools',
-              'Unlimited competitor shop spy',
-              'Unlimited Store Builder',
-              'Niche signal tracking',
-              'API access + priority support',
+              'Everything in Builder, plus:',
+              'Unlimited product searches',
+              'Unlimited AI briefs + ad creatives',
+              'Unlimited stores in Store Builder',
+              'Competitor store spy (unlimited scans)',
+              'Trend velocity alerts',
+              'Priority support + API access',
             ]}
             cta="Start with Scale" href="/sign-up?plan=scale" highlight={true}
           />
