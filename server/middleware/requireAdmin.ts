@@ -7,15 +7,11 @@ import { Request, Response, NextFunction } from 'express';
  *
  * Dual check: both email AND known user_id must match to prevent any edge cases.
  */
-const ADMIN_CONFIG: { email: string; userId: string }[] = [
-  {
-    email: 'maximusmajorka@gmail.com',
-    userId: 'c2ee80e9-1b1b-4988-bea5-8f5278e6d25e',
-  },
-];
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'maximusmajorka@gmail.com';
+const ADMIN_ID = process.env.ADMIN_USER_ID || 'c2ee80e9-1b1b-4988-bea5-8f5278e6d25e';
 
-const ADMIN_EMAILS = new Set(ADMIN_CONFIG.map(a => a.email.toLowerCase()));
-const ADMIN_USER_IDS = new Set(ADMIN_CONFIG.map(a => a.userId));
+const ADMIN_EMAILS = new Set([ADMIN_EMAIL.toLowerCase()]);
+const ADMIN_USER_IDS = new Set([ADMIN_ID]);
 
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   // Service role (server-to-server) always passes

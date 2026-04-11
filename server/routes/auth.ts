@@ -25,4 +25,33 @@ router.post('/check-whitelist', (req, res) => {
   });
 });
 
+// GET /api/auth/admin-check — server-side admin verification
+// Verifies JWT via Supabase, then checks user ID against ADMIN_USER_ID env var.
+// No secrets exposed to client — only returns { isAdmin: true/false }.
+router.get('/admin-check', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.json({ isAdmin: false });
+    }
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const { createClient } = await import('@supabase/supabase-js');
+    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!url || !key) return res.json({ isAdmin: false });
+
+    const sb = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data, error } = await sb.auth.getUser(token);
+    if (error || !data?.user) return res.json({ isAdmin: false });
+
+    const adminId = process.env.ADMIN_USER_ID || '';
+    const adminEmail = process.env.ADMIN_EMAIL || 'maximusmajorka@gmail.com';
+    const isAdmin = (adminId && data.user.id === adminId) || data.user.email === adminEmail;
+
+    return res.json({ isAdmin });
+  } catch {
+    return res.json({ isAdmin: false });
+  }
+});
+
 export default router;

@@ -71,9 +71,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
   const { trackedCount } = useTracking();
   const [searchTerm, setSearchTerm] = useState('');
   const [comingSoonItem, setComingSoonItem] = useState<NavItem | null>(null);
-  // Admin gate: prefer the strict UUID match from useAdmin (compares
-  // session.user.id against VITE_ADMIN_USER_ID). Falls back to the
-  // legacy profile.role === 'admin' check for backwards compat.
+  // Admin gate: server-side check via /api/auth/admin-check.
   const { isAdmin: isAdminByUUID } = useAdmin();
   const legacyAdmin = (user as { role?: string } | null)?.role === 'admin';
   const isAdmin = isAdminByUUID || legacyAdmin;
