@@ -113,6 +113,60 @@ export function rateLimitMiddleware(opts: LimiterOptions) {
   };
 }
 
+/* ── Tiered rate limiters — different limits per plan ──────────── */
+
+type PlanTier = 'builder' | 'scale';
+type TieredKey = 'ai' | 'search' | 'general';
+
+const TIERED_LIMITS: Record<TieredKey, Record<PlanTier, { points: number; windowSec: number }>> = {
+  ai:      { builder: { points: 10, windowSec: 60 }, scale: { points: 40, windowSec: 60 } },
+  search:  { builder: { points: 30, windowSec: 60 }, scale: { points: 120, windowSec: 60 } },
+  general: { builder: { points: 120, windowSec: 60 }, scale: { points: 400, windowSec: 60 } },
+};
+
+export async function tieredRateLimit(
+  req: Request,
+  limiterKey: TieredKey
+): Promise<{ success: boolean; remaining: number; retryAfter: number | null }> {
+  const plan = ((req as any).subscription?.plan || 'builder').toLowerCase() as PlanTier;
+  const validPlan: PlanTier = plan === 'scale' ? 'scale' : 'builder';
+  const identifier = (req as any).user?.userId || getIp(req);
+  const config = TIERED_LIMITS[limiterKey][validPlan];
+  const rl = getLimiter(`majorka:${limiterKey}:${validPlan}`, config.points, config.windowSec);
+  if (!rl) return { success: true, remaining: 999, retryAfter: null };
+
+  try {
+    const result = await rl.limit(identifier);
+    return {
+      success: result.success,
+      remaining: result.remaining,
+      retryAfter: result.success ? null : Math.max(Math.ceil((result.reset - Date.now()) / 1000), 1),
+    };
+  } catch {
+    return { success: true, remaining: 999, retryAfter: null };
+  }
+}
+
+export function withTieredRateLimit(limiterKey: TieredKey) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await tieredRateLimit(req, limiterKey);
+      res.setHeader('X-RateLimit-Remaining', String(result.remaining));
+      if (!result.success) {
+        res.setHeader('Retry-After', String(result.retryAfter ?? 60));
+        return res.status(429).json({
+          error: 'rate_limited',
+          message: 'Too many requests.',
+          retryAfter: result.retryAfter,
+        });
+      }
+      next();
+    } catch {
+      next();
+    }
+  };
+}
+
 /** Prebuilt limiter: AE live search — 30 req/min per IP. */
 export const aeSearchLimiter = rateLimitMiddleware({
   prefix: 'majorka:ae-search',
