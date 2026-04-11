@@ -221,34 +221,67 @@ export default function AppHome() {
 
   return (
     <motion.div {...fadeIn}>
-    <div className="min-h-full font-body" style={{ background: '#080808', color: '#ededed' }}>
+    <div className="min-h-full" style={{ background: '#0a0a0a', color: '#e5e5e5', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
 
-      {/* Header — compact greeting + status */}
-      <div className="px-4 md:px-8 pt-6 pb-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-white/30 uppercase tracking-widest mb-1">{today}</p>
-          <h1 className="text-xl font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-            Good {tod}, {firstName}.
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-[11px] text-white/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Live
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <div className="px-6 md:px-8 pt-8 pb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.5)' }} />
+              <span className="text-[11px] text-white/25 font-medium tracking-wide uppercase">Live · {today}</span>
+            </div>
+            <h1 className="text-2xl font-semibold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+              {firstName}&apos;s Dashboard
+            </h1>
+            {insight && <p className="text-[13px] text-white/35 mt-1.5 max-w-md">{insight}</p>}
           </div>
           <a
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors no-underline cursor-pointer"
-            style={{ background: '#ffffff', color: '#080808' }}
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold rounded-md no-underline cursor-pointer transition-all hover:translate-y-[-1px]"
+            style={{ background: '#fff', color: '#0a0a0a', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
           >
-            Discover products
-            <ArrowRight size={13} />
+            Browse Products <ArrowRight size={13} />
           </a>
         </div>
       </div>
 
-      {/* Today's 5 */}
+      {/* ── KPI Strip ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mx-6 md:mx-8 mb-8 rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        {kpiCards.map((card) => {
+          const Icon = card.Icon;
+          return (
+            <Link
+              key={card.label}
+              href={card.href}
+              className="block no-underline group px-5 py-4 transition-colors hover:bg-white/[0.03]"
+              style={{ background: '#0f0f0f' }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Icon size={13} strokeWidth={1.5} style={{ color: card.accent, opacity: 0.7 }} />
+                <span className="text-[10px] font-medium uppercase tracking-wider text-white/30">{card.label}</span>
+              </div>
+              <div className="text-[22px] font-semibold text-white tabular-nums leading-none mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                {statsLoading || card.numeric == null
+                  ? <span className="inline-block h-6 w-16 rounded bg-white/[0.04] animate-pulse" />
+                  : card.numeric.toLocaleString()
+                }
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-white/25">{card.sub}</span>
+                {card.trendText && (
+                  <span className={`text-[10px] font-mono ${card.trendPositive ? 'text-emerald-500' : 'text-white/30'}`}>
+                    {card.trendPositive ? '↑' : ''} {card.trendText}
+                  </span>
+                )}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* ── Today's Picks ───────────────────────────────────────── */}
       <TodaysFive />
 
       {/* KPI grid — clean stat cards */}
@@ -287,7 +320,7 @@ export default function AppHome() {
       </div>
 
       {/* Top products table — full-width hero content, Shopify-style */}
-      <div className="relative z-10 mx-4 md:mx-8 mb-6">
+      <div className="mx-6 md:mx-8 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
           <a
@@ -405,10 +438,10 @@ export default function AppHome() {
       </div>
 
       {/* Bottom two-column — Trending Now + Top Opportunities. Stacks on mobile. */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start gap-5 px-4 md:px-8 pb-12">
+      <div className="flex flex-col md:flex-row items-start gap-4 mx-6 md:mx-8 pb-12">
 
         {/* LEFT — Trending Now */}
-        <div className="w-full flex-1 min-w-0 rounded-lg p-6 overflow-hidden">
+        <div className="w-full flex-1 min-w-0 rounded-md p-5 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
@@ -642,7 +675,7 @@ function TodaysFive() {
       >
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="w-52 shrink-0 h-72 rounded-2xl bg-white/[0.04] animate-pulse" />
+              <div key={i} className="w-52 shrink-0 h-72 rounded-md bg-white/[0.04] animate-pulse" />
             ))
           : picks.length === 0
             ? <div className="text-xs text-muted py-8">No picks today — check back later.</div>
@@ -659,8 +692,8 @@ function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
   return (
     <Link
       href={`/app/products?product=${product.id}`}
-      className="w-52 shrink-0 rounded-lg overflow-hidden cursor-pointer group relative no-underline hover:border-white/[0.15] transition-colors"
-      style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}
+      className="w-48 shrink-0 rounded-md overflow-hidden cursor-pointer group relative no-underline transition-all hover:translate-y-[-2px]"
+      style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)' }}
       style={{ scrollSnapAlign: 'start' }}
     >
       {/* Decorative rank number */}
