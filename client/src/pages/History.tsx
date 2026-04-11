@@ -4,6 +4,7 @@
  */
 
 import { ArrowLeft, ArrowUpRight, Clock, Filter, Search, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { createElement, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
@@ -45,9 +46,12 @@ export default function History() {
   };
 
   const handleClearAll = () => {
-    if (!confirm('Clear all history? This cannot be undone.')) return;
-    setEntries([]);
-    localStorage.removeItem(ACTIVITY_KEY);
+    toast('Clear all history?', {
+      description: 'This cannot be undone.',
+      action: { label: 'Clear', onClick: () => { setEntries([]); localStorage.removeItem(ACTIVITY_KEY); toast.success('History cleared'); } },
+      cancel: { label: 'Cancel', onClick: () => {} },
+      duration: 8000,
+    });
   };
 
   // Group entries by date

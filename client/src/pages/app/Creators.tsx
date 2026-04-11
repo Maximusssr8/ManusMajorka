@@ -4,6 +4,7 @@ import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 import { scorePillStyle } from '@/lib/scorePill';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 
+import { toast } from 'sonner';
 import { C } from '@/lib/designTokens';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/motion';
@@ -96,7 +97,8 @@ export default function Creators() {
       await navigator.clipboard.writeText(text);
       setCopied(id);
       setTimeout(() => setCopied(null), 1500);
-    } catch { /* ignore */ }
+      toast.success('Copied to clipboard');
+    } catch { toast.error('Failed to copy'); }
   };
 
   return (
