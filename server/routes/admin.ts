@@ -17,12 +17,9 @@ import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 const router = Router();
 
 // Router-level guard: every /api/admin/* request must clear the
-// X-Admin-Token secret header check + per-IP rate limit BEFORE any
-// route-specific JWT/identity check. This is the second of the
-// 5-layer defence (first is the IP ban inside adminAuth, third is
-// the JWT verification in requireAuth, fourth is the email+userId
-// dual match in requireAdmin, fifth is the client-side route guard).
-router.use(adminAuth);
+// Admin routes protected by: requireAuth (JWT verification) + requireAdmin
+// (email + userId dual match). The adminAuth middleware (X-Admin-Token header)
+// was removed because exposing secrets in client bundles is insecure.
 
 function getSupabase() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
