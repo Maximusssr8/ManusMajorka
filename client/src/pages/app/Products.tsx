@@ -2294,7 +2294,7 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
           disabled={loading}
           className="w-full py-3 rounded-xl text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
           style={{
-            background: loading ? 'rgba(99,102,241,0.4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            background: loading ? 'rgba(255,255,255,0.3)' : 'var(--color-accent)',
             borderColor: 'rgba(99,102,241,0.4)',
             opacity: loading ? 0.7 : 1,
           }}

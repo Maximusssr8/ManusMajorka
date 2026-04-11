@@ -112,7 +112,7 @@ export default function Revenue() {
           <button
             onClick={() => setShowAdd(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02]"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
+            style={{ background: 'var(--color-accent)', boxShadow: 'none' }}
           >
             <Plus size={15} strokeWidth={2.5} />
             Add product
@@ -131,7 +131,7 @@ export default function Revenue() {
               bg: totalProfit >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
             },
             { label: 'Ad Spend', value: `A$${totalAdSpend.toLocaleString()}`, Icon: Target, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-            { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
+            { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
           ].map(({ label, value, Icon, color, bg }) => (
             <div key={label} className="glass-card glass-card--elevated rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
@@ -262,7 +262,7 @@ export default function Revenue() {
                 onClick={addEntry}
                 disabled={!form.productTitle.trim() || !form.dailyRevenue}
                 className="flex-1 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                style={{ background: 'var(--color-accent)' }}
               >
                 Add
               </button>

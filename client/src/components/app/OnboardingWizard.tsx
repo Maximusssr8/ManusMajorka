@@ -77,7 +77,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               <div
                 key={s}
                 className="h-1 flex-1 rounded-full transition-all duration-300"
-                style={{ background: s <= step ? '#6366f1' : 'rgba(255,255,255,0.08)' }}
+                style={{ background: s <= step ? 'var(--color-accent)' : 'rgba(255,255,255,0.08)' }}
               />
             ))}
           </div>
@@ -192,8 +192,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               disabled={step === 2 && !budget}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+                background: 'var(--color-accent)',
               }}
             >
               {step < 3 ? 'Continue' : 'Start finding products'}
