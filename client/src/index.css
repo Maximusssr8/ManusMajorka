@@ -8,11 +8,7 @@
    feel. Consumed by .app-bg / .glass-card / .animate-in classes.
    ──────────────────────────────────────────────────────────────── */
 .app-bg {
-  background:
-    radial-gradient(ellipse 120% 80% at 15% -10%, rgba(99,102,241,0.18) 0%, transparent 50%),
-    radial-gradient(ellipse 80% 60% at 85% 110%, rgba(139,92,246,0.12) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(34,211,238,0.04) 0%, transparent 60%),
-    #0d0f14;
+  background: var(--color-bg);
 }
 
 .app-glow {
@@ -21,7 +17,7 @@
   left: -10%;
   width: 70%;
   height: 60%;
-  background: radial-gradient(ellipse, rgba(99,102,241,0.15) 0%, transparent 70%);
+  background: radial-gradient(ellipse, var(--color-accent-dim) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
   filter: blur(40px);
@@ -424,7 +420,7 @@ select option { background: #111114; color: #ededed; }
   height: 600px;
   top: -200px;
   left: -100px;
-  background: radial-gradient(ellipse, #6366f1 0%, #7c3aed 40%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 40%, transparent 70%);
   animation-duration: 22s;
 }
 
@@ -433,7 +429,7 @@ select option { background: #111114; color: #ededed; }
   height: 500px;
   bottom: -150px;
   right: -100px;
-  background: radial-gradient(ellipse, #0ea5e9 0%, #6366f1 50%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 50%, transparent 70%);
   animation-duration: 16s;
   animation-direction: alternate-reverse;
 }
@@ -707,7 +703,7 @@ select option { background: #111114; color: #ededed; }
   inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: conic-gradient(from var(--border-beam-angle, 0deg), transparent 70%, #6366f1 85%, #f97316 90%, transparent 100%);
+  background: conic-gradient(from var(--border-beam-angle, 0deg), transparent 70%, var(--color-accent) 85%, var(--color-amber) 90%, transparent 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;

@@ -13,7 +13,9 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "qa": "node scripts/qa-gate.mjs",
+    "deploy": "node scripts/qa-gate.mjs && pnpm run build && node scripts/build-api.mjs && git push origin main"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.12",
