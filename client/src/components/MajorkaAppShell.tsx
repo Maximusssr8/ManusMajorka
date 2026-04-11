@@ -1041,7 +1041,7 @@ export default function MajorkaAppShell({ children }: Props) {
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px', display: 'flex', justifyContent: 'center' }}>
           <button
             onClick={toggleSidebar}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-6 h-6 rounded-full bg-[#1a2035] border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all text-xs"
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center w-6 h-6 rounded-full bg-[#1a1a1a] border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all text-xs"
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? '›' : '‹'}

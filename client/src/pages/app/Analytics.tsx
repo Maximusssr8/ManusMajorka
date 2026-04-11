@@ -39,7 +39,7 @@ export default function Analytics() {
     <div style={{ padding: 32, minHeight: '100vh' }}>
       <div style={{ marginBottom: 28 }}>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Home / Analytics</div>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#f0f4ff', margin: 0, letterSpacing: '-0.02em' }}>Analytics</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#ededed', margin: 0, letterSpacing: '-0.02em' }}>Analytics</h1>
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Platform intelligence snapshot</p>
       </div>
 
@@ -50,21 +50,21 @@ export default function Analytics() {
           { label: 'New This Week', value: loading ? '—' : (overview?.newThisWeek || 0).toLocaleString(), icon: TrendingUp, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', trend: 'Added last 7 days' },
           { label: 'Categories', value: loading ? '—' : String(categories.length), icon: BarChart2, color: '#cccccc', bg: 'rgba(204,204,204,0.12)', trend: 'Across the database' },
         ].map(kpi => (
-          <div key={kpi.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20 }}>
+          <div key={kpi.label} style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <div style={{ width: 36, height: 36, borderRadius: 9, background: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <kpi.icon size={16} color={kpi.color} />
               </div>
               <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.35)' }}>{kpi.label}</span>
             </div>
-            <div style={{ fontSize: 30, fontWeight: 800, color: '#f0f4ff', letterSpacing: '-0.02em', marginBottom: 4 }}>{kpi.value}</div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: '#ededed', letterSpacing: '-0.02em', marginBottom: 4 }}>{kpi.value}</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{kpi.trend}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff', marginBottom: 20 }}>Products by category</div>
+      <div style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#ededed', marginBottom: 20 }}>Products by category</div>
         {loading ? (
           <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Loading…</div>
         ) : (
@@ -82,8 +82,8 @@ export default function Analytics() {
         )}
       </div>
 
-      <div style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff', marginBottom: 20 }}>Score distribution</div>
+      <div style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#ededed', marginBottom: 20 }}>Score distribution</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
           {[
             { range: '90–100', label: 'Elite', pct: elitePct, color: '#10b981', bg: 'rgba(16,185,129,0.12)' },

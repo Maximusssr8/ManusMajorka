@@ -86,7 +86,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
   };
 
   return (
-    <nav className="relative w-[220px] h-full bg-[#0a0b0f] border-r border-white/[0.06] flex flex-col shrink-0 font-body overflow-hidden">
+    <nav className="relative w-[220px] h-full bg-[#050505] border-r border-white/[0.06] flex flex-col shrink-0 font-body overflow-hidden">
       {/* Top ambient gradient */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-accent/[0.04] to-transparent pointer-events-none" />
 
@@ -106,7 +106,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
           <span
             className="text-[15px] font-display font-bold tracking-tight"
             style={{
-              background: 'linear-gradient(135deg, #f0f4ff 0%, #cccccc 100%)',
+              background: 'linear-gradient(135deg, #ffffff 0%, #888888 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',

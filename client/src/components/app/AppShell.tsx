@@ -61,7 +61,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Mobile header bar — sticky, blurred, 56px tall, 44px touch targets */}
           <div
             className="md:hidden sticky top-0 z-40 flex items-center justify-between px-3 h-14 border-b border-white/[0.06] shrink-0"
-            style={{ background: 'rgba(13,15,20,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+            style={{ background: 'rgba(8,8,8,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           >
             <button
               onClick={() => setSidebarOpen(true)}
@@ -78,7 +78,7 @@ export function AppShell({ children }: AppShellProps) {
               <span
                 className="text-[15px] font-display font-bold tracking-tight"
                 style={{
-                  background: 'linear-gradient(135deg, #f0f4ff 0%, #cccccc 100%)',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #cccccc 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -123,7 +123,7 @@ export function AppShell({ children }: AppShellProps) {
         toastOptions={{
           style: {
             background: '#1a1d27',
-            color: '#f0f4ff',
+            color: '#ffffff',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '10px',
             fontSize: '13px',

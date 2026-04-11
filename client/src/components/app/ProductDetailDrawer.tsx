@@ -54,7 +54,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             fontFamily: "'Nohemi', 'Inter', sans-serif",
             fontSize: 16,
             fontWeight: 600,
-            color: '#f0f4ff',
+            color: '#ededed',
             margin: 0,
             lineHeight: 1.35,
             display: '-webkit-box',
@@ -82,7 +82,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLButtonElement;
               el.style.background = 'rgba(255,255,255,0.08)';
-              el.style.color = '#f0f4ff';
+              el.style.color = '#ededed';
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLButtonElement;
@@ -139,13 +139,13 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           {/* KPI grid — spec colours */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
-              { label: 'Sell Price', value: price > 0 ? `$${price.toFixed(2)}` : '—', color: '#f0f4ff' },
+              { label: 'Sell Price', value: price > 0 ? `$${price.toFixed(2)}` : '—', color: '#ededed' },
               { label: 'Orders/Mo', value: product.sold_count ? product.sold_count.toLocaleString() : 'pending', color: product.sold_count ? '#10b981' : '#4b5563' },
               { label: 'AI Score',  value: `${Math.round(product.winning_score ?? 0)}/100`, color: '#cccccc' },
               { label: 'Source',    value: product.platform ?? 'AliExpress', color: '#a1a1aa' },
             ].map((m) => (
               <div key={m.label} style={{
-                background: '#1a2035',
+                background: '#111111',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: 8,
                 padding: '12px 14px',

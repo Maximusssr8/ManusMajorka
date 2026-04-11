@@ -1773,7 +1773,7 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
-            <tr className="bg-[#0f1629] border-b border-white/[0.06]">
+            <tr className="bg-[#0f0f0f] border-b border-white/[0.06]">
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
               <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
