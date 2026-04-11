@@ -2174,17 +2174,17 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
   const [hover, setHover] = useState(false);
   const baseStyle: React.CSSProperties = {
     background: highlight
-      ? `linear-gradient(135deg, rgba(255,255,255,0.08), transparent), ${T.bgSurface}`
+      ? `linear-gradient(135deg, rgba(59,130,246,0.06), transparent), ${T.bgSurface}`
       : T.bgSurface,
-    border: highlight ? `1px solid ${T.accent}` : `1px solid ${T.border}`,
+    border: highlight ? '1px solid rgba(59,130,246,0.4)' : `1px solid ${T.border}`,
     borderRadius: 10,
     padding: 32,
     position: 'relative',
     transition: 'all 250ms ease',
-    transform: hover ? 'translateY(-4px)' : 'translateY(0)',
+    transform: hover ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
     boxShadow: highlight
-      ? '0 0 40px rgba(255,255,255,0.2), 0 0 0 1px rgba(255,255,255,0.4)'
-      : 'none',
+      ? '0 0 60px rgba(59,130,246,0.15), 0 0 0 1px rgba(59,130,246,0.3), 0 20px 60px rgba(0,0,0,0.4)'
+      : hover ? '0 8px 32px rgba(0,0,0,0.3)' : 'none',
   };
   return (
     <div style={baseStyle} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -2193,18 +2193,17 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
           position: 'absolute',
           top: -12,
           right: 24,
-          background: 'rgba(239,68,68,0.15)',
-          color: '#f87171',
-          border: '1px solid rgba(239,68,68,0.35)',
+          background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+          color: '#fff',
           fontFamily: mono,
           fontSize: 10,
           fontWeight: 700,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          padding: '5px 11px',
+          padding: '5px 14px',
           borderRadius: 6,
-          boxShadow: '0 4px 20px rgba(239,68,68,0.2)',
-        }}>Early Access</div>
+          boxShadow: '0 4px 20px rgba(59,130,246,0.4)',
+        }}>Most Popular</div>
       )}
       <div style={{
         fontFamily: mono,
