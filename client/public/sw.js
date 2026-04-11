@@ -1,5 +1,5 @@
-const CACHE = 'majorka-v2';
-const STATIC = ['/', '/pricing', '/sign-in', '/affiliate'];
+const CACHE = 'majorka-v3';
+const STATIC = ['/', '/pricing', '/sign-in', '/affiliate', '/offline.html'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -16,5 +16,12 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+  e.respondWith(
+    fetch(e.request).catch(() => {
+      if (e.request.mode === 'navigate') {
+        return caches.match('/offline.html');
+      }
+      return caches.match(e.request);
+    })
+  );
 });
