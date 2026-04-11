@@ -45,6 +45,7 @@ const SignIn = lazy(() => import('./pages/SignIn'));
 const SettingsProfile = lazy(() => import('./pages/SettingsProfile'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Pricing = lazy(() => import('./pages/Pricing'));
+const Academy = lazy(() => import('./pages/Academy'));
 const Storefront = lazy(() => import('./pages/Storefront'));
 const AdminLeads = lazy(() => import('./pages/AdminLeads'));
 const StoreBuilder = lazyWithRetry(() => import('./pages/store-builder/index'));
@@ -204,6 +205,7 @@ function Router() {
             <Route path="/" component={Home} />
             <Route path="/blog" component={Blog} />
             <Route path="/about" component={About} />
+            <Route path="/academy" component={Academy} />
             <Route path="/pricing" component={Pricing} />
             <Route path="/store-builder" component={StoreBuilder} />
             <Route path="/login" component={SignIn} />
