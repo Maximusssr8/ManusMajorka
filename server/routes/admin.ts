@@ -195,39 +195,89 @@ router.get('/system-health', requireAuth, requireAdmin, async (req: Request, res
   try {
     const supabase = getSupabase();
 
+    // Supabase connectivity check with timeout
     let supabaseOk = false;
+    let supabaseError = '';
     try {
-      await supabase.from('winning_products').select('id').limit(1);
-      supabaseOk = true;
-    } catch { /* ignore */ }
+      const { data, error } = await supabase.from('winning_products').select('id').limit(1);
+      supabaseOk = !error && Array.isArray(data);
+      if (error) supabaseError = error.message;
+    } catch (e: any) {
+      supabaseError = e.message || 'Connection failed';
+    }
 
-    const [wpResult, userResult, storeResult, trendResult] = await Promise.all([
-      supabase.from('winning_products').select('*', { count: 'exact', head: true }),
-      supabase.auth.admin.listUsers({ perPage: 1 }).then(d => ({ count: (d.data as any)?.total || 0 })),
-      supabase.from('generated_stores').select('*', { count: 'exact', head: true }),
-      supabase.from('trend_signals').select('*', { count: 'exact', head: true }),
-    ]);
+    // Counts — wrapped individually so one failure doesn't block all
+    let productCount = 0, userCount = 0, storeCount = 0;
+    try {
+      const { count } = await supabase.from('winning_products').select('*', { count: 'exact', head: true });
+      productCount = count ?? 0;
+    } catch {}
+    try {
+      const { data } = await supabase.auth.admin.listUsers({ perPage: 1 });
+      userCount = (data as any)?.total || (data?.users?.length ?? 0);
+    } catch {}
+    try {
+      const { count } = await supabase.from('generated_stores').select('*', { count: 'exact', head: true });
+      storeCount = count ?? 0;
+    } catch {}
 
-    const { data: lastTrend } = await supabase
-      .from('trend_signals')
-      .select('refreshed_at')
-      .order('refreshed_at', { ascending: false })
-      .limit(1);
-    const lastCronRun = lastTrend?.[0]?.refreshed_at || null;
+    // Cron — check both in-memory tracker and DB
+    const { getLastCronRunTime } = await import('../routes/cron');
+    const memoryCronRun = getLastCronRunTime();
+    let dbCronRun: string | null = null;
+    try {
+      const { data: pipeLog } = await supabase
+        .from('pipeline_logs')
+        .select('started_at')
+        .order('started_at', { ascending: false })
+        .limit(1);
+      dbCronRun = pipeLog?.[0]?.started_at || null;
+    } catch {}
+    // Also check trend_signals refresh
+    let trendRefresh: string | null = null;
+    try {
+      const { data } = await supabase
+        .from('trend_signals')
+        .select('refreshed_at')
+        .order('refreshed_at', { ascending: false })
+        .limit(1);
+      trendRefresh = data?.[0]?.refreshed_at || null;
+    } catch {}
+    const lastCronRun = memoryCronRun || dbCronRun || trendRefresh || null;
 
+    // Stripe
     const stripeKey = process.env.STRIPE_SECRET_KEY || '';
-    const stripeMode = stripeKey.startsWith('sk_live_') ? 'live' : 'test';
+    const stripeMode = stripeKey.startsWith('sk_live_') ? 'live' : stripeKey.startsWith('sk_test_') ? 'test' : 'not configured';
+    const builderPriceSet = !!process.env.STRIPE_BUILDER_PRICE_ID;
+    const scalePriceSet = !!process.env.STRIPE_SCALE_PRICE_ID;
+    const webhookSecretSet = !!process.env.STRIPE_WEBHOOK_SECRET;
 
     res.json({
       supabase: supabaseOk,
-      stripe: { mode: stripeMode },
-      cron: { lastRun: lastCronRun },
+      supabaseError: supabaseOk ? null : supabaseError,
+      supabaseUrl: (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').replace(/https?:\/\//, '').split('.')[0] + '.supabase.co',
+      stripe: {
+        mode: stripeMode,
+        builderPriceConfigured: builderPriceSet,
+        scalePriceConfigured: scalePriceSet,
+        webhookConfigured: webhookSecretSet,
+      },
+      cron: {
+        lastRun: lastCronRun,
+        source: memoryCronRun ? 'memory' : dbCronRun ? 'pipeline_logs' : trendRefresh ? 'trend_signals' : 'none',
+      },
       counts: {
-        products: wpResult.count,
-        users: userResult.count,
-        stores: storeResult.count,
-        trendSignals: trendResult.count,
-      }
+        products: productCount,
+        users: userCount,
+        stores: storeCount,
+      },
+      env: {
+        supabaseUrl: !!(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL),
+        serviceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        stripeKey: !!process.env.STRIPE_SECRET_KEY,
+        anthropicKey: !!process.env.ANTHROPIC_API_KEY,
+        adminUserId: !!process.env.ADMIN_USER_ID,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: String(err) });
