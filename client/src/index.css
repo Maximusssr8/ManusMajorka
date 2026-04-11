@@ -145,63 +145,64 @@
   --shadow-glow:  0 0 0 3px rgba(99,102,241,0.2);
 }
 
-:root {
-  /* ── Design System: tokens (landing-page parity) ─────────────── */
-  --color-bg: #0a0a0a;
-  --color-bg-elevated: #0e0e10;
-  --color-bg-surface: #111114;
-  --color-bg-panel: #0d0d10;
-  --color-accent: #6366F1;
-  --color-accent-hover: #7c83f4;
-  --color-accent-dim: rgba(99,102,241,0.12);
+:root,
+[data-theme='dark'] {
+  /* ── Design System: dark theme (default) ─────────────────────── */
+  --color-bg: #080808;
+  --color-bg-elevated: #0f0f0f;
+  --color-bg-surface: #0d0d0d;
+  --color-bg-panel: #111111;
+  --color-accent: #ffffff;
+  --color-accent-hover: #e5e5e5;
+  --color-accent-dim: rgba(255,255,255,0.07);
+  --color-accent-glow: rgba(255,255,255,0.12);
   --color-border: rgba(255,255,255,0.08);
   --color-border-strong: rgba(255,255,255,0.14);
   --color-border-faint: rgba(255,255,255,0.04);
+  --color-border-hover: rgba(255,255,255,0.18);
   --color-text: #ededed;
-  --color-text-muted: #a1a1aa;
-  --color-text-dim: #71717a;
-  --color-text-faint: #52525b;
+  --color-text-muted: #888888;
+  --color-text-dim: #555555;
+  --color-text-faint: #333333;
   --color-green: #22c55e;
   --color-amber: #f59e0b;
   --color-red: #ef4444;
 
-  /* backgrounds (legacy aliases → new tokens) */
-  --bg-page: #0a0a0a;
-  --bg-card: #111114;
-  --bg-elevated: #0e0e10;
-  --bg-input: #0d0d10;
-  --bg-hover: rgba(255,255,255,0.02);
+  /* backgrounds */
+  --bg-page: #080808;
+  --bg-card: #0f0f0f;
+  --bg-elevated: #0f0f0f;
+  --bg-input: #0d0d0d;
+  --bg-hover: rgba(255,255,255,0.03);
 
   /* sidebar / shell */
-  --sidebar-bg: #0a0a0a;
+  --sidebar-bg: #050505;
   --sidebar-border: rgba(255,255,255,0.08);
   --sidebar-text: #ededed;
-  --card-bg: #0a0a0a;
-  --content-bg: #0a0a0a;
+  --card-bg: #0f0f0f;
+  --content-bg: #080808;
   --content-text: #ededed;
   --border-color: rgba(255,255,255,0.08);
-  --search-bg: #0d0d10;
+  --search-bg: #0d0d0d;
 
-  /* borders */
+  /* borders (short aliases) */
   --border-subtle: rgba(255,255,255,0.04);
   --border-default: rgba(255,255,255,0.08);
   --border-strong: rgba(255,255,255,0.14);
-  --border-focus: rgba(99,102,241,0.6);
-  --color-border-hover: rgba(255,255,255,0.14);
+  --border-focus: rgba(255,255,255,0.4);
 
-  /* text */
+  /* text (short aliases) */
   --text-primary: #ededed;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-disabled: #52525b;
+  --text-secondary: #888888;
+  --text-muted: #555555;
+  --text-disabled: #333333;
   --cell-text: #ededed;
 
-  /* accent */
-  --accent: #6366F1;
-  --accent-hover: #7c83f4;
-  --accent-subtle: rgba(99,102,241,0.12);
-  --accent-glow: rgba(99,102,241,0.3);
-  --color-accent-glow: rgba(99,102,241,0.3);
+  /* accent (short aliases — mirrors --color-accent) */
+  --accent: #ffffff;
+  --accent-hover: #e5e5e5;
+  --accent-subtle: rgba(255,255,255,0.07);
+  --accent-glow: rgba(255,255,255,0.12);
 
   /* status */
   --positive: #22c55e;
@@ -224,11 +225,12 @@
   /* shadows */
   --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
   --shadow-elevated: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
-  --shadow-glow: 0 0 24px rgba(99,102,241,0.18);
+  --shadow-glow: 0 0 24px rgba(255,255,255,0.08);
 
   /* fonts */
-  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: 'Syne', 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-heading: 'Syne', 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 
   /* legacy compat */
@@ -238,6 +240,67 @@
   --color-surface-3: rgba(255,255,255,0.04);
   --color-red-dim: rgba(239,68,68,0.12);
   --color-amber-dim: rgba(245,158,11,0.12);
+}
+
+/* ── Light theme ────────────────────────────────────────────────── */
+[data-theme='light'] {
+  --color-bg: #ffffff;
+  --color-bg-elevated: #f4f4f4;
+  --color-bg-surface: #fafafa;
+  --color-bg-panel: #f7f7f7;
+  --color-accent: #000000;
+  --color-accent-hover: #222222;
+  --color-accent-dim: rgba(0,0,0,0.06);
+  --color-accent-glow: rgba(0,0,0,0.08);
+  --color-border: rgba(0,0,0,0.1);
+  --color-border-strong: rgba(0,0,0,0.18);
+  --color-border-faint: rgba(0,0,0,0.04);
+  --color-border-hover: rgba(0,0,0,0.22);
+  --color-text: #0a0a0a;
+  --color-text-muted: #737373;
+  --color-text-dim: #a3a3a3;
+  --color-text-faint: #d4d4d4;
+  --color-green: #16a34a;
+  --color-amber: #d97706;
+  --color-red: #dc2626;
+  --bg-page: #ffffff;
+  --bg-card: #f7f7f7;
+  --bg-elevated: #f4f4f4;
+  --bg-input: #fafafa;
+  --bg-hover: rgba(0,0,0,0.03);
+  --sidebar-bg: #fafafa;
+  --sidebar-border: rgba(0,0,0,0.08);
+  --sidebar-text: #0a0a0a;
+  --card-bg: #f7f7f7;
+  --content-bg: #ffffff;
+  --content-text: #0a0a0a;
+  --border-color: rgba(0,0,0,0.1);
+  --search-bg: #f4f4f4;
+  --border-subtle: rgba(0,0,0,0.04);
+  --border-default: rgba(0,0,0,0.1);
+  --border-strong: rgba(0,0,0,0.18);
+  --border-focus: rgba(0,0,0,0.4);
+  --text-primary: #0a0a0a;
+  --text-secondary: #737373;
+  --text-muted: #a3a3a3;
+  --text-disabled: #d4d4d4;
+  --cell-text: #0a0a0a;
+  --accent: #000000;
+  --accent-hover: #222222;
+  --accent-subtle: rgba(0,0,0,0.06);
+  --accent-glow: rgba(0,0,0,0.08);
+  --positive: #16a34a;
+  --positive-dim: rgba(22,163,74,0.08);
+  --warning: #d97706;
+  --warning-dim: rgba(217,119,6,0.08);
+  --danger: #dc2626;
+  --danger-dim: rgba(220,38,38,0.08);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05);
+  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.06);
+  --shadow-glow: 0 0 24px rgba(0,0,0,0.06);
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f7f7f7;
+  --color-surface-3: rgba(0,0,0,0.03);
 }
 
 /* NOTE: No custom reset here — Tailwind v4 @layer base handles box-sizing/margin/padding.
