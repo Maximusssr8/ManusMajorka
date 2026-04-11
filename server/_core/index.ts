@@ -3,6 +3,9 @@ import { config } from 'dotenv';
 config(); // loads .env
 config({ path: '.env.local', override: false }); // loads .env.local, doesn't override existing
 
+import { validateEnv } from '../lib/validateEnv';
+validateEnv();
+
 import * as Sentry from '@sentry/node';
 
 if (process.env.SENTRY_DSN) {
