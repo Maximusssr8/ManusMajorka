@@ -882,11 +882,12 @@ app.post("/api/store/checkout", async (req: Request, res: Response) => {
   // Server-side price validation: if a storefront product ID is given,
   // verify the submitted price matches the actual product price in the DB
   let verifiedPrice = price;
-  if (storefront_product_id) {
+  if (storefront_product_id && store_id) {
     try {
-      const product = await getProductByIdPublic(storefront_product_id);
-      if (product && product.price != null) {
-        const dbPrice = parseFloat(String(product.price));
+      const sfProducts = await getPublishedStorefrontProducts(store_id);
+      const match = sfProducts.find((p: any) => p.id === storefront_product_id);
+      if (match?.price) {
+        const dbPrice = parseFloat(String(match.price));
         if (!isNaN(dbPrice) && dbPrice > 0) {
           verifiedPrice = dbPrice;
         }
