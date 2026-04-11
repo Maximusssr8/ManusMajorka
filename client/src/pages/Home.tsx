@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Database, Globe, ShieldCheck, Zap } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
 import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
+
+const ProductDemoComponent = lazy(() => import('@/components/landing/ProductDemo').then(m => ({ default: m.ProductDemo })));
+function ProductDemoLazy() {
+  return <Suspense fallback={<div style={{ aspectRatio: '16/10', background: '#0a0a0a', borderRadius: 8, border: '1px solid #1c1c1c' }} />}><ProductDemoComponent /></Suspense>;
+}
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -2533,67 +2538,20 @@ function TrustBar() {
   );
 }
 
-// ── Video placeholder ──────────────────────────────────────────────────────
+// ── Product Demo ──────────────────────────────────────────────────────
 function VideoPreview() {
   return (
     <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px', background: '#0a0a0a' }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
         <SectionHeader
-          eyebrow="Walkthrough"
+          eyebrow="Live Demo"
           line1="See Majorka"
           line2="in action."
-          description="A full product walkthrough is coming soon. Early-access members will be the first to see it."
+          description="Real product intelligence, live data, and AI-powered insights — all in one place."
           align="center"
         />
-        <div style={{
-          maxWidth: 880,
-          margin: '0 auto',
-          background: T.bgSurface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 16,
-          aspectRatio: '16 / 9',
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          gap: 20,
-        }}>
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 60%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'relative',
-            width: 84, height: 84, borderRadius: '50%',
-            background: 'rgba(99,102,241,0.12)',
-            border: '2px solid rgba(99,102,241,0.4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{
-              width: 0, height: 0,
-              borderLeft: '22px solid #a5b4fc',
-              borderTop: '14px solid transparent',
-              borderBottom: '14px solid transparent',
-              marginLeft: 6,
-            }} />
-          </div>
-          <div style={{ position: 'relative', fontFamily: mono, fontSize: 13, color: T.textDim, letterSpacing: '0.03em' }}>
-            Product walkthrough coming soon — join to get early access
-          </div>
-        </div>
-        <div style={{ marginTop: 28 }}>
-          <Link href="/sign-up" style={{
-            fontFamily: sans,
-            fontSize: 14,
-            color: '#6366F1',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}>
-            Create a free account to explore the dashboard →
-          </Link>
+        <div style={{ maxWidth: 880, margin: '0 auto' }}>
+          <ProductDemoLazy />
         </div>
       </div>
     </section>
