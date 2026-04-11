@@ -106,7 +106,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
           <span
             className="text-[15px] font-display font-bold tracking-tight"
             style={{
-              background: 'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
+              background: 'linear-gradient(135deg, #f0f4ff 0%, #cccccc 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -164,7 +164,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
                       }}
                       className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg mb-0.5 text-[13px] transition-colors no-underline ${
                         active
-                          ? 'bg-accent/15 border-l-2 border-accent text-text font-medium shadow-[inset_0_0_12px_rgba(99,102,241,0.08)]'
+                          ? 'bg-accent/15 border-l-2 border-accent text-text font-medium shadow-[inset_0_0_12px_rgba(255,255,255,0.08)]'
                           : item.soon
                             ? 'text-muted cursor-not-allowed'
                             : 'text-body hover:bg-white/[0.04] hover:text-text border-l-2 border-transparent'
@@ -226,7 +226,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
           >
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)' }}
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
             >
               {(() => {
                 const Icon = comingSoonItem.icon;

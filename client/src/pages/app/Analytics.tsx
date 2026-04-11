@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BarChart2, TrendingUp, Package, Star } from 'lucide-react';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 
-const CATEGORY_COLOURS = ['#3b82f6','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#8b5cf6','#ef4444','#84cc16','#06b6d4','#a855f7','#78716c','#0ea5e9','#d946ef'];
+const CATEGORY_COLOURS = ['#3b82f6','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#888888','#ef4444','#84cc16','#06b6d4','#a855f7','#78716c','#0ea5e9','#d946ef'];
 
 export default function Analytics() {
   const [overview, setOverview] = useState<{ total: number; score90: number; newThisWeek: number } | null>(null);
@@ -48,7 +48,7 @@ export default function Analytics() {
           { label: 'Total Products', value: loading ? '—' : (overview?.total || 0).toLocaleString(), icon: Package, color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', trend: 'Tracked in database' },
           { label: 'Score 90+', value: loading ? '—' : (overview?.score90 || 0).toLocaleString(), icon: Star, color: '#10b981', bg: 'rgba(16,185,129,0.12)', trend: `${elitePct}% of database` },
           { label: 'New This Week', value: loading ? '—' : (overview?.newThisWeek || 0).toLocaleString(), icon: TrendingUp, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', trend: 'Added last 7 days' },
-          { label: 'Categories', value: loading ? '—' : String(categories.length), icon: BarChart2, color: '#818cf8', bg: 'rgba(129,140,248,0.12)', trend: 'Across the database' },
+          { label: 'Categories', value: loading ? '—' : String(categories.length), icon: BarChart2, color: '#cccccc', bg: 'rgba(204,204,204,0.12)', trend: 'Across the database' },
         ].map(kpi => (
           <div key={kpi.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>

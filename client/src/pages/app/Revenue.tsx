@@ -152,7 +152,7 @@ export default function Revenue() {
           <div className="glass-card rounded-2xl p-12 text-center">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
             >
               <TrendingUp size={20} className="text-accent" />
             </div>
@@ -163,7 +163,7 @@ export default function Revenue() {
             <button
               onClick={() => setShowAdd(true)}
               className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
-              style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)' }}
+              style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.35)' }}
             >
               Add your first product
             </button>

@@ -78,7 +78,7 @@ export function AppShell({ children }: AppShellProps) {
               <span
                 className="text-[15px] font-display font-bold tracking-tight"
                 style={{
-                  background: 'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
+                  background: 'linear-gradient(135deg, #f0f4ff 0%, #cccccc 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',

@@ -84,7 +84,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-            style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)' }}
+            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
           >
             <Icon size={18} className="text-accent" strokeWidth={2} />
           </div>
@@ -106,8 +106,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     onClick={() => setMarket(m.code)}
                     className="flex items-center gap-3 p-3 rounded-xl text-left transition-all"
                     style={{
-                      background: active ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${active ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      background: active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.07)'}`,
                     }}
                   >
                     <span className="text-2xl">{m.flag}</span>
@@ -131,8 +131,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     onClick={() => setBudget(b.id)}
                     className="flex items-center justify-between w-full p-4 rounded-xl text-left transition-all"
                     style={{
-                      background: active ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${active ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      background: active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.07)'}`,
                     }}
                   >
                     <div>
@@ -164,7 +164,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               </div>
               <div
                 className="rounded-xl p-4"
-                style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)' }}
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)' }}
               >
                 <div className="text-xs font-semibold text-accent-hover mb-2">What&apos;s next</div>
                 <ul className="text-xs text-white/60 space-y-1.5">

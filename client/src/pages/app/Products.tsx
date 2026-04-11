@@ -166,7 +166,7 @@ function launchReadiness(p: Product): LaunchReadiness {
   const total = Math.min(100, demandPts + scorePts + marginPts + freshPts);
 
   if (total >= 80) return { score: total, tier: 'launch', label: 'Launch now', color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.28)' };
-  if (total >= 60) return { score: total, tier: 'strong', label: 'Strong bet',  color: '#818cf8', bg: 'rgba(99,102,241,0.10)', border: 'rgba(99,102,241,0.25)' };
+  if (total >= 60) return { score: total, tier: 'strong', label: 'Strong bet',  color: '#cccccc', bg: 'rgba(255,255,255,0.10)', border: 'rgba(255,255,255,0.25)' };
   if (total >= 40) return { score: total, tier: 'test',   label: 'Test first',  color: '#f59e0b', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.25)' };
   return { score: total, tier: 'research', label: 'Research more', color: '#71717a', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.10)' };
 }
@@ -297,7 +297,7 @@ function scoreTierStyle(score: number): { backgroundColor: string; color: string
 function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
   const c = (cat ?? '').toLowerCase();
   if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
-  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(99,102,241,0.12)', color: '#818cf8' };
+  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(255,255,255,0.12)', color: '#cccccc' };
   if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10b981' };
   if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { backgroundColor: 'rgba(236,72,153,0.12)', color: '#f472b6' };
   if (c.includes('hardware') || c.includes('tool'))                           return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#f59e0b' };
@@ -820,7 +820,7 @@ function ProductSheet({
           {/* Build Store for this product — one-click flow */}
           <button
             onClick={handleImportToStore}
-            className="mx-4 mb-4 bg-accent hover:bg-accent-hover text-white rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.2)]"
+            className="mx-4 mb-4 bg-accent hover:bg-accent-hover text-white rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(255,255,255,0.4),0_8px_24px_rgba(255,255,255,0.2)]"
           >
             <Store size={16} strokeWidth={2} />
             Build Store for This Product →
@@ -1312,7 +1312,7 @@ export default function AppProducts() {
       {searchMode === 'db' && !isFilterableTab && (
         <div
           className="mx-4 md:mx-8 mb-4 px-4 py-3 flex items-center gap-3 flex-wrap rounded-xl"
-          style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)' }}
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)' }}
         >
           <span className="text-[11px] font-semibold uppercase tracking-wider text-accent-hover">
             Curated view
@@ -2203,7 +2203,7 @@ function ProductHistoryChart({ productId }: { productId: string | number }) {
               className="flex-1 rounded-sm animate-pulse"
               style={{
                 height: `${h}%`,
-                background: 'rgba(99,102,241,0.12)',
+                background: 'rgba(255,255,255,0.12)',
                 animationDelay: `${i * 60}ms`,
               }}
             />
@@ -2295,7 +2295,7 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
           className="w-full py-3 rounded-xl text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
           style={{
             background: loading ? 'rgba(255,255,255,0.3)' : 'var(--color-accent)',
-            borderColor: 'rgba(99,102,241,0.4)',
+            borderColor: 'rgba(255,255,255,0.4)',
             opacity: loading ? 0.7 : 1,
           }}
         >
