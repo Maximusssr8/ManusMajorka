@@ -1,4 +1,4 @@
-const CACHE = 'majorka-v3';
+const CACHE = 'majorka-v4';
 const STATIC = ['/', '/pricing', '/sign-in', '/affiliate', '/offline.html'];
 
 self.addEventListener('install', e => {
