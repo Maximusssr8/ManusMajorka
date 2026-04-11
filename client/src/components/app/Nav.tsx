@@ -5,6 +5,7 @@ import {
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Settings,
   GraduationCap, ShieldCheck, Search, Flame,
+  Key, BookOpen,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -55,6 +56,8 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'Account',
     items: [
       { label: 'Academy',  path: '/app/learn',    icon: GraduationCap },
+      { label: 'API Keys', path: '/app/api-keys', icon: Key },
+      { label: 'API Docs', path: '/app/api-docs', icon: BookOpen },
       { label: 'Settings', path: '/app/settings', icon: Settings },
       { label: 'Admin',    path: '/app/admin',    icon: ShieldCheck, adminOnly: true },
     ],

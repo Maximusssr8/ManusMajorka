@@ -100,6 +100,8 @@ const NewRevenue = lazyWithRetry(() => import('./pages/app/Revenue'));
 const NewAdBriefs = lazyWithRetry(() => import('./pages/app/AdBriefs'));
 const NewAnalytics = lazyWithRetry(() => import('./pages/app/Analytics'));
 const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
+const ApiKeys = lazyWithRetry(() => import('./pages/app/ApiKeys'));
+const ApiDocs = lazyWithRetry(() => import('./pages/app/ApiDocs'));
 const ROASCalculator = lazy(() => import('./pages/tools/ROASCalculator'));
 const OperatorWall = lazy(() => import('./pages/OperatorWall'));
 const Affiliates = lazy(() => import('./pages/Affiliates'));
@@ -290,6 +292,8 @@ function Router() {
             <Route path="/app">{() => <ProtectedRoute requireSubscription><NewAppShell><NewHome /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/legacy">{() => <ProtectedRoute requireSubscription><AppLayout><Dashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/settings">{() => <ProtectedRoute requireSubscription><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/api-keys">{() => <ProtectedRoute requireSubscription><AppLayout><ApiKeys /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/api-docs">{() => <ProtectedRoute requireSubscription><AppLayout><ApiDocs /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ai">{() => <ProtectedRoute requireSubscription><NewAppShell><ComingSoon page="AI Tools" /></NewAppShell></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}

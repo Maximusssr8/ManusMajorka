@@ -3214,7 +3214,7 @@ function TerminalSection() {
                   marginBottom: 18,
                 }}
               >
-                Developer-grade
+                Developer API · Real ecommerce intelligence
               </div>
               <h2
                 style={{
@@ -3259,9 +3259,9 @@ function TerminalSection() {
                 }}
               >
                 {[
-                  'REST + JSON · no SDK required',
-                  'Stream updates via webhooks',
-                  'Typed with OpenAPI 3.1 spec',
+                  'Live TikTok Shop leaderboard — ranked by velocity × score',
+                  'Winning products feed — updated every 6 hours',
+                  'AI ad brief generation — Meta + TikTok formats',
                 ].map((row) => (
                   <div key={row} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span
@@ -3275,6 +3275,83 @@ function TerminalSection() {
                     />
                     {row}
                   </div>
+                ))}
+              </div>
+              {/* CTAs */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  marginTop: 28,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <a
+                  href="/app/api-docs"
+                  style={{
+                    fontFamily: sans,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#ffffff',
+                    background: '#3B82F6',
+                    padding: '10px 18px',
+                    borderRadius: 8,
+                    textDecoration: 'none',
+                    boxShadow: '0 0 24px rgba(59,130,246,0.45)',
+                    transition: 'all 200ms ease',
+                  }}
+                >
+                  Read the docs →
+                </a>
+                <a
+                  href="/app/api-keys"
+                  style={{
+                    fontFamily: sans,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#d4af37',
+                    background: 'transparent',
+                    padding: '10px 18px',
+                    borderRadius: 8,
+                    border: '1px solid rgba(212,175,55,0.5)',
+                    textDecoration: 'none',
+                    transition: 'all 200ms ease',
+                  }}
+                >
+                  Get your API key
+                </a>
+              </div>
+              {/* Comparison chips */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  marginTop: 20,
+                  flexWrap: 'wrap',
+                }}
+              >
+                {[
+                  { label: 'Minea: ✗ No public API', gold: false },
+                  { label: 'KaloData: ✗ No public API', gold: false },
+                  { label: 'Majorka: ✓ Open & documented', gold: true },
+                ].map((chip) => (
+                  <span
+                    key={chip.label}
+                    style={{
+                      fontFamily: mono,
+                      fontSize: 10.5,
+                      letterSpacing: '0.04em',
+                      color: chip.gold ? '#d4af37' : 'rgba(255,255,255,0.55)',
+                      background: chip.gold ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.03)',
+                      border: chip.gold
+                        ? '1px solid rgba(212,175,55,0.45)'
+                        : '1px solid rgba(255,255,255,0.08)',
+                      padding: '5px 10px',
+                      borderRadius: 6,
+                    }}
+                  >
+                    {chip.label}
+                  </span>
                 ))}
               </div>
             </div>

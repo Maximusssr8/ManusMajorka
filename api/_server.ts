@@ -34,6 +34,8 @@ import cronRouter from "../server/routes/cron";
 import imageProxyRouter from "../server/routes/imageProxy";
 import subscriptionRouter from "../server/routes/subscription";
 import adminApiRouter from "../server/routes/admin";
+import apiKeysRouter from "../server/routes/api-keys";
+import v1Router from "../server/routes/v1";
 import { requireAuth } from "../server/middleware/requireAuth";
 import { createClient } from "@supabase/supabase-js";
 import { getUsageSummary } from "../server/lib/usageLimits";
@@ -637,6 +639,8 @@ app.use('/api/cron', cronRouter);
 app.use('/api', imageProxyRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);
+app.use('/api/api-keys', apiKeysRouter);
+app.use('/api/v1', v1Router);
 app.use('/api/shops', shopsRouter);
 app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
 app.use('/api/products', productsRouter);

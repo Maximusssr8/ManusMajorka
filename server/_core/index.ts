@@ -329,6 +329,16 @@ async function startServer() {
   app.use('/api/subscription', subscriptionRouter);
   const adminApiRouter = (await import('../routes/admin')).default;
   app.use('/api/admin', adminApiRouter);
+
+  // Developer API — key management (session-authenticated)
+  const apiKeysRouter = (await import('../routes/api-keys')).default;
+  app.use('/api/api-keys', apiKeysRouter);
+
+  // Developer API — public /v1/* surface (API key-authenticated).
+  // Intentionally mounted at `/api/v1` (to stay on the same subdomain and
+  // share the same serverless function) but documented to users as `/v1/*`.
+  const v1Router = (await import('../routes/v1')).default;
+  app.use('/api/v1', v1Router);
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
   const apifySearchRouter = (await import('../routes/apify-search')).default;
