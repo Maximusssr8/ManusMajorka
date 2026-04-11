@@ -1022,6 +1022,90 @@ CREATE INDEX IF NOT EXISTS idx_ae_products_niche ON aliexpress_products(niche);
 });
 
 
+// POST /api/admin/run-apikey-migration — idempotent DDL for api_keys + api_usage.
+// Protected by SUPABASE_SERVICE_ROLE_KEY bearer. Safe to re-run.
+router.post('/run-apikey-migration', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (!serviceKey || token !== serviceKey) {
+    res.status(401).json({ error: 'unauthorized', message: 'Service role key required' });
+    return;
+  }
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    res.status(500).json({ error: 'DATABASE_URL not set in Vercel env' });
+    return;
+  }
+
+  const steps: string[] = [];
+  let failed = false;
+
+  try {
+    const { default: postgres } = await import('postgres');
+    const sql = postgres(dbUrl, { ssl: 'require', connect_timeout: 10, max: 1 });
+
+    const run = async (label: string, query: string) => {
+      try {
+        await sql.unsafe(query);
+        steps.push(`✅ ${label}`);
+      } catch (e: any) {
+        if (e.message?.includes('already exists')) {
+          steps.push(`⏭ ${label} (already exists)`);
+        } else {
+          steps.push(`❌ ${label}: ${e.message}`);
+          failed = true;
+        }
+      }
+    };
+
+    await run(
+      'api_keys table',
+      `CREATE TABLE IF NOT EXISTS api_keys (
+        id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        name          TEXT NOT NULL,
+        prefix        TEXT NOT NULL,
+        key_hash      TEXT NOT NULL UNIQUE,
+        created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+        last_used_at  TIMESTAMPTZ,
+        revoked_at    TIMESTAMPTZ,
+        request_count INTEGER NOT NULL DEFAULT 0
+      )`,
+    );
+    await run('api_keys user idx', `CREATE INDEX IF NOT EXISTS api_keys_user_idx ON api_keys(user_id)`);
+    await run('api_keys hash idx', `CREATE INDEX IF NOT EXISTS api_keys_hash_idx ON api_keys(key_hash)`);
+    await run('api_keys rls', `ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY`);
+    await run('api_keys service policy', `DROP POLICY IF EXISTS "service role full access" ON api_keys; CREATE POLICY "service role full access" ON api_keys FOR ALL USING (true) WITH CHECK (true)`);
+    await run('api_keys user policy', `DROP POLICY IF EXISTS "users read own api keys" ON api_keys; CREATE POLICY "users read own api keys" ON api_keys FOR SELECT USING (auth.uid() = user_id)`);
+
+    await run(
+      'api_usage table',
+      `CREATE TABLE IF NOT EXISTS api_usage (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        key_id      UUID NOT NULL REFERENCES api_keys(id) ON DELETE CASCADE,
+        user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        day         DATE NOT NULL,
+        month       TEXT NOT NULL,
+        count       INTEGER NOT NULL DEFAULT 0,
+        last_path   TEXT,
+        updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+        UNIQUE (key_id, day)
+      )`,
+    );
+    await run('api_usage user month idx', `CREATE INDEX IF NOT EXISTS api_usage_user_month_idx ON api_usage(user_id, month)`);
+    await run('api_usage key day idx', `CREATE INDEX IF NOT EXISTS api_usage_key_day_idx ON api_usage(key_id, day)`);
+    await run('api_usage rls', `ALTER TABLE api_usage ENABLE ROW LEVEL SECURITY`);
+    await run('api_usage service policy', `DROP POLICY IF EXISTS "service role full access" ON api_usage; CREATE POLICY "service role full access" ON api_usage FOR ALL USING (true) WITH CHECK (true)`);
+    await run('api_usage user policy', `DROP POLICY IF EXISTS "users read own api usage" ON api_usage; CREATE POLICY "users read own api usage" ON api_usage FOR SELECT USING (auth.uid() = user_id)`);
+
+    await sql.end();
+    res.json({ ok: !failed, steps });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, steps });
+  }
+});
+
 // POST /api/admin/run-supplier-migration — runs DDL for supplier tables (one-shot, admin only)
 router.post('/run-supplier-migration', async (req: Request, res: Response) => {
   // Accept service role key OR admin JWT

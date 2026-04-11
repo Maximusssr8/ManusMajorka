@@ -640,7 +640,13 @@ app.use('/api', imageProxyRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);
 app.use('/api/api-keys', apiKeysRouter);
+// Dual-mount the developer API router at both /api/v1 (internal) and /v1
+// (external). The vercel.json rewrite forwards /v1/* directly to the
+// serverless entry so the router has to listen on that path natively —
+// Vercel does not re-evaluate rewrites after the first match, so a
+// /v1 → /api/v1 chain falls through to the SPA catch-all.
 app.use('/api/v1', v1Router);
+app.use('/v1', v1Router);
 app.use('/api/shops', shopsRouter);
 app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
 app.use('/api/products', productsRouter);

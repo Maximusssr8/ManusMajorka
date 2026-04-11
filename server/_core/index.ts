@@ -339,6 +339,7 @@ async function startServer() {
   // share the same serverless function) but documented to users as `/v1/*`.
   const v1Router = (await import('../routes/v1')).default;
   app.use('/api/v1', v1Router);
+  app.use('/v1', v1Router);
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
   const apifySearchRouter = (await import('../routes/apify-search')).default;
