@@ -20,6 +20,9 @@ export default defineConfig({
     // when Claude worktrees share the pnpm store and Vite picks up the wrong copy.
     dedupe: ["react", "react-dom", "react-dom/client"],
   },
+  optimizeDeps: {
+    include: ['recharts', 'recharts-scale'],
+  },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
@@ -34,7 +37,7 @@ export default defineConfig({
           if (id.includes('node_modules/framer-motion') || id.includes('node_modules/lucide-react')) return 'vendor-ui';
           if (id.includes('node_modules/@supabase')) return 'vendor-supabase';
           if (id.includes('node_modules/@tanstack') || id.includes('node_modules/@trpc')) return 'vendor-query';
-          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'vendor-charts';
+          // recharts + d3 NOT chunked separately — circular deps cause TDZ crash
           if (id.includes('node_modules/mermaid') || id.includes('node_modules/@streamdown/mermaid') || id.includes('node_modules/cytoscape')) return 'vendor-mermaid';
           if (id.includes('node_modules/streamdown') || id.includes('node_modules/@streamdown')) return 'vendor-markdown';
           if (id.includes('node_modules/stripe') || id.includes('node_modules/@stripe')) return 'vendor-stripe';
