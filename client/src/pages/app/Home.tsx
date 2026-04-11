@@ -284,49 +284,14 @@ export default function AppHome() {
       {/* ── Today's Picks ───────────────────────────────────────── */}
       <TodaysFive />
 
-      {/* KPI grid — clean stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4 md:px-8 pb-6">
-        {kpiCards.map((card) => {
-          const Icon = card.Icon;
-          return (
-            <Link
-              key={card.label}
-              href={card.href}
-              className="block no-underline group p-5 rounded-lg transition-colors hover:border-white/[0.15]"
-              style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-white/35">{card.label}</span>
-                <Icon size={14} strokeWidth={1.5} className="text-white/20" />
-              </div>
-              <div className="text-2xl font-semibold text-white font-mono tabular-nums mb-1">
-                {statsLoading || card.numeric == null ? (
-                  <span className="inline-block h-7 w-20 rounded bg-white/[0.06] animate-pulse" />
-                ) : (
-                  card.numeric.toLocaleString()
-                )}
-              </div>
-              <div className="text-[11px] text-white/30">{card.sub}</div>
-              {card.trendText && (
-                <div className="mt-2">
-                  <span className={`text-[10px] font-medium ${card.trendPositive ? 'text-green-500' : 'text-white/40'}`}>
-                    {card.trendPositive && '↑ '}{card.trendText}
-                  </span>
-                </div>
-              )}
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Top products table — full-width hero content, Shopify-style */}
+      {/* Top products table */}
       <div className="mx-6 md:mx-8 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
+          <h2 className="text-base font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Top Products</h2>
           <a
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
-            className="text-sm text-accent hover:text-accent-hover transition-colors no-underline cursor-pointer"
+            className="text-[12px] text-white/40 hover:text-white/70 transition-colors no-underline cursor-pointer"
           >
             View all {total > 0 ? total.toLocaleString() : '…'} →
           </a>
@@ -334,13 +299,13 @@ export default function AppHome() {
         <div className="overflow-hidden rounded-lg" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}>
           <table className="w-full">
             <thead>
-              <tr className="bg-raised border-b border-white/[0.07]">
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left w-10">#</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Product</th>
-                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Category</th>
-                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Score</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Orders</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Price</th>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <th className="text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-left w-10">#</th>
+                <th className="text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-left">Product</th>
+                <th className="hidden md:table-cell text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-left">Category</th>
+                <th className="hidden md:table-cell text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-right">Score</th>
+                <th className="text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-right">Orders</th>
+                <th className="text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-right">Price</th>
               </tr>
             </thead>
             <tbody>
