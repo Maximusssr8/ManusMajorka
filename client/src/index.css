@@ -12,16 +12,7 @@
 }
 
 .app-glow {
-  position: fixed;
-  top: -20%;
-  left: -10%;
-  width: 70%;
-  height: 60%;
-  background: radial-gradient(ellipse, var(--color-accent-dim) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(40px);
-  animation: mj-glow-shift 10s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes mj-glow-shift {
@@ -50,12 +41,9 @@
 }
 
 .glass-card--accent {
-  background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(99, 102, 241, 0.1),
-    0 0 60px rgba(99, 102, 241, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
 }
 
 .glass-card--interactive {
@@ -64,12 +52,9 @@
 }
 .glass-card--interactive:hover {
   background: rgba(255, 255, 255, 0.055);
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
-  box-shadow:
-    0 16px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(99, 102, 241, 0.2),
-    0 0 80px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes mj-fade-up {
@@ -398,11 +383,7 @@ select option { background: #111114; color: #ededed; }
 
 /* FEATURE 1: Aurora Background */
 .aurora-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+  display: none;
 }
 
 .aurora-bg::before,
@@ -435,16 +416,7 @@ select option { background: #111114; color: #ededed; }
 }
 
 .aurora-blob-3 {
-  position: absolute;
-  width: 500px;
-  height: 400px;
-  top: 40%;
-  left: 50%;
-  background: radial-gradient(ellipse, #10b981 0%, transparent 65%);
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.05;
-  animation: aurora-drift-3 28s ease-in-out infinite alternate;
+  display: none;
 }
 
 @keyframes aurora-drift {

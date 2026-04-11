@@ -127,7 +127,7 @@ export default function AppHome() {
       numeric: stats?.total ?? null,
       sub: 'Live AliExpress feed',
       Icon: Package,
-      accent: '#6366f1',
+      accent: '#3b82f6',
       href: '/app/products',
       // Only show a trend pill when we actually have movement — empty
       // weeks shouldn't render a "No change" pill that ages badly

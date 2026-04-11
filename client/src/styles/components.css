@@ -306,11 +306,11 @@ body::after {
     linear-gradient(#0a1628, #0a1628) padding-box,
     conic-gradient(
       from var(--beam-angle, 0deg) at 50% 50%,
-      var(--color-from, #6366f1),
+      var(--color-from, rgba(255,255,255,0.6)),
       var(--color-to, #a855f7),
       transparent 30%,
       transparent 70%,
-      var(--color-from, #6366f1)
+      var(--color-from, rgba(255,255,255,0.6))
     ) border-box;
   animation: border-beam-rotate var(--duration, 12s) linear infinite;
   mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
@@ -353,11 +353,11 @@ body::after {
 .gradient-text-animated {
   background: linear-gradient(
     90deg,
-    #f0f4ff 0%,
-    #a5b4fc 25%,
-    #818cf8 50%,
-    #c4b5fd 75%,
-    #f0f4ff 100%
+    #ededed 0%,
+    #888888 25%,
+    #ededed 50%,
+    #888888 75%,
+    #ededed 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
