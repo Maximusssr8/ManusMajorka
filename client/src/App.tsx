@@ -10,6 +10,7 @@ import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import CookieBanner from './components/CookieBanner';
+import { CommandPalette } from './components/CommandPalette';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { MarketProvider } from './contexts/MarketContext';
@@ -494,23 +495,24 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
 }
 
 function App() {
+  const [cmdOpen, setCmdOpen] = useState(false);
+
   useEffect(() => {
     capture('app_loaded');
-    // Capture referral code from any page
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
     if (ref) localStorage.setItem('majorka_ref', ref);
   }, []);
 
-  // Global keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         document.dispatchEvent(new CustomEvent('close-modal'));
+        setCmdOpen(false);
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        document.dispatchEvent(new CustomEvent('open-command-palette'));
+        setCmdOpen(o => !o);
       }
     };
     window.addEventListener('keydown', handler);
@@ -529,6 +531,7 @@ function App() {
                   <Toaster />
                   <OAuthErrorBanner />
                   <AlmostWonModal />
+                  {cmdOpen && <CommandPalette onClose={() => setCmdOpen(false)} />}
                   <Router />
                 </TooltipProvider>
               </MayaProvider>
