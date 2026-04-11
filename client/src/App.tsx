@@ -231,7 +231,7 @@ function Router() {
             <Route path="/share/profit">{() => <PublicProfitShare />}</Route>
             <Route path="/app/affiliate">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <Affiliate />
                 </ProtectedRoute>
               )}
@@ -259,20 +259,20 @@ function Router() {
             </Route>
             <Route path="/app/knowledge-base">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout><KnowledgeBase /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/ad-spy">{() => <ProtectedRoute><AppLayout><NewAdBriefs /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ad-briefs">{() => <ProtectedRoute><AppLayout><NewAdBriefs /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ad-spy-legacy">{() => <ProtectedRoute><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/competitor-spy">{() => <ProtectedRoute><AppLayout><CompetitorSpy /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ads-studio">{() => <ProtectedRoute><AppLayout><AdsStudio /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ads-manager">{() => <ProtectedRoute><AppLayout><AdsManager /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ad-spy">{() => <ProtectedRoute requireSubscription><AppLayout><NewAdBriefs /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ad-briefs">{() => <ProtectedRoute requireSubscription><AppLayout><NewAdBriefs /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ad-spy-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/competitor-spy">{() => <ProtectedRoute requireSubscription><AppLayout><CompetitorSpy /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ads-studio">{() => <ProtectedRoute requireSubscription><AppLayout><AdsStudio /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ads-manager">{() => <ProtectedRoute requireSubscription><AppLayout><AdsManager /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/learn">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout><LearnHub /></AppLayout>
                 </ProtectedRoute>
               )}
@@ -284,14 +284,14 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app">{() => <ProtectedRoute><NewAppShell><NewHome /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/legacy">{() => <ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/settings">{() => <ProtectedRoute><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ai">{() => <ProtectedRoute><NewAppShell><ComingSoon page="AI Tools" /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app">{() => <ProtectedRoute requireSubscription><NewAppShell><NewHome /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/legacy">{() => <ProtectedRoute requireSubscription><AppLayout><Dashboard /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/settings">{() => <ProtectedRoute requireSubscription><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ai">{() => <ProtectedRoute requireSubscription><NewAppShell><ComingSoon page="AI Tools" /></NewAppShell></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}
-            <Route path="/app/analytics">{() => <ProtectedRoute><NewAppShell><NewAnalytics /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/products">{() => <ProtectedRoute><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/analytics">{() => <ProtectedRoute requireSubscription><NewAppShell><NewAnalytics /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/products">{() => <ProtectedRoute requireSubscription><NewAppShell><NewProducts /></NewAppShell></ProtectedRoute>}</Route>
             {/* Removed from nav — kept as redirects so old bookmarks land on Products */}
             <Route path="/app/niches">{() => { window.location.replace('/app/products'); return null; }}</Route>
             <Route path="/app/radar">{() => { window.location.replace('/app/products'); return null; }}</Route>
@@ -300,12 +300,12 @@ function Router() {
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/market">{() => { window.location.replace('/app/products'); return null; }}</Route>
-            <Route path="/app/market-legacy">{() => <ProtectedRoute><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/market-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/market-intel">{() => { window.location.replace('/app/market'); return null; }}</Route>
             <Route path="/app/market-dashboard">{() => { window.location.replace('/app/market'); return null; }}</Route>
-            <Route path="/app/creators">{() => <ProtectedRoute><AppLayout><NewCreators /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/creators-legacy">{() => <ProtectedRoute><AppLayout><ErrorBoundary><CreatorIntelligence /></ErrorBoundary></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/videos">{() => <ProtectedRoute><AppLayout><VideoIntelligence /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/creators">{() => <ProtectedRoute requireSubscription><AppLayout><NewCreators /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/creators-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><ErrorBoundary><CreatorIntelligence /></ErrorBoundary></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/videos">{() => <ProtectedRoute requireSubscription><AppLayout><VideoIntelligence /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/copywriter">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/brand-dna">{() => { window.location.replace('/app/growth'); return null; }}</Route>
@@ -315,16 +315,16 @@ function Router() {
 
             {/* New consolidated routes */}
             <Route path="/app/intelligence">{() => { window.location.replace('/app/products'); return null; }}</Route>
-            <Route path="/app/alerts">{() => <ProtectedRoute><NewAppShell><NewAlerts /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/alerts-legacy">{() => <ProtectedRoute><AppLayout><Alerts /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/spy">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Competitor Spy" /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/spy-legacy">{() => <ProtectedRoute><AppLayout><SpyTools /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/growth">{() => <ProtectedRoute><AppLayout><GrowthTools /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/profit">{() => <ProtectedRoute><AppLayout><ProfitCalculator /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/alerts">{() => <ProtectedRoute requireSubscription><NewAppShell><NewAlerts /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/alerts-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><Alerts /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/spy">{() => <ProtectedRoute requireSubscription><NewAppShell><ComingSoon page="Competitor Spy" /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/spy-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><SpyTools /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/growth">{() => <ProtectedRoute requireSubscription><AppLayout><GrowthTools /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/profit">{() => <ProtectedRoute requireSubscription><AppLayout><ProfitCalculator /></AppLayout></ProtectedRoute>}</Route>
 
             <Route path="/app/shops/:id">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout>
                     <Suspense fallback={<LoadingFallback />}>
                       <ShopDetail />
@@ -335,21 +335,21 @@ function Router() {
             </Route>
             <Route path="/app/store/:subpage">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app/product-hub/:id">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app/product-search">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout><ProductSearch /></AppLayout>
                 </ProtectedRoute>
               )}
@@ -363,7 +363,7 @@ function Router() {
             <Route path="/app/shop-spy">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/shop-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/store-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
-            <Route path="/app/store-builder">{() => <ProtectedRoute><AppLayout><StoreBuilder /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/store-builder">{() => <ProtectedRoute requireSubscription><AppLayout><StoreBuilder /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/growth-tools">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/livestream">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/live">{() => { window.location.replace('/app/videos'); return null; }}</Route>
@@ -375,12 +375,12 @@ function Router() {
             <Route path="/app/maya-ai">{() => { window.location.replace('/app/ai-chat'); return null; }}</Route>
             <Route path="/app/profit-calc">{() => { window.location.replace('/app/profit'); return null; }}</Route>
             <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/ai-chat">{() => <ProtectedRoute><AppLayout><AIChat /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/revenue">{() => <ProtectedRoute><NewAppShell><NewRevenue /></NewAppShell></ProtectedRoute>}</Route>
-            <Route path="/app/revenue-legacy">{() => <ProtectedRoute><AppLayout><RevenuePage /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ai-chat">{() => <ProtectedRoute requireSubscription><AppLayout><AIChat /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/revenue">{() => <ProtectedRoute requireSubscription><NewAppShell><NewRevenue /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/revenue-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><RevenuePage /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/:tool">
               {() => (
-                <ProtectedRoute>
+                <ProtectedRoute requireSubscription>
                   <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
