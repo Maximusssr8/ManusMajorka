@@ -878,25 +878,39 @@ app.post("/api/store/checkout", async (req: Request, res: Response) => {
   if (price !== undefined && (price < 0 || price > 100000)) {
     return res.status(400).json({ error: 'Invalid price' });
   }
+
+  // Server-side price validation: if a storefront product ID is given,
+  // verify the submitted price matches the actual product price in the DB
+  let verifiedPrice = price;
+  if (storefront_product_id) {
+    try {
+      const product = await getProductByIdPublic(storefront_product_id);
+      if (product && product.price != null) {
+        const dbPrice = parseFloat(String(product.price));
+        if (!isNaN(dbPrice) && dbPrice > 0) {
+          verifiedPrice = dbPrice;
+        }
+      }
+    } catch { /* use submitted price as fallback for non-DB products */ }
+  }
+
   try {
     const stripeKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeKey) {
-      // Create order without payment for testing
       const order = await createOrder({
         storeId: store_id,
         storefrontProductId: storefront_product_id ?? undefined,
         customerEmail: customer.email,
         customerName: customer.name,
         customerAddress: customer.address ? JSON.stringify(customer.address) : undefined,
-        amount: price ? String(price) : undefined,
+        amount: verifiedPrice ? String(verifiedPrice) : undefined,
         status: "pending",
       });
       return res.json({ order_id: order?.id, note: "STRIPE_SECRET_KEY not set — order saved without payment" });
     }
-    // Create Stripe PaymentIntent
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-02-24.acacia" as any });
-    const amountCents = Math.round((price || 0) * 100);
+    const amountCents = Math.round((verifiedPrice || 0) * 100);
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: "aud",
