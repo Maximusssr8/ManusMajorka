@@ -221,62 +221,89 @@ export default function AppHome() {
 
   return (
     <motion.div {...fadeIn}>
-    <div className="min-h-full" style={{ background: '#0a0a0a', color: '#e5e5e5', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+    <div className="min-h-full relative" style={{ background: '#0a0a0a', color: '#e5e5e5', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+      {/* Subtle dot grid texture */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="px-6 md:px-8 pt-8 pb-6">
-        <div className="flex items-start justify-between gap-4">
+      {/* ── Hero Header ─────────────────────────────────────────── */}
+      <div className="relative px-6 md:px-8 pt-8 pb-8">
+        {/* Ambient glow behind header */}
+        <div className="pointer-events-none absolute top-0 left-1/4 w-96 h-48 rounded-full blur-[100px] opacity-[0.07]" style={{ background: '#3B82F6' }} />
+
+        <div className="relative flex items-start justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.5)' }} />
-              <span className="text-[11px] text-white/25 font-medium tracking-wide uppercase">Live · {today}</span>
+            {/* Status chip */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.6)' }} />
+              <span className="text-[11px] text-emerald-400/80 font-medium">Live · {today}</span>
             </div>
-            <h1 className="text-2xl font-semibold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2" style={{ fontFamily: "'Syne', sans-serif", background: 'linear-gradient(135deg, #ffffff 0%, #999999 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               {firstName}&apos;s Dashboard
             </h1>
-            {insight && <p className="text-[13px] text-white/35 mt-1.5 max-w-md">{insight}</p>}
+            {insight && (
+              <p className="text-[13px] text-white/40 max-w-lg leading-relaxed">{insight}</p>
+            )}
           </div>
+
           <a
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold rounded-md no-underline cursor-pointer transition-all hover:translate-y-[-1px]"
-            style={{ background: '#fff', color: '#0a0a0a', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold rounded-md no-underline cursor-pointer transition-all hover:translate-y-[-1px] hover:shadow-lg"
+            style={{ background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#fff', boxShadow: '0 2px 12px rgba(59,130,246,0.3)' }}
           >
             Browse Products <ArrowRight size={13} />
           </a>
         </div>
       </div>
 
-      {/* ── KPI Strip ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-px mx-6 md:mx-8 mb-8 rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-        {kpiCards.map((card) => {
+      {/* ── KPI Cards ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-6 md:px-8 mb-8">
+        {kpiCards.map((card, i) => {
           const Icon = card.Icon;
           return (
-            <Link
+            <motion.div
               key={card.label}
-              href={card.href}
-              className="block no-underline group px-5 py-4 transition-colors hover:bg-white/[0.03]"
-              style={{ background: '#0f0f0f' }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <Icon size={13} strokeWidth={1.5} style={{ color: card.accent, opacity: 0.7 }} />
-                <span className="text-[10px] font-medium uppercase tracking-wider text-white/30">{card.label}</span>
-              </div>
-              <div className="text-[22px] font-semibold text-white tabular-nums leading-none mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                {statsLoading || card.numeric == null
-                  ? <span className="inline-block h-6 w-16 rounded bg-white/[0.04] animate-pulse" />
-                  : card.numeric.toLocaleString()
-                }
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-white/25">{card.sub}</span>
-                {card.trendText && (
-                  <span className={`text-[10px] font-mono ${card.trendPositive ? 'text-emerald-500' : 'text-white/30'}`}>
-                    {card.trendPositive ? '↑' : ''} {card.trendText}
-                  </span>
-                )}
-              </div>
-            </Link>
+              <Link
+                href={card.href}
+                className="block no-underline group relative overflow-hidden rounded-lg p-5 transition-all hover:translate-y-[-2px]"
+                style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                {/* Top accent glow */}
+                <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${card.accent}60, transparent)` }} />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-12 blur-2xl opacity-20 pointer-events-none" style={{ background: card.accent }} />
+
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/30">{card.label}</span>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${card.accent}15`, border: `1px solid ${card.accent}25` }}>
+                      <Icon size={14} strokeWidth={2} style={{ color: card.accent }} />
+                    </div>
+                  </div>
+
+                  <div className="text-[28px] font-bold text-white tabular-nums leading-none mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    {statsLoading || card.numeric == null
+                      ? <span className="inline-block h-8 w-20 rounded bg-white/[0.04] animate-pulse" />
+                      : card.numeric.toLocaleString()
+                    }
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-white/25">{card.sub}</span>
+                    {card.trendText && (
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${card.trendPositive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-white/[0.04] text-white/30'}`}>
+                        {card.trendPositive && <ArrowUp size={9} />}
+                        {card.trendText}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
           );
         })}
       </div>
@@ -332,7 +359,10 @@ export default function AppHome() {
                     <tr
                       key={p.id}
                       onClick={() => setSelectedProduct(p)}
-                      className={`${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
+                      className={`${isLast ? '' : 'border-b border-white/[0.04]'} cursor-pointer transition-all`}
+                      style={{ background: 'transparent' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.04)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <td className="px-4 py-4 text-xs text-white/20 tabular-nums">
                         {String(i + 1).padStart(2, '0')}
@@ -403,7 +433,7 @@ export default function AppHome() {
       </div>
 
       {/* Bottom two-column — Trending Now + Top Opportunities. Stacks on mobile. */}
-      <div className="flex flex-col md:flex-row items-start gap-4 mx-6 md:mx-8 pb-12">
+      <div className="flex flex-col md:flex-row items-start gap-4 mx-6 md:mx-8 pb-12 p-5 rounded-lg" style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.04)' }}>
 
         {/* LEFT — Trending Now */}
         <div className="w-full flex-1 min-w-0 rounded-md p-5 overflow-hidden">
@@ -615,12 +645,15 @@ function TodaysFive() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-accent">Today&apos;s Top 5</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/50">Today&apos;s Top 5</span>
             <span className="text-[10px] text-white/25">
               · {new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })}
             </span>
           </div>
-          <h2 className="text-lg font-display font-bold text-white">Your daily picks</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Your daily picks</h2>
+            <span className="text-[9px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.2)' }}>AI curated</span>
+          </div>
         </div>
         <Link
           href="/app/products"
