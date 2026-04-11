@@ -221,141 +221,66 @@ export default function AppHome() {
 
   return (
     <motion.div {...fadeIn}>
-    <div className="min-h-full bg-bg font-body text-text relative">
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-accent/10 blur-[120px] rounded-full" />
-      </div>
+    <div className="min-h-full font-body" style={{ background: '#080808', color: '#ededed' }}>
 
-      {/* Status bar */}
-      <div className="relative z-10 hidden md:flex items-center justify-between px-4 md:px-8 h-12 border-b border-white/[0.06]">
-        <div className="flex items-center gap-2 text-xs text-muted">
-          <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
-          <span>{liveLabel}</span>
+      {/* Header — compact greeting + status */}
+      <div className="px-4 md:px-8 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-white/30 uppercase tracking-widest mb-1">{today}</p>
+          <h1 className="text-xl font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+            Good {tod}, {firstName}.
+          </h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-[11px] text-white/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            Live
+          </div>
+          <a
+            href="/app/products"
+            onClick={clearFiltersAndGo('/app/products')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors no-underline cursor-pointer"
+            style={{ background: '#ffffff', color: '#080808' }}
+          >
+            Discover products
+            <ArrowRight size={13} />
+          </a>
         </div>
       </div>
 
-      {/* Today's 5 — daily-briefing card. Top of page = first thing operators see */}
+      {/* Today's 5 */}
       <TodaysFive />
 
-      {/* Hero — with a subtle mesh gradient backing the greeting block */}
-      <div className="relative z-10 px-4 md:px-8 pt-8 md:pt-10 pb-6">
-        <div className="relative">
-          {/* Hero mesh gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.06)_0%,transparent_60%)] pointer-events-none" />
-          <div className="relative flex items-start justify-between gap-6 flex-wrap">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 36, width: 36, borderRadius: 10, objectFit: 'cover' }} />
-                <p className="text-xs text-muted uppercase tracking-widest">
-                  {today} · Scale Plan
-                </p>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-display font-bold text-text tracking-tight leading-tight">
-                Good {tod}, <span className="text-accent">{firstName}</span>.
-              </h1>
-              <p className="mt-3 text-base text-body max-w-lg">
-                Your product intelligence is live across the Australian market.
-              </p>
-              {insight && (
-                <a
-                  href="/app/products?tab=new"
-                  onClick={clearFiltersAndGo('/app/products?tab=new')}
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:text-accent-hover transition-colors no-underline cursor-pointer"
-                >
-                  <span>{insight}</span>
-                  <ArrowRight size={13} strokeWidth={2.25} />
-                </a>
-              )}
-            </div>
-            <a
-              href="/app/products"
-              onClick={clearFiltersAndGo('/app/products')}
-              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(255,255,255,0.4),0_8px_24px_rgba(255,255,255,0.25)] cursor-pointer"
-            >
-              Discover products
-              <ArrowRight size={14} strokeWidth={2.25} />
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI grid — premium glass cards with per-card accent glow */}
-      <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-8 pb-6">
-        {kpiCards.map((card, i) => {
+      {/* KPI grid — clean stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4 md:px-8 pb-6">
+        {kpiCards.map((card) => {
           const Icon = card.Icon;
           return (
             <Link
               key={card.label}
               href={card.href}
-              className={`block no-underline group glass-card glass-card--elevated glass-card--interactive relative overflow-hidden p-6 animate-in stagger-${i + 1}`}
+              className="block no-underline group p-5 rounded-lg transition-colors hover:border-white/[0.15]"
+              style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              {/* Decorative oversized icon — sits behind the number */}
-              <div className="pointer-events-none absolute -top-4 -right-4 opacity-[0.05]">
-                <Icon size={120} strokeWidth={1} />
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-medium uppercase tracking-wider text-white/35">{card.label}</span>
+                <Icon size={14} strokeWidth={1.5} className="text-white/20" />
               </div>
-              {/* Hover arrow — appears bottom-right */}
-              <div className="pointer-events-none absolute bottom-3 right-3 text-white/0 group-hover:text-accent transition-colors text-base">
-                →
-              </div>
-
-              {/* Top accent line — full width, fades to transparent edges */}
-              <div
-                className="absolute top-0 left-0 right-0 h-px"
-                style={{ background: `linear-gradient(90deg, transparent, ${card.accent}, transparent)` }}
-              />
-
-              {/* Soft ambient glow at the top, behind the label */}
-              <div
-                className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-16 blur-2xl opacity-30"
-                style={{ background: card.accent }}
-              />
-
-              {/* Label + accent icon tile */}
-              <div className="relative z-10 flex items-center justify-between mb-4">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
-                  {card.label}
-                </span>
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: `${card.accent}20`, border: `1px solid ${card.accent}30` }}
-                >
-                  <Icon size={13} strokeWidth={2} style={{ color: card.accent }} />
-                </div>
-              </div>
-
-              {/* Hero number — full bleed with subtle glow */}
-              <div
-                className="relative z-10 text-4xl md:text-5xl font-display font-bold text-white leading-none mb-2 min-h-[40px] flex items-center tabular-nums tracking-tight"
-                style={{ textShadow: `0 0 40px ${card.accent}40` }}
-              >
+              <div className="text-2xl font-semibold text-white font-mono tabular-nums mb-1">
                 {statsLoading || card.numeric == null ? (
-                  <span
-                    className="inline-block h-10 w-28 rounded-xl animate-pulse"
-                    style={{ background: 'rgba(255,255,255,0.08)' }}
-                  />
+                  <span className="inline-block h-7 w-20 rounded bg-white/[0.06] animate-pulse" />
                 ) : (
-                  <span className="font-mono tabular-nums">{card.numeric.toLocaleString()}</span>
+                  card.numeric.toLocaleString()
                 )}
               </div>
-
-              <div className="relative z-10 text-[11px] text-white/35 mb-3">{card.sub}</div>
-
-              <div className="relative z-10 min-h-[22px] flex items-center">
-                {card.trendText && (
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold"
-                    style={{
-                      background: card.trendPositive ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
-                      color: card.trendPositive ? '#10b981' : 'rgba(255,255,255,0.45)',
-                      border: `1px solid ${card.trendPositive ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`,
-                    }}
-                  >
-                    {card.trendPositive && <ArrowUp size={10} strokeWidth={2.5} />}
-                    {card.trendText}
+              <div className="text-[11px] text-white/30">{card.sub}</div>
+              {card.trendText && (
+                <div className="mt-2">
+                  <span className={`text-[10px] font-medium ${card.trendPositive ? 'text-green-500' : 'text-white/40'}`}>
+                    {card.trendPositive && '↑ '}{card.trendText}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </Link>
           );
         })}
@@ -373,7 +298,7 @@ export default function AppHome() {
             View all {total > 0 ? total.toLocaleString() : '…'} →
           </a>
         </div>
-        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
+        <div className="overflow-hidden rounded-lg" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}>
           <table className="w-full">
             <thead>
               <tr className="bg-raised border-b border-white/[0.07]">
@@ -483,7 +408,7 @@ export default function AppHome() {
       <div className="relative z-10 flex flex-col md:flex-row items-start gap-5 px-4 md:px-8 pb-12">
 
         {/* LEFT — Trending Now */}
-        <div className="w-full flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden">
+        <div className="w-full flex-1 min-w-0 rounded-lg p-6 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
@@ -580,7 +505,7 @@ export default function AppHome() {
         <div className="w-full md:w-[320px] shrink-0 flex flex-col gap-4">
 
           {/* Top Opportunities */}
-          <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
+          <div className="rounded-lg p-5">
             <h3 className="text-sm font-semibold text-text mb-4">Top Opportunities</h3>
             {opportunities.map((o, i) => {
               const p = o.product;
@@ -734,7 +659,8 @@ function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
   return (
     <Link
       href={`/app/products?product=${product.id}`}
-      className="w-52 shrink-0 rounded-2xl overflow-hidden cursor-pointer group relative no-underline glass-card glass-card--interactive"
+      className="w-52 shrink-0 rounded-lg overflow-hidden cursor-pointer group relative no-underline hover:border-white/[0.15] transition-colors"
+      style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}
       style={{ scrollSnapAlign: 'start' }}
     >
       {/* Decorative rank number */}
