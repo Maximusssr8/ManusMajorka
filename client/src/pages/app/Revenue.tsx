@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
+import { fadeIn } from '@/lib/motion';
 
 /**
  * Revenue.tsx — personal profit log for the operator.
@@ -94,6 +96,7 @@ export default function Revenue() {
   );
 
   return (
+    <motion.div {...fadeIn}>
     <div className="min-h-full bg-bg font-body text-text">
       <div className="px-4 md:px-8 pt-8 pb-6 max-w-5xl">
         {/* Header */}
@@ -268,5 +271,6 @@ export default function Revenue() {
         </div>
       )}
     </div>
+    </motion.div>
   );
 }

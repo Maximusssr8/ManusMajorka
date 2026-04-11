@@ -5,6 +5,8 @@ import { scorePillStyle } from '@/lib/scorePill';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 
 import { C } from '@/lib/designTokens';
+import { motion } from 'framer-motion';
+import { fadeIn } from '@/lib/motion';
 const display = C.fontDisplay;
 const sans = C.fontBody;
 const mono = C.fontBody;
@@ -98,6 +100,7 @@ export default function Creators() {
   };
 
   return (
+    <motion.div {...fadeIn}>
     <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
@@ -265,5 +268,6 @@ export default function Creators() {
         </div>
       </section>
     </div>
+    </motion.div>
   );
 }

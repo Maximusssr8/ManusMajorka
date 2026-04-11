@@ -11,6 +11,8 @@ import { useFavourites } from '@/hooks/useFavourites';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
+import { motion } from 'framer-motion';
+import { fadeIn } from '@/lib/motion';
 
 /* ──────────────────────────────────────────────────────────────
    Helpers — all data from hooks, no hardcoded values
@@ -219,6 +221,7 @@ export default function AppHome() {
   }
 
   return (
+    <motion.div {...fadeIn}>
     <div className="min-h-full bg-bg font-body text-text relative">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -645,6 +648,7 @@ export default function AppHome() {
 
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
+    </motion.div>
   );
 }
 

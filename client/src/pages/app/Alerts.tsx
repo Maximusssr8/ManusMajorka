@@ -9,6 +9,8 @@ import { shortenCategory } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 
 import { C } from '@/lib/designTokens';
+import { motion } from 'framer-motion';
+import { fadeIn } from '@/lib/motion';
 const display = C.fontDisplay;
 const sans = C.fontBody;
 const mono = C.fontBody;
@@ -104,6 +106,7 @@ export default function Alerts() {
   );
 
   return (
+    <motion.div {...fadeIn}>
     <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{
@@ -473,6 +476,7 @@ export default function Alerts() {
         </div>
       </section>
     </div>
+    </motion.div>
   );
 }
 
