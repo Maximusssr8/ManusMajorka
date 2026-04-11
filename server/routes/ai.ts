@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 import { checkRateLimit, aiLimiter } from '../lib/ratelimit';
 import { requireAuth } from '../middleware/requireAuth';
+import { incrementUsage } from '../lib/usage';
 
 const router = Router();
 
@@ -59,6 +60,7 @@ Only output the JSON array. No markdown.`
     const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
     const cleaned = text.replace(/^```[\w]*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
     const ads = JSON.parse(cleaned);
+    await incrementUsage((req as any).user?.userId || '', 'ai_briefs').catch(() => {});
     res.json({ ads });
   } catch (err) {
     console.error('[ad-studio]', err);
@@ -229,6 +231,7 @@ Format: numbered list, one name per line, include a brief (3-word) tagline after
     });
 
     const result = message.content[0].type === 'text' ? message.content[0].text : '';
+    await incrementUsage((req as any).user?.userId || '', 'ai_briefs').catch(() => {});
     res.json({ result });
   } catch (err: any) {
     const { tool, productName, brandName, niche } = req.body;
@@ -362,6 +365,7 @@ STRATEGY TIP: [One sentence on the best hashtag mix for reach vs engagement]`;
     if (!(global as any).__contentCache) (global as any).__contentCache = {};
     (global as any).__contentCache[cacheKey] = { result, ts: Date.now() };
 
+    await incrementUsage((req as any).user?.userId || '', 'ai_briefs').catch(() => {});
     res.json({ result });
   } catch (err: any) {
     const { tool, productName, niche } = req.body;

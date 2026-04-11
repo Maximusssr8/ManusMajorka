@@ -6,6 +6,7 @@ import { searchAffiliateProducts } from '../lib/aliexpress-affiliate';
 import { aeSearchLimiter } from '../lib/ratelimit';
 import { cacheGet, cacheSet, cacheInvalidatePrefix, TTL } from '../lib/redisCache';
 import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
+import { incrementUsage as incrementMonthlyUsage } from '../lib/usage';
 import type { Plan } from '../../shared/plans';
 
 const router = Router();
@@ -410,6 +411,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
               else console.log(`[Search] Cached ${rows.length} results for "${query}"`);
             });
 
+          await incrementMonthlyUsage((req as any).user?.userId || '', 'product_search').catch(() => {});
           res.json({
             products: rows,
             total: items.length,
