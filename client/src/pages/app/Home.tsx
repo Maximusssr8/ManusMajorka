@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'wouter';
 import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
-import CountUp from 'react-countup';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { GradientM } from '@/components/MajorkaLogo';
@@ -336,7 +335,7 @@ export default function AppHome() {
                     style={{ background: 'rgba(255,255,255,0.08)' }}
                   />
                 ) : (
-                  <CountUp start={0} end={card.numeric} duration={1.5} separator="," useEasing preserveValue />
+                  <span className="font-mono tabular-nums">{card.numeric.toLocaleString()}</span>
                 )}
               </div>
 

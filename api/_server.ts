@@ -336,8 +336,8 @@ app.get("/api/usage/summary", requireAuth, async (req: Request, res: Response) =
 // One-time intelligence tables migration endpoint
 app.post("/api/internal/run-intel-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  const migrationSecret = process.env.MIGRATION_SECRET || '';
-  if (secret !== migrationSecret) {
+  const migrationSecret = process.env.MIGRATION_SECRET;
+  if (!migrationSecret || secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -352,8 +352,8 @@ app.post("/api/internal/run-intel-migration", async (req: Request, res: Response
 
 app.post("/api/internal/run-stores-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  const migrationSecret = process.env.MIGRATION_SECRET || '';
-  if (secret !== migrationSecret) {
+  const migrationSecret = process.env.MIGRATION_SECRET;
+  if (!migrationSecret || secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -368,8 +368,8 @@ app.post("/api/internal/run-stores-migration", async (req: Request, res: Respons
 
 app.get("/api/migrations/generated-stores", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  const migrationSecret = process.env.MIGRATION_SECRET || '';
-  if (secret !== migrationSecret) {
+  const migrationSecret = process.env.MIGRATION_SECRET;
+  if (!migrationSecret || secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
