@@ -29,10 +29,12 @@ export const tokens = {
     warning: 'var(--color-amber)',
   },
   badge: {
-    rising:    { bg: 'var(--positive-dim)',  text: 'var(--positive)', border: 'rgba(34,197,94,0.2)' },
-    peaked:    { bg: 'var(--warning-dim)',   text: 'var(--warning)',  border: 'rgba(245,158,11,0.2)' },
-    declining: { bg: 'var(--danger-dim)',    text: 'var(--danger)',   border: 'rgba(239,68,68,0.2)' },
-    hot:       { bg: 'var(--danger-dim)',    text: 'var(--danger)',   border: 'rgba(239,68,68,0.2)' },
-    new:       { bg: 'var(--accent-subtle)', text: 'var(--accent)',   border: 'var(--color-border)' },
+    rising:     { bg: 'var(--positive-dim)',  text: 'var(--positive)', border: 'rgba(34,197,94,0.2)' },
+    peaked:     { bg: 'var(--warning-dim)',   text: 'var(--warning)',  border: 'rgba(245,158,11,0.2)' },
+    declining:  { bg: 'var(--danger-dim)',    text: 'var(--danger)',   border: 'rgba(239,68,68,0.2)' },
+    exploding:  { bg: 'var(--danger-dim)',    text: 'var(--danger)',   border: 'rgba(239,68,68,0.2)' },
+    hot:        { bg: 'var(--danger-dim)',    text: 'var(--danger)',   border: 'rgba(239,68,68,0.2)' },
+    new:        { bg: 'var(--accent-subtle)', text: 'var(--accent)',   border: 'var(--color-border)' },
+    bestseller: { bg: 'rgba(212,175,55,0.12)', text: '#d4af37',        border: 'rgba(212,175,55,0.3)' },
   },
-};
+} as const;

@@ -323,9 +323,9 @@ app.get("/api/usage/summary", requireAuth, async (req: Request, res: Response) =
       periodStart: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
       periodEnd: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
       usage: {
-        aiBriefs: { used: usage['ai_briefs'] ?? 0, limit: limits.aiBriefsPerMonth, unlimited: limits.aiBriefsPerMonth === -1 },
-        reports: { used: usage['reports'] ?? 0, limit: limits.reportsPerMonth, unlimited: limits.reportsPerMonth === -1 },
-        productSearch: { used: usage['product_search'] ?? 0, limit: limits.productSearchPerDay, unlimited: limits.productSearchPerDay === -1 },
+        aiBriefs: { used: usage['ai_briefs'] ?? 0, limit: limits.aiBriefsPerMonth, unlimited: (limits.aiBriefsPerMonth as number) === -1 },
+        reports: { used: usage['reports'] ?? 0, limit: limits.reportsPerMonth, unlimited: (limits.reportsPerMonth as number) === -1 },
+        productSearch: { used: usage['product_search'] ?? 0, limit: limits.productSearchPerDay, unlimited: (limits.productSearchPerDay as number) === -1 },
       },
     });
   } catch {
