@@ -294,6 +294,45 @@ app.get("/api/usage/:feature", requireAuth, async (req: Request, res: Response) 
   }
 });
 
+// ── Usage summary with plan limits — GET /api/usage/summary ──────────────
+app.get("/api/usage/summary", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const email = (req as any).user?.email;
+    const { getAllUsage } = await import('../server/lib/usage');
+    const { PLAN_LIMITS } = await import('../server/lib/planLimits');
+
+    let plan: 'builder' | 'scale' = 'builder';
+    if (email === 'maximusmajorka@gmail.com') {
+      plan = 'scale';
+    } else {
+      const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+      const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      const sb = createClient(SURL, SKEY);
+      const { data: sub } = await sb.from('user_subscriptions')
+        .select('plan').eq('user_id', userId).single();
+      if (sub?.plan?.toLowerCase() === 'scale') plan = 'scale';
+    }
+
+    const usage = await getAllUsage(userId);
+    const limits = PLAN_LIMITS[plan];
+    const now = new Date();
+
+    res.json({
+      plan,
+      periodStart: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+      periodEnd: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString(),
+      usage: {
+        aiBriefs: { used: usage['ai_briefs'] ?? 0, limit: limits.aiBriefsPerMonth, unlimited: limits.aiBriefsPerMonth === -1 },
+        reports: { used: usage['reports'] ?? 0, limit: limits.reportsPerMonth, unlimited: limits.reportsPerMonth === -1 },
+        productSearch: { used: usage['product_search'] ?? 0, limit: limits.productSearchPerDay, unlimited: limits.productSearchPerDay === -1 },
+      },
+    });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch usage' });
+  }
+});
+
 // One-time intelligence tables migration endpoint
 app.post("/api/internal/run-intel-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
