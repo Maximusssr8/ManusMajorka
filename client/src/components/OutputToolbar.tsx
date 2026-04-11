@@ -31,9 +31,9 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
       onClick={handleCopy}
       className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
       style={{
-        background: copied ? 'rgba(99,102,241,0.18)' : '#F9FAFB',
-        border: `1px solid ${copied ? 'rgba(99,102,241,0.52)' : '#F5F5F5'}`,
-        color: copied ? '#6366F1' : '#6B7280',
+        background: copied ? 'rgba(59,130,246,0.18)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(59,130,246,0.52)' : '#F5F5F5'}`,
+        color: copied ? '#3B82F6' : '#6B7280',
         cursor: 'pointer',
         fontFamily: "'Bricolage Grotesque', sans-serif",
         fontWeight: 600,

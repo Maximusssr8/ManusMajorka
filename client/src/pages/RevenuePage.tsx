@@ -15,7 +15,7 @@ import { useLocation } from 'wouter';
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 const G  = '#22C55E';
-const I  = '#6366F1';
+const I  = '#3B82F6';
 const V  = '#8B5CF6';
 const A  = '#F59E0B';
 const brico = "'Bricolage Grotesque', sans-serif";
@@ -108,7 +108,7 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: Pt }[
   if (!active || !payload?.length) return null;
   const { day, revenue } = payload[0].payload;
   return (
-    <div style={{ background: '#0A0F1E', border: '1px solid rgba(99,102,241,0.4)', borderRadius: 12, padding: '12px 18px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)' }}>
+    <div style={{ background: '#0A0F1E', border: '1px solid rgba(59,130,246,0.4)', borderRadius: 12, padding: '12px 18px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)' }}>
       <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>{day}</div>
       <div style={{ fontSize: 22, fontWeight: 900, color: G, fontFamily: brico, letterSpacing: '-0.02em' }}>${revenue.toLocaleString()}</div>
     </div>
@@ -193,9 +193,9 @@ export default function RevenuePage() {
         @keyframes barFill  { from{width:0} to{width:var(--w)} }
         @keyframes countUp  { from{opacity:0} to{opacity:1} }
         .rev-card    { transition: border-color 180ms, transform 180ms, box-shadow 180ms; }
-        .rev-card:hover { border-color:rgba(99,102,241,.4) !important; transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.5) !important; }
+        .rev-card:hover { border-color:rgba(59,130,246,.4) !important; transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.5) !important; }
         .rev-order   { transition: background 150ms, border-color 150ms, transform 120ms; }
-        .rev-order:hover { background:rgba(255,255,255,.05) !important; border-color:rgba(99,102,241,.25) !important; transform:translateX(2px); }
+        .rev-order:hover { background:rgba(255,255,255,.05) !important; border-color:rgba(59,130,246,.25) !important; transform:translateX(2px); }
         .prod-row    { transition: background 150ms, transform 120ms; }
         .prod-row:hover { background:rgba(255,255,255,.06) !important; transform:translateX(3px); }
       `}</style>
@@ -223,13 +223,13 @@ export default function RevenuePage() {
       ════════════════════════════════════════════════════════════ */}
       <div style={{
         background: 'linear-gradient(145deg, #0C1130 0%, #130E38 45%, #091220 100%)',
-        borderBottom: '1px solid rgba(99,102,241,.2)',
+        borderBottom: '1px solid rgba(59,130,246,.2)',
         padding: isMobile ? '32px 16px 36px' : '52px 52px 56px',
         position: 'relative' as const, overflow: 'hidden' as const,
       }}>
         {/* BG orbs */}
         <div style={{ position:'absolute',top:-80, right:-40,  width:500,height:500, background:'radial-gradient(circle,rgba(34,197,94,.1) 0%,transparent 60%)', pointerEvents:'none', animation:'orb1 9s ease-in-out infinite' }} />
-        <div style={{ position:'absolute',bottom:-60,left:-30, width:400,height:400, background:'radial-gradient(circle,rgba(99,102,241,.13) 0%,transparent 60%)', pointerEvents:'none', animation:'orb2 11s ease-in-out infinite' }} />
+        <div style={{ position:'absolute',bottom:-60,left:-30, width:400,height:400, background:'radial-gradient(circle,rgba(59,130,246,.13) 0%,transparent 60%)', pointerEvents:'none', animation:'orb2 11s ease-in-out infinite' }} />
         <div style={{ position:'absolute',top:'25%',left:'40%', width:280,height:280, background:'radial-gradient(circle,rgba(139,92,246,.09) 0%,transparent 65%)', pointerEvents:'none', animation:'orb3 14s ease-in-out infinite' }} />
 
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' as const }}>
@@ -239,7 +239,7 @@ export default function RevenuePage() {
             <div style={{ animation: 'fadeUp .6s ease both' }}>
               {/* Top pill badges */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28, flexWrap: 'wrap' as const }}>
-                <div style={{ display:'flex',alignItems:'center',gap:7, background:'rgba(99,102,241,.14)', border:'1px solid rgba(99,102,241,.3)', borderRadius:999, padding:'6px 14px' }}>
+                <div style={{ display:'flex',alignItems:'center',gap:7, background:'rgba(59,130,246,.14)', border:'1px solid rgba(59,130,246,.3)', borderRadius:999, padding:'6px 14px' }}>
                   <Wallet size={13} color={I} />
                   <span style={{ fontSize:11,color:I,fontWeight:800,letterSpacing:'.05em' }}>REVENUE DASHBOARD</span>
                 </div>
@@ -286,7 +286,7 @@ export default function RevenuePage() {
                     <ArrowUpRight size={15} color={G} />
                     <span style={{ fontSize:14,color:G,fontWeight:800 }}>{stats.moM} vs last month</span>
                   </div>
-                  <div style={{ display:'flex',alignItems:'center',gap:6, background:'rgba(99,102,241,.1)', border:'1px solid rgba(99,102,241,.2)', borderRadius:999, padding:'7px 14px' }}>
+                  <div style={{ display:'flex',alignItems:'center',gap:6, background:'rgba(59,130,246,.1)', border:'1px solid rgba(59,130,246,.2)', borderRadius:999, padding:'7px 14px' }}>
                     <Trophy size={13} color={V} />
                     <span style={{ fontSize:13,color:V,fontWeight:700 }}>🔥 {stats.streak}-day streak</span>
                   </div>
@@ -309,7 +309,7 @@ export default function RevenuePage() {
                       background:`linear-gradient(90deg,${I},${V})`,
                       width: ready ? `${stats.goalPercent}%` : '0%',
                       transition:'width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      boxShadow:`0 0 16px rgba(99,102,241,.6)`,
+                      boxShadow:`0 0 16px rgba(59,130,246,.6)`,
                     }} />
                   </div>
                   <div style={{ fontSize:12,color:'#94A3B8' }}>
@@ -344,7 +344,7 @@ export default function RevenuePage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize:10,fill:'#64748B' }} axisLine={false} tickLine={false} interval={range==='7D' ? 0 : 4} />
                   <YAxis tick={{ fontSize:10,fill:'#64748B' }} axisLine={false} tickLine={false} tickFormatter={(v:number) => `$${(v/1000).toFixed(0)}k`} />
-                  <Tooltip content={<Tip />} cursor={{ stroke:'rgba(99,102,241,.3)',strokeWidth:1,strokeDasharray:'4 4' }} />
+                  <Tooltip content={<Tip />} cursor={{ stroke:'rgba(59,130,246,.3)',strokeWidth:1,strokeDasharray:'4 4' }} />
                   <Area type="monotone" dataKey="revenue" stroke={G} strokeWidth={3} fill="url(#chartGrad)" dot={false} activeDot={{ r:6,fill:G,stroke:'#030608',strokeWidth:2.5 }} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -374,7 +374,7 @@ export default function RevenuePage() {
           </div>
           <button
             onClick={() => nav('/app/store-builder')}
-            style={{ padding: '14px 32px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' as const, fontFamily: "'Bricolage Grotesque',sans-serif" }}
+            style={{ padding: '14px 32px', background: '#3B82F6', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' as const, fontFamily: "'Bricolage Grotesque',sans-serif" }}
           >
             Connect Shopify Store →
           </button>
@@ -510,7 +510,7 @@ export default function RevenuePage() {
           <div style={{ ...glass,borderRadius:24,padding: isMobile ? '22px 18px' : '28px 26px',boxShadow:'0 4px 32px rgba(0,0,0,.3)' }}>
             <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:22 }}>
               <div style={{ display:'flex',alignItems:'center',gap:9 }}>
-                <div style={{ width:34,height:34,borderRadius:10,background:'rgba(99,102,241,.15)',border:'1px solid rgba(99,102,241,.25)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+                <div style={{ width:34,height:34,borderRadius:10,background:'rgba(59,130,246,.15)',border:'1px solid rgba(59,130,246,.25)',display:'flex',alignItems:'center',justifyContent:'center' }}>
                   <Globe size={16} color={I} />
                 </div>
                 <span style={{ fontSize:16,fontWeight:900,color:'#fff',fontFamily:brico }}>Global Revenue</span>
@@ -565,7 +565,7 @@ export default function RevenuePage() {
                 <div style={{ width:7,height:7,borderRadius:'50%',background:G,boxShadow:`0 0 8px ${G}`,animation:'glowPulse 2s ease-in-out infinite' }} />
                 <span style={{ fontSize:12,color:G,fontWeight:700 }}>{stats.todayOrders} today</span>
               </div>
-              <button onClick={handleShare} style={{ display:'flex',alignItems:'center',gap:6,background:'rgba(99,102,241,.1)',border:'1px solid rgba(99,102,241,.2)',borderRadius:999,padding:'7px 14px',cursor:'pointer',color:I,fontSize:12,fontWeight:700 }}>
+              <button onClick={handleShare} style={{ display:'flex',alignItems:'center',gap:6,background:'rgba(59,130,246,.1)',border:'1px solid rgba(59,130,246,.2)',borderRadius:999,padding:'7px 14px',cursor:'pointer',color:I,fontSize:12,fontWeight:700 }}>
                 <Package size={13} color={I} /> Share
               </button>
             </div>
@@ -578,7 +578,7 @@ export default function RevenuePage() {
             <div style={{ fontSize:48,marginBottom:16 }}>🛍️</div>
             <div style={{ fontSize:17,fontWeight:800,color:'#fff',marginBottom:8,fontFamily:brico }}>No orders yet</div>
             <div style={{ fontSize:13,color:'#94A3B8',marginBottom:24 }}>Connect a Shopify store to see real orders here</div>
-            <button onClick={() => nav('/app/store-builder')} style={{ padding:'11px 22px',borderRadius:12,background:I,color:'#fff',border:'none',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:brico,boxShadow:'0 4px 16px rgba(99,102,241,.35)' }}>
+            <button onClick={() => nav('/app/store-builder')} style={{ padding:'11px 22px',borderRadius:12,background:I,color:'#fff',border:'none',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:brico,boxShadow:'0 4px 16px rgba(59,130,246,.35)' }}>
               Connect Store
             </button>
           </div>
@@ -632,7 +632,7 @@ export default function RevenuePage() {
                         <span style={{ fontSize:10,color:'rgba(255,255,255,.15)' }}>·</span>
                         <span style={{ fontSize:11,color:'rgba(255,255,255,.35)' }}>{o.time}</span>
                         <span style={{ fontSize:15 }}>{o.flag}</span>
-                        {o.qty > 1 && <span style={{ fontSize:10,color:I,fontWeight:700,background:'rgba(99,102,241,.1)',borderRadius:999,padding:'1px 7px' }}>×{o.qty}</span>}
+                        {o.qty > 1 && <span style={{ fontSize:10,color:I,fontWeight:700,background:'rgba(59,130,246,.1)',borderRadius:999,padding:'1px 7px' }}>×{o.qty}</span>}
                       </div>
                     </div>
                     {/* Amount + status */}
@@ -660,16 +660,16 @@ export default function RevenuePage() {
       <div style={{ maxWidth:1200,margin:'0 auto',padding: isMobile ? '16px 16px 0' : '24px 52px 0',display:'grid',gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',gap:16 }}>
 
         {/* Connect store */}
-        <div style={{ background:'linear-gradient(135deg,#0C1528 0%,#180E3A 100%)',border:'1px solid rgba(99,102,241,.22)',borderRadius:24,padding: isMobile ? '24px 20px' : '32px 30px',position:'relative' as const,overflow:'hidden' as const,boxShadow:'0 8px 40px rgba(0,0,0,.4)' }}>
-          <div style={{ position:'absolute',top:-40,right:-40,width:160,height:160,background:'radial-gradient(circle,rgba(99,102,241,.2) 0%,transparent 65%)',pointerEvents:'none' }} />
-          <div style={{ width:44,height:44,borderRadius:14,background:'rgba(99,102,241,.15)',border:'1px solid rgba(99,102,241,.3)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16 }}>
+        <div style={{ background:'linear-gradient(135deg,#0C1528 0%,#180E3A 100%)',border:'1px solid rgba(59,130,246,.22)',borderRadius:24,padding: isMobile ? '24px 20px' : '32px 30px',position:'relative' as const,overflow:'hidden' as const,boxShadow:'0 8px 40px rgba(0,0,0,.4)' }}>
+          <div style={{ position:'absolute',top:-40,right:-40,width:160,height:160,background:'radial-gradient(circle,rgba(59,130,246,.2) 0%,transparent 65%)',pointerEvents:'none' }} />
+          <div style={{ width:44,height:44,borderRadius:14,background:'rgba(59,130,246,.15)',border:'1px solid rgba(59,130,246,.3)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16 }}>
             <Zap size={22} color={I} />
           </div>
           <div style={{ fontSize:18,fontWeight:900,color:'#fff',fontFamily:brico,marginBottom:8 }}>Connect your store</div>
           <div style={{ fontSize:13,color:'rgba(255,255,255,.4)',marginBottom:24,lineHeight:1.6 }}>
             Link Shopify to replace demo data with your real orders, revenue, and customer insights.
           </div>
-          <button onClick={() => nav('/app/store-builder')} style={{ padding:'13px 24px',borderRadius:14,border:'none',background:`linear-gradient(135deg,${I},${V})`,color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:brico,display:'flex',alignItems:'center',gap:8,boxShadow:`0 6px 24px rgba(99,102,241,.4)` }}>
+          <button onClick={() => nav('/app/store-builder')} style={{ padding:'13px 24px',borderRadius:14,border:'none',background:`linear-gradient(135deg,${I},${V})`,color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:brico,display:'flex',alignItems:'center',gap:8,boxShadow:`0 6px 24px rgba(59,130,246,.4)` }}>
             <ExternalLink size={15} /> Connect Shopify
           </button>
         </div>

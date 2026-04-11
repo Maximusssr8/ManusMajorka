@@ -45,7 +45,7 @@ export default function InsightsPage() {
           <div className="flex items-center gap-2 mb-2">
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(99,102,241,0.12)', color: '#6366F1' }}
+              style={{ background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }}
             >
               <Lightbulb size={16} />
             </div>

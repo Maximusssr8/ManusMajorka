@@ -5,7 +5,7 @@ import { useAuth } from '@/_core/hooks/useAuth';
 
 const C = {
   bg: '#FAFAFA', card: '#FFFFFF', border: '#F0F0F0',
-  gold: '#6366F1', text: '#0A0A0A', muted: '#6B7280', red: '#ef4444',
+  gold: '#3B82F6', text: '#0A0A0A', muted: '#6B7280', red: '#ef4444',
 };
 
 function getSupplierUrl(product: any): string {
@@ -230,7 +230,7 @@ export default function ProductSearch() {
                         )}
                       </div>
                       {margin && (
-                        <div style={{ fontSize: 12, color: '#6366F1', fontWeight: 600, marginBottom: 10 }}>
+                        <div style={{ fontSize: 12, color: '#3B82F6', fontWeight: 600, marginBottom: 10 }}>
                           Est. margin: ~${margin}
                         </div>
                       )}

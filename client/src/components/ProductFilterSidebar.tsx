@@ -59,7 +59,7 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
 
   const checkPill = (label: string, checked: boolean, onClick: () => void) => (
     <label key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', cursor: 'pointer' }}>
-      <input type="checkbox" checked={checked} onChange={onClick} style={{ accentColor: '#6366F1', width: 14, height: 14, cursor: 'pointer' }} />
+      <input type="checkbox" checked={checked} onChange={onClick} style={{ accentColor: '#3B82F6', width: 14, height: 14, cursor: 'pointer' }} />
       <span style={{ fontSize: 12, color: 'var(--cell-text, #374151)' }}>{label}</span>
     </label>
   );
@@ -81,7 +81,7 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
         <div style={{ width: 228, padding: '60px 16px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
             <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: 'var(--content-text, #0A0A0A)' }}>Filters</span>
-            <button onClick={reset} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Reset</button>
+            <button onClick={reset} style={{ fontSize: 11, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Reset</button>
           </div>
 
           {sectionTitle('\uD83D\uDCE6 Category')}
@@ -90,7 +90,7 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
           {sectionTitle('\uD83D\uDCC8 Revenue Growth')}
           {(['all', 'growing', 'rapid', 'declining'] as const).map(g => (
             <label key={g} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', cursor: 'pointer' }}>
-              <input type="radio" checked={filters.growthFilter === g} onChange={() => update({ growthFilter: g })} style={{ accentColor: '#6366F1', cursor: 'pointer' }} />
+              <input type="radio" checked={filters.growthFilter === g} onChange={() => update({ growthFilter: g })} style={{ accentColor: '#3B82F6', cursor: 'pointer' }} />
               <span style={{ fontSize: 12, color: '#CBD5E1' }}>
                 {g === 'all' ? 'All rates' : g === 'growing' ? 'Growing (>0%)' : g === 'rapid' ? 'Rapid (>20%)' : 'Declining (<0%)'}
               </span>
@@ -100,10 +100,10 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
           {sectionTitle('\uD83C\uDFAF Min AI Score')}
           <div style={{ padding: '0 2px' }}>
             <input type="range" min={50} max={95} value={filters.scoreMin} onChange={e => update({ scoreMin: +e.target.value })}
-              style={{ width: '100%', accentColor: '#6366F1' }} />
+              style={{ width: '100%', accentColor: '#3B82F6' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
               <span>50</span>
-              <span style={{ fontWeight: 700, color: '#6366F1' }}>{filters.scoreMin}+</span>
+              <span style={{ fontWeight: 700, color: '#3B82F6' }}>{filters.scoreMin}+</span>
               <span>95</span>
             </div>
           </div>

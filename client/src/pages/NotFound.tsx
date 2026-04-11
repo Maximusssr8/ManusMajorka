@@ -14,8 +14,8 @@ export default function NotFound() {
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
           style={{
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-            boxShadow: '0 8px 32px rgba(99,102,241,0.25)',
+            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
+            boxShadow: '0 8px 32px rgba(59,130,246,0.25)',
           }}
         >
           <span
@@ -65,11 +65,11 @@ export default function NotFound() {
             onClick={() => setLocation('/')}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{
-              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
               color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               border: 'none',
-              boxShadow: '0 4px 16px rgba(99,102,241,0.25)',
+              boxShadow: '0 4px 16px rgba(59,130,246,0.25)',
             }}
             aria-label="Go to home page"
           >

@@ -14,7 +14,7 @@ export function ShimmerButton({ children, onClick, className, disabled }: Shimme
       disabled={disabled}
       className={cn(
         'relative overflow-hidden rounded-lg px-6 py-3 font-semibold',
-        'bg-[#6366F1] text-black',
+        'bg-[#3B82F6] text-black',
         'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer-sweep_2s_infinite]',
         'before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent',
         'disabled:opacity-50 disabled:cursor-not-allowed',

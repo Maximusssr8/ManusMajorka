@@ -63,7 +63,7 @@ function CopyBtn({ text }: { text: string }) {
       style={{
         background: copied ? '#EEF2FF' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -73,14 +73,14 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 const THREAT_COLORS: Record<string, string> = {
-  Low: '#6366F1',
-  Medium: '#6366F1',
+  Low: '#3B82F6',
+  Medium: '#3B82F6',
   High: '#e05c7a',
 };
 
 function CompetitorCard({ competitor, index }: { competitor: Competitor; index: number }) {
   const [expanded, setExpanded] = useState(index === 0);
-  const tc = THREAT_COLORS[competitor.threatLevel] || '#6366F1';
+  const tc = THREAT_COLORS[competitor.threatLevel] || '#3B82F6';
   return (
     <div
       className="rounded-2xl overflow-hidden"
@@ -133,13 +133,13 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             <div
               className="p-3 rounded-xl"
               style={{
-                background: 'rgba(99,102,241,0.06)',
+                background: 'rgba(59,130,246,0.06)',
                 border: '1px solid #EEF2FF',
               }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Strengths
               </div>
@@ -150,7 +150,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
                     className="text-xs flex items-start gap-1.5"
                     style={{ color: '#CBD5E1' }}
                   >
-                    <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
+                    <span style={{ color: '#3B82F6', flexShrink: 0 }}>+</span>
                     {s}
                   </div>
                 ))}
@@ -218,13 +218,13 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
           <div
             className="p-3 rounded-xl"
             style={{
-              background: 'rgba(99,102,241,0.04)',
-              border: '1px solid rgba(99,102,241,0.1)',
+              background: 'rgba(59,130,246,0.04)',
+              border: '1px solid rgba(59,130,246,0.1)',
             }}
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Key Differentiator
             </div>
@@ -511,14 +511,14 @@ export default function CompetitorBreakdown() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(99,102,241,0.06)',
-                  border: '1px solid rgba(99,102,241,0.18)',
+                  background: 'rgba(59,130,246,0.06)',
+                  border: '1px solid rgba(59,130,246,0.18)',
                 }}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Opportunity Gaps
                   </div>
@@ -535,7 +535,7 @@ export default function CompetitorBreakdown() {
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"
                         style={{
                           background: '#EEF2FF',
-                          color: '#6366F1',
+                          color: '#3B82F6',
                           fontFamily: "'Bricolage Grotesque', sans-serif",
                         }}
                       >

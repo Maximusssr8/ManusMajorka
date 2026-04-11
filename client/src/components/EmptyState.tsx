@@ -20,9 +20,9 @@ export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: 
         <div
           className="w-20 h-20 rounded-2xl mx-auto mb-5 flex items-center justify-center relative"
           style={{
-            background: 'rgba(99,102,241,0.06)',
-            border: '1px solid rgba(99,102,241,0.12)',
-            boxShadow: '0 0 40px rgba(99,102,241,0.05)',
+            background: 'rgba(59,130,246,0.06)',
+            border: '1px solid rgba(59,130,246,0.12)',
+            boxShadow: '0 0 40px rgba(59,130,246,0.05)',
           }}
         >
           {/* Decorative ring */}
@@ -30,10 +30,10 @@ export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: 
             className="absolute inset-0 rounded-2xl"
             style={{
               background:
-                'radial-gradient(circle at 30% 30%, rgba(99,102,241,0.08), transparent 60%)',
+                'radial-gradient(circle at 30% 30%, rgba(59,130,246,0.08), transparent 60%)',
             }}
           />
-          <Icon size={32} style={{ color: '#6366F1', opacity: 0.8 }} />
+          <Icon size={32} style={{ color: '#3B82F6', opacity: 0.8 }} />
         </div>
         <h3
           className="text-base font-extrabold mb-2"
@@ -49,12 +49,12 @@ export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: 
             onClick={onCta}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
             style={{
-              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
               color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',
               border: 'none',
-              boxShadow: '0 4px 16px rgba(99,102,241,0.2)',
+              boxShadow: '0 4px 16px rgba(59,130,246,0.2)',
             }}
           >
             {ctaLabel}

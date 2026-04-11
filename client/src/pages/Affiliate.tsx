@@ -14,9 +14,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#6366F1',
-  goldDim: 'rgba(99,102,241,0.10)',
-  goldBorder: 'rgba(99,102,241,0.25)',
+  gold: '#3B82F6',
+  goldDim: 'rgba(59,130,246,0.10)',
+  goldBorder: 'rgba(59,130,246,0.25)',
   green: '#22c55e',
   purple: '#a855f7',
 };
@@ -126,7 +126,7 @@ export default function Affiliate() {
           }}
         >
           {/* Gold top strip */}
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${C.gold}, #4F46E5)` }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${C.gold}, #2563EB)` }} />
 
           <div style={{ fontSize: 36, marginBottom: 8 }}>💎</div>
           <h1 style={{ fontFamily: syne, fontSize: 28, fontWeight: 800, color: C.text, margin: '0 0 10px' }}>
@@ -237,7 +237,7 @@ export default function Affiliate() {
             <button
               onClick={handleJoin}
               disabled={joining}
-              style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', border: 'none', borderRadius: 12, padding: '13px 36px', fontFamily: syne, fontWeight: 700, fontSize: 15, cursor: joining ? 'not-allowed' : 'pointer', opacity: joining ? 0.7 : 1 }}
+              style={{ background: `linear-gradient(135deg, ${C.gold}, #2563EB)`, color: '#000', border: 'none', borderRadius: 12, padding: '13px 36px', fontFamily: syne, fontWeight: 700, fontSize: 15, cursor: joining ? 'not-allowed' : 'pointer', opacity: joining ? 0.7 : 1 }}
             >
               {joining ? 'Setting up...' : "Join Now — It's Free"}
             </button>

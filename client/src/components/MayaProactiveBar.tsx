@@ -56,7 +56,7 @@ export default function MayaProactiveBar() {
         right: 0,
         zIndex: 40,
         background: 'rgba(8,10,14,0.95)',
-        borderTop: '1px solid rgba(99,102,241,0.2)',
+        borderTop: '1px solid rgba(59,130,246,0.2)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         padding: '10px 16px',
@@ -86,7 +86,7 @@ export default function MayaProactiveBar() {
               width: 20,
               height: 20,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+              background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -102,7 +102,7 @@ export default function MayaProactiveBar() {
           <span
             style={{
               fontSize: 11,
-              color: 'rgba(99,102,241,0.7)',
+              color: 'rgba(59,130,246,0.7)',
               fontWeight: 700,
               fontFamily: "'Bricolage Grotesque', sans-serif",
               whiteSpace: 'nowrap',
@@ -119,12 +119,12 @@ export default function MayaProactiveBar() {
               key={i}
               onClick={() => handleSuggestion(s.tool, s.params)}
               style={{
-                background: 'rgba(99,102,241,0.08)',
-                border: '1px solid rgba(99,102,241,0.25)',
+                background: 'rgba(59,130,246,0.08)',
+                border: '1px solid rgba(59,130,246,0.25)',
                 borderRadius: 20,
                 padding: '5px 12px',
                 fontSize: 12,
-                color: '#6366F1',
+                color: '#3B82F6',
                 cursor: 'pointer',
                 fontFamily: 'DM Sans, sans-serif',
                 fontWeight: 500,
@@ -132,12 +132,12 @@ export default function MayaProactiveBar() {
                 transition: 'all 0.15s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(99,102,241,0.16)';
-                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)';
+                e.currentTarget.style.background = 'rgba(59,130,246,0.16)';
+                e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(99,102,241,0.08)';
-                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                e.currentTarget.style.background = 'rgba(59,130,246,0.08)';
+                e.currentTarget.style.borderColor = 'rgba(59,130,246,0.25)';
               }}
             >
               {s.text} →

@@ -85,7 +85,7 @@ export default function Affiliates() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: display,
           }}>M</div>
@@ -134,9 +134,9 @@ export default function Affiliates() {
             gap: 16,
           }}>
             {[
-              { icon: <CheckCircle size={22} color="#a5b4fc" />, title: '1. Sign up', body: 'Get approved in under 24 hours. No audience size minimum.' },
-              { icon: <Link2 size={22} color="#a5b4fc" />,       title: '2. Share your link', body: 'Your unique tracking link + ready-to-use creative assets.' },
-              { icon: <DollarSign size={22} color="#a5b4fc" />,  title: '3. Earn 30% recurring', body: 'Monthly PayPal payouts. Commissions last as long as the customer.' },
+              { icon: <CheckCircle size={22} color="#93C5FD" />, title: '1. Sign up', body: 'Get approved in under 24 hours. No audience size minimum.' },
+              { icon: <Link2 size={22} color="#93C5FD" />,       title: '2. Share your link', body: 'Your unique tracking link + ready-to-use creative assets.' },
+              { icon: <DollarSign size={22} color="#93C5FD" />,  title: '3. Earn 30% recurring', body: 'Monthly PayPal payouts. Commissions last as long as the customer.' },
             ].map((step) => (
               <div key={step.title} style={{
                 background: '#111114',
@@ -170,7 +170,7 @@ export default function Affiliates() {
             }}>
               <label style={{ display: 'block' }}>
                 <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#e5e7eb', marginBottom: 6 }}>
-                  Audience size: <span style={{ color: '#a5b4fc' }}>{audience.toLocaleString()}</span>
+                  Audience size: <span style={{ color: '#93C5FD' }}>{audience.toLocaleString()}</span>
                 </span>
                 <input
                   type="range"
@@ -179,12 +179,12 @@ export default function Affiliates() {
                   step={500}
                   value={audience}
                   onChange={(e) => setAudience(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#6366F1' }}
+                  style={{ width: '100%', accentColor: '#3B82F6' }}
                 />
               </label>
               <label style={{ display: 'block' }}>
                 <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#e5e7eb', marginBottom: 6 }}>
-                  Conversion rate: <span style={{ color: '#a5b4fc' }}>{convPct}%</span>
+                  Conversion rate: <span style={{ color: '#93C5FD' }}>{convPct}%</span>
                 </span>
                 <input
                   type="range"
@@ -193,7 +193,7 @@ export default function Affiliates() {
                   step={0.5}
                   value={convPct}
                   onChange={(e) => setConvPct(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#6366F1' }}
+                  style={{ width: '100%', accentColor: '#3B82F6' }}
                 />
               </label>
             </div>
@@ -243,7 +243,7 @@ export default function Affiliates() {
                 fontSize: 13,
                 color: '#e5e7eb',
               }}>
-                <Gift size={14} color="#a5b4fc" />
+                <Gift size={14} color="#93C5FD" />
                 {perk}
               </div>
             ))}
@@ -304,7 +304,7 @@ export default function Affiliates() {
                   padding: '14px 28px',
                   borderRadius: 999,
                   border: 'none',
-                  background: status === 'submitting' ? 'rgba(99,102,241,0.4)' : '#6366F1',
+                  background: status === 'submitting' ? 'rgba(59,130,246,0.4)' : '#3B82F6',
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: 14,

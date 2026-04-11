@@ -73,7 +73,7 @@ function CopyBtn({ text }: { text: string }) {
       style={{
         background: copied ? '#EEF2FF' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -84,8 +84,8 @@ function CopyBtn({ text }: { text: string }) {
 
 const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
   Exploding: { color: '#e05c7a', icon: <TrendingUp size={11} />, bg: 'rgba(224,92,122,0.1)' },
-  Rising: { color: '#6366F1', icon: <TrendingUp size={11} />, bg: '#EEF2FF' },
-  Stable: { color: '#6366F1', icon: <Minus size={11} />, bg: 'rgba(99,102,241,0.1)' },
+  Rising: { color: '#3B82F6', icon: <TrendingUp size={11} />, bg: '#EEF2FF' },
+  Stable: { color: '#3B82F6', icon: <Minus size={11} />, bg: 'rgba(59,130,246,0.1)' },
   Declining: {
     color: '#9CA3AF',
     icon: <TrendingDown size={11} />,
@@ -94,8 +94,8 @@ const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg
 };
 
 const POTENTIAL_COLORS: Record<string, string> = {
-  High: '#6366F1',
-  Medium: '#6366F1',
+  High: '#3B82F6',
+  Medium: '#3B82F6',
   Low: '#e05c7a',
 };
 
@@ -392,7 +392,7 @@ export default function TrendRadar() {
                   color: 'rgba(255,255,255,0.8)',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -416,7 +416,7 @@ export default function TrendRadar() {
                   color: 'rgba(255,255,255,0.8)',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -446,7 +446,7 @@ export default function TrendRadar() {
                   color: 'rgba(255,255,255,0.8)',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -620,13 +620,13 @@ export default function TrendRadar() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(99,102,241,0.05)',
-                  border: '1px solid rgba(99,102,241,0.15)',
+                  background: 'rgba(59,130,246,0.05)',
+                  border: '1px solid rgba(59,130,246,0.15)',
                 }}
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Actionable Insight
                 </div>

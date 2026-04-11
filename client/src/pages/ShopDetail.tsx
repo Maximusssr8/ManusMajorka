@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import Sparkline from '@/components/Sparkline';
 import { useLocation, useParams } from 'wouter';
 
-const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', gold: '#6366F1', text: '#0A0A0A', muted: 'rgba(55,65,81,0.5)' };
+const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', gold: '#3B82F6', text: '#0A0A0A', muted: 'rgba(55,65,81,0.5)' };
 
 interface ShopDetailData {
   id: string;
@@ -92,7 +92,7 @@ export default function ShopDetail() {
                 <div style={{ fontSize: 24, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>{shop.shop_name}</div>
                 <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{shop.shop_domain}</div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: C.gold }}>{shop.niche}</span>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(59,130,246,0.1)', color: C.gold }}>{shop.niche}</span>
                   <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.03)', color: C.muted, textTransform: 'uppercase' }}>{shop.shop_type}</span>
                   <span style={{ fontSize: 12, color: C.muted }}>Est. {shop.founded_year}</span>
                 </div>
@@ -113,7 +113,7 @@ export default function ShopDetail() {
             {[
               { label: 'Items Sold/Mo', value: (shop.items_sold_est || 0).toLocaleString() },
               { label: 'Avg Unit Price', value: `$${shop.avg_unit_price_aud} AUD` },
-              { label: 'Growth Rate', value: `${shop.growth_rate_pct > 0 ? '+' : ''}${shop.growth_rate_pct}%`, color: shop.growth_rate_pct >= 0 ? '#6366F1' : '#ef4444' },
+              { label: 'Growth Rate', value: `${shop.growth_rate_pct > 0 ? '+' : ''}${shop.growth_rate_pct}%`, color: shop.growth_rate_pct >= 0 ? '#3B82F6' : '#ef4444' },
               { label: 'Ad Spend Est.', value: `$${(shop.ad_spend_est_aud || 0).toLocaleString()}/mo` },
             ].map(({ label, value, color }) => (
               <div key={label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px' }}>
@@ -149,7 +149,7 @@ export default function ShopDetail() {
             <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 12 }}>AI Store Analysis</div>
             {!analysis ? (
               <button onClick={generateAnalysis} disabled={analysing}
-                style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 14, fontWeight: 700, cursor: analysing ? 'not-allowed' : 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(59,130,246,0.1)', border: `1px solid rgba(59,130,246,0.25)`, color: C.gold, fontSize: 14, fontWeight: 700, cursor: analysing ? 'not-allowed' : 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {analysing ? 'Analysing...' : 'Generate Analysis'}
               </button>
             ) : (
@@ -158,7 +158,7 @@ export default function ShopDetail() {
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: C.muted, marginBottom: 8 }}>Why It's Succeeding</div>
                   {analysis.why_succeeding.map((point, i) => (
                     <div key={i} style={{ fontSize: 13, color: C.text, padding: '6px 0', borderBottom: i < analysis.why_succeeding.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', gap: 8 }}>
-                      <span style={{ color: '#6366F1', flexShrink: 0 }}>✓</span> {point}
+                      <span style={{ color: '#3B82F6', flexShrink: 0 }}>✓</span> {point}
                     </div>
                   ))}
                 </div>
@@ -170,7 +170,7 @@ export default function ShopDetail() {
                     </div>
                   ))}
                 </div>
-                <div style={{ background: 'rgba(99,102,241,0.06)', border: `1px solid rgba(99,102,241,0.2)`, borderRadius: 10, padding: 14 }}>
+                <div style={{ background: 'rgba(59,130,246,0.06)', border: `1px solid rgba(59,130,246,0.2)`, borderRadius: 10, padding: 14 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: C.gold, marginBottom: 6 }}>Your Competing Angle</div>
                   <div style={{ fontSize: 13, color: C.text }}>{analysis.competing_angle}</div>
                 </div>
@@ -196,7 +196,7 @@ export default function ShopDetail() {
                 {shop.similar_shops.map(s => (
                   <div key={s.id} onClick={() => navigate(`/app/shops/${s.id}`)}
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#0d0d10', borderRadius: 10, cursor: 'pointer', border: `1px solid ${C.border}` }}
-                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(99,102,241,0.3)'}
+                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(59,130,246,0.3)'}
                     onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = C.border}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{s.shop_name}</div>
@@ -204,7 +204,7 @@ export default function ShopDetail() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: C.gold }}>${(s.est_revenue_aud / 1000).toFixed(0)}k</div>
-                      <div style={{ fontSize: 11, color: s.growth_rate_pct >= 0 ? '#6366F1' : '#ef4444' }}>{s.growth_rate_pct > 0 ? '+' : ''}{s.growth_rate_pct}%</div>
+                      <div style={{ fontSize: 11, color: s.growth_rate_pct >= 0 ? '#3B82F6' : '#ef4444' }}>{s.growth_rate_pct > 0 ? '+' : ''}{s.growth_rate_pct}%</div>
                     </div>
                   </div>
                 ))}

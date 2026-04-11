@@ -57,7 +57,7 @@ export default function Contact() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: display,
           }}>M</div>
@@ -77,9 +77,9 @@ export default function Contact() {
             display: 'inline-block',
             padding: '6px 14px',
             borderRadius: 999,
-            background: 'rgba(99,102,241,0.08)',
-            border: '1px solid rgba(99,102,241,0.2)',
-            fontSize: 11, fontFamily: mono, color: '#a5b4fc',
+            background: 'rgba(59,130,246,0.08)',
+            border: '1px solid rgba(59,130,246,0.2)',
+            fontSize: 11, fontFamily: mono, color: '#93C5FD',
             letterSpacing: '0.08em', textTransform: 'uppercase',
             marginBottom: 18,
           }}>Get in touch</div>
@@ -113,7 +113,7 @@ export default function Contact() {
             textDecoration: 'none',
             display: 'block',
           }}>
-            <Mail size={22} color="#a5b4fc" style={{ marginBottom: 12 }} />
+            <Mail size={22} color="#93C5FD" style={{ marginBottom: 12 }} />
             <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: '#f5f5f5', marginBottom: 4 }}>
               Email
             </div>
@@ -127,7 +127,7 @@ export default function Contact() {
             textDecoration: 'none',
             display: 'block',
           }}>
-            <MessageCircle size={22} color="#a5b4fc" style={{ marginBottom: 12 }} />
+            <MessageCircle size={22} color="#93C5FD" style={{ marginBottom: 12 }} />
             <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: '#f5f5f5', marginBottom: 4 }}>
               Support
             </div>
@@ -199,7 +199,7 @@ export default function Contact() {
                 padding: '14px 28px',
                 borderRadius: 999,
                 border: 'none',
-                background: status === 'submitting' ? 'rgba(99,102,241,0.4)' : '#6366F1',
+                background: status === 'submitting' ? 'rgba(59,130,246,0.4)' : '#3B82F6',
                 color: '#fff',
                 fontWeight: 600,
                 fontSize: 14,

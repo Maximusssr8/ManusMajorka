@@ -172,11 +172,11 @@ export default function FinancialModeler() {
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{
-                background: 'rgba(99,102,241,0.18)',
+                background: 'rgba(59,130,246,0.18)',
                 border: '1px solid #C7D2FE',
               }}
             >
-              <DollarSign size={15} style={{ color: '#6366F1' }} />
+              <DollarSign size={15} style={{ color: '#3B82F6' }} />
             </div>
             <div>
               <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
@@ -248,7 +248,7 @@ export default function FinancialModeler() {
                 className="block text-xs font-bold uppercase tracking-wider mb-1.5"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
-                {label} {required && <span style={{ color: '#6366F1' }}>*</span>}
+                {label} {required && <span style={{ color: '#3B82F6' }}>*</span>}
               </label>
               <input
                 type="number"
@@ -261,7 +261,7 @@ export default function FinancialModeler() {
                   border: '1.5px solid #F5F5F5',
                   color: '#CBD5E1',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.68)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(59,130,246,0.68)')}
                 onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
               />
             </div>
@@ -274,7 +274,7 @@ export default function FinancialModeler() {
             style={{
               background: generating
                 ? '#C7D2FE'
-                : 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                : 'linear-gradient(135deg, #3B82F6, #2563EB)',
               color: '#fff',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               boxShadow: generating ? 'none' : '0 4px 20px #C7D2FE',
@@ -327,13 +327,13 @@ export default function FinancialModeler() {
                   {
                     label: 'Net Margin',
                     value: `${result.margin.toFixed(1)}%`,
-                    color: result.margin > 0 ? '#6366F1' : '#ff6b6b',
+                    color: result.margin > 0 ? '#3B82F6' : '#ff6b6b',
                     icon: TrendingUp,
                   },
                   {
                     label: 'ROAS',
                     value: `${result.roas.toFixed(1)}x`,
-                    color: result.roas >= 2 ? '#6366F1' : result.roas >= 1 ? '#F59E0B' : '#ff6b6b',
+                    color: result.roas >= 2 ? '#3B82F6' : result.roas >= 1 ? '#F59E0B' : '#ff6b6b',
                     icon: Target,
                   },
                   {
@@ -345,7 +345,7 @@ export default function FinancialModeler() {
                   {
                     label: 'Break-even Days',
                     value: `${result.breakEvenDays}d`,
-                    color: '#6366F1',
+                    color: '#3B82F6',
                     icon: DollarSign,
                   },
                 ].map(({ label, value, color, icon: Icon }) => (
@@ -382,7 +382,7 @@ export default function FinancialModeler() {
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Monthly P&L Statement
                   </div>
@@ -412,7 +412,7 @@ export default function FinancialModeler() {
                       </span>
                       <span
                         className={`text-xs font-mono ${isTotal ? 'font-bold' : ''}`}
-                        style={{ color: row.value >= 0 ? '#6366F1' : '#ff6b6b' }}
+                        style={{ color: row.value >= 0 ? '#3B82F6' : '#ff6b6b' }}
                       >
                         {row.value >= 0 ? '$' : '-$'}
                         {Math.abs(row.value).toLocaleString(undefined, {
@@ -464,11 +464,11 @@ export default function FinancialModeler() {
                           {f.month}
                         </span>
                         <div className="flex gap-4 text-xs font-mono">
-                          <span style={{ color: '#6366F1' }}>${f.revenue.toLocaleString()}</span>
-                          <span style={{ color: f.profit >= 0 ? '#6366F1' : '#ff6b6b' }}>
+                          <span style={{ color: '#3B82F6' }}>${f.revenue.toLocaleString()}</span>
+                          <span style={{ color: f.profit >= 0 ? '#3B82F6' : '#ff6b6b' }}>
                             P: ${f.profit.toLocaleString()}
                           </span>
-                          <span style={{ color: f.cumulative >= 0 ? '#6366F1' : '#ff6b6b' }}>
+                          <span style={{ color: f.cumulative >= 0 ? '#3B82F6' : '#ff6b6b' }}>
                             Σ ${f.cumulative.toLocaleString()}
                           </span>
                         </div>

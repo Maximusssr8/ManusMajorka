@@ -12,11 +12,11 @@ export function ProtectedRoute({ children, requireSubscription = false }: { chil
       <div className="flex h-screen items-center justify-center flex-col gap-4" style={{ background: '#0d0f14' }}>
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-lg animate-pulse"
-          style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          style={{ background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)', color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >M</div>
         <div className="flex gap-1">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#6366F1', opacity: 0.6, animationDelay: `${i * 0.15}s` }} />
+            <div key={i} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#3B82F6', opacity: 0.6, animationDelay: `${i * 0.15}s` }} />
           ))}
         </div>
       </div>

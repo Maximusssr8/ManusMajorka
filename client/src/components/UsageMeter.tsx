@@ -53,7 +53,7 @@ export default function UsageMeter({ feature, limit, label, compact }: UsageMete
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#CBD5E1' }}>{count} / {limit} {label} this month</span>
             {atLimit && (
-              <button onClick={() => setShowUpgrade(true)} style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
+              <button onClick={() => setShowUpgrade(true)} style={{ fontSize: 11, fontWeight: 700, color: '#3B82F6', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>
                 Upgrade →
               </button>
             )}

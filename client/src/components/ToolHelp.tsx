@@ -40,10 +40,10 @@ export default function ToolHelp({
         onMouseEnter={() => setOpen(true)}
         className="w-5 h-5 rounded-full flex items-center justify-center transition-all"
         style={{
-          background: open ? 'rgba(99,102,241,0.1)' : 'transparent',
+          background: open ? 'rgba(59,130,246,0.1)' : 'transparent',
           border: 'none',
           cursor: 'pointer',
-          color: open ? '#6366F1' : '#9CA3AF',
+          color: open ? '#3B82F6' : '#9CA3AF',
         }}
         aria-label="Tool help"
       >
@@ -55,7 +55,7 @@ export default function ToolHelp({
           className="absolute left-0 top-full mt-2 z-50 animate-scale-in"
           style={{
             background: '#161620',
-            border: '1px solid rgba(99,102,241,0.2)',
+            border: '1px solid rgba(59,130,246,0.2)',
             borderRadius: 12,
             boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
             width: 280,
@@ -66,7 +66,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 What it does
               </div>
@@ -77,7 +77,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Best for
               </div>
@@ -88,7 +88,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Example input
               </div>
@@ -107,7 +107,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 You get
               </div>

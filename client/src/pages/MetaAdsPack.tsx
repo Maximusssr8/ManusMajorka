@@ -61,7 +61,7 @@ function CopyBtn({ text, label = 'Copy' }: { text: string; label?: string }) {
       style={{
         background: copied ? '#EEF2FF' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#6B7280',
+        color: copied ? 'rgba(59,130,246,1.00)' : '#6B7280',
         cursor: 'pointer',
       }}
     >
@@ -72,9 +72,9 @@ function CopyBtn({ text, label = 'Copy' }: { text: string; label?: string }) {
 }
 
 const ANGLE_COLORS = [
-  { accent: '#6366F1', bg: 'rgba(99,102,241,0.06)', border: 'rgba(99,102,241,0.2)' },
+  { accent: '#3B82F6', bg: 'rgba(59,130,246,0.06)', border: 'rgba(59,130,246,0.2)' },
   { accent: '#9c5fff', bg: 'rgba(156,95,255,0.06)', border: 'rgba(156,95,255,0.2)' },
-  { accent: '#6366F1', bg: 'rgba(99,102,241,0.09)', border: 'rgba(99,102,241,0.30)' },
+  { accent: '#3B82F6', bg: 'rgba(59,130,246,0.09)', border: 'rgba(59,130,246,0.30)' },
   { accent: '#e05c7a', bg: 'rgba(224,92,122,0.06)', border: 'rgba(224,92,122,0.2)' },
   { accent: '#4ab8f5', bg: 'rgba(74,184,245,0.06)', border: 'rgba(74,184,245,0.2)' },
 ];
@@ -439,9 +439,9 @@ export default function MetaAdsPack() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}
+          style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}
         >
-          <Zap size={15} style={{ color: '#6366F1' }} />
+          <Zap size={15} style={{ color: '#3B82F6' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
@@ -460,9 +460,9 @@ export default function MetaAdsPack() {
               onClick={copyAllPack}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
               style={{
-                background: 'rgba(99,102,241,0.1)',
-                border: '1px solid rgba(99,102,241,0.25)',
-                color: 'rgba(99,102,241,0.9)',
+                background: 'rgba(59,130,246,0.1)',
+                border: '1px solid rgba(59,130,246,0.25)',
+                color: 'rgba(59,130,246,0.9)',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: 'pointer',
               }}
@@ -512,9 +512,9 @@ export default function MetaAdsPack() {
                 disabled={importing || !importUrl.trim()}
                 className="px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 flex-shrink-0 disabled:opacity-50"
                 style={{
-                  background: 'rgba(99,102,241,0.15)',
-                  border: '1px solid rgba(99,102,241,0.3)',
-                  color: '#6366F1',
+                  background: 'rgba(59,130,246,0.15)',
+                  border: '1px solid rgba(59,130,246,0.3)',
+                  color: '#3B82F6',
                   cursor: 'pointer',
                 }}
               >
@@ -653,7 +653,7 @@ export default function MetaAdsPack() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
-              background: isLoading ? 'rgba(99,102,241,0.3)' : '#6366F1',
+              background: isLoading ? 'rgba(59,130,246,0.3)' : '#3B82F6',
               color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -691,11 +691,11 @@ export default function MetaAdsPack() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: 'rgba(99,102,241,0.1)',
-                  border: '1px solid rgba(99,102,241,0.2)',
+                  background: 'rgba(59,130,246,0.1)',
+                  border: '1px solid rgba(59,130,246,0.2)',
                 }}
               >
-                <Zap size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
+                <Zap size={24} style={{ color: '#3B82F6' }} className="animate-pulse" />
               </div>
               <div className="text-center">
                 <div
@@ -713,7 +713,7 @@ export default function MetaAdsPack() {
                   <div
                     key={i}
                     className="w-2 h-2 rounded-full animate-bounce"
-                    style={{ background: '#6366F1', animationDelay: `${i * 0.15}s` }}
+                    style={{ background: '#3B82F6', animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
               </div>
@@ -725,11 +725,11 @@ export default function MetaAdsPack() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: 'rgba(99,102,241,0.08)',
-                  border: '1px solid rgba(99,102,241,0.15)',
+                  background: 'rgba(59,130,246,0.08)',
+                  border: '1px solid rgba(59,130,246,0.15)',
                 }}
               >
-                <Zap size={24} style={{ color: '#6366F1' }} />
+                <Zap size={24} style={{ color: '#3B82F6' }} />
               </div>
               <div className="text-center max-w-sm">
                 <div
@@ -740,7 +740,7 @@ export default function MetaAdsPack() {
                 </div>
                 <div className="text-sm mb-4" style={{ color: '#9CA3AF' }}>
                   Enter your product details on the left and hit{' '}
-                  <span style={{ color: '#6366F1' }}>Generate Ads Pack</span> to get 5 creative
+                  <span style={{ color: '#3B82F6' }}>Generate Ads Pack</span> to get 5 creative
                   angles with full copy.
                 </div>
                 <div className="space-y-2 text-left max-w-xs mx-auto">
@@ -762,8 +762,8 @@ export default function MetaAdsPack() {
                       <span
                         className="w-5 h-5 rounded-lg flex items-center justify-center text-xs font-extrabold flex-shrink-0"
                         style={{
-                          background: 'rgba(99,102,241,0.15)',
-                          color: '#6366F1',
+                          background: 'rgba(59,130,246,0.15)',
+                          color: '#3B82F6',
                           fontFamily: "'Bricolage Grotesque', sans-serif",
                         }}
                       >
@@ -783,14 +783,14 @@ export default function MetaAdsPack() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(99,102,241,0.06)',
-                  border: '1px solid rgba(99,102,241,0.15)',
+                  background: 'rgba(59,130,246,0.06)',
+                  border: '1px solid rgba(59,130,246,0.15)',
                 }}
               >
                 <div className="flex items-center justify-between mb-1">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Product Summary
                   </div>
@@ -869,9 +869,9 @@ export default function MetaAdsPack() {
                       className="w-full flex gap-3 text-xs p-2.5 rounded-xl text-left transition-all"
                       style={{
                         background: checkedSteps.has(i)
-                          ? 'rgba(99,102,241,0.09)'
+                          ? 'rgba(59,130,246,0.09)'
                           : '#F9FAFB',
-                        border: `1px solid ${checkedSteps.has(i) ? 'rgba(99,102,241,0.30)' : 'transparent'}`,
+                        border: `1px solid ${checkedSteps.has(i) ? 'rgba(59,130,246,0.30)' : 'transparent'}`,
                         cursor: 'pointer',
                       }}
                     >
@@ -879,17 +879,17 @@ export default function MetaAdsPack() {
                         className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
                         style={{
                           background: checkedSteps.has(i)
-                            ? 'rgba(99,102,241,0.30)'
-                            : 'rgba(99,102,241,0.15)',
-                          border: `1px solid ${checkedSteps.has(i) ? 'rgba(99,102,241,0.60)' : 'transparent'}`,
+                            ? 'rgba(59,130,246,0.30)'
+                            : 'rgba(59,130,246,0.15)',
+                          border: `1px solid ${checkedSteps.has(i) ? 'rgba(59,130,246,0.60)' : 'transparent'}`,
                         }}
                       >
                         {checkedSteps.has(i) ? (
-                          <Check size={10} style={{ color: '#6366F1' }} />
+                          <Check size={10} style={{ color: '#3B82F6' }} />
                         ) : (
                           <span
                             style={{
-                              color: '#6366F1',
+                              color: '#3B82F6',
                               fontFamily: "'Bricolage Grotesque', sans-serif",
                               fontSize: '10px',
                               fontWeight: 800,
@@ -956,7 +956,7 @@ export default function MetaAdsPack() {
                         className="text-xs flex items-center gap-2"
                         style={{ color: '#CBD5E1' }}
                       >
-                        <span style={{ color: '#6366F1' }}>•</span>
+                        <span style={{ color: '#3B82F6' }}>•</span>
                         {kpi}
                       </div>
                     ))}

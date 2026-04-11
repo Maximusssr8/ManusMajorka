@@ -40,7 +40,7 @@ function md(text: string): string {
       // ### H3
       .replace(
         /^### (.+)$/gm,
-        `<h3 style="font-family: 'Bricolage Grotesque', sans-serif;font-size:16px;font-weight:600;color:#6366F1;margin:16px 0 8px">$1</h3>`
+        `<h3 style="font-family: 'Bricolage Grotesque', sans-serif;font-size:16px;font-weight:600;color:#3B82F6;margin:16px 0 8px">$1</h3>`
       )
       // Paragraphs (non-empty lines that aren't already HTML)
       .replace(/^(?!<)((?!<).+)$/gm, '<p style="margin:6px 0;line-height:1.7">$1</p>')
@@ -272,7 +272,7 @@ export default function StoreSpy() {
               onClick={() => analyse()}
               disabled={loading || !url.trim()}
               style={{
-                background: loading || !url.trim() ? '#9CA3AF' : '#6366F1',
+                background: loading || !url.trim() ? '#9CA3AF' : '#3B82F6',
                 color: loading || !url.trim() ? '#6B7280' : '#FAFAFA',
                 border: 'none',
                 borderRadius: 10,
@@ -298,8 +298,8 @@ export default function StoreSpy() {
                 display: 'inline-block',
                 width: 40,
                 height: 40,
-                border: '3px solid rgba(99,102,241,0.2)',
-                borderTopColor: '#6366F1',
+                border: '3px solid rgba(59,130,246,0.2)',
+                borderTopColor: '#3B82F6',
                 borderRadius: '50%',
                 animation: 'spin 0.8s linear infinite',
                 marginBottom: 20,
@@ -335,7 +335,7 @@ export default function StoreSpy() {
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        background: isDone ? '#22c55e' : isActive ? '#6366F1' : '#9CA3AF',
+                        background: isDone ? '#22c55e' : isActive ? '#3B82F6' : '#9CA3AF',
                         transition: 'background 0.4s',
                         flexShrink: 0,
                       }}
@@ -390,7 +390,7 @@ export default function StoreSpy() {
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontSize: 20,
                     fontWeight: 600,
-                    color: '#6366F1',
+                    color: '#3B82F6',
                     margin: '0 0 16px',
                   }}
                 >
@@ -470,11 +470,11 @@ export default function StoreSpy() {
                     key={store}
                     onClick={() => analyse(store)}
                     style={{
-                      background: 'rgba(99,102,241,0.08)',
-                      border: '1px solid rgba(99,102,241,0.2)',
+                      background: 'rgba(59,130,246,0.08)',
+                      border: '1px solid rgba(59,130,246,0.2)',
                       borderRadius: 8,
                       padding: '8px 16px',
-                      color: '#6366F1',
+                      color: '#3B82F6',
                       fontSize: 13,
                       fontFamily: 'DM Sans, sans-serif',
                       cursor: 'pointer',

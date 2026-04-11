@@ -16,9 +16,9 @@ import { trpc } from '@/lib/trpc';
 const ADMIN_EMAIL = 'maximusmajorka@gmail.com';
 
 const MARKET_COLORS: Record<string, string> = {
-  AU: '#6366F1',
+  AU: '#3B82F6',
   US: '#7c6af5',
-  UK: '#6366F1',
+  UK: '#3B82F6',
   CA: '#e05c7a',
   NZ: '#4ecdc4',
   OTHER: '#9CA3AF',
@@ -161,7 +161,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               className="text-xl font-extrabold flex items-center gap-2"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
             >
-              <Users size={20} style={{ color: '#6366F1' }} />
+              <Users size={20} style={{ color: '#3B82F6' }} />
               Lead Intelligence
             </h1>
             <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>
@@ -176,9 +176,9 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 onClick={() => setTab(t)}
                 className="px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all"
                 style={{
-                  background: tab === t ? 'rgba(99,102,241,0.12)' : '#F9FAFB',
-                  border: `1px solid ${tab === t ? 'rgba(99,102,241,0.3)' : '#F5F5F5'}`,
-                  color: tab === t ? '#6366F1' : '#6B7280',
+                  background: tab === t ? 'rgba(59,130,246,0.12)' : '#F9FAFB',
+                  border: `1px solid ${tab === t ? 'rgba(59,130,246,0.3)' : '#F5F5F5'}`,
+                  color: tab === t ? '#3B82F6' : '#6B7280',
                   cursor: 'pointer',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                 }}
@@ -212,7 +212,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               >
                 <h2
                   className="text-sm font-bold mb-4 flex items-center gap-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6' }}
                 >
                   <Globe size={14} /> Market Breakdown
                 </h2>
@@ -258,17 +258,17 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 className="px-4 py-3 border-b flex items-center gap-2"
                 style={{ borderColor: '#F9FAFB' }}
               >
-                <Mail size={14} style={{ color: '#6366F1' }} />
+                <Mail size={14} style={{ color: '#3B82F6' }} />
                 <span
                   className="text-sm font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6' }}
                 >
                   All Users ({leads.length})
                 </span>
               </div>
               {leadsQuery.isLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <Loader2 size={20} className="animate-spin" style={{ color: '#6366F1' }} />
+                  <Loader2 size={20} className="animate-spin" style={{ color: '#3B82F6' }} />
                 </div>
               ) : leads.length === 0 ? (
                 <div className="p-6 text-center text-sm" style={{ color: '#9CA3AF' }}>
@@ -318,11 +318,11 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                                 background:
                                   lead.plan === 'free' || !lead.plan
                                     ? '#F9FAFB'
-                                    : 'rgba(99,102,241,0.1)',
+                                    : 'rgba(59,130,246,0.1)',
                                 color:
                                   lead.plan === 'free' || !lead.plan
                                     ? '#9CA3AF'
-                                    : '#6366F1',
+                                    : '#3B82F6',
                               }}
                             >
                               {lead.plan ?? 'free'}
@@ -356,7 +356,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               onClick={() => setTab('outreach')}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all"
               style={{
-                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
                 color: '#FAFAFA',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: 'pointer',
@@ -390,7 +390,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 disabled={generating}
                 className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                  background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
                   color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   cursor: 'pointer',
@@ -414,7 +414,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 >
                   <h2
                     className="text-sm font-bold mb-3 flex items-center gap-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6' }}
                   >
                     <Globe size={14} /> Where Your Customers Are (Top 20)
                   </h2>
@@ -445,7 +445,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 >
                   <h2
                     className="text-sm font-bold mb-3 flex items-center gap-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6' }}
                   >
                     <Mail size={14} /> Outreach Templates
                   </h2>
@@ -474,8 +474,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                             onClick={() => copyText(template, key)}
                             className="text-xs flex items-center gap-1 px-2 py-0.5 rounded transition-all"
                             style={{
-                              background: 'rgba(99,102,241,0.08)',
-                              color: '#6366F1',
+                              background: 'rgba(59,130,246,0.08)',
+                              color: '#3B82F6',
                               cursor: 'pointer',
                               border: 'none',
                             }}
@@ -505,7 +505,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   <div className="flex items-center justify-between mb-3">
                     <h2
                       className="text-sm font-bold flex items-center gap-2"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6' }}
                     >
                       <MessageSquare size={14} /> Weekly Schedule
                     </h2>
@@ -513,8 +513,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                       onClick={() => copyText(result.weeklySchedule, 'Schedule')}
                       className="text-xs flex items-center gap-1 px-2 py-0.5 rounded transition-all"
                       style={{
-                        background: 'rgba(99,102,241,0.08)',
-                        color: '#6366F1',
+                        background: 'rgba(59,130,246,0.08)',
+                        color: '#3B82F6',
                         cursor: 'pointer',
                         border: 'none',
                       }}

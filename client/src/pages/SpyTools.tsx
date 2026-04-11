@@ -11,7 +11,7 @@ const SEED_ADS = [
   { id:1, platform:'Facebook', product:'Posture Corrector Pro', runningDays:47, spendPerDay:312, niche:'Health',
     hook:"This $29 posture fix sold 11,000 units last month 🤯", body:"Physios HATE this but Australians are obsessed. Fix your hunchback in 2 weeks or your money back.", cta:"Shop Now", bg:'#FFF7ED', accent:'#EA580C' },
   { id:2, platform:'TikTok', product:'LED Desk Lamp RGB', runningDays:23, spendPerDay:187, niche:'Tech',
-    hook:"POV: Your home office finally looks like a setup tour 👀", body:"16 million colours, 3 brightness levels, USB-C. £24 anywhere else, $29 AUD here.", cta:"Get Yours", bg:'#EEF2FF', accent:'#6366F1' },
+    hook:"POV: Your home office finally looks like a setup tour 👀", body:"16 million colours, 3 brightness levels, USB-C. £24 anywhere else, $29 AUD here.", cta:"Get Yours", bg:'#EEF2FF', accent:'#3B82F6' },
   { id:3, platform:'Instagram', product:'Vitamin C Serum 30ml', runningDays:61, spendPerDay:445, niche:'Beauty',
     hook:"I was embarrassed to go out without makeup. Then I tried this.", body:"Dermatologist-tested 20% Vitamin C. Dark spots visibly reduced in 14 days. Now I leave the house bare-faced.", cta:"Try Risk-Free", bg:'#FDF4FF', accent:'#A855F7' },
   { id:4, platform:'Facebook', product:'Weighted Blanket 8kg', runningDays:38, spendPerDay:276, niche:'Home',
@@ -67,7 +67,7 @@ const STORES = [
   { domain: 'temu.com', name: 'Temu AU', category: 'General' },
 ];
 
-const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', accent: '#6366F1', text: '#0A0A0A', muted: '#6B7280' };
+const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', accent: '#3B82F6', text: '#0A0A0A', muted: '#6B7280' };
 const brico = "'Bricolage Grotesque', sans-serif";
 
 function CompetitorSpy() {
@@ -139,7 +139,7 @@ function CompetitorSpy() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {lastRefresh && <span style={{ fontSize: 11, color: '#9CA3AF' }}>Last: {lastRefresh}</span>}
           <button onClick={triggerRefresh} disabled={refreshing}
-            style={{ height: 36, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, transition: 'all 150ms' }}
+            style={{ height: 36, padding: '0 16px', background: '#3B82F6', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, transition: 'all 150ms' }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = ''; }}
             onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
@@ -159,12 +159,12 @@ function CompetitorSpy() {
           </div>
           {stores.map(s => (
             <button key={s.domain} onClick={() => setSelectedStore(selectedStore === s.domain ? null : s.domain)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 14px', background: selectedStore === s.domain ? '#EEF2FF' : 'white', border: 'none', borderLeft: selectedStore === s.domain ? '3px solid #6366F1' : '3px solid transparent', cursor: 'pointer', textAlign: 'left' as const, transition: 'background 120ms' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 14px', background: selectedStore === s.domain ? '#EEF2FF' : 'white', border: 'none', borderLeft: selectedStore === s.domain ? '3px solid #3B82F6' : '3px solid transparent', cursor: 'pointer', textAlign: 'left' as const, transition: 'background 120ms' }}
               onMouseEnter={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = '#FAFAFF'; }}
               onMouseLeave={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = 'white'; }}>
               <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`} alt={s.name} style={{ width: 16, height: 16, borderRadius: 3 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: selectedStore === s.domain ? '#6366F1' : '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, direction: 'ltr' as const }}>{s.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: selectedStore === s.domain ? '#3B82F6' : '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, direction: 'ltr' as const }}>{s.name}</div>
               </div>
               {(s.product_count || 0) > 0 && (
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF' }}>{s.product_count}</span>
@@ -180,7 +180,7 @@ function CompetitorSpy() {
               {selectedStore ? `${stores.find(s => s.domain === selectedStore)?.name || selectedStore}` : 'All Stores'} · {products.length} products
             </span>
             {selectedStore && (
-              <button onClick={() => setSelectedStore(null)} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => setSelectedStore(null)} style={{ fontSize: 11, color: '#3B82F6', background: 'none', border: 'none', cursor: 'pointer' }}>
                 Show all stores
               </button>
             )}
@@ -214,7 +214,7 @@ function CompetitorSpy() {
                       {p.price_aud && <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>${p.price_aud}</span>}
                       {p.category && <span style={{ fontSize: 9, color: '#94A3B8', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 10 }}>{p.category}</span>}
                       {isNewProduct(p) && (
-                        <span style={{ fontSize: 9, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>NEW TODAY</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#3B82F6', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>NEW TODAY</span>
                       )}
                     </div>
                   </div>
@@ -235,7 +235,7 @@ function CompetitorSpy() {
             </p>
             {products.filter(p => p.category).slice(0, 8).map((p: any, i: number) => (
               <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid #F9FAFB', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                <span style={{ fontSize: 14, flexShrink: 0, color: '#6366F1' }}>●</span>
+                <span style={{ fontSize: 14, flexShrink: 0, color: '#3B82F6' }}>●</span>
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#F8FAFC', lineHeight: 1.3, marginBottom: 2 }}>{p.product_name?.slice(0, 60)}</div>
                   <div style={{ fontSize: 10, color: '#9CA3AF' }}>{p.store_domain} · {p.category}</div>
@@ -352,7 +352,7 @@ export default function SpyTools() {
                   <div style={{ height: 180, background: ad.bg || '#F9FAFB', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: 16, flexDirection: 'column', gap: 8 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: ad.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.4, maxWidth: '100%' }}>{ad.hook || ad.product}</div>
                     <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.5 }}>{ad.body ? ad.body.slice(0,80) + '…' : ''}</div>
-                    <div style={{ marginTop: 'auto', display: 'inline-block', background: ad.accent || '#6366F1', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 99 }}>{ad.cta || 'Shop Now'}</div>
+                    <div style={{ marginTop: 'auto', display: 'inline-block', background: ad.accent || '#3B82F6', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 99 }}>{ad.cta || 'Shop Now'}</div>
                     <span style={{ display: 'none' }}>📦</span>
                     <div style={{
                       position: 'absolute', top: 10, left: 10,
@@ -398,7 +398,7 @@ export default function SpyTools() {
                         flex: 1, height: 36, borderRadius: 8, border: 'none', background: C.accent,
                         color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms',
                       }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#2563EB'; e.currentTarget.style.transform = 'scale(1.02)'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.transform = ''; }}
                         onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
                         onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
@@ -414,7 +414,7 @@ export default function SpyTools() {
                         }}
                         style={{
                           background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
-                          color: savedAds.has(ad.id) ? '#6366F1' : '#D1D5DB',
+                          color: savedAds.has(ad.id) ? '#3B82F6' : '#D1D5DB',
                           transition: 'color 150ms', padding: '4px', flexShrink: 0,
                         }}
                         title={savedAds.has(ad.id) ? 'Saved' : 'Save ad'}
@@ -455,7 +455,7 @@ export default function SpyTools() {
             <div style={{ height: 300, background: viewAd.bg || '#F9FAFB', position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, padding: 24, justifyContent: 'center' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: viewAd.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.5 }}>{viewAd.hook || viewAd.product}</div>
               <div style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.6 }}>{viewAd.body || ''}</div>
-              <div style={{ display: 'inline-block', background: viewAd.accent || '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 99, alignSelf: 'flex-start' }}>{viewAd.cta || 'Shop Now'}</div>
+              <div style={{ display: 'inline-block', background: viewAd.accent || '#3B82F6', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 99, alignSelf: 'flex-start' }}>{viewAd.cta || 'Shop Now'}</div>
               <div style={{
                 position: 'absolute', top: 14, left: 14,
                 background: PLATFORM_COLORS[viewAd.platform] || '#333', color: 'white',
@@ -497,7 +497,7 @@ export default function SpyTools() {
                 color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'all 150ms',
                 fontFamily: brico,
               }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#2563EB'; e.currentTarget.style.transform = 'scale(1.02)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.transform = ''; }}
                 onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
                 onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}

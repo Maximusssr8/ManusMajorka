@@ -83,8 +83,8 @@ function ToolLoadingFallback() {
         <div
           className="w-8 h-8 rounded-xl flex items-center justify-center font-extrabold animate-pulse"
           style={{
-            background: 'rgba(99,102,241,0.15)',
-            color: '#6366F1',
+            background: 'rgba(59,130,246,0.15)',
+            color: '#3B82F6',
             fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
@@ -96,7 +96,7 @@ function ToolLoadingFallback() {
               key={i}
               className="w-1.5 h-1.5 rounded-full animate-bounce"
               style={{
-                background: '#6366F1',
+                background: '#3B82F6',
                 opacity: 0.5,
                 animationDelay: `${i * 0.15}s`,
               }}

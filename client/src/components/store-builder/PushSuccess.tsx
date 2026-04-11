@@ -1,6 +1,6 @@
 import { CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 
-const gold = '#6366F1';
+const gold = '#3B82F6';
 const syne = "'Bricolage Grotesque', sans-serif";
 
 const STEP_LABELS = [

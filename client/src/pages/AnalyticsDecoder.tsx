@@ -290,7 +290,7 @@ export default function AnalyticsDecoder() {
                       style={{
                         color:
                           kpi.trend === 'up'
-                            ? '#6366F1'
+                            ? '#3B82F6'
                             : kpi.trend === 'down'
                               ? '#ff6b6b'
                               : '#F59E0B',
@@ -359,14 +359,14 @@ export default function AnalyticsDecoder() {
             <div
               className="rounded-xl overflow-hidden"
               style={{
-                background: 'rgba(99,102,241,0.06)',
+                background: 'rgba(59,130,246,0.06)',
                 border: '1px solid #EEF2FF',
               }}
             >
               <div className="px-4 py-3 border-b" style={{ borderColor: '#EEF2FF' }}>
                 <div
                   className="text-xs font-extrabold uppercase tracking-widest"
-                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Recommended Actions
                 </div>
@@ -377,13 +377,13 @@ export default function AnalyticsDecoder() {
                   className="flex items-start gap-3 px-4 py-3"
                   style={{
                     borderBottom:
-                      i < result.actions.length - 1 ? '1px solid rgba(99,102,241,0.12)' : 'none',
+                      i < result.actions.length - 1 ? '1px solid rgba(59,130,246,0.12)' : 'none',
                   }}
                 >
                   <ArrowRight
                     size={12}
                     className="mt-0.5 flex-shrink-0"
-                    style={{ color: '#6366F1' }}
+                    style={{ color: '#3B82F6' }}
                   />
                   <span
                     className="text-xs leading-relaxed"

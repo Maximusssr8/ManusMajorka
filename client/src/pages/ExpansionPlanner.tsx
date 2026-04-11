@@ -118,11 +118,11 @@ export default function ExpansionPlanner() {
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{
-              background: 'rgba(99,102,241,0.12)',
-              border: '1px solid rgba(99,102,241,0.3)',
+              background: 'rgba(59,130,246,0.12)',
+              border: '1px solid rgba(59,130,246,0.3)',
             }}
           >
-            <Globe size={15} style={{ color: '#6366F1' }} />
+            <Globe size={15} style={{ color: '#3B82F6' }} />
           </div>
           <div>
             <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
@@ -173,7 +173,7 @@ export default function ExpansionPlanner() {
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
               style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
-              {label} {req && <span style={{ color: '#6366F1' }}>*</span>}
+              {label} {req && <span style={{ color: '#3B82F6' }}>*</span>}
             </label>
             <input
               value={value}
@@ -185,7 +185,7 @@ export default function ExpansionPlanner() {
                 border: '1.5px solid #F5F5F5',
                 color: '#CBD5E1',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(59,130,246,0.45)')}
               onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
             />
           </div>
@@ -197,11 +197,11 @@ export default function ExpansionPlanner() {
           className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
-              ? 'rgba(99,102,241,0.25)'
-              : 'linear-gradient(135deg, #6366F1, #F59E0B)',
+              ? 'rgba(59,130,246,0.25)'
+              : 'linear-gradient(135deg, #3B82F6, #F59E0B)',
             color: '#FAFAFA',
             fontFamily: "'Bricolage Grotesque', sans-serif",
-            boxShadow: generating ? 'none' : '0 4px 20px rgba(99,102,241,0.3)',
+            boxShadow: generating ? 'none' : '0 4px 20px rgba(59,130,246,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
         >
@@ -246,8 +246,8 @@ export default function ExpansionPlanner() {
             <div
               className="rounded-xl p-4"
               style={{
-                background: 'rgba(99,102,241,0.06)',
-                border: '1px solid rgba(99,102,241,0.2)',
+                background: 'rgba(59,130,246,0.06)',
+                border: '1px solid rgba(59,130,246,0.2)',
               }}
             >
               <div className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
@@ -271,7 +271,7 @@ export default function ExpansionPlanner() {
                     style={{ borderColor: 'rgba(255,255,255,0.08)' }}
                   >
                     <div className="flex items-center gap-2">
-                      <MapPin size={14} style={{ color: '#6366F1' }} />
+                      <MapPin size={14} style={{ color: '#3B82F6' }} />
                       <span
                         className="text-sm font-extrabold"
                         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
@@ -290,8 +290,8 @@ export default function ExpansionPlanner() {
                         className="text-xs font-bold px-2 py-0.5 rounded-full"
                         style={{
                           background:
-                            m.score >= 70 ? 'rgba(99,102,241,0.18)' : 'rgba(240,192,64,0.12)',
-                          color: m.score >= 70 ? '#6366F1' : '#F59E0B',
+                            m.score >= 70 ? 'rgba(59,130,246,0.18)' : 'rgba(240,192,64,0.12)',
+                          color: m.score >= 70 ? '#3B82F6' : '#F59E0B',
                         }}
                       >
                         {m.score}/100
@@ -302,7 +302,7 @@ export default function ExpansionPlanner() {
                     <div>
                       <div
                         className="text-xs font-bold mb-1"
-                        style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         Opportunity
                       </div>
@@ -340,7 +340,7 @@ export default function ExpansionPlanner() {
                       <div className="flex-1">
                         <div
                           className="text-xs font-bold mb-1"
-                          style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           Entry Strategy
                         </div>
@@ -396,7 +396,7 @@ export default function ExpansionPlanner() {
                   }}
                 >
                   {item.ready ? (
-                    <CheckCircle2 size={14} style={{ color: '#6366F1' }} />
+                    <CheckCircle2 size={14} style={{ color: '#3B82F6' }} />
                   ) : (
                     <AlertTriangle size={14} style={{ color: '#F59E0B' }} />
                   )}
@@ -414,7 +414,7 @@ export default function ExpansionPlanner() {
                 <Loader2
                   size={32}
                   className="animate-spin mx-auto mb-4"
-                  style={{ color: '#6366F1' }}
+                  style={{ color: '#3B82F6' }}
                 />
                 <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Planning your expansion…

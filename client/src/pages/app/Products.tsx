@@ -329,14 +329,16 @@ function categoryColor(cat: string | null): { backgroundColor: string; color: st
 function ScoreBadge({ score, size = 32 }: { score: number; size?: number }) {
   const rounded = Math.round(score);
   if (!rounded) return <span className="text-xs text-muted">—</span>;
+  const isTopTier = rounded >= 90;
   return (
     <span
-      className="inline-flex items-center justify-center rounded font-bold tabular-nums"
+      className="inline-flex items-center justify-center rounded font-bold tabular-nums font-mono"
       style={{
         width: size,
         height: size,
         fontSize: size >= 32 ? 13 : 11,
         ...scoreTierStyle(rounded),
+        ...(isTopTier ? { boxShadow: '0 0 0 1px rgba(212,175,55,0.5)' } : {}),
       }}
     >
       {rounded}
@@ -867,7 +869,11 @@ function ProductSheet({
           {/* Build Store for this product — one-click flow */}
           <button
             onClick={handleImportToStore}
-            className="mx-4 mb-4 bg-accent hover:bg-accent-hover text-white rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(255,255,255,0.4),0_8px_24px_rgba(255,255,255,0.2)]"
+            className="mx-4 mb-4 text-white rounded-lg py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            style={{
+              background: '#3B82F6',
+              boxShadow: '0 0 0 1px rgba(59,130,246,0.4), 0 8px 24px rgba(59,130,246,0.25)',
+            }}
           >
             <Store size={16} strokeWidth={2} />
             Build Store for This Product →
@@ -946,7 +952,11 @@ function ProductSheet({
           <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
             <button
               onClick={handleCreateAd}
-              className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
+              style={{
+                background: '#3B82F6',
+                boxShadow: '0 0 0 1px rgba(59,130,246,0.4), 0 8px 24px rgba(59,130,246,0.25)',
+              }}
             >
               <Zap size={14} strokeWidth={2} />
               Create Ad
@@ -1542,11 +1552,19 @@ export default function AppProducts() {
                   borderLeftColor: active ? tab.dot : 'transparent',
                   borderLeftWidth: 2,
                   borderLeftStyle: 'solid',
+                  ...(active
+                    ? {
+                        background: 'rgba(212,175,55,0.05)',
+                        borderTop: '1px solid rgba(212,175,55,0.25)',
+                        borderRight: '1px solid rgba(212,175,55,0.25)',
+                        borderBottom: '1px solid rgba(212,175,55,0.25)',
+                      }
+                    : {}),
                 }}
-                className={`flex items-center gap-1.5 pl-3 pr-3.5 py-2 text-sm font-medium rounded-md cursor-pointer whitespace-nowrap transition-colors border-t border-r border-b ${
+                className={`flex items-center gap-1.5 pl-3 pr-3.5 py-2 text-sm font-medium rounded-md cursor-pointer whitespace-nowrap transition-colors ${
                   active
-                    ? 'bg-white/[0.06] border-t-white/10 border-r-white/10 border-b-white/10 text-text'
-                    : 'bg-transparent border-t-transparent border-r-transparent border-b-transparent text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
+                    ? 'text-text'
+                    : 'bg-transparent border-t border-r border-b border-t-transparent border-r-transparent border-b-transparent text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
                 }`}
               >
                 <span
@@ -1879,8 +1897,8 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
     <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
-          <thead>
-            <tr className="bg-[#0f0f0f] border-b border-white/[0.06]">
+          <thead className="sticky top-0 z-10" style={{ background: '#0d0d0d', borderBottom: '1px solid rgba(212,175,55,0.35)' }}>
+            <tr style={{ background: '#0d0d0d' }}>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
               <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
@@ -1919,7 +1937,7 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
-                className={`group h-24 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-gradient-to-r hover:from-accent/[0.03] hover:to-transparent border-l-2 border-l-transparent hover:border-l-accent cursor-pointer transition-colors`}
+                className={`group h-24 ${isLast ? '' : 'border-b border-white/[0.04]'} border-l-2 border-l-transparent cursor-pointer transition-colors hover:bg-[rgba(59,130,246,0.04)]`}
               >
                 <td className="hidden md:table-cell px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
                   {String(i + 1).padStart(2, '0')}
@@ -2001,7 +2019,7 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                   {orders > 0 ? (
                     <div className="flex flex-col items-end gap-0.5">
                       <TT content={`${orders.toLocaleString()} total orders tracked`}>
-                        <span className="inline-block cursor-default text-base font-bold tabular-nums">
+                        <span className="inline-block cursor-default text-base font-bold font-mono tabular-nums">
                           {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
                           {fmtK(orders)}
                         </span>
@@ -2020,10 +2038,10 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                     '—'
                   )}
                 </td>
-                <td className="hidden md:table-cell px-4 text-right text-base font-bold text-text tabular-nums whitespace-nowrap">
+                <td className="hidden md:table-cell px-4 text-right text-base font-bold text-text font-mono tabular-nums whitespace-nowrap">
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                 </td>
-                <td className={`hidden md:table-cell px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
+                <td className={`hidden md:table-cell px-4 text-right text-base font-bold font-mono tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
                 <td className="hidden md:table-cell px-4 text-center whitespace-nowrap">

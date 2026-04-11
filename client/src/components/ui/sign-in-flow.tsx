@@ -215,7 +215,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           <div className="flex items-center gap-2.5 mb-16">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: '#6366F1' }}
+              style={{ background: '#3B82F6' }}
             >
               <span
                 className="text-white font-bold text-sm"
@@ -239,7 +239,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           >
             Your AI ecommerce
             <br />
-            <span style={{ color: '#6366F1' }}>operating system.</span>
+            <span style={{ color: '#3B82F6' }}>operating system.</span>
           </h2>
           <p className="text-base mb-8" style={{ color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
             50+ AI tools built specifically for Australian sellers. Research, build, launch, and
@@ -283,7 +283,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon size={13} style={{ color: '#6366F1' }} />
+                  <Icon size={13} style={{ color: '#3B82F6' }} />
                   <span
                     className="text-lg font-bold"
                     style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: 'white' }}
@@ -316,7 +316,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
         <div className="lg:hidden mb-8 flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: '#6366F1' }}
+            style={{ background: '#3B82F6' }}
           >
             <span
               className="text-white font-bold text-sm"
@@ -496,7 +496,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         checked={agreedToTerms}
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                         className="mt-0.5 rounded"
-                        style={{ accentColor: '#6366F1' }}
+                        style={{ accentColor: '#3B82F6' }}
                       />
                       <span
                         className="text-xs leading-relaxed"
@@ -553,7 +553,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     disabled={loading || (mode === 'signup' && !agreedToTerms)}
                     className="w-full rounded-xl py-3.5 font-semibold text-sm transition-all disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                      background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
                       color: '#FAFAFA',
                       border: 'none',
                       cursor: loading ? 'wait' : 'pointer',
@@ -583,7 +583,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#6366F1',
+                          color: '#3B82F6',
                         }}
                       >
                         Sign in
@@ -602,7 +602,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#6366F1',
+                          color: '#3B82F6',
                         }}
                       >
                         Create an account
@@ -647,7 +647,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       className="h-7 w-7"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#6366F1"
+                      stroke="#3B82F6"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -668,7 +668,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     setStep('form');
                     setError(null);
                   }}
-                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', cursor: 'pointer' }}
+                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#EFF6FF', color: '#3B82F6', border: '1px solid #BFDBFE', cursor: 'pointer' }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Back to sign in
@@ -702,7 +702,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 >
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: '#6366F1' }}
+                    style={{ background: '#3B82F6' }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -726,7 +726,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   onClick={onSuccess}
                   className="w-full rounded-xl font-semibold py-3.5 text-sm text-white transition-colors"
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                    background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
                     border: 'none',
                     cursor: 'pointer',
                     fontFamily: "'DM Sans', system-ui, sans-serif",

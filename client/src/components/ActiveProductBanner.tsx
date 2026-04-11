@@ -5,8 +5,8 @@ import { useActiveProduct } from '@/hooks/useActiveProduct';
 const STAGE_COLORS: Record<string, { bg: string; text: string; label: string }> = {
   research: { bg: 'rgba(0,180,216,0.12)', text: '#00b4d8', label: 'Research' },
   validate: { bg: 'rgba(124,106,245,0.12)', text: '#7c6af5', label: 'Validate' },
-  manual: { bg: 'rgba(99,102,241,0.12)', text: '#6366F1', label: 'Manual' },
-  build: { bg: 'rgba(99,102,241,0.18)', text: '#6366F1', label: 'Build' },
+  manual: { bg: 'rgba(59,130,246,0.12)', text: '#3B82F6', label: 'Manual' },
+  build: { bg: 'rgba(59,130,246,0.18)', text: '#3B82F6', label: 'Build' },
   launch: { bg: 'rgba(255,100,100,0.12)', text: '#ff6b6b', label: 'Launch' },
   optimize: { bg: 'rgba(244,114,182,0.12)', text: '#f472b6', label: 'Optimize' },
   scale: { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', label: 'Scale' },
@@ -29,15 +29,15 @@ export function ActiveProductBanner({ onUseProduct, ctaLabel = 'Use this product
     <div
       className="flex items-center gap-3 px-4 py-2.5 mx-5 mt-3 rounded-lg"
       style={{
-        background: 'rgba(99,102,241,0.05)',
-        border: '1px solid rgba(99,102,241,0.18)',
+        background: 'rgba(59,130,246,0.05)',
+        border: '1px solid rgba(59,130,246,0.18)',
       }}
     >
       <div
         className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-        style={{ background: 'rgba(99,102,241,0.12)' }}
+        style={{ background: 'rgba(59,130,246,0.12)' }}
       >
-        <Package size={13} style={{ color: '#6366F1' }} />
+        <Package size={13} style={{ color: '#3B82F6' }} />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -98,13 +98,13 @@ export function ActiveProductBanner({ onUseProduct, ctaLabel = 'Use this product
             onClick={() => onUseProduct(activeProduct.summary)}
             className="flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-lg transition-all"
             style={{
-              background: 'rgba(99,102,241,0.12)',
-              border: '1px solid rgba(99,102,241,0.28)',
-              color: '#6366F1',
+              background: 'rgba(59,130,246,0.12)',
+              border: '1px solid rgba(59,130,246,0.28)',
+              color: '#3B82F6',
               cursor: 'pointer',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.18)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.12)')}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(59,130,246,0.18)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(59,130,246,0.12)')}
           >
             {ctaLabel} <ArrowRight size={10} />
           </button>

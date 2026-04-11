@@ -337,7 +337,7 @@ const TICKER_BASE: { text: string; needsTime: boolean }[] = [
   { text: '🇨🇦 CA margin calculator: 44% net margin',   needsTime: true },
   { text: '🇩🇪 DE winning product: 91 score',           needsTime: true },
   { text: '🇸🇬 SG ad creative generated',               needsTime: true },
-  { text: '2,302 winning products across 149 niches',  needsTime: false },
+  { text: '3,726 winning products across 149 niches',  needsTime: false },
   { text: '500+ active operators online now',          needsTime: false },
 ];
 function generateTickerItems(): string[] {
@@ -688,7 +688,7 @@ function Hero() {
                 animation: 'mj-pulse 1.6s infinite',
                 display: 'inline-block',
               }} />
-              <span>1,776 products trending hot right now</span>
+              <span>2,431 products trending hot right now</span>
               <span style={{ color: '#e5e5e5', fontSize: 12, marginLeft: -4 }}>→</span>
             </div>
 
@@ -936,7 +936,7 @@ function SocialProofBar() {
       <div style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.1)' }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div style={{ fontFamily: mono, fontSize: 16, fontWeight: 700, color: '#ededed' }}>2,302</div>
+        <div style={{ fontFamily: mono, fontSize: 16, fontWeight: 700, color: '#ededed' }}>3,726</div>
         <div style={{ fontFamily: mono, fontSize: 12, color: '#a1a1aa' }}>winning products scored</div>
       </div>
 
@@ -1041,8 +1041,8 @@ function BrowserWindow() {
         background: 'rgba(255,255,255,0.04)',
       }}>
         {[
-          { label: 'Products',  value: '2,302', color: '#ededed' },
-          { label: 'Hot Today', value: '1,776', color: '#f97316' },
+          { label: 'Products',  value: '3,726', color: '#ededed' },
+          { label: 'Hot Today', value: '2,431', color: '#f97316' },
           { label: 'Avg Score', value: '80/100', color: '#f59e0b' },
           { label: 'Top Niche', value: 'Fashion', color: '#ffffff' },
         ].map((s) => (
@@ -1118,7 +1118,7 @@ function BrowserWindow() {
         gap: 6,
       }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
-        <span style={{ fontSize: 10, color: '#6b7280', fontFamily: mono }}>Live AliExpress data · Updated 6h ago · 2,302 products tracked</span>
+        <span style={{ fontSize: 10, color: '#6b7280', fontFamily: mono }}>Live AliExpress data · Updated 6h ago · 3,726 products tracked</span>
       </div>
     </div>
   );
@@ -1369,15 +1369,15 @@ function ThePlatform() {
               <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Product Intelligence</span>
             </div>
             <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 28, color: '#ededed', marginBottom: 12, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-              2,302 winning products.<br />Ranked by real orders.
+              3,726 winning products.<br />Ranked by real orders.
             </h3>
             <p style={{ color: '#8a8a8f', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
               Every product is sourced directly from the AliExpress Affiliate API and CJ Dropshipping — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { label: '2,302 products', sub: 'across 149 niches' },
-                { label: '1,776 hot today', sub: 'winning score ≥ 65/100' },
+                { label: '3,726 products', sub: 'across 149 niches' },
+                { label: '2,431 hot today', sub: 'winning score ≥ 65/100' },
                 { label: 'Score 99/100',    sub: 'AI-graded for margin + demand + trend' },
               ].map((item) => (
                 <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1635,8 +1635,8 @@ function RevenueProofBanner() {
   const stats = [
     { value: '$247,831', label: 'Lifetime revenue', sub: 'tracked across operator stores' },
     { value: '$15.6k',   label: 'Top daily revenue', sub: 'single product, single day' },
-    { value: '2,302',    label: 'Winning products',  sub: 'verified across 149 niches' },
-    { value: '1,776',    label: 'Hot right now',     sub: 'scoring ≥ 65/100 today' },
+    { value: '3,726',    label: 'Winning products',  sub: 'verified across 149 niches' },
+    { value: '2,431',    label: 'Hot right now',     sub: 'scoring ≥ 65/100 today' },
     { value: '99/100',   label: 'Peak AI score',     sub: 'exploding trend, verified' },
   ];
   return (
@@ -2310,16 +2310,16 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
   const [hover, setHover] = useState(false);
   const baseStyle: React.CSSProperties = {
     background: highlight
-      ? `linear-gradient(135deg, rgba(59,130,246,0.06), transparent), ${T.bgSurface}`
+      ? `linear-gradient(135deg, rgba(212,175,55,0.06), transparent), ${T.bgSurface}`
       : T.bgSurface,
-    border: highlight ? '1px solid rgba(59,130,246,0.4)' : `1px solid ${T.border}`,
+    border: highlight ? '1px solid #d4af37' : `1px solid ${T.border}`,
     borderRadius: 10,
     padding: 32,
     position: 'relative',
     transition: 'all 250ms ease',
     transform: hover ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
     boxShadow: highlight
-      ? '0 0 60px rgba(59,130,246,0.15), 0 0 0 1px rgba(59,130,246,0.3), 0 20px 60px rgba(0,0,0,0.4)'
+      ? '0 0 60px rgba(212,175,55,0.18), 0 0 0 1px rgba(212,175,55,0.35), 0 20px 60px rgba(0,0,0,0.4)'
       : hover ? '0 8px 32px rgba(0,0,0,0.3)' : 'none',
   };
   return (
@@ -2329,8 +2329,8 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
           position: 'absolute',
           top: -12,
           right: 24,
-          background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
-          color: '#fff',
+          background: 'linear-gradient(135deg, #d4af37 0%, #8a6e1f 100%)',
+          color: '#080808',
           fontFamily: mono,
           fontSize: 10,
           fontWeight: 700,
@@ -2338,7 +2338,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
           textTransform: 'uppercase',
           padding: '5px 14px',
           borderRadius: 6,
-          boxShadow: '0 4px 20px rgba(59,130,246,0.4)',
+          boxShadow: '0 4px 20px rgba(212,175,55,0.4)',
         }}>Most Popular</div>
       )}
       <div style={{
@@ -2669,7 +2669,7 @@ function FooterCol({ title, links }: FooterColProps) {
 // ── Trust Bar ──────────────────────────────────────────────────────────────
 function TrustBar() {
   const items = [
-    { Icon: Database,    headline: '2,302+',    sub: 'Products tracked' },
+    { Icon: Database,    headline: '3,726+',    sub: 'Products tracked' },
     { Icon: Globe,       headline: '7 markets', sub: 'AU · US · UK · CA · NZ · DE · SG' },
     { Icon: ShieldCheck, headline: '30-day',    sub: 'Money-back guarantee' },
     { Icon: Zap,         headline: 'Live feed', sub: 'Updated every 6 hours' },
@@ -2743,7 +2743,7 @@ function FreeEntry() {
       <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
         <SectionHeader
           eyebrow="Try before you buy"
-          line1="Explore 2,302 winning"
+          line1="Explore 3,726 winning"
           line2="products — free."
           description="No account needed. Browse our live product database and see Majorka's AI scoring in action."
           align="center"
@@ -2874,7 +2874,7 @@ function NumberedDivider({ num, label, description }: NumberedDividerProps) {
             fontWeight: 500,
           }}
         >
-          {num} / {label}
+          <span style={{ color: '#d4af37', fontWeight: 700 }}>{num}</span> / {label}
         </span>
         {description && (
           <span
@@ -2937,6 +2937,22 @@ function DeerHero() {
             'radial-gradient(ellipse at center, rgba(59,130,246,0.18) 0%, rgba(59,130,246,0.04) 40%, transparent 70%)',
           pointerEvents: 'none',
           filter: 'blur(8px)',
+        }}
+      />
+      {/* Ambient gold headline glow */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 80,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 760,
+          height: 320,
+          background:
+            'radial-gradient(ellipse at center, rgba(212,175,55,0.10) 0%, rgba(212,175,55,0.03) 45%, transparent 75%)',
+          pointerEvents: 'none',
+          filter: 'blur(28px)',
         }}
       />
 
@@ -3054,18 +3070,18 @@ function DeerHero() {
                     borderRadius: 8,
                     textDecoration: 'none',
                     boxShadow:
-                      '0 10px 30px rgba(59,130,246,0.35), 0 0 0 1px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                      '0 0 0 1px rgba(212,175,55,0.3), 0 12px 32px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
                     transition: 'transform 180ms ease, box-shadow 180ms ease',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-1px)';
                     e.currentTarget.style.boxShadow =
-                      '0 14px 38px rgba(59,130,246,0.5), 0 0 0 1px rgba(59,130,246,0.55), inset 0 1px 0 rgba(255,255,255,0.25)';
+                      '0 0 0 1px rgba(212,175,55,0.5), 0 16px 40px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.25)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow =
-                      '0 10px 30px rgba(59,130,246,0.35), 0 0 0 1px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
+                      '0 0 0 1px rgba(212,175,55,0.3), 0 12px 32px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.2)';
                   }}
                 >
                   Start the pipeline →
@@ -3118,7 +3134,7 @@ function DeerHero() {
               >
                 <span>7 markets</span>
                 <span style={{ opacity: 0.3 }}>·</span>
-                <span>2,302 winners</span>
+                <span>3,726 winners</span>
                 <span style={{ opacity: 0.3 }}>·</span>
                 <span>refreshed every 6h</span>
               </div>
@@ -3137,6 +3153,7 @@ function DeerHero() {
 // ── Terminal/code block section ────────────────────────────────────────────
 function TerminalSection() {
   const [copied, setCopied] = useState(false);
+  const [termHover, setTermHover] = useState(false);
   const snippet = `curl https://majorka.io/api/products/tiktok-leaderboard \\
   -H "Authorization: Bearer $MAJORKA_TOKEN" \\
   -H "Accept: application/json"`;
@@ -3265,14 +3282,18 @@ function TerminalSection() {
 
           <Reveal delay={0.1}>
             <div
+              onMouseEnter={() => setTermHover(true)}
+              onMouseLeave={() => setTermHover(false)}
               style={{
                 position: 'relative',
                 background: '#0c0c0c',
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: termHover ? '1px solid rgba(212,175,55,0.25)' : '1px solid rgba(255,255,255,0.08)',
                 borderRadius: 10,
                 overflow: 'hidden',
-                boxShadow:
-                  '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.08)',
+                transition: 'border-color 220ms ease, box-shadow 220ms ease',
+                boxShadow: termHover
+                  ? '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.18)'
+                  : '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.08)',
               }}
             >
               {/* Window chrome */}
@@ -3282,8 +3303,9 @@ function TerminalSection() {
                   alignItems: 'center',
                   gap: 8,
                   padding: '12px 16px',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  borderBottom: termHover ? '1px solid rgba(212,175,55,0.15)' : '1px solid rgba(255,255,255,0.06)',
                   background: 'rgba(255,255,255,0.02)',
+                  transition: 'border-color 220ms ease',
                 }}
               >
                 <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#2a2a2a' }} />
@@ -3490,11 +3512,17 @@ function CapabilitiesGrid() {
                   background: '#0b0b0b',
                   padding: '36px 32px 40px',
                   height: '100%',
-                  transition: 'background 220ms ease',
+                  transition: 'background 220ms ease, box-shadow 220ms ease',
                   cursor: 'default',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#0f0f0f')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = '#0b0b0b')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#0f0f0f';
+                  e.currentTarget.style.boxShadow = '0 0 32px rgba(212,175,55,0.12)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#0b0b0b';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 <div
                   style={{
@@ -3503,10 +3531,10 @@ function CapabilitiesGrid() {
                     justifyContent: 'center',
                     width: 38,
                     height: 38,
-                    background: 'rgba(59,130,246,0.08)',
-                    border: '1px solid rgba(59,130,246,0.25)',
+                    background: 'rgba(212,175,55,0.08)',
+                    border: '1px solid rgba(212,175,55,0.25)',
                     borderRadius: 8,
-                    color: '#60A5FA',
+                    color: '#d4af37',
                     marginBottom: 22,
                   }}
                 >
@@ -3784,7 +3812,7 @@ export default function Home() {
     }}>
       <SEO
         title="Majorka — The Ecommerce Operating System for Serious Operators"
-        description="2,302 winning products. Real AliExpress data. AI-scored rankings across 7 markets — AU, US, UK, CA, NZ, DE, SG."
+        description="3,726 winning products. Real AliExpress data. AI-scored rankings across 7 markets — AU, US, UK, CA, NZ, DE, SG."
         path="/"
         ogImage="/og-image.svg"
       />

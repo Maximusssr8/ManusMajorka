@@ -22,9 +22,9 @@ interface Props {
 
 const C = {
   bg: '#FFFFFF',
-  gold: '#6366F1',
-  goldBg: 'rgba(99,102,241,0.08)',
-  goldBorder: 'rgba(99,102,241,0.2)',
+  gold: '#3B82F6',
+  goldBg: 'rgba(59,130,246,0.08)',
+  goldBorder: 'rgba(59,130,246,0.2)',
   glass: '#F9FAFB',
   border: '#E5E7EB',
   text: '#0A0A0A',

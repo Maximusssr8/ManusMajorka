@@ -11,7 +11,6 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTracking } from '@/hooks/useTracking';
 import { useAdmin } from '@/hooks/useAdmin';
-import { GradientM } from '@/components/MajorkaLogo';
 // isPro ⇒ SCALE tier label
 
 interface NavItem {
@@ -68,7 +67,7 @@ interface NavProps {
 
 export function Nav({ onNavigate }: NavProps = {}) {
   const [location, navigate] = useLocation();
-  const { user, isPro } = useAuth();
+  const { user, isPro, subPlan } = useAuth();
   const { trackedCount } = useTracking();
   const [searchTerm, setSearchTerm] = useState('');
   const [comingSoonItem, setComingSoonItem] = useState<NavItem | null>(null);
@@ -78,6 +77,9 @@ export function Nav({ onNavigate }: NavProps = {}) {
   const isAdmin = isAdminByUUID || legacyAdmin;
   const initial = (user?.name ?? user?.email ?? 'M').charAt(0).toUpperCase();
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
+  const userEmail = user?.email ?? '';
+  const planLower = (subPlan ?? '').toLowerCase();
+  const showUpgrade = planLower === '' || planLower === 'free' || planLower === 'builder';
 
   const isActive = (item: NavItem): boolean => {
     if (item.exact) return location === item.path;
@@ -86,14 +88,14 @@ export function Nav({ onNavigate }: NavProps = {}) {
 
   return (
     <nav className="relative w-[220px] h-full bg-[#050505] border-r border-white/[0.06] flex flex-col shrink-0 font-body overflow-hidden">
-      {/* Subtle top gradient border — electric blue fading to transparent */}
+      {/* Subtle top gradient border — gold fading to transparent */}
       <div
         className="absolute top-0 left-0 right-0 h-px pointer-events-none z-20"
-        style={{ background: 'linear-gradient(to right, transparent, rgba(59,130,246,0.35), transparent)' }}
+        style={{ background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.35), transparent)' }}
       />
       <div
         className="absolute top-0 left-0 right-0 h-32 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(59,130,246,0.15), transparent)' }}
+        style={{ background: 'linear-gradient(to bottom, rgba(212,175,55,0.10), transparent)' }}
       />
 
       <div className="relative z-10 flex flex-col h-full">
@@ -110,15 +112,10 @@ export function Nav({ onNavigate }: NavProps = {}) {
             style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }}
           />
           <span
-            className="text-[15px] font-display font-bold tracking-tight"
-            style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #888888 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
+            className="text-[15px] font-display font-bold tracking-tight lowercase"
+            style={{ color: '#d4af37' }}
           >
-            Majorka
+            majorka
           </span>
         </Link>
 
@@ -171,18 +168,20 @@ export function Nav({ onNavigate }: NavProps = {}) {
                       style={
                         active
                           ? {
-                              boxShadow: '0 0 20px rgba(59,130,246,0.15)',
-                              borderLeft: '3px solid #3B82F6',
-                              background: 'rgba(59,130,246,0.08)',
+                              boxShadow: '0 0 20px rgba(212,175,55,0.15)',
+                              borderLeft: '3px solid #d4af37',
+                              background: 'rgba(212,175,55,0.08)',
+                              color: '#d4af37',
+                              transition: 'all 200ms ease-out',
                             }
-                          : { borderLeft: '3px solid transparent' }
+                          : { borderLeft: '3px solid transparent', transition: 'all 200ms ease-out' }
                       }
-                      className={`flex items-center gap-2.5 pl-[9px] pr-3 py-1.5 rounded-md mb-0.5 text-[13px] transition-all duration-150 no-underline ${
+                      className={`flex items-center gap-2.5 pl-[9px] pr-3 py-1.5 rounded-md mb-0.5 text-[13px] no-underline ${
                         active
-                          ? 'text-white font-medium'
+                          ? 'font-medium'
                           : item.soon
-                            ? 'text-muted cursor-not-allowed'
-                            : 'text-body hover:bg-white/[0.03] hover:text-text hover:translate-x-[2px]'
+                            ? 'text-[#555] cursor-not-allowed'
+                            : 'text-[#888] hover:bg-[rgba(212,175,55,0.04)] hover:text-[#d4af37] hover:translate-x-[2px]'
                       }`}
                     >
                       <Icon size={16} strokeWidth={1.5} className="shrink-0" />
@@ -206,25 +205,63 @@ export function Nav({ onNavigate }: NavProps = {}) {
         </div>
 
         {/* User row */}
-        <div className="border-t border-white/[0.06] px-3 py-3 flex items-center gap-2.5 shrink-0">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center text-xs font-semibold text-white shrink-0">
-            {initial}
+        <div className="border-t border-white/[0.06] px-3 py-3 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex items-center justify-center shrink-0 font-semibold"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'rgba(212,175,55,0.12)',
+                border: '1px solid rgba(212,175,55,0.35)',
+                color: '#d4af37',
+                fontSize: 14,
+              }}
+            >
+              {initial}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] text-text truncate flex items-center gap-1.5">
+                <span className="truncate">{displayName}</span>
+                <span
+                  className="text-[9px] px-1.5 py-0.5 rounded font-semibold shrink-0"
+                  style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+                >
+                  {isPro ? 'SCALE' : 'BUILDER'}
+                </span>
+              </div>
+              {userEmail && (
+                <div className="text-[14px] text-muted truncate font-body" style={{ fontSize: 11 }}>
+                  {userEmail}
+                </div>
+              )}
+            </div>
+            <ThemeToggle />
+            <Link
+              href="/app/settings"
+              onClick={onNavigate}
+              aria-label="Settings"
+              className="text-muted hover:text-[#d4af37] transition-colors cursor-pointer shrink-0 flex items-center no-underline"
+            >
+              <Settings size={14} strokeWidth={1.75} />
+            </Link>
           </div>
-          <span className="text-[13px] text-text flex-1 truncate flex items-center gap-1.5 min-w-0">
-            <span className="truncate">{displayName}</span>
-            <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-semibold shrink-0">
-              {isPro ? 'SCALE' : 'BUILDER'}
-            </span>
-          </span>
-          <ThemeToggle />
-          <Link
-            href="/app/settings"
-            onClick={onNavigate}
-            aria-label="Settings"
-            className="text-muted hover:text-text transition-colors cursor-pointer shrink-0 flex items-center no-underline"
-          >
-            <Settings size={14} strokeWidth={1.75} />
-          </Link>
+          {showUpgrade && (
+            <Link
+              href="/app/settings"
+              onClick={onNavigate}
+              className="mt-2.5 flex items-center justify-center py-1.5 rounded-md text-[11px] font-semibold no-underline"
+              style={{
+                color: '#d4af37',
+                background: 'transparent',
+                border: '1px solid rgba(212,175,55,0.4)',
+                transition: 'all 200ms ease-out',
+              }}
+            >
+              Upgrade
+            </Link>
+          )}
         </div>
       </div>
 

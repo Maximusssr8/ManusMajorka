@@ -147,7 +147,8 @@ function renderMarkdown(text: string): React.ReactNode {
 }
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
-const MAYA_GRADIENT = "linear-gradient(135deg, #3B82F6, #1e40af)";
+const MAYA_GRADIENT = "linear-gradient(135deg, #d4af37 0%, #8a6e1f 100%)";
+const MAYA_GOLD = "#d4af37";
 
 function TypingDots() {
   return (
@@ -155,9 +156,9 @@ function TypingDots() {
       <div style={{ width: 28, height: 28, borderRadius: "50%", background: MAYA_GRADIENT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
       </div>
-      <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "6px 6px 6px 2px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
+      <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderLeft: `2px solid ${MAYA_GOLD}`, borderRadius: "6px 6px 6px 2px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
         {[0, 1, 2].map(i => (
-          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#3B82F6", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
+          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: MAYA_GOLD, display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
         ))}
       </div>
     </div>
@@ -194,22 +195,10 @@ export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [userNiche, setUserNiche] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { document.title = "Maya AI | Majorka"; }, []);
-
-  // FIX 4: Fetch user niche for dynamic chips
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return;
-      supabase.from('user_profiles').select('main_goal, experience_level').eq('user_id', session.user.id).single()
-        .then(({ data }) => {
-          if (data?.main_goal) setUserNiche(data.main_goal.split(',')[0].trim());
-        });
-    });
-  }, []);
 
   // FIX 5: Load chat history from localStorage on mount
   useEffect(() => {
@@ -238,12 +227,10 @@ export default function AIChat() {
 
   // Suggested prompt chips shown on empty state
   const suggestedPrompts = [
-    userNiche ? `Find winning products in ${userNiche} niche` : "Find winning products in pet niche",
-    "Analyze this AliExpress URL",
-    "Generate ad copy for my product",
-    "What's trending in Australia today",
-    "Write me a TikTok hook for my product",
-    "Find a winning product under $20 cost",
+    "Find me a winning product for the AU market",
+    "Write a Meta ad for my top product",
+    "What's trending in home & living right now?",
+    "Help me set up my first Shopify store",
   ];
 
   useEffect(() => {
@@ -380,7 +367,7 @@ export default function AIChat() {
         {/* ── Maya brand header ─────────────────────────────────────────────── */}
         <div style={{ padding: "16px 24px", borderBottom: "1px solid #1a1a1a", background: "#0d0d0d", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: MAYA_GRADIENT, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(59,130,246,0.3)" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: MAYA_GRADIENT, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(212,175,55,0.35)" }}>
               <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: "white" }}>M</span>
             </div>
             <div>
@@ -412,7 +399,7 @@ export default function AIChat() {
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
                     style={{ padding: "12px 16px", background: "#0f0f0f", border: "1px solid #1a1a1a", borderRadius: 6, cursor: "pointer", color: "#888888", fontFamily: dm, fontSize: 13, textAlign: "left" as const, lineHeight: 1.4, transition: "all 150ms" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; e.currentTarget.style.background = "#111111"; e.currentTarget.style.color = "#ededed"; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.4)"; e.currentTarget.style.background = "#111111"; e.currentTarget.style.color = "#ededed"; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = "#1a1a1a"; e.currentTarget.style.background = "#0f0f0f"; e.currentTarget.style.color = "#888888"; }}
                   >
                     {prompt}
@@ -444,7 +431,7 @@ export default function AIChat() {
                   } : {
                     background: "#0f0f0f",
                     border: "1px solid #1a1a1a",
-                    borderLeft: "2px solid #3B82F6",
+                    borderLeft: "2px solid #d4af37",
                     color: "#ededed",
                     fontFamily: dm,
                     fontSize: 14,

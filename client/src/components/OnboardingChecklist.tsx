@@ -111,8 +111,8 @@ export default function OnboardingChecklist() {
     <div
       className="rounded-xl p-4 mb-8 relative overflow-hidden"
       style={{
-        background: 'rgba(99,102,241,0.03)',
-        border: '1px solid rgba(99,102,241,0.12)',
+        background: 'rgba(59,130,246,0.03)',
+        border: '1px solid rgba(59,130,246,0.12)',
       }}
     >
       {/* Confetti effect */}
@@ -123,7 +123,7 @@ export default function OnboardingChecklist() {
           </span>
           <span
             className="text-sm font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#3B82F6' }}
           >
             You're a power user!
           </span>
@@ -144,7 +144,7 @@ export default function OnboardingChecklist() {
           </h3>
           <span
             className="text-xs px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}
+            style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6' }}
           >
             {completedCount}/{totalCount} complete
           </span>
@@ -169,8 +169,8 @@ export default function OnboardingChecklist() {
             width: `${progress}%`,
             background:
               progress === 100
-                ? 'linear-gradient(90deg, #10b981, #6366F1)'
-                : 'linear-gradient(90deg, #6366F1, #818CF8)',
+                ? 'linear-gradient(90deg, #10b981, #3B82F6)'
+                : 'linear-gradient(90deg, #3B82F6, #60A5FA)',
           }}
         />
       </div>
@@ -191,7 +191,7 @@ export default function OnboardingChecklist() {
                 opacity: done ? 0.7 : 1,
               }}
               onMouseEnter={(e) => {
-                if (!done) e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                if (!done) e.currentTarget.style.borderColor = 'rgba(59,130,246,0.25)';
               }}
               onMouseLeave={(e) => {
                 if (!done) e.currentTarget.style.borderColor = '#F9FAFB';

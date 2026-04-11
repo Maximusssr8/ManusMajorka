@@ -161,7 +161,7 @@ function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean 
   const r = 34;
   const circ = 2 * Math.PI * r;
   const offset = circ - (percent / 100) * circ;
-  const color = allDone ? '#10b981' : percent > 60 ? '#6366F1' : '#6366F1';
+  const color = allDone ? '#10b981' : percent > 60 ? '#3B82F6' : '#3B82F6';
 
   return (
     <div style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
@@ -233,7 +233,7 @@ function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean 
 // Confetti burst component
 function ConfettiBurst() {
   const pieces = Array.from({ length: 18 });
-  const colors = ['#6366F1', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
+  const colors = ['#3B82F6', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
   return (
     <div
       style={{ position: 'absolute', top: '20%', left: '50%', pointerEvents: 'none', zIndex: 10 }}
@@ -269,7 +269,7 @@ function ConfettiBurst() {
 
 const COLUMNS: { key: ColKey; label: string; color: string }[] = [
   { key: 'todo', label: 'To Do', color: '#9CA3AF' },
-  { key: 'inprogress', label: 'In Progress', color: '#6366F1' },
+  { key: 'inprogress', label: 'In Progress', color: '#3B82F6' },
   { key: 'done', label: 'Done ✓', color: '#10b981' },
 ];
 
@@ -325,8 +325,8 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
     <div
       className={allDone ? 'launch-all-done' : ''}
       style={{
-        background: allDone ? 'rgba(16,185,129,0.04)' : 'rgba(99,102,241,0.02)',
-        border: `1px solid ${allDone ? 'rgba(16,185,129,0.2)' : 'rgba(99,102,241,0.12)'}`,
+        background: allDone ? 'rgba(16,185,129,0.04)' : 'rgba(59,130,246,0.02)',
+        border: `1px solid ${allDone ? 'rgba(16,185,129,0.2)' : 'rgba(59,130,246,0.12)'}`,
         borderRadius: 16,
         padding: '20px 20px',
         marginBottom: 24,
@@ -349,7 +349,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-          <Rocket size={16} style={{ color: allDone ? '#10b981' : '#6366F1', flexShrink: 0 }} />
+          <Rocket size={16} style={{ color: allDone ? '#10b981' : '#3B82F6', flexShrink: 0 }} />
           <div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#F8FAFC' }}>
               Launch Readiness
@@ -465,9 +465,9 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                           col.key === 'done'
                             ? 'rgba(16,185,129,0.06)'
                             : col.key === 'inprogress'
-                              ? 'rgba(99,102,241,0.06)'
+                              ? 'rgba(59,130,246,0.06)'
                               : '#FAFAFA',
-                        border: `1px solid ${col.key === 'done' ? 'rgba(16,185,129,0.18)' : col.key === 'inprogress' ? 'rgba(99,102,241,0.18)' : '#F9FAFB'}`,
+                        border: `1px solid ${col.key === 'done' ? 'rgba(16,185,129,0.18)' : col.key === 'inprogress' ? 'rgba(59,130,246,0.18)' : '#F9FAFB'}`,
                         borderRadius: 8,
                         padding: '8px 10px',
                         cursor: 'pointer',
@@ -505,7 +505,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                             gap: 3,
                             fontSize: 10,
                             fontWeight: 600,
-                            color: col.key === 'inprogress' ? '#6366F1' : '#9CA3AF',
+                            color: col.key === 'inprogress' ? '#3B82F6' : '#9CA3AF',
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',

@@ -68,7 +68,7 @@ function CopyBtn({ text }: { text: string }) {
       style={{
         background: copied ? '#EEF2FF' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -167,7 +167,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                     className="text-xs flex items-start gap-1.5 mb-1"
                     style={{ color: '#CBD5E1' }}
                   >
-                    <span style={{ color: '#6366F1', flexShrink: 0 }}>✓</span>
+                    <span style={{ color: '#3B82F6', flexShrink: 0 }}>✓</span>
                     {d}
                   </div>
                 ))}
@@ -205,7 +205,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                   className="text-xs flex items-start gap-1.5 mb-1"
                   style={{ color: '#CBD5E1' }}
                 >
-                  <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
+                  <span style={{ color: '#3B82F6', flexShrink: 0 }}>→</span>
                   {t}
                 </div>
               ))}
@@ -293,14 +293,14 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
             <div
               className="p-3 rounded-xl"
               style={{
-                background: 'rgba(99,102,241,0.06)',
-                border: '1px solid rgba(99,102,241,0.15)',
+                background: 'rgba(59,130,246,0.06)',
+                border: '1px solid rgba(59,130,246,0.15)',
               }}
             >
               <div className="flex items-center justify-between mb-1.5">
                 <div
                   className="text-xs font-bold uppercase tracking-wider"
-                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   🎣 Ad Hook
                 </div>

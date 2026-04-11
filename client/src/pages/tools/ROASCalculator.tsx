@@ -143,7 +143,7 @@ export default function ROASCalculator() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+            background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14,
             fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -168,13 +168,13 @@ export default function ROASCalculator() {
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
             padding: '6px 14px', borderRadius: 999,
-            background: 'rgba(99,102,241,0.08)',
-            border: '1px solid rgba(99,102,241,0.2)',
+            background: 'rgba(59,130,246,0.08)',
+            border: '1px solid rgba(59,130,246,0.2)',
             marginBottom: 18,
           }}>
-            <Calculator size={14} color="#a5b4fc" />
+            <Calculator size={14} color="#93C5FD" />
             <span style={{
-              fontSize: 11, fontFamily: 'monospace', color: '#a5b4fc',
+              fontSize: 11, fontFamily: 'monospace', color: '#93C5FD',
               letterSpacing: '0.08em', textTransform: 'uppercase',
             }}>Free tool</span>
           </div>
@@ -271,13 +271,13 @@ export default function ROASCalculator() {
             <StatCard
               label="Break-even ROAS"
               value={fmtRoas(outputs.breakEvenRoas)}
-              color="#a5b4fc"
+              color="#93C5FD"
               hint="Minimum return on ad spend"
             />
             <StatCard
               label="Max CPA"
               value={fmtMoney(outputs.maxCpa, sym)}
-              color="#a5b4fc"
+              color="#93C5FD"
               hint="Maximum cost per customer"
             />
             <StatCard
@@ -300,8 +300,8 @@ export default function ROASCalculator() {
           marginTop: 64,
           padding: 32,
           borderRadius: 16,
-          background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04))',
-          border: '1px solid rgba(99,102,241,0.18)',
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.04))',
+          border: '1px solid rgba(59,130,246,0.18)',
           textAlign: 'center',
         }}>
           <div style={{
@@ -319,7 +319,7 @@ export default function ROASCalculator() {
             alignItems: 'center',
             gap: 8,
             padding: '12px 24px',
-            background: '#6366F1',
+            background: '#3B82F6',
             color: '#fff',
             fontWeight: 600,
             fontSize: 14,

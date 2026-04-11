@@ -232,7 +232,7 @@ export default function SaturationChecker() {
   };
 
   const goldButton: React.CSSProperties = {
-    background: '#6366F1',
+    background: '#3B82F6',
     color: '#FAFAFA',
     fontFamily: "'Bricolage Grotesque', sans-serif",
     fontWeight: 700,
@@ -257,11 +257,11 @@ export default function SaturationChecker() {
   };
 
   const chipStyle: React.CSSProperties = {
-    background: 'rgba(99,102,241,0.08)',
-    border: '1px solid rgba(99,102,241,0.2)',
+    background: 'rgba(59,130,246,0.08)',
+    border: '1px solid rgba(59,130,246,0.2)',
     borderRadius: 20,
     padding: '0.35rem 0.85rem',
-    color: '#6366F1',
+    color: '#3B82F6',
     fontSize: '0.8rem',
     cursor: 'pointer',
     fontFamily: 'DM Sans, sans-serif',
@@ -282,14 +282,14 @@ export default function SaturationChecker() {
           <span
             style={{
               display: 'inline-block',
-              background: 'rgba(99,102,241,0.1)',
-              border: '1px solid rgba(99,102,241,0.25)',
+              background: 'rgba(59,130,246,0.1)',
+              border: '1px solid rgba(59,130,246,0.25)',
               borderRadius: 20,
               padding: '0.3rem 0.9rem',
               fontSize: '0.7rem',
               fontWeight: 700,
               letterSpacing: '0.1em',
-              color: '#6366F1',
+              color: '#3B82F6',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               marginBottom: '1rem',
               textTransform: 'uppercase',
@@ -380,7 +380,7 @@ export default function SaturationChecker() {
               style={{
                 width: 36,
                 height: 36,
-                color: '#6366F1',
+                color: '#3B82F6',
                 margin: '0 auto 1.25rem',
                 animation: 'pulse 1.5s ease-in-out infinite',
               }}
@@ -392,7 +392,7 @@ export default function SaturationChecker() {
                   style={{
                     padding: '0.4rem 0',
                     fontSize: '0.9rem',
-                    color: i < loadingStep ? '#9CA3AF' : i === loadingStep ? '#6366F1' : '#9CA3AF',
+                    color: i < loadingStep ? '#9CA3AF' : i === loadingStep ? '#3B82F6' : '#9CA3AF',
                     fontWeight: i === loadingStep ? 600 : 400,
                     opacity: i <= loadingStep ? 1 : 0.3,
                     transition: 'all 0.4s ease',
@@ -417,7 +417,7 @@ export default function SaturationChecker() {
                 style={{
                   height: '100%',
                   width: `${((loadingStep + 1) / LOADING_STEPS.length) * 100}%`,
-                  background: '#6366F1',
+                  background: '#3B82F6',
                   borderRadius: 2,
                   transition: 'width 0.6s ease',
                 }}
@@ -585,8 +585,8 @@ export default function SaturationChecker() {
               <div
                 style={{
                   ...cardStyle,
-                  borderColor: 'rgba(99,102,241,0.2)',
-                  background: 'rgba(99,102,241,0.04)',
+                  borderColor: 'rgba(59,130,246,0.2)',
+                  background: 'rgba(59,130,246,0.04)',
                 }}
               >
                 <div
@@ -594,7 +594,7 @@ export default function SaturationChecker() {
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: '#6366F1',
+                    color: '#3B82F6',
                     marginBottom: '0.75rem',
                   }}
                 >

@@ -62,7 +62,7 @@ function CopyBtn({ text }: { text: string }) {
       style={{
         background: copied ? '#EEF2FF' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -513,7 +513,7 @@ export default function CopywriterTool() {
                 ))}
               </CopySection>
 
-              <CopySection title="Email Subject Lines" accent="#6366F1">
+              <CopySection title="Email Subject Lines" accent="#3B82F6">
                 {result.emailSubjectLines.map((s, i) => (
                   <CopyItem key={i} label={`Subject ${i + 1}`} text={s} />
                 ))}
@@ -523,7 +523,7 @@ export default function CopywriterTool() {
                 <CopyItem label="TikTok Hook (first 3 seconds)" text={result.tiktokHook} />
               </CopySection>
 
-              <CopySection title="SEO" accent="#6366F1">
+              <CopySection title="SEO" accent="#3B82F6">
                 <CopyItem label="Page Title" text={result.seoTitle} />
                 <CopyItem label="Meta Description" text={result.seoMetaDescription} />
               </CopySection>

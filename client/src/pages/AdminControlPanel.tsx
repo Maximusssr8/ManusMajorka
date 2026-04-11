@@ -212,7 +212,7 @@ function UsersTab() {
                       <button
                         onClick={() => updatePlan(u.id, 'pro', 'active')}
                         disabled={updatingId === u.id}
-                        style={{ padding: '4px 8px', background: C.goldBg, border: `1px solid rgba(99,102,241,0.2)`, borderRadius: 5, color: C.gold, fontSize: 11, cursor: 'pointer' }}
+                        style={{ padding: '4px 8px', background: C.goldBg, border: `1px solid rgba(59,130,246,0.2)`, borderRadius: 5, color: C.gold, fontSize: 11, cursor: 'pointer' }}
                       >Grant Pro</button>
                       <button
                         onClick={() => updatePlan(u.id, u.plan || 'free', 'inactive')}
@@ -281,7 +281,7 @@ function TrendsTab() {
           {lastRefreshed && <span>Last refreshed: <strong style={{ color: C.text }}>{hoursAgo}h ago</strong> · Next in: <strong style={{ color: C.text }}>{nextIn}h</strong></span>}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(99,102,241,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Add Product</button>
+          <button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(59,130,246,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Add Product</button>
           <button onClick={refresh} disabled={refreshing} style={{ padding: '7px 14px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: C.text, fontSize: 12, cursor: 'pointer' }}>
             {refreshing ? 'Refreshing...' : 'Refresh Now'}
           </button>
@@ -367,7 +367,7 @@ function SubscriptionsTab() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button onClick={() => setShowAdd(!showAdd)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(99,102,241,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Manual Subscription</button>
+        <button onClick={() => setShowAdd(!showAdd)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(59,130,246,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Manual Subscription</button>
       </div>
 
       {showAdd && (
@@ -479,7 +479,7 @@ function HealthTab() {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' as const }}>
-        <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(99,102,241,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(59,130,246,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
           Run All Checks
         </button>
         <button
@@ -495,7 +495,7 @@ function HealthTab() {
             }
           }}
           disabled={enriching}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#6366F1', color: '#000', border: 'none', borderRadius: 6, cursor: enriching ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: enriching ? 0.7 : 1 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#3B82F6', color: '#000', border: 'none', borderRadius: 6, cursor: enriching ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: enriching ? 0.7 : 1 }}
         >
           {enriching ? 'Enriching…' : '⚡ Enrich Products'}
         </button>

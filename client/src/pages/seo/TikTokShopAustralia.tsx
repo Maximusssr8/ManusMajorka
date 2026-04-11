@@ -16,9 +16,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#6366F1',
-  goldDim: 'rgba(99,102,241,0.08)',
-  goldBorder: 'rgba(99,102,241,0.2)',
+  gold: '#3B82F6',
+  goldDim: 'rgba(59,130,246,0.08)',
+  goldBorder: 'rgba(59,130,246,0.2)',
 };
 
 const syne = "'Bricolage Grotesque', sans-serif";
@@ -110,7 +110,7 @@ export default function TikTokShopAustralia() {
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/pricing" style={{ color: C.secondary, fontSize: 13, textDecoration: 'none', fontFamily: syne, fontWeight: 600 }}>Pricing</Link>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #2563EB)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
           </div>
         </div>
       </nav>
@@ -124,13 +124,13 @@ export default function TikTokShopAustralia() {
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
             TikTok Shop Australia:<br />
-            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>The Complete 2026 Guide</span>
+            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #93C5FD)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>The Complete 2026 Guide</span>
           </h1>
           <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', maxWidth: 640, margin: '0 auto 36px', lineHeight: 1.65 }}>
             TikTok Shop launched in Australia in 2024 — and it's already <strong style={{ color: C.text }}>the fastest-growing ecommerce channel</strong> in the country. This guide covers everything you need to know about <strong style={{ color: C.text }}>TikTok dropshipping Australia</strong>: how TikTok Shop AU works, what products are winning, and how to find them before your competitors.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(99,102,241,0.3)` }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #2563EB)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(59,130,246,0.3)` }}>
               Find TikTok Shop Products Free →
             </Link>
             <Link href="/dropshipping-australia" style={{ background: 'transparent', color: C.text, fontFamily: syne, fontWeight: 600, fontSize: 15, padding: '16px 30px', borderRadius: 12, textDecoration: 'none', border: `1px solid ${C.border}` }}>
@@ -271,7 +271,7 @@ export default function TikTokShopAustralia() {
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
             Majorka's AI scans TikTok Shop AU, AliExpress, Amazon AU, and eBay AU simultaneously — giving you the full picture on what's winning in Australia right now.
           </p>
-          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(99,102,241,0.35)` }}>
+          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #2563EB)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(59,130,246,0.35)` }}>
             Start Finding Products Free →
           </Link>
           <p style={{ color: C.muted, fontSize: 12, marginTop: 14 }}>Free tier · No credit card · 2,400+ AU sellers</p>
