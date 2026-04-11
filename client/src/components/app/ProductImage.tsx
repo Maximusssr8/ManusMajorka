@@ -42,7 +42,7 @@ export function ProductImage({ src, title, size = 40, borderRadius = 6 }: Produc
   return (
     <img
       src={proxied}
-      alt={title ?? 'Product'}
+      alt={title || 'Product image'}
       loading="lazy"
       style={{
         width: size,

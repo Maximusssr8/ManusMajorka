@@ -222,6 +222,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close"
             style={{
               width: 34,
               height: 34,

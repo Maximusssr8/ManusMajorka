@@ -2665,9 +2665,9 @@ function Founder() {
               <div style={{ fontFamily: mono, fontSize: 11, color: '#6366F1', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
                 Our mission
               </div>
-              <h3 style={{ fontFamily: display, fontSize: 26, fontWeight: 700, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontFamily: display, fontSize: 26, fontWeight: 700, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
                 Built for serious dropshippers
-              </h3>
+              </h2>
             </div>
           </div>
           <div style={{ fontSize: 15, color: T.textMuted, lineHeight: 1.75 }}>

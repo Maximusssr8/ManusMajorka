@@ -107,7 +107,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             {product.image_url ? (
               <img
                 src={proxyImage(product.image_url) ?? product.image_url}
-                alt={product.product_title}
+                alt=""
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
