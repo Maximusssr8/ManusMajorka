@@ -95,8 +95,7 @@ async function runApifyRaw(input: Record<string, unknown>): Promise<any[]> {
     return [];
   }
 
-  console.log('[tiktokData] Token present:', !!token, 'len:', token.length);
-  console.log('[tiktokData] Input:', JSON.stringify(input));
+  console.info('[tiktokData] Token present:', !!token);
 
   // Start actor run — body IS the input (flat, not nested)
   let startData: any;
