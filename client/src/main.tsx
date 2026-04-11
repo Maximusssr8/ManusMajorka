@@ -73,7 +73,6 @@ import { captureUTM } from '@/lib/attribution';
 import { initPostHog } from '@/lib/posthog';
 import { supabase } from '@/lib/supabase';
 import { trpc } from '@/lib/trpc';
-import { NuqsAdapter } from 'nuqs/adapters/react';
 import App from './App';
 import './index.css';
 
@@ -220,9 +219,7 @@ try {
       <HelmetProvider>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
-            <NuqsAdapter>
               <App />
-            </NuqsAdapter>
           </QueryClientProvider>
         </trpc.Provider>
       </HelmetProvider>
