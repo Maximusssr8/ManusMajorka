@@ -12,22 +12,26 @@ interface Command {
 
 const COMMANDS: Command[] = [
   // Navigation
-  { id: 'home', label: 'Home Dashboard', icon: '🏠', category: 'Navigate', path: '/app' },
-  { id: 'products', label: 'Product Intelligence', icon: '🔍', category: 'Navigate', path: '/app/product-intelligence' },
-  { id: 'market', label: 'Market Dashboard', icon: '📊', category: 'Navigate', path: '/app/market' },
-  { id: 'creators', label: 'Creator Intelligence', icon: '👥', category: 'Navigate', path: '/app/creators' },
-  { id: 'profit', label: 'Profit Calculator', icon: '💰', category: 'Navigate', path: '/app/profit' },
-  { id: 'trend', label: 'Trend Radar', icon: '📡', category: 'Navigate', path: '/app/trend-radar' },
-  { id: 'maya', label: 'Maya AI Chat', icon: '🤖', category: 'Navigate', path: '/app/ai-chat' },
-  { id: 'ads', label: 'Ads Studio', icon: '🎯', category: 'Navigate', path: '/app/ads-studio' },
-  { id: 'revenue', label: 'Revenue Tracker', icon: '📈', category: 'Navigate', path: '/app/revenue' },
+  { id: 'home', label: 'Home', icon: '🏠', category: 'Navigate', path: '/app' },
+  { id: 'products', label: 'Products', icon: '🔍', category: 'Navigate', path: '/app/products' },
+  { id: 'creators', label: 'Creators', icon: '👥', category: 'Navigate', path: '/app/creators' },
+  { id: 'maya', label: 'Maya AI', icon: '🤖', category: 'Navigate', path: '/app/ai-chat' },
+  { id: 'ads-studio', label: 'Ads Studio', icon: '🎯', category: 'Navigate', path: '/app/ads-studio' },
+  { id: 'ad-briefs', label: 'Ad Briefs', icon: '📝', category: 'Navigate', path: '/app/ad-spy' },
+  { id: 'store-builder', label: 'Store Builder', icon: '🏪', category: 'Navigate', path: '/app/store-builder' },
+  { id: 'alerts', label: 'Alerts', icon: '🔔', category: 'Navigate', path: '/app/alerts' },
+  { id: 'spy', label: 'Competitor Spy', icon: '🕵️', category: 'Navigate', path: '/app/spy' },
+  { id: 'revenue', label: 'Revenue', icon: '📈', category: 'Navigate', path: '/app/revenue' },
+  { id: 'learn', label: 'Academy', icon: '🎓', category: 'Navigate', path: '/app/learn' },
   { id: 'settings', label: 'Settings', icon: '⚙️', category: 'Navigate', path: '/app/settings' },
+  { id: 'pricing', label: 'Pricing', icon: '💳', category: 'Navigate', path: '/pricing' },
   // Actions
   { id: 'export', label: 'Export Products CSV', icon: '⬇️', category: 'Action', action: 'export-csv' },
   { id: 'refresh', label: 'Refresh Product Data', icon: '🔄', category: 'Action', action: 'refresh-data' },
   // Filters
-  { id: 'filter-hot', label: 'Show Hot Products Only', icon: '🔥', category: 'Filter', path: '/app/product-intelligence?filter=hot' },
-  { id: 'filter-rising', label: 'Show Rising Products', icon: '📈', category: 'Filter', path: '/app/product-intelligence?filter=rising' },
+  { id: 'filter-hot', label: 'Hot Products', icon: '🔥', category: 'Filter', path: '/app/products?tab=hot-now' },
+  { id: 'filter-new', label: 'Newest Products', icon: '✨', category: 'Filter', path: '/app/products?tab=new' },
+  { id: 'filter-margin', label: 'High Margin', icon: '💰', category: 'Filter', path: '/app/products?tab=highmargin' },
 ];
 
 interface CommandPaletteProps {
