@@ -21,6 +21,18 @@ function sb() {
 // All routes require the user to be signed in.
 router.use(requireAuth);
 
+// Returns true if a Postgres error means the table doesn't exist yet —
+// i.e. the migration hasn't been run in this environment. We want to
+// surface this as a distinct, friendly error code so the UI can render
+// a "run the migration" message instead of a scary 500.
+function isMissingTableError(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  // Supabase/PostgREST returns 42P01 for undefined_table.
+  if (error.code === '42P01') return true;
+  const msg = (error.message || '').toLowerCase();
+  return msg.includes('relation') && msg.includes('does not exist');
+}
+
 // ── GET /api/api-keys ───────────────────────────────────────────────────────
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -34,6 +46,15 @@ router.get('/', async (req: Request, res: Response) => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      if (isMissingTableError(error)) {
+        return res.status(503).json({
+          error: 'migration_pending',
+          message:
+            'The api_keys table has not been created yet. ' +
+            'Run supabase/migrations/20260411_api_keys.sql on your Supabase instance to enable this feature.',
+          keys: [],
+        });
+      }
       console.error('[api-keys GET] db error:', error.message);
       return res.status(500).json({ error: 'db_error', message: error.message });
     }
@@ -96,6 +117,14 @@ router.post('/', async (req: Request, res: Response) => {
       .single();
 
     if (error || !data) {
+      if (isMissingTableError(error)) {
+        return res.status(503).json({
+          error: 'migration_pending',
+          message:
+            'The api_keys table has not been created yet. ' +
+            'Run supabase/migrations/20260411_api_keys.sql on your Supabase instance.',
+        });
+      }
       console.error('[api-keys POST] insert error:', error?.message);
       return res.status(500).json({ error: 'db_error', message: error?.message || 'insert failed' });
     }
@@ -162,11 +191,22 @@ router.get('/usage', async (req: Request, res: Response) => {
     const supa = sb();
     const month = new Date().toISOString().slice(0, 7);
 
-    const { data: usage } = await supa
+    const { data: usage, error: usageError } = await supa
       .from('api_usage')
       .select('count')
       .eq('user_id', userId)
       .eq('month', month);
+
+    if (usageError && isMissingTableError(usageError)) {
+      return res.status(503).json({
+        error: 'migration_pending',
+        message: 'The api_usage table has not been created yet.',
+        requestsThisMonth: 0,
+        dailyLimit: 0,
+        plan: 'unknown',
+        month,
+      });
+    }
 
     const requestsThisMonth = (usage || []).reduce((sum: number, row: any) => sum + (row.count || 0), 0);
 

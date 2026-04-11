@@ -27,15 +27,24 @@ interface CreatedKey {
 
 interface UsageInfo {
   requestsThisMonth: number;
-  limit: number;
+  dailyLimit: number;
+  monthlyEstimate?: number;
   plan: string;
+  month?: string;
+}
+
+interface ApiCallError extends Error {
+  status?: number;
+  code?: string;
 }
 
 async function apiCall<T = unknown>(path: string, opts?: RequestInit): Promise<T> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token ?? '';
   if (!token) {
-    throw new Error('Not signed in — refresh the page and sign in again');
+    const err = new Error('Not signed in — refresh the page and sign in again') as ApiCallError;
+    err.status = 401;
+    throw err;
   }
   const res = await fetch(`/api${path}`, {
     ...opts,
@@ -47,14 +56,17 @@ async function apiCall<T = unknown>(path: string, opts?: RequestInit): Promise<T
   });
   if (!res.ok) {
     let detail = '';
+    let code = '';
     try {
       const body = (await res.json()) as { error?: string; message?: string };
-      detail = body.error ?? body.message ?? '';
+      detail = body.message ?? body.error ?? '';
+      code = body.error ?? '';
     } catch {
       detail = await res.text().catch(() => '');
     }
-    const err = new Error(`HTTP ${res.status}${detail ? ` — ${detail}` : ''}`);
-    (err as Error & { status?: number }).status = res.status;
+    const err = new Error(detail || `HTTP ${res.status}`) as ApiCallError;
+    err.status = res.status;
+    err.code = code;
     throw err;
   }
   return (await res.json()) as T;
@@ -100,6 +112,7 @@ export default function ApiKeys(): ReactElement {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [migrationPending, setMigrationPending] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
@@ -113,11 +126,17 @@ export default function ApiKeys(): ReactElement {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setMigrationPending(false);
     try {
       const data = await apiCall<{ keys: ApiKey[] }>('/api-keys');
       setKeys(data.keys ?? []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to load API keys');
+      const err = e as ApiCallError;
+      if (err.code === 'migration_pending' || err.status === 503) {
+        setMigrationPending(true);
+      } else {
+        setError(err?.message || 'Failed to load API keys');
+      }
     } finally {
       setLoading(false);
     }
@@ -129,10 +148,11 @@ export default function ApiKeys(): ReactElement {
       setUsage(data);
       setUsageAvailable(true);
     } catch (e: unknown) {
-      const status = (e as { status?: number }).status;
-      if (status === 404) {
-        setUsageAvailable(false);
-      }
+      // Hide the usage card gracefully on any failure (404, 500, 503).
+      // The migration may not have run yet in a fresh environment, which
+      // would make this endpoint return 500 — that's not a page-level crash.
+      setUsageAvailable(false);
+      void e;
     }
   }, []);
 
@@ -274,6 +294,55 @@ export default function ApiKeys(): ReactElement {
             </button>
           )}
         </div>
+
+        {/* Migration-pending banner — shown when the api_keys table hasn't
+            been created yet (first-time deploy). Friendly, not scary. */}
+        {migrationPending && (
+          <div
+            style={{
+              marginTop: 24,
+              background: 'rgba(212,175,55,0.06)',
+              border: '1px solid rgba(212,175,55,0.35)',
+              borderRadius: 10,
+              padding: '18px 22px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d4af37', boxShadow: '0 0 10px rgba(212,175,55,0.6)' }} />
+              <div style={{ fontFamily: DISPLAY, fontSize: 15, fontWeight: 700, color: '#ededed' }}>
+                Database migration required
+              </div>
+            </div>
+            <div style={{ fontSize: 13, color: '#aaa', lineHeight: 1.65, marginBottom: 10 }}>
+              The <code style={{ fontFamily: MONO, color: '#d4af37' }}>api_keys</code> and{' '}
+              <code style={{ fontFamily: MONO, color: '#d4af37' }}>api_usage</code> tables haven&rsquo;t been created on
+              this Supabase instance yet. The Developer API needs these to store your keys.
+            </div>
+            <div style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>
+              <strong style={{ color: '#ededed' }}>To fix:</strong> paste{' '}
+              <code style={{ fontFamily: MONO, color: '#d4af37' }}>supabase/migrations/20260411_api_keys.sql</code>{' '}
+              into your Supabase SQL Editor and run it, or run{' '}
+              <code style={{ fontFamily: MONO, color: '#d4af37' }}>supabase db push</code> from your local CLI.
+            </div>
+            <button
+              type="button"
+              onClick={() => void load()}
+              style={{
+                background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 6,
+                padding: '8px 18px',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(59,130,246,0.3)',
+              }}
+            >
+              Check again
+            </button>
+          </div>
+        )}
 
         {/* Error banner */}
         {error && (
@@ -887,7 +956,7 @@ export default function ApiKeys(): ReactElement {
                     fontFamily: MONO,
                   }}
                 >
-                  {usage.plan} plan
+                  {usage.plan || 'free'} plan
                 </div>
               </div>
               <div
@@ -898,9 +967,9 @@ export default function ApiKeys(): ReactElement {
                   fontVariantNumeric: 'tabular-nums',
                 }}
               >
-                {usage.requestsThisMonth.toLocaleString()} /{' '}
+                {(usage.requestsThisMonth ?? 0).toLocaleString()} /{' '}
                 <span style={{ color: 'rgba(255,255,255,0.55)' }}>
-                  {usage.limit.toLocaleString()}
+                  {((usage.monthlyEstimate ?? usage.dailyLimit * 30) || 0).toLocaleString()} /mo
                 </span>
               </div>
             </div>
@@ -914,7 +983,7 @@ export default function ApiKeys(): ReactElement {
             >
               <div
                 style={{
-                  width: `${Math.min(100, (usage.requestsThisMonth / Math.max(1, usage.limit)) * 100)}%`,
+                  width: `${Math.min(100, ((usage.requestsThisMonth ?? 0) / Math.max(1, (usage.monthlyEstimate ?? usage.dailyLimit * 30) || 1)) * 100)}%`,
                   height: '100%',
                   background: '#d4af37',
                   boxShadow: '0 0 12px rgba(212,175,55,0.5)',
