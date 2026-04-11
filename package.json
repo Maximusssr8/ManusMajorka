@@ -20,7 +20,7 @@
     "@ai-sdk/react": "^3.0.40",
     "@anthropic-ai/sdk": "^0.78.0",
     "@aws-sdk/client-s3": "^3.1019.0",
-    "@aws-sdk/s3-request-presigner": "^3.693.0",
+    "@aws-sdk/s3-request-presigner": "^3.1029.0",
     "@floating-ui/react": "^0.27.19",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
@@ -153,7 +153,9 @@
       "wouter@3.7.1": "patches/wouter@3.7.1.patch"
     },
     "overrides": {
-      "tailwindcss>nanoid": "3.3.7"
+      "tailwindcss>nanoid": "3.3.7",
+      "fast-xml-parser": ">=5.3.5",
+      "axios": ">=1.15.0"
     }
   }
 }
