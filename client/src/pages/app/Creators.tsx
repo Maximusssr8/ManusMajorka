@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNicheStats } from '@/hooks/useNicheStats';
+import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 import { scorePillStyle } from '@/lib/scorePill';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 
@@ -75,6 +76,18 @@ export default function Creators() {
       hashtags: [catTag, ...baseTags],
     };
   }, [query, niches]);
+
+  if (loading) return (
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SkeletonCard /><SkeletonCard /><SkeletonCard />
+        <SkeletonCard /><SkeletonCard /><SkeletonCard />
+      </div>
+      <div className="space-y-2">
+        <SkeletonRow /><SkeletonRow /><SkeletonRow /><SkeletonRow />
+      </div>
+    </div>
+  );
 
   const copyTemplate = async (id: string, text: string) => {
     try {

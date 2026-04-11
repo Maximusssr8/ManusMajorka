@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
+import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 
 /**
  * Revenue.tsx — personal profit log for the operator.
@@ -47,8 +48,9 @@ export default function Revenue() {
   const [entries, setEntries] = useState<RevenueEntry[]>(() => loadEntries());
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { document.title = 'Revenue — Majorka'; }, []);
+  useEffect(() => { document.title = 'Revenue — Majorka'; setLoading(false); }, []);
 
   function persist(updated: RevenueEntry[]) {
     setEntries(updated);
@@ -79,6 +81,17 @@ export default function Revenue() {
   const totalAdSpend = entries.reduce((s, e) => s + e.dailyAdSpend * e.daysRunning, 0);
   const totalProfit = totalRevenue - totalAdSpend;
   const avgROAS = totalAdSpend > 0 ? (totalRevenue / totalAdSpend).toFixed(2) : '—';
+
+  if (loading) return (
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SkeletonCard /><SkeletonCard /><SkeletonCard />
+      </div>
+      <div className="space-y-2">
+        <SkeletonRow /><SkeletonRow /><SkeletonRow /><SkeletonRow />
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-full bg-bg font-body text-text">

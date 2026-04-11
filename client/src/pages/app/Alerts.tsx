@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Bell, Plus, Package, X } from 'lucide-react';
+import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
@@ -48,7 +49,7 @@ function saveAlerts(alerts: StoredAlert[]) {
 export default function Alerts() {
   useEffect(() => { document.title = 'Alerts — Majorka'; }, []);
   const { user, isPro } = useAuth();
-  const { niches } = useNicheStats(20);
+  const { niches, loading } = useNicheStats(20);
   const { tracked, trackedCount, untrack } = useTracking();
   const [alerts, setAlerts] = useState<StoredAlert[]>([]);
   const [type, setType] = useState<AlertType>('score');
@@ -90,6 +91,17 @@ export default function Alerts() {
   const scrollToForm = () => {
     document.getElementById('mj-alerts-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  if (loading) return (
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SkeletonCard /><SkeletonCard /><SkeletonCard />
+      </div>
+      <div className="space-y-2">
+        <SkeletonRow /><SkeletonRow /><SkeletonRow /><SkeletonRow />
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>

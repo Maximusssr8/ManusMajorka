@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BarChart2, TrendingUp, Package, Star } from 'lucide-react';
+import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 
 const CATEGORY_COLOURS = ['#6366f1','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#8b5cf6','#ef4444','#84cc16','#06b6d4','#a855f7','#78716c','#0ea5e9','#d946ef'];
 
@@ -19,6 +20,17 @@ export default function Analytics() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  if (loading) return (
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SkeletonCard /><SkeletonCard /><SkeletonCard />
+      </div>
+      <div className="space-y-2">
+        <SkeletonRow /><SkeletonRow /><SkeletonRow /><SkeletonRow />
+      </div>
+    </div>
+  );
 
   const maxCatCount = Math.max(...categories.map(c => c.count), 1);
   const elitePct = overview ? Math.round((overview.score90 / Math.max(overview.total, 1)) * 100) : 0;
