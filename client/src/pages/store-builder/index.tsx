@@ -347,8 +347,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     }
     setLoading(true);
     setPending(null);
-    // TODO: wire up server/routes/store.ts POST /api/store/generate
-    const res = await safeFetch<GeneratedStore>('/api/store/generate', {
+    const res = await safeFetch<GeneratedStore>('/api/store-builder/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ niche, market, vibe }),
@@ -369,8 +368,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
   const handleSave = useCallback(async () => {
     if (!preview) return;
     setSaving(true);
-    // TODO: wire up server/routes/store.ts POST /api/store/save
-    const res = await safeFetch<{ id: string }>('/api/store/save', {
+    const res = await safeFetch<{ id: string }>('/api/store-builder/push', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(preview),
@@ -546,8 +544,7 @@ function ShopifySyncMode() {
     }
     setConnecting(true);
     setPending(null);
-    // TODO: wire up server/routes/store.ts POST /api/store/shopify/validate
-    const res = await safeFetch<ShopifyValidation>('/api/store/shopify/validate', {
+    const res = await safeFetch<ShopifyValidation>('/api/shopify/validate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url, apiKey }),
@@ -567,8 +564,7 @@ function ShopifySyncMode() {
 
   const handleSync = useCallback(async () => {
     setSyncing(true);
-    // TODO: wire up server/routes/store.ts POST /api/store/shopify/sync
-    const res = await safeFetch<ShopifySyncReport>('/api/store/shopify/sync', {
+    const res = await safeFetch<ShopifySyncReport>('/api/shopify/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url, apiKey }),
@@ -751,8 +747,7 @@ function MarketplaceMode({ reloadKey }: MarketplaceModeProps) {
 
   const load = useCallback(async () => {
     setLoading(true);
-    // TODO: wire up server/routes/store.ts GET /api/store/list
-    const res = await safeFetch<SavedStore[]>('/api/store/list');
+    const res = await safeFetch<SavedStore[]>('/api/store-builder/list');
     setLoading(false);
     if (res.ok && res.data) {
       setStores(res.data);
@@ -774,9 +769,8 @@ function MarketplaceMode({ reloadKey }: MarketplaceModeProps) {
   const handlePublish = useCallback(
     async (id: string) => {
       setPublishing(id);
-      // TODO: wire up server/routes/store.ts POST /api/store/:id/publish
       const res = await safeFetch<{ isPublished: boolean }>(
-        `/api/store/${id}/publish`,
+        `/api/store-builder/publish`,
         { method: 'POST' },
       );
       setPublishing(null);

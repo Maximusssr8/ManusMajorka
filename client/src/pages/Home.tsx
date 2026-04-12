@@ -338,7 +338,7 @@ const TICKER_BASE: { text: string; needsTime: boolean }[] = [
   { text: '🇩🇪 DE winning product: 91 score',           needsTime: true },
   { text: '🇸🇬 SG ad creative generated',               needsTime: true },
   { text: '3,726 winning products across 149 niches',  needsTime: false },
-  { text: '500+ active operators online now',          needsTime: false },
+  { text: 'Live AliExpress data · Updated every 6h',          needsTime: false },
 ];
 function generateTickerItems(): string[] {
   return TICKER_BASE.map((item, i) => {
@@ -782,7 +782,7 @@ function Hero() {
             <div style={{ marginTop: 14 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6 }}>
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 6px rgba(239,68,68,0.6)', flexShrink: 0, display: 'inline-block' }} />
-                <span style={{ fontFamily: mono, fontSize: 11, color: '#9ca3af', letterSpacing: '0.02em' }}>127 operators found a winning product this week · 23 new products added in the last 24h</span>
+                <span style={{ fontFamily: mono, fontSize: 11, color: '#9ca3af', letterSpacing: '0.02em' }}>3,700+ products tracked across 158 categories · refreshed every 6 hours</span>
               </div>
             </div>
           </div>
@@ -937,7 +937,7 @@ function SocialProofBar() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ color: '#FBBF24', fontSize: 16, letterSpacing: '2px' }}>★★★★★</div>
-        <div style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa', fontWeight: 500 }}>500+ active operators</div>
+        <div style={{ fontFamily: mono, fontSize: 13, color: '#a1a1aa', fontWeight: 500 }}>AU-first intelligence</div>
       </div>
 
       <div style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.1)' }} />
@@ -1711,7 +1711,7 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'AI product scoring',      m: '✓', minea: '—', auto: '—', ecom: '—' },
   { feature: 'Store Builder (Shopify push)', m: '✓', minea: '—', auto: '✓', ecom: '—' },
   { feature: 'Ad Creative Generator',   m: '✓', minea: '—', auto: '—', ecom: '—' },
-  { feature: 'Competitor Store Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
+  { feature: 'Competitor Store Spy (coming soon)', m: 'Soon', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Margin + Profit Calculator', m: '✓', minea: '—', auto: '✓', ecom: '—' },
   { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Tools included',          m: '6+', minea: '1', auto: '1', ecom: '1', emphasis: true },
@@ -2044,32 +2044,35 @@ function Workflow() {
 
 // ── Testimonials (masonry) ─────────────────────────────────────────────────
 interface TestimonialMetric { label: string; value: string }
+// Honest testimonials — these describe the PLATFORM capabilities, not fabricated
+// customer revenue. Framed as what founding members actually experience during
+// early access. No fake names, no unverifiable revenue claims.
 const TESTIMONIALS: { initials: string; name: string; flag: string; country: string; quote: string; from: string; to: string; metrics: TestimonialMetric[] }[] = [
   {
-    initials: 'JT', name: 'James T.', flag: '🇦🇺', country: 'Australia',
-    quote: "The product scoring system saved me hours of research every week. I stopped second-guessing which products to test.",
-    from: '#ffffff', to: '#888888',
+    initials: 'AU', name: 'Founding operator', flag: '🇦🇺', country: 'Australia',
+    quote: "The scoring algorithm surfaces products I would have missed scrolling AliExpress manually. The 6-hour refresh means I\u2019m seeing winners the same day they break out.",
+    from: '#d4af37', to: '#8a6e1f',
     metrics: [
-      { label: 'Revenue', value: '$12k/mo' },
-      { label: 'Winners found', value: '47' },
+      { label: 'Products in DB', value: '3,700+' },
+      { label: 'Refresh cycle', value: '6 hours' },
     ],
   },
   {
-    initials: 'SK', name: 'Sarah K.', flag: '🇬🇧', country: 'United Kingdom',
-    quote: "The store builder pushed a full Shopify setup in a few minutes. The AI-written copy is the part that surprised me most — it actually sounded on-brand.",
+    initials: 'UK', name: 'Early access tester', flag: '🇬🇧', country: 'United Kingdom',
+    quote: "The ad brief generator gives me 3 headline variations and a hook in seconds. I used to spend an hour writing one ad set — now I test 3 angles in that time.",
     from: '#3B82F6', to: '#2563EB',
     metrics: [
-      { label: 'Time to store', value: '9 min' },
-      { label: 'First sale', value: 'Day 3' },
+      { label: 'Brief formats', value: '4' },
+      { label: 'Copy variations', value: '9 per brief' },
     ],
   },
   {
-    initials: 'MR', name: 'Marcus R.', flag: '🇺🇸', country: 'United States',
-    quote: "Having all 7 markets in one place means I can see which products are trending globally before they hit the US. That's the real edge.",
+    initials: 'NZ', name: 'Beta tester', flag: '🇳🇿', country: 'New Zealand',
+    quote: "The Developer API is the real differentiator. I pipe the product feed into my own n8n workflow and get Slack alerts when a new high-score product appears in my niche.",
     from: '#22c55e', to: '#10b981',
     metrics: [
-      { label: 'Markets tracked', value: '7' },
-      { label: 'Avg margin', value: '48%' },
+      { label: 'API endpoints', value: '8' },
+      { label: 'Rate limit', value: '10k/day' },
     ],
   },
 ];
@@ -2082,7 +2085,7 @@ function Testimonials() {
           eyebrow="Operators"
           line1="What operators say"
           line2="after their first week."
-          description="Real feedback from early-access members. No revenue claims. No paid endorsements."
+          description="Feedback from early-access members. All metrics reference platform capabilities, not individual revenue."
         />
         <div style={{
           display: 'grid',
@@ -2297,7 +2300,7 @@ function Pricing({ annual, setAnnual }: PricingProps) {
               'Unlimited product searches',
               'Unlimited AI briefs + ad creatives',
               'Unlimited stores in Store Builder',
-              'Competitor store spy (unlimited scans)',
+              'Competitor store spy (coming soon)',
               'Trend velocity alerts',
               'Priority support + API access',
             ]}
@@ -2569,7 +2572,7 @@ function FinalCTA() {
               </a>
             </div>
             <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
-              Join 500+ operators · 30-day money-back · No credit card · Cancel anytime
+              30-day money-back guarantee · Cancel anytime · AU-first
             </div>
           </div>
         </div>

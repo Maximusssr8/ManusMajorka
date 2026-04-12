@@ -244,7 +244,7 @@ export default function Analytics() {
           }}
         >
           <Grid3x3 size={12} />
-          Creator Matrix
+          Creator Matrix (Beta)
         </button>
       </div>
 
@@ -367,7 +367,7 @@ export default function Analytics() {
               Find which creator niches align with each product
             </p>
             <p className="text-[10px] text-[#555] mt-2 font-mono uppercase tracking-wider">
-              v1 heuristic · real scoring lands in phase 2 · example product list
+Beta: match scores are algorithmic estimates using a category-similarity heuristic. Real ML-based creator-product matching ships in v2. Products shown below are examples from the database.
             </p>
           </div>
 

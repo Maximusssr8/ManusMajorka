@@ -453,6 +453,34 @@ router.get('/check-subdomain', async (req, res) => {
   }
 });
 
+// ── GET /api/store-builder/list — return user's generated stores ────────────
+router.get('/list', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user!.userId;
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from('generated_stores')
+      .select('id, store_name, niche, subdomain, is_published, created_at, target_market, primary_color')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) return res.status(500).json({ error: error.message });
+    const stores = (data || []).map((s: any) => ({
+      id: s.id,
+      name: s.store_name,
+      tagline: s.niche || '',
+      productCount: 0,
+      isPublished: !!s.is_published,
+      createdAt: s.created_at,
+      market: s.target_market,
+      color: s.primary_color,
+      subdomain: s.subdomain,
+    }));
+    return res.json(stores);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/store-builder/publish ────────────────────────────
 router.post('/publish', requireAuth, async (req, res) => {
   try {

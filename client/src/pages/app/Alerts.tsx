@@ -31,10 +31,10 @@ interface StoredAlert {
 const STORAGE_KEY = 'majorka-alerts-v1';
 
 const ALERT_TYPES: { key: AlertType; label: string; hint: string; unit: string; placeholder: string }[] = [
-  { key: 'score',    label: 'Score Threshold', hint: 'Notify me when a product exceeds a score of',          unit: '',       placeholder: '80' },
-  { key: 'new',      label: 'New Products',    hint: 'Notify me when new products are added in',             unit: 'category', placeholder: '' },
-  { key: 'price',    label: 'Price Drop',      hint: 'Notify me when any product drops below',               unit: 'AUD',    placeholder: '10' },
-  { key: 'trending', label: 'Trending Now',    hint: "Notify me when a product's orders increase by",        unit: '% in 7 days', placeholder: '20' },
+  { key: 'score',    label: 'Score Threshold', hint: 'Track when a product exceeds a score of',              unit: '',       placeholder: '80' },
+  { key: 'new',      label: 'New Products',    hint: 'Track when new products are added in',                 unit: 'category', placeholder: '' },
+  { key: 'price',    label: 'Price Drop',      hint: 'Track when any product drops below',                   unit: 'AUD',    placeholder: '10' },
+  { key: 'trending', label: 'Trending Now',    hint: "Track when a product's orders increase by",            unit: '% in 7 days', placeholder: '20' },
 ];
 
 function loadAlerts(): StoredAlert[] {
@@ -80,7 +80,7 @@ export default function Alerts() {
     const next = [alert, ...alerts];
     setAlerts(next);
     saveAlerts(next);
-    setToast('Alert created. You\'ll be notified based on your settings.');
+    setToast('Alert created. Check this page to see matches.');
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -116,8 +116,22 @@ export default function Alerts() {
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-          Get notified when products hit your thresholds. Delivered to your inbox or in-app.
+          In-app tracking only — email notifications coming in v2.
         </p>
+      </div>
+
+      {/* Honesty banner */}
+      <div style={{
+        background: 'rgba(212,175,55,0.06)',
+        border: '1px solid rgba(212,175,55,0.2)',
+        borderRadius: 10,
+        padding: '12px 16px',
+        marginBottom: 20,
+        fontSize: 13,
+        color: '#d4af37',
+        lineHeight: 1.5,
+      }}>
+        Alerts are currently tracked locally in your browser. Email and push notifications are on the roadmap. Your alerts will persist on this device.
       </div>
 
       {toast && (
@@ -171,7 +185,7 @@ export default function Alerts() {
               No products tracked yet
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16, maxWidth: 420, marginInline: 'auto' }}>
-              Track products to get notified when their order velocity increases significantly. Click Track on any product detail panel.
+              Track products to monitor order velocity changes. Click Track on any product detail panel, then check this page for matches.
             </div>
             <Link href="/app/products" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -279,7 +293,7 @@ export default function Alerts() {
               ))}
             </div>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontStyle: 'italic' }}>
-              Alerts are sent to your email when a tracked product&apos;s order velocity increases significantly. Email alerts require account verification.
+              These alerts are tracked locally on this device. Check this page to see matches. Email notifications are on the roadmap.
             </p>
           </>
         )}
@@ -316,7 +330,7 @@ export default function Alerts() {
             </div>
             <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>No alerts set up yet</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
-              Get notified when a product hits your score threshold, enters a new trend, or drops in competition
+              Set up local alerts to track when products hit your score threshold, enter a new trend, or drop in competition. Check this page to see matches.
             </div>
             <button
               onClick={scrollToForm}

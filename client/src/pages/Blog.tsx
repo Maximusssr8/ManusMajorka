@@ -89,7 +89,7 @@ That's the entire method. No "secret tool." The edge is running it daily and act
     excerpt: 'The research playbook has changed. How serious dropshippers use AI scoring and demand signals.',
     category: 'Strategy',
     readTime: '6 min read',
-    date: 'Feb 28, 2026',
+    date: 'Apr 2026',
     status: 'draft',
   },
   {
@@ -98,7 +98,7 @@ That's the entire method. No "secret tool." The edge is running it daily and act
     excerpt: 'Realistic margin targets by category, break-even CPA maths, and when to walk away.',
     category: 'Finance',
     readTime: '9 min read',
-    date: 'Feb 15, 2026',
+    date: 'Apr 2026',
     status: 'draft',
   },
 ];
@@ -221,7 +221,7 @@ export default function Blog() {
         {drafts.length > 0 && (
           <div style={{ marginTop: 48 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#666', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>
-              In draft — publishing this month
+              In draft — publishing soon
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {drafts.map((post) => (
