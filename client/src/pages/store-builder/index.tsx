@@ -40,6 +40,8 @@ interface GeneratedProduct {
   image_url: string;
 }
 
+// Server returns { brief, storeNameOptions, themeRecommendation, appStack }.
+// We normalize to this flat shape for the preview panel.
 interface GeneratedStore {
   storeName: string;
   tagline: string;
@@ -47,6 +49,29 @@ interface GeneratedStore {
   font: string;
   rationale: string;
   products: GeneratedProduct[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeStoreResponse(raw: any): GeneratedStore {
+  // Handle both the server's real shape and the flat shape (for future-proofing)
+  if (raw?.storeName && raw?.tagline) return raw as GeneratedStore;
+  const brief = raw?.brief || {};
+  const storeName = raw?.storeNameOptions?.[0] || brief.brandName || brief.storeName || 'My Store';
+  const tagline = brief.tagline || brief.description || `Premium ${brief.niche || 'products'} for discerning buyers`;
+  const palette = brief.colorPalette || brief.colors || ['#d4af37', '#080808', '#ededed'];
+  const font = brief.font || raw?.themeRecommendation?.name || 'Modern';
+  const rationale = brief.rationale || raw?.themeRecommendation?.reason || '';
+  const products: GeneratedProduct[] = (brief.products || []).map((p: any) => ({
+    title: p.title || p.product_title || 'Product',
+    price_aud: p.price_aud || p.price || 0,
+    image_url: p.image_url || p.image || '',
+  }));
+  // If server returned no products, synthesize a placeholder from the imported product
+  if (products.length === 0) {
+    const imported = (() => { try { return JSON.parse(sessionStorage.getItem('_last_import') || 'null'); } catch { return null; } })();
+    if (imported?.title) products.push({ title: imported.title, price_aud: imported.price || 0, image_url: imported.image || '' });
+  }
+  return { storeName, tagline, colorPalette: Array.isArray(palette) ? palette : [palette], font, rationale, products };
 }
 
 interface SavedStore {
@@ -332,13 +357,30 @@ function PendingNotice({ note }: PendingNoticeProps) {
 
 // ─── Mode 1: AI Generator ──────────────────────────────────────
 function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
-  const [niche, setNiche] = useState('');
+  // Pre-fill from Products page handoff (sessionStorage)
+  const prefilled = (() => {
+    try {
+      const raw = sessionStorage.getItem('majorka_import_product');
+      if (!raw) return null;
+      sessionStorage.removeItem('majorka_import_product');
+      return JSON.parse(raw) as {
+        id?: string; title?: string; image?: string; price?: number;
+        cost?: number; category?: string; description?: string;
+        score?: number; orders?: number; aliexpress_url?: string;
+      };
+    } catch { return null; }
+  })();
+
+  const [niche, setNiche] = useState(prefilled?.category || '');
   const [market, setMarket] = useState<Market>('AU');
   const [vibe, setVibe] = useState<Vibe>('minimal');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [preview, setPreview] = useState<GeneratedStore | null>(null);
+
+  // Show a pre-fill banner if a product was passed from the Products page
+  const prefilledProduct = prefilled;
 
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) {
@@ -347,14 +389,22 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     }
     setLoading(true);
     setPending(null);
-    const res = await safeFetch<GeneratedStore>('/api/store-builder/generate', {
+    const res = await safeFetch<Record<string, unknown>>('/api/store-builder/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ niche, market, vibe }),
+      body: JSON.stringify({
+        niche,
+        market,
+        vibe,
+        // Send the server's expected fields (storeBuilderSchema: productName, niche, pricePoint)
+        productName: prefilledProduct?.title || niche,
+        productDescription: prefilledProduct?.description || '',
+        pricePoint: prefilledProduct?.price || '',
+      }),
     });
     setLoading(false);
     if (res.ok && res.data) {
-      setPreview(res.data);
+      setPreview(normalizeStoreResponse(res.data));
       toast.success('Store generated');
       return;
     }
@@ -395,6 +445,24 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         >
           Store Brief
         </div>
+        {prefilledProduct && (
+          <div style={{ marginBottom: 16, padding: '12px 14px', background: 'rgba(212,175,55,0.06)', border: `1px solid rgba(212,175,55,0.25)`, borderRadius: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: GOLD, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+              Product imported from database
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {prefilledProduct.image && (
+                <img src={prefilledProduct.image} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', border: `1px solid ${BORDER}` }} />
+              )}
+              <div>
+                <div style={{ fontSize: 13, color: TEXT, fontWeight: 600 }}>{prefilledProduct.title?.slice(0, 50)}</div>
+                <div style={{ fontSize: 11, color: TEXT_DIM, fontFamily: MONO }}>
+                  {prefilledProduct.price ? `A$${prefilledProduct.price}` : ''} · Score {prefilledProduct.score ?? '—'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mb-4">
           <FieldLabel>Store Niche</FieldLabel>
           <input
