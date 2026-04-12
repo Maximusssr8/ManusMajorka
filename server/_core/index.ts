@@ -264,6 +264,8 @@ async function startServer() {
   app.use('/api/marketplace', marketplaceRouter);
   const metaRouter = (await import('../routes/meta')).default;
   app.use('/api/meta', metaRouter);
+  const metaAdsRouter = (await import('../routes/meta-ads')).default;
+  app.use('/api/meta-ads', metaAdsRouter);
   const creatorsRealRouter = (await import('../routes/creators')).default;
   app.use('/api/creators', creatorsRealRouter);
   const videosRealRouter = (await import('../routes/videos')).default;

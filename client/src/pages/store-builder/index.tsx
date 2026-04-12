@@ -108,10 +108,15 @@ async function safeFetch<T>(
   try {
     const res = await fetch(url, init);
     if (res.status === 404) {
-      return { ok: false, pending: true, error: 'Endpoint pending' };
+      return { ok: false, pending: true, error: 'Endpoint pending — server route not yet wired.' };
     }
     if (!res.ok) {
-      return { ok: false, error: `HTTP ${res.status}` };
+      let detail = `HTTP ${res.status}`;
+      try {
+        const body = (await res.json()) as { error?: string; message?: string };
+        detail = body.message || body.error || detail;
+      } catch { /* ignore parse errors */ }
+      return { ok: false, error: detail };
     }
     const data = (await res.json()) as T;
     return { ok: true, data };
@@ -407,7 +412,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         // Send the server's expected fields (storeBuilderSchema: productName, niche, pricePoint)
         productName: prefilledProduct?.title || niche,
         productDescription: prefilledProduct?.description || '',
-        pricePoint: prefilledProduct?.price || '',
+        pricePoint: String(prefilledProduct?.price ?? ''),
       }),
     });
     setLoading(false);

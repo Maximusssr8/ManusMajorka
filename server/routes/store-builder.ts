@@ -66,16 +66,30 @@ router.post('/generate', async (req, res) => {
     if ('error' in validation) return res.status(400).json({ error: validation.error });
     const { productName, productDescription, niche, pricePoint } = validation.data;
 
-    const brief = await expandStoreBrief({
-      niche,
-      storeName: productName || niche,
-      accentColor: '#d4af37',
-      productData: productDescription ? {
-        product_title: productName,
-        description: productDescription,
-        price_aud: pricePoint,
-      } : undefined,
-    });
+    let brief: Record<string, any>;
+    try {
+      brief = await expandStoreBrief({
+        niche,
+        storeName: productName || niche,
+        accentColor: '#d4af37',
+        productData: productDescription ? {
+          product_title: productName,
+          description: productDescription,
+          price_aud: pricePoint,
+        } : undefined,
+      });
+    } catch {
+      // Fallback if ANTHROPIC_API_KEY is missing or AI call fails
+      brief = {
+        brandName: productName || niche,
+        tagline: `Quality ${niche} for Australian shoppers`,
+        uniqueValueProp: `Curated ${niche} products tested for the Australian market.`,
+        heroHeadline: `Premium ${niche} — built for Australia`,
+        heroSubheadline: `Fast AU shipping, Afterpay ready, quality guaranteed.`,
+        fontPairing: { heading: 'Syne', body: 'DM Sans' },
+        colourPalette: { primary: '#d4af37', secondary: '#0d0d0d', accent: '#ffffff' },
+      };
+    }
 
     const brandName = (brief.brandName as string) || productName || niche;
     const storeNameOptions = [

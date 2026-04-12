@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Majorka Icons</title>
+  <style>
+    body { background: #1a1a1a; color: #ededed; font-family: system-ui; padding: 40px; }
+    h1 { color: #d4af37; margin-bottom: 8px; }
+    p { color: #888; margin-bottom: 24px; }
+    .icon-row { display: flex; gap: 24px; align-items: flex-end; margin-bottom: 24px; }
+    .icon-item { text-align: center; }
+    .icon-item span { display: block; color: #888; font-size: 12px; margin-top: 8px; }
+    canvas { border: 1px solid #333; }
+    button {
+      padding: 10px 20px; background: #3B82F6; color: #fff;
+      border: none; border-radius: 6px; font-size: 14px; cursor: pointer;
+      font-weight: 600; margin-top: 16px;
+    }
+    button:hover { background: #2563eb; }
+    .instructions { margin-top: 24px; padding: 16px; background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Majorka Icon Generator</h1>
+  <p>This page renders the Majorka "M" icon at required sizes. Right-click each canvas and "Save image as..." to export PNGs.</p>
+
+  <div class="icon-row">
+    <div class="icon-item">
+      <canvas id="c16" width="16" height="16"></canvas>
+      <span>icon16.png</span>
+    </div>
+    <div class="icon-item">
+      <canvas id="c48" width="48" height="48"></canvas>
+      <span>icon48.png</span>
+    </div>
+    <div class="icon-item">
+      <canvas id="c128" width="128" height="128"></canvas>
+      <span>icon128.png</span>
+    </div>
+  </div>
+
+  <button onclick="downloadAll()">Download All PNGs</button>
+
+  <div class="instructions">
+    <strong>Instructions:</strong>
+    <ol>
+      <li>Open this file in a browser (double-click or drag to Chrome).</li>
+      <li>Click "Download All PNGs" to save all three icon sizes.</li>
+      <li>Place the downloaded files (icon16.png, icon48.png, icon128.png) in this <code>icons/</code> directory.</li>
+      <li>Reload the extension in chrome://extensions.</li>
+    </ol>
+  </div>
+
+  <script>
+    var sizes = [
+      { id: "c16", size: 16, fontSize: 11, yOffset: 13, rx: 3 },
+      { id: "c48", size: 48, fontSize: 32, yOffset: 37, rx: 9 },
+      { id: "c128", size: 128, fontSize: 72, yOffset: 92, rx: 24 }
+    ];
+
+    sizes.forEach(function (s) {
+      var canvas = document.getElementById(s.id);
+      var ctx = canvas.getContext("2d");
+
+      // Background
+      ctx.fillStyle = "#080808";
+      roundRect(ctx, 0, 0, s.size, s.size, s.rx);
+      ctx.fill();
+
+      // Inner rect with gold border
+      var inset = Math.max(2, Math.round(s.size * 0.03));
+      ctx.fillStyle = "#0f0f0f";
+      ctx.strokeStyle = "#d4af37";
+      ctx.lineWidth = Math.max(1, Math.round(s.size * 0.016));
+      roundRect(ctx, inset, inset, s.size - inset * 2, s.size - inset * 2, Math.max(2, s.rx - 4));
+      ctx.fill();
+      ctx.stroke();
+
+      // Letter M
+      ctx.fillStyle = "#d4af37";
+      ctx.font = "900 " + s.fontSize + "px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText("M", s.size / 2, s.yOffset);
+    });
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function downloadAll() {
+      var mapping = { c16: "icon16.png", c48: "icon48.png", c128: "icon128.png" };
+      Object.keys(mapping).forEach(function (id) {
+        var canvas = document.getElementById(id);
+        var link = document.createElement("a");
+        link.download = mapping[id];
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>

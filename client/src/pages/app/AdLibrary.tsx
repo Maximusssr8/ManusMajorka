@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Library, Sparkles, Eye, Zap } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Library, Sparkles, Eye, Zap, Search, TrendingUp, Globe, Loader2 } from 'lucide-react';
 
 /**
  * Ad Library — curated winning ad examples organized by niche.
  * Surfaces proven ad frameworks with real hook lines and engagement data.
+ * Now includes Meta Ad Library search (via Tavily) and trending ads section.
  * "Use this angle" prefills AdsStudio via sessionStorage.
  */
 
@@ -17,6 +18,25 @@ interface WinningAd {
   platform: 'TikTok' | 'Meta' | 'YouTube';
   engagement: string;
   angle: string;
+}
+
+interface MetaAd {
+  id: string;
+  pageId: string;
+  pageName: string;
+  adText: string;
+  startDate: string;
+  platform: string;
+  imageUrl?: string;
+  category?: string;
+  country: string;
+}
+
+interface TrendingResult {
+  pageName: string;
+  hook: string;
+  url: string;
+  snippet: string;
 }
 
 const NICHE_COLORS: Record<Niche, { bg: string; text: string }> = {
@@ -34,7 +54,7 @@ const WINNING_ADS: WinningAd[] = [
   { id: 'a4',  niche: 'Kitchen', hook: '"POV: You just discovered the laziest way to cook"', body: 'Satisfying cooking montage with ASMR audio. Minimal text overlays. Clean plating reveal.', platform: 'TikTok', engagement: '3.2M views', angle: 'ASMR satisfying process' },
   { id: 'a5',  niche: 'Beauty',  hook: '"My dermatologist asked what I changed"', body: 'Skin transformation timeline — day 1, week 1, month 1. Close-up texture shots. No filter disclaimer.', platform: 'TikTok', engagement: '4.1M views', angle: 'Authority validation + timeline' },
   { id: 'a6',  niche: 'Beauty',  hook: '"I replaced my $200 routine with ONE product"', body: 'Side-by-side cost comparison. Shows full old routine then single product. Morning application demo.', platform: 'Meta', engagement: '1.8M reach', angle: 'Cost consolidation' },
-  { id: 'a7',  niche: 'Beauty',  hook: '"The 30-second routine that changed my skin"', body: 'Speed demo with timer overlay. Before/after split screen. Ingredient callouts.', platform: 'TikTok', engagement: '2.7M views', angle: 'Time-saving simplicity' },
+  { id: 'a7',  niche: 'Beauty',  hook: '"The 30-second routine that changed my skin"', body: 'Speed demo with timer overlay. Before/after split screen. Ingredient callouts.', platform: 'TikTok', engagement: '2.7M views', angle: 'Angle: Time-saving simplicity' },
   { id: 'a8',  niche: 'Beauty',  hook: '"Why every makeup artist has this in their kit"', body: 'Behind-the-scenes at a photoshoot. Pro artist casually uses product. Subtle endorsement.', platform: 'YouTube', engagement: '560K views', angle: 'Professional insider secret' },
   { id: 'a9',  niche: 'Pet',     hook: '"My dog has never been this calm"', body: 'Anxious dog before vs. calm dog after using product. Vet quote overlay. Owner testimonial.', platform: 'TikTok', engagement: '5.3M views', angle: 'Problem/solution with proof' },
   { id: 'a10', niche: 'Pet',     hook: '"Every pet owner needs to see this hack"', body: 'Common pet problem everyone relates to. Quick fix demo. Comment section engagement bait.', platform: 'TikTok', engagement: '2.1M views', angle: 'Universal pain point + quick fix' },
@@ -56,10 +76,40 @@ const PLATFORM_ICON_STYLE: Record<string, { color: string }> = {
   TikTok:  { color: '#ededed' },
   Meta:    { color: '#3B82F6' },
   YouTube: { color: '#ef4444' },
+  Facebook: { color: '#3B82F6' },
+  Instagram: { color: '#ec4899' },
 };
+
+function getAuthHeaders(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem('sb-auth-token')
+      ?? localStorage.getItem('supabase.auth.token')
+      ?? sessionStorage.getItem('sb-auth-token');
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    const token = parsed?.currentSession?.access_token ?? parsed?.access_token ?? parsed;
+    if (typeof token === 'string' && token.length > 10) {
+      return { Authorization: `Bearer ${token}` };
+    }
+  } catch { /* ignore */ }
+  return {};
+}
 
 export default function AdLibrary() {
   const [activeNiche, setActiveNiche] = useState<Niche | 'All'>('All');
+
+  // Meta Ad Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchCountry, setSearchCountry] = useState('AU');
+  const [searchResults, setSearchResults] = useState<MetaAd[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Trending state
+  const [trendingNiche, setTrendingNiche] = useState('kitchen');
+  const [trendingResults, setTrendingResults] = useState<TrendingResult[]>([]);
+  const [trendingLoading, setTrendingLoading] = useState(false);
 
   const filtered = activeNiche === 'All'
     ? WINNING_ADS
@@ -77,6 +127,82 @@ export default function AdLibrary() {
     } catch { /* ignore */ }
     window.location.href = '/app/ads-studio';
   }
+
+  function useMetaAdAngle(ad: MetaAd) {
+    try {
+      sessionStorage.setItem('majorka_ad_product', JSON.stringify({
+        id: `meta-${ad.id}`,
+        title: ad.pageName,
+        hook: ad.adText.slice(0, 80),
+        angle: 'Competitor ad analysis',
+        niche: 'General',
+      }));
+    } catch { /* ignore */ }
+    window.location.href = '/app/ads-studio';
+  }
+
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) return;
+    setSearchLoading(true);
+    setSearchError('');
+    setHasSearched(true);
+    try {
+      const params = new URLSearchParams({
+        q: searchQuery.trim(),
+        country: searchCountry,
+      });
+      const resp = await fetch(`/api/meta-ads/search?${params.toString()}`, {
+        headers: { ...getAuthHeaders() },
+      });
+      if (!resp.ok) {
+        const body = await resp.json().catch(() => ({ message: 'Search failed' }));
+        setSearchError(body.message ?? 'Search failed');
+        setSearchResults([]);
+        return;
+      }
+      const data = await resp.json();
+      setSearchResults(data.ads ?? []);
+    } catch {
+      setSearchError('Network error. Please try again.');
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [searchQuery, searchCountry]);
+
+  const fetchTrending = useCallback(async (niche: string) => {
+    setTrendingLoading(true);
+    try {
+      const params = new URLSearchParams({ niche, country: 'AU' });
+      const resp = await fetch(`/api/meta-ads/trending?${params.toString()}`, {
+        headers: { ...getAuthHeaders() },
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        setTrendingResults(data.trending ?? []);
+      } else {
+        setTrendingResults([]);
+      }
+    } catch {
+      setTrendingResults([]);
+    } finally {
+      setTrendingLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTrending(trendingNiche);
+  }, [trendingNiche, fetchTrending]);
+
+  const COUNTRY_OPTIONS = [
+    { value: 'AU', label: 'Australia' },
+    { value: 'US', label: 'United States' },
+    { value: 'UK', label: 'United Kingdom' },
+    { value: 'CA', label: 'Canada' },
+    { value: 'NZ', label: 'New Zealand' },
+  ];
+
+  const TRENDING_NICHES = ['kitchen', 'beauty', 'pet', 'tech', 'fitness', 'home', 'outdoor'];
 
   return (
     <div className="min-h-screen p-8 bg-[#080808] text-[#ededed]">
@@ -98,32 +224,214 @@ export default function AdLibrary() {
         </div>
         <p className="text-sm text-[#888888]">See what&apos;s working in your niche</p>
         <p className="text-[10px] text-[#555555] mt-2 uppercase tracking-wider" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-          Curated examples from top-performing ads across TikTok, Meta & YouTube.
+          Search competitor ads, discover trends, and analyse winning angles.
         </p>
       </div>
 
-      {/* Niche filter */}
-      <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none pb-1">
-        {(['All', ...ALL_NICHES] as const).map((n) => {
-          const active = activeNiche === n;
-          return (
-            <button
-              key={n}
-              onClick={() => setActiveNiche(n as Niche | 'All')}
-              className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all"
-              style={{
-                background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${active ? 'rgba(212,175,55,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                color: active ? '#d4af37' : '#888888',
-              }}
-            >
-              {n}
-            </button>
-          );
-        })}
-        <span className="text-[10px] text-[#555555] ml-2 tabular-nums" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-          {filtered.length} examples
-        </span>
+      {/* ═══ Search Competitor Ads ═══ */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Search size={14} style={{ color: '#d4af37' }} />
+          <h2 className="text-base font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Search competitor ads
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="relative flex-1 min-w-[240px] max-w-[480px]">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+              placeholder="Search ads (e.g. kitchen gadget, yoga mat, LED lamp)"
+              className="w-full bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg px-4 py-2.5 text-sm text-[#ededed] placeholder-[#555555] outline-none transition-colors"
+              style={{ fontFamily: 'DM Sans, sans-serif' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#1a1a1a'; }}
+            />
+          </div>
+          <select
+            value={searchCountry}
+            onChange={(e) => setSearchCountry(e.target.value)}
+            className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg px-3 py-2.5 text-sm text-[#ededed] outline-none"
+          >
+            {COUNTRY_OPTIONS.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+          <button
+            onClick={handleSearch}
+            disabled={searchLoading || searchQuery.trim().length < 2}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-all disabled:opacity-40"
+            style={{ background: '#3B82F6' }}
+          >
+            {searchLoading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+            Search
+          </button>
+        </div>
+
+        {/* Search error */}
+        {searchError && (
+          <p className="text-xs text-red-400 mb-3">{searchError}</p>
+        )}
+
+        {/* Search results */}
+        {searchResults.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-2">
+            {searchResults.map((ad) => {
+              const platStyle = PLATFORM_ICON_STYLE[ad.platform] ?? { color: '#888888' };
+              return (
+                <div
+                  key={ad.id}
+                  className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-4 flex flex-col gap-2.5 transition-all"
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(212,175,55,0.35)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#1a1a1a'; }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#d4af37] truncate max-w-[70%]">
+                      {ad.pageName}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Globe size={10} style={{ color: platStyle.color }} />
+                      <span className="text-[10px] text-[#888888]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                        {ad.platform}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#888888] leading-relaxed line-clamp-3">
+                    {ad.adText.slice(0, 100)}{ad.adText.length > 100 ? '...' : ''}
+                  </p>
+                  <div className="flex items-center gap-2 mt-auto pt-1">
+                    <span className="text-[10px] text-[#555555]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                      {ad.startDate}
+                    </span>
+                    <span
+                      className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded"
+                      style={{ background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }}
+                    >
+                      {ad.country}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => useMetaAdAngle(ad)}
+                    className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90"
+                    style={{ background: '#3B82F6' }}
+                  >
+                    <Sparkles size={11} />
+                    Analyse this angle
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {hasSearched && !searchLoading && searchResults.length === 0 && !searchError && (
+          <p className="text-xs text-[#555555] mb-3" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+            No results found. Try a different keyword or country.
+          </p>
+        )}
+      </div>
+
+      {/* ═══ Trending in Your Niche ═══ */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={14} style={{ color: '#d4af37' }} />
+          <h2 className="text-base font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Trending in your niche
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-none pb-1">
+          {TRENDING_NICHES.map((n) => {
+            const active = trendingNiche === n;
+            return (
+              <button
+                key={n}
+                onClick={() => setTrendingNiche(n)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap capitalize transition-all"
+                style={{
+                  background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(212,175,55,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                  color: active ? '#d4af37' : '#888888',
+                }}
+              >
+                {n}
+              </button>
+            );
+          })}
+        </div>
+
+        {trendingLoading && (
+          <div className="flex items-center gap-2 text-xs text-[#555555]">
+            <Loader2 size={12} className="animate-spin" />
+            <span>Loading trending ads...</span>
+          </div>
+        )}
+
+        {!trendingLoading && trendingResults.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+            {trendingResults.map((item, idx) => (
+              <div
+                key={`${item.url}-${idx}`}
+                className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-3 flex flex-col gap-2 transition-all"
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(212,175,55,0.25)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#1a1a1a'; }}
+              >
+                <span className="text-[10px] font-bold text-[#d4af37] truncate">
+                  {item.pageName}
+                </span>
+                <p className="text-xs text-[#ededed] font-medium leading-snug line-clamp-2">
+                  {item.hook}
+                </p>
+                <p className="text-[10px] text-[#555555] leading-relaxed line-clamp-2">
+                  {item.snippet}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!trendingLoading && trendingResults.length === 0 && (
+          <p className="text-xs text-[#555555]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+            No trending data available for this niche.
+          </p>
+        )}
+      </div>
+
+      {/* ═══ Curated Ad Library (existing) ═══ */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Library size={14} style={{ color: '#d4af37' }} />
+          <h2 className="text-base font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Curated winning examples
+          </h2>
+        </div>
+
+        {/* Niche filter */}
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none pb-1">
+          {(['All', ...ALL_NICHES] as const).map((n) => {
+            const active = activeNiche === n;
+            return (
+              <button
+                key={n}
+                onClick={() => setActiveNiche(n as Niche | 'All')}
+                className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all"
+                style={{
+                  background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(212,175,55,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                  color: active ? '#d4af37' : '#888888',
+                }}
+              >
+                {n}
+              </button>
+            );
+          })}
+          <span className="text-[10px] text-[#555555] ml-2 tabular-nums" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+            {filtered.length} examples
+          </span>
+        </div>
       </div>
 
       {/* Ad cards grid */}
