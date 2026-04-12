@@ -200,7 +200,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse at 30% 50%, rgba(139,92,246,0.25) 0%, transparent 70%)',
+              'radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.25) 0%, transparent 70%)',
           }}
         />
         <div

@@ -12,7 +12,7 @@ export function BorderBeam({
   children,
   className,
   colorA = '#3B82F6',
-  colorB = '#8b5cf6',
+  colorB = '#d4af37',
   duration = '4s',
 }: BorderBeamProps) {
   return (

@@ -25,7 +25,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border-radius: 8px;
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.3),
     0 1px 0 rgba(255, 255, 255, 0.05) inset,
@@ -815,8 +815,8 @@ input[type="search"].mkr-search:focus {
   50%      { box-shadow: 0 0 16px rgba(16,185,129,0.7), 0 0 32px rgba(16,185,129,0.15); }
 }
 @keyframes mj-borderGlow {
-  0%, 100% { border-color: rgba(124,106,255,0.3); }
-  50%      { border-color: rgba(124,106,255,0.7); }
+  0%, 100% { border-color: rgba(212,175,55,0.3); }
+  50%      { border-color: rgba(212,175,55,0.7); }
 }
 
 /* Staggered row fade-up — applies via :nth-child positioning */

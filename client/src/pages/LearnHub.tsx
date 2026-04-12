@@ -37,7 +37,7 @@ const MODULES: Module[] = [
   {
     id: 'fundamentals',
     title: 'Dropshipping Fundamentals',
-    color: '#7c6aff',
+    color: '#d4af37',
     summary: 'The model, the numbers, and the Australian realities you need to know before you ship product one.',
     lessons: [
       {
@@ -227,7 +227,7 @@ const MODULES: Module[] = [
   {
     id: 'brand',
     title: 'Building Your Brand',
-    color: '#a78bfa',
+    color: '#e5c158',
     summary: 'The difference between a one-hit-wonder store and a brand that compounds over years.',
     lessons: [
       {
@@ -388,7 +388,7 @@ export default function LearnHub() {
           fontWeight: 800,
           letterSpacing: '-0.025em',
           margin: '0 0 8px',
-          background: 'linear-gradient(135deg,#f5f5f5 0%,#a78bfa 100%)',
+          background: 'linear-gradient(135deg,#f5f5f5 0%,#e5c158 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
         }}>Majorka Academy</h1>
@@ -407,7 +407,7 @@ export default function LearnHub() {
             <span style={{ fontFamily: mono, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.45)' }}>
               Your Progress
             </span>
-            <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#a78bfa' }}>
+            <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#e5c158' }}>
               {completed.size} of {TOTAL_LESSONS} lessons complete
             </span>
           </div>
@@ -420,7 +420,7 @@ export default function LearnHub() {
             <div style={{
               width: `${pct}%`,
               height: '100%',
-              background: 'linear-gradient(90deg,#7c6aff,#a78bfa)',
+              background: 'linear-gradient(90deg,#d4af37,#e5c158)',
               transition: 'width 320ms cubic-bezier(0.34,1.56,0.64,1)',
             }} />
           </div>
@@ -592,9 +592,9 @@ export default function LearnHub() {
                           fontFamily: mono,
                           fontSize: 9,
                           fontWeight: 700,
-                          color: isPro ? '#a78bfa' : '#71717a',
-                          background: isPro ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.04)',
-                          border: `1px solid ${isPro ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                          color: isPro ? '#e5c158' : '#71717a',
+                          background: isPro ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                          border: `1px solid ${isPro ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.08)'}`,
                           borderRadius: 999,
                           padding: '2px 8px',
                           letterSpacing: '0.05em',
@@ -625,7 +625,7 @@ export default function LearnHub() {
                     {isOpen && (
                       <div style={{
                         padding: '4px 24px 22px 58px',
-                        background: 'rgba(124,106,255,0.03)',
+                        background: 'rgba(212,175,55,0.03)',
                         borderTop: '1px solid rgba(255,255,255,0.04)',
                       }}>
                         {lesson.body.map((para, i) => (
@@ -642,9 +642,9 @@ export default function LearnHub() {
                             marginTop: 10,
                             padding: '8px 14px',
                             borderRadius: 8,
-                            border: `1px solid ${isDone ? 'rgba(16,185,129,0.35)' : 'rgba(124,106,255,0.35)'}`,
-                            background: isDone ? 'rgba(16,185,129,0.12)' : 'rgba(124,106,255,0.1)',
-                            color: isDone ? '#10b981' : '#a78bfa',
+                            border: `1px solid ${isDone ? 'rgba(16,185,129,0.35)' : 'rgba(212,175,55,0.35)'}`,
+                            background: isDone ? 'rgba(16,185,129,0.12)' : 'rgba(212,175,55,0.1)',
+                            color: isDone ? '#10b981' : '#e5c158',
                             fontFamily: sans,
                             fontSize: 12,
                             fontWeight: 700,
@@ -672,8 +672,8 @@ export default function LearnHub() {
         <div style={{
           marginTop: 40,
           padding: '16px 20px',
-          background: 'rgba(124,106,255,0.04)',
-          border: '1px solid rgba(124,106,255,0.15)',
+          background: 'rgba(212,175,55,0.04)',
+          border: '1px solid rgba(212,175,55,0.15)',
           borderRadius: 12,
           display: 'flex',
           alignItems: 'center',
@@ -681,19 +681,19 @@ export default function LearnHub() {
           fontSize: 12,
           color: 'rgba(255,255,255,0.55)',
         }}>
-          <CheckCircle2 size={13} style={{ color: '#a78bfa', flexShrink: 0 }} />
+          <CheckCircle2 size={13} style={{ color: '#e5c158', flexShrink: 0 }} />
           <span>You&apos;re on Scale Plan — all lessons unlocked. Progress is stored locally in your browser.</span>
         </div>
       ) : (
         <div style={{
           marginTop: 40,
           padding: '20px 22px',
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.06))',
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(212,175,55,0.06))',
           border: '1px solid rgba(59,130,246,0.25)',
           borderRadius: 14,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-            <Lock size={14} style={{ color: '#a78bfa' }} />
+            <Lock size={14} style={{ color: '#e5c158' }} />
             <span style={{ fontSize: 13, fontWeight: 700, color: '#f0f4ff' }}>
               Unlock all 21 lessons with Scale
             </span>
@@ -709,7 +709,7 @@ export default function LearnHub() {
               display: 'inline-block',
               padding: '10px 18px',
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #3B82F6, #8b5cf6)',
+              background: 'linear-gradient(135deg, #3B82F6, #d4af37)',
               color: '#fff',
               fontFamily: sans,
               fontSize: 13,

@@ -63,7 +63,7 @@ const PLATFORM_STYLES: Record<string, { bg: string; text: string; border: string
 
 const ANGLE_COLORS: Record<string, string> = {
   'Pain Point': '#ef4444',
-  Curiosity: '#8b5cf6',
+  Curiosity: '#d4af37',
   'Social Proof': '#10b981',
   Benefit: '#f59e0b',
   Scarcity: '#f97316',

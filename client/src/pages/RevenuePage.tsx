@@ -230,7 +230,7 @@ export default function RevenuePage() {
         {/* BG orbs */}
         <div style={{ position:'absolute',top:-80, right:-40,  width:500,height:500, background:'radial-gradient(circle,rgba(34,197,94,.1) 0%,transparent 60%)', pointerEvents:'none', animation:'orb1 9s ease-in-out infinite' }} />
         <div style={{ position:'absolute',bottom:-60,left:-30, width:400,height:400, background:'radial-gradient(circle,rgba(59,130,246,.13) 0%,transparent 60%)', pointerEvents:'none', animation:'orb2 11s ease-in-out infinite' }} />
-        <div style={{ position:'absolute',top:'25%',left:'40%', width:280,height:280, background:'radial-gradient(circle,rgba(139,92,246,.09) 0%,transparent 65%)', pointerEvents:'none', animation:'orb3 14s ease-in-out infinite' }} />
+        <div style={{ position:'absolute',top:'25%',left:'40%', width:280,height:280, background:'radial-gradient(circle,rgba(212,175,55,.09) 0%,transparent 65%)', pointerEvents:'none', animation:'orb3 14s ease-in-out infinite' }} />
 
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative' as const }}>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 32 : 56, alignItems: 'center' }}>

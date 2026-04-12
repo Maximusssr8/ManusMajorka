@@ -81,7 +81,7 @@ interface TemplateConfig {
 const TEMPLATES: TemplateConfig[] = [
   { id: 'bondi-wellness', name: 'Bondi Wellness Co', niche: 'health supplements', audience: '25-40 AU health-conscious women', vibe: 'clean-minimal', color: '#2dd4bf', emoji: '🌿' },
   { id: 'au-pet-collective', name: 'AU Pet Collective', niche: 'pet accessories', audience: 'AU pet owners', vibe: 'warm-playful', color: '#f59e0b', emoji: '🐾' },
-  { id: 'gc-fashion', name: 'Gold Coast Fashion', niche: 'streetwear and fashion', audience: '18-30 AU youth', vibe: 'bold-edgy', color: '#7c3aed', emoji: '👟' },
+  { id: 'gc-fashion', name: 'Gold Coast Fashion', niche: 'streetwear and fashion', audience: '18-30 AU youth', vibe: 'bold-edgy', color: '#8a6e1f', emoji: '👟' },
   { id: 'tradie-gear', name: 'Tradie Gear AU', niche: 'workwear and tools', audience: 'AU tradespeople', vibe: 'rugged-functional', color: '#dc2626', emoji: '🔧' },
   { id: 'eco-edit', name: 'The Eco Edit', niche: 'sustainable homeware', audience: '30-45 eco-conscious AU buyers', vibe: 'earthy-minimal', color: '#65a30d', emoji: '🌱' },
   { id: 'aussie-sports', name: 'Aussie Sports Hub', niche: 'sports and outdoor gear', audience: 'AU fitness enthusiasts', vibe: 'energetic', color: '#0ea5e9', emoji: '⚡' },

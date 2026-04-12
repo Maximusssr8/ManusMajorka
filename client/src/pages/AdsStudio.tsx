@@ -560,7 +560,7 @@ Make each variation feel genuinely different — different angles, different emo
               sub={`Based on ${intel.dailyOrders} orders/day at $${intel.price.toFixed(2)}`}
             />
             <IntelCard
-              icon={<Zap size={14} color="#a78bfa" />}
+              icon={<Zap size={14} color="#e5c158" />}
               label="Category"
               value={selectedProduct.category ? (selectedProduct.category.length > 22 ? selectedProduct.category.slice(0, 22) + '\u2026' : selectedProduct.category) : 'Uncategorised'}
               sub={`CPM range: $${cpmRange.low}\u2013$${cpmRange.high} (${cpmRange.label})`}
@@ -587,9 +587,9 @@ Make each variation feel genuinely different — different angles, different emo
             onClick={openPicker}
             style={{
               width: '100%', padding: '10px 12px',
-              background: selectedProduct ? 'rgba(212,175,55,0.08)' : 'rgba(124,106,255,0.1)',
-              border: `1px solid ${selectedProduct ? 'rgba(212,175,55,0.25)' : 'rgba(124,106,255,0.28)'}`,
-              borderRadius: 8, color: selectedProduct ? '#d4af37' : '#a78bfa',
+              background: selectedProduct ? 'rgba(212,175,55,0.08)' : 'rgba(212,175,55,0.1)',
+              border: `1px solid ${selectedProduct ? 'rgba(212,175,55,0.25)' : 'rgba(212,175,55,0.28)'}`,
+              borderRadius: 8, color: selectedProduct ? '#d4af37' : '#e5c158',
               fontFamily: dm, fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 14,
               display: 'flex', alignItems: 'center', gap: 8,
             }}
@@ -717,8 +717,8 @@ Make each variation feel genuinely different — different angles, different emo
                 return (
                   <button key={s} onClick={() => setFunnelStage(s)} style={{
                     flex: 1, padding: '6px 4px',
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
+                    border: `1px solid ${active ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: 6, fontSize: 10, fontWeight: 600,
                     color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)', cursor: 'pointer',
                   }}>
@@ -738,9 +738,9 @@ Make each variation feel genuinely different — different angles, different emo
                 return (
                   <button key={o} onClick={() => setAdObjective(o)} style={{
                     flex: 1, height: 28,
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
+                    background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
                     color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    border: `1px solid ${active ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer',
                   }}>{o}</button>
                 );
@@ -912,7 +912,7 @@ Make each variation feel genuinely different — different angles, different emo
                   <Download size={14} color="#d4af37" /> Export CSV (Meta Bulk Import)
                 </button>
                 <button onClick={exportTxt} style={exportBtnStyle}>
-                  <Download size={14} color="#a78bfa" /> Export .txt
+                  <Download size={14} color="#e5c158" /> Export .txt
                 </button>
               </div>
 

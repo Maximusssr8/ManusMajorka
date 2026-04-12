@@ -156,7 +156,7 @@ export default function Revenue() {
           </div>
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:scale-[1.02]"
             style={{ background: 'var(--color-accent)', boxShadow: 'none' }}
           >
             <Plus size={15} strokeWidth={2.5} />
@@ -178,7 +178,7 @@ export default function Revenue() {
             { label: 'Ad Spend', value: `A$${totalAdSpend.toLocaleString()}`, Icon: Target, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
             { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
           ].map(({ label, value, Icon, color, bg }) => (
-            <div key={label} className="glass-card glass-card--elevated rounded-2xl p-4">
+            <div key={label} className="glass-card glass-card--elevated rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[9px] font-semibold uppercase tracking-[0.1em] text-white/30">{label}</span>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
@@ -238,9 +238,9 @@ export default function Revenue() {
 
         {/* Empty state OR table */}
         {entries.length === 0 ? (
-          <div className="glass-card rounded-2xl p-12 text-center">
+          <div className="glass-card rounded-lg p-12 text-center">
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4"
               style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
             >
               <TrendingUp size={20} className="text-accent" />
@@ -251,14 +251,14 @@ export default function Revenue() {
             </p>
             <button
               onClick={() => setShowAdd(true)}
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
               style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.35)' }}
             >
               Add your first product
             </button>
           </div>
         ) : (
-          <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="glass-card rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="bg-white/[0.03] border-b border-white/[0.06]">
@@ -317,7 +317,7 @@ export default function Revenue() {
           onClick={() => setShowAdd(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl p-6 glass-card glass-card--elevated"
+            className="w-full max-w-md rounded-lg p-6 glass-card glass-card--elevated"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-display font-bold text-text mb-4">Add product</h3>
@@ -335,7 +335,7 @@ export default function Revenue() {
                     placeholder={field.placeholder}
                     value={form[field.key]}
                     onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl text-sm text-text placeholder-white/20 outline-none bg-white/[0.05] border border-white/[0.08] focus:border-accent transition-colors"
+                    className="w-full px-4 py-3 rounded-lg text-sm text-text placeholder-white/20 outline-none bg-white/[0.05] border border-white/[0.08] focus:border-accent transition-colors"
                   />
                 </div>
               ))}
@@ -343,14 +343,14 @@ export default function Revenue() {
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => setShowAdd(false)}
-                className="flex-1 py-3 rounded-xl text-sm text-white/40 border border-white/[0.08]"
+                className="flex-1 py-3 rounded-lg text-sm text-white/40 border border-white/[0.08]"
               >
                 Cancel
               </button>
               <button
                 onClick={addEntry}
                 disabled={!form.productTitle.trim() || !form.dailyRevenue}
-                className="flex-1 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40"
+                className="flex-1 py-3 rounded-lg text-sm font-bold text-white disabled:opacity-40"
                 style={{ background: 'var(--color-accent)' }}
               >
                 Add

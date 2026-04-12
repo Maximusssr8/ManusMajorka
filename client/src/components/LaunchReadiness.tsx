@@ -233,7 +233,7 @@ function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean 
 // Confetti burst component
 function ConfettiBurst() {
   const pieces = Array.from({ length: 18 });
-  const colors = ['#3B82F6', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
+  const colors = ['#3B82F6', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#d4af37'];
   return (
     <div
       style={{ position: 'absolute', top: '20%', left: '50%', pointerEvents: 'none', zIndex: 10 }}

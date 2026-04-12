@@ -342,13 +342,13 @@ Return a markdown brief with these sections:
           style={{
             padding: '12px 24px',
             borderRadius: 9,
-            background: loading ? 'rgba(124,106,255,0.3)' : 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+            background: loading ? 'rgba(212,175,55,0.3)' : 'linear-gradient(135deg,#d4af37,#d4af37)',
             color: 'white',
             border: 'none',
             fontFamily: sans, fontSize: 14, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            boxShadow: '0 4px 20px rgba(124,106,255,0.3)',
+            boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
           }}
         >{loading ? 'Generating…' : 'Generate Brief →'}</button>
       </section>
@@ -371,7 +371,7 @@ Return a markdown brief with these sections:
       {output && !loading && (
         <div style={{
           background: C.raised,
-          border: '1px solid rgba(124,106,255,0.2)',
+          border: '1px solid rgba(212,175,55,0.2)',
           borderRadius: 12,
           padding: 24,
           marginBottom: 28,
@@ -510,8 +510,8 @@ function pillStyle(active: boolean): React.CSSProperties {
   return {
     padding: '7px 12px',
     borderRadius: 7,
-    background: active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
-    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+    background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
+    border: `1px solid ${active ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.07)'}`,
     color: active ? '#f5f5f5' : 'rgba(255,255,255,0.5)',
     fontFamily: C.fontBody,
     fontSize: 12,

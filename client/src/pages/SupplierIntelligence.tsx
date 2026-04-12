@@ -74,8 +74,8 @@ const FEATURED_PLATFORMS = [
     shipping: '12–18 days',
     margin: '55–70%',
     url: 'https://www.dhgate.com',
-    color: '#8b5cf6',
-    bg: 'rgba(139,92,246,0.08)',
+    color: '#d4af37',
+    bg: 'rgba(212,175,55,0.08)',
   },
   {
     name: 'Spocket',
@@ -103,7 +103,7 @@ const PLATFORM_COLOURS: Record<string, string> = {
   AliExpress: '#e4393c',
   Alibaba: '#f97316',
   'CJ Dropshipping': '#f59e0b',
-  DHgate: '#8b5cf6',
+  DHgate: '#d4af37',
 };
 
 function PlatformPill({ platform }: { platform: string }) {

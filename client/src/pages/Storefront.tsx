@@ -134,7 +134,7 @@ export default function Storefront() {
     );
 
   const { store, products } = data;
-  const accent = store.brandColorPrimary || '#7c3aed';
+  const accent = store.brandColorPrimary || '#8a6e1f';
 
   return (
     <div className="min-h-screen bg-black text-white">

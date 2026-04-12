@@ -109,7 +109,7 @@ export default function Creators() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Creator Intelligence</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
@@ -147,7 +147,7 @@ export default function Creators() {
         {matchResult && (
           <div style={{
             background: C.raised,
-            border: '1px solid rgba(124,106,255,0.2)',
+            border: '1px solid rgba(212,175,55,0.2)',
             borderRadius: 12,
             padding: 20,
             display: 'grid',
@@ -170,8 +170,8 @@ export default function Creators() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {matchResult.hashtags.map((t) => (
                   <span key={t} style={{
-                    background: 'rgba(124,106,255,0.1)',
-                    border: '1px solid rgba(124,106,255,0.2)',
+                    background: 'rgba(212,175,55,0.1)',
+                    border: '1px solid rgba(212,175,55,0.2)',
                     color: C.accentHover,
                     fontFamily: mono, fontSize: 11,
                     padding: '2px 8px', borderRadius: 999,
@@ -344,8 +344,8 @@ export default function Creators() {
                 style={{
                   padding: '8px 14px',
                   borderRadius: 8,
-                  background: copied === t.title ? 'rgba(16,185,129,0.15)' : 'rgba(124,106,255,0.1)',
-                  border: `1px solid ${copied === t.title ? 'rgba(16,185,129,0.3)' : 'rgba(124,106,255,0.25)'}`,
+                  background: copied === t.title ? 'rgba(16,185,129,0.15)' : 'rgba(212,175,55,0.1)',
+                  border: `1px solid ${copied === t.title ? 'rgba(16,185,129,0.3)' : 'rgba(212,175,55,0.25)'}`,
                   color: copied === t.title ? C.green : C.accentHover,
                   fontFamily: sans, fontSize: 12, fontWeight: 600,
                   cursor: 'pointer',

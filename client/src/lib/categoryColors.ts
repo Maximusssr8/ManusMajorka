@@ -21,7 +21,7 @@ export function getCategoryStyle(category: string): { background: string; color:
   if (cat.includes('fashion') || cat.includes('clothing') || cat.includes('apparel')) return { background: 'rgba(244,63,94,0.15)', color: '#fb7185', border: '1px solid rgba(244,63,94,0.3)' };
   if (cat.includes('electron') || cat.includes('tech') || cat.includes('phone')) return { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' };
   if (cat.includes('beauty') || cat.includes('cosmetic')) return { background: 'rgba(236,72,153,0.15)', color: '#f472b6', border: '1px solid rgba(236,72,153,0.3)' };
-  if (cat.includes('kids') || cat.includes('baby') || cat.includes('child')) return { background: 'rgba(139,92,246,0.15)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' };
+  if (cat.includes('kids') || cat.includes('baby') || cat.includes('child')) return { background: 'rgba(212,175,55,0.15)', color: '#e5c158', border: '1px solid rgba(212,175,55,0.3)' };
   if (cat.includes('outdoor') || cat.includes('garden') || cat.includes('camp')) return { background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' };
   if (cat.includes('pet') || cat.includes('animal')) return { background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)' };
   if (cat.includes('home') || cat.includes('decor') || cat.includes('furniture')) return { background: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.3)' };

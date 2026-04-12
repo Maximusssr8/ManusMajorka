@@ -38,7 +38,7 @@ function QuickActions({
   const pt = encodeURIComponent(productTitle);
   const cat = encodeURIComponent(category);
   const actions = [
-    { label: 'Generate Ads', path: `/app/growth?product=${pt}&category=${cat}`, color: '#a78bfa' },
+    { label: 'Generate Ads', path: `/app/growth?product=${pt}&category=${cat}`, color: '#e5c158' },
     { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
     { label: 'Check Profit', path: `/app/profit-calculator?price=${priceAud}`, color: '#3B82F6' },
     { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
@@ -190,7 +190,7 @@ function parseSparkline(raw: string | number[] | null | undefined): number[] {
 const QUICK_CARDS = [
   { label: 'Trending Products', sub: 'Top winners right now', icon: Flame, path: '/app/winning-products', color: '#ef4444' },
   { label: 'Creator Intel',     sub: 'Find TikTok partners',   icon: Users,  path: '/app/creators',         color: '#3B82F6' },
-  { label: 'Video Intel',       sub: 'Top-converting videos',     icon: Play,   path: '/app/videos',           color: '#a78bfa' },
+  { label: 'Video Intel',       sub: 'Top-converting videos',     icon: Play,   path: '/app/videos',           color: '#e5c158' },
   { label: 'Competitor Spy',    sub: 'Research any competitor',   icon: Eye,    path: '/app/competitor-spy',   color: '#38bdf8' },
   { label: 'Category Rankings',  sub: 'Top niches by demand',       icon: TrendingUp, path: '/app/intelligence', color: '#34d399' },
   { label: 'Academy',           sub: '20 lessons to $10k/mo',     icon: BookOpen, path: '/app/learn',          color: '#fb923c' },

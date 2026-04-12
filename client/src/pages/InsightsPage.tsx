@@ -7,7 +7,7 @@ import { allTools } from '@/lib/tools';
 const INSIGHT_SECTIONS = [
   {
     title: 'Analytics & Performance',
-    color: '#8b5cf6',
+    color: '#d4af37',
     toolIds: ['analytics-decoder', 'cro-advisor', 'store-auditor'],
   },
   {

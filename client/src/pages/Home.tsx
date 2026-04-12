@@ -460,7 +460,7 @@ function Nav() {
             border: '1px solid rgba(255,255,255,0.18)',
             color: '#cccccc',
             padding: '2px 7px',
-            borderRadius: 20,
+            borderRadius: 8,
             marginLeft: 10,
             letterSpacing: '0.08em',
             fontWeight: 500,
@@ -650,7 +650,7 @@ function Hero() {
       }} />
       <div style={{
         position: 'absolute', width: 500, height: 500, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)',
         top: 50, right: -100, pointerEvents: 'none', zIndex: 0,
       }} />
       <div style={{
@@ -793,7 +793,7 @@ function Hero() {
             <div style={{
               position: 'absolute',
               inset: -20,
-              borderRadius: 20,
+              borderRadius: 8,
               background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 70%)',
               zIndex: 0,
               pointerEvents: 'none',
@@ -1020,7 +1020,7 @@ function BrowserWindow() {
     <div className="mj-hero-window" style={{
       background: '#111111',
       border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 16,
+      borderRadius: 8,
       overflow: 'hidden',
       boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.15)',
       fontFamily: sans,
@@ -1234,7 +1234,7 @@ function Stats() {
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: 1,
         background: 'rgba(255,255,255,0.06)',
-        borderRadius: 16,
+        borderRadius: 8,
         overflow: 'hidden',
       }}>
         {STATS_CARDS.map((s) => (
@@ -1362,7 +1362,7 @@ function ThePlatform() {
         <div style={{
           background: '#111111',
           border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 20,
+          borderRadius: 8,
           padding: 40,
           marginBottom: 20,
           display: 'grid',
@@ -1462,7 +1462,7 @@ function ThePlatform() {
 
         {/* Tool grid row 1 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📡</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your market before your competitor does</h4>
@@ -1488,7 +1488,7 @@ function ThePlatform() {
             </div>
           </div>
 
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📊</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Profit Calculator</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your margin before you launch</h4>
@@ -1525,7 +1525,7 @@ function ThePlatform() {
           <div style={{
             background: 'linear-gradient(135deg, #111111 0%, #13111f 100%)',
             border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: 16,
+            borderRadius: 8,
             padding: 28,
           }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🧠</span>
@@ -1547,7 +1547,7 @@ function ThePlatform() {
 
         {/* Tool grid row 2 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🎯</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Meta + TikTok ad creative generator</h4>
@@ -1565,7 +1565,7 @@ function ThePlatform() {
               </div>
             </div>
           </div>
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🏪</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Store Builder</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Zero to live store in 7 minutes</h4>
@@ -1595,7 +1595,7 @@ function ThePlatform() {
               <div style={{ marginTop: 8, fontSize: 10, color: '#22c55e', fontFamily: mono }}>⚡ Store live in 7 minutes</div>
             </div>
           </div>
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📱</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Creators &amp; Video</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Find your next viral partner</h4>
@@ -1667,7 +1667,7 @@ function RevenueProofBanner() {
           display: 'grid',
           gridTemplateColumns: 'repeat(5, 1fr)',
           gap: 0,
-          borderRadius: 16,
+          borderRadius: 8,
           overflow: 'hidden',
           border: '1px solid rgba(255,255,255,0.06)',
           background: 'rgba(255,255,255,0.04)',
@@ -2789,7 +2789,7 @@ function Founder() {
         <div style={{
           background: T.bgSurface,
           border: `1px solid ${T.border}`,
-          borderRadius: 16,
+          borderRadius: 8,
           padding: 48,
           position: 'relative',
           overflow: 'hidden',
@@ -3453,13 +3453,13 @@ function TerminalSection() {
                     </span>{' '}
                     <span style={{ color: 'rgba(255,255,255,0.4)' }}>\</span>
                     {'\n  '}
-                    <span style={{ color: '#a78bfa' }}>-H</span>{' '}
+                    <span style={{ color: '#e5c158' }}>-H</span>{' '}
                     <span style={{ color: '#22c55e' }}>
                       &quot;Authorization: Bearer $MAJORKA_TOKEN&quot;
                     </span>{' '}
                     <span style={{ color: 'rgba(255,255,255,0.4)' }}>\</span>
                     {'\n  '}
-                    <span style={{ color: '#a78bfa' }}>-H</span>{' '}
+                    <span style={{ color: '#e5c158' }}>-H</span>{' '}
                     <span style={{ color: '#22c55e' }}>
                       &quot;Accept: application/json&quot;
                     </span>

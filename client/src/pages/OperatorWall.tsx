@@ -209,7 +209,7 @@ export default function OperatorWall() {
           marginTop: 80,
           padding: 40,
           borderRadius: 18,
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.04))',
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(212,175,55,0.04))',
           border: '1px solid rgba(59,130,246,0.22)',
           textAlign: 'center',
         }}>

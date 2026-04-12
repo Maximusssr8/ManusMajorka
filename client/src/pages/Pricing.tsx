@@ -133,7 +133,7 @@ function EmotionalComparisonTable() {
         <div
           style={{
             border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 16,
+            borderRadius: 8,
             overflow: 'hidden',
           }}
         >
@@ -397,7 +397,7 @@ function SavingsCalculator() {
         margin: '0 auto',
         background: '#0d0d10',
         border: '1px solid rgba(59,130,246,0.2)',
-        borderRadius: 20,
+        borderRadius: 8,
         padding: '40px 36px',
         position: 'relative',
         overflow: 'hidden',
@@ -844,7 +844,7 @@ export default function Pricing() {
               style={{
                 background: plan.highlight ? C.elevated : C.card,
                 border: `1px solid ${plan.highlight ? C.gold : C.border}`,
-                borderRadius: 20,
+                borderRadius: 8,
                 padding: 36,
                 position: 'relative',
                 boxShadow: plan.highlight ? '0 0 48px rgba(59,130,246,0.18)' : 'none',
@@ -1086,7 +1086,7 @@ export default function Pricing() {
             What's included in each plan?
           </h2>
           <div className="pricing-comparison" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden', minWidth: 500 }}>
+          <div style={{ border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden', minWidth: 500 }}>
             {/* Header */}
             <div
               style={{

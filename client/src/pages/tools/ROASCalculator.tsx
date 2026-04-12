@@ -300,7 +300,7 @@ export default function ROASCalculator() {
           marginTop: 64,
           padding: 32,
           borderRadius: 16,
-          background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.04))',
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(212,175,55,0.04))',
           border: '1px solid rgba(59,130,246,0.18)',
           textAlign: 'center',
         }}>

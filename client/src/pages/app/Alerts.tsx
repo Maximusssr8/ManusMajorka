@@ -112,7 +112,7 @@ export default function Alerts() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
@@ -312,8 +312,8 @@ export default function Alerts() {
           }}>
             <div style={{
               width: 56, height: 56, borderRadius: '50%',
-              background: 'rgba(124,106,255,0.1)',
-              border: '1px solid rgba(124,106,255,0.25)',
+              background: 'rgba(212,175,55,0.1)',
+              border: '1px solid rgba(212,175,55,0.25)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 14px',
               color: C.accentHover,
@@ -456,8 +456,8 @@ export default function Alerts() {
                   style={{
                     padding: '8px 14px',
                     borderRadius: 8,
-                    background: active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${active ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     color: active ? '#f5f5f5' : 'rgba(255,255,255,0.5)',
                     fontFamily: sans, fontSize: 12, fontWeight: active ? 600 : 500,
                     cursor: 'pointer',
@@ -532,13 +532,13 @@ export default function Alerts() {
             style={{
               padding: '12px 24px',
               borderRadius: 9,
-              background: email ? 'linear-gradient(135deg,#7c6aff,#a78bfa)' : 'rgba(124,106,255,0.2)',
+              background: email ? 'linear-gradient(135deg,#d4af37,#d4af37)' : 'rgba(212,175,55,0.2)',
               border: 'none',
               color: 'white',
               fontFamily: sans, fontSize: 14, fontWeight: 600,
               cursor: email ? 'pointer' : 'not-allowed',
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              boxShadow: email ? '0 4px 20px rgba(124,106,255,0.35)' : 'none',
+              boxShadow: email ? '0 4px 20px rgba(212,175,55,0.35)' : 'none',
             }}
           ><Plus size={14} /> Create Alert</button>
         </div>
@@ -551,7 +551,7 @@ export default function Alerts() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
           {[
             { icon: '🔥', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', title: 'Score Alert', body: 'Nano Tape hit 99/100 — 231K orders this month' },
-            { icon: '⚡', bg: 'rgba(124,106,255,0.08)', border: 'rgba(124,106,255,0.2)', title: 'New Product', body: '3 new Kitchen & Bar products added today' },
+            { icon: '⚡', bg: 'rgba(212,175,55,0.08)', border: 'rgba(212,175,55,0.2)', title: 'New Product', body: '3 new Kitchen & Bar products added today' },
             { icon: '📉', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)', title: 'Price Drop', body: 'Oil Dispenser dropped to $7.83 AUD' },
           ].map((n) => (
             <div key={n.title} style={{

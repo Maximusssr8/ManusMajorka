@@ -500,17 +500,17 @@ export default function AppHome() {
                   <button
                     key={p.id}
                     onClick={() => setSelectedProduct(p)}
-                    className={`group flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.04] -mx-2 px-2 rounded-xl transition-colors text-left`}
+                    className={`group flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.04] -mx-2 px-2 rounded-lg transition-colors text-left`}
                   >
                     {p.image_url ? (
                       <img
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-[52px] h-[52px] rounded-xl object-cover border border-white/[0.08] bg-card shrink-0"
+                        className="w-[52px] h-[52px] rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
                       />
                     ) : (
-                      <div className="w-[52px] h-[52px] rounded-xl bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
+                      <div className="w-[52px] h-[52px] rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <p
@@ -569,7 +569,7 @@ export default function AppHome() {
                   key={o.label}
                   href={o.href}
                   onClick={clearFiltersAndGo(o.href)}
-                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.03] -mx-3 px-3 rounded-xl transition-colors group cursor-pointer no-underline`}
+                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.03] -mx-3 px-3 rounded-lg transition-colors group cursor-pointer no-underline`}
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     {p?.image_url ? (
@@ -577,10 +577,10 @@ export default function AppHome() {
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-white/[0.08] bg-card"
+                        className="w-12 h-12 rounded-lg object-cover shrink-0 border border-white/[0.08] bg-card"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
+                      <div className="w-12 h-12 rounded-lg shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
                     )}
                     <div className="min-w-0 flex-1">
                       <span
@@ -734,7 +734,7 @@ function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
         <div
-          className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white"
+          className="absolute top-3 right-3 w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm text-white"
           style={{
             background: score >= 90 ? 'rgba(16,185,129,0.92)' : 'rgba(245,158,11,0.92)',
             backdropFilter: 'blur(8px)',

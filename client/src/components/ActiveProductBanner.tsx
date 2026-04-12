@@ -9,7 +9,7 @@ const STAGE_COLORS: Record<string, { bg: string; text: string; label: string }> 
   build: { bg: 'rgba(59,130,246,0.18)', text: '#3B82F6', label: 'Build' },
   launch: { bg: 'rgba(255,100,100,0.12)', text: '#ff6b6b', label: 'Launch' },
   optimize: { bg: 'rgba(244,114,182,0.12)', text: '#f472b6', label: 'Optimize' },
-  scale: { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', label: 'Scale' },
+  scale: { bg: 'rgba(212,175,55,0.12)', text: '#d4af37', label: 'Scale' },
 };
 
 interface Props {

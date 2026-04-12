@@ -443,7 +443,7 @@ export default function Onboarding() {
               >
                 <div className="text-center space-y-2">
                   <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                    className="w-14 h-14 rounded-lg flex items-center justify-center mx-auto mb-4"
                     style={{ background: GOLD_DIM, border: `1.5px solid ${GOLD_BORDER}` }}
                   >
                     <User size={24} style={{ color: GOLD }} />
@@ -473,7 +473,7 @@ export default function Onboarding() {
                     onChange={(e) => setName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && name.trim() && goNext(1)}
                     autoFocus
-                    className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
+                    className="w-full rounded-lg py-3 px-4 text-sm outline-none transition-all"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1.5px solid #F0F0F0',
@@ -487,7 +487,7 @@ export default function Onboarding() {
                 <button
                   onClick={() => goNext(1)}
                   disabled={!name.trim()}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40"
                   style={{
                     background: name.trim()
                       ? `linear-gradient(135deg, ${GOLD}, #2563EB)`
@@ -535,7 +535,7 @@ export default function Onboarding() {
                       <button
                         key={id}
                         onClick={() => setNiche(id)}
-                        className="text-left flex items-center gap-3 px-3 py-3 rounded-xl transition-all"
+                        className="text-left flex items-center gap-3 px-3 py-3 rounded-lg transition-all"
                         style={goldCard(active)}
                         onMouseEnter={(e) => {
                           if (!active)
@@ -586,7 +586,7 @@ export default function Onboarding() {
                       setCustomNiche(e.target.value);
                       if (e.target.value.trim()) setNiche(null);
                     }}
-                    className="w-full rounded-xl py-2.5 px-3 text-sm outline-none transition-all"
+                    className="w-full rounded-lg py-2.5 px-3 text-sm outline-none transition-all"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1.5px solid #F5F5F5',
@@ -600,7 +600,7 @@ export default function Onboarding() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => goBack(2)}
-                    className="px-4 py-3.5 rounded-xl transition-all"
+                    className="px-4 py-3.5 rounded-lg transition-all"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
@@ -614,7 +614,7 @@ export default function Onboarding() {
                   <button
                     onClick={() => goNext(2)}
                     disabled={!niche && !customNiche.trim()}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background:
                         niche || customNiche.trim()
@@ -663,7 +663,7 @@ export default function Onboarding() {
                       <button
                         key={id}
                         onClick={() => setExperience(id)}
-                        className="w-full text-left flex items-center gap-4 px-4 py-4 rounded-xl transition-all"
+                        className="w-full text-left flex items-center gap-4 px-4 py-4 rounded-lg transition-all"
                         style={goldCard(active)}
                         onMouseEnter={(e) => {
                           if (!active)
@@ -676,7 +676,7 @@ export default function Onboarding() {
                         }}
                       >
                         <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                           style={{ background: active ? GOLD_DIM : '#F9FAFB' }}
                         >
                           <Icon
@@ -709,7 +709,7 @@ export default function Onboarding() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => goBack(3)}
-                    className="px-4 py-3.5 rounded-xl transition-all"
+                    className="px-4 py-3.5 rounded-lg transition-all"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
@@ -723,7 +723,7 @@ export default function Onboarding() {
                   <button
                     onClick={() => goNext(3)}
                     disabled={!experience}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: experience
                         ? `linear-gradient(135deg, ${GOLD}, #2563EB)`
@@ -771,7 +771,7 @@ export default function Onboarding() {
                       <button
                         key={id}
                         onClick={() => setGoal(id)}
-                        className="w-full text-left flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all"
+                        className="w-full text-left flex items-center gap-4 px-4 py-3.5 rounded-lg transition-all"
                         style={goldCard(active)}
                         onMouseEnter={(e) => {
                           if (!active)
@@ -809,7 +809,7 @@ export default function Onboarding() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => goBack(4)}
-                    className="px-4 py-3.5 rounded-xl transition-all"
+                    className="px-4 py-3.5 rounded-lg transition-all"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
@@ -823,7 +823,7 @@ export default function Onboarding() {
                   <button
                     onClick={() => goNext(4)}
                     disabled={!goal}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: goal
                         ? `linear-gradient(135deg, ${GOLD}, #2563EB)`
@@ -879,7 +879,7 @@ export default function Onboarding() {
                         <button
                           key={id}
                           onClick={() => setStoreType(id)}
-                          className="w-full text-left flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all"
+                          className="w-full text-left flex items-center gap-4 px-4 py-3.5 rounded-lg transition-all"
                           style={goldCard(active)}
                           onMouseEnter={(e) => {
                             if (!active)
@@ -940,7 +940,7 @@ export default function Onboarding() {
                         <button
                           key={p}
                           onClick={() => setPlatform(p)}
-                          className="px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                          className="px-4 py-2 rounded-lg text-xs font-semibold transition-all"
                           style={{
                             background: active ? GOLD_DIM : '#F9FAFB',
                             border: `1.5px solid ${active ? GOLD_BORDER : DIM_BORDER}`,
@@ -958,7 +958,7 @@ export default function Onboarding() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => goBack(5)}
-                    className="px-4 py-3.5 rounded-xl transition-all"
+                    className="px-4 py-3.5 rounded-lg transition-all"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid #F0F0F0',
@@ -972,7 +972,7 @@ export default function Onboarding() {
                   <button
                     onClick={handleComplete}
                     disabled={!storeType}
-                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: storeType
                         ? `linear-gradient(135deg, ${GOLD}, #2563EB)`
@@ -1092,7 +1092,7 @@ export default function Onboarding() {
                 >
                   <button
                     onClick={() => navigate('/app')}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-bold transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-lg text-sm font-bold transition-all"
                     style={{
                       background: `linear-gradient(135deg, ${GOLD}, #2563EB)`,
                       color: '#FAFAFA',
@@ -1106,7 +1106,7 @@ export default function Onboarding() {
                   </button>
                   <button
                     onClick={() => navigate('/app')}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-lg text-sm font-semibold transition-all"
                     style={{
                       background: 'transparent',
                       border: '1.5px solid #F0F0F0',

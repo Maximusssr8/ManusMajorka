@@ -233,7 +233,7 @@ function CodeBlock({
         );
       } else if (match[4]) {
         tokens.push(
-          <span key={key++} style={{ color: '#a78bfa' }}>
+          <span key={key++} style={{ color: '#d4af37' }}>
             {match[4]}
           </span>,
         );

@@ -379,7 +379,7 @@ function ListPickerButton({ product, lists, size = 15, className = '' }: ListPic
           onClick={(e) => e.stopPropagation()}
           sideOffset={6}
           align="end"
-          className="z-[120] bg-raised border border-white/10 rounded-xl p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)] min-w-[220px] font-body"
+          className="z-[120] bg-raised border border-white/10 rounded-lg p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)] min-w-[220px] font-body"
         >
           <p className="text-[11px] text-muted uppercase tracking-wider mb-2 px-1">Save to list</p>
           <div className="flex flex-col gap-0.5 max-h-[240px] overflow-y-auto">
@@ -484,7 +484,7 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
         )}
       </button>
       {open && (
-        <div className="absolute top-[calc(100%+6px)] left-0 z-50 bg-raised border border-white/[0.12] rounded-xl p-4 min-w-[220px] shadow-hover">
+        <div className="absolute top-[calc(100%+6px)] left-0 z-50 bg-raised border border-white/[0.12] rounded-lg p-4 min-w-[220px] shadow-hover">
           {children}
         </div>
       )}
@@ -715,7 +715,7 @@ function ProductSheet({
 
           {/* Market Revenue — total market size estimate */}
           {marketRev != null && (
-            <div className="mx-4 mt-3 p-4 bg-cyan-500/[0.05] border border-cyan-500/20 rounded-xl">
+            <div className="mx-4 mt-3 p-4 bg-cyan-500/[0.05] border border-cyan-500/20 rounded-lg">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-1">
@@ -738,7 +738,7 @@ function ProductSheet({
           {/* Track button */}
           <button
             onClick={handleToggleTrack}
-            className={`mx-4 mt-3 mb-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-colors border ${
+            className={`mx-4 mt-3 mb-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition-colors border ${
               isTrackedNow
                 ? 'bg-amber/15 border-amber/40 text-amber hover:bg-amber/20'
                 : 'bg-amber/10 border-amber/20 text-amber hover:bg-amber/15'
@@ -789,7 +789,7 @@ function ProductSheet({
             const lr = launchReadiness(product);
             return (
               <div
-                className="mx-4 mb-4 rounded-2xl p-4"
+                className="mx-4 mb-4 rounded-lg p-4"
                 style={{ background: lr.bg, border: `1px solid ${lr.border}` }}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -819,7 +819,7 @@ function ProductSheet({
             const reasons = getWinReasons(product);
             if (reasons.length === 0) return null;
             return (
-              <div className="mx-4 mb-4 bg-green/[0.05] border border-green/20 rounded-xl p-4">
+              <div className="mx-4 mb-4 bg-green/[0.05] border border-green/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Zap size={13} className="text-green" strokeWidth={2.5} />
                   <span className="text-[11px] font-bold uppercase tracking-wider text-green">Why this wins</span>
@@ -840,7 +840,7 @@ function ProductSheet({
           {(() => {
             const comp = competitionLevel(product.sold_count ?? 0);
             return (
-              <div className="mx-4 mb-4 flex items-center justify-between gap-3 bg-card border border-white/[0.06] rounded-xl p-3.5">
+              <div className="mx-4 mb-4 flex items-center justify-between gap-3 bg-card border border-white/[0.06] rounded-lg p-3.5">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">Competition</span>
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${comp.color} ${comp.bg}`}>
@@ -880,7 +880,7 @@ function ProductSheet({
           </button>
 
           {/* Profit calculator — collapsible */}
-          <div className="mx-4 mb-4 bg-raised rounded-xl overflow-hidden border border-white/[0.07]">
+          <div className="mx-4 mb-4 bg-raised rounded-lg overflow-hidden border border-white/[0.07]">
             <button
               onClick={() => setCalcOpen((o) => !o)}
               className="w-full flex items-center justify-between p-4 text-left cursor-pointer hover:bg-white/[0.03] transition-colors"
@@ -916,7 +916,7 @@ function ProductSheet({
                     </div>
                   </div>
                 ))}
-                <div className="mt-4 bg-raised rounded-xl p-4 space-y-2.5 border border-white/[0.06]">
+                <div className="mt-4 bg-raised rounded-lg p-4 space-y-2.5 border border-white/[0.06]">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted">Net profit per unit</span>
                     <span className={`font-bold tabular-nums ${profitColor}`}>
@@ -1316,7 +1316,7 @@ export default function AppProducts() {
 
       {/* Search bar */}
       <div className="px-4 md:px-8 pb-4 flex items-center gap-3">
-        <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-xl h-[52px] px-4 gap-3 transition-all shadow-lg">
+        <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-lg h-[52px] px-4 gap-3 transition-all shadow-lg">
           <Search size={16} strokeWidth={2} className="text-accent/60 shrink-0" />
           <input
             ref={searchInputRef}
@@ -1368,7 +1368,7 @@ export default function AppProducts() {
       {/* Curated-tab notice — replaces the filter bar when on a curated tab */}
       {searchMode === 'db' && !isFilterableTab && (
         <div
-          className="mx-4 md:mx-8 mb-4 px-4 py-3 flex items-center gap-3 flex-wrap rounded-xl"
+          className="mx-4 md:mx-8 mb-4 px-4 py-3 flex items-center gap-3 flex-wrap rounded-lg"
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)' }}
         >
           <span className="text-[11px] font-semibold uppercase tracking-wider text-accent-hover">
@@ -2093,7 +2093,7 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
     return (
       <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
+          <div key={i} className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
             <div className="w-full h-48 bg-white/[0.04] animate-pulse" />
             <div className="p-3.5">
               <span className="inline-block w-[90%] h-4 bg-white/[0.04] rounded mb-2 animate-pulse" />
@@ -2120,7 +2120,7 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}
             onClick={() => onSelect(p)}
-            className="group bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-all duration-200 cursor-pointer flex flex-col"
+            className="group bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-all duration-200 cursor-pointer flex flex-col"
           >
             <div className="relative h-48 md:h-56 overflow-hidden">
               {p.image_url ? (
@@ -2228,7 +2228,7 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
 
 function EmptyState() {
   return (
-    <div className="mx-4 md:mx-8 my-10 p-16 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-center">
+    <div className="mx-4 md:mx-8 my-10 p-16 bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-center">
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-raised mb-4">
         <Search size={24} className="text-muted" strokeWidth={1.75} />
       </div>
@@ -2254,7 +2254,7 @@ function LiveSearchView({ aeSearch, onSelect }: {
     return (
       <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] h-[360px] animate-pulse" />
+          <div key={i} className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] h-[360px] animate-pulse" />
         ))}
       </div>
     );
@@ -2283,7 +2283,7 @@ function LiveSearchView({ aeSearch, onSelect }: {
             };
             onSelect(asProduct);
           }}
-          className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer"
+          className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer"
         >
           <div className="h-48 bg-raised">
             {p.image_url && (
@@ -2459,7 +2459,7 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
         <button
           onClick={generate}
           disabled={loading}
-          className="w-full py-3 rounded-xl text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-lg text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
           style={{
             background: loading ? 'rgba(255,255,255,0.3)' : 'var(--color-accent)',
             borderColor: 'rgba(255,255,255,0.4)',
@@ -2475,7 +2475,7 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
   }
 
   return (
-    <div className="mx-4 mb-4 bg-accent/[0.04] border border-accent/20 rounded-xl p-4">
+    <div className="mx-4 mb-4 bg-accent/[0.04] border border-accent/20 rounded-lg p-4">
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between mb-3"

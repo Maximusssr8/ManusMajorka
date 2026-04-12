@@ -12,7 +12,7 @@ export default function NotFound() {
       <div className="text-center px-6 max-w-md animate-fade-in">
         {/* Logo */}
         <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+          className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6"
           style={{
             background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
             boxShadow: '0 8px 32px rgba(59,130,246,0.25)',
@@ -49,7 +49,7 @@ export default function NotFound() {
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={() => window.history.back()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all"
             style={{
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid #F0F0F0',
@@ -63,7 +63,7 @@ export default function NotFound() {
           </button>
           <button
             onClick={() => setLocation('/')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all"
             style={{
               background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
               color: '#FAFAFA',

@@ -170,21 +170,21 @@ export default function Radar() {
         {/* Stat row */}
         {!loading && !error && (
           <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8">
-            <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-4">
+            <div className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-4">
               <div className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-2">Rising</div>
               <div className="flex items-end gap-1.5">
                 <ArrowUp size={16} className="text-green mb-1" strokeWidth={2.5} />
                 <div className="text-2xl md:text-3xl font-display font-bold text-green tabular-nums">{stats.rising}</div>
               </div>
             </div>
-            <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-4">
+            <div className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-4">
               <div className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-2">Falling</div>
               <div className="flex items-end gap-1.5">
                 <ArrowDown size={16} className="text-red-400 mb-1" strokeWidth={2.5} />
                 <div className="text-2xl md:text-3xl font-display font-bold text-red-400 tabular-nums">{stats.falling}</div>
               </div>
             </div>
-            <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-4">
+            <div className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-4">
               <div className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-2">New entries</div>
               <div className="text-2xl md:text-3xl font-display font-bold text-accent-hover tabular-nums">{stats.newCount}</div>
             </div>
@@ -192,14 +192,14 @@ export default function Radar() {
         )}
 
         {/* Leaderboard */}
-        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
+        <div className="bg-surface border border-white/[0.07] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
           {loading ? (
             <div className="flex flex-col">
               {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 px-4 md:px-6 py-4 border-b border-white/[0.04]">
                   <span className="w-10 h-6 bg-white/[0.04] rounded animate-pulse" />
                   <span className="w-11 h-5 bg-white/[0.04] rounded animate-pulse" />
-                  <span className="w-12 h-12 bg-white/[0.04] rounded-xl animate-pulse" />
+                  <span className="w-12 h-12 bg-white/[0.04] rounded-lg animate-pulse" />
                   <span className="flex-1 h-4 bg-white/[0.04] rounded animate-pulse" />
                 </div>
               ))}
@@ -245,10 +245,10 @@ export default function Radar() {
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover border border-white/[0.08] bg-card shrink-0"
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
                       />
                     ) : (
-                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
                     )}
 
                     {/* Title + category */}

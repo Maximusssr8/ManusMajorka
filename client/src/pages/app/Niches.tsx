@@ -117,14 +117,14 @@ export default function Niches() {
       {/* Grid */}
       <div className="px-4 md:px-8 pb-12">
         {error && (
-          <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-400 text-sm">
+          <div className="p-6 rounded-lg bg-red-500/5 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl p-5 h-44 animate-pulse" />
+              <div key={i} className="bg-surface border border-white/[0.07] rounded-lg p-5 h-44 animate-pulse" />
             ))}
           </div>
         ) : sorted.length === 0 ? (
@@ -140,7 +140,7 @@ export default function Niches() {
                 <button
                   key={n.name}
                   onClick={() => navigate(`/app/products?category=${encodeURIComponent(n.name)}`)}
-                  className="group text-left bg-surface border border-white/[0.07] rounded-2xl p-5 hover:border-accent/30 transition-colors cursor-pointer overflow-hidden"
+                  className="group text-left bg-surface border border-white/[0.07] rounded-lg p-5 hover:border-accent/30 transition-colors cursor-pointer overflow-hidden"
                 >
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <h3 className="text-lg font-display font-semibold text-text leading-tight line-clamp-2 min-h-[44px]">
