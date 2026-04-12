@@ -90,6 +90,24 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           /* best-effort */
         }
 
+        // Auto-provision 7-day free trial for new signups
+        try {
+          const {
+            data: { session: currentSession },
+          } = await supabase.auth.getSession();
+          if (currentSession?.access_token) {
+            await fetch('/api/auth/provision-trial', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${currentSession.access_token}`,
+              },
+            });
+          }
+        } catch {
+          /* best-effort — trial provisioning is non-blocking */
+        }
+
         // Credit referral on signup
         const refCode = localStorage.getItem('majorka_ref');
         if (refCode) {

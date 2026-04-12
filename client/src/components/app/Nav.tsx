@@ -48,7 +48,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: 'Alerts',             path: '/app/alerts',             icon: Bell, badge: 'trackedCount' },
       { label: 'TikTok Leaderboard', path: '/app/tiktok-leaderboard', icon: Flame },
-      { label: 'Competitor Spy',     path: '/app/competitor-spy',     icon: Eye, soon: true },
+      { label: 'Competitor Spy',     path: '/app/competitor-spy',     icon: Eye },
       { label: 'Revenue',            path: '/app/revenue',            icon: DollarSign },
     ],
   },

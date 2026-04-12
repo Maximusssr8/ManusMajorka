@@ -20,7 +20,7 @@ declare global {
 const BYPASS_EMAILS = ['maximusmajorka@gmail.com'];
 
 // Valid paid plans (case-insensitive)
-const PAID_PLANS = ['builder', 'scale'];
+const PAID_PLANS = ['builder', 'scale', 'trial'];
 
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';

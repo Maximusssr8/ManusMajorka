@@ -1,4 +1,15 @@
 export const PLAN_LIMITS = {
+  trial: {
+    productsTracked: 500,
+    storesAllowed: 3,
+    aiBriefsPerMonth: 50,
+    reportsPerMonth: 20,
+    productSearchPerDay: 200,
+    apifyScansPerDay: 0,
+    exportRowsPerRequest: 500,
+    savedFilters: 5,
+    teamMembers: 1,
+  },
   builder: {
     productsTracked: 500,
     storesAllowed: 3,

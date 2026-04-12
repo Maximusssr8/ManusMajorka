@@ -5,6 +5,7 @@ export interface SubscriptionData {
   plan: string;
   status: string;
   subscribed: boolean;
+  currentPeriodEnd?: string | null;
 }
 
 export function useSubscription() {

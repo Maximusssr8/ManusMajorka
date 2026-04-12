@@ -476,7 +476,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     padding: '8px 18px', borderRadius: 20,
                     border: '1px solid rgba(255,255,255,0.1)',
                   }}>
-                    Coming soon — Scale Plan early access
+                    Analysis failed — try a different query
                   </span>
                 </div>
                 {/* Blurred mock UI */}
@@ -501,7 +501,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* CTA + waitlist */}
               <div style={{ textAlign: 'center', maxWidth: 440 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
-                  Full competitor intelligence, coming soon
+                  Competitor intelligence
                 </h3>
                 <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>
                   Analyse any Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends. Available on Scale plan.
@@ -633,7 +633,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     padding: '8px 18px', borderRadius: 20,
                     border: '1px solid rgba(255,255,255,0.1)',
                   }}>
-                    Coming soon — Scale Plan early access
+                    Analysis failed — try a different query
                   </span>
                 </div>
                 {/* Blurred mock UI */}
@@ -658,7 +658,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* CTA + waitlist */}
               <div style={{ textAlign: 'center', maxWidth: 440 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
-                  Full competitor intelligence, coming soon
+                  Competitor intelligence
                 </h3>
                 <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>
                   Analyse any Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends. Available on Scale plan.

@@ -1,7 +1,17 @@
-export const PLANS = ['builder', 'scale'] as const;
+export const PLANS = ['trial', 'builder', 'scale'] as const;
 export type Plan = typeof PLANS[number];
 
 export const PLAN_LIMITS: Record<Plan, Record<string, number>> = {
+  trial: {
+    product_searches:    50,
+    video_searches:      50,
+    ad_intel:            50,
+    creator_searches:    50,
+    shop_spy:            5,
+    store_builder:       3,
+    alerts:              5,
+    ads_studio:          20,
+  },
   builder: {
     product_searches:    50,
     video_searches:      50,

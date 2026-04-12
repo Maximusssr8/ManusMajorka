@@ -12,6 +12,7 @@ import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/motion';
+import { useSubscription } from '@/hooks/useSubscription';
 
 /* ──────────────────────────────────────────────────────────────
    Helpers — all data from hooks, no hardcoded values
@@ -88,6 +89,7 @@ export default function AppHome() {
       navigate(target);
     };
   }
+  const { subscription } = useSubscription();
   const { stats, loading: statsLoading } = useStatsOverview();
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -224,11 +226,44 @@ export default function AppHome() {
     else toast.success('Product saved');
   }
 
+  /* Trial countdown */
+  const isTrial = subscription?.plan === 'trial' && subscription?.subscribed;
+  const trialDaysLeft = isTrial && subscription?.currentPeriodEnd
+    ? Math.max(0, Math.ceil((new Date(subscription.currentPeriodEnd).getTime() - Date.now()) / 86400000))
+    : null;
+
   return (
     <motion.div {...fadeIn}>
     <div className="min-h-full relative" style={{ background: '#0a0a0a', color: '#e5e5e5', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
       {/* Subtle dot grid texture */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+      {/* Trial countdown banner */}
+      {isTrial && trialDaysLeft != null && (
+        <div
+          className="flex items-center justify-center gap-3 px-6 py-3"
+          style={{
+            background: 'rgba(212,175,55,0.08)',
+            borderBottom: '1px solid rgba(212,175,55,0.15)',
+          }}
+        >
+          <span style={{ fontSize: 14, color: '#d4af37' }}>&#x1F7E1;</span>
+          <span style={{ color: '#d4af37', fontSize: 13, fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+            Free trial:{' '}
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>
+              {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}
+            </span>{' '}
+            remaining. Upgrade to keep access.
+          </span>
+          <Link
+            href="/pricing"
+            className="no-underline text-[13px] font-semibold px-3 py-1 rounded-md"
+            style={{ background: '#3B82F6', color: '#fff' }}
+          >
+            Upgrade &rarr;
+          </Link>
+        </div>
+      )}
 
       {/* ── Hero Header ─────────────────────────────────────────── */}
       <div className="relative px-6 md:px-8 pt-8 pb-8">

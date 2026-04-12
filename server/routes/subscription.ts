@@ -45,14 +45,15 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
 
     const plan = data.plan?.toLowerCase() || '';
     const status = data.status?.toLowerCase() || 'inactive';
-    const isValid = ['builder', 'scale'].includes(plan) && status === 'active';
+    const isValid = ['trial', 'builder', 'scale'].includes(plan) && status === 'active';
 
     if (!isValid) {
       res.json({ plan: '', status: 'inactive', subscribed: false });
       return;
     }
 
-    res.json({ plan, status, subscribed: true });
+    const currentPeriodEnd = data.current_period_end || null;
+    res.json({ plan, status, subscribed: true, currentPeriodEnd });
   } catch (err) {
     console.error('[subscription/me]', err);
     res.json({ plan: '', status: 'inactive', subscribed: false });

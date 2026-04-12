@@ -1710,7 +1710,7 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'AI product scoring',      m: '✓', minea: '—', auto: '—', ecom: '—' },
   { feature: 'Store Builder (Shopify push)', m: '✓', minea: '—', auto: '✓', ecom: '—' },
   { feature: 'Ad Creative Generator',   m: '✓', minea: '—', auto: '—', ecom: '—' },
-  { feature: 'Competitor Store Spy (coming soon)', m: 'Soon', minea: '✓', auto: '—', ecom: '—' },
+  { feature: 'Competitor Store Spy', m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Margin + Profit Calculator', m: '✓', minea: '—', auto: '✓', ecom: '—' },
   { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Tools included',          m: '6+', minea: '1', auto: '1', ecom: '1', emphasis: true },
@@ -2299,7 +2299,7 @@ function Pricing({ annual, setAnnual }: PricingProps) {
               'Unlimited product searches',
               'Unlimited AI briefs + ad creatives',
               'Unlimited stores in Store Builder',
-              'Competitor store spy (coming soon)',
+              'Competitor store spy',
               'Trend velocity alerts',
               'Priority support + API access',
             ]}
