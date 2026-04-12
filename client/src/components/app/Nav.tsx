@@ -5,7 +5,7 @@ import {
   Sparkles, Megaphone, Store, FileText,
   Bell, DollarSign, Eye, Settings,
   GraduationCap, ShieldCheck, Search, Flame,
-  Key, BookOpen,
+  Key, BookOpen, Library,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -40,6 +40,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
       { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
       { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
       { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText },
+      { label: 'Ad Library',    path: '/app/ad-library',    icon: Library },
       { label: 'Store Builder', path: '/app/store-builder', icon: Store },
     ],
   },

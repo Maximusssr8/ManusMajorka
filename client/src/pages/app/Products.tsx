@@ -16,6 +16,7 @@ import { useFavourites } from '@/hooks/useFavourites';
 import { useTracking } from '@/hooks/useTracking';
 import { useLists } from '@/hooks/useLists';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
+import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 
@@ -23,7 +24,7 @@ import { proxyImage } from '@/lib/imageProxy';
    Types + constants
    ══════════════════════════════════════════════════════════════ */
 
-type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10' | 'saved';
+type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10' | 'tiktok' | 'saved';
 
 const SMART_TABS: {
   key: SmartTabKey;
@@ -41,6 +42,7 @@ const SMART_TABS: {
   { key: 'under-10',    label: 'Under $10',     Icon: DollarSign,  iconClass: 'text-cyan-400',    dot: '#555' },
   { key: 'top',         label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]',   dot: '#555' },
   { key: 'new',         label: 'New',           Icon: Clock,                                      dot: '#555' },
+  { key: 'tiktok',      label: 'TikTok Shop',   Icon: Flame,       iconClass: 'text-white/70',    dot: '#555' },
   { key: 'saved',       label: 'Saved',         Icon: Bookmark,                                   dot: '#555' },
 ];
 
@@ -111,6 +113,30 @@ function hoursSince(iso?: string | null): number {
  * in real time — not limited to what's in our local DB.
  */
 const LIVE_SEARCH_ENABLED = true;
+
+/** Small platform-source badge for multi-marketplace display. */
+function PlatformBadge({ platform }: { platform: string | null }) {
+  const p = (platform ?? '').toLowerCase();
+  if (p.includes('tiktok')) {
+    return (
+      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(255,255,255,0.08)', color: '#ededed' }}>
+        TT
+      </span>
+    );
+  }
+  if (p.includes('cj')) {
+    return (
+      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>
+        CJ
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider" style={{ background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }}>
+      AE
+    </span>
+  );
+}
 
 /**
  * Monthly revenue estimator.
@@ -300,7 +326,7 @@ function readInitialParams(): { tab: SmartTabKey; search: string } {
   if (typeof window === 'undefined') return { tab: 'all', search: '' };
   const params = new URLSearchParams(window.location.search);
   const t = params.get('tab');
-  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'hot-now', 'high-volume', 'under-10', 'saved'];
+  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'hot-now', 'high-volume', 'under-10', 'tiktok', 'saved'];
   const tab = validTabs.includes(t as SmartTabKey) ? (t as SmartTabKey) : 'all';
   return { tab, search: params.get('search') ?? '' };
 }
@@ -1007,6 +1033,7 @@ function TT({ content, children, side = 'top' }: { content: React.ReactNode; chi
 
 export default function AppProducts() {
   useEffect(() => { document.title = 'Products — Majorka'; }, []);
+  const { stats: overviewStats } = useStatsOverview();
   const initial = readInitialParams();
   const [, navigate] = useLocation();
   const [orderBy, setOrderBy] = useState<SortKey>('sold_count');
@@ -1131,7 +1158,7 @@ export default function AppProducts() {
   // Saved tab is special — it's purely localStorage-driven and skips
   // the server query entirely, so we route it as 'all' here and the
   // filtered useMemo below substitutes the saved-products list.
-  const isFilterableTab = activeTab === 'all' || activeTab === 'saved';
+  const isFilterableTab = activeTab === 'all' || activeTab === 'saved' || activeTab === 'tiktok';
 
   const useProductsParams = isFilterableTab
     ? {
@@ -1206,6 +1233,9 @@ export default function AppProducts() {
         updated_at: null,
       } satisfies Product));
     }
+    if (activeTab === 'tiktok') {
+      return allFetched.filter((p) => (p.platform ?? '').toLowerCase().includes('tiktok'));
+    }
     if (scoreMax < 100) {
       return allFetched.filter((p) => (p.winning_score ?? 0) <= scoreMax);
     }
@@ -1232,6 +1262,7 @@ export default function AppProducts() {
         'hot-now':     serverTabCounts.hotNow ?? 0,
         'high-volume': serverTabCounts.highVolume ?? 0,
         'under-10':    serverTabCounts.under10 ?? 0,
+        'tiktok':      allFetched.filter((p) => (p.platform ?? '').toLowerCase().includes('tiktok')).length,
         'saved':       lists.totalSaved,
       };
     }
@@ -1247,6 +1278,7 @@ export default function AppProducts() {
       'hot-now':     allFetched.filter((p) => (p.winning_score ?? 0) >= 90 && (p.sold_count ?? 0) > 100000 && daysSince(p.created_at) <= 30).length,
       'high-volume': allFetched.filter((p) => (p.sold_count ?? 0) > 100000).length,
       'under-10':    allFetched.filter((p) => Number(p.price_aud ?? 999) <= 10 && (p.winning_score ?? 0) >= 70 && (p.sold_count ?? 0) > 5000).length,
+      'tiktok':      allFetched.filter((p) => (p.platform ?? '').toLowerCase().includes('tiktok')).length,
       'saved':       lists.totalSaved,
     };
   }, [total, allFetched, lists.totalSaved, serverTabCounts]);
@@ -1317,9 +1349,27 @@ export default function AppProducts() {
   return (
     <div className="min-h-screen bg-bg font-body text-text">
       {/* Breadcrumb */}
-      <div className="px-4 md:px-8 pt-6 pb-2 text-xs text-muted">
+      <div className="px-4 md:px-8 pt-6 pb-1 text-xs text-muted">
         Home <span className="mx-1.5 text-white/20">/</span> Products
       </div>
+
+      {/* Data freshness indicator */}
+      {overviewStats && (
+        <div className="px-4 md:px-8 pb-2" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+          <span className="text-[11px] text-white/30">
+            Data refreshed {overviewStats.updatedAt ? (() => {
+              const mins = Math.round((Date.now() - Date.parse(overviewStats.updatedAt!)) / 60000);
+              if (mins < 1) return 'just now';
+              if (mins < 60) return `${mins}m ago`;
+              const hrs = Math.round(mins / 60);
+              if (hrs < 24) return `${hrs}h ago`;
+              return `${Math.round(hrs / 24)}d ago`;
+            })() : 'recently'}
+            {' · '}{overviewStats.total.toLocaleString()} products
+            {' · '}{overviewStats.categoryCount} categories
+          </span>
+        </div>
+      )}
 
       {/* Search bar */}
       <div className="px-4 md:px-8 pb-4 flex items-center gap-3">
@@ -1962,11 +2012,14 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                       <div className="w-20 h-20 rounded-md border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <TT content={p.product_title}>
-                        <p className="text-sm font-semibold text-white/90 truncate max-w-[240px] cursor-default">
-                          {p.product_title}
-                        </p>
-                      </TT>
+                      <div className="flex items-center gap-1.5">
+                        <PlatformBadge platform={p.platform} />
+                        <TT content={p.product_title}>
+                          <p className="text-sm font-semibold text-white/90 truncate max-w-[220px] cursor-default">
+                            {p.product_title}
+                          </p>
+                        </TT>
+                      </div>
                       {/* Mobile-only inline metrics + heart under the title */}
                       <div className="md:hidden mt-1 flex items-center gap-2 text-[11px]">
                         {p.category && (

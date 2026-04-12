@@ -14,6 +14,8 @@ interface Lesson {
   duration: string;
   difficulty: Difficulty;
   content: string;
+  videoNote?: string; // Shows "Video coming soon" or a link when available
+  actionLink?: { label: string; href: string }; // Quick-action CTA at the end of the lesson
 }
 
 interface Track {
@@ -39,6 +41,8 @@ const TRACKS: Track[] = [
         difficulty: 'Beginner',
         content:
           'Trend Velocity Score measures how fast a product is gaining traction across the last 7, 14, and 30 days — not how many total orders it has. A product sitting at 10,000 lifetime orders with flat weekly growth scores lower than a product with 400 orders growing 25% week over week. The score rewards acceleration, which is when margins are still intact and ad costs have not been bid up by every other dropshipper. For AU operators, use scores above 80 as a strong shortlist and above 90 as a conviction list worth testing this week. Always cross-check the velocity against Meta ad library saturation before committing budget.',
+        videoNote: 'Video walkthrough coming this month',
+        actionLink: { label: 'Try it now — browse Products →', href: '/app/products?tab=trending' },
       },
       {
         id: 'market-split',
@@ -413,6 +417,20 @@ export default function Academy() {
                           <p className="text-sm text-[#a1a1aa] leading-relaxed whitespace-pre-line">
                             {lesson.content}
                           </p>
+                          {lesson.videoNote && (
+                            <div className="mt-3 inline-flex items-center gap-2 text-[11px] px-3 py-1.5 rounded-md" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37' }}>
+                              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.06em', textTransform: 'uppercase' }}>🎬 {lesson.videoNote}</span>
+                            </div>
+                          )}
+                          {lesson.actionLink && (
+                            <a
+                              href={lesson.actionLink.href}
+                              className="mt-3 inline-flex items-center gap-2 text-[12px] font-semibold px-4 py-2 rounded-md no-underline"
+                              style={{ background: '#3B82F6', color: 'white', boxShadow: '0 4px 12px rgba(59,130,246,0.25)' }}
+                            >
+                              {lesson.actionLink.label}
+                            </a>
+                          )}
                           {isRead && (
                             <div
                               className="mt-3 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider"

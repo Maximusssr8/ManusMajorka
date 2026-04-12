@@ -98,6 +98,7 @@ const NewCreators = lazyWithRetry(() => import('./pages/app/Creators'));
 const NewAlerts = lazyWithRetry(() => import('./pages/app/Alerts'));
 const NewRevenue = lazyWithRetry(() => import('./pages/app/Revenue'));
 const NewAdBriefs = lazyWithRetry(() => import('./pages/app/AdBriefs'));
+const NewAdLibrary = lazyWithRetry(() => import('./pages/app/AdLibrary'));
 const NewAnalytics = lazyWithRetry(() => import('./pages/app/Analytics'));
 const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
 const ApiKeys = lazyWithRetry(() => import('./pages/app/ApiKeys'));
@@ -270,6 +271,7 @@ function Router() {
             </Route>
             <Route path="/app/ad-spy">{() => <ProtectedRoute requireSubscription><AppLayout><NewAdBriefs /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ad-briefs">{() => <ProtectedRoute requireSubscription><AppLayout><NewAdBriefs /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ad-library">{() => <ProtectedRoute requireSubscription><AppLayout><NewAdLibrary /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ad-spy-legacy">{() => <ProtectedRoute requireSubscription><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/competitor-spy">{() => <ProtectedRoute requireSubscription><AppLayout><CompetitorSpy /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/tiktok-leaderboard">{() => <ProtectedRoute requireSubscription><AppLayout><TikTokLeaderboard /></AppLayout></ProtectedRoute>}</Route>

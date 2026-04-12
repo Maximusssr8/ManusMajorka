@@ -58,10 +58,8 @@ interface CellContext {
 
 type Tab = 'analytics' | 'matrix';
 
-// Placeholder product list — clearly labelled examples.
-// v1 data source: hardcoded. Replace with GET /api/products once an
-// unfiltered list endpoint exists in the backend.
-const PLACEHOLDER_PRODUCTS: MatrixProduct[] = [
+// Fallback product list — used only if the API fetch fails.
+const FALLBACK_PRODUCTS: MatrixProduct[] = [
   { id: 'ex-01', name: 'Pet Hair Remover Roller', category: 'Home' },
   { id: 'ex-02', name: 'Smart LED Strip Lights', category: 'Tech' },
   { id: 'ex-03', name: 'Posture Corrector Belt', category: 'Fitness' },
@@ -140,9 +138,31 @@ export default function Analytics() {
   const [timeSeriesLoading, setTimeSeriesLoading] = useState(true);
 
   // Matrix state
+  const [matrixProducts, setMatrixProducts] = useState<MatrixProduct[]>(FALLBACK_PRODUCTS);
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [minScore, setMinScore] = useState<number>(0);
   const [selectedCell, setSelectedCell] = useState<CellContext | null>(null);
+
+  // Fetch real products for Creator Matrix from the existing products endpoint.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products?limit=15&sort=winning_score')
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((data) => {
+        if (cancelled) return;
+        const items = Array.isArray(data) ? data : (data?.products ?? data?.data ?? []);
+        if (items.length > 0) {
+          const mapped: MatrixProduct[] = items.slice(0, 15).map((p: { id?: string | number; product_title?: string; category?: string }, idx: number) => ({
+            id: String(p.id ?? `p-${idx}`),
+            name: p.product_title ?? 'Unknown product',
+            category: p.category ?? 'Other',
+          }));
+          setMatrixProducts(mapped);
+        }
+      })
+      .catch(() => { /* keep fallback products */ });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     document.title = 'Analytics — Majorka';
@@ -166,12 +186,12 @@ export default function Analytics() {
 
   const productCategoryOptions = useMemo(() => {
     const set = new Set<string>();
-    PLACEHOLDER_PRODUCTS.forEach(p => set.add(p.category));
+    matrixProducts.forEach(p => set.add(p.category));
     return ['All', ...Array.from(set).sort()];
   }, []);
 
   const filteredProducts = useMemo(() => {
-    return PLACEHOLDER_PRODUCTS.filter(p => {
+    return matrixProducts.filter(p => {
       if (categoryFilter !== 'All' && p.category !== categoryFilter) return false;
       if (minScore > 0) {
         const hasMatch = CREATOR_CATEGORIES.some(

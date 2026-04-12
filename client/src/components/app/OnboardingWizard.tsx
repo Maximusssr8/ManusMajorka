@@ -1,32 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Globe, DollarSign, Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Package, Rocket } from 'lucide-react';
 
 /**
- * OnboardingWizard — first-time user 3-step setup.
+ * OnboardingWizard — first-time user 3-step niche-based setup.
  *
  * Shown once per browser (gated on localStorage majorka_onboarded).
- * Captures market preference + budget tier and persists both so the
- * rest of the app can react. Skippable. After completing, navigates
- * to /app/products.
+ * Step 1: pick a niche, Step 2: see first winning product,
+ * Step 3: quick-start links. Skippable at every step.
  */
 
-const MARKETS = [
-  { code: 'AU', flag: '🇦🇺', name: 'Australia',     detail: 'Our home market — most products optimised here' },
-  { code: 'US', flag: '🇺🇸', name: 'United States', detail: 'Largest market, highest competition' },
-  { code: 'UK', flag: '🇬🇧', name: 'United Kingdom', detail: 'Strong dropshipping market, VAT-aware' },
-  { code: 'CA', flag: '🇨🇦', name: 'Canada',        detail: 'CAD pricing, similar to US market' },
-  { code: 'NZ', flag: '🇳🇿', name: 'New Zealand',   detail: 'Low competition, growing market' },
-  { code: 'DE', flag: '🇩🇪', name: 'Germany',       detail: "Europe's largest ecommerce market" },
-  { code: 'SG', flag: '🇸🇬', name: 'Singapore',     detail: 'APAC hub, 55% avg margins' },
-];
+const NICHE_CHIPS = [
+  { id: 'kitchen',  label: 'Kitchen' },
+  { id: 'beauty',   label: 'Beauty' },
+  { id: 'pet',      label: 'Pet' },
+  { id: 'tech',     label: 'Tech' },
+  { id: 'fitness',  label: 'Fitness' },
+  { id: 'fashion',  label: 'Fashion' },
+] as const;
 
-const BUDGETS = [
-  { id: 'testing',  label: 'Just testing',     range: 'Under $200/mo',  detail: 'Find products first, spend later' },
-  { id: 'starter',  label: 'Getting started',  range: '$200–$500/mo',   detail: 'Ready to run first test ads' },
-  { id: 'scaling',  label: 'Ready to scale',   range: '$500–$2k/mo',    detail: 'Already have a store, finding winners' },
-  { id: 'serious',  label: 'Serious operator', range: '$2k+/mo',        detail: 'Running volume, need intelligence' },
-];
+interface WinnerProduct {
+  product_title: string;
+  category: string | null;
+  price_aud: number | null;
+  winning_score: number | null;
+  image_url: string | null;
+}
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -34,18 +33,39 @@ interface OnboardingWizardProps {
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [step, setStep] = useState(1);
-  const [market, setMarket] = useState('AU');
-  const [budget, setBudget] = useState('');
+  const [niche, setNiche] = useState('');
+  const [nicheInput, setNicheInput] = useState('');
+  const [winner, setWinner] = useState<WinnerProduct | null>(null);
+  const [winnerLoading, setWinnerLoading] = useState(false);
   const [, navigate] = useLocation();
+
+  const selectedNiche = niche || nicheInput.trim();
+
+  // Fetch a winning product when entering step 2
+  useEffect(() => {
+    if (step !== 2 || !selectedNiche) return;
+    let cancelled = false;
+    setWinnerLoading(true);
+    fetch(`/api/products?category=${encodeURIComponent(selectedNiche)}&limit=1&sort=winning_score`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((data) => {
+        if (cancelled) return;
+        const items = Array.isArray(data) ? data : (data?.products ?? data?.data ?? []);
+        if (items.length > 0) {
+          setWinner(items[0] as WinnerProduct);
+        }
+        setWinnerLoading(false);
+      })
+      .catch(() => { if (!cancelled) setWinnerLoading(false); });
+    return () => { cancelled = true; };
+  }, [step, selectedNiche]);
 
   function finish() {
     try {
       localStorage.setItem('majorka_onboarded', '1');
-      localStorage.setItem('majorka_market', market);
-      if (budget) localStorage.setItem('majorka_budget_tier', budget);
+      if (selectedNiche) localStorage.setItem('majorka_niche', selectedNiche);
     } catch { /* quota / private mode */ }
     onComplete();
-    navigate('/app/products');
   }
 
   function skip() {
@@ -53,127 +73,169 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     onComplete();
   }
 
+  function saveToLibrary() {
+    if (!winner) return;
+    try {
+      const existing = JSON.parse(localStorage.getItem('majorka_lists_v1') ?? '[]');
+      const defaultList = existing[0];
+      if (defaultList) {
+        defaultList.products = defaultList.products ?? [];
+        defaultList.products.push({
+          id: `onboard-${Date.now()}`,
+          product_title: winner.product_title,
+          category: winner.category,
+          price_aud: winner.price_aud,
+          winning_score: winner.winning_score,
+          image_url: winner.image_url,
+          saved_at: new Date().toISOString(),
+        });
+        localStorage.setItem('majorka_lists_v1', JSON.stringify(existing));
+      }
+    } catch { /* ignore */ }
+    setStep(3);
+  }
+
   const STEPS = [
-    { Icon: Globe,       title: 'Which market are you selling in?', subtitle: "We'll show you products and pricing optimised for your market." },
-    { Icon: DollarSign,  title: "What's your current ad budget?",   subtitle: "We'll tailor product recommendations to match your spend capacity." },
-    { Icon: Sparkles,    title: "You're all set.",                  subtitle: `Top picks for ${market} are loaded. One click to start finding winners.` },
+    { Icon: Sparkles, title: "What's your niche?",          subtitle: "We'll show products tailored to your market." },
+    { Icon: Package,  title: "Here's your first winning product", subtitle: `Top pick in ${selectedNiche || 'your niche'} — ready to sell.` },
+    { Icon: Rocket,   title: "You're ready!",                subtitle: "Start building your dropshipping business." },
   ];
 
   const current = STEPS[step - 1];
-  const Icon = current.Icon;
+  const StepIcon = current.Icon;
 
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(12px)' }}
     >
-      <div
-        className="w-full max-w-lg rounded-2xl overflow-hidden glass-card glass-card--elevated"
-      >
+      <div className="w-full max-w-lg rounded-lg overflow-hidden bg-[#0f0f0f] border border-[#1a1a1a]">
         <div className="px-7 pt-7 pb-5">
-          {/* Progress bar */}
+          {/* Progress dots */}
           <div className="flex items-center gap-2 mb-6">
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
-                className="h-1 flex-1 rounded-full transition-all duration-300"
-                style={{ background: s <= step ? 'var(--color-accent)' : 'rgba(255,255,255,0.08)' }}
+                className="w-2 h-2 rounded-full transition-all duration-300"
+                style={{ background: s <= step ? '#d4af37' : 'rgba(255,255,255,0.08)' }}
               />
             ))}
           </div>
 
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+            className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+            style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)' }}
           >
-            <Icon size={18} className="text-accent" strokeWidth={2} />
+            <StepIcon size={18} style={{ color: '#d4af37' }} strokeWidth={2} />
           </div>
 
-          <h2 className="text-xl font-display font-bold text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
+          <h2 className="text-xl font-bold text-[#ededed] mb-1" style={{ fontFamily: 'Syne, sans-serif', letterSpacing: '-0.02em' }}>
             {current.title}
           </h2>
-          <p className="text-sm text-white/45">{current.subtitle}</p>
+          <p className="text-sm text-[#888888]">{current.subtitle}</p>
         </div>
 
         <div className="px-7 pb-7">
           {step === 1 && (
-            <div className="grid grid-cols-2 gap-2 mb-6 max-h-[280px] overflow-y-auto">
-              {MARKETS.map((m) => {
-                const active = market === m.code;
-                return (
-                  <button
-                    key={m.code}
-                    onClick={() => setMarket(m.code)}
-                    className="flex items-center gap-3 p-3 rounded-xl text-left transition-all"
-                    style={{
-                      background: active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.07)'}`,
-                    }}
-                  >
-                    <span className="text-2xl">{m.flag}</span>
-                    <div>
-                      <div className="text-sm font-semibold text-white">{m.name}</div>
-                      <div className="text-[10px] text-white/40 mt-0.5 leading-tight">{m.detail}</div>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="mb-6">
+              <input
+                type="text"
+                placeholder="Type your niche..."
+                value={nicheInput}
+                onChange={(e) => { setNicheInput(e.target.value); setNiche(''); }}
+                className="w-full bg-[#080808] border border-[#1a1a1a] rounded-lg px-4 py-3 text-sm text-[#ededed] placeholder-[#555555] outline-none focus:border-[#d4af37] transition-colors mb-4"
+              />
+              <div className="flex flex-wrap gap-2">
+                {NICHE_CHIPS.map((chip) => {
+                  const active = niche === chip.id;
+                  return (
+                    <button
+                      key={chip.id}
+                      onClick={() => { setNiche(chip.id); setNicheInput(''); }}
+                      className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: active ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${active ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                        color: active ? '#d4af37' : '#888888',
+                      }}
+                    >
+                      {chip.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
           {step === 2 && (
-            <div className="space-y-2 mb-6">
-              {BUDGETS.map((b) => {
-                const active = budget === b.id;
-                return (
-                  <button
-                    key={b.id}
-                    onClick={() => setBudget(b.id)}
-                    className="flex items-center justify-between w-full p-4 rounded-xl text-left transition-all"
-                    style={{
-                      background: active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.07)'}`,
-                    }}
-                  >
-                    <div>
-                      <div className="text-sm font-semibold text-white">{b.label}</div>
-                      <div className="text-xs text-white/45 mt-0.5">{b.detail}</div>
+            <div className="mb-6">
+              {winnerLoading ? (
+                <div className="rounded-lg p-6 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="text-sm text-[#888888]">Finding your first winner...</div>
+                </div>
+              ) : winner ? (
+                <div className="rounded-lg p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="flex items-start gap-4">
+                    {winner.image_url && (
+                      <img
+                        src={winner.image_url}
+                        alt={winner.product_title}
+                        className="w-16 h-16 rounded-lg object-cover border border-[#1a1a1a]"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[#ededed] truncate">{winner.product_title}</p>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        {winner.category && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#888888]">{winner.category}</span>
+                        )}
+                        {winner.price_aud != null && (
+                          <span className="text-xs font-mono text-[#ededed]">${Number(winner.price_aud).toFixed(2)}</span>
+                        )}
+                        {winner.winning_score != null && (
+                          <span className="text-xs font-mono" style={{ color: winner.winning_score >= 80 ? '#22c55e' : winner.winning_score >= 60 ? '#f59e0b' : '#ef4444' }}>
+                            Score {winner.winning_score}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <span
-                      className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ml-3"
-                      style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.55)' }}
-                    >
-                      {b.range}
-                    </span>
+                  </div>
+                  <button
+                    onClick={saveToLibrary}
+                    className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90"
+                    style={{ background: '#3B82F6' }}
+                  >
+                    Save to library
                   </button>
-                );
-              })}
+                </div>
+              ) : (
+                <div className="rounded-lg p-6 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <p className="text-sm text-[#888888]">No products found for this niche yet. Browse all products to find your winner.</p>
+                </div>
+              )}
             </div>
           )}
 
           {step === 3 && (
-            <div className="mb-6 space-y-3">
-              <div
-                className="rounded-xl p-4"
-                style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)' }}
-              >
-                <div className="text-xs font-semibold text-green mb-2">✓ Setup complete</div>
-                <div className="text-sm text-white/80 leading-relaxed">
-                  We&apos;ll show you {market} products with prices and shipping tailored to that market. You can change this anytime in Settings.
-                </div>
-              </div>
-              <div
-                className="rounded-xl p-4"
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)' }}
-              >
-                <div className="text-xs font-semibold text-accent-hover mb-2">What&apos;s next</div>
-                <ul className="text-xs text-white/60 space-y-1.5">
-                  <li>• Browse 3,200+ AI-scored products in your market</li>
-                  <li>• Click any product → see Launch Readiness Score</li>
-                  <li>• Generate a 7-day First Sale Blueprint with one click</li>
-                  <li>• Build a Shopify store from any winner</li>
-                </ul>
-              </div>
+            <div className="mb-6 space-y-2">
+              {[
+                { label: 'Browse all products', path: '/app/products', icon: Package },
+                { label: 'Generate your first ad', path: '/app/ads-studio', icon: Sparkles },
+                { label: 'Build your store', path: '/app/store-builder', icon: Rocket },
+              ].map((link) => (
+                <button
+                  key={link.path}
+                  onClick={() => { finish(); navigate(link.path); }}
+                  className="w-full flex items-center justify-between p-4 rounded-lg text-left transition-all hover:bg-white/[0.04]"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <link.icon size={16} style={{ color: '#d4af37' }} />
+                    <span className="text-sm font-semibold text-[#ededed]">{link.label}</span>
+                  </div>
+                  <ArrowRight size={14} className="text-[#555555]" />
+                </button>
+              ))}
             </div>
           )}
 
@@ -182,27 +244,37 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             {step > 1 && (
               <button
                 onClick={() => setStep((s) => s - 1)}
-                className="px-5 py-3 rounded-xl text-sm text-white/45 hover:text-white/70 transition-colors border border-white/[0.08]"
+                className="px-5 py-3 rounded-lg text-sm text-[#555555] hover:text-[#888888] transition-colors border border-[#1a1a1a]"
               >
                 Back
               </button>
             )}
-            <button
-              onClick={() => (step < 3 ? setStep((s) => s + 1) : finish())}
-              disabled={step === 2 && !budget}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                background: 'var(--color-accent)',
-              }}
-            >
-              {step < 3 ? 'Continue' : 'Start finding products'}
-              <ArrowRight size={15} strokeWidth={2.25} />
-            </button>
+            {step < 3 && (
+              <button
+                onClick={() => setStep((s) => s + 1)}
+                disabled={step === 1 && !selectedNiche}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: '#3B82F6' }}
+              >
+                Continue
+                <ArrowRight size={15} strokeWidth={2.25} />
+              </button>
+            )}
+            {step === 3 && (
+              <button
+                onClick={finish}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90"
+                style={{ background: '#3B82F6' }}
+              >
+                Get started
+                <ArrowRight size={15} strokeWidth={2.25} />
+              </button>
+            )}
           </div>
 
           <button
             onClick={skip}
-            className="block text-center text-xs text-white/25 hover:text-white/45 mt-4 w-full transition-colors"
+            className="block text-center text-xs text-[#555555] hover:text-[#888888] mt-4 w-full transition-colors"
           >
             Skip setup
           </button>
