@@ -2001,6 +2001,204 @@ router.get('/analytics-categories', async (_req: Request, res: Response) => {
   }
 });
 
+// ── CPM lookup table — industry-average estimates by category ───────────────
+const CPM_BY_CATEGORY: Record<string, { meta: number; tiktok: number }> = {
+  tech: { meta: 12, tiktok: 7 },
+  electronics: { meta: 12, tiktok: 7 },
+  beauty: { meta: 9, tiktok: 5 },
+  home: { meta: 7, tiktok: 4 },
+  kitchen: { meta: 8, tiktok: 5 },
+  fashion: { meta: 14, tiktok: 8 },
+  fitness: { meta: 10, tiktok: 6 },
+  pet: { meta: 6, tiktok: 3.5 },
+  health: { meta: 9, tiktok: 5.5 },
+  outdoor: { meta: 8, tiktok: 5 },
+  office: { meta: 7, tiktok: 4.5 },
+  automotive: { meta: 10, tiktok: 6 },
+  kids: { meta: 8, tiktok: 5 },
+  general: { meta: 10, tiktok: 6 },
+};
+
+function getCompetitionLevel(avgScore: number): 'low' | 'medium' | 'high' {
+  if (avgScore < 50) return 'low';
+  if (avgScore <= 70) return 'medium';
+  return 'high';
+}
+
+function getTopAngles(level: 'low' | 'medium' | 'high'): string[] {
+  switch (level) {
+    case 'low':
+      return ['social_proof', 'urgency'];
+    case 'medium':
+      return ['problem_solution', 'before_after'];
+    case 'high':
+      return ['differentiation', 'ugc'];
+  }
+}
+
+// ── GET /api/products/ad-benchmarks — category-level ad performance benchmarks ──
+router.get('/ad-benchmarks', async (req: Request, res: Response) => {
+  const category = String(req.query.category || '').trim();
+  if (!category) {
+    return res.status(400).json({ error: 'category query parameter is required' });
+  }
+
+  try {
+    const sb = getSupabase();
+    const { data, error } = await sb
+      .from('winning_products')
+      .select('id, product_title, category, price_aud, sold_count, winning_score')
+      .eq('is_active', true)
+      .ilike('category', category)
+      .order('winning_score', { ascending: false })
+      .limit(1000);
+
+    if (error) {
+      return res.status(500).json({ error: 'Database query failed' });
+    }
+
+    const products = data ?? [];
+    if (products.length === 0) {
+      return res.status(404).json({ error: `No products found for category "${category}"` });
+    }
+
+    const count = products.length;
+    const totalSold = products.reduce((sum: number, p: any) => sum + (Number(p.sold_count) || 0), 0);
+    const totalScore = products.reduce((sum: number, p: any) => sum + (Number(p.winning_score) || 0), 0);
+    const totalPrice = products.reduce((sum: number, p: any) => sum + (Number(p.price_aud) || 0), 0);
+
+    const avgDailyOrders = Math.round(totalSold / count / 30);
+    const avgWinningScore = Math.round(totalScore / count);
+    const avgPriceAud = Math.round((totalPrice / count) * 100) / 100;
+    const competitionLevel = getCompetitionLevel(avgWinningScore);
+
+    const rawBudget = avgPriceAud * avgDailyOrders * 0.001;
+    const suggestedDailyBudgetAud = Math.round(Math.min(200, Math.max(15, rawBudget)) * 100) / 100;
+
+    const categoryKey = category.toLowerCase();
+    const estimatedCpmAud = CPM_BY_CATEGORY[categoryKey] ?? CPM_BY_CATEGORY['general'];
+
+    const topAngles = getTopAngles(competitionLevel);
+
+    const top = products[0];
+    const topProductInCategory = {
+      title: top.product_title,
+      score: top.winning_score,
+      orders: Number(top.sold_count) || 0,
+    };
+
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    return res.json({
+      category,
+      productsInCategory: count,
+      avgDailyOrders,
+      avgWinningScore,
+      avgPriceAud,
+      competitionLevel,
+      suggestedDailyBudgetAud,
+      estimatedCpmAud,
+      topAngles,
+      bestTimeToPost: '7-9pm AEST (peak AU engagement)',
+      topProductInCategory,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: message });
+  }
+});
+
+// ── In-memory cache for ad angles (24hr TTL) ──────────────────────────────────
+const adAnglesCache = new Map<string, { data: unknown; expiresAt: number }>();
+const AD_ANGLES_TTL_MS = 24 * 60 * 60 * 1000;
+
+// ── GET /api/products/ad-angles/:productId — AI-powered winning ad angles ──────
+router.get('/ad-angles/:productId', requireAuth, async (req: Request, res: Response) => {
+  const { productId } = req.params;
+  if (!productId) {
+    return res.status(400).json({ error: 'productId is required' });
+  }
+
+  const cached = adAnglesCache.get(productId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return res.json({ ...(cached.data as Record<string, unknown>), cached: true });
+  }
+
+  try {
+    const sb = getSupabase();
+    const { data: product, error } = await sb
+      .from('winning_products')
+      .select('id, product_title, category, price_aud, sold_count, winning_score, why_winning, ad_angle')
+      .eq('id', productId)
+      .single();
+
+    if (error || !product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+    if (!ANTHROPIC_KEY) {
+      return res.status(503).json({ error: 'AI service not configured' });
+    }
+
+    const client = getAnthropicClient();
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages: [{
+        role: 'user',
+        content: `You are an expert AU dropshipping ad strategist. Analyze this product and return ONLY valid JSON (no markdown, no backticks).
+
+Product: ${product.product_title}
+Category: ${product.category || 'General'}
+Price: $${product.price_aud} AUD
+Orders: ${product.sold_count || 0}
+Winning Score: ${product.winning_score}/100
+Why Winning: ${product.why_winning || 'Strong market demand'}
+Existing Ad Angle: ${product.ad_angle || 'None'}
+
+Return this exact JSON structure:
+{
+  "angles": [
+    { "framework": "<problem_solution|social_proof|urgency|before_after|ugc|differentiation>", "hook": "<compelling hook line for AU audience>", "confidence": <60-99> }
+  ],
+  "targetAudiences": ["<3 specific AU audience segments>"],
+  "avoidAngles": ["<2-3 things to avoid in ads for this product>"]
+}
+
+Rules:
+- Exactly 3 angles, each with a different framework
+- Hooks must reference AU/Australian context
+- Confidence scores should reflect how likely the angle converts
+- Target audiences should be specific (age, interest, behaviour)
+- Avoid angles should be actionable warnings`,
+      }],
+    });
+
+    const rawText = ((msg.content[0] as { type: string; text: string }).text || '').trim();
+    let parsed: { angles: unknown[]; targetAudiences: string[]; avoidAngles: string[] };
+    try {
+      parsed = JSON.parse(rawText);
+    } catch {
+      return res.status(500).json({ error: 'Failed to parse AI response' });
+    }
+
+    const result = {
+      productId,
+      angles: parsed.angles,
+      targetAudiences: parsed.targetAudiences,
+      avoidAngles: parsed.avoidAngles,
+      cached: false,
+    };
+
+    adAnglesCache.set(productId, { data: result, expiresAt: Date.now() + AD_ANGLES_TTL_MS });
+
+    return res.json(result);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: message });
+  }
+});
+
 export default router;
 
 // ── GET /api/products/cj — CJ Dropshipping top products (cached 12hr) ────────

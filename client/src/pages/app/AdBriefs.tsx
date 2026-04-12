@@ -91,8 +91,23 @@ function saveBriefs(items: StoredBrief[]) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items.slice(0, 10))); } catch { /* ignore */ }
 }
 
+// Read product data from sessionStorage if passed from Products page
+interface PrefilledProduct {
+  id?: string; title?: string; image?: string; price?: number;
+  category?: string; score?: number; orders?: number;
+}
+function getPrefilledProduct(): PrefilledProduct | null {
+  try {
+    const raw = sessionStorage.getItem('majorka_ad_product');
+    if (!raw) return null;
+    return JSON.parse(raw) as PrefilledProduct;
+  } catch { return null; }
+}
+
 export default function AdBriefs() {
-  const [product, setProduct] = useState('');
+  const prefilled = getPrefilledProduct();
+  const [product, setProduct] = useState(prefilled?.title || '');
+  const [productMeta, setProductMeta] = useState<PrefilledProduct | null>(prefilled);
   const [platforms, setPlatforms] = useState<Platform[]>(['facebook', 'tiktok']);
   const [adType, setAdType] = useState<AdType>('video');
   const [loading, setLoading] = useState(false);
@@ -116,11 +131,45 @@ export default function AdBriefs() {
     setOutput(null);
     if (overrideProduct) setProduct(overrideProduct);
 
+    // Build an intelligence-enriched prompt when product data is available
+    const pm = productMeta;
+    const intel = pm ? `
+PRODUCT INTELLIGENCE (from Majorka database — use this to inform your brief):
+- Name: ${pm.title || q}
+- Category: ${pm.category || 'Unknown'}
+- AU Price: $${pm.price ?? 'N/A'} AUD
+- Orders: ${pm.orders?.toLocaleString() ?? 'N/A'}
+- Winning Score: ${pm.score ?? 'N/A'}/100
+- Competition: ${(pm.score ?? 50) > 70 ? 'Competitive niche — differentiate aggressively' : (pm.score ?? 50) > 40 ? 'Medium competition — lean into social proof' : 'Low competition — first-mover advantage, go broad'}
+- Suggested daily budget: A$${Math.max(15, Math.round((pm.price ?? 25) * (pm.orders ?? 100) * 0.0001))} (based on category CPM averages)
+` : '';
+
     const system =
-      'You are an expert dropshipping ad copywriter. Generate a complete ad brief for the product below targeting Australian dropshippers. Include: 3 headline variations, primary text, hook opening line, call to action, and targeting suggestions. Format as clean markdown with headings.';
+      `You are an elite direct-response copywriter specialising in Australian ecommerce. You write ads that convert cold traffic into buyers — not brand awareness fluff. You understand AU consumer psychology, Afterpay checkout behavior, and platform-specific creative constraints (Facebook 125-char preview, TikTok 3-second hook rule, Instagram Story swipe-up friction).
+
+${intel}
+Generate a COMPLETE campaign brief that an operator can execute without any other tools. This is what makes Majorka better than going straight to Meta Ads Manager — the brief should be actionable enough that a junior media buyer could run it.`;
 
     const userMsg =
-      `Product / niche: ${q}\nPlatforms: ${platforms.join(', ')}\nAd type: ${adType}\n\nReturn a complete brief formatted in markdown.`;
+      `Product / niche: ${q}
+Platforms: ${platforms.join(', ')}
+Ad type: ${adType}
+
+Return a markdown brief with these sections:
+## Campaign Strategy
+(1 sentence objective, budget recommendation, timeline)
+## Target Audience
+(3 specific audience segments with interests/behaviors for Meta targeting)
+## Ad Copy Variations
+(3 headline variations, 3 primary text variations, 3 CTAs)
+## Hook Framework
+(Opening line for video ads — must stop the scroll in under 3 seconds)
+## Creative Direction
+(Visual concept, color palette suggestion, thumbnail strategy)
+## A/B Test Plan
+(What to test first, what success looks like, when to scale)
+## Objection Handling
+(Top 3 buyer objections and how the ad copy addresses each one)`;
 
     try {
       const { data: sess } = await supabase.auth.getSession();
@@ -135,7 +184,7 @@ export default function AdBriefs() {
           system,
           prompt: userMsg,
           model: 'claude-haiku-4-5',
-          max_tokens: 900,
+          max_tokens: 1500,
         }),
       });
       const data = await res.json();
@@ -169,13 +218,51 @@ export default function AdBriefs() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Ad Briefs</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
           Generate platform-specific ad briefs for any product in seconds
         </p>
       </div>
+
+      {/* Product intelligence card — when pre-filled from Products page */}
+      {productMeta && (
+        <div style={{
+          background: 'rgba(212,175,55,0.04)',
+          border: '1px solid rgba(212,175,55,0.2)',
+          borderRadius: 10,
+          padding: '18px 20px',
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 16,
+          flexWrap: 'wrap' as const,
+        }}>
+          {productMeta.image && (
+            <img src={productMeta.image} alt="" style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(212,175,55,0.25)' }} />
+          )}
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#ededed' }}>{productMeta.title}</div>
+            <div style={{ fontSize: 11, color: '#888', marginTop: 2, fontFamily: "'JetBrains Mono', monospace" }}>
+              {productMeta.category || ''} · A${productMeta.price ?? '—'} · {productMeta.orders?.toLocaleString() ?? '—'} orders · Score {productMeta.score ?? '—'}
+            </div>
+          </div>
+          <div style={{
+            padding: '6px 12px',
+            borderRadius: 6,
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase' as const,
+            background: (productMeta.score ?? 50) > 70 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+            color: (productMeta.score ?? 50) > 70 ? '#22c55e' : '#f59e0b',
+            border: `1px solid ${(productMeta.score ?? 50) > 70 ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
+          }}>
+            {(productMeta.score ?? 50) > 70 ? 'High potential' : 'Good potential'}
+          </div>
+        </div>
+      )}
 
       {/* Generator */}
       <section style={{
