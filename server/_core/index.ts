@@ -171,7 +171,7 @@ async function startServer() {
   // One-time intelligence tables migration endpoint
   app.post('/api/internal/run-intel-migration', async (req, res) => {
     const secret = req.headers['x-migration-secret'];
-    const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+    const migrationSecret = process.env.MIGRATION_SECRET || '';
     if (secret !== migrationSecret) {
       res.status(403).json({ error: 'Forbidden' });
       return;
@@ -188,7 +188,7 @@ async function startServer() {
   // Generated stores migration + status endpoint
   app.post('/api/internal/run-stores-migration', async (req, res) => {
     const secret = req.headers['x-migration-secret'];
-    const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+    const migrationSecret = process.env.MIGRATION_SECRET || '';
     if (secret !== migrationSecret) {
       res.status(403).json({ error: 'Forbidden' });
       return;
@@ -204,7 +204,7 @@ async function startServer() {
 
   app.get('/api/migrations/generated-stores', async (req, res) => {
     const secret = req.headers['x-migration-secret'];
-    const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+    const migrationSecret = process.env.MIGRATION_SECRET || '';
     if (secret !== migrationSecret) {
       res.status(403).json({ error: 'Forbidden' });
       return;

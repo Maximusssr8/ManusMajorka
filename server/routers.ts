@@ -185,7 +185,7 @@ export const appRouter = router({
         const { createClient } = await import('@supabase/supabase-js');
         const sb = createClient(
           process.env.SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY!
+          process.env.SUPABASE_SERVICE_ROLE_KEY || ''
         );
         const { data } = await sb.from('user_profiles').select('*').eq('user_id', ctx.user.id).single();
         return data ? { ...data, onboardingCompleted: data.onboarding_completed ?? false } : null;
@@ -214,7 +214,7 @@ export const appRouter = router({
           const { createClient } = await import('@supabase/supabase-js');
           const sb = createClient(
             process.env.SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
+            process.env.SUPABASE_SERVICE_ROLE_KEY || ''
           );
           await sb.from('user_profiles').upsert(
             { user_id: ctx.user.id, ...input, updated_at: new Date().toISOString() },

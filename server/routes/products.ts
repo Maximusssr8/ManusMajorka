@@ -101,16 +101,17 @@ async function dbSearch(supabase: ReturnType<typeof createClient>, query: string
     }
   }
 
-  const keywords = searchLower.split(/\s+/).filter(w => w.length > 2);
+  // Sanitize keywords: strip chars that could break PostgREST filter syntax
+  const keywords = searchLower.split(/\s+/).filter(w => w.length > 2)
+    .map(k => k.replace(/[.,()%*'"\\]/g, ''));
   if (!keywords.length) return [];
 
-  // Multi-field search: product_title, category, search_keyword, why_trending, best_ad_angle, target_audience
   const { data, error } = await supabase
     .from('winning_products')
     .select('id, product_title, category, search_keyword, image_url, price_aud, winning_score, orders_count, aliexpress_url, rating')
     .eq('is_active', true)
     .or(keywords.map(k =>
-      `product_title.ilike.%${k}%,category.ilike.%${k}%,search_keyword.ilike.%${k}%,why_trending.ilike.%${k}%,best_ad_angle.ilike.%${k}%,target_audience.ilike.%${k}%`
+      `product_title.ilike.%${k}%,category.ilike.%${k}%,search_keyword.ilike.%${k}%`
     ).join(','))
     .order('winning_score', { ascending: false })
     .limit(20);

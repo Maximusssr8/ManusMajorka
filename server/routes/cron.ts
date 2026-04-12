@@ -36,19 +36,28 @@ let lastCronRunTime: string | null = null;
 export function getLastCronRunTime() { return lastCronRunTime; }
 
 function verifyCronSecret(req: Request): boolean {
-  const auth = req.headers.authorization || '';
   const secret = process.env.CRON_SECRET || '';
-  let ok = false;
-  if (!secret) {
-    const userAgent = req.headers['user-agent'] || '';
-    const isVercelCron = userAgent.includes('vercel-cron') || req.headers['x-vercel-cron'] === '1';
-    const isLocal = (req.headers.host || '').includes('localhost');
-    ok = isVercelCron || isLocal;
-  } else {
-    ok = auth === `Bearer ${secret}`;
+
+  // CRITICAL: When CRON_SECRET is set, ONLY accept an exact match via
+  // the Authorization header. The previous User-Agent/x-vercel-cron fallback
+  // was trivially spoofable and allowed anyone to trigger scrapes.
+  if (secret) {
+    const auth = req.headers.authorization || '';
+    if (auth !== `Bearer ${secret}`) return false;
+    lastCronRunTime = new Date().toISOString();
+    return true;
   }
-  if (ok) lastCronRunTime = new Date().toISOString();
-  return ok;
+
+  // Dev-only fallback: CRON_SECRET unset → allow on localhost only.
+  // In production, CRON_SECRET MUST be set. The User-Agent fallback
+  // was removed because "vercel-cron" headers are trivially spoofable.
+  const isLocal = (req.headers.host || '').includes('localhost');
+  if (isLocal) {
+    lastCronRunTime = new Date().toISOString();
+    return true;
+  }
+
+  return false;
 }
 
 // Pipeline log helper

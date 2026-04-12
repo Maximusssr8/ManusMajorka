@@ -6,11 +6,12 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { requireAuth } from '../middleware/requireAuth';
 
 const router = Router();
 
 // GET /api/products/search?q=kitchen&category=Kitchen&sort=orders&page=1&limit=48
-router.get('/search', async (req: Request, res: Response) => {
+router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q || '');
   const category = String(req.query.category || '');
   const sort = String(req.query.sort || 'winning_score');
