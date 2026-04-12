@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
-type PlanTier = 'free' | 'builder' | 'scale';
+type PlanTier = 'free' | 'trial' | 'builder' | 'scale';
 
 interface QuizQuestion {
   question: string;
@@ -212,6 +212,177 @@ const QUIZZES: Record<string, [QuizQuestion, QuizQuestion]> = {
       hint: 'Duplicate the ad set with a 50% increase — editing resets learning.',
     },
   ],
+  // ── Track 4: Getting Started in Ecommerce ──
+  'what-is-dropshipping': [
+    {
+      question: 'What is the main advantage of dropshipping for new operators?',
+      options: ['High upfront inventory investment', 'No inventory required — supplier ships direct', 'Guaranteed profits from day one'],
+      correctIndex: 1,
+      hint: 'Dropshipping means you never hold stock — the supplier ships directly to your customer.',
+    },
+    {
+      question: 'Why is AU a strong market for dropshippers?',
+      options: ['Lowest shipping costs globally', 'High AUD purchasing power and strong consumer protection', 'No tax obligations'],
+      correctIndex: 1,
+      hint: 'Australia has high purchasing power, strong consumer law, and an Afterpay culture that boosts AOV.',
+    },
+  ],
+  'picking-niche': [
+    {
+      question: 'What framework does the lesson recommend for niche selection?',
+      options: ['Price + colour + trend', 'Volume + competition + passion', 'Brand + logo + domain'],
+      correctIndex: 1,
+      hint: 'Use volume, competition, and passion as your three niche selection criteria.',
+    },
+    {
+      question: 'Which Majorka tabs help you find a niche quickly?',
+      options: ['Settings and API Keys', 'Hot Now and High Profit smart tabs', 'Revenue and Alerts'],
+      correctIndex: 1,
+      hint: 'The Hot Now and High Profit smart tabs on the Products page are your starting filters.',
+    },
+  ],
+  'shopify-setup': [
+    {
+      question: 'What payment method should AU stores integrate for higher conversion?',
+      options: ['Bank transfer only', 'Afterpay', 'Cryptocurrency'],
+      correctIndex: 1,
+      hint: 'Afterpay is essential for AU stores — it splits payments and lifts conversion significantly.',
+    },
+    {
+      question: 'What must you configure for correct AU tax handling?',
+      options: ['VAT settings', 'GST settings', 'Sales tax nexus'],
+      correctIndex: 1,
+      hint: 'Australian stores need GST configured correctly in Shopify tax settings.',
+    },
+  ],
+  'first-hundred': [
+    {
+      question: 'On Day 1 of the 7-day plan, what should you do?',
+      options: ['Launch Meta ads immediately', 'Find a product using Majorka Products', 'Register a trademark'],
+      correctIndex: 1,
+      hint: 'Day 1 is product research — use the Majorka Products tab to find your first winner.',
+    },
+    {
+      question: 'What daily ad budget does the plan recommend?',
+      options: ['A$5/day', 'A$20/day', 'A$100/day'],
+      correctIndex: 1,
+      hint: 'The plan suggests launching Meta ads at A$20/day — enough for signal without burning capital.',
+    },
+  ],
+  // ── Track 5: Scaling from $100 to $10K/month ──
+  'when-to-scale': [
+    {
+      question: 'What ROAS threshold indicates break-even for most AU products?',
+      options: ['1.0x', '1.5x', '3.0x'],
+      correctIndex: 1,
+      hint: '1.5x ROAS is the typical break-even point once you factor in product cost, shipping, and fees.',
+    },
+    {
+      question: 'When should you kill an ad set?',
+      options: ['After 24 hours with no sales', 'After spending 3x product price with ROAS below 1.3', 'After 1 week regardless of results'],
+      correctIndex: 1,
+      hint: 'Kill anything below 1.3 ROAS after spending at least 3x your product price.',
+    },
+  ],
+  'supplier-management': [
+    {
+      question: 'When should you switch from AliExpress to CJ Dropshipping?',
+      options: ['Immediately on your first order', 'When you need faster shipping and better packaging', 'Only when selling above $10K/month'],
+      correctIndex: 1,
+      hint: 'CJ offers faster shipping, custom packaging, and AU warehouse options — switch when speed matters.',
+    },
+    {
+      question: 'What is a 3PL?',
+      options: ['A third-party logistics provider that stores and ships your stock', 'A type of Meta ad placement', 'A Shopify pricing plan'],
+      correctIndex: 0,
+      hint: 'Third-party logistics providers handle warehousing and fulfillment so you can focus on marketing.',
+    },
+  ],
+  'customer-service': [
+    {
+      question: 'What is a key obligation under AU consumer law for online sellers?',
+      options: ['Free returns on all items', 'Products must match their description and be fit for purpose', 'Unlimited warranty on everything'],
+      correctIndex: 1,
+      hint: 'Australian Consumer Law requires products to match descriptions and be of acceptable quality.',
+    },
+    {
+      question: 'How can you handle customer service without it eating your margin?',
+      options: ['Ignore all complaints', 'Use AI-drafted templates for common issues', 'Outsource to an overseas call center immediately'],
+      correctIndex: 1,
+      hint: 'Template responses for common issues save time — use Maya AI to draft them.',
+    },
+  ],
+  'multi-vs-single': [
+    {
+      question: 'When does a single-product store make more sense than a general store?',
+      options: ['Always — general stores never work', 'When you have a proven winner and want to build a brand around it', 'Only for products under $20'],
+      correctIndex: 1,
+      hint: 'Single-product stores excel when you have a validated winner and want maximum conversion.',
+    },
+    {
+      question: 'What is the main risk of a general store?',
+      options: ['Higher Shopify fees', 'Diluted brand identity and lower conversion rate', 'Cannot use Afterpay'],
+      correctIndex: 1,
+      hint: 'General stores spread trust signals thin — visitors are less likely to buy from an unfocused brand.',
+    },
+  ],
+  // ── Track 6: Advanced Operations ──
+  'developer-api': [
+    {
+      question: 'What can you build with the Majorka Developer API?',
+      options: ['Only read product data', 'Automated workflows like alerts when a product scores above 90', 'Nothing — it is read-only documentation'],
+      correctIndex: 1,
+      hint: 'The API enables automations — e.g., n8n webhooks that alert you on high-scoring products.',
+    },
+    {
+      question: 'Where do you get your API key?',
+      options: ['/app/settings', '/app/api-keys', '/app/products'],
+      correctIndex: 1,
+      hint: 'Navigate to /app/api-keys to generate and manage your API credentials.',
+    },
+  ],
+  'tiktok-vs-meta-budget': [
+    {
+      question: 'What is TikTok Shop best suited for in the AU market?',
+      options: ['High-ticket luxury items', 'Impulse purchases under $40 AUD', 'B2B sales'],
+      correctIndex: 1,
+      hint: 'TikTok Shop excels at low-cost impulse buys — the content format drives spontaneous purchases.',
+    },
+    {
+      question: 'What advantage does Meta have over TikTok for AU advertisers in 2026?',
+      options: ['Lower CPMs', 'Deeper audience targeting data and more mature tooling', 'Free ad credits'],
+      correctIndex: 1,
+      hint: 'Meta has years of AU audience data and Advantage+ Shopping campaigns that scale reliably.',
+    },
+  ],
+  'competitor-intelligence': [
+    {
+      question: 'What is the primary tool for researching competitor ads?',
+      options: ['Google Search', 'Meta Ad Library and Majorka Competitor Spy', 'Asking on Reddit'],
+      correctIndex: 1,
+      hint: 'Meta Ad Library shows all active ads, and Competitor Spy analyses any Shopify store.',
+    },
+    {
+      question: 'What should you look for when analysing a competitor store?',
+      options: ['Their exact product photos to copy', 'Pricing strategy, trust signals, and ad creative angles', 'Their supplier contact information'],
+      correctIndex: 1,
+      hint: 'Study their pricing, trust signals, and creative angles — not to copy, but to differentiate.',
+    },
+  ],
+  'building-brand': [
+    {
+      question: 'What is the first step in moving from dropshipping to a branded DTC business?',
+      options: ['Buy a warehouse immediately', 'Private label your winning product and register a trademark', 'Stop all advertising'],
+      correctIndex: 1,
+      hint: 'Private labeling your proven winner and trademarking the brand is the natural next step.',
+    },
+    {
+      question: 'Why is building an email list important for brand longevity?',
+      options: ['Email is free to send', 'You own the audience — no algorithm changes can take it away', 'Emails have 100% open rates'],
+      correctIndex: 1,
+      hint: 'Unlike social followers, your email list is an owned asset that no platform can throttle.',
+    },
+  ],
 };
 
 // ── Track content ──────────────────────────────────────────────────────────
@@ -351,6 +522,149 @@ const TRACKS: Track[] = [
       },
     ],
   },
+  {
+    number: '04',
+    id: 'getting-started',
+    title: 'Getting Started in Ecommerce',
+    requiredPlan: 'trial',
+    lessons: [
+      {
+        id: 'what-is-dropshipping',
+        title: 'What is dropshipping and why AU operators use it',
+        duration: '6 min read',
+        difficulty: 'Beginner',
+        content:
+          'Dropshipping is a retail model where you sell products without holding inventory. When a customer orders from your store, the supplier ships directly to them. You never touch the product. This means near-zero upfront cost — no warehouse, no bulk purchasing, no unsold stock risk. For Australian operators specifically, the model is powerful: the high AUD purchasing power lets you source globally at competitive rates, strong AU consumer protection builds buyer confidence, and the Afterpay culture means customers happily spend more per order when they can split payments. The trade-off is lower margins than traditional retail, but the speed to market is unmatched. You can go from idea to live store in a single weekend. Use Majorka\'s Products tab to skip months of manual research — the intelligence layer surfaces winning products so you can focus on selling, not searching.',
+        actionLink: { label: 'Browse winning products →', href: '/app/products' },
+        quiz: QUIZZES['what-is-dropshipping'],
+      },
+      {
+        id: 'picking-niche',
+        title: 'How to pick your first niche (with data, not guessing)',
+        duration: '8 min read',
+        difficulty: 'Beginner',
+        content:
+          'Most beginners pick a niche based on gut feeling and fail within weeks. Data-driven niche selection uses three criteria: volume (is there enough demand?), competition (how saturated is it?), and passion (can you create content about it without burning out?). Proven AU niches include pet accessories, beauty tools, kitchen gadgets, and fitness gear — categories where Australian consumers consistently spend and where shipping weight stays low. Do not chase trending niches you know nothing about. Instead, find the intersection of market demand and personal interest. Use the Smart Tabs on the Products page — "Hot Now" shows what is trending this week, and "High Profit" filters for margin-friendly products. Cross-reference with the market split data to confirm AU demand specifically. A niche with strong US numbers but weak AU traction might still work if shipping logistics are favourable.',
+        actionLink: { label: 'Explore Hot Now products →', href: '/app/products?tab=hot' },
+        quiz: QUIZZES['picking-niche'],
+      },
+      {
+        id: 'shopify-setup',
+        title: 'Setting up Shopify in under 30 minutes',
+        duration: '10 min read',
+        difficulty: 'Beginner',
+        content:
+          'Step 1: Sign up at shopify.com — use the free trial to start without payment. Step 2: Pick a clean, fast theme. Dawn or Refresh work well for dropshipping. Avoid heavy themes with animations. Step 3: Add your payment provider. Shopify Payments is the default for AU, but you must also add Afterpay — it is non-negotiable for AU conversion. Step 4: Configure shipping. Set up Australia Post rates or flat-rate shipping. Free shipping above a threshold (e.g., $59 AUD) is the proven AU strategy. Step 5: GST settings. Go to Settings > Taxes and duties, enable Australian GST at 10%, and include it in your prices. Step 6: Add essential pages — About, Contact, Shipping Policy, Refund Policy. Australian Consumer Law requires clear refund information. Step 7: Connect your domain. Use Majorka\'s Store Builder to generate your brand identity, push products to Shopify, and go live with professional copy and imagery in minutes instead of days.',
+        actionLink: { label: 'Try Store Builder →', href: '/app/store-builder' },
+        quiz: QUIZZES['shopify-setup'],
+      },
+      {
+        id: 'first-hundred',
+        title: 'Your first $0 to $100 — the 7-day launch plan',
+        duration: '12 min read',
+        difficulty: 'Beginner',
+        content:
+          'This is the exact 7-day playbook to go from zero to your first sale. Day 1: Find your product. Open Majorka Products, filter by Opportunity Score above 75, price $29-$69 AUD, and pick one product with clear AU demand. Day 2: Build your store. Use Store Builder to generate a brand name, logo, colour palette, and Shopify-ready product pages. Push to Shopify in one click. Day 3: Write your ads. Open Ads Studio, paste your product link, and generate 5 ad copy variations plus creative briefs. Pick the strongest three. Day 4-5: Launch Meta ads. Set up an Advantage+ Shopping campaign at A$20/day with your three creatives, broad targeting AU 22-55. Do not touch it for 48 hours. Day 6-7: Analyse results. Check CPM, CTR, and add-to-cart rate. If CTR is above 1.5% and you have add-to-carts, increase budget by 50%. If not, swap creative and test again. Follow this exact plan using only Majorka — every step is built in. Most operators who follow this sequence see their first sale within the first week.',
+        actionLink: { label: 'Start with Products →', href: '/app/products?tab=opportunity' },
+        quiz: QUIZZES['first-hundred'],
+      },
+    ],
+  },
+  {
+    number: '05',
+    id: 'scaling-revenue',
+    title: 'Scaling from $100 to $10K/month',
+    requiredPlan: 'builder',
+    lessons: [
+      {
+        id: 'when-to-scale',
+        title: 'When to scale: reading your ad metrics correctly',
+        duration: '8 min read',
+        difficulty: 'Intermediate',
+        content:
+          'Scaling too early kills more stores than bad products. Before you increase spend, understand your numbers. ROAS (Return on Ad Spend) is the north star: 1.5x is break-even for most AU products once you factor in product cost, shipping, payment fees, and returns. Below 1.5x you are losing money. Above 2x you have a genuine winner. CPA (Cost Per Acquisition) should be under 40% of your product price — if your product is $59 AUD, your CPA must stay under $24. The kill rule: after spending 3x your product price on an ad set with ROAS below 1.3, turn it off. No exceptions. The scale rule: when an ad set holds above 2x ROAS for 3+ days, duplicate it with a 50% budget increase. Never edit the original — it resets Meta\'s learning. Track all of this in Majorka\'s Revenue page, where blended ROAS, CPA, and daily revenue are calculated automatically across all your connected stores.',
+        actionLink: { label: 'View your Revenue dashboard →', href: '/app/revenue' },
+        quiz: QUIZZES['when-to-scale'],
+      },
+      {
+        id: 'supplier-management',
+        title: 'Supplier management — AliExpress vs CJ vs local AU 3PLs',
+        duration: '9 min read',
+        difficulty: 'Intermediate',
+        content:
+          'Your supplier choice directly impacts customer satisfaction and refund rates. AliExpress is fine for testing — low minimums, wide selection, but shipping takes 15-30 days to AU. Once you have a validated winner doing 5+ orders per day, switch to CJ Dropshipping. CJ offers faster shipping (7-15 days), custom packaging, quality inspection, and AU warehouse options for select products. For products doing 20+ orders per day, consider a local AU 3PL like ShipBob AU or Sendle. You bulk-order inventory to their warehouse and they fulfill same-day — customers get 2-5 day delivery. The cost per unit is higher, but your refund rate drops and repeat purchases increase. Quality control matters at every level: order samples before listing, check packaging condition on arrival, and monitor customer feedback weekly. Compare supplier costs in the product detail panel on Majorka — landed cost including shipping is calculated for each supplier option.',
+        quiz: QUIZZES['supplier-management'],
+      },
+      {
+        id: 'customer-service',
+        title: 'Customer service that does not kill your margin',
+        duration: '7 min read',
+        difficulty: 'Intermediate',
+        content:
+          'Customer service is where most dropshippers bleed money — not from refunds, but from time spent on repetitive inquiries. The fix is systematisation. First, know your obligations: Australian Consumer Law requires that products match their description, are of acceptable quality, and are fit for purpose. You must offer a remedy (repair, replacement, or refund) for faulty goods — "no refunds" policies are illegal for AU consumers. Second, build templates for the five most common issues: where is my order, I want a refund, the product is damaged, it does not match the description, and Afterpay disputes. Use Maya AI to draft these templates — give it your shipping times, refund policy, and tone of voice, and it generates professional responses in seconds. Third, set expectations upfront: shipping timeframes on the product page, order confirmation emails with tracking, and proactive delay notifications. Eighty percent of support tickets disappear when customers know what to expect before they ask.',
+        actionLink: { label: 'Draft templates with Maya AI →', href: '/app/maya' },
+        quiz: QUIZZES['customer-service'],
+      },
+      {
+        id: 'multi-vs-single',
+        title: 'Multi-product stores vs single-product — when to pivot',
+        duration: '8 min read',
+        difficulty: 'Intermediate',
+        content:
+          'There are three store models: general store (many products, many categories), niche store (one category, multiple products), and single-product store (one hero product). General stores are great for testing — you can rotate products quickly without rebuilding. But conversion rates are typically 1-2% because trust is diluted. Niche stores hit 2-4% conversion by building category authority. Single-product stores can reach 4-8% because every element is optimised for one offer. The pivot framework: start general to find winners, then extract your best performer into a niche or single-product store once it proves itself (above 2x ROAS for 2+ weeks). Do not build a single-product store around an unvalidated product — that is the most common expensive mistake. Use Store Builder\'s Marketplace tab to manage multiple stores from one dashboard. You can run a general testing store and two or three branded niche stores simultaneously without losing track of inventory or orders.',
+        actionLink: { label: 'Manage stores in Store Builder →', href: '/app/store-builder' },
+        quiz: QUIZZES['multi-vs-single'],
+      },
+    ],
+  },
+  {
+    number: '06',
+    id: 'advanced-operations',
+    title: 'Advanced Operations',
+    requiredPlan: 'scale',
+    lessons: [
+      {
+        id: 'developer-api',
+        title: 'Using the Majorka Developer API to automate your workflow',
+        duration: '10 min read',
+        difficulty: 'Advanced',
+        content:
+          'The Majorka API lets you programmatically access product intelligence, store data, and analytics. This is for operators who want to build custom automations beyond what the dashboard offers. Common use cases: an n8n or Make webhook that alerts your Slack channel when a product scores above 90, a Google Sheet that auto-populates with your top 20 products daily, or a custom dashboard that blends Majorka data with your Shopify and Meta analytics. To get started: navigate to /app/api-keys to generate your key. The API uses standard REST with JSON responses. Authentication is via Bearer token in the Authorization header. Rate limits are generous for Scale plan users — 1,000 requests per hour. Read the full documentation at /app/api-docs, which includes example requests for every endpoint, response schemas, and code snippets in JavaScript, Python, and cURL. Start with the /products endpoint to pull your filtered product list, then explore /analytics for revenue data.',
+        actionLink: { label: 'Get your API key →', href: '/app/api-keys' },
+        quiz: QUIZZES['developer-api'],
+      },
+      {
+        id: 'tiktok-vs-meta-budget',
+        title: 'TikTok Shop vs Meta Ads — where to put your budget in 2026',
+        duration: '9 min read',
+        difficulty: 'Advanced',
+        content:
+          'The AU advertising landscape in 2026 has two dominant channels: Meta (Facebook and Instagram) and TikTok. Meta remains the workhorse — Advantage+ Shopping campaigns scale reliably, audience data is the deepest, and ROAS tracking is mature. TikTok Shop is the growth story — organic reach is still achievable, CPMs are 20-40% lower than Meta in AU, and the in-app checkout removes friction. The budget framework: if you are spending under $3K/month, go all-in on Meta. Between $3K-$10K, allocate 70% Meta and 30% TikTok. Above $10K, test a 50/50 split and let ROAS data guide rebalancing. TikTok wins for impulse products under $40 AUD — beauty tools, gadgets, novelty items. Meta wins for considered purchases above $60 AUD — home improvement, fitness equipment, premium pet products. Check the TikTok Leaderboard in Majorka to see which products are trending on TikTok specifically, then cross-reference with your Meta performance data to find products that work on both platforms.',
+        actionLink: { label: 'View TikTok Leaderboard →', href: '/app/tiktok-leaderboard' },
+        quiz: QUIZZES['tiktok-vs-meta-budget'],
+      },
+      {
+        id: 'competitor-intelligence',
+        title: 'Competitor intelligence — spy without getting caught',
+        duration: '8 min read',
+        difficulty: 'Advanced',
+        content:
+          'Understanding your competitors is not optional at scale — it is how you find angles, avoid saturated products, and price intelligently. Start with the Meta Ad Library (facebook.com/ads/library): search by keyword or competitor page name to see every active ad, when it launched, and which platforms it runs on. Ads running for 30+ days are likely profitable — study their hooks, offers, and creative formats. Next, analyse their stores: use Majorka\'s Competitor Spy to input any Shopify store URL and get a breakdown of their product range, pricing strategy, estimated traffic, and tech stack. Look for gaps — products they sell but do not advertise aggressively, price points they avoid, and trust signals they miss. Third, monitor their pricing weekly. If a competitor drops price on a shared product, do not race to the bottom — differentiate on bundle value, faster shipping, or better creative instead. The goal is intelligence, not imitation. Operators who research competitors weekly consistently outperform those who guess.',
+        actionLink: { label: 'Try Competitor Spy →', href: '/app/competitor-spy' },
+        quiz: QUIZZES['competitor-intelligence'],
+      },
+      {
+        id: 'building-brand',
+        title: 'Building a brand that outlasts the product',
+        duration: '10 min read',
+        difficulty: 'Advanced',
+        content:
+          'Dropshipping is a starting strategy, not a destination. The operators who build real wealth transition from reselling generic products to owning a brand. Step 1: Private label your winner. Once a product sustains 20+ orders per day for a month, contact the manufacturer about custom branding — your logo on the product, custom packaging, and a unique colourway. Minimum order quantities are typically 200-500 units. Step 2: Register your trademark. In Australia, apply through IP Australia (ipaustralia.gov.au). A standard trademark costs about $250 AUD per class and protects your brand name and logo for 10 years. Step 3: Build an email list from day one. Use Klaviyo or Mailchimp, offer a 10% discount popup, and send a weekly email. Your email list is the only audience you truly own — no algorithm changes can take it away. Step 4: Create content that builds authority in your niche. Use Store Builder\'s AI to generate your brand identity — name, visual language, tone of voice — and carry it consistently across your store, ads, emails, and social channels. The brand becomes more valuable than any single product.',
+        actionLink: { label: 'Build your brand with Store Builder →', href: '/app/store-builder' },
+        quiz: QUIZZES['building-brand'],
+      },
+    ],
+  },
 ];
 
 const TOTAL_LESSONS = TRACKS.reduce((sum, t) => sum + t.lessons.length, 0);
@@ -430,6 +744,7 @@ function planTier(isBuilder: boolean, isScale: boolean): PlanTier {
 }
 
 function isTrackUnlocked(track: Track, userPlan: PlanTier): boolean {
+  if (track.requiredPlan === 'trial') return true; // Free for all users including trial
   if (track.requiredPlan === 'builder') return userPlan === 'builder' || userPlan === 'scale';
   if (track.requiredPlan === 'scale') return userPlan === 'scale';
   return true;
@@ -557,7 +872,7 @@ function LessonQuiz({
                 return (
                   <label
                     key={oIdx}
-                    className="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors"
+                    className="flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-md cursor-pointer transition-colors"
                     style={{
                       background: showCorrectHighlight
                         ? 'rgba(16,185,129,0.08)'
@@ -729,7 +1044,7 @@ export default function Academy() {
     <div className="min-h-screen bg-[#080808] text-[#ededed]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
       <SEO
         title="Majorka Academy — Master dropshipping with AI"
-        description="Three tracks. Twelve lessons. Master product research, store building, and Meta ads for the AU dropshipping market."
+        description="Six tracks. Twenty-four lessons. Master ecommerce from scratch — product research, store building, ads, scaling, and brand building for the AU market."
       />
 
       {/* Nav */}
@@ -761,7 +1076,7 @@ export default function Academy() {
           className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-[#1a1a1a] mb-6 text-xs text-[#888]"
           style={{ fontFamily: 'JetBrains Mono, monospace' }}
         >
-          <BookOpen size={12} /> 3 tracks · 12 lessons
+          <BookOpen size={12} /> 6 tracks · 24 lessons
         </div>
         <h1
           className="font-bold mb-3 tracking-tight"
@@ -799,7 +1114,7 @@ export default function Academy() {
                 Majorka Academy — Complete
               </h2>
               <p className="text-sm text-[#888] max-w-md mx-auto">
-                You have completed all 3 tracks. You are ready to find, launch, and scale.
+                You have completed all 6 tracks. You are ready to find, launch, scale, and build a brand.
               </p>
             </div>
           </div>
@@ -905,7 +1220,7 @@ export default function Academy() {
                         }}
                       >
                         <Lock size={10} />
-                        {track.requiredPlan === 'scale' ? 'Scale plan' : 'Builder plan'}
+                        {track.requiredPlan === 'scale' ? 'Scale plan' : track.requiredPlan === 'builder' ? 'Builder plan' : 'Free'}
                       </span>
                     )}
                   </div>
