@@ -18,14 +18,17 @@ Goal: operator finds a winning product and makes their first sale in under 60 mi
 - Server entry: server/index.ts
 - CSS: client/src/index.css
 
-## Design System
-- Bg: #0d0f14 · Surface: #13151c · Accent: #6366f1 (indigo)
-- Text: #f0f4ff primary · #a1a1aa body · #52525b muted
-- Fonts: Nohemi (display/headings) · DM Sans (body)
-- Cards: bg-surface border border-white/[0.07] rounded-2xl
-- Glass: bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl
-- Score colours: ≥90 emerald #10b981 · ≥75 amber #f59e0b · <75 orange #f97316
-- Philosophy: Bloomberg terminal meets luxury product app. Data first. No gamification.
+## Design System (updated 2026-04-12)
+- Bg: #080808 · Surface: #0d0d0d · Card: #0f0f0f · Raised: #111111 · Border: #1a1a1a
+- Accent: #d4af37 (gold) — brand highlights, active states, sidebar
+- CTA: #3B82F6 (electric blue) — primary action buttons (flat solid, no gradient)
+- Text: #ededed primary · #888888 body · #555555 muted
+- Fonts: Syne (display/headings) · DM Sans (body) · JetBrains Mono (numbers/code)
+- Cards: bg-[#0f0f0f] border border-white/[0.08] rounded-lg (max 8px radius)
+- Buttons: flat solid fill + subtle shadow. NEVER gradient. Primary = #3B82F6. Secondary = outline #1a1a1a.
+- Score colours: ≥80 emerald #22c55e · ≥60 amber #f59e0b · <60 red #ef4444
+- No purple/indigo/violet anywhere. No rounded-2xl/rounded-xl.
+- Philosophy: Bloomberg terminal meets luxury product app. Data first. No gamification. Subtraction over addition.
 
 ## Database
 Table: winning_products
@@ -42,10 +45,10 @@ UUID cast fix: use ::text on both sides of policy comparisons.
 cd /Users/maximus/Projects/ManusMajorka && pnpm build && git add -A && git commit -m "msg" && vercel --prod --yes
 
 ## Navigation (current — do not add back removed pages)
-INTELLIGENCE: Home, Products
+INTELLIGENCE: Home, Products, Analytics, Creators
 CREATE: Maya AI, Ads Studio, Ad Briefs, Store Builder
-OPERATE: Alerts, Competitor Spy (Soon), Revenue
-ACCOUNT: Academy, Settings
+OPERATE: Alerts, TikTok Leaderboard, Competitor Spy (Soon), Revenue
+ACCOUNT: Academy, API Keys, API Docs, Settings, Admin (gated)
 
 ## Removed Pages — Do NOT recreate
 /app/radar · /app/niches · /app/market · /app/profit-calc

@@ -232,10 +232,10 @@
   --color-bg-elevated: #f4f4f4;
   --color-bg-surface: #fafafa;
   --color-bg-panel: #f7f7f7;
-  --color-accent: #000000;
-  --color-accent-hover: #222222;
-  --color-accent-dim: rgba(0,0,0,0.06);
-  --color-accent-glow: rgba(0,0,0,0.08);
+  --color-accent: #8a6e1f;
+  --color-accent-hover: #a68529;
+  --color-accent-dim: rgba(138,110,31,0.08);
+  --color-accent-glow: rgba(138,110,31,0.12);
   --color-border: rgba(0,0,0,0.1);
   --color-border-strong: rgba(0,0,0,0.18);
   --color-border-faint: rgba(0,0,0,0.04);

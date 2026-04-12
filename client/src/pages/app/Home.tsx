@@ -243,7 +243,7 @@ export default function AppHome() {
               <span className="text-[11px] text-emerald-400/80 font-medium">Live · {today}</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2" style={{ fontFamily: "'Syne', sans-serif", background: 'linear-gradient(135deg, #ffffff 0%, #999999 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2" style={{ fontFamily: "'Syne', sans-serif", color: '#ededed' }}>
               {firstName}&apos;s Dashboard
             </h1>
             {insight && (
@@ -255,7 +255,7 @@ export default function AppHome() {
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
             className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold rounded-md no-underline cursor-pointer transition-all hover:translate-y-[-1px] hover:shadow-lg"
-            style={{ background: 'linear-gradient(135deg, #3B82F6, #2563EB)', color: '#fff', boxShadow: '0 2px 12px rgba(59,130,246,0.3)' }}
+            style={{ background: '#3B82F6', color: '#fff', boxShadow: '0 2px 12px rgba(59,130,246,0.3)' }}
           >
             Browse Products <ArrowRight size={13} />
           </a>
@@ -278,9 +278,8 @@ export default function AppHome() {
                 className="block no-underline group relative overflow-hidden rounded-lg p-5 transition-all hover:translate-y-[-2px]"
                 style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)' }}
               >
-                {/* Top accent glow */}
+                {/* Top accent line */}
                 <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${card.accent}60, transparent)` }} />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-12 blur-2xl opacity-20 pointer-events-none" style={{ background: card.accent }} />
 
                 <div className="relative">
                   <div className="flex items-center justify-between mb-3">
@@ -363,9 +362,17 @@ export default function AppHome() {
               {prodLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} className="border-b border-white/[0.04]">
-                    <td colSpan={6} className="px-5 py-5">
-                      <span className="inline-block h-4 w-full bg-white/[0.04] rounded animate-pulse" />
+                    <td className="px-4 py-4"><span className="inline-block h-4 w-6 bg-white/[0.04] rounded animate-pulse" /></td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-block w-10 h-10 bg-white/[0.04] rounded-lg animate-pulse shrink-0" />
+                        <span className="inline-block h-4 w-[60%] bg-white/[0.04] rounded animate-pulse" />
+                      </div>
                     </td>
+                    <td className="hidden md:table-cell px-4 py-4"><span className="inline-block h-4 w-16 bg-white/[0.04] rounded animate-pulse" /></td>
+                    <td className="hidden md:table-cell px-4 py-4 text-right"><span className="inline-block w-9 h-9 bg-white/[0.04] rounded animate-pulse" /></td>
+                    <td className="px-4 py-4 text-right"><span className="inline-block h-4 w-12 bg-white/[0.04] rounded animate-pulse" /></td>
+                    <td className="px-4 py-4 text-right"><span className="inline-block h-4 w-14 bg-white/[0.04] rounded animate-pulse" /></td>
                   </tr>
                 ))
               ) : products.length === 0 ? (

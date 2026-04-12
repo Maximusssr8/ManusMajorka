@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 
-const CATEGORY_COLOURS = ['#3b82f6','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#888888','#ef4444','#84cc16','#06b6d4','#a855f7','#78716c','#0ea5e9','#d946ef'];
+const CATEGORY_COLOURS = ['#3b82f6','#10b981','#f59e0b','#f97316','#d4af37','#ec4899','#14b8a6','#888888','#ef4444','#84cc16','#06b6d4','#e5c158','#78716c','#0ea5e9','#22d3ee'];
 
 interface TimeSeriesPoint {
   day: string;

@@ -33,15 +33,15 @@ const SMART_TABS: {
   /** Category-identity colour used for the left border + status dot when active. */
   dot: string;
 }[] = [
-  { key: 'all',         label: 'All products',  Icon: LayoutGrid,  dot: '#ffffff' },
-  { key: 'hot-now',     label: 'Hot Now',       Icon: Flame,       iconClass: 'text-orange-400',  dot: '#f97316' },
-  { key: 'trending',    label: 'Trending',      Icon: TrendingUp,  iconClass: 'text-amber',       dot: '#f59e0b' },
-  { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover', dot: '#3B82F6' },
-  { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign,  iconClass: 'text-green',       dot: '#10b981' },
-  { key: 'under-10',    label: 'Under $10',     Icon: DollarSign,  iconClass: 'text-cyan-400',    dot: '#22d3ee' },
-  { key: 'top',         label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]',   dot: '#eab308' },
-  { key: 'new',         label: 'New',           Icon: Clock,                                      dot: '#a855f7' },
-  { key: 'saved',       label: 'Saved',         Icon: Bookmark,                                   dot: '#ec4899' },
+  { key: 'all',         label: 'All products',  Icon: LayoutGrid,  dot: '#555' },
+  { key: 'hot-now',     label: 'Hot Now',       Icon: Flame,       iconClass: 'text-orange-400',  dot: '#555' },
+  { key: 'trending',    label: 'Trending',      Icon: TrendingUp,  iconClass: 'text-amber',       dot: '#555' },
+  { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover', dot: '#555' },
+  { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign,  iconClass: 'text-green',       dot: '#555' },
+  { key: 'under-10',    label: 'Under $10',     Icon: DollarSign,  iconClass: 'text-cyan-400',    dot: '#555' },
+  { key: 'top',         label: 'Score 90+',     Icon: Award,       iconClass: 'text-[#eab308]',   dot: '#555' },
+  { key: 'new',         label: 'New',           Icon: Clock,                                      dot: '#555' },
+  { key: 'saved',       label: 'Saved',         Icon: Bookmark,                                   dot: '#555' },
 ];
 
 type SortKey = OrderByColumn | 'velocity';
@@ -715,7 +715,7 @@ function ProductSheet({
 
           {/* Market Revenue — total market size estimate */}
           {marketRev != null && (
-            <div className="mx-4 mt-3 p-4 bg-cyan-500/[0.05] border border-cyan-500/20 rounded-lg">
+            <div className="mx-4 mt-3 p-4 rounded-lg" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-1">
@@ -790,7 +790,7 @@ function ProductSheet({
             return (
               <div
                 className="mx-4 mb-4 rounded-lg p-4"
-                style={{ background: lr.bg, border: `1px solid ${lr.border}` }}
+                style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: lr.color }}>
@@ -819,7 +819,7 @@ function ProductSheet({
             const reasons = getWinReasons(product);
             if (reasons.length === 0) return null;
             return (
-              <div className="mx-4 mb-4 bg-green/[0.05] border border-green/20 rounded-lg p-4">
+              <div className="mx-4 mb-4 rounded-lg p-4" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
                 <div className="flex items-center gap-2 mb-3">
                   <Zap size={13} className="text-green" strokeWidth={2.5} />
                   <span className="text-[11px] font-bold uppercase tracking-wider text-green">Why this wins</span>
@@ -840,7 +840,7 @@ function ProductSheet({
           {(() => {
             const comp = competitionLevel(product.sold_count ?? 0);
             return (
-              <div className="mx-4 mb-4 flex items-center justify-between gap-3 bg-card border border-white/[0.06] rounded-lg p-3.5">
+              <div className="mx-4 mb-4 flex items-center justify-between gap-3 rounded-lg p-3.5" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">Competition</span>
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${comp.color} ${comp.bg}`}>
@@ -859,7 +859,8 @@ function ProductSheet({
               href={aliHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="mx-4 mb-3 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
+              className="mx-4 mb-3 rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
+              style={{ background: 'transparent', border: '1px solid #1a1a1a', borderRadius: 6 }}
             >
               View on AliExpress
               <ExternalLink size={14} strokeWidth={1.75} />
@@ -869,10 +870,13 @@ function ProductSheet({
           {/* Build Store for this product — one-click flow */}
           <button
             onClick={handleImportToStore}
-            className="mx-4 mb-4 text-white rounded-lg py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="mx-4 mb-4 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
             style={{
               background: '#3B82F6',
-              boxShadow: '0 0 0 1px rgba(59,130,246,0.4), 0 8px 24px rgba(59,130,246,0.25)',
+              color: 'white',
+              borderRadius: 6,
+              padding: '10px 20px',
+              boxShadow: '0 2px 12px rgba(59,130,246,0.25)',
             }}
           >
             <Store size={16} strokeWidth={2} />
@@ -880,7 +884,7 @@ function ProductSheet({
           </button>
 
           {/* Profit calculator — collapsible */}
-          <div className="mx-4 mb-4 bg-raised rounded-lg overflow-hidden border border-white/[0.07]">
+          <div className="mx-4 mb-4 rounded-lg overflow-hidden" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
             <button
               onClick={() => setCalcOpen((o) => !o)}
               className="w-full flex items-center justify-between p-4 text-left cursor-pointer hover:bg-white/[0.03] transition-colors"
@@ -952,10 +956,12 @@ function ProductSheet({
           <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
             <button
               onClick={handleCreateAd}
-              className="flex-1 text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
+              className="flex-1 text-white text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
               style={{
                 background: '#3B82F6',
-                boxShadow: '0 0 0 1px rgba(59,130,246,0.4), 0 8px 24px rgba(59,130,246,0.25)',
+                color: 'white',
+                borderRadius: 6,
+                padding: '10px 20px',
               }}
             >
               <Zap size={14} strokeWidth={2} />
@@ -963,7 +969,8 @@ function ProductSheet({
             </button>
             <button
               onClick={handleToggleSave}
-              className={`flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${isFav ? 'text-accent' : 'text-text'}`}
+              className={`flex-1 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${isFav ? 'text-accent' : 'text-text'}`}
+              style={{ background: 'transparent', border: '1px solid #1a1a1a', color: '#888', borderRadius: 6, padding: '10px 20px' }}
             >
               <Heart size={14} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
               {isFav ? 'Saved' : 'Save'}
@@ -1549,7 +1556,7 @@ export default function AppProducts() {
                 key={tab.key}
                 onClick={() => { setActiveTab(tab.key); setPage(1); }}
                 style={{
-                  borderLeftColor: active ? tab.dot : 'transparent',
+                  borderLeftColor: active ? '#d4af37' : 'transparent',
                   borderLeftWidth: 2,
                   borderLeftStyle: 'solid',
                   ...(active
@@ -1570,7 +1577,7 @@ export default function AppProducts() {
                 <span
                   aria-hidden="true"
                   className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ background: tab.dot, opacity: active ? 1 : 0.55 }}
+                  style={{ background: active ? '#d4af37' : tab.dot, opacity: active ? 1 : 0.55 }}
                 />
                 <Icon
                   size={14}
@@ -2459,10 +2466,12 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
         <button
           onClick={generate}
           disabled={loading}
-          className="w-full py-3 rounded-lg text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
+          className="w-full text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
           style={{
-            background: loading ? 'rgba(255,255,255,0.3)' : 'var(--color-accent)',
-            borderColor: 'rgba(255,255,255,0.4)',
+            background: loading ? 'rgba(255,255,255,0.1)' : '#3B82F6',
+            color: 'white',
+            borderRadius: 6,
+            padding: '10px 20px',
             opacity: loading ? 0.7 : 1,
           }}
         >
@@ -2475,7 +2484,7 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
   }
 
   return (
-    <div className="mx-4 mb-4 bg-accent/[0.04] border border-accent/20 rounded-lg p-4">
+    <div className="mx-4 mb-4 rounded-lg p-4" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between mb-3"

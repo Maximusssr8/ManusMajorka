@@ -56,9 +56,9 @@ const T = {
   textDim: '#8a8a8f',
   textFaint: '#52525b',
   textGhost: '#3f3f46',
-  accent: '#ffffff',
-  accentHover: '#e5e5e5',
-  accentDim: 'rgba(255,255,255,0.07)',
+  accent: '#d4af37',
+  accentHover: '#c9a430',
+  accentDim: 'rgba(212,175,55,0.07)',
   green: '#22c55e',
   red: '#ef4444',
   amber: '#f59e0b',
@@ -152,6 +152,37 @@ section [data-transform-ok] {
   transition: color 150ms;
 }
 .mj-link:hover { color: ${T.text}; }
+
+.mj-nav-link {
+  font-size: 14px;
+  color: #8a8a8f;
+  text-decoration: none;
+  transition: color 150ms;
+}
+.mj-nav-link:hover { color: #ededed; }
+
+.mj-login-link {
+  color: #9ca3af;
+  font-size: 14px;
+  text-decoration: none;
+  margin-right: 8px;
+  transition: color 150ms;
+}
+.mj-login-link:hover { color: #ededed; }
+
+.mj-signup-btn {
+  display: inline-flex;
+  align-items: center;
+  background: #d4af37;
+  color: #080808;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms;
+}
+.mj-signup-btn:hover { background: #c9a430; }
 
 .mj-btn-primary {
   display: inline-flex;
@@ -469,48 +500,16 @@ function Nav() {
         </a>
 
         <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <a href="#features" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Features</a>
-          <a href="#compare" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Compare</a>
-          <a href="#workflow" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Workflow</a>
-          <a href="#pricing" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Pricing</a>
-          <a href="/blog" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Blog</a>
+          <a href="#features" className="mj-nav-link">Features</a>
+          <a href="#compare" className="mj-nav-link">Compare</a>
+          <a href="#workflow" className="mj-nav-link">Workflow</a>
+          <a href="#pricing" className="mj-nav-link">Pricing</a>
+          <a href="/blog" className="mj-nav-link">Blog</a>
         </div>
 
         <div className="mj-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link href="/sign-in" style={{ color: '#9ca3af', fontSize: 14, textDecoration: 'none', marginRight: 8, transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
-          >Log in</Link>
-          <Link href="/sign-up" style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            background: '#ffffff',
-            color: '#080808',
-            padding: '8px 20px',
-            borderRadius: 6,
-            fontSize: 14,
-            fontWeight: 600,
-            textDecoration: 'none',
-            transition: 'background 150ms',
-          }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#e5e5e5')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = '#ffffff')}
-          >Get Started</Link>
+          <Link href="/sign-in" className="mj-login-link">Log in</Link>
+          <Link href="/sign-up" className="mj-signup-btn">Get Started</Link>
         </div>
 
         {/* Mobile hamburger — visible only below 768px */}
@@ -1775,7 +1774,7 @@ function Comparison() {
                     top: -10,
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                    background: '#3B82F6',
                     color: '#ffffff',
                     fontFamily: mono,
                     fontSize: 9,
@@ -2510,10 +2509,7 @@ function FinalCTA() {
             }}>
               Your competitors are<br />
               <span style={{
-                background: 'linear-gradient(135deg, #3B82F6, #60A5FA)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                color: '#3B82F6',
               }}>already on this.</span>
             </h2>
             <p style={{ fontSize: 20, color: '#a1a1aa', margin: '0 0 36px', lineHeight: 1.6, fontWeight: 500 }}>
@@ -2546,7 +2542,7 @@ function FinalCTA() {
                   justifyContent: 'center',
                   height: 60,
                   padding: '0 36px',
-                  background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                  background: '#3B82F6',
                   color: '#ffffff',
                   fontFamily: sans,
                   fontWeight: 700,
@@ -2847,13 +2843,13 @@ function Founder() {
 interface RevealProps { children: React.ReactNode; delay?: number }
 function Reveal({ children, delay = 0 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const inView = useInView(ref, { once: true, margin: '-50px' });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ transform: 'translateY(24px)', filter: 'blur(4px)' }}
+      animate={inView ? { transform: 'translateY(0)', filter: 'blur(0px)' } : { transform: 'translateY(24px)', filter: 'blur(4px)' }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -2872,7 +2868,7 @@ function NumberedDivider({ num, label, description }: NumberedDividerProps) {
           gap: 24,
           paddingTop: 72,
           paddingBottom: 28,
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(212,175,55,0.18)',
         }}
       >
         <span
@@ -3071,8 +3067,7 @@ function DeerHero() {
                     gap: 8,
                     height: 52,
                     padding: '0 30px',
-                    background:
-                      'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                    background: '#3B82F6',
                     color: '#ffffff',
                     fontFamily: sans,
                     fontWeight: 600,
