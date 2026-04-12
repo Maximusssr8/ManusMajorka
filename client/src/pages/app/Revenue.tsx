@@ -246,9 +246,20 @@ export default function Revenue() {
               <TrendingUp size={20} className="text-accent" />
             </div>
             <p className="text-text font-semibold mb-1">No products tracked yet</p>
-            <p className="text-sm text-muted mb-5 max-w-sm mx-auto">
-              Log your first product to start tracking your real profit from Majorka. Takes 30 seconds.
+            <p className="text-sm text-muted mb-2 max-w-sm mx-auto">
+              Track your first sale: once your ads are running, come back here to log daily revenue and see your real ROAS.
             </p>
+            <div className="flex flex-wrap gap-3 justify-center mb-5">
+              <a href="/app/products" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold" style={{ background: '#3B82F6', color: 'white', textDecoration: 'none' }}>
+                Find a product &rarr;
+              </a>
+              <a href="/app/ads-studio" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold" style={{ background: '#3B82F6', color: 'white', textDecoration: 'none' }}>
+                Generate ads &rarr;
+              </a>
+              <a href="/app/ai-chat" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#ededed', textDecoration: 'none' }}>
+                Ask Maya for help &rarr;
+              </a>
+            </div>
             <button
               onClick={() => setShowAdd(true)}
               className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white"

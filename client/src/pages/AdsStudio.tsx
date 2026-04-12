@@ -1014,6 +1014,58 @@ Make each variation feel genuinely different — different angles, different emo
                   </div>
                 </div>
               )}
+
+              {/* ── LAUNCH YOUR ADS ── */}
+              <div style={{
+                background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 8,
+                padding: 20, marginTop: 8,
+              }}>
+                <div style={{ fontFamily: syne, fontSize: 16, fontWeight: 700, color: '#ededed', marginBottom: 14 }}>Ready to launch?</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[
+                    'Copy your ad copy above (or export as CSV)',
+                    `Go to Meta Ads Manager \u2192 Create Campaign \u2192 Conversions \u2192 Purchase`,
+                    `Paste your headline and body text, set budget to A$${intel?.suggestedBudget?.toFixed(0) ?? '20'}/day, target AU 25\u201344`,
+                  ].map((step, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <div style={{
+                        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                        background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, fontWeight: 700, color: '#d4af37', fontFamily: mono,
+                      }}>{i + 1}</div>
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, fontFamily: dm }}>{step}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
+                  <a
+                    href="https://adsmanager.facebook.com/adsmanager/manage/campaigns"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: 6,
+                      background: '#3B82F6', color: 'white',
+                      fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: dm,
+                    }}
+                  >Open Meta Ads Manager &rarr;</a>
+                  <a
+                    href="https://ads.tiktok.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: 6,
+                      background: '#3B82F6', color: 'white',
+                      fontSize: 12, fontWeight: 600, textDecoration: 'none', fontFamily: dm,
+                    }}
+                  >Open TikTok Ads Manager &rarr;</a>
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 12, fontFamily: dm }}>
+                  Need help? Ask Maya AI for a step-by-step walkthrough.
+                </div>
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80%', padding: '24px 0' }}>

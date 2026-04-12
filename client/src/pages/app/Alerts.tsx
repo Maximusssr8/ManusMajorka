@@ -329,8 +329,11 @@ export default function Alerts() {
               }}>+</span>
             </div>
             <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>No alerts set up yet</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>
+              Set up alerts to get notified when products in your niche hit your score threshold. Start by choosing a category you are testing.
+            </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
-              Set up local alerts to track when products hit your score threshold, enter a new trend, or drop in competition. Check this page to see matches.
+              Track when products hit your score threshold, enter a new trend, or drop in competition. Check this page to see matches.
             </div>
             <button
               onClick={scrollToForm}

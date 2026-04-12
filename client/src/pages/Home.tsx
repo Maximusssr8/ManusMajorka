@@ -771,9 +771,9 @@ function Hero() {
               fontWeight: 500,
             }}>
               <span style={{ color: '#22c55e', marginRight: 6 }}>✓</span>
-              No credit card required
+              7-day free trial · No credit card required
               <span style={{ color: '#4b5563', margin: '0 8px' }}>·</span>
-              30-day money-back guarantee
+              Full Builder access for 7 days, then $99 AUD/mo
             </p>
 
             <SocialProofBar />

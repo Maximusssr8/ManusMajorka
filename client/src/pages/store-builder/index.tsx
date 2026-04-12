@@ -610,6 +610,50 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
               </PrimaryButton>
               <GhostButton onClick={() => setPreview(null)}>Discard</GhostButton>
             </div>
+
+            {/* ── MAKE IT REAL ── */}
+            <div
+              className="rounded-lg mt-5 p-5"
+              style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}
+            >
+              <div className="text-base font-bold mb-3" style={{ fontFamily: SYNE, color: TEXT }}>
+                Turn this into a real store
+              </div>
+              <div className="flex flex-col gap-3">
+                {[
+                  'Create a Shopify store at shopify.com (14-day free trial)',
+                  'Come back here and connect it via the Shopify Sync tab',
+                  'Push your products and brand settings directly to Shopify',
+                ].map((step, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div
+                      className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold"
+                      style={{
+                        background: 'rgba(212,175,55,0.15)',
+                        border: '1px solid rgba(212,175,55,0.3)',
+                        color: GOLD,
+                        fontFamily: MONO,
+                      }}
+                    >{i + 1}</div>
+                    <span className="text-sm leading-relaxed" style={{ color: TEXT_DIM, fontFamily: DM_SANS }}>
+                      {step}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <a
+                  href="https://www.shopify.com/free-trial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold text-white"
+                  style={{ background: '#3B82F6', textDecoration: 'none', fontFamily: DM_SANS }}
+                >Create Shopify store &rarr;</a>
+              </div>
+              <div className="text-xs mt-3" style={{ color: TEXT_MUTED, fontFamily: DM_SANS }}>
+                Already have a store? Switch to the Shopify Sync tab above.
+              </div>
+            </div>
           </div>
         )}
       </GoldCard>
