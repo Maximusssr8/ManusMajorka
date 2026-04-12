@@ -135,7 +135,7 @@ router.get('/products/tiktok-leaderboard', async (req: Request, res: Response) =
     let q = supa
       .from('winning_products')
       .select(PRODUCT_FIELDS)
-      .eq('platform', 'tiktok_shop')
+      .ilike('platform', '%tiktok%')
       .gt('sold_count', 0)
       .not('image_url', 'is', null)
       .order('sold_count', { ascending: false })

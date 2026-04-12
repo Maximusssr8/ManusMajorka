@@ -1907,7 +1907,7 @@ router.get('/tiktok-leaderboard', async (req: Request, res: Response) => {
     let q = sb
       .from('winning_products')
       .select('id,product_title,category,image_url,price_aud,sold_count,winning_score,est_daily_revenue_aud,created_at,shop_name,aliexpress_url,trend')
-      .eq('platform', 'tiktok_shop')
+      .ilike('platform', '%tiktok%')
       .gt('sold_count', 0)
       .not('image_url', 'is', null)
       .order('sold_count', { ascending: false })
