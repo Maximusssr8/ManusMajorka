@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -11,6 +11,8 @@ import {
   Sparkles,
   Zap,
   CheckCircle2,
+  Download,
+  ExternalLink,
 } from 'lucide-react';
 
 // ─── Design tokens ─────────────────────────────────────────────
@@ -159,6 +161,7 @@ function TabSwitcher({ mode, onChange }: TabSwitcherProps) {
         return (
           <button
             key={t.id}
+            data-tab={t.id}
             onClick={() => onChange(t.id)}
             className="text-left rounded-md p-4 transition-all duration-200 group"
             style={{
@@ -356,6 +359,419 @@ function PendingNotice({ note }: PendingNoticeProps) {
       }}
     >
       {note}
+    </div>
+  );
+}
+
+// ─── Generate complete storefront HTML ─────────────────────────
+function generateStoreHTML(store: GeneratedStore): string {
+  const primary = store.colorPalette[0] || '#d4af37';
+  const bg = store.colorPalette[1] || '#080808';
+  const light = store.colorPalette[2] || '#ededed';
+  const surfaceBg = '#0d0d0d';
+  const cardBg = '#111111';
+  const borderClr = '#1a1a1a';
+  const year = new Date().getFullYear();
+
+  const productCards = store.products.slice(0, 3).map((p, i) => {
+    const imgBlock = p.image_url
+      ? `<img src="${p.image_url}" alt="${p.title}" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
+      : `<div style="width:100%;aspect-ratio:1/1;background:${cardBg};display:flex;align-items:center;justify-content:center;color:${primary};font-size:14px;">No image</div>`;
+
+    return `
+      <div class="product-card" itemscope itemtype="https://schema.org/Product">
+        <meta itemprop="sku" content="MJK-${String(i + 1).padStart(3, '0')}" />
+        <div style="overflow:hidden;border-radius:8px 8px 0 0;">${imgBlock}</div>
+        <div style="padding:16px;">
+          <h3 itemprop="name" style="margin:0 0 8px;font-family:'Syne',sans-serif;font-size:15px;color:${light};">${p.title}</h3>
+          <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+            <meta itemprop="priceCurrency" content="AUD" />
+            <span itemprop="price" content="${p.price_aud.toFixed(2)}" style="font-family:'JetBrains Mono',monospace;font-size:18px;color:${primary};font-weight:700;">A$${p.price_aud.toFixed(2)}</span>
+            <link itemprop="availability" href="https://schema.org/InStock" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+            <button class="add-to-cart-btn">Add to Cart</button>
+            <span class="afterpay-badge">or 4 x A$${(p.price_aud / 4).toFixed(2)} with Afterpay</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${store.storeName}</title>
+  <meta name="description" content="${store.tagline}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: ${bg};
+      color: ${light};
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid ${borderClr};
+      background: ${surfaceBg};
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: ${light};
+      letter-spacing: -0.01em;
+    }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      font-size: 14px;
+      color: rgba(245,245,245,0.6);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: ${primary}; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 64px;
+      background: linear-gradient(180deg, ${surfaceBg} 0%, ${bg} 100%);
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      color: ${light};
+    }
+    .hero p {
+      font-size: 18px;
+      color: rgba(245,245,245,0.55);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+    .hero-cta {
+      display: inline-block;
+      padding: 14px 36px;
+      background: ${primary};
+      color: ${bg};
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .hero-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Products ── */
+    .products-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 24px;
+    }
+    .products-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      text-align: center;
+      color: ${light};
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .product-card {
+      background: ${cardBg};
+      border: 1px solid ${borderClr};
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .product-card:hover {
+      border-color: ${primary};
+      box-shadow: 0 0 24px rgba(212,175,55,0.15);
+    }
+    .add-to-cart-btn {
+      padding: 10px 20px;
+      background: ${primary};
+      color: ${bg};
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .add-to-cart-btn:hover { opacity: 0.85; }
+    .afterpay-badge {
+      font-size: 11px;
+      color: rgba(245,245,245,0.4);
+    }
+
+    /* ── Trust bar ── */
+    .trust-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+      padding: 40px 24px;
+      border-top: 1px solid ${borderClr};
+      border-bottom: 1px solid ${borderClr};
+      background: ${surfaceBg};
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: rgba(245,245,245,0.6);
+    }
+    .trust-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212,175,55,0.08);
+      border: 1px solid rgba(212,175,55,0.2);
+      font-size: 16px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid ${borderClr};
+    }
+    .footer-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: ${light};
+      margin-bottom: 8px;
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(245,245,245,0.3);
+    }
+    .footer-powered {
+      font-size: 11px;
+      color: rgba(245,245,245,0.2);
+      margin-top: 16px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .nav { padding: 12px 16px; }
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 13px; }
+      .hero { padding: 48px 16px 40px; }
+      .hero p { font-size: 16px; }
+      .products-section { padding: 40px 16px; }
+      .trust-bar { gap: 20px; padding: 28px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-brand">${store.storeName}</div>
+    <div class="nav-links">
+      <a href="#products">Shop</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="about">
+    <h1>${store.storeName}</h1>
+    <p>${store.tagline}</p>
+    <a href="#products" class="hero-cta">Shop Now</a>
+  </section>
+
+  <!-- Products -->
+  <section class="products-section" id="products">
+    <h2>Featured Products</h2>
+    <div class="products-grid">
+      ${productCards}
+    </div>
+  </section>
+
+  <!-- Trust Bar -->
+  <section class="trust-bar">
+    <div class="trust-item">
+      <div class="trust-icon">&#x1F69A;</div>
+      <span>Free AU Shipping</span>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">&#x1F4B3;</div>
+      <span>Afterpay Available</span>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">&#x1F504;</div>
+      <span>30-Day Returns</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="footer-brand">${store.storeName}</div>
+    <div class="footer-copy">&copy; ${year} ${store.storeName}. All rights reserved.</div>
+    <div class="footer-powered">Powered by Majorka</div>
+  </footer>
+</body>
+</html>`;
+}
+
+// ─── Store Preview Section ────────────────────────────────────
+function StorePreviewSection({ store }: { store: GeneratedStore }) {
+  const htmlContent = useMemo(() => generateStoreHTML(store), [store]);
+  const iframeSrc = useMemo(() => {
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    return URL.createObjectURL(blob);
+  }, [htmlContent]);
+
+  useEffect(() => {
+    return () => { URL.revokeObjectURL(iframeSrc); };
+  }, [iframeSrc]);
+
+  const handleDownload = useCallback(() => {
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = store.storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    a.href = url;
+    a.download = `${safeName || 'store'}-store.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Store HTML downloaded');
+  }, [htmlContent, store.storeName]);
+
+  const handlePreviewTab = useCallback(() => {
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  }, [htmlContent]);
+
+  return (
+    <div className="mt-8">
+      <GoldCard>
+        <div className="flex items-center gap-3 mb-5">
+          <div
+            className="w-9 h-9 rounded-md flex items-center justify-center"
+            style={{
+              background: 'rgba(59,130,246,0.1)',
+              border: `1px solid rgba(59,130,246,0.3)`,
+            }}
+          >
+            <Store size={18} style={{ color: CTA_BLUE }} />
+          </div>
+          <div>
+            <div className="text-lg" style={{ fontFamily: SYNE, color: TEXT }}>
+              Your Store Preview
+            </div>
+            <div className="text-xs" style={{ color: TEXT_DIM }}>
+              A complete, downloadable storefront ready to sell from
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            border: `1px solid ${BORDER}`,
+            borderRadius: 8,
+            overflow: 'hidden',
+            width: '100%',
+            height: 500,
+          }}
+        >
+          <iframe
+            src={iframeSrc}
+            title="Store preview"
+            sandbox="allow-scripts"
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+              background: '#080808',
+            }}
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-3 mt-5">
+          <button
+            onClick={handleDownload}
+            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: CTA_BLUE,
+              color: '#fff',
+              fontFamily: DM_SANS,
+              boxShadow: '0 0 20px rgba(59,130,246,0.45)',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            <Download size={16} />
+            Download HTML
+          </button>
+          <button
+            onClick={handlePreviewTab}
+            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: 'transparent',
+              color: TEXT,
+              border: `1px solid ${BORDER}`,
+              fontFamily: DM_SANS,
+              cursor: 'pointer',
+            }}
+          >
+            <ExternalLink size={16} />
+            Preview in tab
+          </button>
+          <button
+            onClick={() => {
+              const el = document.querySelector('[data-tab="shopify"]');
+              if (el instanceof HTMLElement) el.click();
+            }}
+            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: GOLD,
+              color: '#080808',
+              border: 'none',
+              fontFamily: DM_SANS,
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            <Rocket size={16} />
+            Push to Shopify
+          </button>
+        </div>
+      </GoldCard>
     </div>
   );
 }
@@ -657,6 +1073,8 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
           </div>
         )}
       </GoldCard>
+
+      {preview && <StorePreviewSection store={preview} />}
     </div>
   );
 }

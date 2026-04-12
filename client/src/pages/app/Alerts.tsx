@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'wouter';
 import { Bell, Plus, Package, X } from 'lucide-react';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
@@ -7,6 +7,7 @@ import { useNicheStats } from '@/hooks/useNicheStats';
 import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
 import { shortenCategory } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
+import { supabase } from '@/lib/supabase';
 
 import { C } from '@/lib/designTokens';
 import { motion } from 'framer-motion';
@@ -26,6 +27,26 @@ interface StoredAlert {
   frequency: Frequency;
   email: string;
   createdAt: string;
+  enabled?: boolean;
+}
+
+interface ServerAlert {
+  id: string;
+  alert_type: AlertType;
+  condition_value: string;
+  email: string;
+  enabled: boolean;
+  last_triggered_at: string | null;
+  trigger_count: number;
+  created_at: string;
+}
+
+interface HistoryEntry {
+  id: string;
+  alert_id: string;
+  product_title: string;
+  message: string;
+  sent_at: string;
 }
 
 const STORAGE_KEY = 'majorka-alerts-v1';
@@ -37,15 +58,45 @@ const ALERT_TYPES: { key: AlertType; label: string; hint: string; unit: string; 
   { key: 'trending', label: 'Trending Now',    hint: "Track when a product's orders increase by",            unit: '% in 7 days', placeholder: '20' },
 ];
 
-function loadAlerts(): StoredAlert[] {
+function loadAlertsFromStorage(): StoredAlert[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? (JSON.parse(raw) as StoredAlert[]) : [];
   } catch { return []; }
 }
-function saveAlerts(alerts: StoredAlert[]) {
+function saveAlertsToStorage(alerts: StoredAlert[]) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(alerts)); } catch { /* ignore */ }
+}
+
+function serverAlertToStored(s: ServerAlert): StoredAlert {
+  return {
+    id: s.id,
+    type: s.alert_type,
+    category: 'All categories',
+    value: Number(s.condition_value) || 0,
+    frequency: 'daily',
+    email: s.email,
+    createdAt: s.created_at,
+    enabled: s.enabled,
+  };
+}
+
+async function getAuthToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
+async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = await getAuthToken();
+  const headers: Record<string, string> = {
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (init?.body) headers['Content-Type'] = 'application/json';
+  const res = await fetch(path, { ...init, headers });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json() as Promise<T>;
 }
 
 export default function Alerts() {
@@ -60,14 +111,60 @@ export default function Alerts() {
   const [frequency, setFrequency] = useState<Frequency>('daily');
   const [email, setEmail] = useState<string>(user?.email ?? '');
   const [toast, setToast] = useState<string | null>(null);
+  const [apiAvailable, setApiAvailable] = useState<boolean>(true);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
-  useEffect(() => { setAlerts(loadAlerts()); }, []);
+  const fetchAlerts = useCallback(async () => {
+    try {
+      const res = await apiFetch<{ alerts: ServerAlert[]; migrationPending?: boolean }>('/api/alerts');
+      if (res.migrationPending) {
+        setApiAvailable(false);
+        setAlerts(loadAlertsFromStorage());
+        return;
+      }
+      setApiAvailable(true);
+      const mapped = res.alerts.map(serverAlertToStored);
+      setAlerts(mapped);
+      saveAlertsToStorage(mapped);
+    } catch {
+      setApiAvailable(false);
+      setAlerts(loadAlertsFromStorage());
+    }
+  }, []);
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      const res = await apiFetch<{ history: HistoryEntry[] }>('/api/alerts/history');
+      setHistory(res.history);
+    } catch {
+      setHistory([]);
+    }
+  }, []);
+
+  useEffect(() => { fetchAlerts(); fetchHistory(); }, [fetchAlerts, fetchHistory]);
   useEffect(() => { if (user?.email && !email) setEmail(user.email); }, [user?.email, email]);
 
   const activeType = ALERT_TYPES.find((t) => t.key === type)!;
 
-  const createAlert = () => {
+  const createAlert = async () => {
     const numericValue = Number(value) || 0;
+    const conditionValue = type === 'new' ? (category || 'All categories') : String(numericValue);
+
+    if (apiAvailable) {
+      try {
+        await apiFetch<{ alert: ServerAlert }>('/api/alerts', {
+          method: 'POST',
+          body: JSON.stringify({ alertType: type, conditionValue, email }),
+        });
+        await fetchAlerts();
+        setToast('Alert created. Matching products will be emailed to you.');
+        setTimeout(() => setToast(null), 3000);
+        return;
+      } catch {
+        /* fall through to localStorage */
+      }
+    }
+
     const alert: StoredAlert = {
       id: `alert-${Date.now()}`,
       type,
@@ -79,15 +176,24 @@ export default function Alerts() {
     };
     const next = [alert, ...alerts];
     setAlerts(next);
-    saveAlerts(next);
-    setToast('Alert created. Check this page to see matches.');
+    saveAlertsToStorage(next);
+    setToast('Alert saved locally. Server sync unavailable.');
     setTimeout(() => setToast(null), 3000);
   };
 
-  const deleteAlert = (id: string) => {
+  const deleteAlert = async (id: string) => {
+    if (apiAvailable) {
+      try {
+        await apiFetch<{ ok: boolean }>(`/api/alerts/${id}`, { method: 'DELETE' });
+        await fetchAlerts();
+        return;
+      } catch {
+        /* fall through to localStorage */
+      }
+    }
     const next = alerts.filter((a) => a.id !== id);
     setAlerts(next);
-    saveAlerts(next);
+    saveAlertsToStorage(next);
   };
 
   const scrollToForm = () => {
@@ -116,7 +222,9 @@ export default function Alerts() {
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-          In-app tracking only — email notifications coming in v2.
+          {apiAvailable
+            ? 'Alerts are checked every 4 hours. Matching products are emailed to you.'
+            : 'Alerts are saved locally. Server-backed email notifications require a database migration — contact support.'}
         </p>
       </div>
 
@@ -131,7 +239,9 @@ export default function Alerts() {
         color: '#d4af37',
         lineHeight: 1.5,
       }}>
-        Alerts are currently tracked locally in your browser. Email and push notifications are on the roadmap. Your alerts will persist on this device.
+        {apiAvailable
+          ? 'Alerts are server-backed and checked every 4 hours. Matching products are emailed to the address you specify.'
+          : 'Alerts are currently tracked locally in your browser. Server-backed email notifications require a database migration — contact support.'}
       </div>
 
       {toast && (
@@ -293,7 +403,9 @@ export default function Alerts() {
               ))}
             </div>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontStyle: 'italic' }}>
-              These alerts are tracked locally on this device. Check this page to see matches. Email notifications are on the roadmap.
+              {apiAvailable
+                ? 'Tracked products are synced to the server. Alerts are checked every 4 hours.'
+                : 'These alerts are tracked locally on this device. Check this page to see matches.'}
             </p>
           </>
         )}
@@ -547,7 +659,47 @@ export default function Alerts() {
         </div>
       </section>
 
-      {/* Section 3 — Example notifications */}
+      {/* Section 3 — Recent notifications */}
+      <section style={{ marginBottom: 36 }}>
+        <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 6px' }}>Recent Notifications</h2>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: '0 0 14px' }}>Past alert matches sent to your email.</p>
+        {history.length === 0 ? (
+          <div style={{
+            background: '#0f0f0f',
+            border: '1px dashed #1a1a1a',
+            borderRadius: 10,
+            padding: '32px 24px',
+            textAlign: 'center',
+            color: 'rgba(255,255,255,0.4)',
+            fontSize: 13,
+          }}>
+            No notifications yet — alerts are checked every 4 hours
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 10 }}>
+            {history.map((h) => (
+              <div key={h.id} style={{
+                background: '#0f0f0f',
+                border: '1px solid #1a1a1a',
+                borderRadius: 8,
+                padding: '12px 14px',
+              }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {h.product_title}
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 6, lineHeight: 1.4 }}>
+                  {h.message}
+                </div>
+                <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>
+                  {new Date(h.sent_at).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Section 4 — Example notifications */}
       <section>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 6px' }}>Example Notifications</h2>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: '0 0 14px' }}>These illustrate what a triggered alert looks like.</p>
