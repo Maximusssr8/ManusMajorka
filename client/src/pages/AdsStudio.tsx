@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Trash2, Download } from 'lucide-react';
+import { Trash2, Download, Copy, Check, Zap, TrendingUp, DollarSign, Target, ChevronRight, Plus, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -8,26 +8,48 @@ import { proxyImage } from '@/lib/imageProxy';
 import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', 'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 const mono = "'JetBrains Mono', monospace";
 
-const PLATFORMS = [
-  { id: 'Facebook',  icon: '📘', label: 'Facebook',  sub: 'Feed, Reels, Stories' },
-  { id: 'Instagram', icon: '📸', label: 'Instagram', sub: 'Feed, Reels, Stories' },
-  { id: 'TikTok',    icon: '🎵', label: 'TikTok',    sub: 'For You Page' },
-  { id: 'YouTube',   icon: '▶️', label: 'YouTube',   sub: 'Pre-roll, Shorts' },
-] as const;
-type Platform = typeof PLATFORMS[number]['id'];
+// ── Hook Frameworks ──
+interface HookFramework {
+  id: string;
+  name: string;
+  icon: string;
+  template: string;
+  description: string;
+}
 
-const CREATIVE_TYPES = [
-  { id: 'primary_text',    label: '📝 Primary Text + Headline' },
-  { id: 'vsl_script',      label: '🎬 VSL Script' },
-  { id: 'ugc_script',      label: '🎭 UGC Script' },
-  { id: 'hook_variations', label: '🪝 Hook Variations' },
-  { id: 'image_ad_copy',   label: '🖼️ Image Ad Copy' },
-  { id: 'full_campaign',   label: '🚀 Full Campaign Brief' },
-] as const;
+const HOOK_FRAMEWORKS: HookFramework[] = [
+  { id: 'problem_solution', name: 'Problem \u2192 Solution', icon: '\u26A1', template: 'Tired of X? {Product} fixes it in Y.', description: 'Lead with the pain point, then present the product as the fix.' },
+  { id: 'before_after', name: 'Before \u2192 After', icon: '\u2728', template: 'My {area} before vs after using {Product}.', description: 'Visual transformation narrative that drives curiosity.' },
+  { id: 'social_proof', name: 'Social Proof', icon: '\uD83D\uDC65', template: '{X}k+ people already switched to {Product}.', description: 'Leverage crowd behaviour and FOMO to build trust.' },
+  { id: 'urgency_scarcity', name: 'Urgency / Scarcity', icon: '\u23F3', template: "Only {N} left at this price. Here's why everyone wants {Product}.", description: 'Create time pressure with limited stock or pricing.' },
+  { id: 'curiosity_hook', name: 'Curiosity Hook', icon: '\uD83E\uDD14', template: "I can't believe this {Product} actually works for ${price}.", description: 'Open a curiosity gap the viewer must close by watching.' },
+  { id: 'ugc_testimonial', name: 'UGC / Testimonial', icon: '\uD83C\uDFA4', template: 'I was skeptical, but after 2 weeks with {Product}...', description: 'First-person story format that feels authentic and relatable.' },
+];
+
+// ── Ad Format Tabs ──
+interface AdFormat {
+  id: string;
+  label: string;
+  platform: string;
+  aspect: string;
+  charLimit: number;
+  headlineLimit: number;
+  tone: string;
+  chromeColor: string;
+  chromeLabelColor: string;
+  chromeLabel: string;
+}
+
+const AD_FORMATS: AdFormat[] = [
+  { id: 'meta_feed', label: 'Meta Feed', platform: 'Meta', aspect: '1:1', charLimit: 125, headlineLimit: 40, tone: 'direct, benefit-led, AU English', chromeColor: '#1a1a2e', chromeLabelColor: '#4267B2', chromeLabel: 'Sponsored' },
+  { id: 'meta_story', label: 'Meta Story', platform: 'Meta', aspect: '9:16', charLimit: 90, headlineLimit: 30, tone: 'shorter, swipe-up CTA, punchy', chromeColor: '#1a1a2e', chromeLabelColor: '#4267B2', chromeLabel: 'Story Ad' },
+  { id: 'tiktok_feed', label: 'TikTok Feed', platform: 'TikTok', aspect: '9:16', charLimit: 150, headlineLimit: 40, tone: 'casual, emoji-heavy, 3-second hook, trending language', chromeColor: '#000000', chromeLabelColor: '#ff0050', chromeLabel: 'For You' },
+  { id: 'tiktok_story', label: 'TikTok Story', platform: 'TikTok', aspect: '9:16', charLimit: 80, headlineLimit: 25, tone: 'ultra-short, trending sound reference, 15s max script', chromeColor: '#000000', chromeLabelColor: '#ff0050', chromeLabel: 'Promoted' },
+];
 
 const FUNNEL_STAGES = ['Cold Traffic', 'Warm Retargeting', 'Cart Abandonment'] as const;
 const AD_OBJECTIVES = ['Conversions', 'Traffic', 'Awareness'] as const;
@@ -45,16 +67,19 @@ interface DbProduct {
   product_url: string | null;
 }
 
-interface ParsedSections {
-  primaryHook: string;
+interface FormatOutput {
+  hook: string;
   headline: string;
-  primaryText: string;
-  fullBody: string;
+  body: string;
   cta: string;
-  hookA: string;
-  hookB: string;
-  hookC: string;
-  objectionKiller: string;
+}
+
+interface BulkVariation {
+  id: number;
+  hook: string;
+  headline: string;
+  body: string;
+  cta: string;
 }
 
 interface SavedAd {
@@ -77,33 +102,63 @@ function loadSavedAds(): SavedAd[] {
   catch { return []; }
 }
 function persistSavedAds(items: SavedAd[]) {
-  try { localStorage.setItem(SAVED_KEY, JSON.stringify(items.slice(0, 10))); } catch { /* ignore */ }
+  try { localStorage.setItem(SAVED_KEY, JSON.stringify(items.slice(0, 20))); } catch { /* ignore */ }
 }
 
-// Parser — splits AI response by the exact labels the system prompt requests
-function parseSections(text: string): ParsedSections {
-  const grab = (label: string, nextLabels: string[]): string => {
-    const re = new RegExp(`${label}\\s*:?\\s*\\n?([\\s\\S]*?)(?=${nextLabels.map((l) => l + '\\s*:').join('|')}|$)`, 'i');
-    const match = text.match(re);
-    return match ? match[1].trim().replace(/^\[|\]$/g, '').trim() : '';
-  };
-  const LABELS = [
-    'PRIMARY HOOK', 'HEADLINE', 'PRIMARY TEXT \\(125 chars\\)', 'PRIMARY TEXT',
-    'FULL BODY COPY', 'CTA BUTTON',
-    'HOOK VARIATION 1', 'HOOK VARIATION 2', 'HOOK VARIATION 3',
-    'OBJECTION KILLER',
-  ];
-  return {
-    primaryHook:     grab('PRIMARY HOOK',             LABELS),
-    headline:        grab('HEADLINE',                 LABELS),
-    primaryText:     grab('PRIMARY TEXT( \\(125 chars\\))?', LABELS),
-    fullBody:        grab('FULL BODY COPY',           LABELS),
-    cta:             grab('CTA BUTTON',               LABELS),
-    hookA:           grab('HOOK VARIATION 1',         LABELS),
-    hookB:           grab('HOOK VARIATION 2',         LABELS),
-    hookC:           grab('HOOK VARIATION 3',         LABELS),
-    objectionKiller: grab('OBJECTION KILLER',         LABELS),
-  };
+// ── CPM heuristics by category keyword ──
+function getCPMRange(category: string | null): { low: number; high: number; label: string } {
+  const cat = (category ?? '').toLowerCase();
+  if (cat.includes('tech') || cat.includes('electronic') || cat.includes('gadget') || cat.includes('phone')) return { low: 8, high: 12, label: 'Tech' };
+  if (cat.includes('beauty') || cat.includes('skin') || cat.includes('makeup') || cat.includes('hair')) return { low: 6, high: 10, label: 'Beauty' };
+  if (cat.includes('home') || cat.includes('kitchen') || cat.includes('garden') || cat.includes('decor')) return { low: 5, high: 8, label: 'Home' };
+  if (cat.includes('fashion') || cat.includes('clothing') || cat.includes('apparel') || cat.includes('jewel')) return { low: 10, high: 15, label: 'Fashion' };
+  if (cat.includes('pet') || cat.includes('dog') || cat.includes('cat')) return { low: 4, high: 7, label: 'Pet' };
+  if (cat.includes('fitness') || cat.includes('sport') || cat.includes('gym') || cat.includes('yoga')) return { low: 7, high: 11, label: 'Fitness' };
+  if (cat.includes('baby') || cat.includes('kid') || cat.includes('toy')) return { low: 5, high: 9, label: 'Kids/Baby' };
+  return { low: 6, high: 10, label: 'General' };
+}
+
+// ── Parse multi-format AI response ──
+function parseMultiFormat(text: string): Record<string, FormatOutput> {
+  const results: Record<string, FormatOutput> = {};
+  for (const fmt of AD_FORMATS) {
+    const sectionRe = new RegExp(`---\\s*${fmt.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*---([\\s\\S]*?)(?=---\\s*(?:Meta|TikTok)|$)`, 'i');
+    const section = text.match(sectionRe);
+    const block = section ? section[1] : '';
+    const grab = (label: string): string => {
+      const re = new RegExp(`${label}\\s*:\\s*(.+?)(?:\\n|$)`, 'i');
+      const m = block.match(re);
+      return m ? m[1].trim().replace(/^\[|\]$/g, '').trim() : '';
+    };
+    results[fmt.id] = {
+      hook: grab('HOOK'),
+      headline: grab('HEADLINE'),
+      body: grab('BODY'),
+      cta: grab('CTA'),
+    };
+  }
+  return results;
+}
+
+// ── Parse bulk variations ──
+function parseBulkVariations(text: string): BulkVariation[] {
+  const variations: BulkVariation[] = [];
+  const blocks = text.split(/(?:VARIATION|VAR)\s*#?\d+/i).filter((b) => b.trim());
+  for (const block of blocks) {
+    const grab = (label: string): string => {
+      const re = new RegExp(`${label}\\s*:\\s*(.+?)(?:\\n|$)`, 'i');
+      const m = block.match(re);
+      return m ? m[1].trim().replace(/^\[|\]$/g, '').trim() : '';
+    };
+    const hook = grab('HOOK');
+    const headline = grab('HEADLINE');
+    const body = grab('BODY') || grab('COPY');
+    const cta = grab('CTA');
+    if (hook || headline) {
+      variations.push({ id: Date.now() + variations.length, hook, headline, body, cta });
+    }
+  }
+  return variations;
 }
 
 export default function AdsStudio() {
@@ -116,27 +171,34 @@ export default function AdsStudio() {
   const [audience, setAudience] = useState('');
   const [pricePoint, setPricePoint] = useState('');
   const [benefit, setBenefit] = useState('');
-  const [platforms, setPlatforms] = useState<Platform[]>(['Facebook', 'Instagram']);
-  const [creativeType, setCreativeType] = useState('primary_text');
   const [funnelStage, setFunnelStage] = useState<typeof FUNNEL_STAGES[number]>('Cold Traffic');
   const [adObjective, setAdObjective] = useState<typeof AD_OBJECTIVES[number]>('Conversions');
+  const [selectedFramework, setSelectedFramework] = useState<string | null>(null);
 
   // DB picker
   const [showPicker, setShowPicker] = useState(false);
   const [dbProducts, setDbProducts] = useState<DbProduct[]>([]);
   const [dbLoading, setDbLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<DbProduct | null>(null);
+  const [pickerSearch, setPickerSearch] = useState('');
 
   // Output
-  const [parsed, setParsed] = useState<ParsedSections | null>(null);
+  const [formatOutputs, setFormatOutputs] = useState<Record<string, FormatOutput>>({});
+  const [activeTab, setActiveTab] = useState('meta_feed');
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState<string>('');
+  const [copied, setCopied] = useState('');
   const [token, setToken] = useState('');
+
+  // Bulk variations
+  const [bulkVariations, setBulkVariations] = useState<BulkVariation[]>([]);
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   // Saved ads
   const [saved, setSaved] = useState<SavedAd[]>([]);
   const [expandedSaved, setExpandedSaved] = useState<number | null>(null);
 
   const outputRef = useRef<HTMLDivElement>(null);
+  const hasOutput = Object.keys(formatOutputs).length > 0;
 
   useEffect(() => {
     document.title = 'Ads Studio | Majorka';
@@ -145,8 +207,6 @@ export default function AdsStudio() {
     });
     setSaved(loadSavedAds());
 
-    // Pre-fill from a 'Create Ad' click on the Products page.
-    // sessionStorage key written by ProductSheet handleCreateAd.
     try {
       const stored = sessionStorage.getItem('majorka_ad_product');
       if (stored) {
@@ -166,27 +226,18 @@ export default function AdsStudio() {
     }
   }, []);
 
+  // ── Picker helpers ──
   async function openPicker() {
     setShowPicker(true);
     if (dbProducts.length > 0) return;
     setDbLoading(true);
     try {
-      // Use the server route — bypasses RLS via service role key, no client-side auth hassle
       const r = await fetch('/api/products/top20');
-      if (!r.ok) {
-        console.error('[ads-studio] DB picker HTTP error:', r.status);
-        setDbProducts([]);
-        return;
-      }
+      if (!r.ok) { setDbProducts([]); return; }
       const data = await r.json() as { products: DbProduct[]; count: number; error?: string };
-      if (data.error) {
-        console.error('[ads-studio] DB picker server error:', data.error);
-        setDbProducts([]);
-        return;
-      }
+      if (data.error) { setDbProducts([]); return; }
       setDbProducts(data.products ?? []);
-    } catch (err) {
-      console.error('[ads-studio] DB picker threw:', err);
+    } catch {
       setDbProducts([]);
     } finally {
       setDbLoading(false);
@@ -195,10 +246,9 @@ export default function AdsStudio() {
 
   function pickProduct(p: DbProduct) {
     setProductName(p.product_title);
-    if (p.price_aud != null) {
-      setPricePoint(`$${Number(p.price_aud).toFixed(2)} AUD`);
-    }
+    if (p.price_aud != null) setPricePoint(`$${Number(p.price_aud).toFixed(2)} AUD`);
     if (p.product_url) setProductUrl(p.product_url);
+    setSelectedProduct(p);
     setShowPicker(false);
   }
 
@@ -208,68 +258,65 @@ export default function AdsStudio() {
     setTimeout(() => setCopied(''), 2000);
   }
 
-  function togglePlatform(p: Platform) {
-    setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
+  // ── Intelligence computations ──
+  function getIntelligence(p: DbProduct | null) {
+    if (!p) return null;
+    const sold = Number(p.sold_count) || 0;
+    const price = Number(p.price_aud) || 0;
+    const dailyOrders = Math.max(1, Math.floor(sold / 365));
+    const suggestedBudget = Math.round(dailyOrders * price * 0.15 * 100) / 100;
+    const competitionLevel = sold > 50000 ? 'high' : sold > 10000 ? 'medium' : 'low';
+    const competitionLabel = competitionLevel === 'high'
+      ? 'High competition \u2014 differentiate your angle'
+      : competitionLevel === 'medium'
+        ? 'Medium competition \u2014 good opportunities exist'
+        : 'Low competition \u2014 great for new advertisers';
+    return { dailyOrders, suggestedBudget, competitionLevel, competitionLabel, sold, price };
   }
 
+  // ── Generate ──
   async function generate() {
-    // Log FIRST so we can see if the handler is firing even when validation bails.
-    if (!productName.trim()) {
-      return;
-    }
+    if (!productName.trim()) return;
     setLoading(true);
-    setParsed(null);
+    setFormatOutputs({});
+    setBulkVariations([]);
 
-    const userPrompt = `Write a complete ad package for this dropshipping product targeting the Australian market.
+    const framework = HOOK_FRAMEWORKS.find((f) => f.id === selectedFramework);
+    const frameworkInstruction = framework
+      ? `\n\nUse this hook framework: ${framework.name} \u2014 ${framework.template}`
+      : '';
+
+    const formatInstructions = AD_FORMATS.map((fmt) =>
+      `--- ${fmt.label} ---\nHOOK: [${fmt.tone}, max ${fmt.charLimit} chars for body]\nHEADLINE: [max ${fmt.headlineLimit} chars]\nBODY: [${fmt.tone}, max ${fmt.charLimit} chars]\nCTA: [one of: Shop Now / Get Yours / Order Today / Grab It / Try It Now]`
+    ).join('\n\n');
+
+    const userPrompt = `Write ad copy for this dropshipping product targeting the Australian market. Generate copy for ALL 4 formats below.
 
 PRODUCT: ${productName}
 PRICE: ${pricePoint || 'not specified'} AUD
 TARGET AUDIENCE: ${audience || 'Australian dropshipping customers aged 25-45'}
 KEY BENEFIT: ${benefit || 'not specified'}
 FUNNEL STAGE: ${funnelStage}
-PLATFORMS: ${platforms.join(', ')}
-CREATIVE TYPE: ${CREATIVE_TYPES.find((t) => t.id === creativeType)?.label ?? creativeType}
+OBJECTIVE: ${adObjective}
+${frameworkInstruction}
 
-Return EXACTLY this structure with these labels:
+Return EXACTLY this structure with these section markers:
 
-PRIMARY HOOK:
-[The first 1-2 sentences that stop the scroll. Must be punchy and specific to this product. No fluff.]
+${formatInstructions}
 
-HEADLINE:
-[Under 40 characters. Benefit-led. Specific.]
-
-PRIMARY TEXT (125 chars):
-[The preview text. MUST be under 125 characters. Count carefully.]
-
-FULL BODY COPY:
-[3-4 sentences. Includes a social proof signal, addresses the main objection, ends with urgency and CTA. Conversational AU English.]
-
-CTA BUTTON:
-[One of: Shop Now / Get Yours / Order Today / Grab It / Try It Now]
-
-HOOK VARIATION 1:
-[Alternative opening line for split testing]
-
-HOOK VARIATION 2:
-[Another alternative opening]
-
-HOOK VARIATION 3:
-[Another alternative opening]
-
-OBJECTION KILLER:
-[One sentence that neutralises the main reason someone would scroll past]`;
+Rules:
+- Each format has different tone and length constraints — follow them strictly.
+- TikTok copy should use emoji, casual language, trending phrases.
+- Meta copy should be direct, benefit-led, professional AU English.
+- Count characters carefully for each format.
+- CTA must be one of: Shop Now / Get Yours / Order Today / Grab It / Try It Now`;
 
     const API_URL = '/api/ai/generate';
     try {
-      // Always fetch a fresh session at call time — avoids empty-token race on first click
       const { data: sessionData } = await supabase.auth.getSession();
       const freshToken = sessionData.session?.access_token ?? token;
       if (!freshToken) {
-        setParsed({
-          primaryHook: 'Please sign in to generate ads.',
-          headline: '', primaryText: '', fullBody: '', cta: '',
-          hookA: '', hookB: '', hookC: '', objectionKiller: '',
-        });
+        setFormatOutputs({ meta_feed: { hook: 'Please sign in to generate ads.', headline: '', body: '', cta: '' } });
         setLoading(false);
         return;
       }
@@ -281,55 +328,106 @@ OBJECTION KILLER:
           system: ADS_SYSTEM_PROMPT,
           prompt: userPrompt,
           productName,
-          platforms,
-          creativeType,
+          platforms: ['Facebook', 'Instagram', 'TikTok'],
+          creativeType: 'primary_text',
           model: 'claude-haiku-4-5',
-          max_tokens: 1400,
+          max_tokens: 2400,
         }),
       });
       const d = await r.json();
       const result: string = d.result || d.content || d.text || d.output || '';
       if (!r.ok || !result) {
         const msg = r.status === 429
-          ? 'Usage limit reached — try again in a minute.'
-          : !result ? 'Empty response from AI — try again.'
+          ? 'Usage limit reached \u2014 try again in a minute.'
+          : !result ? 'Empty response from AI \u2014 try again.'
           : `Generation failed (${r.status}).`;
-        setParsed({
-          primaryHook: msg, headline: '', primaryText: '', fullBody: '', cta: '',
-          hookA: '', hookB: '', hookC: '', objectionKiller: '',
-        });
+        setFormatOutputs({ meta_feed: { hook: msg, headline: '', body: '', cta: '' } });
         setLoading(false);
         return;
       }
-      const sections = parseSections(result);
-      setParsed(sections);
+      const outputs = parseMultiFormat(result);
+      setFormatOutputs(outputs);
 
-      // Persist to localStorage
+      // Save to history
+      const metaFeed = outputs.meta_feed ?? { hook: '', headline: '', body: '', cta: '' };
       const entry: SavedAd = {
         id: Date.now(),
         productName,
-        platform: platforms.join(' + '),
+        platform: 'Multi-format',
         createdAt: new Date().toISOString(),
-        hook: sections.primaryHook,
-        headline: sections.headline,
-        primaryText: sections.primaryText,
-        fullBody: sections.fullBody,
-        cta: sections.cta,
+        hook: metaFeed.hook,
+        headline: metaFeed.headline,
+        primaryText: metaFeed.body,
+        fullBody: Object.values(outputs).map((o) => `${o.hook}\n${o.body}`).join('\n\n'),
+        cta: metaFeed.cta,
       };
-      const next = [entry, ...saved].slice(0, 10);
+      const next = [entry, ...saved].slice(0, 20);
       setSaved(next);
       persistSavedAds(next);
 
       setTimeout(() => outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    } catch (err) {
-      console.error('[ads-studio] generate error:', err);
-      setParsed({
-        primaryHook: 'Connection error — check your internet and try again.',
-        headline: '', primaryText: '', fullBody: '', cta: '',
-        hookA: '', hookB: '', hookC: '', objectionKiller: '',
-      });
+    } catch {
+      setFormatOutputs({ meta_feed: { hook: 'Connection error \u2014 check your internet and try again.', headline: '', body: '', cta: '' } });
     }
     setLoading(false);
+  }
+
+  // ── Bulk Variations ──
+  async function generateBulkVariations() {
+    if (!productName.trim()) return;
+    setBulkLoading(true);
+
+    const framework = HOOK_FRAMEWORKS.find((f) => f.id === selectedFramework);
+    const frameworkNote = framework ? ` Use the ${framework.name} framework.` : '';
+
+    const prompt = `Generate 5 different ad variations for this product. Each variation should have a completely different angle and hook.${frameworkNote}
+
+PRODUCT: ${productName}
+PRICE: ${pricePoint || 'not specified'} AUD
+TARGET AUDIENCE: ${audience || 'Australian dropshipping customers aged 25-45'}
+KEY BENEFIT: ${benefit || 'not specified'}
+
+For each variation, output:
+VARIATION #1
+HOOK: [the opening line]
+HEADLINE: [under 40 chars]
+BODY: [2-3 sentences, conversational AU English]
+CTA: [one of: Shop Now / Get Yours / Order Today / Grab It / Try It Now]
+
+VARIATION #2
+... (repeat for all 5)
+
+Make each variation feel genuinely different — different angles, different emotions, different structures.`;
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const freshToken = sessionData.session?.access_token ?? token;
+      if (!freshToken) { setBulkLoading(false); return; }
+
+      const r = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${freshToken}` },
+        body: JSON.stringify({
+          tool: 'ads_studio',
+          system: ADS_SYSTEM_PROMPT,
+          prompt,
+          productName,
+          platforms: ['Facebook'],
+          creativeType: 'hook_variations',
+          model: 'claude-haiku-4-5',
+          max_tokens: 2000,
+        }),
+      });
+      const d = await r.json();
+      const result: string = d.result || d.content || d.text || d.output || '';
+      if (result) {
+        const parsed = parseBulkVariations(result);
+        setBulkVariations((prev) => [...prev, ...parsed]);
+      }
+    } catch {
+      // silent fail
+    }
+    setBulkLoading(false);
   }
 
   function deleteSaved(id: number) {
@@ -339,6 +437,70 @@ OBJECTION KILLER:
     if (expandedSaved === id) setExpandedSaved(null);
   }
 
+  function removeVariation(id: number) {
+    setBulkVariations((prev) => prev.filter((v) => v.id !== id));
+  }
+
+  function useVariation(v: BulkVariation) {
+    const text = `HOOK: ${v.hook}\nHEADLINE: ${v.headline}\nBODY: ${v.body}\nCTA: ${v.cta}`;
+    navigator.clipboard.writeText(text).catch(() => {});
+    setCopied(`var-${v.id}`);
+    setTimeout(() => setCopied(''), 2000);
+  }
+
+  // ── Export CSV ──
+  function exportCSV() {
+    const rows: string[][] = [['Format', 'Hook', 'Headline', 'Body', 'CTA']];
+    for (const fmt of AD_FORMATS) {
+      const o = formatOutputs[fmt.id];
+      if (o) {
+        rows.push([fmt.label, o.hook, o.headline, o.body, o.cta]);
+      }
+    }
+    for (const v of bulkVariations) {
+      rows.push(['Variation', v.hook, v.headline, v.body, v.cta]);
+    }
+    const csv = rows.map((r) => r.map((c) => `"${(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const slug = (productName || 'ad-pack').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `majorka-ad-pack-${slug}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Export TXT (legacy) ──
+  function exportTxt() {
+    const lines = ['MAJORKA AD PACK', `Product: ${productName || 'N/A'}`, `Generated: ${new Date().toLocaleDateString('en-AU')}`, '---', ''];
+    for (const fmt of AD_FORMATS) {
+      const o = formatOutputs[fmt.id];
+      if (o) {
+        lines.push(`=== ${fmt.label} ===`, `Hook: ${o.hook}`, `Headline: ${o.headline}`, `Body: ${o.body}`, `CTA: ${o.cta}`, '');
+      }
+    }
+    if (bulkVariations.length > 0) {
+      lines.push('=== VARIATIONS ===', '');
+      bulkVariations.forEach((v, i) => {
+        lines.push(`Variation ${i + 1}:`, `Hook: ${v.hook}`, `Headline: ${v.headline}`, `Body: ${v.body}`, `CTA: ${v.cta}`, '');
+      });
+    }
+    lines.push('---', 'Generated by Majorka \u00b7 majorka.io');
+    const slug = (productName || 'ad-pack').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `majorka-ad-brief-${slug}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   // Access gate
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
@@ -346,28 +508,70 @@ OBJECTION KILLER:
     return <UpgradeModal isOpen={true} onClose={() => setLocation('/app')} feature="Ads Studio" reason="Generate high-converting ad creatives" />;
   }
 
+  const intel = getIntelligence(selectedProduct);
+  const cpmRange = getCPMRange(selectedProduct?.category ?? null);
+  const priceNum = Number(selectedProduct?.price_aud) || 0;
+  const filteredProducts = dbProducts.filter((p) =>
+    !pickerSearch || p.product_title.toLowerCase().includes(pickerSearch.toLowerCase())
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#080808', fontFamily: dm, color: '#ededed' }}>
       {/* Header */}
       <div style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#f1f1f3', margin: 0, letterSpacing: '-0.02em' }}>Ads Studio</h1>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '3px 0 0' }}>Expert direct-response ad copy, crafted for AU dropshipping operators</p>
+          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: '#f1f1f3', margin: 0, letterSpacing: '-0.02em' }}>Ads Studio</h1>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '3px 0 0' }}>AI ad creative engine for AU dropshipping operators</p>
         </div>
         <span style={{
-          fontSize: 10, fontWeight: 700, color: '#10b981',
-          background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)',
+          fontSize: 10, fontWeight: 700, color: '#d4af37',
+          background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)',
           padding: '4px 10px', borderRadius: 999, fontFamily: mono, letterSpacing: '0.05em',
-        }}>✨ AI</span>
+        }}>AI STUDIO</span>
       </div>
 
       <div style={{ padding: '0 28px', paddingTop: 8 }}>
         <UsageMeter feature="ads_studio" limit={PLAN_LIMITS.builder.ads_studio} label="ad generations" />
       </div>
 
-      {/* 3-col */}
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 280px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
-        {/* ── LEFT: Form — bg-surface ── */}
+      {/* ── INTELLIGENCE PANEL ── */}
+      {intel && selectedProduct && (
+        <div style={{ padding: '12px 28px 0' }}>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12,
+            background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 8, padding: 16,
+          }}>
+            <IntelCard
+              icon={<TrendingUp size={14} color="#d4af37" />}
+              label="Daily Orders"
+              value={`${intel.dailyOrders}/day`}
+              sub={`${intel.sold.toLocaleString()} total orders`}
+            />
+            <IntelCard
+              icon={<Target size={14} color={intel.competitionLevel === 'low' ? '#10b981' : intel.competitionLevel === 'medium' ? '#f59e0b' : '#f97316'} />}
+              label="Competition"
+              value={intel.competitionLevel.charAt(0).toUpperCase() + intel.competitionLevel.slice(1)}
+              sub={intel.competitionLabel}
+            />
+            <IntelCard
+              icon={<DollarSign size={14} color="#3B82F6" />}
+              label="Suggested Daily Budget"
+              value={`$${intel.suggestedBudget.toFixed(2)} AUD`}
+              sub={`Based on ${intel.dailyOrders} orders/day at $${intel.price.toFixed(2)}`}
+            />
+            <IntelCard
+              icon={<Zap size={14} color="#a78bfa" />}
+              label="Category"
+              value={selectedProduct.category ? (selectedProduct.category.length > 22 ? selectedProduct.category.slice(0, 22) + '\u2026' : selectedProduct.category) : 'Uncategorised'}
+              sub={`CPM range: $${cpmRange.low}\u2013$${cpmRange.high} (${cpmRange.label})`}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 3-col layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr 280px', height: intel ? 'calc(100vh - 170px)' : 'calc(100vh - 100px)', overflow: 'hidden' }}>
+        {/* ── LEFT: Form ── */}
         <div style={{
           position: 'relative',
           background: '#0d0d0d',
@@ -377,122 +581,89 @@ OBJECTION KILLER:
           height: '100%',
           minHeight: 0,
         }}>
-        {/* Scrollable form content */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '18px 18px 12px',
-          minHeight: 0,
-        }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '18px 18px 12px', minHeight: 0 }}>
           {/* DB Picker button */}
           <button
             onClick={openPicker}
             style={{
-              width: '100%',
-              padding: '10px 12px',
-              background: 'rgba(124,106,255,0.1)',
-              border: '1px solid rgba(124,106,255,0.28)',
-              borderRadius: 9,
-              color: '#a78bfa',
-              fontFamily: dm, fontSize: 12, fontWeight: 600,
-              cursor: 'pointer',
-              marginBottom: 14,
+              width: '100%', padding: '10px 12px',
+              background: selectedProduct ? 'rgba(212,175,55,0.08)' : 'rgba(124,106,255,0.1)',
+              border: `1px solid ${selectedProduct ? 'rgba(212,175,55,0.25)' : 'rgba(124,106,255,0.28)'}`,
+              borderRadius: 8, color: selectedProduct ? '#d4af37' : '#a78bfa',
+              fontFamily: dm, fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 14,
               display: 'flex', alignItems: 'center', gap: 8,
             }}
-          >🎯 Pick from your product database</button>
+          >
+            {selectedProduct ? (
+              <>
+                {selectedProduct.image_url && (
+                  <img src={proxyImage(selectedProduct.image_url) ?? selectedProduct.image_url} alt="" style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                )}
+                <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedProduct.product_title.length > 30 ? selectedProduct.product_title.slice(0, 30) + '\u2026' : selectedProduct.product_title}</span>
+                <ChevronRight size={14} />
+              </>
+            ) : (
+              <>\uD83C\uDFAF Pick from your product database</>
+            )}
+          </button>
 
           {showPicker && (
             <div style={{
-              position: 'absolute',
-              top: 60,
-              left: 18,
-              right: 18,
-              zIndex: 50,
-              background: '#1c1c1c',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 10,
-              maxHeight: 320,
-              overflowY: 'auto',
+              position: 'absolute', top: 60, left: 18, right: 18, zIndex: 50,
+              background: '#1c1c1c', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 10, maxHeight: 360, overflowY: 'auto',
               boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
             }}>
-              <div style={{
-                padding: '10px 14px',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              }}>
-                <span style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  Top 20 by orders
-                </span>
-                <button onClick={() => setShowPicker(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 16 }}>×</button>
+              <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <input
+                  value={pickerSearch}
+                  onChange={(e) => setPickerSearch(e.target.value)}
+                  placeholder="Search products..."
+                  style={{ flex: 1, height: 28, padding: '0 8px', background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, fontSize: 11, color: '#f1f1f3', outline: 'none', fontFamily: dm }}
+                />
+                <button onClick={() => setShowPicker(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 16, padding: 4 }}>\u00D7</button>
               </div>
               {dbLoading ? (
-                <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Loading…</div>
-              ) : dbProducts.length === 0 ? (
+                <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Loading\u2026</div>
+              ) : filteredProducts.length === 0 ? (
                 <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>No products found</div>
-              ) : dbProducts.map((p) => {
-                const truncName = (p.product_title ?? '').length > 45 ? (p.product_title ?? '').slice(0, 45) + '…' : p.product_title;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => pickProduct(p)}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: '10px 14px',
-                      background: 'transparent',
-                      border: 'none',
-                      borderBottom: '1px solid rgba(255,255,255,0.04)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'background 100ms',
-                    }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,106,255,0.06)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                  >
-                    <div style={{
-                      width: 40, height: 40,
-                      borderRadius: 6,
-                      background: '#0f0f14',
-                      flexShrink: 0,
-                      overflow: 'hidden',
-                    }}>
-                      {p.image_url && (
-                        <img
-                          src={proxyImage(p.image_url) ?? p.image_url}
-                          alt={p.product_title}
-                          loading="lazy"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                        />
+              ) : filteredProducts.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => pickProduct(p)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 14px', background: 'transparent', border: 'none',
+                    borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', textAlign: 'left',
+                    transition: 'background 100ms',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(212,175,55,0.06)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 6, background: '#0f0f14', flexShrink: 0, overflow: 'hidden' }}>
+                    {p.image_url && (
+                      <img src={proxyImage(p.image_url) ?? p.image_url} alt={p.product_title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#e8e8f0', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.product_title.length > 45 ? p.product_title.slice(0, 45) + '\u2026' : p.product_title}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      {p.category && (
+                        <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', padding: '1px 6px', borderRadius: 999, fontFamily: dm }}>
+                          {p.category.length > 20 ? p.category.slice(0, 20) + '\u2026' : p.category}
+                        </span>
+                      )}
+                      {p.sold_count != null && p.sold_count > 0 && (
+                        <span style={{ fontSize: 10, color: '#10b981', fontFamily: mono, fontWeight: 600 }}>
+                          {p.sold_count >= 1000 ? `${Math.round(p.sold_count / 1000)}k` : p.sold_count} orders
+                        </span>
                       )}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#e8e8f0', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {truncName}
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                        {p.category && (
-                          <span style={{
-                            fontSize: 9,
-                            background: 'rgba(255,255,255,0.05)',
-                            color: 'rgba(255,255,255,0.5)',
-                            padding: '1px 6px',
-                            borderRadius: 999,
-                            fontFamily: dm,
-                          }}>{p.category.length > 20 ? p.category.slice(0, 20) + '…' : p.category}</span>
-                        )}
-                        {p.sold_count != null && p.sold_count > 0 && (
-                          <span style={{ fontSize: 10, color: '#10b981', fontFamily: mono, fontWeight: 600 }}>
-                            {p.sold_count >= 1000 ? `${Math.round(p.sold_count / 1000)}k` : p.sold_count} orders
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+                  </div>
+                </button>
+              ))}
             </div>
           )}
 
@@ -501,9 +672,9 @@ OBJECTION KILLER:
 
           {[
             { label: 'Product Name *', value: productName, set: setProductName, placeholder: 'e.g. LED Light Therapy Face Mask', required: true },
-            { label: 'Product URL',    value: productUrl,  set: setProductUrl,  placeholder: 'https://yourstore.com/product', required: false },
-            { label: 'Target Audience', value: audience,   set: setAudience,    placeholder: 'e.g. Women 28–45, AU, skincare', required: false },
-            { label: 'Price Point',    value: pricePoint,  set: setPricePoint,  placeholder: 'e.g. $49.99 AUD', required: false },
+            { label: 'Product URL', value: productUrl, set: setProductUrl, placeholder: 'https://yourstore.com/product', required: false },
+            { label: 'Target Audience', value: audience, set: setAudience, placeholder: 'e.g. Women 28\u201345, AU, skincare', required: false },
+            { label: 'Price Point', value: pricePoint, set: setPricePoint, placeholder: 'e.g. $49.99 AUD', required: false },
           ].map(({ label, value, set, placeholder, required }) => (
             <div key={label} style={{ marginBottom: 10 }}>
               <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>{label}</label>
@@ -512,17 +683,10 @@ OBJECTION KILLER:
                 onChange={(e) => set(e.target.value)}
                 placeholder={placeholder}
                 style={{
-                  width: '100%',
-                  height: 34,
-                  padding: '0 10px',
+                  width: '100%', height: 34, padding: '0 10px',
                   border: `1px solid ${required && !value ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                  borderRadius: 7,
-                  fontSize: 12,
-                  color: '#f1f1f3',
-                  background: '#0a0a0c',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  fontFamily: dm,
+                  borderRadius: 6, fontSize: 12, color: '#f1f1f3', background: '#0a0a0c',
+                  outline: 'none', boxSizing: 'border-box', fontFamily: dm,
                 }}
               />
             </div>
@@ -537,7 +701,7 @@ OBJECTION KILLER:
               rows={2}
               style={{
                 width: '100%', padding: '6px 10px',
-                border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7,
+                border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6,
                 fontSize: 12, color: '#f1f1f3', background: '#0a0a0c',
                 outline: 'none', resize: 'none' as const, boxSizing: 'border-box', fontFamily: dm,
               }}
@@ -547,21 +711,18 @@ OBJECTION KILLER:
           {/* Funnel stage */}
           <div style={{ marginBottom: 10 }}>
             <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Funnel Stage</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', gap: 4 }}>
               {FUNNEL_STAGES.map((s) => {
                 const active = funnelStage === s;
                 return (
                   <button key={s} onClick={() => setFunnelStage(s)} style={{
-                    textAlign: 'left',
-                    padding: '7px 10px',
+                    flex: 1, padding: '6px 4px',
                     background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
                     border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                    borderRadius: 7,
-                    fontSize: 11, fontWeight: 600,
-                    color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)',
-                    cursor: 'pointer',
+                    borderRadius: 6, fontSize: 10, fontWeight: 600,
+                    color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)', cursor: 'pointer',
                   }}>
-                    {s === 'Cold Traffic' ? '🧊 ' : s === 'Warm Retargeting' ? '🔥 ' : '🛒 '}{s}
+                    {s === 'Cold Traffic' ? '\uD83E\uDDCA' : s === 'Warm Retargeting' ? '\uD83D\uDD25' : '\uD83D\uDED2'} {s.split(' ')[0]}
                   </button>
                 );
               })}
@@ -580,154 +741,313 @@ OBJECTION KILLER:
                     background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
                     color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)',
                     border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                    borderRadius: 6, fontSize: 10, fontWeight: 600,
-                    cursor: 'pointer',
+                    borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer',
                   }}>{o}</button>
                 );
               })}
             </div>
           </div>
 
-          {/* Platforms */}
-          <div style={{ marginBottom: 10 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Platforms</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
-              {PLATFORMS.map((p) => {
-                const active = platforms.includes(p.id);
+          {/* ── HOOK FRAMEWORK SELECTOR ── */}
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: mono }}>Hook Framework</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              {HOOK_FRAMEWORKS.map((fw) => {
+                const active = selectedFramework === fw.id;
                 return (
-                  <button key={p.id} onClick={() => togglePlatform(p.id)} style={{
-                    padding: '6px 8px',
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                    borderRadius: 8, cursor: 'pointer', textAlign: 'left',
-                  }}>
-                    <div style={{ fontSize: 14, lineHeight: 1 }}>{p.icon}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? '#f1f1f3' : 'rgba(255,255,255,0.55)', marginTop: 2 }}>{p.label}</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{p.sub}</div>
+                  <button
+                    key={fw.id}
+                    onClick={() => setSelectedFramework(active ? null : fw.id)}
+                    style={{
+                      textAlign: 'left', padding: '8px 10px',
+                      background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
+                      border: `1px solid ${active ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      borderRadius: 8, cursor: 'pointer',
+                      boxShadow: active ? '0 0 12px rgba(212,175,55,0.15)' : 'none',
+                      transition: 'all 150ms ease',
+                    }}
+                  >
+                    <div style={{ fontSize: 13, lineHeight: 1, marginBottom: 4 }}>{fw.icon}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: active ? '#d4af37' : 'rgba(255,255,255,0.6)', marginBottom: 2 }}>{fw.name}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', lineHeight: 1.3 }}>{fw.description.slice(0, 55)}{fw.description.length > 55 ? '\u2026' : ''}</div>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Creative type */}
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Creative Type</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              {CREATIVE_TYPES.map((ct) => {
-                const active = creativeType === ct.id;
-                return (
-                  <button key={ct.id} onClick={() => setCreativeType(ct.id)} style={{
-                    textAlign: 'left', padding: '7px 10px',
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                    borderRadius: 8, cursor: 'pointer',
-                  }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? '#f1f1f3' : 'rgba(255,255,255,0.55)' }}>{ct.label}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>{/* end scrollable form content */}
 
-          {/* Pinned Generate footer — outside scroll container, flex-shrink:0 */}
-          <div style={{
-            flexShrink: 0,
-            background: '#0d0d0d',
-            borderTop: '1px solid #1a1a1a',
-            padding: '14px 18px 18px',
-          }}>
+          {/* Pinned Generate footer */}
+          <div style={{ flexShrink: 0, background: '#0d0d0d', borderTop: '1px solid #1a1a1a', padding: '14px 18px 18px' }}>
             <button
               onClick={generate}
               disabled={loading || !productName.trim()}
               style={{
-                width: '100%',
-                height: 44,
+                width: '100%', height: 44,
                 background: !productName.trim() ? '#1a1a1a' : '#3B82F6',
-                color: 'white',
-                border: 'none',
-                borderRadius: 6,
+                color: 'white', border: 'none', borderRadius: 6,
                 fontSize: 14, fontWeight: 600,
                 cursor: loading || !productName.trim() ? 'not-allowed' : 'pointer',
                 fontFamily: dm,
                 boxShadow: !productName.trim() ? 'none' : '0 0 20px rgba(59,130,246,0.3)',
-                opacity: loading ? 0.7 : 1,
-                transition: 'all 150ms ease',
+                opacity: loading ? 0.7 : 1, transition: 'all 150ms ease',
               }}
-            >{loading ? '⟳ Generating...' : 'Generate Ads →'}</button>
+            >{loading ? '\u27F3 Generating 4 formats...' : 'Generate Ad Pack \u2192'}</button>
           </div>
         </div>
 
-        {/* ── CENTER: Output / Canvas — bg-card with inner border ── */}
-        <div ref={outputRef} style={{
-          overflowY: 'auto',
-          padding: '24px 28px',
-          background: '#0f0f0f',
-          border: '1px solid #1a1a1a',
-          borderTop: 'none',
-          borderBottom: 'none',
-        }}>
+        {/* ── CENTER: Output ── */}
+        <div ref={outputRef} style={{ overflowY: 'auto', padding: '20px 24px', background: '#0f0f0f' }}>
           {loading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '80%', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#3B82F6', boxShadow: '0 0 24px rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
-              <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800, color: '#ededed' }}>Writing your ad package…</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', gap: 14 }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#3B82F6', boxShadow: '0 0 24px rgba(59,130,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>\u2728</div>
+              <div style={{ fontFamily: syne, fontSize: 16, fontWeight: 800, color: '#ededed' }}>Generating 4 ad formats\u2026</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Meta Feed \u00B7 Meta Story \u00B7 TikTok Feed \u00B7 TikTok Story</div>
             </div>
-          ) : parsed ? (
-            <OutputDisplay parsed={parsed} copied={copied} copyText={copyText} productName={productName} />
+          ) : hasOutput ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Format Tabs */}
+              <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #1a1a1a', paddingBottom: 0 }}>
+                {AD_FORMATS.map((fmt) => {
+                  const active = activeTab === fmt.id;
+                  return (
+                    <button
+                      key={fmt.id}
+                      onClick={() => setActiveTab(fmt.id)}
+                      style={{
+                        padding: '8px 14px',
+                        background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
+                        border: 'none',
+                        borderBottom: active ? '2px solid #d4af37' : '2px solid transparent',
+                        color: active ? '#d4af37' : 'rgba(255,255,255,0.5)',
+                        fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: dm,
+                        transition: 'all 100ms ease',
+                      }}
+                    >{fmt.label}</button>
+                  );
+                })}
+              </div>
+
+              {/* Active format mockup + copy */}
+              {AD_FORMATS.filter((f) => f.id === activeTab).map((fmt) => {
+                const output = formatOutputs[fmt.id] ?? { hook: '', headline: '', body: '', cta: '' };
+                return (
+                  <div key={fmt.id} style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 20 }}>
+                    {/* Phone frame mockup */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{
+                        width: fmt.aspect === '1:1' ? 240 : 200,
+                        height: fmt.aspect === '1:1' ? 300 : 360,
+                        background: '#0a0a0a',
+                        borderRadius: 20,
+                        border: '2px solid #222',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                      }}>
+                        {/* Platform chrome */}
+                        <div style={{
+                          background: fmt.chromeColor,
+                          padding: '8px 12px',
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          borderBottom: '1px solid rgba(255,255,255,0.06)',
+                        }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: fmt.chromeLabelColor, fontFamily: mono }}>{fmt.chromeLabel}</span>
+                          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)' }}>{fmt.aspect}</span>
+                        </div>
+                        {/* Product image area */}
+                        <div style={{ flex: 1, position: 'relative', background: '#111', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {productUrl ? (
+                            <img
+                              src={proxyImage(productUrl) ?? productUrl}
+                              alt=""
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }}
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: mono }}>Product Image</div>
+                          )}
+                          {/* Overlay copy */}
+                          <div style={{
+                            position: 'absolute', bottom: 0, left: 0, right: 0,
+                            background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
+                            padding: '24px 12px 12px',
+                          }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: 4 }}>
+                              {output.hook || 'Hook text here...'}
+                            </div>
+                            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3 }}>
+                              {(output.body || '').slice(0, 80)}{(output.body ?? '').length > 80 ? '\u2026' : ''}
+                            </div>
+                          </div>
+                        </div>
+                        {/* CTA bar */}
+                        <div style={{
+                          padding: '8px 12px',
+                          background: fmt.platform === 'TikTok' ? '#ff0050' : '#3B82F6',
+                          textAlign: 'center',
+                        }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{output.cta || 'Shop Now'}</span>
+                        </div>
+                      </div>
+                      <div style={{ marginTop: 8, fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>{fmt.platform} {fmt.aspect} preview</div>
+                    </div>
+
+                    {/* Copy cards */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <CopyCard label="Hook" value={output.hook} limit={fmt.charLimit} copied={copied} onCopy={copyText} />
+                      <CopyCard label="Headline" value={output.headline} limit={fmt.headlineLimit} copied={copied} onCopy={copyText} />
+                      <CopyCard label="Body Copy" value={output.body} limit={fmt.charLimit} copied={copied} onCopy={copyText} />
+                      <CopyCard label="CTA" value={output.cta} copied={copied} onCopy={copyText} />
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Export buttons */}
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
+                <button onClick={exportCSV} style={exportBtnStyle}>
+                  <Download size={14} color="#d4af37" /> Export CSV (Meta Bulk Import)
+                </button>
+                <button onClick={exportTxt} style={exportBtnStyle}>
+                  <Download size={14} color="#a78bfa" /> Export .txt
+                </button>
+              </div>
+
+              {/* ── BULK VARIATIONS ── */}
+              <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: 16, marginTop: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontFamily: syne, fontSize: 15, fontWeight: 700, color: '#ededed' }}>A/B Test Variations</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Generate multiple angles to split test</div>
+                  </div>
+                  <button
+                    onClick={generateBulkVariations}
+                    disabled={bulkLoading}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px',
+                      background: bulkLoading ? '#1a1a1a' : 'rgba(212,175,55,0.1)',
+                      border: '1px solid rgba(212,175,55,0.3)',
+                      borderRadius: 6, color: '#d4af37',
+                      fontSize: 12, fontWeight: 600, cursor: bulkLoading ? 'not-allowed' : 'pointer',
+                      fontFamily: dm, opacity: bulkLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {bulkLoading ? '\u27F3 Generating...' : <><Plus size={14} /> Generate 5 Variations</>}
+                  </button>
+                </div>
+
+                {bulkVariations.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
+                    {bulkVariations.map((v) => (
+                      <div key={v.id} style={{
+                        background: '#1c1c1c', border: '1px solid rgba(255,255,255,0.07)',
+                        borderRadius: 8, padding: '12px 14px',
+                      }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f1f3', lineHeight: 1.4, marginBottom: 6 }}>
+                          {v.hook || 'No hook'}
+                        </div>
+                        {v.headline && (
+                          <div style={{ fontSize: 11, color: '#d4af37', fontWeight: 600, marginBottom: 4 }}>{v.headline}</div>
+                        )}
+                        {v.body && (
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4, marginBottom: 8 }}>
+                            {v.body.slice(0, 100)}{v.body.length > 100 ? '\u2026' : ''}
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button
+                            onClick={() => useVariation(v)}
+                            style={{
+                              flex: 1, padding: '5px 0', fontSize: 10, fontWeight: 600,
+                              background: copied === `var-${v.id}` ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.1)',
+                              border: `1px solid ${copied === `var-${v.id}` ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.25)'}`,
+                              color: copied === `var-${v.id}` ? '#10b981' : '#3B82F6',
+                              borderRadius: 5, cursor: 'pointer',
+                            }}
+                          >{copied === `var-${v.id}` ? 'Copied' : 'Use This'}</button>
+                          <button
+                            onClick={() => removeVariation(v.id)}
+                            style={{
+                              padding: '5px 8px', fontSize: 10,
+                              background: 'rgba(239,68,68,0.08)',
+                              border: '1px solid rgba(239,68,68,0.2)',
+                              color: '#f87171', borderRadius: 5, cursor: 'pointer',
+                            }}
+                          ><X size={12} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── PERFORMANCE ESTIMATE ── */}
+              {selectedProduct && intel && (
+                <div style={{
+                  background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 8,
+                  padding: 16, marginTop: 4,
+                }}>
+                  <div style={{ fontFamily: syne, fontSize: 14, fontWeight: 700, color: '#ededed', marginBottom: 12 }}>Performance Estimate</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                    <PerfCard
+                      label="Est. CPM"
+                      value={`$${cpmRange.low}\u2013$${cpmRange.high}`}
+                      sub={`${cpmRange.label} industry avg`}
+                    />
+                    <PerfCard
+                      label="Est. Daily Reach"
+                      value={intel.suggestedBudget > 0 ? `${Math.round(intel.suggestedBudget / ((cpmRange.low + cpmRange.high) / 2 / 1000)).toLocaleString()}` : '\u2014'}
+                      sub={`At $${intel.suggestedBudget.toFixed(0)}/day budget`}
+                    />
+                    <PerfCard
+                      label="Break-even ROAS"
+                      value={priceNum > 0 ? `${(priceNum / (priceNum * 0.6)).toFixed(1)}x` : '\u2014'}
+                      sub="Assuming 60% margin"
+                    />
+                  </div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 10, lineHeight: 1.4, fontFamily: dm }}>
+                    These are AU market averages. Actual performance depends on creative quality, targeting, and landing page.
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80%', padding: '24px 0' }}>
               <div style={{
-                width: '100%',
-                maxWidth: 560,
-                aspectRatio: '4 / 5',
-                border: '2px dashed #1a1a1a',
-                borderRadius: 8,
-                background: '#0d0d0d',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 14,
-                padding: 32,
+                width: '100%', maxWidth: 560, aspectRatio: '4 / 5',
+                border: '2px dashed #1a1a1a', borderRadius: 8, background: '#0d0d0d',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 14, padding: 32,
               }}>
-                <div style={{
-                  fontFamily: mono,
-                  fontSize: 10,
-                  color: '#555555',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.14em',
-                  padding: '3px 10px',
-                  border: '1px solid #1a1a1a',
-                  borderRadius: 4,
-                  background: '#0f0f0f',
-                }}>Ad canvas</div>
-                <div style={{
-                  fontFamily: brico,
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: '#ededed',
-                  textAlign: 'center',
-                }}>Your ad will appear here</div>
-                <div style={{
-                  fontFamily: dm,
-                  fontSize: 13,
-                  color: '#555555',
-                  textAlign: 'center',
-                  maxWidth: 320,
-                  lineHeight: 1.5,
-                }}>Fill in your product details on the left, then hit Generate to see hooks, headlines, and body copy rendered here.</div>
+                <div style={{ fontFamily: mono, fontSize: 10, color: '#555555', textTransform: 'uppercase', letterSpacing: '0.14em', padding: '3px 10px', border: '1px solid #1a1a1a', borderRadius: 4, background: '#0f0f0f' }}>
+                  Ad Pack
+                </div>
+                <div style={{ fontFamily: syne, fontSize: 18, fontWeight: 700, color: '#ededed', textAlign: 'center' }}>
+                  4 ad formats in one click
+                </div>
+                <div style={{ fontFamily: dm, fontSize: 13, color: '#555555', textAlign: 'center', maxWidth: 320, lineHeight: 1.5 }}>
+                  Pick a product, choose a hook framework, and hit Generate. You will get Meta Feed, Meta Story, TikTok Feed, and TikTok Story copy with phone mockups.
+                </div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                  {AD_FORMATS.map((f) => (
+                    <span key={f.id} style={{ fontSize: 9, padding: '3px 8px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 999, color: '#d4af37', fontFamily: mono }}>{f.label}</span>
+                  ))}
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* ── RIGHT: Saved — bg-raised ── */}
+        {/* ── RIGHT: Saved ── */}
         <div style={{ background: '#111111', borderLeft: '1px solid #1a1a1a', overflowY: 'auto', padding: 14 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, fontFamily: mono }}>Saved Creatives</div>
           {saved.length === 0 ? (
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '16px 0', lineHeight: 1.55 }}>
-              No saved ads yet — generate your first ad pack
+              No saved ads yet \u2014 generate your first ad pack
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -735,43 +1055,24 @@ OBJECTION KILLER:
                 const isOpen = expandedSaved === s.id;
                 return (
                   <div key={s.id} style={{
-                    background: '#0a0a0c',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    borderRadius: 8,
-                    overflow: 'hidden',
+                    background: '#0a0a0c', border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 8, overflow: 'hidden',
                   }}>
                     <button
                       onClick={() => setExpandedSaved(isOpen ? null : s.id)}
-                      style={{
-                        width: '100%',
-                        textAlign: 'left',
-                        padding: '10px 12px',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                      }}
+                      style={{ width: '100%', textAlign: 'left', padding: '10px 12px', background: 'transparent', border: 'none', cursor: 'pointer' }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontSize: 13, fontWeight: 600, color: '#ffffff',
-                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 4,
-                          }}>{s.productName}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 4 }}>{s.productName}</div>
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
-                            <span style={{
-                              fontSize: 9,
-                              background: 'rgba(124,106,255,0.12)',
-                              color: '#a78bfa',
-                              padding: '1px 6px',
-                              borderRadius: 999,
-                              fontFamily: mono, fontWeight: 600,
-                            }}>{s.platform}</span>
+                            <span style={{ fontSize: 9, background: 'rgba(212,175,55,0.12)', color: '#d4af37', padding: '1px 6px', borderRadius: 999, fontFamily: mono, fontWeight: 600 }}>{s.platform}</span>
                             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>
                               {new Date(s.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                             </span>
                           </div>
                           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>
-                            {(s.primaryText ?? '').slice(0, 60)}{(s.primaryText ?? '').length > 60 ? '…' : ''}
+                            {(s.hook ?? '').slice(0, 60)}{(s.hook ?? '').length > 60 ? '\u2026' : ''}
                           </div>
                         </div>
                         <span
@@ -781,14 +1082,7 @@ OBJECTION KILLER:
                           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); deleteSaved(s.id); } }}
                           title="Delete"
                           aria-label="Delete saved ad"
-                          style={{
-                            padding: 4,
-                            background: 'none',
-                            color: 'rgba(255,255,255,0.3)',
-                            cursor: 'pointer',
-                            flexShrink: 0,
-                            display: 'inline-flex',
-                          }}
+                          style={{ padding: 4, background: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', flexShrink: 0, display: 'inline-flex' }}
                         ><Trash2 size={13} /></span>
                       </div>
                     </button>
@@ -819,162 +1113,80 @@ OBJECTION KILLER:
   );
 }
 
-// ── Output display with per-section cards + char counters + copy buttons ──
-function OutputDisplay({ parsed, copied, copyText, productName }: { parsed: ParsedSections; copied: string; copyText: (text: string, key: string) => void; productName: string }) {
-  const cards: { key: string; label: string; value: string; limit?: number }[] = [
-    { key: 'hook',     label: 'Primary Hook',          value: parsed.primaryHook },
-    { key: 'headline', label: 'Headline',              value: parsed.headline, limit: 40 },
-    { key: 'primary',  label: 'Primary Text (Mobile Preview)', value: parsed.primaryText, limit: 125 },
-    { key: 'body',     label: 'Full Body Copy',        value: parsed.fullBody },
-    { key: 'cta',      label: 'CTA Button',            value: parsed.cta },
-    { key: 'kill',     label: 'Objection Killer',      value: parsed.objectionKiller },
-  ];
+// ── Shared export button style ──
+const exportBtnStyle: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 8,
+  padding: '8px 14px', background: '#0f0f0f',
+  border: '1px solid #1a1a1a', borderRadius: 6,
+  color: '#ededed', fontSize: 12, fontWeight: 600, fontFamily: dm, cursor: 'pointer',
+};
 
-  function exportAll() {
-    const hookVariations = [parsed.hookA, parsed.hookB, parsed.hookC].filter(Boolean);
-    const hookSection = hookVariations.length > 0
-      ? `HOOK VARIATIONS:\n${hookVariations.map((h, i) => `${i + 1}. ${h}`).join('\n')}`
-      : '';
-
-    const brief = [
-      'MAJORKA AD BRIEF',
-      `Product: ${productName || 'N/A'}`,
-      `Generated: ${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}`,
-      '---',
-      '',
-      `PRIMARY HOOK:\n${parsed.primaryHook}`,
-      '',
-      `HEADLINE:\n${parsed.headline}`,
-      '',
-      `PRIMARY TEXT:\n${parsed.primaryText}`,
-      '',
-      `FULL BODY:\n${parsed.fullBody}`,
-      '',
-      `CTA:\n${parsed.cta}`,
-      '',
-      hookSection,
-      '',
-      `OBJECTION KILLER:\n${parsed.objectionKiller}`,
-      '---',
-      'Generated by Majorka \u00b7 majorka.io',
-    ].join('\n');
-
-    const slug = (productName || parsed.headline || 'ad-brief')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 40);
-
-    const blob = new Blob([brief], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `majorka-ad-brief-${slug}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
+// ── Intelligence card ──
+function IntelCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub: string }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 820 }}>
-      {cards.map(({ key: k, ...rest }) => <SectionCard key={k} {...rest} copied={copied} copyText={copyText} />)}
-
-      {/* Export All button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
-        <button
-          onClick={exportAll}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '10px 18px',
-            background: '#0f0f0f',
-            border: '1px solid #1a1a1a',
-            borderRadius: 6,
-            color: '#ededed',
-            fontSize: 13,
-            fontWeight: 600,
-            fontFamily: "'DM Sans', sans-serif",
-            cursor: 'pointer',
-            transition: 'box-shadow 150ms ease',
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 16px rgba(212,175,55,0.15)'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'; }}
-        >
-          <Download size={15} color="#d4af37" />
-          Export All
-        </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {icon}
+        <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
       </div>
-
-      {/* Hook variations — side by side */}
-      {(parsed.hookA || parsed.hookB || parsed.hookC) && (
-        <div>
-          <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, marginTop: 6 }}>
-            Hook Variations — split test these
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-            {[
-              { key: 'hookA', label: 'Hook A', value: parsed.hookA },
-              { key: 'hookB', label: 'Hook B', value: parsed.hookB },
-              { key: 'hookC', label: 'Hook C', value: parsed.hookC },
-            ].filter((h) => h.value).map(({ key: k, ...rest }) => <SectionCard key={k} {...rest} copied={copied} copyText={copyText} />)}
-          </div>
-        </div>
-      )}
+      <div style={{ fontFamily: mono, fontSize: 16, fontWeight: 700, color: '#f1f1f3', letterSpacing: '-0.02em' }}>{value}</div>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.3 }}>{sub}</div>
     </div>
   );
 }
 
-function SectionCard({ key: _k, label, value, limit, copied, copyText }: { key: string; label: string; value: string; limit?: number; copied: string; copyText: (text: string, key: string) => void }) {
-  const len = value.length;
+// ── Performance estimate card ──
+function PerfCard({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <div style={{ background: '#1c1c1c', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: '10px 12px' }}>
+      <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: mono, fontSize: 18, fontWeight: 700, color: '#d4af37', letterSpacing: '-0.02em' }}>{value}</div>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{sub}</div>
+    </div>
+  );
+}
+
+// ── Copy card for format outputs ──
+function CopyCard({ label, value, limit, copied, onCopy }: { label: string; value: string; limit?: number; copied: string; onCopy: (text: string, key: string) => void }) {
+  const copyKey = `fmt-${label}`;
+  const len = (value ?? '').length;
   const overLimit = limit != null && len > limit;
-  const copyKey = `sec-${label.slice(0, 16)}`;
   return (
     <div style={{
-      background: '#1c1c1c',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 10,
-      padding: '14px 16px',
-      position: 'relative',
+      background: '#1c1c1c', border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 8, padding: '12px 14px',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{
-            fontFamily: mono, fontSize: 9,
-            color: 'rgba(255,255,255,0.3)',
-            textTransform: 'uppercase', letterSpacing: '0.1em',
-          }}>{label}</span>
-          {limit != null && (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</span>
+          {limit != null && value && (
             <span style={{
-              fontFamily: mono, fontSize: 9, fontWeight: 700,
-              padding: '2px 8px',
-              borderRadius: 999,
+              fontFamily: mono, fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 999,
               background: overLimit ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
               color: overLimit ? '#f87171' : '#10b981',
               border: `1px solid ${overLimit ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`,
-            }}>{len}/{limit}{overLimit ? ' ⚠' : ' ✓'}</span>
+            }}>{len}/{limit}</span>
           )}
         </div>
-        <button
-          onClick={() => copyText(value, copyKey)}
-          style={{
-            background: copied === copyKey ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
-            border: `1px solid ${copied === copyKey ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`,
-            color: copied === copyKey ? '#10b981' : 'rgba(255,255,255,0.65)',
-            fontSize: 11, fontWeight: 600,
-            fontFamily: dm,
-            padding: '4px 10px',
-            borderRadius: 6,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >{copied === copyKey ? 'Copied ✓' : 'Copy'}</button>
+        {value && (
+          <button
+            onClick={() => onCopy(value, copyKey)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              background: copied === copyKey ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${copied === copyKey ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`,
+              color: copied === copyKey ? '#10b981' : 'rgba(255,255,255,0.6)',
+              fontSize: 10, fontWeight: 600, fontFamily: dm,
+              padding: '3px 8px', borderRadius: 5, cursor: 'pointer', flexShrink: 0,
+            }}
+          >
+            {copied === copyKey ? <><Check size={10} /> Copied</> : <><Copy size={10} /> Copy</>}
+          </button>
+        )}
       </div>
-      <div style={{
-        fontSize: 14, fontFamily: dm, color: '#f1f1f3',
-        lineHeight: 1.6, whiteSpace: 'pre-wrap',
-      }}>{value || <span style={{ color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>—</span>}</div>
+      <div style={{ fontSize: 13, fontFamily: dm, color: '#f1f1f3', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+        {value || <span style={{ color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>\u2014</span>}
+      </div>
     </div>
   );
 }
