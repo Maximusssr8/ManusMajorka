@@ -876,3 +876,23 @@ main section,
 /* Escape hatch: opt-in class for sections that genuinely need to start
    hidden for a controlled fade-in (e.g. hero reveals) — use sparingly. */
 .mj-section-hidden-start { opacity: 0 !important; }
+
+/* ── Mobile usability fixes (375–768px) ─────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea { font-size: 16px !important; }
+  /* Ensure minimum tap targets */
+  button, a, [role="button"] { min-height: 44px; }
+  /* Prevent horizontal overflow */
+  body { overflow-x: hidden; }
+  /* Stack any 2-col grid to 1-col */
+  .md\:grid-cols-2 { grid-template-columns: 1fr !important; }
+  /* Ads Studio: stack 3-col to single column */
+  .ads-studio-layout { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
+  .ads-studio-layout > * { height: auto !important; min-height: 0 !important; border-right: none !important; border-left: none !important; }
+  /* Ads Studio: stack phone mockup + copy on mobile */
+  .ads-mockup-grid { grid-template-columns: 1fr !important; }
+  .ads-mockup-grid > *:first-child { margin: 0 auto; }
+  /* Store Builder: shorter iframe on mobile */
+  .store-preview-iframe { height: 300px !important; }
+}

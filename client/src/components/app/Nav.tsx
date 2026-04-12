@@ -151,7 +151,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
             return (
               <div key={gi} className="mt-2">
                 {gi > 0 && <div className="h-px bg-white/[0.06] mx-3 mt-4 mb-1" />}
-                <p className="px-3 pt-5 pb-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/30">
+                <p className="px-3 pt-5 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30">
                   {group.title}
                 </p>
                 {visible.map((item) => {
@@ -180,7 +180,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
                             }
                           : { borderLeft: '3px solid transparent', transition: 'all 200ms ease-out' }
                       }
-                      className={`flex items-center gap-2.5 pl-[9px] pr-3 py-1.5 rounded-md mb-0.5 text-[13px] no-underline ${
+                      className={`flex items-center gap-2.5 pl-[9px] pr-3 py-2.5 min-h-[44px] rounded-md mb-0.5 text-[13px] no-underline ${
                         active
                           ? 'font-medium'
                           : item.soon
@@ -229,14 +229,14 @@ export function Nav({ onNavigate }: NavProps = {}) {
               <div className="text-[13px] text-text truncate flex items-center gap-1.5">
                 <span className="truncate">{displayName}</span>
                 <span
-                  className="text-[9px] px-1.5 py-0.5 rounded font-semibold shrink-0"
+                  className="text-[10px] px-1.5 py-0.5 rounded font-semibold shrink-0"
                   style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
                 >
                   {isPro ? 'SCALE' : 'BUILDER'}
                 </span>
               </div>
               {userEmail && (
-                <div className="text-[14px] text-muted truncate font-body" style={{ fontSize: 11 }}>
+                <div className="text-[12px] text-muted truncate font-body">
                   {userEmail}
                 </div>
               )}

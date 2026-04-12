@@ -518,7 +518,7 @@ Make each variation feel genuinely different — different angles, different emo
   return (
     <div style={{ minHeight: '100vh', background: '#080808', fontFamily: dm, color: '#ededed' }}>
       {/* Header */}
-      <div style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', padding: '16px 28px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
         <div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: '#f1f1f3', margin: 0, letterSpacing: '-0.02em' }}>Ads Studio</h1>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '3px 0 0' }}>AI ad creative engine for AU dropshipping operators</p>
@@ -538,7 +538,8 @@ Make each variation feel genuinely different — different angles, different emo
       {intel && selectedProduct && (
         <div style={{ padding: '12px 28px 0' }}>
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12,
+            display: 'grid', gap: 12,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 8, padding: 16,
           }}>
             <IntelCard
@@ -570,7 +571,7 @@ Make each variation feel genuinely different — different angles, different emo
       )}
 
       {/* 3-col layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr 280px', height: intel ? 'calc(100vh - 170px)' : 'calc(100vh - 100px)', overflow: 'hidden' }}>
+      <div className="ads-studio-layout" style={{ display: 'grid', gridTemplateColumns: '340px 1fr 280px', height: intel ? 'calc(100vh - 170px)' : 'calc(100vh - 100px)', overflow: 'hidden' }}>
         {/* ── LEFT: Form ── */}
         <div style={{
           position: 'relative',
@@ -751,7 +752,7 @@ Make each variation feel genuinely different — different angles, different emo
           {/* ── HOOK FRAMEWORK SELECTOR ── */}
           <div style={{ marginBottom: 12 }}>
             <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: mono }}>Hook Framework</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 6 }}>
               {HOOK_FRAMEWORKS.map((fw) => {
                 const active = selectedFramework === fw.id;
                 return (
@@ -833,9 +834,9 @@ Make each variation feel genuinely different — different angles, different emo
               {AD_FORMATS.filter((f) => f.id === activeTab).map((fmt) => {
                 const output = formatOutputs[fmt.id] ?? { hook: '', headline: '', body: '', cta: '' };
                 return (
-                  <div key={fmt.id} style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 20 }}>
+                  <div key={fmt.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 260px) 1fr', gap: 20 }} className="ads-mockup-grid">
                     {/* Phone frame mockup */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 320 }}>
                       <div style={{
                         width: fmt.aspect === '1:1' ? 240 : 200,
                         height: fmt.aspect === '1:1' ? 300 : 360,

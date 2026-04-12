@@ -357,6 +357,13 @@ section [data-transform-ok] {
   .mj-stat-num { font-size: 44px !important; }
   .mj-discovery-grid { grid-template-columns: 1fr !important; }
   .mj-creative-grid { grid-template-columns: 1fr !important; }
+  .mj-stats-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 400px) {
+  .mj-stats-grid { grid-template-columns: 1fr !important; }
+  .mj-footer-grid { grid-template-columns: 1fr !important; }
+  .mj-hero-h1 { font-size: 32px !important; }
+  .mj-cta-h2 { font-size: 36px !important; }
 }
 `;
 

@@ -270,7 +270,7 @@ export default function AppHome() {
         {/* Ambient glow behind header */}
         <div className="pointer-events-none absolute top-0 left-1/4 w-96 h-48 rounded-full blur-[100px] opacity-[0.07]" style={{ background: '#3B82F6' }} />
 
-        <div className="relative flex items-start justify-between gap-6">
+        <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">
           <div>
             {/* Status chip */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}>
@@ -381,8 +381,8 @@ export default function AppHome() {
             View all {total > 0 ? total.toLocaleString() : '…'} →
           </a>
         </div>
-        <div className="overflow-hidden rounded-lg" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <table className="w-full">
+        <div className="overflow-x-auto overflow-hidden rounded-lg" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <th className="text-[10px] font-medium uppercase tracking-wider text-white/25 px-4 py-3 text-left w-10">#</th>

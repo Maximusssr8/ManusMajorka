@@ -152,7 +152,7 @@ function TabSwitcher({ mode, onChange }: TabSwitcherProps) {
     <div
       className="grid gap-3 w-full"
       style={{
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
       }}
     >
       {TABS.map((t) => {
@@ -701,6 +701,7 @@ function StorePreviewSection({ store }: { store: GeneratedStore }) {
         </div>
 
         <div
+          className="store-preview-iframe"
           style={{
             border: `1px solid ${BORDER}`,
             borderRadius: 8,

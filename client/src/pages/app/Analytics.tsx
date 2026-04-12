@@ -249,7 +249,7 @@ export default function Analytics() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-[#080808] text-[#ededed]">
+    <div className="min-h-screen p-4 sm:p-8 bg-[#080808] text-[#ededed]">
       <div className="mb-6">
         <div className="text-xs text-[#555555] mb-1 font-mono uppercase tracking-wider">Home / Analytics</div>
         <h1 className="text-2xl font-extrabold tracking-tight m-0" style={{ fontFamily: 'Syne, sans-serif' }}>Analytics</h1>
@@ -257,7 +257,7 @@ export default function Analytics() {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex items-center gap-1 mb-6 bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-1 w-fit">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 mb-6 bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-1 w-full sm:w-fit">
         <button
           type="button"
           onClick={() => setTab('analytics')}
@@ -422,7 +422,7 @@ export default function Analytics() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <div className="grid grid-cols-4 gap-2 mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
                 {scoreBuckets.map((b) => (
                   <div key={b.range} className="text-center">
                     <div className="text-sm font-bold font-mono tabular-nums" style={{ color: b.color }}>{b.pct}%</div>
@@ -477,7 +477,7 @@ Beta: match scores are algorithmic estimates using a category-similarity heurist
           </div>
 
           {/* Filters */}
-          <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-4 flex flex-wrap items-end gap-4">
+          <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-4 flex flex-wrap items-start sm:items-end gap-4">
             <div className="flex flex-col gap-1">
               <label
                 className="text-[10px] text-[#555] uppercase tracking-wider font-mono"

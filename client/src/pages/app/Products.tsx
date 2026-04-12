@@ -1596,7 +1596,7 @@ export default function AppProducts() {
 
       {/* Tab bar */}
       {searchMode === 'db' && (
-        <div className="px-4 md:px-8 flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none bg-surface/50 backdrop-blur-sm border-b border-white/[0.06] py-2">
+        <div className="px-4 md:px-8 flex flex-nowrap items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none bg-surface/50 backdrop-blur-sm border-b border-white/[0.06] py-2">
           {SMART_TABS.map((tab) => {
             const active = activeTab === tab.key;
             const count = tabCounts[tab.key];
