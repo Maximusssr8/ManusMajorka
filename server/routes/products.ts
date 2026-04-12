@@ -1941,6 +1941,40 @@ router.get('/tiktok-leaderboard', async (req: Request, res: Response) => {
   }
 });
 
+// ── Analytics time-series (30-day daily snapshots) ──────────────────────
+router.get('/analytics-timeseries', async (_req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    const { data, error } = await sb
+      .from('product_daily_snapshots')
+      .select('day, total_products, hot_products, avg_score, new_products')
+      .gte('day', thirtyDaysAgo)
+      .order('day', { ascending: true });
+
+    if (error) {
+      // Table may not exist yet if migration hasn't run
+      if (error.message.includes('does not exist') || error.code === '42P01') {
+        return res.json({ series: [], error: 'migration_pending' });
+      }
+      return res.status(500).json({ series: [], error: error.message });
+    }
+
+    const series = (data ?? []).map((r: { day: string; total_products: number; hot_products: number; avg_score: number; new_products: number }) => ({
+      day: r.day,
+      total: r.total_products,
+      hot: r.hot_products,
+      avgScore: Number(r.avg_score),
+      newProducts: r.new_products,
+    }));
+
+    return res.json({ series });
+  } catch (err) {
+    return res.status(500).json({ series: [], error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 router.get('/analytics-categories', async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();

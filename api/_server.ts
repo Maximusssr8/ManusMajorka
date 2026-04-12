@@ -34,6 +34,7 @@ import cronRouter from "../server/routes/cron";
 import imageProxyRouter from "../server/routes/imageProxy";
 import subscriptionRouter from "../server/routes/subscription";
 import adminApiRouter from "../server/routes/admin";
+import alertsRouter from "../server/routes/alerts";
 import apiKeysRouter from "../server/routes/api-keys";
 import v1Router from "../server/routes/v1";
 import { requireAuth } from "../server/middleware/requireAuth";
@@ -639,6 +640,7 @@ app.use('/api/cron', cronRouter);
 app.use('/api', imageProxyRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);
+app.use('/api/alerts', alertsRouter);
 app.use('/api/api-keys', apiKeysRouter);
 // Dual-mount the developer API router at both /api/v1 (internal) and /v1
 // (external). The vercel.json rewrite forwards /v1/* directly to the

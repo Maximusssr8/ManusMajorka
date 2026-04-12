@@ -389,6 +389,14 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     }
     setLoading(true);
     setPending(null);
+    // Persist prefilled product so normalizeStoreResponse fallback can read it
+    if (prefilledProduct) {
+      sessionStorage.setItem('_last_import', JSON.stringify({
+        title: prefilledProduct.title,
+        price: prefilledProduct.price,
+        image: prefilledProduct.image,
+      }));
+    }
     const res = await safeFetch<Record<string, unknown>>('/api/store-builder/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -404,7 +412,16 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     });
     setLoading(false);
     if (res.ok && res.data) {
-      setPreview(normalizeStoreResponse(res.data));
+      const store = normalizeStoreResponse(res.data);
+      // If still no products after normalization, inject the prefilled product
+      if (store.products.length === 0 && prefilledProduct?.title) {
+        store.products.push({
+          title: prefilledProduct.title,
+          price_aud: prefilledProduct.price || 0,
+          image_url: prefilledProduct.image || '',
+        });
+      }
+      setPreview(store);
       toast.success('Store generated');
       return;
     }

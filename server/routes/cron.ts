@@ -23,6 +23,7 @@ import { collectCJRealProducts } from '../scrapers/cj-real-products';
 import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 import { scrapeCJTopSellers } from '../scrapers/cj-top-sellers';
 import { launchAEBestsellerScrapes } from '../scrapers/ae-bestseller-urls';
+import { evaluateAlerts } from '../routes/alerts';
 
 const router = Router();
 
@@ -1057,6 +1058,101 @@ async function runBackfillImages(req: Request, res: Response) {
 router.get('/backfill-images', runBackfillImages);
 router.post('/backfill-images', runBackfillImages);
 
+// ── GET /api/cron/daily-snapshot — capture daily product stats ───────────
+// Runs at 11pm daily via Vercel cron. Upserts one row per day into
+// product_daily_snapshots so the Analytics time-series chart has data.
+router.get('/daily-snapshot', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+
+  try {
+    const sb = getSupabaseAdmin();
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    // 1. Total active products
+    const { count: totalProducts } = await sb
+      .from('winning_products')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_active', true);
+
+    // 2. Hot products (score >= 65)
+    const { count: hotProducts } = await sb
+      .from('winning_products')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .gte('winning_score', 65);
+
+    // 3. Average winning score
+    const { data: avgRows } = await sb
+      .from('winning_products')
+      .select('winning_score')
+      .eq('is_active', true)
+      .not('winning_score', 'is', null);
+
+    let avgScore = 0;
+    if (avgRows && avgRows.length > 0) {
+      const sum = avgRows.reduce((acc: number, r: { winning_score: number | null }) => acc + (r.winning_score ?? 0), 0);
+      avgScore = Math.round((sum / avgRows.length) * 100) / 100;
+    }
+
+    // 4. New products created today
+    const { count: newProducts } = await sb
+      .from('winning_products')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .gte('created_at', `${today}T00:00:00Z`);
+
+    // 5. Top category by count
+    const { data: catRows } = await sb
+      .from('winning_products')
+      .select('category')
+      .eq('is_active', true)
+      .not('category', 'is', null)
+      .limit(10000);
+
+    let topCategory: string | null = null;
+    if (catRows && catRows.length > 0) {
+      const counts: Record<string, number> = {};
+      for (const r of catRows) {
+        const c = ((r as { category: string | null }).category ?? '').trim();
+        if (c) counts[c] = (counts[c] ?? 0) + 1;
+      }
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      topCategory = sorted.length > 0 ? sorted[0][0] : null;
+    }
+
+    // 6. Upsert snapshot
+    const { error: upsertError } = await sb
+      .from('product_daily_snapshots')
+      .upsert(
+        {
+          day: today,
+          total_products: totalProducts ?? 0,
+          hot_products: hotProducts ?? 0,
+          avg_score: avgScore,
+          new_products: newProducts ?? 0,
+          top_category: topCategory,
+        },
+        { onConflict: 'day' }
+      );
+
+    if (upsertError) {
+      return res.status(500).json({ error: upsertError.message });
+    }
+
+    return res.json({
+      ok: true,
+      day: today,
+      total_products: totalProducts ?? 0,
+      hot_products: hotProducts ?? 0,
+      avg_score: avgScore,
+      new_products: newProducts ?? 0,
+      top_category: topCategory,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 export default router;
 
 // POST /api/cron/ae-bestsellers — runs every 6h via Vercel cron (0 */6 * * *)
@@ -1076,4 +1172,15 @@ router.get('/ae-bestsellers', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
   res.json({ ok: true, started: true });
   launchAEBestsellerScrapes().catch(e => console.error('[cron/ae-bestsellers]', e instanceof Error ? e.message : e));
+});
+
+// ── GET /api/cron/evaluate-alerts — checks alert conditions and sends emails ──
+router.get('/evaluate-alerts', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const result = await evaluateAlerts();
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });

@@ -329,6 +329,8 @@ async function startServer() {
   app.use('/api/subscription', subscriptionRouter);
   const adminApiRouter = (await import('../routes/admin')).default;
   app.use('/api/admin', adminApiRouter);
+  const alertsRouter = (await import('../routes/alerts')).default;
+  app.use('/api/alerts', alertsRouter);
 
   // Developer API — key management (session-authenticated)
   const apiKeysRouter = (await import('../routes/api-keys')).default;

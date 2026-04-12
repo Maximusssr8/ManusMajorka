@@ -539,4 +539,105 @@ router.get('/sync-status', async (req, res) => {
   }
 });
 
+// ── GET /api/shopify/orders — fetch recent orders from connected store ──────
+// Returns last 30 days of orders with revenue totals. Used by Revenue page.
+router.get('/orders', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ error: 'Not signed in' });
+
+    const { data: conn } = await supabase
+      .from('shopify_connections')
+      .select('shop_domain, access_token')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!conn?.access_token || !conn?.shop_domain) {
+      return res.json({
+        connected: false,
+        orders: [],
+        summary: { totalRevenue: 0, totalOrders: 0, avgOrderValue: 0 },
+        message: 'No Shopify store connected. Go to Store Builder → Shopify Sync to connect.',
+      });
+    }
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const apiUrl = `https://${conn.shop_domain}/admin/api/2024-01/orders.json?status=any&created_at_min=${thirtyDaysAgo}&limit=250`;
+
+    const shopRes = await fetch(apiUrl, {
+      headers: {
+        'X-Shopify-Access-Token': conn.access_token,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!shopRes.ok) {
+      const detail = await shopRes.text().catch(() => '');
+      return res.status(502).json({
+        error: 'shopify_api_error',
+        message: `Shopify API returned ${shopRes.status}: ${detail.slice(0, 200)}`,
+      });
+    }
+
+    const { orders: rawOrders } = (await shopRes.json()) as {
+      orders: Array<{
+        id: number;
+        name: string;
+        created_at: string;
+        total_price: string;
+        currency: string;
+        financial_status: string;
+        fulfillment_status: string | null;
+        line_items: Array<{ title: string; quantity: number; price: string }>;
+      }>;
+    };
+
+    const orders = (rawOrders || []).map((o) => ({
+      id: String(o.id),
+      name: o.name,
+      date: o.created_at,
+      total: parseFloat(o.total_price) || 0,
+      currency: o.currency || 'AUD',
+      status: o.financial_status,
+      fulfillment: o.fulfillment_status || 'unfulfilled',
+      items: (o.line_items || []).map((li) => ({
+        title: li.title,
+        qty: li.quantity,
+        price: parseFloat(li.price) || 0,
+      })),
+    }));
+
+    const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
+    const totalOrders = orders.length;
+    const avgOrderValue = totalOrders > 0 ? Math.round((totalRevenue / totalOrders) * 100) / 100 : 0;
+
+    // Daily revenue breakdown for the Revenue page chart
+    const dailyMap = new Map<string, number>();
+    for (const o of orders) {
+      const day = o.date.slice(0, 10);
+      dailyMap.set(day, (dailyMap.get(day) || 0) + o.total);
+    }
+    const dailyRevenue = Array.from(dailyMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([day, revenue]) => ({ day, revenue: Math.round(revenue * 100) / 100 }));
+
+    return res.json({
+      connected: true,
+      shop: conn.shop_domain,
+      orders,
+      dailyRevenue,
+      summary: {
+        totalRevenue: Math.round(totalRevenue * 100) / 100,
+        totalOrders,
+        avgOrderValue,
+        period: '30 days',
+      },
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

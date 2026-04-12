@@ -1,8 +1,31 @@
-import { useEffect, useState } from 'react';
-import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Plus, TrendingUp, DollarSign, Target, Trash2, ShoppingBag, RefreshCw } from 'lucide-react';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/motion';
+import { supabase } from '@/lib/supabase';
+
+interface ShopifyOrder {
+  id: string;
+  name: string;
+  date: string;
+  total: number;
+  currency: string;
+  status: string;
+}
+interface ShopifySummary {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  period: string;
+}
+interface ShopifyData {
+  connected: boolean;
+  shop?: string;
+  orders: ShopifyOrder[];
+  summary: ShopifySummary;
+  message?: string;
+}
 
 /**
  * Revenue.tsx — personal profit log for the operator.
@@ -51,8 +74,30 @@ export default function Revenue() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
   const [loading, setLoading] = useState(true);
+  const [shopify, setShopify] = useState<ShopifyData | null>(null);
+  const [shopifyLoading, setShopifyLoading] = useState(false);
 
-  useEffect(() => { document.title = 'Revenue — Majorka'; setLoading(false); }, []);
+  const loadShopify = useCallback(async () => {
+    setShopifyLoading(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      if (!token) { setShopifyLoading(false); return; }
+      const res = await fetch('/api/shopify/orders', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = (await res.json()) as ShopifyData;
+        setShopify(data);
+      }
+    } catch {
+      // silently fail — Shopify sync is optional
+    } finally {
+      setShopifyLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { document.title = 'Revenue — Majorka'; setLoading(false); void loadShopify(); }, [loadShopify]);
 
   function persist(updated: RevenueEntry[]) {
     setEntries(updated);
@@ -146,6 +191,50 @@ export default function Revenue() {
             </div>
           ))}
         </div>
+
+        {/* Shopify revenue sync */}
+        {shopify?.connected && shopify.summary.totalOrders > 0 && (
+          <div className="rounded-lg p-5 mb-6" style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-md flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                  <ShoppingBag size={16} style={{ color: '#d4af37' }} />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-text">Shopify Revenue</div>
+                  <div className="text-[11px] text-muted font-mono">{shopify.shop} · {shopify.summary.period}</div>
+                </div>
+              </div>
+              <button onClick={() => void loadShopify()} disabled={shopifyLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all"
+                style={{ background: '#111', border: '1px solid #1a1a1a', color: '#888' }}>
+                <RefreshCw size={11} className={shopifyLoading ? 'animate-spin' : ''} /> Refresh
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-md p-3" style={{ background: '#080808', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="text-[10px] text-muted uppercase tracking-wide mb-1">Revenue</div>
+                <div className="text-lg font-bold font-mono tabular-nums text-text">A${shopify.summary.totalRevenue.toLocaleString()}</div>
+              </div>
+              <div className="rounded-md p-3" style={{ background: '#080808', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="text-[10px] text-muted uppercase tracking-wide mb-1">Orders</div>
+                <div className="text-lg font-bold font-mono tabular-nums text-text">{shopify.summary.totalOrders}</div>
+              </div>
+              <div className="rounded-md p-3" style={{ background: '#080808', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="text-[10px] text-muted uppercase tracking-wide mb-1">Avg Order</div>
+                <div className="text-lg font-bold font-mono tabular-nums text-text">A${shopify.summary.avgOrderValue}</div>
+              </div>
+            </div>
+          </div>
+        )}
+        {!shopify?.connected && !shopifyLoading && (
+          <div className="rounded-lg p-4 mb-6 flex items-center gap-3" style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}>
+            <ShoppingBag size={16} style={{ color: '#d4af37' }} />
+            <span className="text-[12px] text-body">
+              Connect your Shopify store in <a href="/app/store-builder" className="text-accent underline">Store Builder</a> to see real revenue here automatically.
+            </span>
+          </div>
+        )}
 
         {/* Empty state OR table */}
         {entries.length === 0 ? (

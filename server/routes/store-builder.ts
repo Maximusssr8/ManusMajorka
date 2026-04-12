@@ -87,6 +87,7 @@ router.post('/generate', async (req, res) => {
     return res.json({
       brief,
       storeNameOptions,
+      products: productName ? [{ title: productName, price_aud: pricePoint || 0, image_url: '' }] : [],
       themeRecommendation: {
         name: 'Modern Dark DTC',
         reason: 'High-converting dark theme with gold accents — optimised for Australian DTC brands and proven to increase add-to-cart by 18%.',

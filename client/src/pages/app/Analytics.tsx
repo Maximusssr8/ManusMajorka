@@ -3,6 +3,8 @@ import { BarChart2, TrendingUp, Package, Star, Activity, Grid3x3, X } from 'luci
 import {
   BarChart,
   Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -13,6 +15,14 @@ import {
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
 
 const CATEGORY_COLOURS = ['#3b82f6','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#888888','#ef4444','#84cc16','#06b6d4','#a855f7','#78716c','#0ea5e9','#d946ef'];
+
+interface TimeSeriesPoint {
+  day: string;
+  total: number;
+  hot: number;
+  avgScore: number;
+  newProducts: number;
+}
 
 interface Overview {
   total: number;
@@ -126,6 +136,8 @@ export default function Analytics() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [timeSeries, setTimeSeries] = useState<TimeSeriesPoint[]>([]);
+  const [timeSeriesLoading, setTimeSeriesLoading] = useState(true);
 
   // Matrix state
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
@@ -142,6 +154,14 @@ export default function Analytics() {
       setCategories(cats.categories || []);
       setLoading(false);
     }).catch(() => setLoading(false));
+
+    fetch('/api/products/analytics-timeseries')
+      .then(r => r.json())
+      .then((data: { series?: TimeSeriesPoint[] }) => {
+        setTimeSeries(data.series ?? []);
+        setTimeSeriesLoading(false);
+      })
+      .catch(() => setTimeSeriesLoading(false));
   }, []);
 
   const productCategoryOptions = useMemo(() => {
@@ -287,13 +307,78 @@ export default function Analytics() {
                   <Activity size={11} /> Live
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center py-10 border border-dashed border-[#1a1a1a] rounded-md bg-[#080808]">
-                <Activity size={20} className="text-[#555555] mb-2" />
-                <div className="text-sm font-semibold text-[#888888]">Time series unavailable</div>
-                <div className="text-xs text-[#555555] mt-1 text-center max-w-xs">
-                  The analytics endpoint does not yet expose a time dimension. Historical score trend will appear once the API returns per-day snapshots.
+              {timeSeriesLoading ? (
+                <div className="animate-pulse rounded-md bg-[#1a1a1a]/40" style={{ height: 240 }} />
+              ) : timeSeries.length > 0 ? (
+                <div style={{ width: '100%', height: 240 }}>
+                  <ResponsiveContainer>
+                    <AreaChart data={timeSeries} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="gradHot" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="2 4" stroke="#1a1a1a" vertical={false} />
+                      <XAxis
+                        dataKey="day"
+                        tick={{ fill: '#888888', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}
+                        axisLine={{ stroke: '#1a1a1a' }}
+                        tickLine={false}
+                        tickFormatter={(v: string) => v.slice(5)}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      />
+                      <YAxis
+                        tick={{ fill: '#555555', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }}
+                        axisLine={{ stroke: '#1a1a1a' }}
+                        tickLine={false}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: '#0f0f0f',
+                          border: '1px solid #1a1a1a',
+                          borderRadius: 6,
+                          fontSize: 12,
+                          color: '#ededed',
+                          fontFamily: 'JetBrains Mono, monospace',
+                        }}
+                        labelFormatter={(v: string) => v}
+                        formatter={(value: number, name: string) => [
+                          value.toLocaleString(),
+                          name === 'total' ? 'Total Products' : 'Hot Products',
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="total"
+                        stroke="#3B82F6"
+                        fill="url(#gradTotal)"
+                        strokeWidth={2}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="hot"
+                        stroke="#f59e0b"
+                        fill="url(#gradHot)"
+                        strokeWidth={2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 border border-dashed border-[#1a1a1a] rounded-md bg-[#080808]">
+                  <Activity size={20} className="text-[#555555] mb-2" />
+                  <div className="text-sm font-semibold text-[#888888]">Time series builds automatically</div>
+                  <div className="text-xs text-[#555555] mt-1 text-center max-w-xs">
+                    Check back tomorrow for your first data point.
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Score histogram */}
