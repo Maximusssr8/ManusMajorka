@@ -13,6 +13,7 @@ import { getSupabaseAdmin } from '../_core/supabase';
 import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
 import { collectCJRealProducts } from '../scrapers/cj-real-products';
 import { runTrendFirstPipeline } from '../pipeline/trendFirst';
+import { runBulkAliExpressPipeline } from '../jobs/aliexpressPipeline';
 
 const router = Router();
 
@@ -1974,6 +1975,18 @@ router.post('/run-trend-pipeline', requireAuth, requireAdmin, async (_req: Reque
   runTrendFirstPipeline('full').then(r => console.info('[admin] trend pipeline complete:', r)).catch(e => {
     console.error('[admin] trend pipeline error:', e instanceof Error ? e.message : e);
   });
+});
+
+// POST /api/admin/pipeline/trigger — manually trigger the bulk AliExpress DataHub pipeline
+router.post('/pipeline/trigger', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  const started = Date.now();
+  try {
+    const stats = await runBulkAliExpressPipeline();
+    res.json({ success: true, stats, timing_ms: Date.now() - started });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ success: false, error: message, timing_ms: Date.now() - started });
+  }
 });
 
 export default router;

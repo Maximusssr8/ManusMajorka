@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { GradientM } from '@/components/MajorkaLogo';
 import { useProducts, type Product } from '@/hooks/useProducts';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { useFavourites } from '@/hooks/useFavourites';
@@ -94,26 +93,45 @@ export default function AppHome() {
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { products, loading: prodLoading, total } = useProducts({ limit: 10, orderBy: 'sold_count' });
-  const { products: hotTodayProducts } = useProducts({ limit: 4, tab: 'hot-now' });
-  const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
-  const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
+  /* Fetch a broad set once and derive each section client-side */
+  const { products: allProducts, loading: prodLoading, total } = useProducts({ limit: 50, orderBy: 'sold_count' });
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
   const tod = timeOfDay();
 
-  const topProduct    = products[0];
-  const bestMargin    = bestMarginProducts[0] ?? null;
-  const newestProduct = newestProducts[0] ?? null;
+  /* ── Derived sections — each uses DIFFERENT data logic ─────── */
 
-  /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
-     created within 30d). Falls back to the top-volume slice if the strict
-     filter returns nothing so this card always shows real products. */
-  const trendingNow = hotTodayProducts.length > 0 ? hotTodayProducts : products.slice(0, 4);
+  function daysSince(iso: string | null): number {
+    if (!iso) return 999;
+    const ts = Date.parse(iso);
+    if (!Number.isFinite(ts)) return 999;
+    return Math.floor((Date.now() - ts) / 86400000);
+  }
 
-  /* Trending Today — products with sold_count > 100,000 in the loaded set */
-  const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
+  /* Section 2: Top Products table — all-time sellers by sold_count */
+  const topSellers = [...allProducts]
+    .sort((a, b) => (b.sold_count ?? 0) - (a.sold_count ?? 0))
+    .slice(0, 10);
+  const topSellerIds = new Set(topSellers.map((p) => p.id));
+
+  /* Section 3: Hot Today — new this week + high winning score, excluding top sellers */
+  const hotToday = [...allProducts]
+    .filter((p) => daysSince(p.created_at) <= 7 && (p.winning_score ?? 0) >= 70)
+    .filter((p) => !topSellerIds.has(p.id))
+    .sort((a, b) => (b.winning_score ?? 0) - (a.winning_score ?? 0))
+    .slice(0, 4);
+  const hotTodayIds = new Set(hotToday.map((p) => p.id));
+
+  /* Section 4: Top Opportunities — high potential, low competition */
+  const opportunityProducts = [...allProducts]
+    .filter((p) => (p.winning_score ?? 0) >= 60 && (p.sold_count ?? 0) < 5000)
+    .filter((p) => !topSellerIds.has(p.id) && !hotTodayIds.has(p.id))
+    .sort((a, b) => (b.winning_score ?? 0) - (a.winning_score ?? 0))
+    .slice(0, 3);
+
+  /* Trending Today count — for KPI card */
+  const trendingTodayCount = allProducts.filter((p) => (p.sold_count ?? 0) > 100000).length;
 
   /* KPI cards */
   const totalDelta = stats?.totalDelta ?? 0;
@@ -181,30 +199,17 @@ export default function AppHome() {
 
   // Animation variants now driven by CSS .animate-in / .stagger-N classes
 
-  /* Top Opportunities — pulled from live data */
+  /* Top Opportunities — high potential, low competition hidden gems */
   const opportunities: {
     label: string; chipBg: string; chipFg: string; href: string;
     product: Product | null;
-  }[] = [
-    {
-      label: 'Top Trending',
-      chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b',
-      href: '/app/products?tab=hot-now',
-      product: topProduct ?? null,
-    },
-    {
-      label: 'Best Margin',
-      chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981',
-      href: '/app/products?tab=high-profit',
-      product: bestMargin,
-    },
-    {
-      label: 'Newest',
-      chipBg: 'rgba(255,255,255,0.15)', chipFg: '#cccccc',
-      href: '/app/products?tab=new',
-      product: newestProduct,
-    },
-  ];
+  }[] = opportunityProducts.map((p, i) => ({
+    label: i === 0 ? 'Hidden Gem' : i === 1 ? 'Under Radar' : 'Sleeper Hit',
+    chipBg: i === 0 ? 'rgba(16,185,129,0.15)' : i === 1 ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.15)',
+    chipFg: i === 0 ? '#10b981' : i === 1 ? '#f59e0b' : '#cccccc',
+    href: `/app/products?product=${p.id}`,
+    product: p,
+  }));
 
   const liveLabel = stats?.updatedAt
     ? `Live · AliExpress feed · updated ${formatRelative(stats.updatedAt)}`
@@ -366,13 +371,16 @@ export default function AppHome() {
         })}
       </div>
 
-      {/* ── Today's Picks ───────────────────────────────────────── */}
-      <TodaysFive />
+      {/* ── Today's Picks — Velocity Leaders ─────────────────────── */}
+      <VelocityCarousel products={allProducts} loading={prodLoading} />
 
       {/* Top products table */}
       <div className="mx-6 md:mx-8 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Top Products</h2>
+          <div>
+            <h2 className="text-base font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Top Products</h2>
+            <p style={{ fontSize: 11, color: '#888', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>All-time top sellers by total orders</p>
+          </div>
           <a
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
@@ -410,17 +418,17 @@ export default function AppHome() {
                     <td className="px-4 py-4 text-right"><span className="inline-block h-4 w-14 bg-white/[0.04] rounded animate-pulse" /></td>
                   </tr>
                 ))
-              ) : products.length === 0 ? (
+              ) : topSellers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-16 text-center text-muted">
                     No products tracked yet.
                   </td>
                 </tr>
               ) : (
-                products.slice(0, 8).map((p, i) => {
+                topSellers.slice(0, 8).map((p, i) => {
                   const score = Math.round(p.winning_score ?? 0);
                   const orders = p.sold_count ?? 0;
-                  const isLast = i === Math.min(products.length, 8) - 1;
+                  const isLast = i === Math.min(topSellers.length, 8) - 1;
                   return (
                     <tr
                       key={p.id}
@@ -504,10 +512,13 @@ export default function AppHome() {
         {/* LEFT — Trending Now */}
         <div className="w-full flex-1 min-w-0 rounded-md p-5 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-              Hot Today
-            </h2>
+            <div>
+              <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                Hot Today
+              </h2>
+              <p style={{ fontSize: 11, color: '#888', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em', marginTop: 2 }}>New this week with high winning scores</p>
+            </div>
             <Link
               href="/app/products?tab=trending"
               className="text-xs text-accent hover:text-accent-hover transition-colors no-underline"
@@ -527,17 +538,17 @@ export default function AppHome() {
                 </div>
               ))}
             </div>
-          ) : trendingNow.length === 0 ? (
+          ) : hotToday.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted">
               No trending products yet.
             </div>
           ) : (
             <div className="flex flex-col">
-              {trendingNow.map((p, i) => {
+              {hotToday.map((p, i) => {
                 const score = Math.round(p.winning_score ?? 0);
                 const orders = p.sold_count ?? 0;
                 const catStyle = categoryColor(p.category);
-                const isLast = i === trendingNow.length - 1;
+                const isLast = i === hotToday.length - 1;
                 return (
                   <button
                     key={p.id}
@@ -600,7 +611,10 @@ export default function AppHome() {
 
           {/* Top Opportunities */}
           <div className="rounded-lg p-5">
-            <h3 className="text-sm font-semibold text-text mb-4">Top Opportunities</h3>
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-text">Top Opportunities</h3>
+              <p style={{ fontSize: 11, color: '#888', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em', marginTop: 2 }}>High potential, low competition</p>
+            </div>
             {opportunities.map((o, i) => {
               const p = o.product;
               const score = Math.round(p?.winning_score ?? 0);
@@ -674,58 +688,43 @@ export default function AppHome() {
 export { timeAgoShort };
 
 /* ──────────────────────────────────────────────────────────────
-   TodaysFive — daily-briefing horizontal scroll of 5 picks.
-   Fetches from /api/products/todays-picks. Caches via useProducts'
-   own caching layer would be ideal but the endpoint shape is bespoke,
-   so we fetch once on mount.
+   VelocityCarousel — top 5 products by order velocity
+   (sold_count / days_since_created). Fastest accelerating items.
    ────────────────────────────────────────────────────────────── */
-interface TodaysPick {
-  id: string;
-  product_title: string | null;
-  price_aud: number | null;
-  sold_count: number | null;
-  winning_score: number | null;
-  image_url: string | null;
-  category: string | null;
-}
 
-function TodaysFive() {
-  const [picks, setPicks] = useState<TodaysPick[]>([]);
-  const [loading, setLoading] = useState(true);
+function VelocityCarousel({ products, loading }: { products: Product[]; loading: boolean }) {
+  function daysSinceCreated(iso: string | null): number {
+    if (!iso) return 999;
+    const ts = Date.parse(iso);
+    if (!Number.isFinite(ts)) return 999;
+    return Math.max(1, Math.floor((Date.now() - ts) / 86400000));
+  }
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/products/todays-picks?market=AU&limit=5')
-      .then((r) => r.json())
-      .then((d) => {
-        if (cancelled) return;
-        setPicks(Array.isArray(d?.picks) ? d.picks : []);
-        setLoading(false);
-      })
-      .catch(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
+  const velocityLeaders = [...products]
+    .map((p) => ({ ...p, velocity: (p.sold_count ?? 0) / daysSinceCreated(p.created_at) }))
+    .sort((a, b) => b.velocity - a.velocity)
+    .slice(0, 5);
 
   return (
     <div className="relative z-10 px-4 md:px-8 pt-6 pb-2">
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/50">Today&apos;s Top 5</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/50">Trending Now</span>
             <span className="text-[10px] text-white/25">
               · {new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Your daily picks</h2>
-            <span className="text-[9px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.2)' }}>AI curated</span>
+            <h2 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>Velocity Leaders</h2>
           </div>
+          <p style={{ fontSize: 11, color: '#888', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em', marginTop: 2 }}>Fastest accelerating in 48 hours</p>
         </div>
         <Link
           href="/app/products"
           className="text-xs text-accent hover:text-accent-hover font-medium no-underline"
         >
-          Browse all →
+          Browse all &rarr;
         </Link>
       </div>
       <div
@@ -741,16 +740,16 @@ function TodaysFive() {
           ? Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="w-52 shrink-0 h-72 rounded-md bg-white/[0.04] animate-pulse" />
             ))
-          : picks.length === 0
-            ? <div className="text-xs text-muted py-8">No picks today — check back later.</div>
-            : picks.map((p, i) => <TodayCard key={p.id} product={p} rank={i + 1} />)
+          : velocityLeaders.length === 0
+            ? <div className="text-xs text-muted py-8">No velocity data yet.</div>
+            : velocityLeaders.map((p, i) => <TodayCard key={p.id} product={p} rank={i + 1} />)
         }
       </div>
     </div>
   );
 }
 
-function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
+function TodayCard({ product, rank }: { product: Product; rank: number }) {
   const score = Math.round(product.winning_score ?? 0);
   const orders = product.sold_count ?? 0;
   return (

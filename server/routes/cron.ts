@@ -24,6 +24,7 @@ import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 import { scrapeCJTopSellers } from '../scrapers/cj-top-sellers';
 import { launchAEBestsellerScrapes } from '../scrapers/ae-bestseller-urls';
 import { evaluateAlerts } from '../routes/alerts';
+import { runBulkAliExpressPipeline } from '../jobs/aliexpressPipeline';
 
 const router = Router();
 
@@ -1182,5 +1183,24 @@ router.get('/evaluate-alerts', async (req: Request, res: Response) => {
     res.json({ success: true, ...result });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/cron/pipeline — bulk AliExpress DataHub 20-category pipeline ──
+// Dual-cron: 08:00 UTC (6 PM AEST) + 20:00 UTC (6 AM AEST).
+// Each run processes 10 categories; full coverage every 24h.
+router.get('/pipeline', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const started = Date.now();
+  try {
+    const stats = await runBulkAliExpressPipeline();
+    res.json({
+      success: true,
+      stats,
+      timing_ms: Date.now() - started,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ success: false, error: message, timing_ms: Date.now() - started });
   }
 });

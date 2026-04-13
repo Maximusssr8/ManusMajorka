@@ -36,6 +36,22 @@ type Mode = 'ai' | 'shopify' | 'marketplace';
 
 type Vibe = 'minimal' | 'bold' | 'luxury' | 'streetwear';
 type Market = 'AU' | 'US' | 'UK';
+type StoreTheme = 'dawn' | 'craft' | 'refresh' | 'impulse' | 'sense';
+
+interface ThemeDef {
+  id: StoreTheme;
+  name: string;
+  bestFor: string;
+  swatch: string[];
+}
+
+const STORE_THEMES: ThemeDef[] = [
+  { id: 'dawn', name: 'Dawn', bestFor: 'Beauty, fashion, lifestyle', swatch: ['#ffffff', '#111111', '#e5e5e5'] },
+  { id: 'craft', name: 'Craft', bestFor: 'Tech, gadgets, premium goods', swatch: ['#0a0a0a', '#d4af37', '#ededed'] },
+  { id: 'refresh', name: 'Refresh', bestFor: 'Pet, kids, health, kitchen', swatch: ['#f8fafc', '#22c55e', '#fbbf24'] },
+  { id: 'impulse', name: 'Impulse', bestFor: 'Impulse buys, viral products', swatch: ['#ffffff', '#ef4444', '#111111'] },
+  { id: 'sense', name: 'Sense', bestFor: 'Jewellery, watches, premium fashion', swatch: ['#f5f0eb', '#8b7355', '#2c2c2c'] },
+];
 
 interface GeneratedProduct {
   title: string;
@@ -388,44 +404,13 @@ function PendingNotice({ note }: PendingNoticeProps) {
 }
 
 // ─── Generate premium Shopify-quality storefront HTML ──────────
-function generateStoreHTML(store: GeneratedStore, niche?: string): string {
-  const primary = store.colorPalette[0] || '#d4af37';
-  const bg = store.colorPalette[1] || '#080808';
-  const light = store.colorPalette[2] || '#ededed';
-  const surfaceBg = '#0d0d0d';
-  const cardBg = '#111111';
-  const borderClr = '#1a1a1a';
+function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTheme = 'craft'): string {
   const year = new Date().getFullYear();
   const nicheLabel = niche || 'premium products';
   const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const safeName = escHtml(store.storeName);
   const safeTagline = escHtml(store.tagline);
-
-  const productCards = store.products.slice(0, 6).map((p, i) => {
-    const safeTitle = escHtml(p.title);
-    const imgBlock = p.image_url
-      ? `<img src="${escHtml(p.image_url)}" alt="${safeTitle}" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
-      : `<div style="width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,${cardBg} 0%,rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.12) 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="${primary}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span style="font-size:12px;color:rgba(245,245,245,0.3);font-family:'DM Sans',sans-serif;">Product Image</span></div>`;
-    const badge = i === 0 ? `<div class="badge-bestseller">BESTSELLER</div>` : '';
-
-    return `
-      <div class="product-card" itemscope itemtype="https://schema.org/Product">
-        <meta itemprop="sku" content="MJK-${String(i + 1).padStart(3, '0')}" />
-        <div style="position:relative;overflow:hidden;">${imgBlock}${badge}</div>
-        <div style="padding:20px;">
-          <div class="product-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <span class="rating-text">4.8</span></div>
-          <h3 itemprop="name" style="margin:8px 0 4px;font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:${light};line-height:1.3;">${safeTitle}</h3>
-          <div style="font-size:12px;color:rgba(245,245,245,0.35);margin-bottom:12px;">Ships from AU warehouse</div>
-          <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-            <meta itemprop="priceCurrency" content="AUD" />
-            <span itemprop="price" content="${p.price_aud.toFixed(2)}" style="font-family:'JetBrains Mono',monospace;font-size:22px;color:${primary};font-weight:700;">A$${p.price_aud.toFixed(2)}</span>
-            <link itemprop="availability" href="https://schema.org/InStock" />
-          </div>
-          <div class="afterpay-line">or 4 x A$${(p.price_aud / 4).toFixed(2)} with <strong>Afterpay</strong></div>
-          <button class="add-to-cart-btn">Add to Cart</button>
-        </div>
-      </div>`;
-  }).join('\n');
+  const emailSlug = store.storeName.toLowerCase().replace(/[^a-z0-9]+/g, '');
 
   const testimonials = [
     { name: 'Sarah M.', loc: 'Sydney, NSW', text: `Absolutely love my purchase from ${store.storeName}! Quality exceeded my expectations and shipping was incredibly fast.`, stars: 5 },
@@ -433,36 +418,14 @@ function generateStoreHTML(store: GeneratedStore, niche?: string): string {
     { name: 'Emma K.', loc: 'Melbourne, VIC', text: 'Great product, excellent packaging, and the customer service team was super helpful. Highly recommend to anyone.', stars: 5 },
   ];
 
-  const testimonialCards = testimonials.map(t => `
-    <div class="testimonial-card">
-      <div class="testimonial-stars">${'&#9733;'.repeat(t.stars)}</div>
-      <p class="testimonial-text">"${escHtml(t.text)}"</p>
-      <div class="testimonial-author">
-        <div class="testimonial-avatar">${t.name[0]}</div>
-        <div>
-          <div style="font-weight:600;font-size:14px;color:${light};">${escHtml(t.name)}</div>
-          <div style="font-size:12px;color:rgba(245,245,245,0.4);">${escHtml(t.loc)}</div>
-        </div>
-      </div>
-    </div>`).join('\n');
-
   const faqItems = [
     { q: 'How fast is shipping within Australia?', a: 'We dispatch same-day before 2pm AEST. Standard delivery is 2-5 business days. Express options are available at checkout.' },
     { q: 'What is your return policy?', a: 'We offer a 30-day no-questions-asked return policy on all orders. Simply contact our team and we\'ll arrange a prepaid return label.' },
     { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments with Afterpay on all orders over $35. Select Afterpay at checkout.' },
   ];
 
-  const faqHTML = faqItems.map((f, i) => `
-    <div class="faq-item">
-      <input type="checkbox" id="faq-${i}" class="faq-toggle" />
-      <label for="faq-${i}" class="faq-question">${escHtml(f.q)}<span class="faq-chevron">&#8250;</span></label>
-      <div class="faq-answer"><p>${escHtml(f.a)}</p></div>
-    </div>`).join('\n');
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
+  // Shared OG / schema head
+  const headMeta = (fontLink: string) => `<meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${safeName} - ${escHtml(nicheLabel)} | Australian Online Store</title>
   <meta name="description" content="${safeTagline}. Premium ${escHtml(nicheLabel)} for Australian shoppers. Free shipping, Afterpay available, 30-day returns." />
@@ -475,385 +438,473 @@ function generateStoreHTML(store: GeneratedStore, niche?: string): string {
   <meta name="twitter:description" content="${safeTagline}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  ${fontLink}`;
+
+  // Shared product card builder
+  const buildProductCards = (cfg: {
+    cardBg: string; borderClr: string; textClr: string; priceClr: string; btnBg: string; btnText: string;
+    dimText: string; radius: string; imgPlaceholderBg: string; badgeBg: string; badgeText: string;
+    fontBody: string; fontHeading: string; fontMono: string; showUrgency?: boolean;
+  }) => store.products.slice(0, 6).map((p, i) => {
+    const safeTitle = escHtml(p.title);
+    const imgBlock = p.image_url
+      ? `<img src="${escHtml(p.image_url)}" alt="${safeTitle}" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
+      : `<div style="width:100%;aspect-ratio:1/1;background:${cfg.imgPlaceholderBg};display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="${cfg.priceClr}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontBody};">Product Image</span></div>`;
+    const badge = i === 0 ? `<div style="position:absolute;top:12px;left:12px;padding:4px 12px;background:${cfg.badgeBg};color:${cfg.badgeText};font-size:11px;font-weight:700;border-radius:4px;letter-spacing:0.05em;font-family:${cfg.fontBody};">BESTSELLER</div>` : '';
+    const urgencyEl = cfg.showUrgency ? `<div style="font-size:11px;color:#ef4444;font-weight:600;margin-bottom:8px;font-family:${cfg.fontBody};">Only ${Math.floor(Math.random() * 8) + 2} left - Selling fast!</div>` : '';
+    return `
+      <div class="product-card" itemscope itemtype="https://schema.org/Product">
+        <meta itemprop="sku" content="MJK-${String(i + 1).padStart(3, '0')}" />
+        <div style="position:relative;overflow:hidden;border-radius:${cfg.radius} ${cfg.radius} 0 0;">${imgBlock}${badge}</div>
+        <div style="padding:20px;">
+          <div style="display:flex;align-items:center;gap:6px;"><span style="color:#facc15;font-size:14px;letter-spacing:1px;">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontMono};">4.8</span></div>
+          <h3 itemprop="name" style="margin:8px 0 4px;font-family:${cfg.fontHeading};font-size:16px;font-weight:600;color:${cfg.textClr};line-height:1.3;">${safeTitle}</h3>
+          ${urgencyEl}
+          <div style="font-size:12px;color:${cfg.dimText};margin-bottom:12px;">Ships from AU warehouse</div>
+          <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+            <meta itemprop="priceCurrency" content="AUD" />
+            <span itemprop="price" content="${p.price_aud.toFixed(2)}" style="font-family:${cfg.fontMono};font-size:22px;color:${cfg.priceClr};font-weight:700;">A$${p.price_aud.toFixed(2)}</span>
+            <link itemprop="availability" href="https://schema.org/InStock" />
+          </div>
+          <div style="font-size:12px;color:${cfg.dimText};margin:8px 0 16px;">or 4 x A$${(p.price_aud / 4).toFixed(2)} with <strong style="color:${cfg.textClr};">Afterpay</strong></div>
+          <button style="width:100%;padding:12px 20px;background:${cfg.btnBg};color:${cfg.btnText};font-family:${cfg.fontBody};font-weight:600;font-size:14px;border:none;border-radius:6px;cursor:pointer;transition:opacity 0.2s;">${cfg.showUrgency ? 'Buy Now' : 'Add to Cart'}</button>
+        </div>
+      </div>`;
+  }).join('\n');
+
+  // Shared testimonial builder
+  const buildTestimonials = (cfg: { cardBg: string; borderClr: string; textClr: string; dimText: string; accentClr: string; fontHeading: string; radius: string }) =>
+    testimonials.map(t => `
+    <div style="background:${cfg.cardBg};border:1px solid ${cfg.borderClr};border-radius:${cfg.radius};padding:28px;transition:border-color 0.2s;">
+      <div style="color:#facc15;font-size:16px;letter-spacing:2px;margin-bottom:16px;">${'&#9733;'.repeat(t.stars)}</div>
+      <p style="font-size:14px;color:${cfg.dimText};line-height:1.7;margin-bottom:20px;font-style:italic;">"${escHtml(t.text)}"</p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.06);border:1px solid ${cfg.borderClr};display:flex;align-items:center;justify-content:center;font-family:${cfg.fontHeading};font-weight:700;font-size:16px;color:${cfg.accentClr};">${t.name[0]}</div>
+        <div>
+          <div style="font-weight:600;font-size:14px;color:${cfg.textClr};">${escHtml(t.name)}</div>
+          <div style="font-size:12px;color:${cfg.dimText};">${escHtml(t.loc)}</div>
+        </div>
+      </div>
+    </div>`).join('\n');
+
+  // Shared FAQ builder
+  const buildFAQ = (cfg: { borderClr: string; textClr: string; dimText: string; accentClr: string }) =>
+    faqItems.map((f, i) => `
+    <div style="border-bottom:1px solid ${cfg.borderClr};">
+      <input type="checkbox" id="faq-${i}" style="display:none;" />
+      <label for="faq-${i}" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:20px 0;font-size:15px;font-weight:600;color:${cfg.textClr};user-select:none;">${escHtml(f.q)}<span style="font-size:20px;color:${cfg.dimText};transition:transform 0.3s;display:inline-block;">&#8250;</span></label>
+      <div class="faq-answer"><p style="padding:0 0 20px;font-size:14px;color:${cfg.dimText};line-height:1.7;">${escHtml(f.a)}</p></div>
+    </div>`).join('\n');
+
+  // Shared responsive CSS block
+  const responsiveCSS = (navBg: string, borderClr: string) => `
+    @media (max-width: 1024px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .footer-inner { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 640px) {
+      .nav { padding: 0 16px !important; height: 56px !important; }
+      .nav-links {
+        display: none !important; position: absolute; top: 56px; left: 0; right: 0;
+        background: ${navBg}; border-bottom: 1px solid ${borderClr};
+        flex-direction: column; padding: 16px; gap: 12px;
+      }
+      #mobile-toggle:checked ~ .nav-links { display: flex !important; }
+      .hamburger { display: block !important; }
+      .hero { padding: 64px 16px 56px !important; }
+      .hero h1 { font-size: 32px !important; }
+      .products-section, .social-proof, .features-section, .faq-section { padding: 56px 16px !important; }
+      .products-grid, .testimonials-grid { grid-template-columns: 1fr !important; }
+      .features-grid { grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
+      .footer { padding: 48px 16px 32px !important; }
+      .footer-inner { grid-template-columns: 1fr !important; gap: 32px !important; }
+      .footer-bottom { flex-direction: column !important; align-items: flex-start !important; }
+    }
+    @media (max-width: 400px) { .features-grid { grid-template-columns: 1fr !important; } }`;
+
+  // Shared nav builder
+  const buildNav = (cfg: { bg: string; borderClr: string; brandClr: string; linkClr: string; accentClr: string; fontHeading: string; hamburgerClr: string }) => `
+  <nav class="nav" style="display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,48px);height:64px;border-bottom:1px solid ${cfg.borderClr};background:${cfg.bg};position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);">
+    <div style="font-family:${cfg.fontHeading};font-size:22px;font-weight:800;color:${cfg.brandClr};letter-spacing:-0.02em;">${safeName}</div>
+    <input type="checkbox" id="mobile-toggle" style="display:none;" />
+    <label for="mobile-toggle" class="hamburger" aria-label="Menu" style="display:none;cursor:pointer;padding:8px;background:none;border:none;"><span style="display:block;width:22px;height:2px;background:${cfg.hamburgerClr};margin:5px 0;"></span><span style="display:block;width:22px;height:2px;background:${cfg.hamburgerClr};margin:5px 0;"></span><span style="display:block;width:22px;height:2px;background:${cfg.hamburgerClr};margin:5px 0;"></span></label>
+    <div class="nav-links" style="display:flex;gap:32px;align-items:center;">
+      <a href="#products" style="font-size:14px;font-weight:500;color:${cfg.linkClr};text-decoration:none;">Shop</a>
+      <a href="#about" style="font-size:14px;font-weight:500;color:${cfg.linkClr};text-decoration:none;">About</a>
+      <a href="#faq" style="font-size:14px;font-weight:500;color:${cfg.linkClr};text-decoration:none;">FAQ</a>
+      <a href="#contact" style="font-size:14px;font-weight:500;color:${cfg.linkClr};text-decoration:none;">Contact</a>
+      <div style="position:relative;padding:8px;cursor:pointer;">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="${cfg.linkClr}" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+        <div style="position:absolute;top:2px;right:0;width:18px;height:18px;background:${cfg.accentClr};color:${cfg.bg};border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;">0</div>
+      </div>
+    </div>
+  </nav>`;
+
+  // Shared features builder
+  const buildFeatures = (cfg: { cardBg: string; borderClr: string; textClr: string; dimText: string; accentClr: string; fontHeading: string; iconBg: string; radius: string }) => `
+    <section class="features-section" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <h2 style="font-family:${cfg.fontHeading};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${cfg.textClr};margin-bottom:12px;">Why Shop With Us</h2>
+        <p style="font-size:16px;color:${cfg.dimText};max-width:480px;margin:0 auto;">Built for Australian shoppers, from checkout to delivery</p>
+      </div>
+      <div class="features-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+        <div style="text-align:center;padding:32px 20px;background:${cfg.cardBg};border:1px solid ${cfg.borderClr};border-radius:${cfg.radius};">
+          <div style="width:56px;height:56px;border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:${cfg.iconBg};font-size:24px;">&#128666;</div>
+          <h3 style="font-family:${cfg.fontHeading};font-size:15px;font-weight:600;color:${cfg.textClr};margin-bottom:8px;">Free Shipping</h3>
+          <p style="font-size:13px;color:${cfg.dimText};line-height:1.5;">Complimentary standard delivery on all Australian orders. No minimum spend.</p>
+        </div>
+        <div style="text-align:center;padding:32px 20px;background:${cfg.cardBg};border:1px solid ${cfg.borderClr};border-radius:${cfg.radius};">
+          <div style="width:56px;height:56px;border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:${cfg.iconBg};font-size:24px;">&#128179;</div>
+          <h3 style="font-family:${cfg.fontHeading};font-size:15px;font-weight:600;color:${cfg.textClr};margin-bottom:8px;">Afterpay</h3>
+          <p style="font-size:13px;color:${cfg.dimText};line-height:1.5;">Pay in 4 interest-free instalments. Shop now, pay later with zero fees.</p>
+        </div>
+        <div style="text-align:center;padding:32px 20px;background:${cfg.cardBg};border:1px solid ${cfg.borderClr};border-radius:${cfg.radius};">
+          <div style="width:56px;height:56px;border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:${cfg.iconBg};font-size:24px;">&#128260;</div>
+          <h3 style="font-family:${cfg.fontHeading};font-size:15px;font-weight:600;color:${cfg.textClr};margin-bottom:8px;">30-Day Returns</h3>
+          <p style="font-size:13px;color:${cfg.dimText};line-height:1.5;">Not happy? Return it within 30 days for a full refund. No questions asked.</p>
+        </div>
+        <div style="text-align:center;padding:32px 20px;background:${cfg.cardBg};border:1px solid ${cfg.borderClr};border-radius:${cfg.radius};">
+          <div style="width:56px;height:56px;border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:${cfg.iconBg};font-size:24px;">&#127462;&#127482;</div>
+          <h3 style="font-family:${cfg.fontHeading};font-size:15px;font-weight:600;color:${cfg.textClr};margin-bottom:8px;">AU Support</h3>
+          <p style="font-size:13px;color:${cfg.dimText};line-height:1.5;">Local Australian customer support team. We reply within 24 hours, Mon-Fri.</p>
+        </div>
+      </div>
+    </section>`;
+
+  // Shared footer builder
+  const buildFooter = (cfg: { bg: string; borderClr: string; brandClr: string; textClr: string; dimText: string; accentClr: string; fontHeading: string }) => `
+  <footer style="border-top:1px solid ${cfg.borderClr};padding:64px 24px 40px;background:${cfg.bg};" id="contact">
+    <div class="footer-inner" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;">
+      <div>
+        <div style="font-family:${cfg.fontHeading};font-size:22px;font-weight:800;color:${cfg.brandClr};margin-bottom:12px;">${safeName}</div>
+        <p style="font-size:13px;color:${cfg.dimText};max-width:280px;line-height:1.6;">${safeTagline}. Proudly serving Australian customers with premium ${escHtml(nicheLabel)} and exceptional service.</p>
+      </div>
+      <div>
+        <h4 style="font-family:${cfg.fontHeading};font-size:13px;font-weight:700;color:${cfg.textClr};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px;">Quick Links</h4>
+        <a href="#products" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">Shop All</a>
+        <a href="#about" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">About Us</a>
+        <a href="#faq" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">FAQ</a>
+        <a href="#contact" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">Contact</a>
+      </div>
+      <div>
+        <h4 style="font-family:${cfg.fontHeading};font-size:13px;font-weight:700;color:${cfg.textClr};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px;">Customer Care</h4>
+        <a href="#faq" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">Shipping Info</a>
+        <a href="#faq" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">Returns Policy</a>
+        <a href="#faq" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">Afterpay</a>
+        <a href="mailto:hello@${emailSlug}.com.au" style="display:block;font-size:13px;color:${cfg.dimText};margin-bottom:10px;text-decoration:none;">Email Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom" style="max-width:1200px;margin:40px auto 0;padding-top:24px;border-top:1px solid ${cfg.borderClr};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="font-size:12px;color:${cfg.dimText};">&copy; ${year} ${safeName}. All rights reserved. ABN pending.</div>
+      <div style="font-size:12px;color:${cfg.dimText};">Powered by <a href="https://majorka.io" target="_blank" rel="noopener" style="color:${cfg.accentClr};text-decoration:none;">Majorka</a></div>
+    </div>
+  </footer>`;
+
+  switch (theme) {
+    // ─────────────────────────────────────────────────────────────
+    // DAWN — Clean & Minimal (white bg, black text, thin borders)
+    // ─────────────────────────────────────────────────────────────
+    case 'dawn': {
+      const bg = '#ffffff'; const textClr = '#111111'; const dimText = '#666666'; const borderClr = '#e5e5e5';
+      const accent = '#111111'; const cardBg = '#fafafa'; const surfaceBg = '#f5f5f5';
+      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
+      const fH = "'Inter', sans-serif"; const fB = "'Inter', sans-serif"; const fM = "'JetBrains Mono', monospace";
+
+      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: '#f0f0f0', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
+      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '4px' });
+      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+
+      return `<!DOCTYPE html><html lang="en"><head>
+  ${headMeta(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: ${bg};
-      color: ${light};
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; height: auto; }
-
-    /* ── Nav ── */
-    .nav {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 clamp(16px, 4vw, 48px); height: 64px;
-      border-bottom: 1px solid ${borderClr}; background: ${surfaceBg};
-      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);
-    }
-    .nav-brand { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: ${light}; letter-spacing: -0.02em; }
-    .nav-brand span { color: ${primary}; }
-    .nav-links { display: flex; gap: 32px; align-items: center; }
-    .nav-links a { font-size: 14px; font-weight: 500; color: rgba(245,245,245,0.55); transition: color 0.2s; }
-    .nav-links a:hover { color: ${primary}; }
-    .nav-cart { position: relative; padding: 8px; cursor: pointer; }
-    .nav-cart svg { stroke: rgba(245,245,245,0.6); transition: stroke 0.2s; }
-    .nav-cart:hover svg { stroke: ${primary}; }
-    .nav-cart-badge {
-      position: absolute; top: 2px; right: 0; width: 18px; height: 18px;
-      background: ${primary}; color: ${bg}; border-radius: 50%;
-      font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .hamburger { display: none; cursor: pointer; padding: 8px; background: none; border: none; }
-    .hamburger span { display: block; width: 22px; height: 2px; background: ${light}; margin: 5px 0; transition: all 0.3s; }
-    #mobile-toggle { display: none; }
-    #mobile-toggle:checked ~ .nav-links { display: flex; }
-    #mobile-toggle:checked ~ .hamburger span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-    #mobile-toggle:checked ~ .hamburger span:nth-child(2) { opacity: 0; }
-    #mobile-toggle:checked ~ .hamburger span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
-    /* ── Hero ── */
-    .hero {
-      text-align: center; padding: 96px 24px 80px;
-      background: linear-gradient(180deg, ${surfaceBg} 0%, rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.03) 50%, ${bg} 100%);
-    }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px;
-      background: rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.08);
-      border: 1px solid rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.2);
-      border-radius: 100px; font-size: 12px; font-weight: 600; color: ${primary};
-      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 24px;
-    }
-    .hero h1 {
-      font-family: 'Syne', sans-serif; font-size: clamp(36px, 6vw, 64px);
-      font-weight: 800; letter-spacing: -0.03em; margin-bottom: 20px; color: ${light};
-      line-height: 1.1; max-width: 720px; margin-left: auto; margin-right: auto;
-    }
-    .hero-sub {
-      font-size: clamp(16px, 2vw, 20px); color: rgba(245,245,245,0.5);
-      max-width: 560px; margin: 0 auto 40px; line-height: 1.6;
-    }
-    .hero-cta {
-      display: inline-block; padding: 16px 40px; background: ${primary}; color: ${bg};
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
-      border-radius: 8px; border: none; cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 24px rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.3);
-    }
-    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.4); }
-    .trust-badges {
-      display: flex; justify-content: center; flex-wrap: wrap; gap: 24px;
-      margin-top: 48px; padding-top: 32px; border-top: 1px solid ${borderClr};
-    }
-    .trust-badge-item {
-      display: flex; align-items: center; gap: 8px; font-size: 13px;
-      color: rgba(245,245,245,0.45); font-weight: 500;
-    }
-    .trust-badge-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.06);
-      font-size: 16px;
-    }
-
-    /* ── Section headers ── */
-    .section-header { text-align: center; margin-bottom: 48px; }
-    .section-header h2 {
-      font-family: 'Syne', sans-serif; font-size: clamp(24px, 3.5vw, 36px);
-      font-weight: 700; color: ${light}; margin-bottom: 12px;
-    }
-    .section-header p { font-size: 16px; color: rgba(245,245,245,0.45); max-width: 480px; margin: 0 auto; }
-
-    /* ── Products ── */
-    .products-section { max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
-    .products-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-    }
-    .product-card {
-      background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 8px;
-      overflow: hidden; transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-    }
-    .product-card:hover {
-      transform: translateY(-4px); border-color: ${primary};
-      box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.1);
-    }
-    .badge-bestseller {
-      position: absolute; top: 12px; left: 12px; padding: 4px 12px;
-      background: ${primary}; color: ${bg}; font-size: 11px; font-weight: 700;
-      border-radius: 4px; letter-spacing: 0.05em; font-family: 'DM Sans', sans-serif;
-    }
-    .product-rating { display: flex; align-items: center; gap: 6px; }
-    .stars { color: #facc15; font-size: 14px; letter-spacing: 1px; }
-    .rating-text { font-size: 12px; color: rgba(245,245,245,0.4); font-family: 'JetBrains Mono', monospace; }
-    .afterpay-line {
-      font-size: 12px; color: rgba(245,245,245,0.35); margin: 8px 0 16px;
-    }
-    .afterpay-line strong { color: rgba(245,245,245,0.55); }
-    .add-to-cart-btn {
-      width: 100%; padding: 12px 20px; background: ${primary}; color: ${bg};
-      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
-      border: none; border-radius: 6px; cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    .add-to-cart-btn:hover { opacity: 0.9; transform: scale(1.01); }
-
-    /* ── Social Proof ── */
-    .social-proof { padding: 80px 24px; background: ${surfaceBg}; border-top: 1px solid ${borderClr}; border-bottom: 1px solid ${borderClr}; }
-    .social-proof .section-header p { color: rgba(245,245,245,0.4); }
+    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 4px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
     .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
-    .testimonial-card {
-      background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 8px;
-      padding: 28px; transition: border-color 0.2s;
-    }
-    .testimonial-card:hover { border-color: rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.3); }
-    .testimonial-stars { color: #facc15; font-size: 16px; letter-spacing: 2px; margin-bottom: 16px; }
-    .testimonial-text { font-size: 14px; color: rgba(245,245,245,0.6); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
-    .testimonial-author { display: flex; align-items: center; gap: 12px; }
-    .testimonial-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.1);
-      border: 1px solid rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.25);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: ${primary};
-    }
-
-    /* ── Features ── */
-    .features-section { max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
-    .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-    .feature-card {
-      text-align: center; padding: 32px 20px; background: ${cardBg};
-      border: 1px solid ${borderClr}; border-radius: 8px; transition: border-color 0.2s;
-    }
-    .feature-card:hover { border-color: rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.3); }
-    .feature-icon {
-      width: 56px; height: 56px; border-radius: 12px; margin: 0 auto 16px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.08);
-      border: 1px solid rgba(${parseInt(primary.slice(1, 3), 16)},${parseInt(primary.slice(3, 5), 16)},${parseInt(primary.slice(5, 7), 16)},0.15);
-      font-size: 24px;
-    }
-    .feature-card h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; color: ${light}; margin-bottom: 8px; }
-    .feature-card p { font-size: 13px; color: rgba(245,245,245,0.4); line-height: 1.5; }
-
-    /* ── FAQ ── */
-    .faq-section { max-width: 720px; margin: 0 auto; padding: 80px 24px; }
-    .faq-item { border-bottom: 1px solid ${borderClr}; }
-    .faq-toggle { display: none; }
-    .faq-question {
-      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-      padding: 20px 0; font-size: 15px; font-weight: 600; color: ${light};
-      font-family: 'DM Sans', sans-serif; user-select: none;
-    }
-    .faq-chevron {
-      font-size: 20px; color: rgba(245,245,245,0.3); transition: transform 0.3s;
-      display: inline-block;
-    }
-    .faq-toggle:checked + .faq-question .faq-chevron { transform: rotate(90deg); color: ${primary}; }
-    .faq-answer {
-      max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
-    }
-    .faq-toggle:checked ~ .faq-answer { max-height: 200px; }
-    .faq-answer p { padding: 0 0 20px; font-size: 14px; color: rgba(245,245,245,0.45); line-height: 1.7; }
-
-    /* ── Footer ── */
-    .footer {
-      border-top: 1px solid ${borderClr}; padding: 64px 24px 40px;
-      background: ${surfaceBg};
-    }
-    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; }
-    .footer-brand-section .footer-brand {
-      font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
-      color: ${light}; margin-bottom: 12px;
-    }
-    .footer-brand-section .footer-desc { font-size: 13px; color: rgba(245,245,245,0.4); max-width: 280px; line-height: 1.6; }
-    .footer-col h4 {
-      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
-      color: ${light}; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px;
-    }
-    .footer-col a {
-      display: block; font-size: 13px; color: rgba(245,245,245,0.4);
-      margin-bottom: 10px; transition: color 0.2s;
-    }
-    .footer-col a:hover { color: ${primary}; }
-    .footer-bottom {
-      max-width: 1200px; margin: 40px auto 0; padding-top: 24px;
-      border-top: 1px solid ${borderClr};
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-    }
-    .footer-copy { font-size: 12px; color: rgba(245,245,245,0.25); }
-    .footer-powered { font-size: 12px; color: rgba(245,245,245,0.2); }
-    .footer-powered a { color: ${primary}; transition: opacity 0.2s; }
-    .footer-powered a:hover { opacity: 0.8; }
-
-    /* ── Responsive ── */
-    @media (max-width: 1024px) {
-      .products-grid { grid-template-columns: repeat(2, 1fr); }
-      .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .footer-inner { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 640px) {
-      .nav { padding: 0 16px; height: 56px; }
-      .nav-links {
-        display: none; position: absolute; top: 56px; left: 0; right: 0;
-        background: ${surfaceBg}; border-bottom: 1px solid ${borderClr};
-        flex-direction: column; padding: 16px; gap: 12px;
-      }
-      .hamburger { display: block; }
-      .nav-cart-badge { width: 16px; height: 16px; font-size: 9px; }
-      .hero { padding: 64px 16px 56px; }
-      .hero h1 { font-size: 32px; }
-      .trust-badges { gap: 16px; }
-      .products-section { padding: 56px 16px; }
-      .products-grid { grid-template-columns: 1fr; }
-      .social-proof { padding: 56px 16px; }
-      .testimonials-grid { grid-template-columns: 1fr; }
-      .features-section { padding: 56px 16px; }
-      .features-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-      .faq-section { padding: 56px 16px; }
-      .footer { padding: 48px 16px 32px; }
-      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
-      .footer-bottom { flex-direction: column; align-items: flex-start; }
-    }
-    @media (max-width: 400px) {
-      .features-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-  <!-- Nav -->
-  <nav class="nav">
-    <div class="nav-brand">${safeName}</div>
-    <input type="checkbox" id="mobile-toggle" />
-    <label for="mobile-toggle" class="hamburger" aria-label="Menu"><span></span><span></span><span></span></label>
-    <div class="nav-links">
-      <a href="#products">Shop</a>
-      <a href="#about">About</a>
-      <a href="#faq">FAQ</a>
-      <a href="#contact">Contact</a>
-      <div class="nav-cart">
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
-        <div class="nav-cart-badge">0</div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="hero" id="about">
-    <div class="hero-eyebrow">&#10022; Australian Owned &amp; Shipped</div>
-    <h1>${safeTagline}</h1>
-    <p class="hero-sub">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
-    <a href="#products" class="hero-cta">Shop Now &#8594;</a>
-    <div class="trust-badges">
-      <div class="trust-badge-item"><div class="trust-badge-icon">&#128666;</div> Free AU Shipping</div>
-      <div class="trust-badge-item"><div class="trust-badge-icon">&#128179;</div> Afterpay Available</div>
-      <div class="trust-badge-item"><div class="trust-badge-icon">&#128260;</div> 30-Day Returns</div>
-      <div class="trust-badge-item"><div class="trust-badge-icon">&#128274;</div> Secure Checkout</div>
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
+    ${responsiveCSS(bg, borderClr)}
+  </style></head><body>
+  ${buildNav({ bg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
+  <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:${bg};">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:${surfaceBg};border:1px solid ${borderClr};border-radius:100px;font-size:12px;font-weight:600;color:${textClr};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Australian Owned &amp; Shipped</div>
+    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
+    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
+    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:#fff;font-family:${fH};font-weight:600;font-size:16px;border-radius:4px;text-decoration:none;transition:opacity 0.2s;">Shop Now &#8594;</a>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128666; Free AU Shipping</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128179; Afterpay Available</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128260; 30-Day Returns</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128274; Secure Checkout</div>
     </div>
   </section>
-
-  <!-- Products -->
-  <section class="products-section" id="products">
-    <div class="section-header">
-      <h2>Featured Products</h2>
-      <p>Hand-selected and tested for the Australian market</p>
-    </div>
-    <div class="products-grid">
-      ${productCards}
-    </div>
+  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
+    <div class="products-grid">${productCards}</div>
   </section>
-
-  <!-- Social Proof -->
-  <section class="social-proof">
-    <div class="section-header">
-      <h2>Trusted by 2,400+ Australian Customers</h2>
-      <p>See what our community has to say</p>
-    </div>
-    <div class="testimonials-grid">
-      ${testimonialCards}
-    </div>
+  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Trusted by 2,400+ Australian Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
+    <div class="testimonials-grid">${testimonialCards}</div>
   </section>
-
-  <!-- Features -->
-  <section class="features-section">
-    <div class="section-header">
-      <h2>Why Shop With Us</h2>
-      <p>Built for Australian shoppers, from checkout to delivery</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">&#128666;</div>
-        <h3>Free Shipping</h3>
-        <p>Complimentary standard delivery on all Australian orders. No minimum spend.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">&#128179;</div>
-        <h3>Afterpay</h3>
-        <p>Pay in 4 interest-free instalments. Shop now, pay later with zero fees.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">&#128260;</div>
-        <h3>30-Day Returns</h3>
-        <p>Not happy? Return it within 30 days for a full refund. No questions asked.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">&#127462;&#127482;</div>
-        <h3>AU Support</h3>
-        <p>Local Australian customer support team. We reply within 24 hours, Mon-Fri.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="faq-section" id="faq">
-    <div class="section-header">
-      <h2>Frequently Asked Questions</h2>
-    </div>
+  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: surfaceBg, radius: '4px' })}
+  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
+  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+</body></html>`;
+    }
 
-  <!-- Footer -->
-  <footer class="footer" id="contact">
-    <div class="footer-inner">
-      <div class="footer-brand-section">
-        <div class="footer-brand">${safeName}</div>
-        <p class="footer-desc">${safeTagline}. Proudly serving Australian customers with premium ${escHtml(nicheLabel)} and exceptional service.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <a href="#products">Shop All</a>
-        <a href="#about">About Us</a>
-        <a href="#faq">FAQ</a>
-        <a href="#contact">Contact</a>
-      </div>
-      <div class="footer-col">
-        <h4>Customer Care</h4>
-        <a href="#faq">Shipping Info</a>
-        <a href="#faq">Returns Policy</a>
-        <a href="#faq">Afterpay</a>
-        <a href="mailto:hello@${store.storeName.toLowerCase().replace(/[^a-z0-9]+/g, '')}.com.au">Email Us</a>
-      </div>
+    // ─────────────────────────────────────────────────────────────
+    // CRAFT — Bold & Premium (dark bg, gold accents)
+    // ─────────────────────────────────────────────────────────────
+    case 'craft': {
+      const bg = '#0a0a0a'; const textClr = '#ededed'; const dimText = 'rgba(245,245,245,0.4)'; const borderClr = '#1a1a1a';
+      const accent = '#d4af37'; const cardBg = '#111111'; const surfaceBg = '#0d0d0d';
+      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
+      const fH = "'Syne', sans-serif"; const fB = "'DM Sans', sans-serif"; const fM = "'JetBrains Mono', monospace";
+
+      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: bg, dimText, radius: '8px', imgPlaceholderBg: `linear-gradient(135deg,${cardBg},rgba(212,175,55,0.08))`, badgeBg: accent, badgeText: bg, fontBody: fB, fontHeading: fH, fontMono: fM });
+      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '8px' });
+      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+
+      return `<!DOCTYPE html><html lang="en"><head>
+  ${headMeta(fontLink)}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 8px; overflow: hidden; transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
+    .product-card:hover { transform: translateY(-4px); border-color: ${accent}; box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(212,175,55,0.1); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
+    ${responsiveCSS(surfaceBg, borderClr)}
+  </style></head><body>
+  ${buildNav({ bg: surfaceBg, borderClr, brandClr: textClr, linkClr: 'rgba(245,245,245,0.55)', accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
+  <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:linear-gradient(180deg,${surfaceBg} 0%,rgba(212,175,55,0.03) 50%,${bg} 100%);">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:100px;font-size:12px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">&#10022; Australian Owned &amp; Shipped</div>
+    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:800;letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
+    <p style="font-size:clamp(16px,2vw,20px);color:rgba(245,245,245,0.5);max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
+    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:${bg};font-family:${fH};font-weight:700;font-size:16px;border-radius:8px;text-decoration:none;box-shadow:0 4px 24px rgba(212,175,55,0.3);transition:transform 0.2s;">Shop Now &#8594;</a>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128666; Free AU Shipping</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128179; Afterpay Available</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128260; 30-Day Returns</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128274; Secure Checkout</div>
     </div>
-    <div class="footer-bottom">
-      <div class="footer-copy">&copy; ${year} ${safeName}. All rights reserved. ABN pending.</div>
-      <div class="footer-powered">Powered by <a href="https://majorka.io" target="_blank" rel="noopener">Majorka</a></div>
+  </section>
+  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:rgba(245,245,245,0.45);max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
+    <div class="products-grid">${productCards}</div>
+  </section>
+  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Trusted by 2,400+ Australian Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
+    <div class="testimonials-grid">${testimonialCards}</div>
+  </section>
+  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(212,175,55,0.08)', radius: '8px' })}
+  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
+    ${faqHTML}
+  </section>
+  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+</body></html>`;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // REFRESH — Bright & Energetic (light bg, rounded, playful)
+    // ─────────────────────────────────────────────────────────────
+    case 'refresh': {
+      const bg = '#f8fafc'; const textClr = '#1e293b'; const dimText = '#64748b'; const borderClr = '#e2e8f0';
+      const accent = store.colorPalette[0] || '#22c55e'; const cardBg = '#ffffff'; const surfaceBg = '#f1f5f9';
+      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
+      const fH = "'Nunito', sans-serif"; const fB = "'Nunito', sans-serif"; const fM = "'JetBrains Mono', monospace";
+
+      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '12px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
+      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '12px' });
+      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+
+      return `<!DOCTYPE html><html lang="en"><head>
+  ${headMeta(fontLink)}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 12px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
+    ${responsiveCSS(cardBg, borderClr)}
+  </style></head><body>
+  ${buildNav({ bg: cardBg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
+  <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:linear-gradient(180deg,${cardBg} 0%,${bg} 100%);">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:100px;font-size:12px;font-weight:700;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Australian Owned &amp; Shipped</div>
+    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,60px);font-weight:800;letter-spacing:-0.02em;margin-bottom:20px;color:${textClr};line-height:1.15;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
+    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
+    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:#fff;font-family:${fH};font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;box-shadow:0 4px 16px rgba(34,197,94,0.25);transition:transform 0.2s;">Shop Now &#8594;</a>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128666; Free AU Shipping</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128179; Afterpay Available</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128260; 30-Day Returns</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128274; Secure Checkout</div>
     </div>
-  </footer>
-</body>
-</html>`;
+  </section>
+  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
+    <div class="products-grid">${productCards}</div>
+  </section>
+  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Trusted by 2,400+ Australian Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
+    <div class="testimonials-grid">${testimonialCards}</div>
+  </section>
+  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(34,197,94,0.06)', radius: '12px' })}
+  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
+    ${faqHTML}
+  </section>
+  ${buildFooter({ bg: cardBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+</body></html>`;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // IMPULSE — Conversion-Optimised (urgency, sticky bar, bold CTA)
+    // ─────────────────────────────────────────────────────────────
+    case 'impulse': {
+      const bg = '#ffffff'; const textClr = '#111111'; const dimText = '#555555'; const borderClr = '#e5e5e5';
+      const accent = '#ef4444'; const cardBg = '#ffffff'; const surfaceBg = '#fafafa';
+      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
+      const fH = "'Inter', sans-serif"; const fB = "'Inter', sans-serif"; const fM = "'JetBrains Mono', monospace";
+
+      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '8px', imgPlaceholderBg: '#f5f5f5', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM, showUrgency: true });
+      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '8px' });
+      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+
+      return `<!DOCTYPE html><html lang="en"><head>
+  ${headMeta(fontLink)}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card { background: ${cardBg}; border: 2px solid ${borderClr}; border-radius: 8px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+    .product-card:hover { transform: translateY(-4px); border-color: ${accent}; box-shadow: 0 12px 32px rgba(239,68,68,0.1); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
+    .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: ${textClr}; color: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; z-index: 200; font-size: 14px; font-weight: 600; box-shadow: 0 -4px 24px rgba(0,0,0,0.15); }
+    .sticky-bar button { background: ${accent}; color: #fff; border: none; padding: 10px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
+    .urgency-banner { background: ${accent}; color: #fff; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+    ${responsiveCSS(bg, borderClr)}
+  </style></head><body>
+  <div class="urgency-banner">LIMITED TIME: Free express shipping on orders over A$75 - Ends midnight!</div>
+  ${buildNav({ bg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
+  <section class="hero" id="about" style="text-align:center;padding:80px 24px 64px;background:${bg};">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:100px;font-size:12px;font-weight:700;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Trending in Australia</div>
+    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,60px);font-weight:800;letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
+    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 32px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Join 2,400+ happy customers.</p>
+    <a href="#products" style="display:inline-block;padding:18px 48px;background:${accent};color:#fff;font-family:${fH};font-weight:800;font-size:18px;border-radius:8px;text-decoration:none;box-shadow:0 4px 24px rgba(239,68,68,0.3);transition:transform 0.2s;">Shop Now - Free Shipping &#8594;</a>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:40px;padding-top:28px;border-top:1px solid ${borderClr};">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128666; Free AU Shipping</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128179; Afterpay Available</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128260; 30-Day Returns</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#9733; 4.8/5 Rating</div>
+    </div>
+  </section>
+  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:64px 24px 100px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">Best Sellers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">These products are flying off the shelves</p></div>
+    <div class="products-grid">${productCards}</div>
+  </section>
+  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">2,400+ Happy Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See why Australians love us</p></div>
+    <div class="testimonials-grid">${testimonialCards}</div>
+  </section>
+  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(239,68,68,0.05)', radius: '8px' })}
+  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
+    ${faqHTML}
+  </section>
+  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+  <div class="sticky-bar"><span>Limited stock available</span><button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button></div>
+</body></html>`;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // SENSE — Luxury & Editorial (serif, earth tones, full-bleed)
+    // ─────────────────────────────────────────────────────────────
+    case 'sense':
+    default: {
+      const bg = '#f5f0eb'; const textClr = '#2c2c2c'; const dimText = '#8b8178'; const borderClr = '#ddd5cb';
+      const accent = '#8b7355'; const cardBg = '#ffffff'; const surfaceBg = '#ede7df';
+      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
+      const fH = "'Playfair Display', serif"; const fB = "'DM Sans', sans-serif"; const fM = "'JetBrains Mono', monospace";
+
+      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
+      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '4px' });
+      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+
+      return `<!DOCTYPE html><html lang="en"><head>
+  ${headMeta(fontLink)}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.7; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 4px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(44,44,44,0.08); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1200px; margin: 0 auto; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
+    ${responsiveCSS(cardBg, borderClr)}
+  </style></head><body>
+  ${buildNav({ bg: cardBg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
+  <section class="hero" id="about" style="text-align:center;padding:120px 24px 100px;background:${bg};">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 20px;border:1px solid ${borderClr};border-radius:100px;font-size:11px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.12em;margin-bottom:32px;">Australian Atelier</div>
+    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-0.02em;margin-bottom:24px;color:${textClr};line-height:1.1;max-width:760px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
+    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:520px;margin:0 auto 48px;line-height:1.7;font-family:${fB};">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
+    <a href="#products" style="display:inline-block;padding:16px 44px;background:${accent};color:#fff;font-family:${fB};font-weight:600;font-size:14px;border-radius:2px;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:opacity 0.2s;">Discover the Collection</a>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:32px;margin-top:56px;padding-top:40px;border-top:1px solid ${borderClr};">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128666; Complimentary Shipping</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128179; Afterpay Available</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128260; 30-Day Returns</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128274; Secure Checkout</div>
+    </div>
+  </section>
+  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:100px 24px;">
+    <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">The Collection</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected pieces for the Australian connoisseur</p></div>
+    <div class="products-grid">${productCards}</div>
+  </section>
+  <section class="social-proof" style="padding:100px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">What Our Clients Say</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Trusted by discerning Australian shoppers</p></div>
+    <div class="testimonials-grid">${testimonialCards}</div>
+  </section>
+  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(139,115,85,0.06)', radius: '4px' })}
+  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:100px 24px;">
+    <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">Frequently Asked Questions</h2></div>
+    ${faqHTML}
+  </section>
+  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+</body></html>`;
+    }
+  }
 }
 
 // ─── Store Preview Section ────────────────────────────────────
-function StorePreviewSection({ store, niche }: { store: GeneratedStore; niche?: string }) {
-  const htmlContent = useMemo(() => generateStoreHTML(store, niche), [store, niche]);
+function StorePreviewSection({ store, niche, theme = 'craft' }: { store: GeneratedStore; niche?: string; theme?: StoreTheme }) {
+  const htmlContent = useMemo(() => generateStoreHTML(store, niche, theme), [store, niche, theme]);
   const iframeSrcDoc = htmlContent;
   const [publishing, setPublishing] = useState(false);
   const [liveUrl, setLiveUrl] = useState<string | null>(null);
@@ -1067,6 +1118,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
   const [niche, setNiche] = useState(prefilled?.category || '');
   const [market, setMarket] = useState<Market>('AU');
   const [vibe, setVibe] = useState<Vibe>('minimal');
+  const [selectedTheme, setSelectedTheme] = useState<StoreTheme>('craft');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
@@ -1190,6 +1242,58 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             <option value="luxury">Luxury</option>
             <option value="streetwear">Streetwear</option>
           </select>
+        </div>
+        <div className="mb-6">
+          <FieldLabel>Store Theme</FieldLabel>
+          <div className="flex flex-col gap-2">
+            {STORE_THEMES.map((t) => {
+              const active = selectedTheme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setSelectedTheme(t.id)}
+                  className="text-left rounded-md p-3 transition-all duration-200"
+                  style={{
+                    background: active ? 'rgba(212,175,55,0.06)' : SURFACE,
+                    border: `1.5px solid ${active ? GOLD : BORDER}`,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1 flex-shrink-0">
+                      {t.swatch.map((c, ci) => (
+                        <div
+                          key={ci}
+                          style={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: 3,
+                            background: c,
+                            border: '1px solid rgba(255,255,255,0.1)',
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div>
+                      <div
+                        className="text-sm font-semibold"
+                        style={{ color: active ? GOLD : TEXT, fontFamily: SYNE }}
+                      >
+                        {t.name}
+                      </div>
+                      <div
+                        className="text-xs"
+                        style={{ color: TEXT_DIM }}
+                      >
+                        Best for: {t.bestFor}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
         <PrimaryButton onClick={handleGenerate} disabled={loading} className="w-full">
           <span className="inline-flex items-center justify-center gap-2">
@@ -1330,7 +1434,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         )}
       </GoldCard>
 
-      {preview && <StorePreviewSection store={preview} niche={niche} />}
+      {preview && <StorePreviewSection store={preview} niche={niche} theme={selectedTheme} />}
     </div>
   );
 }

@@ -160,6 +160,14 @@
     {
       "path": "/api/cron/evaluate-alerts",
       "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/pipeline",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/pipeline",
+      "schedule": "0 8 * * *"
     }
   ]
 }
