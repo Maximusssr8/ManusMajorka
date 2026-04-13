@@ -98,10 +98,38 @@ router.post('/generate', async (req, res) => {
       `${brandName.split(' ')[0]} Co.`,
     ];
 
+    // Build products array — ensure it's never empty for the client
+    const products: Array<{ title: string; price_aud: number; image_url: string }> = [];
+    if (productName) {
+      products.push({ title: productName, price_aud: Number(pricePoint) || 0, image_url: '' });
+    }
+    // Pull any products from the brief (AI-generated)
+    if (Array.isArray(brief.products)) {
+      for (const p of brief.products as Array<Record<string, unknown>>) {
+        const title = (p.title || p.product_title || '') as string;
+        if (title && !products.some(existing => existing.title === title)) {
+          products.push({
+            title,
+            price_aud: Number(p.price_aud || p.price || 0),
+            image_url: (p.image_url || p.image || '') as string,
+          });
+        }
+      }
+    }
+    // If still empty, generate demo products from the niche
+    if (products.length === 0) {
+      const nicheLabel = niche || 'Premium';
+      products.push(
+        { title: `${nicheLabel} Essentials Kit`, price_aud: 49.95, image_url: '' },
+        { title: `${nicheLabel} Pro Bundle`, price_aud: 89.95, image_url: '' },
+        { title: `${nicheLabel} Premium Collection`, price_aud: 129.95, image_url: '' },
+      );
+    }
+
     return res.json({
       brief,
       storeNameOptions,
-      products: productName ? [{ title: productName, price_aud: pricePoint || 0, image_url: '' }] : [],
+      products,
       themeRecommendation: {
         name: 'Modern Dark DTC',
         reason: 'High-converting dark theme with gold accents — optimised for Australian DTC brands and proven to increase add-to-cart by 18%.',
@@ -502,12 +530,13 @@ router.post('/publish', requireAuth, async (req, res) => {
     const {
       storeName, niche, targetMarket, tone, primaryColor,
       templateId, selectedProducts, generatedCopy, subdomain,
-      customDomain, mode,
+      customDomain, mode, htmlContent,
     } = req.body as {
       storeName?: string; niche?: string; targetMarket?: string;
       tone?: string; primaryColor?: string; templateId?: string;
       selectedProducts?: unknown[]; generatedCopy?: Record<string, unknown>;
       subdomain?: string; customDomain?: string; mode?: string;
+      htmlContent?: string;
     };
 
     if (!storeName) return res.status(400).json({ error: 'storeName required' });
@@ -560,7 +589,7 @@ router.post('/publish', requireAuth, async (req, res) => {
         primary_color: primaryColor || '#6366F1',
         template: templateId,
         selected_products: selectedProducts || [],
-        generated_copy: generatedCopy || {},
+        generated_copy: htmlContent ? { ...((generatedCopy || {}) as Record<string, unknown>), html_content: htmlContent } : (generatedCopy || {}),
         subdomain,
         custom_domain: customDomain || null,
         mode: mode || 'ai',
