@@ -40,22 +40,211 @@ type Mode = 'ai' | 'shopify' | 'marketplace';
 
 type Vibe = 'minimal' | 'bold' | 'luxury' | 'streetwear';
 type Market = 'AU' | 'US' | 'UK';
-type StoreTheme = 'dawn' | 'craft' | 'refresh' | 'impulse' | 'sense';
 
-interface ThemeDef {
-  id: StoreTheme;
+type ThemeCategory = 'minimal' | 'bold' | 'luxury' | 'playful' | 'conversion' | 'editorial';
+
+interface ThemeConfig {
+  id: string;
   name: string;
+  category: ThemeCategory;
   bestFor: string;
-  swatch: string[];
+  preview: { bg: string; accent: string; text: string };
+  fonts: { heading: string; body: string };
+  colors: { bg: string; surface: string; accent: string; text: string; muted: string };
+  radius: string;
+  features: string[];
 }
 
-const STORE_THEMES: ThemeDef[] = [
-  { id: 'dawn', name: 'Dawn', bestFor: 'Beauty, fashion, lifestyle', swatch: ['#ffffff', '#111111', '#e5e5e5'] },
-  { id: 'craft', name: 'Craft', bestFor: 'Tech, gadgets, premium goods', swatch: ['#0a0a0a', '#d4af37', '#ededed'] },
-  { id: 'refresh', name: 'Refresh', bestFor: 'Pet, kids, health, kitchen', swatch: ['#f8fafc', '#22c55e', '#fbbf24'] },
-  { id: 'impulse', name: 'Impulse', bestFor: 'Impulse buys, viral products', swatch: ['#ffffff', '#ef4444', '#111111'] },
-  { id: 'sense', name: 'Sense', bestFor: 'Jewellery, watches, premium fashion', swatch: ['#f5f0eb', '#8b7355', '#2c2c2c'] },
+const THEME_CONFIGS: ThemeConfig[] = [
+  // ── EXISTING 5 ──────────────────────────────────────────────
+  {
+    id: 'dawn', name: 'Dawn', category: 'minimal',
+    bestFor: 'Beauty, fashion, lifestyle',
+    preview: { bg: '#ffffff', accent: '#111111', text: '#e5e5e5' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#ffffff', surface: '#f5f5f5', accent: '#111111', text: '#111111', muted: '#666666' },
+    radius: '4px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'craft', name: 'Craft', category: 'bold',
+    bestFor: 'Tech, gadgets, premium goods',
+    preview: { bg: '#0a0a0a', accent: '#d4af37', text: '#ededed' },
+    fonts: { heading: "'Syne', sans-serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#0a0a0a', surface: '#0d0d0d', accent: '#d4af37', text: '#ededed', muted: 'rgba(245,245,245,0.4)' },
+    radius: '8px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'refresh', name: 'Refresh', category: 'playful',
+    bestFor: 'Pet, kids, health, kitchen',
+    preview: { bg: '#f8fafc', accent: '#22c55e', text: '#fbbf24' },
+    fonts: { heading: "'Nunito', sans-serif", body: "'Nunito', sans-serif" },
+    colors: { bg: '#f8fafc', surface: '#f1f5f9', accent: '#22c55e', text: '#1e293b', muted: '#64748b' },
+    radius: '12px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'impulse', name: 'Impulse', category: 'conversion',
+    bestFor: 'Impulse buys, viral products',
+    preview: { bg: '#ffffff', accent: '#ef4444', text: '#111111' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#ffffff', surface: '#fafafa', accent: '#ef4444', text: '#111111', muted: '#555555' },
+    radius: '8px',
+    features: ['urgency_banner', 'social_proof', 'email_capture', 'sticky_cart', 'countdown', 'sticky_bar'],
+  },
+  {
+    id: 'sense', name: 'Sense', category: 'luxury',
+    bestFor: 'Jewellery, watches, premium fashion',
+    preview: { bg: '#f5f0eb', accent: '#8b7355', text: '#2c2c2c' },
+    fonts: { heading: "'Playfair Display', serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#f5f0eb', surface: '#ede7df', accent: '#8b7355', text: '#2c2c2c', muted: '#8b8178' },
+    radius: '4px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  // ── NEW MINIMALIST (6-8) ────────────────────────────────────
+  {
+    id: 'origin', name: 'Origin', category: 'minimal',
+    bestFor: 'Single-product stores',
+    preview: { bg: '#fafafa', accent: '#222222', text: '#e0e0e0' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#fafafa', surface: '#f0f0f0', accent: '#222222', text: '#1a1a1a', muted: '#888888' },
+    radius: '0',
+    features: ['email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'palo', name: 'Palo', category: 'minimal',
+    bestFor: 'Home decor, candles, stationery',
+    preview: { bg: '#f7f5f2', accent: '#a39382', text: '#d6d0c8' },
+    fonts: { heading: "'DM Sans', sans-serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#f7f5f2', surface: '#eee9e3', accent: '#a39382', text: '#3d3830', muted: '#9e9588' },
+    radius: '4px',
+    features: ['announcement_bar', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'crave', name: 'Crave', category: 'minimal',
+    bestFor: 'Food, coffee, supplements',
+    preview: { bg: '#121212', accent: '#e0e0e0', text: '#333333' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#121212', surface: '#1a1a1a', accent: '#e0e0e0', text: '#e8e8e8', muted: 'rgba(255,255,255,0.4)' },
+    radius: '4px',
+    features: ['social_proof', 'email_capture', 'sticky_cart'],
+  },
+  // ── NEW BOLD/MODERN (9-11) ──────────────────────────────────
+  {
+    id: 'neon', name: 'Neon', category: 'bold',
+    bestFor: 'Tech accessories, gaming, streetwear',
+    preview: { bg: '#0a0a0f', accent: '#e91e8c', text: '#00e5ff' },
+    fonts: { heading: "'Syne', sans-serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#0a0a0f', surface: '#12121a', accent: '#e91e8c', text: '#f0f0f5', muted: 'rgba(240,240,245,0.4)' },
+    radius: '8px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'blaze', name: 'Blaze', category: 'bold',
+    bestFor: 'Fitness, energy drinks, sports gear',
+    preview: { bg: '#1a1008', accent: '#f97316', text: '#fee2cc' },
+    fonts: { heading: "'Syne', sans-serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#1a1008', surface: '#231808', accent: '#f97316', text: '#fef3e8', muted: 'rgba(254,243,232,0.4)' },
+    radius: '8px',
+    features: ['urgency_banner', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'metro', name: 'Metro', category: 'bold',
+    bestFor: 'B2B products, office supplies, tools',
+    preview: { bg: '#f8fafc', accent: '#2563eb', text: '#1e293b' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#f8fafc', surface: '#f1f5f9', accent: '#2563eb', text: '#1e293b', muted: '#64748b' },
+    radius: '4px',
+    features: ['announcement_bar', 'social_proof', 'email_capture'],
+  },
+  // ── NEW LUXURY (12-14) ──────────────────────────────────────
+  {
+    id: 'prestige', name: 'Prestige', category: 'luxury',
+    bestFor: 'Watches, premium fashion, beauty',
+    preview: { bg: '#090909', accent: '#c9a84c', text: '#f5f0e8' },
+    fonts: { heading: "'Playfair Display', serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#090909', surface: '#0f0f0f', accent: '#c9a84c', text: '#f5f0e8', muted: 'rgba(245,240,232,0.35)' },
+    radius: '0',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart', 'marquee'],
+  },
+  {
+    id: 'atelier', name: 'Atelier', category: 'luxury',
+    bestFor: 'Handmade goods, ceramics, art',
+    preview: { bg: '#faf8f4', accent: '#8b6f47', text: '#d4c5b0' },
+    fonts: { heading: "'Playfair Display', serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#faf8f4', surface: '#f2ede5', accent: '#8b6f47', text: '#3a3228', muted: '#9c8e7d' },
+    radius: '4px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'maison', name: 'Maison', category: 'luxury',
+    bestFor: 'Fashion brands, perfume',
+    preview: { bg: '#0c1020', accent: '#d4b896', text: '#e8e0d4' },
+    fonts: { heading: "'Playfair Display', serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#0c1020', surface: '#141830', accent: '#d4b896', text: '#eae4dc', muted: 'rgba(234,228,220,0.35)' },
+    radius: '0',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  // ── NEW PLAYFUL/BRIGHT (15-17) ──────────────────────────────
+  {
+    id: 'bounce', name: 'Bounce', category: 'playful',
+    bestFor: 'Kids products, pet accessories',
+    preview: { bg: '#fef7ff', accent: '#a855f7', text: '#fde68a' },
+    fonts: { heading: "'Nunito', sans-serif", body: "'Nunito', sans-serif" },
+    colors: { bg: '#fef7ff', surface: '#faf0ff', accent: '#a855f7', text: '#3b1f5e', muted: '#9678b5' },
+    radius: '24px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  {
+    id: 'zest', name: 'Zest', category: 'playful',
+    bestFor: 'Health supplements, organic products',
+    preview: { bg: '#f7fff4', accent: '#65a30d', text: '#d4f0c0' },
+    fonts: { heading: "'Nunito', sans-serif", body: "'Nunito', sans-serif" },
+    colors: { bg: '#f7fff4', surface: '#eef9e6', accent: '#65a30d', text: '#1a3a08', muted: '#5c7a42' },
+    radius: '12px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart', 'trust_badges'],
+  },
+  {
+    id: 'pop', name: 'Pop', category: 'playful',
+    bestFor: 'Phone cases, stickers, trendy accessories',
+    preview: { bg: '#fffbeb', accent: '#f43f5e', text: '#3b82f6' },
+    fonts: { heading: "'Syne', sans-serif", body: "'DM Sans', sans-serif" },
+    colors: { bg: '#fffbeb', surface: '#fff5cc', accent: '#f43f5e', text: '#1e1b4b', muted: '#6b6894' },
+    radius: '12px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart'],
+  },
+  // ── NEW CONVERSION-OPTIMIZED (18-20) ────────────────────────
+  {
+    id: 'turbo', name: 'Turbo', category: 'conversion',
+    bestFor: 'High-volume dropshipping, testing',
+    preview: { bg: '#ffffff', accent: '#111111', text: '#888888' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#ffffff', surface: '#f9f9f9', accent: '#111111', text: '#111111', muted: '#777777' },
+    radius: '4px',
+    features: ['social_proof', 'sticky_cart'],
+  },
+  {
+    id: 'sale', name: 'Sale', category: 'conversion',
+    bestFor: 'Flash sales, seasonal promotions',
+    preview: { bg: '#fffbeb', accent: '#dc2626', text: '#fbbf24' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#fffbeb', surface: '#fef3c7', accent: '#dc2626', text: '#1c1917', muted: '#78716c' },
+    radius: '8px',
+    features: ['urgency_banner', 'social_proof', 'email_capture', 'sticky_cart', 'countdown', 'sticky_bar'],
+  },
+  {
+    id: 'trust', name: 'Trust', category: 'conversion',
+    bestFor: 'Skeptical audiences, high-ticket items',
+    preview: { bg: '#f8fafc', accent: '#0d9488', text: '#1e293b' },
+    fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
+    colors: { bg: '#f8fafc', surface: '#f0fdfa', accent: '#0d9488', text: '#1e293b', muted: '#64748b' },
+    radius: '8px',
+    features: ['announcement_bar', 'social_proof', 'email_capture', 'sticky_cart', 'trust_badges', 'comparison_table'],
+  },
 ];
+
+type StoreTheme = string;
 
 interface GeneratedProduct {
   title: string;
@@ -407,8 +596,30 @@ function PendingNotice({ note }: PendingNoticeProps) {
   );
 }
 
+// ─── Helpers: resolve theme config from ID ────────────────────
+function getThemeConfig(themeId: string): ThemeConfig {
+  return THEME_CONFIGS.find(t => t.id === themeId) ?? THEME_CONFIGS[1]; // default to craft
+}
+
+// Google Fonts link for a theme config
+function buildFontLink(tc: ThemeConfig): string {
+  const families = new Set<string>();
+  const extractFamily = (f: string) => {
+    const m = f.match(/'([^']+)'/);
+    return m ? m[1] : null;
+  };
+  const h = extractFamily(tc.fonts.heading);
+  const b = extractFamily(tc.fonts.body);
+  if (h) families.add(h);
+  if (b) families.add(b);
+  families.add('JetBrains Mono');
+  const params = Array.from(families).map(f => `family=${f.replace(/ /g, '+')}:wght@400;500;600;700;800`).join('&');
+  return `<link href="https://fonts.googleapis.com/css2?${params}&display=swap" rel="stylesheet" />`;
+}
+
 // ─── Generate premium Shopify-quality storefront HTML ──────────
 function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTheme = 'craft'): string {
+  const tc = getThemeConfig(theme);
   const year = new Date().getFullYear();
   const nicheLabel = niche || 'premium products';
   const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -743,42 +954,106 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       </div>`;
   }).join('\n');
 
-  switch (theme) {
-    // ─────────────────────────────────────────────────────────────
-    // DAWN — Clean & Minimal (white bg, black text, thin borders)
-    // ─────────────────────────────────────────────────────────────
-    case 'dawn': {
-      const bg = '#ffffff'; const textClr = '#111111'; const dimText = '#666666'; const borderClr = '#e5e5e5';
-      const accent = '#111111'; const cardBg = '#fafafa'; const surfaceBg = '#f5f5f5';
-      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
-      const fH = "'Inter', sans-serif"; const fB = "'Inter', sans-serif"; const fM = "'JetBrains Mono', monospace";
+  // ── Derive all values from ThemeConfig ───────────────────────
+  const bgColor = tc.colors.bg;
+  const textClr = tc.colors.text;
+  const dimText = tc.colors.muted;
+  const accent = tc.colors.accent;
+  const surfaceBg = tc.colors.surface;
+  const fH = tc.fonts.heading;
+  const fB = tc.fonts.body;
+  const fM = "'JetBrains Mono', monospace";
+  const fontLink = buildFontLink(tc);
+  const rad = tc.radius;
+  const feats = tc.features;
+  const hasFeature = (f: string) => feats.includes(f);
 
-      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: '#f0f0f0', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
-      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '4px' });
-      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+  // Derive card bg and border from theme brightness
+  const isDark = bgColor.startsWith('#0') || bgColor.startsWith('#1') || bgColor === '#000000';
+  const cardBg = isDark ? surfaceBg : '#ffffff';
+  const borderClr = isDark ? 'rgba(255,255,255,0.08)' : '#e5e5e5';
+  const imgPlaceholderBg = isDark ? `linear-gradient(135deg,${cardBg},rgba(255,255,255,0.03))` : surfaceBg;
+  const announceBg = accent;
+  const announceTxt = isDark ? bgColor : '#ffffff';
+  const btnText = isDark ? bgColor : '#ffffff';
+  const pillBg = isDark ? `rgba(255,255,255,0.06)` : `${accent}11`;
+  const pillBorder = isDark ? `rgba(255,255,255,0.12)` : `${accent}33`;
+  const iconBg = isDark ? `rgba(255,255,255,0.04)` : `${accent}0d`;
+  const showUrgency = hasFeature('countdown') || hasFeature('sticky_bar');
 
-      return `<!DOCTYPE html><html lang="en"><head>
+  const productCards = buildProductCardsEnhanced({
+    cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText,
+    dimText, radius: rad, imgPlaceholderBg, badgeBg: accent, badgeText: btnText,
+    fontBody: fB, fontHeading: fH, fontMono: fM, showUrgency,
+  });
+  const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: rad });
+  const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
+
+  // Urgency CSS (only for conversion themes)
+  const urgencyCSS = hasFeature('sticky_bar') ? `
+    .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: ${textClr}; color: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; z-index: 200; font-size: 14px; font-weight: 600; box-shadow: 0 -4px 24px rgba(0,0,0,0.15); }
+    .sticky-bar button { background: ${accent}; color: ${btnText}; border: none; padding: 10px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 ${accent}66; } 50% { box-shadow: 0 0 0 8px ${accent}00; } }
+    .urgency-banner { background: ${accent}; color: ${btnText}; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+  ` : '';
+
+  // Trust badges section (for trust-focused themes)
+  const trustBadgesHTML = hasFeature('trust_badges') ? `
+  <section style="padding:40px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:center;flex-wrap:wrap;gap:32px;text-align:center;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:28px;">&#128274;</div>
+        <div style="font-size:12px;font-weight:700;color:${textClr};font-family:${fH};">SSL Secured</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:28px;">&#9989;</div>
+        <div style="font-size:12px;font-weight:700;color:${textClr};font-family:${fH};">Verified Business</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:28px;">&#128176;</div>
+        <div style="font-size:12px;font-weight:700;color:${textClr};font-family:${fH};">Money-Back Guarantee</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:28px;">&#127462;&#127482;</div>
+        <div style="font-size:12px;font-weight:700;color:${textClr};font-family:${fH};">Australian Owned</div>
+      </div>
+    </div>
+  </section>` : '';
+
+  // Marquee section (for prestige-type themes)
+  const marqueeHTML = hasFeature('marquee') ? `
+  <section style="overflow:hidden;padding:16px 0;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
+    <div style="display:flex;animation:marquee 20s linear infinite;white-space:nowrap;">
+      ${Array(6).fill(`<span style="font-family:${fH};font-size:14px;font-weight:600;color:${dimText};letter-spacing:0.12em;text-transform:uppercase;padding:0 48px;">PREMIUM QUALITY &bull; FREE SHIPPING &bull; AFTERPAY AVAILABLE &bull; 30-DAY RETURNS</span>`).join('')}
+    </div>
+    <style>@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }</style>
+  </section>` : '';
+
+  return `<!DOCTYPE html><html lang="en"><head>
   ${buildSEOHead(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
+    body { font-family: ${fB}; background: ${bgColor}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
     a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
     .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 4px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s; }
-    .product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: ${rad}; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+    .product-card:hover { transform: translateY(-4px); border-color: ${accent}; box-shadow: 0 12px 32px rgba(0,0,0,${isDark ? '0.4' : '0.08'}); }
     .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
-    ${responsiveCSS(bg, borderClr)}
+    ${urgencyCSS}
+    ${responsiveCSS(surfaceBg, borderClr)}
   </style></head><body>
-  ${buildAnnouncementBar({ bg: accent, textClr: '#fff', fontBody: fB })}
-  ${buildNav({ bg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
-  <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:${bg};">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:${surfaceBg};border:1px solid ${borderClr};border-radius:100px;font-size:12px;font-weight:600;color:${textClr};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Australian Owned &amp; Shipped</div>
-    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
+  ${hasFeature('urgency_banner') ? `<div class="urgency-banner" style="background:${accent};color:${btnText};text-align:center;padding:10px;font-size:13px;font-weight:700;letter-spacing:0.02em;font-family:${fB};">LIMITED TIME: Free express shipping on orders over A$75 - Ends midnight!</div>` : ''}
+  ${hasFeature('announcement_bar') ? buildAnnouncementBar({ bg: announceBg, textClr: announceTxt, fontBody: fB }) : ''}
+  ${buildNav({ bg: isDark ? surfaceBg : bgColor, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
+  ${marqueeHTML}
+  <section class="hero" id="about" style="text-align:center;padding:${tc.category === 'luxury' ? '120px 24px 100px' : '96px 24px 80px'};background:${isDark ? `linear-gradient(180deg,${surfaceBg} 0%,${accent}08 50%,${bgColor} 100%)` : bgColor};">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:${pillBg};border:1px solid ${pillBorder};border-radius:100px;font-size:12px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">${tc.category === 'luxury' ? '&#10022; ' : ''}Australian Owned &amp; Shipped</div>
+    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:${tc.category === 'minimal' ? '700' : '800'};letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
     <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
-    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:#fff;font-family:${fH};font-weight:600;font-size:16px;border-radius:4px;text-decoration:none;transition:opacity 0.2s;">Shop Now &#8594;</a>
+    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:${btnText};font-family:${fH};font-weight:700;font-size:16px;border-radius:${rad};text-decoration:none;box-shadow:0 4px 24px ${accent}4d;transition:transform 0.2s;">${tc.category === 'luxury' ? 'Discover the Collection' : (showUrgency ? 'Shop Now - Free Shipping &#8594;' : 'Shop Now &#8594;')}</a>
     <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128666; Free AU Shipping</div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128179; Afterpay Available</div>
@@ -786,285 +1061,31 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128274; Secure Checkout</div>
     </div>
   </section>
-  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
+  ${hasFeature('social_proof') ? buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB }) : ''}
+  ${trustBadgesHTML}
   <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">${tc.category === 'luxury' ? 'The Collection' : (showUrgency ? 'Best Sellers' : 'Featured Products')}</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">${tc.category === 'luxury' ? 'Hand-selected pieces for the Australian connoisseur' : 'Hand-selected and tested for the Australian market'}</p></div>
     <div class="products-grid">${productCards}</div>
   </section>
   <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Trusted by 2,400+ Australian Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
+    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">${tc.category === 'luxury' ? 'What Our Clients Say' : 'Trusted by 2,400+ Australian Customers'}</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
     <div class="testimonials-grid">${testimonialCards}</div>
   </section>
-  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: surfaceBg, radius: '4px' })}
+  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg, radius: rad })}
   <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
-  ${buildEmailCapture({ bg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: surfaceBg })}
+  ${hasFeature('email_capture') ? buildEmailCapture({ bg: isDark ? surfaceBg : bgColor, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText, inputBg: isDark ? cardBg : surfaceBg }) : ''}
   ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
-  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
+  ${hasFeature('sticky_bar') ? `<div class="sticky-bar"><span>Limited stock available</span><button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button></div>` : ''}
+  ${hasFeature('sticky_cart') ? buildStickyCart({ bg: isDark ? '#111' : textClr, textClr: isDark ? '#ededed' : '#fff', btnBg: accent, btnText, fontBody: fB, fontMono: fM }) : ''}
 </body></html>`;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // CRAFT — Bold & Premium (dark bg, gold accents)
-    // ─────────────────────────────────────────────────────────────
-    case 'craft': {
-      const bg = '#0a0a0a'; const textClr = '#ededed'; const dimText = 'rgba(245,245,245,0.4)'; const borderClr = '#1a1a1a';
-      const accent = '#d4af37'; const cardBg = '#111111'; const surfaceBg = '#0d0d0d';
-      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
-      const fH = "'Syne', sans-serif"; const fB = "'DM Sans', sans-serif"; const fM = "'JetBrains Mono', monospace";
-
-      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: bg, dimText, radius: '8px', imgPlaceholderBg: `linear-gradient(135deg,${cardBg},rgba(212,175,55,0.08))`, badgeBg: accent, badgeText: bg, fontBody: fB, fontHeading: fH, fontMono: fM });
-      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '8px' });
-      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
-
-      return `<!DOCTYPE html><html lang="en"><head>
-  ${buildSEOHead(fontLink)}
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
-    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
-    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 8px; overflow: hidden; transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
-    .product-card:hover { transform: translateY(-4px); border-color: ${accent}; box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(212,175,55,0.1); }
-    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
-    ${responsiveCSS(surfaceBg, borderClr)}
-  </style></head><body>
-  ${buildAnnouncementBar({ bg: accent, textClr: bg, fontBody: fB })}
-  ${buildNav({ bg: surfaceBg, borderClr, brandClr: textClr, linkClr: 'rgba(245,245,245,0.55)', accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
-  <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:linear-gradient(180deg,${surfaceBg} 0%,rgba(212,175,55,0.03) 50%,${bg} 100%);">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:100px;font-size:12px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">&#10022; Australian Owned &amp; Shipped</div>
-    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:800;letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
-    <p style="font-size:clamp(16px,2vw,20px);color:rgba(245,245,245,0.5);max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
-    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:${bg};font-family:${fH};font-weight:700;font-size:16px;border-radius:8px;text-decoration:none;box-shadow:0 4px 24px rgba(212,175,55,0.3);transition:transform 0.2s;">Shop Now &#8594;</a>
-    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128666; Free AU Shipping</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128179; Afterpay Available</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128260; 30-Day Returns</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128274; Secure Checkout</div>
-    </div>
-  </section>
-  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
-  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:rgba(245,245,245,0.45);max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
-    <div class="products-grid">${productCards}</div>
-  </section>
-  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Trusted by 2,400+ Australian Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
-    <div class="testimonials-grid">${testimonialCards}</div>
-  </section>
-  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(212,175,55,0.08)', radius: '8px' })}
-  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
-    ${faqHTML}
-  </section>
-  ${buildEmailCapture({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: bg, inputBg: cardBg })}
-  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
-  ${buildStickyCart({ bg: '#111', textClr: '#ededed', btnBg: accent, btnText: bg, fontBody: fB, fontMono: fM })}
-</body></html>`;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // REFRESH — Bright & Energetic (light bg, rounded, playful)
-    // ─────────────────────────────────────────────────────────────
-    case 'refresh': {
-      const bg = '#f8fafc'; const textClr = '#1e293b'; const dimText = '#64748b'; const borderClr = '#e2e8f0';
-      const accent = store.colorPalette[0] || '#22c55e'; const cardBg = '#ffffff'; const surfaceBg = '#f1f5f9';
-      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
-      const fH = "'Nunito', sans-serif"; const fB = "'Nunito', sans-serif"; const fM = "'JetBrains Mono', monospace";
-
-      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '12px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
-      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '12px' });
-      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
-
-      return `<!DOCTYPE html><html lang="en"><head>
-  ${buildSEOHead(fontLink)}
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
-    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
-    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 12px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
-    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
-    ${responsiveCSS(cardBg, borderClr)}
-  </style></head><body>
-  ${buildAnnouncementBar({ bg: accent, textClr: '#fff', fontBody: fB })}
-  ${buildNav({ bg: cardBg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
-  <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:linear-gradient(180deg,${cardBg} 0%,${bg} 100%);">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:100px;font-size:12px;font-weight:700;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Australian Owned &amp; Shipped</div>
-    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,60px);font-weight:800;letter-spacing:-0.02em;margin-bottom:20px;color:${textClr};line-height:1.15;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
-    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
-    <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:#fff;font-family:${fH};font-weight:700;font-size:16px;border-radius:12px;text-decoration:none;box-shadow:0 4px 16px rgba(34,197,94,0.25);transition:transform 0.2s;">Shop Now &#8594;</a>
-    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128666; Free AU Shipping</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128179; Afterpay Available</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128260; 30-Day Returns</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128274; Secure Checkout</div>
-    </div>
-  </section>
-  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
-  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
-    <div class="products-grid">${productCards}</div>
-  </section>
-  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Trusted by 2,400+ Australian Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See what our community has to say</p></div>
-    <div class="testimonials-grid">${testimonialCards}</div>
-  </section>
-  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(34,197,94,0.06)', radius: '12px' })}
-  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
-    ${faqHTML}
-  </section>
-  ${buildEmailCapture({ bg: cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: surfaceBg })}
-  ${buildFooter({ bg: cardBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
-  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
-</body></html>`;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // IMPULSE — Conversion-Optimised (urgency, sticky bar, bold CTA)
-    // ─────────────────────────────────────────────────────────────
-    case 'impulse': {
-      const bg = '#ffffff'; const textClr = '#111111'; const dimText = '#555555'; const borderClr = '#e5e5e5';
-      const accent = '#ef4444'; const cardBg = '#ffffff'; const surfaceBg = '#fafafa';
-      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
-      const fH = "'Inter', sans-serif"; const fB = "'Inter', sans-serif"; const fM = "'JetBrains Mono', monospace";
-
-      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '8px', imgPlaceholderBg: '#f5f5f5', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM, showUrgency: true });
-      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '8px' });
-      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
-
-      return `<!DOCTYPE html><html lang="en"><head>
-  ${buildSEOHead(fontLink)}
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.6; overflow-x: hidden; }
-    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
-    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .product-card { background: ${cardBg}; border: 2px solid ${borderClr}; border-radius: 8px; overflow: hidden; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
-    .product-card:hover { transform: translateY(-4px); border-color: ${accent}; box-shadow: 0 12px 32px rgba(239,68,68,0.1); }
-    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
-    .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: ${textClr}; color: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; z-index: 200; font-size: 14px; font-weight: 600; box-shadow: 0 -4px 24px rgba(0,0,0,0.15); }
-    .sticky-bar button { background: ${accent}; color: #fff; border: none; padding: 10px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
-    .urgency-banner { background: ${accent}; color: #fff; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
-    ${responsiveCSS(bg, borderClr)}
-  </style></head><body>
-  <div class="urgency-banner">LIMITED TIME: Free express shipping on orders over A$75 - Ends midnight!</div>
-  ${buildNav({ bg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
-  <section class="hero" id="about" style="text-align:center;padding:80px 24px 64px;background:${bg};">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:100px;font-size:12px;font-weight:700;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Trending in Australia</div>
-    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,60px);font-weight:800;letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
-    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 32px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Join 2,400+ happy customers.</p>
-    <a href="#products" style="display:inline-block;padding:18px 48px;background:${accent};color:#fff;font-family:${fH};font-weight:800;font-size:18px;border-radius:8px;text-decoration:none;box-shadow:0 4px 24px rgba(239,68,68,0.3);transition:transform 0.2s;">Shop Now - Free Shipping &#8594;</a>
-    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:40px;padding-top:28px;border-top:1px solid ${borderClr};">
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128666; Free AU Shipping</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128179; Afterpay Available</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128260; 30-Day Returns</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#9733; 4.8/5 Rating</div>
-    </div>
-  </section>
-  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
-  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:64px 24px 100px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">Best Sellers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">These products are flying off the shelves</p></div>
-    <div class="products-grid">${productCards}</div>
-  </section>
-  <section class="social-proof" style="padding:80px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">2,400+ Happy Customers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">See why Australians love us</p></div>
-    <div class="testimonials-grid">${testimonialCards}</div>
-  </section>
-  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(239,68,68,0.05)', radius: '8px' })}
-  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:80px 24px;">
-    <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
-    ${faqHTML}
-  </section>
-  ${buildEmailCapture({ bg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: surfaceBg })}
-  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
-  <div class="sticky-bar"><span>Limited stock available</span><button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button></div>
-  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
-</body></html>`;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // SENSE — Luxury & Editorial (serif, earth tones, full-bleed)
-    // ─────────────────────────────────────────────────────────────
-    case 'sense':
-    default: {
-      const bg = '#f5f0eb'; const textClr = '#2c2c2c'; const dimText = '#8b8178'; const borderClr = '#ddd5cb';
-      const accent = '#8b7355'; const cardBg = '#ffffff'; const surfaceBg = '#ede7df';
-      const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
-      const fH = "'Playfair Display', serif"; const fB = "'DM Sans', sans-serif"; const fM = "'JetBrains Mono', monospace";
-
-      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
-      const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '4px' });
-      const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
-
-      return `<!DOCTYPE html><html lang="en"><head>
-  ${buildSEOHead(fontLink)}
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: ${fB}; background: ${bg}; color: ${textClr}; -webkit-font-smoothing: antialiased; line-height: 1.7; overflow-x: hidden; }
-    a { color: inherit; text-decoration: none; } img { max-width: 100%; height: auto; }
-    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
-    .product-card { background: ${cardBg}; border: 1px solid ${borderClr}; border-radius: 4px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
-    .product-card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(44,44,44,0.08); }
-    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1200px; margin: 0 auto; }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
-    ${responsiveCSS(cardBg, borderClr)}
-  </style></head><body>
-  ${buildAnnouncementBar({ bg: accent, textClr: '#fff', fontBody: fB })}
-  ${buildNav({ bg: cardBg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
-  <section class="hero" id="about" style="text-align:center;padding:120px 24px 100px;background:${bg};">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 20px;border:1px solid ${borderClr};border-radius:100px;font-size:11px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.12em;margin-bottom:32px;">Australian Atelier</div>
-    <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-0.02em;margin-bottom:24px;color:${textClr};line-height:1.1;max-width:760px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
-    <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:520px;margin:0 auto 48px;line-height:1.7;font-family:${fB};">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
-    <a href="#products" style="display:inline-block;padding:16px 44px;background:${accent};color:#fff;font-family:${fB};font-weight:600;font-size:14px;border-radius:2px;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:opacity 0.2s;">Discover the Collection</a>
-    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:32px;margin-top:56px;padding-top:40px;border-top:1px solid ${borderClr};">
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128666; Complimentary Shipping</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128179; Afterpay Available</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128260; 30-Day Returns</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128274; Secure Checkout</div>
-    </div>
-  </section>
-  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
-  <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:100px 24px;">
-    <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">The Collection</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected pieces for the Australian connoisseur</p></div>
-    <div class="products-grid">${productCards}</div>
-  </section>
-  <section class="social-proof" style="padding:100px 24px;background:${surfaceBg};border-top:1px solid ${borderClr};border-bottom:1px solid ${borderClr};">
-    <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">What Our Clients Say</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Trusted by discerning Australian shoppers</p></div>
-    <div class="testimonials-grid">${testimonialCards}</div>
-  </section>
-  ${buildFeatures({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, iconBg: 'rgba(139,115,85,0.06)', radius: '4px' })}
-  <section class="faq-section" id="faq" style="max-width:720px;margin:0 auto;padding:100px 24px;">
-    <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">Frequently Asked Questions</h2></div>
-    ${faqHTML}
-  </section>
-  ${buildEmailCapture({ bg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: cardBg })}
-  ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
-  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
-</body></html>`;
-    }
-  }
 }
 
 // ─── Store Preview Section ────────────────────────────────────
 function StorePreviewSection({ store, niche, theme: initialTheme = 'craft' }: { store: GeneratedStore; niche?: string; theme?: StoreTheme }) {
-  const [activeTheme, setActiveTheme] = useState<StoreTheme>(initialTheme);
+  const [activeTheme, setActiveTheme] = useState<string>(initialTheme);
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const htmlContent = useMemo(() => generateStoreHTML(store, niche, activeTheme), [store, niche, activeTheme]);
   const iframeSrcDoc = htmlContent;
@@ -1205,9 +1226,9 @@ ${htmlContent}
           </div>
         </div>
 
-        {/* Theme switcher — swap theme without regenerating */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {STORE_THEMES.map((t) => (
+        {/* Theme switcher — compact grid with swatches */}
+        <div className="flex gap-2 mb-3 flex-wrap">
+          {THEME_CONFIGS.map((t) => (
             <button
               key={t.id}
               onClick={() => setActiveTheme(t.id)}
@@ -1220,7 +1241,7 @@ ${htmlContent}
               }}
             >
               <div className="flex gap-0.5">
-                {t.swatch.map((c, ci) => (
+                {[t.preview.bg, t.preview.accent, t.preview.text].map((c, ci) => (
                   <div key={ci} style={{ width: 10, height: 10, borderRadius: 2, background: c, border: '1px solid rgba(255,255,255,0.1)' }} />
                 ))}
               </div>
@@ -1377,7 +1398,8 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
   const [niche, setNiche] = useState(prefilled?.category || '');
   const [market, setMarket] = useState<Market>('AU');
   const [vibe, setVibe] = useState<Vibe>('minimal');
-  const [selectedTheme, setSelectedTheme] = useState<StoreTheme>('craft');
+  const [selectedTheme, setSelectedTheme] = useState<string>('craft');
+  const [themeFilter, setThemeFilter] = useState<ThemeCategory | 'all'>('all');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
@@ -1585,55 +1607,92 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
           </label>
         </div>
         <div className="mb-6">
-          <FieldLabel>Store Theme</FieldLabel>
-          <div className="flex flex-col gap-2">
-            {STORE_THEMES.map((t) => {
-              const active = selectedTheme === t.id;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setSelectedTheme(t.id)}
-                  className="text-left rounded-md p-3 transition-all duration-200"
-                  style={{
-                    background: active ? 'rgba(212,175,55,0.06)' : SURFACE,
-                    border: `1.5px solid ${active ? GOLD : BORDER}`,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-1 flex-shrink-0">
-                      {t.swatch.map((c, ci) => (
+          <FieldLabel>Store Theme ({THEME_CONFIGS.length} templates)</FieldLabel>
+          {/* Category filter tabs */}
+          <div className="flex gap-1 mb-3 flex-wrap">
+            {(['all', 'minimal', 'bold', 'luxury', 'playful', 'conversion'] as const).map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setThemeFilter(cat)}
+                className="rounded px-2.5 py-1 text-xs font-medium transition-all"
+                style={{
+                  background: themeFilter === cat ? 'rgba(212,175,55,0.12)' : 'transparent',
+                  border: `1px solid ${themeFilter === cat ? GOLD : BORDER}`,
+                  color: themeFilter === cat ? GOLD : TEXT_DIM,
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {cat === 'all' ? 'All' : cat}
+              </button>
+            ))}
+          </div>
+          {/* Theme grid — 2 columns */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+            {THEME_CONFIGS
+              .filter((t) => themeFilter === 'all' || t.category === themeFilter)
+              .map((t) => {
+                const active = selectedTheme === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setSelectedTheme(t.id)}
+                    className="text-left rounded-md p-2.5 transition-all duration-200"
+                    style={{
+                      background: active ? 'rgba(212,175,55,0.06)' : SURFACE,
+                      border: `1.5px solid ${active ? GOLD : BORDER}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-0.5 flex-shrink-0">
+                        {[t.preview.bg, t.preview.accent, t.preview.text].map((c, ci) => (
+                          <div
+                            key={ci}
+                            style={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: 2,
+                              background: c,
+                              border: '1px solid rgba(255,255,255,0.1)',
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
                         <div
-                          key={ci}
-                          style={{
-                            width: 14,
-                            height: 14,
-                            borderRadius: 3,
-                            background: c,
-                            border: '1px solid rgba(255,255,255,0.1)',
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <div>
-                      <div
-                        className="text-sm font-semibold"
-                        style={{ color: active ? GOLD : TEXT, fontFamily: SYNE }}
-                      >
-                        {t.name}
-                      </div>
-                      <div
-                        className="text-xs"
-                        style={{ color: TEXT_DIM }}
-                      >
-                        Best for: {t.bestFor}
+                          className="text-xs font-semibold truncate"
+                          style={{ color: active ? GOLD : TEXT, fontFamily: SYNE }}
+                        >
+                          {t.name}
+                        </div>
+                        <div
+                          className="text-xs truncate"
+                          style={{ color: TEXT_DIM, fontSize: 10 }}
+                        >
+                          {t.bestFor}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })}
+                    <div
+                      className="mt-1 rounded px-1.5 py-0.5 inline-block"
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 600,
+                        color: TEXT_DIM,
+                        background: 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${BORDER}`,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t.category}
+                    </div>
+                  </button>
+                );
+              })}
           </div>
         </div>
         <PrimaryButton onClick={handleGenerate} disabled={loading} className="w-full">
