@@ -59,7 +59,7 @@ function loadEntries(): RevenueEntry[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as RevenueEntry[]) : [];
-  } catch {
+  } catch (e: unknown) { void e;
     return [];
   }
 }
@@ -90,7 +90,7 @@ export default function Revenue() {
         const data = (await res.json()) as ShopifyData;
         setShopify(data);
       }
-    } catch {
+    } catch (e: unknown) { void e;
       // silently fail — Shopify sync is optional
     } finally {
       setShopifyLoading(false);

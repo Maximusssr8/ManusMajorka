@@ -44,7 +44,7 @@ export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps
               key={r.code}
               onClick={() => setSelected(r.code as RegionCode)}
               style={{
-                padding: '14px 16px', background: selected === r.code ? '#EEF2FF' : '#FAFAFA',
+                padding: '14px 16px', background: selected === r.code ? '#EFF6FF' : '#FAFAFA',
                 border: `2px solid ${selected === r.code ? '#3B82F6' : '#E5E7EB'}`,
                 borderRadius: 12, cursor: 'pointer', textAlign: 'left' as const,
                 transition: 'all 150ms',

@@ -158,7 +158,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                   ? 'rgba(59,130,246,0.15)'
                   : 'rgba(224,92,122,0.15)',
             color: product.score >= 75 ? '#3B82F6' : product.score >= 50 ? '#3B82F6' : '#e05c7a',
-            border: `1px solid ${product.score >= 75 ? '#6EE7B7' : product.score >= 50 ? '#C7D2FE' : '#FECACA'}`,
+            border: `1px solid ${product.score >= 75 ? '#6EE7B7' : product.score >= 50 ? '#BFDBFE' : '#FECACA'}`,
             fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
@@ -304,8 +304,8 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               }}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold"
               style={{
-                background: '#EEF2FF',
-                border: '1px solid #C7D2FE',
+                background: '#EFF6FF',
+                border: '1px solid #BFDBFE',
                 color: '#3B82F6',
                 cursor: 'pointer',
               }}
@@ -506,7 +506,7 @@ export default function ProductDiscovery() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}
+          style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}
         >
           <Search size={15} style={{ color: '#3B82F6' }} />
         </div>
@@ -645,8 +645,8 @@ export default function ProductDiscovery() {
                   onClick={() => handleGenerate(n)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: niche === n ? '#EEF2FF' : '#F5F7FF',
-                    border: `1px solid ${niche === n ? '#C7D2FE' : '#E5E7EB'}`,
+                    background: niche === n ? '#EFF6FF' : '#F5F7FF',
+                    border: `1px solid ${niche === n ? '#BFDBFE' : '#E5E7EB'}`,
                     color: niche === n ? '#3B82F6' : '#6B7280',
                     cursor: 'pointer',
                   }}
@@ -662,7 +662,7 @@ export default function ProductDiscovery() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm transition-all"
             style={{
-              background: isLoading ? '#C7D2FE' : '#3B82F6',
+              background: isLoading ? '#BFDBFE' : '#3B82F6',
               color: 'white',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontWeight: 700,
@@ -809,8 +809,8 @@ export default function ProductDiscovery() {
                   width: 56,
                   height: 56,
                   borderRadius: 16,
-                  background: '#EEF2FF',
-                  border: '1px solid #C7D2FE',
+                  background: '#EFF6FF',
+                  border: '1px solid #BFDBFE',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

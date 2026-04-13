@@ -170,8 +170,7 @@ export default function Creators() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          color: '#ededed',
         }}>Creator Strategy</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 12px' }}>
           Find the right product categories for influencer partnerships and get ready-made outreach templates.

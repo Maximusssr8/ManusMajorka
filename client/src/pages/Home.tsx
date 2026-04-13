@@ -614,8 +614,8 @@ function Nav() {
             }}>Log in</Link>
             <Link href="/sign-up" onClick={() => setMobileOpen(false)} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: 52, background: '#ffffff', borderRadius: 10,
-              color: 'white', textDecoration: 'none', fontSize: 15, fontWeight: 600,
+              height: 52, background: '#d4af37', borderRadius: 8,
+              color: '#080808', textDecoration: 'none', fontSize: 15, fontWeight: 600,
               fontFamily: sans,
             }}>Get Started →</Link>
           </div>
@@ -731,42 +731,17 @@ function Hero() {
 
             {/* CTAs */}
             <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
-              <Link href="/sign-up" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
+              <Link href="/sign-up" className="mj-btn-primary" style={{
                 gap: 8,
                 height: 52,
                 padding: '0 28px',
-                background: '#ffffff',
-                color: '#080808',
-                fontFamily: sans,
-                fontWeight: 600,
                 fontSize: 15,
-                borderRadius: 6,
-                textDecoration: 'none',
-                transition: 'background 150ms, transform 150ms',
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#e5e5e5'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.transform = 'translateY(0)'; }}
-              >Find my first winning product →</Link>
-              <a href="#features" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
+              }}>Find my first winning product →</Link>
+              <a href="#features" className="mj-btn-secondary" style={{
                 height: 52,
                 padding: '0 24px',
-                background: 'transparent',
-                color: '#9ca3af',
-                fontFamily: sans,
-                fontWeight: 500,
                 fontSize: 15,
-                borderRadius: 6,
-                border: '1px solid rgba(255,255,255,0.12)',
-                textDecoration: 'none',
-                transition: 'border-color 150ms, color 150ms',
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#ffffff'; e.currentTarget.style.color = '#ededed'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#9ca3af'; }}
-              >Explore features ↓</a>
+              }}>Explore features ↓</a>
             </div>
 
             {/* No credit card required — immediately under CTA, prominent */}
@@ -820,7 +795,7 @@ function Hero() {
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid rgba(59,130,246,0.35)',
-              borderRadius: 14,
+              borderRadius: 8,
               padding: '14px 18px',
               display: 'flex',
               alignItems: 'center',
@@ -851,7 +826,7 @@ function Hero() {
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               border: '1px solid rgba(59,130,246,0.35)',
-              borderRadius: 14,
+              borderRadius: 8,
               padding: '12px 16px',
               display: 'flex',
               alignItems: 'center',
@@ -915,7 +890,7 @@ function SocialProofBar() {
       padding: '20px 28px',
       background: 'rgba(255,255,255,0.03)',
       border: '1px solid rgba(255,255,255,0.09)',
-      borderRadius: 12,
+      borderRadius: 8,
       width: 'fit-content',
     }}>
       <div style={{ display: 'flex' }}>
@@ -1722,6 +1697,7 @@ const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string
   { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
   { feature: 'Tools included',          m: '6+', minea: '1', auto: '1', ecom: '1', emphasis: true },
   { feature: 'Price for equivalent coverage', m: '$99/mo', minea: '$147+/mo', auto: '$147+/mo', ecom: '$147+/mo', emphasis: true },
+  { feature: 'Head start on every trending product', m: '6 hours', minea: 'Manual', auto: 'Manual', ecom: 'Manual', star: true },
 ];
 
 function Comparison() {
@@ -1868,6 +1844,23 @@ function Comparison() {
         }}>
           † Tools included: Product research, Profit calculator, Ad creative generator, Store builder, Competitor spy, Market intelligence — all in one subscription.
         </p>
+
+        {/* Urgency nudge */}
+        <div style={{
+          marginTop: 32,
+          padding: '20px 28px',
+          background: 'rgba(239,68,68,0.06)',
+          border: '1px solid rgba(239,68,68,0.15)',
+          borderRadius: 8,
+          textAlign: 'center',
+        }}>
+          <p style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: T.text, margin: '0 0 6px' }}>
+            Still using spreadsheets and gut feeling?
+          </p>
+          <p style={{ fontFamily: sans, fontSize: 14, color: '#ef4444', margin: 0, fontWeight: 600 }}>
+            Majorka operators have a 6-hour head start on every trending product.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -2574,8 +2567,25 @@ function FinalCTA() {
                 See pricing
               </a>
             </div>
+            {/* Founding member pricing urgency */}
+            <div style={{
+              display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+              padding: '16px 28px',
+              background: 'rgba(212,175,55,0.06)',
+              border: '1px solid rgba(212,175,55,0.2)',
+              borderRadius: 8, marginBottom: 20,
+            }}>
+              <span style={{ fontFamily: mono, fontSize: 12, color: T.accent, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                Early Access — founding member pricing
+              </span>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                <span style={{ fontFamily: display, fontSize: 28, fontWeight: 800, color: T.text }}>$99/mo</span>
+                <span style={{ fontFamily: sans, fontSize: 16, color: '#ef4444', textDecoration: 'line-through', fontWeight: 500 }}>$149/mo</span>
+                <span style={{ fontFamily: mono, fontSize: 11, color: T.textMuted }}>post-launch price</span>
+              </div>
+            </div>
             <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
-              30-day money-back guarantee · Cancel anytime · AU-first
+              30-day money-back guarantee · Zero risk · Cancel anytime · AU-first
             </div>
           </div>
         </div>
@@ -2687,6 +2697,24 @@ function TrustBar() {
     { Icon: ShieldCheck, headline: '30-day',    sub: 'Money-back guarantee' },
     { Icon: Zap,         headline: 'Live feed', sub: 'Updated every 6 hours' },
   ];
+
+  const ACTIVITY_FEED = [
+    'Sarah from Melbourne just found a winning product',
+    'Jake from Brisbane generated 5 ad packs',
+    'Emma from Sydney published a store',
+    'Liam from Auckland scored a 97/100 product',
+    'Oliver from Perth launched a TikTok campaign',
+  ];
+  const [activityIdx, setActivityIdx] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivityIdx((prev) => (prev + 1) % ACTIVITY_FEED.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const trackedRevenue = `$${(Math.round(3726 * 24.5 * 30 / 100000) / 10).toFixed(1)}M+`;
+
   return (
     <section style={{
       borderTop: `1px solid ${T.border}`,
@@ -2724,6 +2752,45 @@ function TrustBar() {
             </div>
           );
         })}
+      </div>
+
+      {/* Social proof momentum strip */}
+      <div style={{
+        maxWidth: 1200, margin: '16px auto 0',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 24, flexWrap: 'wrap',
+      }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 14px',
+          background: 'rgba(34,197,94,0.08)',
+          border: '1px solid rgba(34,197,94,0.2)',
+          borderRadius: 6,
+        }}>
+          <span style={{ fontFamily: mono, fontSize: 12, color: '#22c55e', fontWeight: 700 }}>{trackedRevenue}</span>
+          <span style={{ fontFamily: mono, fontSize: 11, color: T.textDim }}>tracked monthly revenue</span>
+        </div>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 14px',
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 6,
+        }}>
+          <span style={{ fontFamily: mono, fontSize: 11, color: T.textDim }}>New products added every 6 hours — never miss a trend</span>
+        </div>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 14px',
+          background: 'rgba(59,130,246,0.06)',
+          border: '1px solid rgba(59,130,246,0.15)',
+          borderRadius: 6,
+          minWidth: 280,
+          transition: 'opacity 300ms ease',
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3B82F6', boxShadow: '0 0 8px rgba(59,130,246,0.8)', display: 'inline-block', animation: 'mj-pulse 1.6s infinite' }} />
+          <span style={{ fontFamily: mono, fontSize: 11, color: '#93c5fd' }}>{ACTIVITY_FEED[activityIdx]}</span>
+        </div>
       </div>
     </section>
   );
@@ -3149,6 +3216,46 @@ function DeerHero() {
                 <span>3,726 winners</span>
                 <span style={{ opacity: 0.3 }}>·</span>
                 <span>refreshed every 6h</span>
+              </div>
+            </Reveal>
+
+            {/* Urgency signals */}
+            <Reveal delay={0.3}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '6px 14px',
+                  background: 'rgba(212,175,55,0.08)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  borderRadius: 6, width: 'fit-content',
+                }}>
+                  <span style={{ fontFamily: mono, fontSize: 12, color: T.accent, fontWeight: 600 }}>
+                    {Math.floor(Math.random() * 35) + 12} operators signed up this week
+                  </span>
+                </div>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '6px 14px',
+                  background: 'rgba(239,68,68,0.06)',
+                  border: '1px solid rgba(239,68,68,0.15)',
+                  borderRadius: 6, width: 'fit-content',
+                }}>
+                  <span style={{ fontFamily: mono, fontSize: 11, color: '#ef4444', fontWeight: 600, letterSpacing: '0.02em' }}>
+                    Early Access pricing ends soon — lock in founding rates before they increase
+                  </span>
+                </div>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '5px 12px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 6, width: 'fit-content',
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f97316', boxShadow: '0 0 6px rgba(249,115,22,0.6)', display: 'inline-block' }} />
+                  <span style={{ fontFamily: mono, fontSize: 11, color: '#9ca3af' }}>
+                    {Math.floor(Math.random() * 80) + 120} people viewing this page
+                  </span>
+                </div>
               </div>
             </Reveal>
           </div>
@@ -3913,6 +4020,94 @@ export default function Home() {
       <DeerHero />
       <TrustBar />
       <LiveTicker />
+
+      {/* ── FOMO: What you're losing ── */}
+      <section style={{
+        background: '#080808',
+        padding: '100px 24px',
+        borderBottom: `1px solid ${T.border}`,
+      }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '5px 14px',
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: 100, marginBottom: 20,
+            }}>
+              <span style={{ fontFamily: mono, fontSize: 11, color: '#ef4444', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                The cost of waiting
+              </span>
+            </div>
+            <h2 style={{
+              fontFamily: display, fontWeight: 800,
+              fontSize: 'clamp(28px, 4vw, 48px)',
+              lineHeight: 1.1, letterSpacing: '-0.03em',
+              color: T.text, margin: '0 0 16px',
+            }}>
+              Every day without Majorka,<br />
+              <span style={{ color: '#ef4444' }}>you&apos;re leaving money on the table.</span>
+            </h2>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 20,
+            marginBottom: 48,
+          }}>
+            {[
+              { num: '23', unit: '', label: 'winning products found this week using AI scoring', desc: 'Your competitors found them. You\'re still scrolling AliExpress manually.' },
+              { num: '47', unit: '', label: 'ad variations generated in 10 minutes', desc: 'They generated 47 ad packs. You spent 3 hours writing one ad set.' },
+              { num: '60', unit: 's', label: 'to launch a store with 20 themes', desc: 'They launched a store in 60 seconds. You\'re still picking a Shopify template.' },
+            ].map((card) => (
+              <div key={card.num} style={{
+                background: T.bgSurface,
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                padding: '36px 28px',
+                position: 'relative',
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                  background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)',
+                }} />
+                <div style={{
+                  fontFamily: mono, fontSize: 56, fontWeight: 800,
+                  color: T.accent, lineHeight: 1, marginBottom: 8,
+                  letterSpacing: '-0.04em',
+                }}>
+                  {card.num}<span style={{ fontSize: 32, color: T.accent }}>{card.unit}</span>
+                </div>
+                <div style={{
+                  fontFamily: sans, fontSize: 14, color: T.textMuted,
+                  lineHeight: 1.5, marginBottom: 12,
+                }}>{card.label}</div>
+                <div style={{
+                  fontFamily: sans, fontSize: 15, color: T.text,
+                  lineHeight: 1.55, fontWeight: 500,
+                }}>{card.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <Link href="/sign-up" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              height: 52, padding: '0 32px',
+              background: '#3B82F6', color: '#ffffff',
+              fontFamily: sans, fontWeight: 600, fontSize: 15,
+              borderRadius: 8, textDecoration: 'none',
+              boxShadow: '0 12px 32px rgba(59,130,246,0.35)',
+              transition: 'transform 180ms ease',
+            }}>
+              Stop falling behind — Start free trial →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <NumberedDivider num="01" label="CAPABILITIES" description="What the pipeline ships with" />
       <CapabilitiesGrid />

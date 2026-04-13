@@ -708,7 +708,7 @@ Make each variation feel genuinely different — different angles, different emo
             <div ref={pickerRef} style={{
               position: 'absolute', top: 60, left: 18, right: 18, zIndex: 50,
               background: '#1c1c1c', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 10, maxHeight: 360, overflowY: 'auto',
+              borderRadius: 8, maxHeight: 360, overflowY: 'auto',
               boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
             }}>
               <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>

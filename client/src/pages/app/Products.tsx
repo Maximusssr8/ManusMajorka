@@ -4,6 +4,7 @@ import {
   Search, List, LayoutGrid, ChevronDown, ChevronUp, ChevronsUpDown, Heart,
   ExternalLink, Zap, Flame, ShoppingBag, Store, Calculator, ChevronRight,
   Clock, TrendingUp, DollarSign, Award, Bookmark, Bell, X, Download,
+  ShoppingCart, Check, Loader2, AlertCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -518,6 +519,516 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
 }
 
 /* ══════════════════════════════════════════════════════════════
+   Push to Shopify — helpers + modal
+   ══════════════════════════════════════════════════════════════ */
+
+const SHOPIFY_PUSHED_KEY = 'majorka_shopify_pushed';
+
+function getShopifyPushedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(SHOPIFY_PUSHED_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch { return new Set(); }
+}
+
+function markShopifyPushed(productId: string): void {
+  const ids = getShopifyPushedIds();
+  ids.add(productId);
+  localStorage.setItem(SHOPIFY_PUSHED_KEY, JSON.stringify([...ids]));
+}
+
+function isShopifyPushed(productId: string): boolean {
+  return getShopifyPushedIds().has(productId);
+}
+
+interface ShopifyStatus {
+  connected: boolean;
+  shop: string | null;
+}
+
+async function fetchShopifyStatus(): Promise<ShopifyStatus> {
+  try {
+    const token = (await import('@supabase/supabase-js')).createClient(
+      import.meta.env.VITE_SUPABASE_URL ?? '',
+      import.meta.env.VITE_SUPABASE_ANON_KEY ?? '',
+    );
+    // Use simple fetch with credentials
+    const r = await fetch('/api/shopify/status', {
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+    if (!r.ok) return { connected: false, shop: null };
+    const data = await r.json();
+    return { connected: !!data.connected, shop: data.shop ?? null };
+  } catch {
+    return { connected: false, shop: null };
+  }
+}
+
+interface ShopifyPushResult {
+  success: boolean;
+  shopifyProductUrl?: string;
+  storefrontUrl?: string;
+  error?: string;
+}
+
+async function pushProductToShopify(payload: {
+  product_title: string;
+  price_aud: number | null;
+  sold_count: number | null;
+  category: string | null;
+  image_url: string | null;
+  description: string | null;
+  sellPrice: number | null;
+}): Promise<ShopifyPushResult> {
+  const r = await fetch('/api/shopify/create-product', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ product: payload }),
+  });
+  const data = await r.json();
+  if (!r.ok || !data.success) {
+    return { success: false, error: data.error ?? `HTTP ${r.status}` };
+  }
+  return {
+    success: true,
+    shopifyProductUrl: data.shopifyProductUrl,
+    storefrontUrl: data.storefrontUrl,
+  };
+}
+
+type ShopifyModalStep = 'checking' | 'not-connected' | 'configure' | 'pushing' | 'success' | 'error';
+
+function ShopifyPushModal({
+  product,
+  open,
+  onClose,
+}: {
+  product: Product;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState<ShopifyModalStep>('checking');
+  const [title, setTitle] = useState('');
+  const [sellPrice, setSellPrice] = useState(0);
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [resultUrl, setResultUrl] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    if (!open) return;
+    // Reset state on open
+    const base = Number(product.price_aud ?? 0);
+    const orders = product.sold_count ?? 0;
+    const ordersBand = orders >= 1000 ? `${Math.round(orders / 1000)}K+` : `${orders}`;
+    const cat = product.category || 'product';
+    setTitle(cleanProductTitle(product.product_title));
+    setSellPrice(Math.round(base * 3 * 100) / 100);
+    setDescription(
+      `Premium ${cat.toLowerCase()} trusted by ${ordersBand} customers worldwide. ` +
+      `High-quality materials, fast shipping, and exceptional value.`
+    );
+    setCategory(product.category ?? '');
+    setResultUrl('');
+    setErrorMsg('');
+    setStep('checking');
+
+    // Check Shopify connection
+    fetchShopifyStatus().then((status) => {
+      if (status.connected) {
+        setStep('configure');
+      } else {
+        setStep('not-connected');
+      }
+    });
+  }, [open, product]);
+
+  async function handlePush() {
+    setStep('pushing');
+    const result = await pushProductToShopify({
+      product_title: title,
+      price_aud: product.price_aud != null ? Number(product.price_aud) : null,
+      sold_count: product.sold_count,
+      category: category || null,
+      image_url: product.image_url,
+      description,
+      sellPrice,
+    });
+    if (result.success) {
+      setResultUrl(result.shopifyProductUrl ?? '');
+      markShopifyPushed(String(product.id));
+      setStep('success');
+    } else {
+      setErrorMsg(result.error ?? 'Unknown error');
+      setStep('error');
+    }
+  }
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="relative z-10 w-full max-w-md mx-4 rounded-lg p-6 font-body"
+        style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <ShoppingCart size={16} style={{ color: '#d4af37' }} />
+            <span className="text-sm font-bold text-text">Push to Shopify</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-md text-muted hover:text-text hover:bg-white/[0.08] transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Checking status */}
+        {step === 'checking' && (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <Loader2 size={24} className="animate-spin text-muted" />
+            <span className="text-sm text-muted">Checking Shopify connection...</span>
+          </div>
+        )}
+
+        {/* Not connected */}
+        {step === 'not-connected' && (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <AlertCircle size={32} className="text-amber" />
+            <p className="text-sm text-body text-center">
+              Connect your Shopify store first to push products.
+            </p>
+            <a
+              href="/app/store-builder"
+              className="text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors no-underline"
+              style={{ background: '#d4af37', color: '#000' }}
+            >
+              Go to Shopify Sync
+            </a>
+          </div>
+        )}
+
+        {/* Configure */}
+        {step === 'configure' && (
+          <div className="space-y-4">
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                Product Title
+              </label>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37]"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                Selling Price (AUD)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={sellPrice}
+                onChange={(e) => setSellPrice(Number(e.target.value) || 0)}
+                className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37] tabular-nums"
+              />
+              <span className="text-[10px] text-muted mt-1 block">
+                Cost: ${Number(product.price_aud ?? 0).toFixed(2)} | Margin: ${(sellPrice - Number(product.price_aud ?? 0)).toFixed(2)}
+              </span>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37] resize-none"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                Category / Collection
+              </label>
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="e.g. Electronics, Home, Beauty"
+                className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37]"
+              />
+            </div>
+            <button
+              onClick={handlePush}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all cursor-pointer"
+              style={{
+                background: '#d4af37',
+                color: '#000',
+                boxShadow: '0 0 20px rgba(212,175,55,0.25)',
+              }}
+            >
+              <ShoppingCart size={15} />
+              Push to Shopify
+            </button>
+          </div>
+        )}
+
+        {/* Pushing */}
+        {step === 'pushing' && (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
+            <span className="text-sm text-muted">Creating product on Shopify...</span>
+          </div>
+        )}
+
+        {/* Success */}
+        {step === 'success' && (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(16,185,129,0.15)' }}
+            >
+              <Check size={24} className="text-green" />
+            </div>
+            <p className="text-sm font-semibold text-text text-center">
+              Product live on your Shopify store!
+            </p>
+            {resultUrl && (
+              <a
+                href={resultUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium flex items-center gap-1.5 no-underline transition-colors"
+                style={{ color: '#3B82F6' }}
+              >
+                View on Shopify
+                <ExternalLink size={13} />
+              </a>
+            )}
+            <button
+              onClick={onClose}
+              className="text-xs text-muted hover:text-text transition-colors mt-1"
+            >
+              Close
+            </button>
+          </div>
+        )}
+
+        {/* Error */}
+        {step === 'error' && (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(239,68,68,0.15)' }}
+            >
+              <AlertCircle size={24} className="text-red-400" />
+            </div>
+            <p className="text-sm text-red-400 text-center">{errorMsg}</p>
+            <button
+              onClick={() => setStep('configure')}
+              className="text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
+              style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Bulk Push to Shopify — progress modal for saved products
+   ══════════════════════════════════════════════════════════════ */
+
+function BulkShopifyPush({
+  products,
+  open,
+  onClose,
+}: {
+  products: Product[];
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState<'confirm' | 'checking' | 'not-connected' | 'pushing' | 'done'>('confirm');
+  const [pushed, setPushed] = useState(0);
+  const [failed, setFailed] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    if (!open) {
+      setStep('confirm');
+      setPushed(0);
+      setFailed(0);
+      setTotal(0);
+    }
+  }, [open]);
+
+  async function startBulkPush() {
+    setStep('checking');
+    const status = await fetchShopifyStatus();
+    if (!status.connected) {
+      setStep('not-connected');
+      return;
+    }
+    setStep('pushing');
+    const toPush = products.filter((p) => !isShopifyPushed(String(p.id)));
+    setTotal(toPush.length);
+    setPushed(0);
+    setFailed(0);
+
+    for (let i = 0; i < toPush.length; i++) {
+      const p = toPush[i];
+      const base = Number(p.price_aud ?? 0);
+      const result = await pushProductToShopify({
+        product_title: cleanProductTitle(p.product_title),
+        price_aud: p.price_aud != null ? Number(p.price_aud) : null,
+        sold_count: p.sold_count,
+        category: p.category ?? null,
+        image_url: p.image_url,
+        description: null,
+        sellPrice: Math.round(base * 3 * 100) / 100,
+      });
+      if (result.success) {
+        markShopifyPushed(String(p.id));
+        setPushed((prev) => prev + 1);
+      } else {
+        setFailed((prev) => prev + 1);
+      }
+      // Rate-limit delay between pushes
+      if (i < toPush.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    setStep('done');
+  }
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="relative z-10 w-full max-w-sm mx-4 rounded-lg p-6 font-body"
+        style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <ShoppingCart size={16} style={{ color: '#d4af37' }} />
+            <span className="text-sm font-bold text-text">Bulk Push to Shopify</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-md text-muted hover:text-text hover:bg-white/[0.08] transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {step === 'confirm' && (
+          <div className="flex flex-col items-center gap-4 py-4">
+            <p className="text-sm text-body text-center">
+              Push <span className="text-text font-bold">{products.length}</span> saved products to your Shopify store?
+            </p>
+            <p className="text-[11px] text-muted text-center">
+              Products already pushed will be skipped. Each product is created as a draft.
+            </p>
+            <button
+              onClick={startBulkPush}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold cursor-pointer transition-all"
+              style={{
+                background: '#d4af37',
+                color: '#000',
+                boxShadow: '0 0 20px rgba(212,175,55,0.25)',
+              }}
+            >
+              <ShoppingCart size={15} />
+              Push All to Shopify
+            </button>
+          </div>
+        )}
+
+        {step === 'checking' && (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <Loader2 size={24} className="animate-spin text-muted" />
+            <span className="text-sm text-muted">Checking Shopify connection...</span>
+          </div>
+        )}
+
+        {step === 'not-connected' && (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <AlertCircle size={32} className="text-amber" />
+            <p className="text-sm text-body text-center">
+              Connect your Shopify store first.
+            </p>
+            <a
+              href="/app/store-builder"
+              className="text-sm font-semibold px-5 py-2.5 rounded-lg no-underline"
+              style={{ background: '#d4af37', color: '#000' }}
+            >
+              Go to Shopify Sync
+            </a>
+          </div>
+        )}
+
+        {step === 'pushing' && (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
+            <p className="text-sm text-text font-semibold">
+              Pushed {pushed}/{total} products...
+            </p>
+            {failed > 0 && (
+              <p className="text-[11px] text-red-400">{failed} failed</p>
+            )}
+            <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: total > 0 ? `${((pushed + failed) / total) * 100}%` : '0%',
+                  background: '#d4af37',
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {step === 'done' && (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(16,185,129,0.15)' }}
+            >
+              <Check size={24} className="text-green" />
+            </div>
+            <p className="text-sm font-semibold text-text text-center">
+              {pushed} product{pushed !== 1 ? 's' : ''} now live on your store
+            </p>
+            {failed > 0 && (
+              <p className="text-[11px] text-red-400">{failed} failed to push</p>
+            )}
+            <button
+              onClick={onClose}
+              className="text-xs text-muted hover:text-text transition-colors mt-1"
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
    Product detail sheet — Radix Dialog-as-right-Sheet
    ══════════════════════════════════════════════════════════════ */
 
@@ -539,6 +1050,16 @@ function ProductSheet({
   const isFav = product ? lists.isInAnyList(product.id) : false;
   const { isTracked, track, untrack } = useTracking();
   const isTrackedNow = product ? isTracked(product.id) : false;
+  const [shopifyModalOpen, setShopifyModalOpen] = useState(false);
+  const [pushedToShopify, setPushedToShopify] = useState(false);
+
+  // Check if already pushed when product changes
+  useEffect(() => {
+    if (product) {
+      setPushedToShopify(isShopifyPushed(String(product.id)));
+    }
+  }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [calcOpen, setCalcOpen] = useState(false);
   const [sellPrice,  setSellPrice]  = useState<number>(0);
   const [landedCost, setLandedCost] = useState<number>(0);
@@ -911,7 +1432,7 @@ function ProductSheet({
           {/* Build Store for this product — one-click flow */}
           <button
             onClick={handleImportToStore}
-            className="mx-4 mb-4 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="mx-4 mb-3 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
             style={{
               background: '#3B82F6',
               color: 'white',
@@ -921,8 +1442,34 @@ function ProductSheet({
             }}
           >
             <Store size={16} strokeWidth={2} />
-            Build Store for This Product →
+            Build Store for This Product
           </button>
+
+          {/* Push to Shopify — gold CTA */}
+          {pushedToShopify ? (
+            <div
+              className="mx-4 mb-4 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-semibold"
+              style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', borderRadius: 6 }}
+            >
+              <Check size={15} strokeWidth={2.5} />
+              Live on Shopify
+            </div>
+          ) : (
+            <button
+              onClick={() => setShopifyModalOpen(true)}
+              className="mx-4 mb-4 text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+              style={{
+                background: '#d4af37',
+                color: '#000',
+                borderRadius: 6,
+                padding: '10px 20px',
+                boxShadow: '0 0 20px rgba(212,175,55,0.2)',
+              }}
+            >
+              <ShoppingCart size={15} strokeWidth={2} />
+              Push to Shopify
+            </button>
+          )}
 
           {/* Profit calculator — collapsible */}
           <div className="mx-4 mb-4 rounded-lg overflow-hidden" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8 }}>

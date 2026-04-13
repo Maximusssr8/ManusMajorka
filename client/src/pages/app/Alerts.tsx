@@ -218,8 +218,7 @@ export default function Alerts() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          color: '#ededed',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
           {apiAvailable
@@ -232,7 +231,7 @@ export default function Alerts() {
       <div style={{
         background: 'rgba(212,175,55,0.06)',
         border: '1px solid rgba(212,175,55,0.2)',
-        borderRadius: 10,
+        borderRadius: 8,
         padding: '12px 16px',
         marginBottom: 20,
         fontSize: 13,
@@ -248,7 +247,7 @@ export default function Alerts() {
         <div style={{
           background: 'rgba(16,185,129,0.1)',
           border: '1px solid rgba(16,185,129,0.3)',
-          borderRadius: 10,
+          borderRadius: 8,
           padding: '12px 16px',
           marginBottom: 20,
           color: C.green,
@@ -277,7 +276,7 @@ export default function Alerts() {
           <div style={{
             background: C.raised,
             border: '1px dashed rgba(255,255,255,0.1)',
-            borderRadius: 12,
+            borderRadius: 8,
             padding: '40px 24px',
             textAlign: 'center',
           }}>
@@ -350,7 +349,7 @@ export default function Alerts() {
                 <div key={t.productId} style={{
                   background: C.raised,
                   border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 12,
+                  borderRadius: 8,
                   padding: 14,
                   display: 'flex',
                   gap: 12,
@@ -418,7 +417,7 @@ export default function Alerts() {
           <div style={{
             background: C.raised,
             border: '1px dashed rgba(255,255,255,0.1)',
-            borderRadius: 12,
+            borderRadius: 8,
             padding: '40px 24px',
             textAlign: 'center',
           }}>
@@ -557,7 +556,7 @@ export default function Alerts() {
         <div style={{
           background: C.raised,
           border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 12,
+          borderRadius: 8,
           padding: 24,
         }}>
           <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Alert Type</div>

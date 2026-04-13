@@ -54,8 +54,8 @@ export function ProductStatCards({ products }: StatCardsProps) {
       label: 'Monthly Potential',
       value: formatRev(totalRevenue),
       sub: 'Combined est. revenue',
-      color: '#818CF8',
-      bg: 'rgba(99,102,241,0.12)',
+      color: '#3B82F6',
+      bg: 'rgba(59,130,246,0.12)',
     }] : []),
   ];
 

@@ -277,11 +277,12 @@ export function Nav({ onNavigate }: NavProps = {}) {
           onClick={() => setComingSoonItem(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl p-7 glass-card glass-card--elevated"
+            className="w-full max-w-md rounded-lg p-7"
+            style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+              className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
               style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
             >
               {(() => {
@@ -303,7 +304,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
             </div>
             <button
               onClick={() => setComingSoonItem(null)}
-              className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.01]"
+              className="w-full py-3 rounded-lg text-sm font-bold text-white transition-all hover:scale-[1.01]"
               style={{
                 background: 'var(--color-accent)',
                 color: 'var(--color-bg)',

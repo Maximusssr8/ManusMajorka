@@ -482,7 +482,7 @@ export default function AIToolChat({
                               ? '#e05c7a'
                               : '#3B82F6',
                         fontFamily: "'Bricolage Grotesque', sans-serif",
-                        border: `1px solid ${verdict === 'GO' ? '#C7D2FE' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(59,130,246,0.25)'}`,
+                        border: `1px solid ${verdict === 'GO' ? '#BFDBFE' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(59,130,246,0.25)'}`,
                       }}
                     >
                       {verdict}
@@ -671,7 +671,7 @@ function CopyMsgBtn({ text }: { text: string }) {
       }}
       className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
       style={{
-        background: copied ? '#EEF2FF' : 'transparent',
+        background: copied ? '#EFF6FF' : 'transparent',
         color: copied ? '#3B82F6' : '#D1D5DB',
         cursor: 'pointer',
         border: 'none',

@@ -333,10 +333,8 @@ export default function AdLibrary() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
               placeholder="Search ads (e.g. kitchen gadget, yoga mat, LED lamp)"
-              className="w-full bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg px-4 py-2.5 text-sm text-[#ededed] placeholder-[#555555] outline-none transition-colors"
+              className="w-full bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg px-4 py-2.5 text-sm text-[#ededed] placeholder-[#555555] outline-none transition-colors focus:border-[rgba(212,175,55,0.5)]"
               style={{ fontFamily: 'DM Sans, sans-serif' }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#1a1a1a'; }}
             />
           </div>
           <select
@@ -372,9 +370,7 @@ export default function AdLibrary() {
               return (
                 <div
                   key={ad.id}
-                  className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-4 flex flex-col gap-2.5 transition-all"
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(212,175,55,0.35)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#1a1a1a'; }}
+                  className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-4 flex flex-col gap-2.5 transition-all hover:border-[rgba(212,175,55,0.35)] hover:-translate-y-0.5"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#d4af37] truncate max-w-[70%]">
@@ -463,9 +459,7 @@ export default function AdLibrary() {
             {trendingResults.map((item, idx) => (
               <div
                 key={`${item.url}-${idx}`}
-                className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-3 flex flex-col gap-2 transition-all"
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(212,175,55,0.25)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#1a1a1a'; }}
+                className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-3 flex flex-col gap-2 transition-all hover:border-[rgba(212,175,55,0.25)] hover:-translate-y-0.5"
               >
                 <span className="text-[10px] font-bold text-[#d4af37] truncate">
                   {item.pageName}

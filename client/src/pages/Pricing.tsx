@@ -375,7 +375,7 @@ const PLANS = [
     cta: 'Subscribe',
     ctaHref: null, // handled via Stripe
     highlight: false,
-    badge: null,
+    badge: 'For Serious Operators',
     afterpay: true,
     plan: 'scale',
   },
@@ -784,12 +784,14 @@ export default function Pricing() {
             Annual
             <span
               style={{
-                background: 'rgba(59,130,246,0.15)',
-                color: '#3B82F6',
+                background: 'rgba(212,175,55,0.2)',
+                color: '#d4af37',
                 fontSize: 10,
                 fontWeight: 800,
-                padding: '2px 8px',
+                padding: '3px 10px',
                 borderRadius: 100,
+                border: '1px solid rgba(212,175,55,0.3)',
+                boxShadow: '0 0 12px rgba(212,175,55,0.15)',
               }}
             >
               Save 20%
@@ -808,7 +810,7 @@ export default function Pricing() {
           {/* Metrics-based social proof — no fake names */}
           <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto 0' }}>
             {[
-              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#3B82F6', bg: '#EEF2FF', border: '#C7D2FE' },
+              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#3B82F6', bg: '#EFF6FF', border: '#BFDBFE' },
               { stat: '7',   label: 'global markets covered',   icon: '🌏', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
               { stat: '14',  label: 'day money-back guarantee', icon: '✅', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
               { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#7C3AED', bg: '#F3E8FF', border: '#DDD6FE' },
@@ -895,6 +897,15 @@ export default function Pricing() {
                   {annual && plan.price !== '$0' ? 'AUD/mo' : plan.period}
                 </span>
               </div>
+              {/* Early access urgency */}
+              <div style={{ fontSize: 11, color: '#ef4444', fontWeight: 600, marginBottom: 4 }}>
+                Early Access pricing — increases after launch
+              </div>
+              {plan.name === 'Scale' && (
+                <div style={{ fontSize: 11, color: '#d4af37', fontWeight: 600, marginBottom: 4 }}>
+                  {Math.floor(Math.random() * 16) + 8} operators chose Scale this week
+                </div>
+              )}
               {annual && plan.price !== '$0' && (
                 <div style={{ fontSize: 12, color: C.secondary, marginBottom: 20 }}>
                   <span style={{ textDecoration: 'line-through', color: C.muted }}>

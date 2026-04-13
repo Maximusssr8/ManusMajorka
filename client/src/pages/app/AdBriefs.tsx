@@ -234,7 +234,7 @@ Return a markdown brief with these sections:
       setHistory(next);
       saveBriefs(next);
     } catch (e: unknown) {
-      if (e instanceof Error) console.warn('[AdBriefs] generation error:', e.message);
+      // Error already handled by setError below
       setError('Brief generation failed — please try again or check your connection.');
     } finally {
       setLoading(false);
@@ -253,8 +253,7 @@ Return a markdown brief with these sections:
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          color: '#ededed',
         }}>Ad Briefs</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>
           Generate platform-specific ad briefs for any product in seconds

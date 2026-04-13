@@ -185,7 +185,7 @@ export default function ProductSearch() {
                       background: C.card, borderRadius: 10, border: `1px solid ${C.border}`,
                       overflow: 'hidden', transition: 'border-color 0.2s',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#C7D2FE')}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#BFDBFE')}
                     onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
                   >
                     {/* Product image */}

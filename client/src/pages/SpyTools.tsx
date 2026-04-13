@@ -11,7 +11,7 @@ const SEED_ADS = [
   { id:1, platform:'Facebook', product:'Posture Corrector Pro', runningDays:47, spendPerDay:312, niche:'Health',
     hook:"This $29 posture fix sold 11,000 units last month 🤯", body:"Physios HATE this but Australians are obsessed. Fix your hunchback in 2 weeks or your money back.", cta:"Shop Now", bg:'#FFF7ED', accent:'#EA580C' },
   { id:2, platform:'TikTok', product:'LED Desk Lamp RGB', runningDays:23, spendPerDay:187, niche:'Tech',
-    hook:"POV: Your home office finally looks like a setup tour 👀", body:"16 million colours, 3 brightness levels, USB-C. £24 anywhere else, $29 AUD here.", cta:"Get Yours", bg:'#EEF2FF', accent:'#3B82F6' },
+    hook:"POV: Your home office finally looks like a setup tour 👀", body:"16 million colours, 3 brightness levels, USB-C. £24 anywhere else, $29 AUD here.", cta:"Get Yours", bg:'#EFF6FF', accent:'#3B82F6' },
   { id:3, platform:'Instagram', product:'Vitamin C Serum 30ml', runningDays:61, spendPerDay:445, niche:'Beauty',
     hook:"I was embarrassed to go out without makeup. Then I tried this.", body:"Dermatologist-tested 20% Vitamin C. Dark spots visibly reduced in 14 days. Now I leave the house bare-faced.", cta:"Try Risk-Free", bg:'#FDF4FF', accent:'#A855F7' },
   { id:4, platform:'Facebook', product:'Weighted Blanket 8kg', runningDays:38, spendPerDay:276, niche:'Home',
@@ -159,7 +159,7 @@ function CompetitorSpy() {
           </div>
           {stores.map(s => (
             <button key={s.domain} onClick={() => setSelectedStore(selectedStore === s.domain ? null : s.domain)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 14px', background: selectedStore === s.domain ? '#EEF2FF' : 'white', border: 'none', borderLeft: selectedStore === s.domain ? '3px solid #3B82F6' : '3px solid transparent', cursor: 'pointer', textAlign: 'left' as const, transition: 'background 120ms' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 14px', background: selectedStore === s.domain ? '#EFF6FF' : 'white', border: 'none', borderLeft: selectedStore === s.domain ? '3px solid #3B82F6' : '3px solid transparent', cursor: 'pointer', textAlign: 'left' as const, transition: 'background 120ms' }}
               onMouseEnter={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = '#FAFAFF'; }}
               onMouseLeave={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = 'white'; }}>
               <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`} alt={s.name} style={{ width: 16, height: 16, borderRadius: 3 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
@@ -214,7 +214,7 @@ function CompetitorSpy() {
                       {p.price_aud && <span style={{ fontSize: 11, fontWeight: 600, color: '#059669' }}>${p.price_aud}</span>}
                       {p.category && <span style={{ fontSize: 9, color: '#94A3B8', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 10 }}>{p.category}</span>}
                       {isNewProduct(p) && (
-                        <span style={{ fontSize: 9, fontWeight: 700, color: '#3B82F6', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>NEW TODAY</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#3B82F6', background: '#EFF6FF', padding: '1px 6px', borderRadius: 10 }}>NEW TODAY</span>
                       )}
                     </div>
                   </div>
@@ -387,7 +387,7 @@ export default function SpyTools() {
                         flex: 1, height: 36, borderRadius: 8, border: `1px solid ${C.accent}`, background: 'transparent',
                         color: C.accent, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms',
                       }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#EEF2FF'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#EFF6FF'; e.currentTarget.style.transform = 'scale(1.02)'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = ''; }}
                         onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
                         onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}

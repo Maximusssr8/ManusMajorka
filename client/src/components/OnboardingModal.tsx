@@ -484,7 +484,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: selectedBudget ? 'pointer' : 'not-allowed',
                     border: 'none',
-                    boxShadow: selectedBudget ? '0 4px 20px #C7D2FE' : 'none',
+                    boxShadow: selectedBudget ? '0 4px 20px #BFDBFE' : 'none',
                   }}
                 >
                   Continue <ChevronRight size={14} />
@@ -606,7 +606,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: 'pointer',
                     border: 'none',
-                    boxShadow: '0 4px 20px #C7D2FE',
+                    boxShadow: '0 4px 20px #BFDBFE',
                   }}
                 >
                   🚀 Let's Go!
