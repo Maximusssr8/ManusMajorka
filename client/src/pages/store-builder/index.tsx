@@ -17,6 +17,9 @@ import {
   Smartphone,
   Copy,
   FileArchive,
+  Upload,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -383,10 +386,8 @@ interface TabSwitcherProps {
 function TabSwitcher({ mode, onChange }: TabSwitcherProps) {
   return (
     <div
-      className="grid gap-3 w-full"
-      style={{
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      }}
+      className="inline-flex items-center gap-1 p-1 rounded-md w-full sm:w-auto"
+      style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
     >
       {TABS.map((t) => {
         const active = mode === t.id;
@@ -396,46 +397,32 @@ function TabSwitcher({ mode, onChange }: TabSwitcherProps) {
             key={t.id}
             data-tab={t.id}
             onClick={() => onChange(t.id)}
-            className="text-left rounded-md p-4 transition-all duration-200 group"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-md px-5 py-2.5 transition-all duration-200"
             style={{
-              background: active ? CARD : SURFACE,
-              border: `1px solid ${active ? GOLD : BORDER}`,
-              boxShadow: active ? '0 0 24px rgba(212,175,55,0.18)' : 'none',
+              background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
+              border: 'none',
+              color: active ? GOLD : TEXT_DIM,
               fontFamily: DM_SANS,
-            }}
-            onMouseEnter={(e) => {
-              if (!active) {
-                e.currentTarget.style.boxShadow = '0 0 24px rgba(212,175,55,0.18)';
-                e.currentTarget.style.borderColor = GOLD;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!active) {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = BORDER;
-              }
+              fontSize: 13,
+              fontWeight: active ? 600 : 500,
+              cursor: 'pointer',
+              position: 'relative',
             }}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div
-                className="w-9 h-9 rounded-md flex items-center justify-center"
-                style={{
-                  background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${active ? GOLD : BORDER}`,
-                }}
-              >
-                <Icon size={18} className={active ? 'text-accent' : ''} />
-              </div>
-              <div
-                className="text-base font-semibold"
-                style={{ color: TEXT, fontFamily: SYNE }}
-              >
-                {t.label}
-              </div>
-            </div>
-            <div className="text-xs" style={{ color: TEXT_DIM }}>
-              {t.desc}
-            </div>
+            <Icon size={15} />
+            <span>{t.label}</span>
+            {active && (
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 24,
+                height: 2,
+                background: GOLD,
+                borderRadius: 1,
+              }} />
+            )}
           </button>
         );
       })}
@@ -555,24 +542,34 @@ interface FieldLabelProps {
 function FieldLabel({ children }: FieldLabelProps) {
   return (
     <div
-      className="text-xs uppercase tracking-wider mb-2"
-      style={{ color: TEXT_DIM, fontFamily: DM_SANS, letterSpacing: '0.08em' }}
+      className="uppercase mb-2"
+      style={{ color: TEXT_DIM, fontFamily: MONO, letterSpacing: '0.1em', fontSize: 10 }}
     >
       {children}
     </div>
   );
 }
 
+const INPUT_BG = '#050505';
+
 const inputStyle: React.CSSProperties = {
-  background: SURFACE,
+  background: INPUT_BG,
   border: `1px solid ${BORDER}`,
   color: TEXT,
   fontFamily: DM_SANS,
   padding: '10px 14px',
   borderRadius: 6,
   width: '100%',
-  fontSize: 14,
+  fontSize: 16,
   outline: 'none',
+  transition: 'border-color 0.2s',
+};
+
+const inputFocusHandler = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = GOLD;
+};
+const inputBlurHandler = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = BORDER;
 };
 
 // ─── Endpoint pending notice ───────────────────────────────────
@@ -1250,68 +1247,108 @@ ${htmlContent}
           ))}
         </div>
 
+        {/* Browser chrome frame */}
         <div
-          className="store-preview-iframe"
           style={{
-            border: viewMode === 'mobile' ? `3px solid ${BORDER}` : `1px solid ${BORDER}`,
-            borderRadius: viewMode === 'mobile' ? 24 : 8,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 8,
             overflow: 'hidden',
             width: viewMode === 'mobile' ? 375 : '100%',
-            height: viewMode === 'mobile' ? 667 : 500,
             margin: viewMode === 'mobile' ? '0 auto' : undefined,
             boxShadow: viewMode === 'mobile' ? '0 8px 32px rgba(0,0,0,0.4)' : undefined,
+            transition: 'box-shadow 0.3s',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 32px rgba(212,175,55,0.08)`; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = viewMode === 'mobile' ? '0 8px 32px rgba(0,0,0,0.4)' : 'none'; }}
         >
-          <iframe
-            srcDoc={iframeSrcDoc}
-            title="Store preview"
-            sandbox="allow-scripts"
+          {/* Chrome bar */}
+          <div
+            className="flex items-center gap-3 px-4 py-2.5"
+            style={{ background: '#111111', borderBottom: `1px solid ${BORDER}` }}
+          >
+            <div className="flex items-center gap-1.5">
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57' }} />
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#febc2e' }} />
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840' }} />
+            </div>
+            <div
+              className="flex-1 rounded px-3 py-1 text-center"
+              style={{
+                background: '#0a0a0a',
+                border: `1px solid ${BORDER}`,
+                fontSize: 11,
+                color: TEXT_DIM,
+                fontFamily: MONO,
+              }}
+            >
+              yourstore.majorka.io
+            </div>
+          </div>
+          <div
+            className="store-preview-iframe"
             style={{
+              overflow: 'hidden',
               width: '100%',
-              height: '100%',
-              border: 'none',
-              background: '#080808',
+              height: viewMode === 'mobile' ? 667 : 500,
             }}
-          />
+          >
+            <iframe
+              srcDoc={iframeSrcDoc}
+              title="Store preview"
+              sandbox="allow-scripts"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                background: '#080808',
+              }}
+            />
+          </div>
         </div>
 
+        {/* Action buttons with clear hierarchy */}
         <div className="flex flex-wrap gap-3 mt-5">
+          {/* Primary: Publish */}
+          <button
+            onClick={handlePublish}
+            disabled={publishing}
+            className="rounded-md px-6 py-2.5 text-sm font-semibold transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: publishing ? 'rgba(212,175,55,0.3)' : GOLD,
+              color: '#080808',
+              border: 'none',
+              fontFamily: DM_SANS,
+              cursor: publishing ? 'not-allowed' : 'pointer',
+              opacity: publishing ? 0.7 : 1,
+              boxShadow: publishing ? 'none' : '0 0 24px rgba(212,175,55,0.35)',
+            }}
+          >
+            <Upload size={16} />
+            {publishing ? 'Publishing...' : 'Publish to Majorka'}
+          </button>
+          {/* Secondary: Download */}
           <button
             onClick={handleDownload}
             className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
             style={{
-              background: CTA_BLUE,
-              color: '#fff',
+              background: 'transparent',
+              color: CTA_BLUE,
+              border: `1px solid ${CTA_BLUE}`,
               fontFamily: DM_SANS,
-              boxShadow: '0 0 20px rgba(59,130,246,0.45)',
-              border: 'none',
               cursor: 'pointer',
             }}
           >
             <Download size={16} />
-            Download complete store
+            Download HTML
           </button>
-          <button
-            onClick={handleDownloadShopify}
-            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
-            style={{
-              background: 'transparent',
-              color: TEXT,
-              border: `1px solid ${BORDER}`,
-              fontFamily: DM_SANS,
-              cursor: 'pointer',
-            }}
-          >
-            <FileArchive size={16} />
-            Download for Shopify
-          </button>
+          {/* Tertiary: Copy */}
           <button
             onClick={handleCopyText}
-            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            className="rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
             style={{
               background: 'transparent',
-              color: TEXT,
-              border: `1px solid ${BORDER}`,
+              color: TEXT_DIM,
+              border: 'none',
               fontFamily: DM_SANS,
               cursor: 'pointer',
             }}
@@ -1319,36 +1356,34 @@ ${htmlContent}
             <Copy size={16} />
             Copy all text
           </button>
+          {/* Extra: Shopify download + preview */}
           <button
-            onClick={handlePreviewTab}
-            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            onClick={handleDownloadShopify}
+            className="rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
             style={{
               background: 'transparent',
-              color: TEXT,
-              border: `1px solid ${BORDER}`,
+              color: TEXT_DIM,
+              border: 'none',
+              fontFamily: DM_SANS,
+              cursor: 'pointer',
+            }}
+          >
+            <FileArchive size={16} />
+            Shopify Liquid
+          </button>
+          <button
+            onClick={handlePreviewTab}
+            className="rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: 'transparent',
+              color: TEXT_DIM,
+              border: 'none',
               fontFamily: DM_SANS,
               cursor: 'pointer',
             }}
           >
             <ExternalLink size={16} />
             Preview in tab
-          </button>
-          <button
-            onClick={handlePublish}
-            disabled={publishing}
-            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
-            style={{
-              background: GOLD,
-              color: '#080808',
-              border: 'none',
-              fontFamily: DM_SANS,
-              fontWeight: 600,
-              cursor: publishing ? 'not-allowed' : 'pointer',
-              opacity: publishing ? 0.7 : 1,
-            }}
-          >
-            <Rocket size={16} />
-            {publishing ? 'Publishing...' : 'Publish to Majorka'}
           </button>
         </div>
 
@@ -1474,9 +1509,25 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     toast.error(res.error ?? 'Save failed');
   }, [preview, onSaved]);
 
+  const [themesExpanded, setThemesExpanded] = useState(true);
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
-      <GoldCard>
+    <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }} className="flex-col lg:flex-row">
+      {/* Form panel — fixed 400px on desktop, full width on mobile */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 400,
+          flexShrink: 0,
+          background: SURFACE,
+          borderRadius: 8,
+          border: `1px solid ${BORDER}`,
+          padding: 20,
+          overflowY: 'auto',
+          maxHeight: 'calc(100vh - 120px)',
+        }}
+        className="lg:sticky lg:top-[80px] w-full lg:w-[400px]"
+      >
         <div
           className="text-lg mb-5"
           style={{ fontFamily: SYNE, color: TEXT }}
@@ -1485,7 +1536,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         </div>
         {prefilledProduct && (
           <div style={{ marginBottom: 16, padding: '12px 14px', background: 'rgba(212,175,55,0.06)', border: `1px solid rgba(212,175,55,0.25)`, borderRadius: 8 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: GOLD, letterSpacing: '0.08em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: GOLD, letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: 6, fontFamily: MONO }}>
               Product imported from database
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1495,7 +1546,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
               <div>
                 <div style={{ fontSize: 13, color: TEXT, fontWeight: 600 }}>{prefilledProduct.title?.slice(0, 50)}</div>
                 <div style={{ fontSize: 11, color: TEXT_DIM, fontFamily: MONO }}>
-                  {prefilledProduct.price ? `A$${prefilledProduct.price}` : ''} · Score {prefilledProduct.score ?? '—'}
+                  {prefilledProduct.price ? `A$${prefilledProduct.price}` : ''} · Score {prefilledProduct.score ?? '---'}
                 </div>
               </div>
             </div>
@@ -1506,15 +1557,19 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
           <input
             value={niche}
             onChange={(e) => setNiche(e.target.value)}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
             placeholder="e.g. minimalist kitchen tools"
             style={inputStyle}
           />
         </div>
         <div className="mb-4">
-          <FieldLabel>Store Name <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>(optional — AI generates if blank)</span></FieldLabel>
+          <FieldLabel>Store Name <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>(optional)</span></FieldLabel>
           <input
             value={customStoreName}
             onChange={(e) => setCustomStoreName(e.target.value)}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
             placeholder="e.g. KitchenCraft AU"
             style={inputStyle}
           />
@@ -1525,7 +1580,9 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             <select
               value={market}
               onChange={(e) => setMarket(e.target.value as Market)}
-              style={inputStyle}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              style={{ ...inputStyle, appearance: 'none' as const, backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
             >
               <option value="AU">Australia</option>
               <option value="US">United States</option>
@@ -1537,7 +1594,9 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             <select
               value={vibe}
               onChange={(e) => setVibe(e.target.value as Vibe)}
-              style={inputStyle}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              style={{ ...inputStyle, appearance: 'none' as const, backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
             >
               <option value="minimal">Minimal</option>
               <option value="bold">Bold</option>
@@ -1552,7 +1611,9 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             <select
               value={targetCustomer}
               onChange={(e) => setTargetCustomer(e.target.value)}
-              style={inputStyle}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              style={{ ...inputStyle, appearance: 'none' as const, backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
             >
               <option value="">General</option>
               <option value="Budget shoppers">Budget shoppers</option>
@@ -1567,7 +1628,9 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
-              style={inputStyle}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              style={{ ...inputStyle, appearance: 'none' as const, backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
             >
               <option value="Under $20">Under $20</option>
               <option value="$20-$50">$20-$50</option>
@@ -1577,10 +1640,12 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
           </div>
         </div>
         <div className="mb-4">
-          <FieldLabel>Unique Selling Point <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>(what makes your store different?)</span></FieldLabel>
+          <FieldLabel>Unique Selling Point <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>(optional)</span></FieldLabel>
           <textarea
             value={usp}
             onChange={(e) => setUsp(e.target.value)}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
             placeholder="e.g. Every product is tested by real Australian families before we list it"
             rows={2}
             style={{ ...inputStyle, resize: 'vertical' as const }}
@@ -1606,94 +1671,97 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             Include reviews
           </label>
         </div>
+        {/* Collapsible theme section */}
         <div className="mb-6">
-          <FieldLabel>Store Theme ({THEME_CONFIGS.length} templates)</FieldLabel>
-          {/* Category filter tabs */}
-          <div className="flex gap-1 mb-3 flex-wrap">
-            {(['all', 'minimal', 'bold', 'luxury', 'playful', 'conversion'] as const).map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setThemeFilter(cat)}
-                className="rounded px-2.5 py-1 text-xs font-medium transition-all"
-                style={{
-                  background: themeFilter === cat ? 'rgba(212,175,55,0.12)' : 'transparent',
-                  border: `1px solid ${themeFilter === cat ? GOLD : BORDER}`,
-                  color: themeFilter === cat ? GOLD : TEXT_DIM,
-                  cursor: 'pointer',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {cat === 'all' ? 'All' : cat}
-              </button>
-            ))}
-          </div>
-          {/* Theme grid — 2 columns */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-            {THEME_CONFIGS
-              .filter((t) => themeFilter === 'all' || t.category === themeFilter)
-              .map((t) => {
-                const active = selectedTheme === t.id;
-                return (
+          <button
+            type="button"
+            onClick={() => setThemesExpanded(!themesExpanded)}
+            className="flex items-center justify-between w-full mb-3"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <FieldLabel>Choose Theme ({THEME_CONFIGS.length} templates)</FieldLabel>
+            {themesExpanded ? <ChevronUp size={14} style={{ color: TEXT_DIM }} /> : <ChevronDown size={14} style={{ color: TEXT_DIM }} />}
+          </button>
+          {themesExpanded && (
+            <>
+              {/* Category filter tabs */}
+              <div className="flex gap-1 mb-3 flex-wrap">
+                {(['all', 'minimal', 'bold', 'luxury', 'playful', 'conversion'] as const).map((cat) => (
                   <button
-                    key={t.id}
+                    key={cat}
                     type="button"
-                    onClick={() => setSelectedTheme(t.id)}
-                    className="text-left rounded-md p-2.5 transition-all duration-200"
+                    onClick={() => setThemeFilter(cat)}
+                    className="rounded px-2.5 py-1 text-xs font-medium transition-all"
                     style={{
-                      background: active ? 'rgba(212,175,55,0.06)' : SURFACE,
-                      border: `1.5px solid ${active ? GOLD : BORDER}`,
+                      background: themeFilter === cat ? 'rgba(212,175,55,0.12)' : 'transparent',
+                      border: `1px solid ${themeFilter === cat ? GOLD : BORDER}`,
+                      color: themeFilter === cat ? GOLD : TEXT_DIM,
                       cursor: 'pointer',
+                      textTransform: 'capitalize',
                     }}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-0.5 flex-shrink-0">
-                        {[t.preview.bg, t.preview.accent, t.preview.text].map((c, ci) => (
-                          <div
-                            key={ci}
-                            style={{
-                              width: 12,
-                              height: 12,
-                              borderRadius: 2,
-                              background: c,
-                              border: '1px solid rgba(255,255,255,0.1)',
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <div style={{ minWidth: 0 }}>
+                    {cat === 'all' ? 'All' : cat}
+                  </button>
+                ))}
+              </div>
+              {/* Theme grid — 4 columns on desktop (inside 400px panel = compact), 2 on mobile */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                {THEME_CONFIGS
+                  .filter((t) => themeFilter === 'all' || t.category === themeFilter)
+                  .map((t) => {
+                    const active = selectedTheme === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSelectedTheme(t.id)}
+                        className="text-left rounded-md p-2.5 transition-all duration-200"
+                        style={{
+                          background: active ? 'rgba(212,175,55,0.06)' : INPUT_BG,
+                          border: `1.5px solid ${active ? GOLD : BORDER}`,
+                          cursor: 'pointer',
+                          transform: active ? 'scale(1.02)' : 'scale(1)',
+                        }}
+                      >
+                        {/* 3-color swatch strip */}
+                        <div className="flex gap-0 mb-1.5" style={{ borderRadius: 3, overflow: 'hidden', height: 6 }}>
+                          {[t.preview.bg, t.preview.accent, t.preview.text].map((c, ci) => (
+                            <div key={ci} style={{ flex: 1, background: c }} />
+                          ))}
+                        </div>
                         <div
                           className="text-xs font-semibold truncate"
-                          style={{ color: active ? GOLD : TEXT, fontFamily: SYNE }}
+                          style={{ color: active ? GOLD : TEXT, fontFamily: SYNE, fontSize: 11 }}
                         >
                           {t.name}
                         </div>
                         <div
-                          className="text-xs truncate"
-                          style={{ color: TEXT_DIM, fontSize: 10 }}
+                          className="truncate"
+                          style={{ color: TEXT_DIM, fontSize: 9 }}
                         >
                           {t.bestFor}
                         </div>
-                      </div>
-                    </div>
-                    <div
-                      className="mt-1 rounded px-1.5 py-0.5 inline-block"
-                      style={{
-                        fontSize: 9,
-                        fontWeight: 600,
-                        color: TEXT_DIM,
-                        background: 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${BORDER}`,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                      }}
-                    >
-                      {t.category}
-                    </div>
-                  </button>
-                );
-              })}
-          </div>
+                        <div
+                          className="mt-1 rounded px-1.5 py-0.5 inline-block"
+                          style={{
+                            fontSize: 8,
+                            fontWeight: 600,
+                            color: TEXT_DIM,
+                            background: 'rgba(255,255,255,0.04)',
+                            border: `1px solid ${BORDER}`,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.06em',
+                            fontFamily: MONO,
+                          }}
+                        >
+                          {t.category}
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
+            </>
+          )}
         </div>
         <PrimaryButton onClick={handleGenerate} disabled={loading} className="w-full">
           <span className="inline-flex items-center justify-center gap-2">
@@ -1706,9 +1774,11 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             <PendingNotice note={pending} />
           </div>
         )}
-      </GoldCard>
+      </div>
 
-      <GoldCard>
+      {/* Preview panel — fills remaining space */}
+      <div style={{ flex: 1, minWidth: 0, background: BG, borderRadius: 8 }}>
+        <GoldCard>
         <div
           className="text-lg mb-5"
           style={{ fontFamily: SYNE, color: TEXT }}
@@ -1790,12 +1860,15 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
             {/* ── MAKE IT REAL ── */}
             <div
               className="rounded-lg mt-5 p-5"
-              style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}
+              style={{ background: CARD, border: `1px solid ${BORDER}` }}
             >
-              <div className="text-base font-bold mb-3" style={{ fontFamily: SYNE, color: TEXT }}>
-                Turn this into a real store
+              <div className="flex items-center gap-2 mb-4">
+                <div style={{ width: 4, height: 20, background: GOLD, borderRadius: 2 }} />
+                <div className="text-base font-bold" style={{ fontFamily: SYNE, color: TEXT }}>
+                  Turn this into a real store
+                </div>
               </div>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 {[
                   'Create a Shopify store at shopify.com (14-day free trial)',
                   'Come back here and connect it via the Shopify Sync tab',
@@ -1803,12 +1876,12 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div
-                      className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold"
+                      className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold"
                       style={{
-                        background: 'rgba(212,175,55,0.15)',
-                        border: '1px solid rgba(212,175,55,0.3)',
-                        color: GOLD,
+                        background: `linear-gradient(135deg, ${GOLD}, #b8972e)`,
+                        color: '#080808',
                         fontFamily: MONO,
+                        fontSize: 12,
                       }}
                     >{i + 1}</div>
                     <span className="text-sm leading-relaxed" style={{ color: TEXT_DIM, fontFamily: DM_SANS }}>
@@ -1817,14 +1890,18 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
                   </div>
                 ))}
               </div>
-              <div className="mt-4">
+              <div className="mt-5 flex items-center gap-3">
                 <a
                   href="https://www.shopify.com/free-trial"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold text-white"
-                  style={{ background: '#3B82F6', textDecoration: 'none', fontFamily: DM_SANS }}
-                >Create Shopify store &rarr;</a>
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-semibold text-white"
+                  style={{ background: CTA_BLUE, textDecoration: 'none', fontFamily: DM_SANS, boxShadow: '0 0 16px rgba(59,130,246,0.3)' }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 22h10a2 2 0 002-2V6l-3-4H7a2 2 0 00-2 2v16a2 2 0 002 2z"/></svg>
+                  Create Shopify store
+                  <span style={{ fontSize: 16 }}>&rarr;</span>
+                </a>
               </div>
               <div className="text-xs mt-3" style={{ color: TEXT_MUTED, fontFamily: DM_SANS }}>
                 Already have a store? Switch to the Shopify Sync tab above.
@@ -1835,6 +1912,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
       </GoldCard>
 
       {preview && <StorePreviewSection store={preview} niche={niche} theme={selectedTheme} />}
+      </div>
     </div>
   );
 }
@@ -1932,6 +2010,8 @@ function ShopifySyncMode() {
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
             placeholder="my-store.myshopify.com"
             style={inputStyle}
           />
@@ -1942,6 +2022,8 @@ function ShopifySyncMode() {
             type="password"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
+            onFocus={inputFocusHandler}
+            onBlur={inputBlurHandler}
             placeholder="shpat_..."
             style={inputStyle}
           />
@@ -2265,13 +2347,23 @@ export default function StoreBuilderPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <div
-              className="text-3xl sm:text-4xl mb-2"
-              style={{ fontFamily: SYNE, color: TEXT, letterSpacing: '-0.01em' }}
+              className="text-3xl sm:text-4xl mb-1"
+              style={{ fontFamily: SYNE, color: TEXT, letterSpacing: '-0.02em', fontWeight: 700 }}
             >
               Store Builder
             </div>
-            <div className="text-sm" style={{ color: TEXT_DIM }}>
-              Three paths to a live AUD storefront.
+            <div style={{
+              width: 48,
+              height: 2,
+              background: `linear-gradient(90deg, ${GOLD}, rgba(212,175,55,0.2))`,
+              borderRadius: 1,
+              marginBottom: 10,
+            }} />
+            <div className="text-sm mb-2" style={{ color: TEXT_DIM, fontFamily: DM_SANS }}>
+              Generate, preview, and publish professional stores in seconds
+            </div>
+            <div style={{ fontSize: 11, color: TEXT_MUTED, fontFamily: MONO, letterSpacing: '0.04em' }}>
+              {THEME_CONFIGS.length} themes available &middot; AI-powered
             </div>
           </div>
 
