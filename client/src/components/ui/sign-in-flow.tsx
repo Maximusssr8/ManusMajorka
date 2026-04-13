@@ -192,14 +192,19 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
         setLoading(false);
         return;
       }
-      const { error: err } = await supabase.auth.signUp({
+      const { data: signUpData, error: err } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/onboarding` },
       });
       if (err) {
         setError(err.message);
+      } else if (signUpData.session) {
+        // Email confirmation is disabled — user is signed in immediately.
+        // Redirect to app instead of showing "check your email" dead-end.
+        window.location.href = '/app';
       } else {
+        // Email confirmation is enabled — show "check your email" screen.
         setStep('magic-link-sent');
       }
     } else {
