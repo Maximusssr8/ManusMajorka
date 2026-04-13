@@ -56,9 +56,9 @@ const KEYWORDS: { q: string; niche: string; sort: string }[] = [
   { q: 'rechargeable headlamp led', niche: 'outdoor', sort: 'default' },
 ];
 
-// Each search returns up to ~50 items. We rotate the keyword window so a
-// given cron run hits ~15 keywords — 15 * ~35 = ~500 candidate items.
-const KEYWORDS_PER_RUN = 15;
+// Each search returns up to ~50 items. Use ALL keywords every run to
+// maximise coverage: 25 × ~50 = ~1,250 candidate items per 6h window.
+const KEYWORDS_PER_RUN = 25;
 
 function hashWindow(): number[] {
   // Rotate by 4 keywords every 6 hours, so the full list is covered every
@@ -123,7 +123,7 @@ export interface IngestResult extends PipelineResult {
  * RapidAPI rate ceiling on the AliExpress DataHub plan.
  */
 export async function runDataHubIngest(
-  targetItems = 500,
+  targetItems = 1000,
 ): Promise<IngestResult> {
   const windowIdx = hashWindow();
   const keywords = windowIdx.map((i) => KEYWORDS[i]);

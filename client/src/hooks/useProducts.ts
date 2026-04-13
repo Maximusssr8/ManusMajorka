@@ -62,7 +62,7 @@ export type OrderByColumn =
   | 'orders_asc'
   | 'velocity';
 
-export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10';
+export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10' | 'tiktok' | 'saved';
 
 export interface UseProductsOptions {
   limit?: number;
@@ -139,26 +139,25 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         let query = baseSelect();
 
         // ── Tab filters (server-side) ────────────────────────────────────
-        // Each curated tab has its own hardcoded criteria. Products.tsx
-        // strips user filter state when not on the All Products tab so
-        // these queries are stable and never bleed into one another.
+        // Each curated tab has its own hardcoded criteria AND its own
+        // sort order. Products.tsx strips user filter state when not on
+        // the All Products tab so these queries are stable.
         if (tab === 'new') {
-          // New: added in the last 14 days (per spec). 7d was too tight
-          // for the current refresh cadence.
-          const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+          // New: added in the last 30 days, sorted newest-first
+          const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
           query = query.gte('created_at', cutoff);
           query = query.order('created_at', { ascending: false, nullsFirst: false });
         } else if (tab === 'trending') {
-          // Trending: added in the last 30 days AND already gaining
-          // traction (score >= 75). Recently-added winners.
+          // Trending: added in the last 30 days with score >= 60,
+          // sorted by sold_count desc (client re-sorts by velocity).
           const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-          query = query.gte('created_at', cutoff).gte('winning_score', 75);
+          query = query.gte('created_at', cutoff).gte('winning_score', 60);
           query = query.order('sold_count', { ascending: false, nullsFirst: false });
         } else if (tab === 'highmargin') {
-          // High Profit: $1-$12 cost, score >= 80, >= 5k orders.
-          // Sorted by winning_score (proxy for margin × score quality).
-          query = query.gte('price_aud', 1).lte('price_aud', 12).gte('winning_score', 80).gte('sold_count', 5000);
-          query = query.order('winning_score', { ascending: false, nullsFirst: false });
+          // High Profit: low landed cost ($1-$15), good score (>= 50),
+          // sorted by price_aud ascending (cheapest landed = best margin).
+          query = query.gte('price_aud', 1).lte('price_aud', 15).gte('winning_score', 50);
+          query = query.order('price_aud', { ascending: true, nullsFirst: false });
         } else if (tab === 'top') {
           // Score 90+: only the AI-top-rated products
           query = query.gte('winning_score', 90);
@@ -166,19 +165,26 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
             .order('winning_score', { ascending: false, nullsFirst: false })
             .order('sold_count', { ascending: false, nullsFirst: false });
         } else if (tab === 'hot-now') {
-          // Hot Now: highest AI scores AND proven volume. No date gate —
-          // a 6-month-old product still selling 200k/month is "hot now".
-          query = query.gte('winning_score', 90).gte('sold_count', 80000);
-          query = query.order('sold_count', { ascending: false, nullsFirst: false });
+          // Hot Now: score >= 65 with real traction (>= 10k orders).
+          // Sorted by winning_score desc so the "hottest" appear first.
+          query = query.gte('winning_score', 65).gte('sold_count', 10000);
+          query = query.order('winning_score', { ascending: false, nullsFirst: false });
         } else if (tab === 'high-volume') {
-          // High Volume: the highest-order products in the entire DB
-          query = query.gte('sold_count', 150000);
+          // High Volume: the highest-order products, sorted by sold_count
+          query = query.gte('sold_count', 50000);
           query = query.order('sold_count', { ascending: false, nullsFirst: false });
         } else if (tab === 'under-10') {
-          // Under $10: budget mass-market with proven demand
-          query = query.lt('price_aud', 10).gte('winning_score', 70).gte('sold_count', 5000);
+          // Under $10: budget mass-market products
+          query = query.lt('price_aud', 10).gt('price_aud', 0);
+          query = query
+            .order('winning_score', { ascending: false, nullsFirst: false })
+            .order('sold_count', { ascending: false, nullsFirst: false });
+        } else if (tab === 'tiktok') {
+          // TikTok Shop: platform contains 'tiktok'
+          query = query.ilike('platform', '%tiktok%');
           query = query.order('sold_count', { ascending: false, nullsFirst: false });
         } else {
+          // 'all' tab (and 'saved' which is handled client-side)
           query = applyOrder(query, orderBy);
         }
 
@@ -215,11 +221,13 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           return q;
         }
 
-        // Fallback for Trending: if 50k + score≥80 yields <10, relax score gate first
-        if (!err && tab === 'trending' && (data ?? []).length < 10) {
-          let fb = baseSelect().gt('sold_count', 50000);
+        // Fallback for Trending: if primary yields <5, relax to
+        // last 60 days with any score, still sorted by sold_count
+        if (!err && tab === 'trending' && (data ?? []).length < 5) {
+          const cutoff60 = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+          let fb = baseSelect().gte('created_at', cutoff60);
           fb = applyStackable(fb);
-          fb = applyOrder(fb, 'sold_count').limit(limit);
+          fb = fb.order('sold_count', { ascending: false, nullsFirst: false }).limit(limit);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }
         }
@@ -233,18 +241,17 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           if (!r.error) { data = r.data; count = r.count; }
         }
 
-        // Fallback for Hot Now: if strict 90+/100k+/30d yields too few,
-        // relax to score >= 85 + sold_count > 50k (no date gate)
+        // Fallback for Hot Now: relax to score >= 50 + sold_count > 5k
         if (!err && tab === 'hot-now' && (data ?? []).length < 5) {
-          let fb = baseSelect().gte('winning_score', 85).gt('sold_count', 50000);
-          fb = applyStackable(fb).order('sold_count', { ascending: false, nullsFirst: false }).limit(limit);
+          let fb = baseSelect().gte('winning_score', 50).gt('sold_count', 5000);
+          fb = applyStackable(fb).order('winning_score', { ascending: false, nullsFirst: false }).limit(limit);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }
         }
 
-        // Fallback for High Volume: if <5 results with 100k threshold, drop to 20k
+        // Fallback for High Volume: drop threshold to 10k
         if (!err && tab === 'high-volume' && (data ?? []).length < 5) {
-          let fb = baseSelect().gt('sold_count', 20000);
+          let fb = baseSelect().gt('sold_count', 10000);
           fb = applyStackable(fb).order('sold_count', { ascending: false, nullsFirst: false }).limit(limit);
           const r = await fb;
           if (!r.error) { data = r.data; count = r.count; }

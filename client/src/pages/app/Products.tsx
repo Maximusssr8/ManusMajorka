@@ -1733,7 +1733,7 @@ export default function AppProducts() {
   // Saved tab is special — it's purely localStorage-driven and skips
   // the server query entirely, so we route it as 'all' here and the
   // filtered useMemo below substitutes the saved-products list.
-  const isFilterableTab = activeTab === 'all' || activeTab === 'saved' || activeTab === 'tiktok';
+  const isFilterableTab = activeTab === 'all' || activeTab === 'saved';
 
   const useProductsParams = isFilterableTab
     ? {
@@ -1751,22 +1751,22 @@ export default function AppProducts() {
           : undefined,
       }
     : {
-        // Curated tab — only the tab key + a fetch limit. The hook's
-        // built-in tab branch applies the criteria server-side. NO
-        // category, NO price range, NO orders gate, NO user search —
-        // those are deliberately stripped so curated tabs are stable.
+        // Curated tab — the tab key drives server-side filters + sort.
+        // No user-controlled orderBy so each tab's built-in criteria
+        // determines the result order. Limit is the only shared param.
         limit: Math.min(fetchLimit, 200),
-        orderBy: serverOrderBy,
-        tab: activeTab as Exclude<SmartTabKey, 'saved'>,
+        tab: activeTab as SmartTabKey,
       };
 
   const { products: allFetchedRaw, loading, total } = useProducts(activeTab === 'saved' ? undefined : useProductsParams as any);
 
-  // Client-side velocity re-sort when 'velocity' is selected
+  // Client-side velocity re-sort: explicit 'velocity' sort OR trending tab
   const allFetched = useMemo<Product[]>(() => {
-    if (orderBy !== 'velocity') return allFetchedRaw;
-    return [...allFetchedRaw].sort((a, b) => dailyVelocity(b) - dailyVelocity(a));
-  }, [allFetchedRaw, orderBy]);
+    if (orderBy === 'velocity' || activeTab === 'trending') {
+      return [...allFetchedRaw].sort((a, b) => dailyVelocity(b) - dailyVelocity(a));
+    }
+    return allFetchedRaw;
+  }, [allFetchedRaw, orderBy, activeTab]);
 
   // Auto-open the product detail panel when navigated here with
   // ?product=ID in the URL (e.g. from Today's Top 5 cards on Home).
@@ -1807,9 +1807,6 @@ export default function AppProducts() {
         created_at: f.saved_at,
         updated_at: null,
       } satisfies Product));
-    }
-    if (activeTab === 'tiktok') {
-      return allFetched.filter((p) => (p.platform ?? '').toLowerCase().includes('tiktok'));
     }
     if (scoreMax < 100) {
       return allFetched.filter((p) => (p.winning_score ?? 0) <= scoreMax);

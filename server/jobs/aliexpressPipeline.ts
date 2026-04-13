@@ -55,16 +55,11 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
- * Rotate categories by splitting into two halves.
- * Uses hours (0-11 vs 12-23) so the two daily cron runs each get a different half.
+ * Return ALL 20 categories every run. With 4 runs/day (every 6h),
+ * each category is hit 4 times for maximum coverage.
  */
 function getCategoriesForThisRun(): ReadonlyArray<{ name: string; keywords: string }> {
-  const hour = new Date().getUTCHours();
-  const isFirstHalf = hour < 12;
-  const half = Math.ceil(CATEGORY_KEYWORDS.length / 2);
-  return isFirstHalf
-    ? CATEGORY_KEYWORDS.slice(0, half)
-    : CATEGORY_KEYWORDS.slice(half);
+  return CATEGORY_KEYWORDS;
 }
 
 /**
@@ -161,7 +156,7 @@ export async function runBulkAliExpressPipeline(): Promise<PipelineRunResult> {
       batch.map(async (cat) => {
         try {
           const items = await searchAliExpressProducts(cat.keywords, {
-            limit: 50,
+            limit: 100,
             sort: 'orders',
             shipTo: 'AU',
           });

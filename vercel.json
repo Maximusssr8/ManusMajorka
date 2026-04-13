@@ -91,7 +91,7 @@
     },
     {
       "path": "/api/cron/ingest-aliexpress-datahub",
-      "schedule": "15 */6 * * *"
+      "schedule": "0 */6 * * *"
     },
     {
       "path": "/api/cron/collect-cj",
@@ -163,11 +163,7 @@
     },
     {
       "path": "/api/cron/pipeline",
-      "schedule": "0 20 * * *"
-    },
-    {
-      "path": "/api/cron/pipeline",
-      "schedule": "0 8 * * *"
+      "schedule": "30 */6 * * *"
     }
   ]
 }

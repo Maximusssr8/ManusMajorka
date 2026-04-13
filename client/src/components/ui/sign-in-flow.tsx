@@ -34,6 +34,7 @@ interface SignInPageProps {
 export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [step, setStep] = useState<'form' | 'magic-link-sent' | 'success'>('form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -174,8 +175,18 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
     setLoading(true);
     setError(null);
 
-    if (mode === 'signup' && password) {
+    if (mode === 'signup') {
       // Sign up with email + password
+      if (!password) {
+        setError('Please enter a password.');
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        setLoading(false);
+        return;
+      }
       if (!agreedToTerms) {
         setError('Please agree to the Terms and Privacy Policy.');
         setLoading(false);
@@ -192,15 +203,18 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
         setStep('magic-link-sent');
       }
     } else {
-      // Magic link sign in
-      const { error: err } = await supabase.auth.signInWithOtp({
+      // Sign in with password
+      if (!password) {
+        setError('Please enter your password.');
+        setLoading(false);
+        return;
+      }
+      const { error: err } = await supabase.auth.signInWithPassword({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/login` },
+        password,
       });
       if (err) {
         setError(err.message);
-      } else {
-        setStep('magic-link-sent');
       }
     }
     setLoading(false);
@@ -210,21 +224,24 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
 
   return (
-    <div className={cn('flex w-full min-h-screen', className)} style={{ background: '#05070F' }}>
+    <div className={cn('flex w-full min-h-screen', className)} style={{ background: '#080808' }}>
       {/* ── Left panel: Brand + Social Proof (desktop only) ──────────── */}
-      <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%)' }}>
-        {/* Background glow */}
+      <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden" style={{ background: '#080808' }}>
+        {/* Dot grid pattern */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #333 0.5px, transparent 0.5px)',
+            backgroundSize: '24px 24px',
+            opacity: 0.4,
+          }}
+        />
+        {/* Subtle gold glow */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.25) 0%, transparent 70%)',
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, transparent 60%)',
+              'radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.08) 0%, transparent 70%)',
           }}
         />
 
@@ -233,18 +250,18 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           <div className="flex items-center gap-2.5 mb-16">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: '#3B82F6' }}
+              style={{ background: '#d4af37' }}
             >
               <span
-                className="text-white font-bold text-sm"
+                className="text-black font-bold text-sm"
                 style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
               >
                 M
               </span>
             </div>
             <span
-              className="text-slate-100 font-bold text-xl"
-              style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
+              className="font-bold text-xl"
+              style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: '#ededed' }}
             >
               Majorka
             </span>
@@ -253,13 +270,16 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           {/* Brand statement */}
           <h2
             className="text-3xl font-bold leading-tight mb-4"
-            style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: 'white', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'Syne', system-ui, sans-serif", color: 'white', letterSpacing: '-0.02em' }}
           >
-            Your AI ecommerce
+            Find winning products
             <br />
-            <span style={{ color: '#3B82F6' }}>operating system.</span>
+            before anyone else
           </h2>
-          <p className="text-base mb-8" style={{ color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
+          <p className="text-base mb-2" style={{ color: '#d4af37', fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 600 }}>
+            AI-powered intelligence
+          </p>
+          <p className="text-sm mb-8" style={{ color: '#888', lineHeight: 1.7, fontFamily: "'DM Sans', system-ui, sans-serif" }}>
             50+ AI tools built specifically for Australian sellers. Research, build, launch, and
             scale — all from one platform.
           </p>
@@ -270,9 +290,9 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               <div key={i} className="flex items-start gap-3">
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(255,255,255,0.15)' }}
+                  style={{ background: 'rgba(212,175,55,0.15)' }}
                 >
-                  <svg width="10" height="10" viewBox="0 0 20 20" fill="white">
+                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#d4af37">
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -280,7 +300,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     />
                   </svg>
                 </div>
-                <span className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                <span className="text-sm" style={{ color: '#888', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
                   {feat}
                 </span>
               </div>
@@ -294,22 +314,22 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
             {SOCIAL_PROOF.map(({ icon: Icon, stat, label }) => (
               <div
                 key={label}
-                className="rounded-xl p-3"
+                className="rounded-lg p-3"
                 style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: '#111111',
+                  border: '1px solid #1a1a1a',
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon size={13} style={{ color: '#3B82F6' }} />
+                  <Icon size={13} style={{ color: '#d4af37' }} />
                   <span
                     className="text-lg font-bold"
-                    style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: 'white' }}
+                    style={{ fontFamily: "'JetBrains Mono', monospace", color: '#d4af37' }}
                   >
                     {stat}
                   </span>
                 </div>
-                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                <span className="text-xs" style={{ color: '#888', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
                   {label}
                 </span>
               </div>
@@ -334,16 +354,16 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
         <div className="lg:hidden mb-8 flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: '#3B82F6' }}
+            style={{ background: '#d4af37' }}
           >
             <span
-              className="text-white font-bold text-sm"
+              className="text-black font-bold text-sm"
               style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
             >
               M
             </span>
           </div>
-          <span className="text-slate-100 font-bold text-xl" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+          <span className="font-bold text-xl" style={{ fontFamily: "'DM Sans', system-ui, sans-serif", color: '#ededed' }}>
             Majorka
           </span>
         </div>
@@ -379,7 +399,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-xl py-3.5 px-4 font-medium transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2.5 rounded-lg py-3.5 px-4 font-medium transition-all disabled:opacity-50"
                   style={{
                     background: 'rgba(255,255,255,0.03)',
                     border: '1px solid rgba(255,255,255,0.08)',
@@ -438,16 +458,71 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
+                      className="w-full rounded-lg py-3 px-4 text-sm outline-none transition-all"
                       style={{
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid #F0F0F0',
-                        color: '#CBD5E1',
+                        background: '#0d0d0d',
+                        border: '1px solid #1a1a1a',
+                        color: '#ededed',
                       }}
-                      onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
-                      onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
+                      onFocus={(e) => (e.target.style.borderColor = '#d4af37')}
+                      onBlur={(e) => (e.target.style.borderColor = '#1a1a1a')}
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-xs font-medium mb-1.5"
+                      style={{ color: '#94A3B8' }}
+                    >
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder={mode === 'signup' ? 'Create a strong password' : 'Enter your password'}
+                      value={password}
+                      onChange={(e) => handlePasswordChange(e.target.value)}
+                      className="w-full rounded-lg py-3 px-4 text-sm outline-none transition-all"
+                      style={{
+                        background: '#0d0d0d',
+                        border: '1px solid #1a1a1a',
+                        color: '#ededed',
+                      }}
+                      onFocus={(e) => (e.target.style.borderColor = '#d4af37')}
+                      onBlur={(e) => (e.target.style.borderColor = '#1a1a1a')}
+                      required
+                      minLength={8}
+                    />
+                    {/* Password strength indicator (signup only) */}
+                    {mode === 'signup' && password.length > 0 && (
+                      <div className="mt-2">
+                        <div className="flex gap-1 mb-1">
+                          {[0, 1, 2, 3].map((i) => (
+                            <div
+                              key={i}
+                              className="h-1 flex-1 rounded-full transition-all"
+                              style={{
+                                background:
+                                  i < passwordStrength
+                                    ? strengthColors[passwordStrength - 1]
+                                    : '#1a1a1a',
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <span
+                          className="text-xs"
+                          style={{
+                            color:
+                              strengthColors[passwordStrength - 1] || '#9CA3AF',
+                          }}
+                        >
+                          {passwordStrength > 0
+                            ? strengthLabels[passwordStrength - 1]
+                            : 'Too short'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {mode === 'signup' && (
@@ -456,54 +531,24 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         className="block text-xs font-medium mb-1.5"
                         style={{ color: '#94A3B8' }}
                       >
-                        Password
+                        Confirm Password
                       </label>
                       <input
                         type="password"
-                        placeholder="Create a strong password"
-                        value={password}
-                        onChange={(e) => handlePasswordChange(e.target.value)}
-                        className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
+                        placeholder="Confirm your password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full rounded-lg py-3 px-4 text-sm outline-none transition-all"
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid #F0F0F0',
-                          color: '#CBD5E1',
+                          background: '#0d0d0d',
+                          border: '1px solid #1a1a1a',
+                          color: '#ededed',
                         }}
-                        onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
-                        onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
+                        onFocus={(e) => (e.target.style.borderColor = '#d4af37')}
+                        onBlur={(e) => (e.target.style.borderColor = '#1a1a1a')}
                         required
                         minLength={8}
                       />
-                      {/* Password strength indicator */}
-                      {password.length > 0 && (
-                        <div className="mt-2">
-                          <div className="flex gap-1 mb-1">
-                            {[0, 1, 2, 3].map((i) => (
-                              <div
-                                key={i}
-                                className="h-1 flex-1 rounded-full transition-all"
-                                style={{
-                                  background:
-                                    i < passwordStrength
-                                      ? strengthColors[passwordStrength - 1]
-                                      : '#F5F5F5',
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <span
-                            className="text-xs"
-                            style={{
-                              color:
-                                strengthColors[passwordStrength - 1] || '#9CA3AF',
-                            }}
-                          >
-                            {passwordStrength > 0
-                              ? strengthLabels[passwordStrength - 1]
-                              : 'Too short'}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   )}
 
@@ -542,7 +587,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
 
                   {betaError && (
                     <div
-                      className="text-sm px-4 py-3 rounded-xl"
+                      className="text-sm px-4 py-3 rounded-lg"
                       style={{
                         background: 'rgba(244,63,94,0.08)',
                         border: '1px solid rgba(244,63,94,0.2)',
@@ -569,9 +614,9 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   <button
                     type="submit"
                     disabled={loading || (mode === 'signup' && !agreedToTerms)}
-                    className="w-full rounded-xl py-3.5 font-semibold text-sm transition-all disabled:opacity-50"
+                    className="w-full rounded-lg py-3.5 font-semibold text-sm transition-all disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                      background: '#3B82F6',
                       color: '#FAFAFA',
                       border: 'none',
                       cursor: loading ? 'wait' : 'pointer',
@@ -581,9 +626,42 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     {loading
                       ? 'Please wait...'
                       : mode === 'signup'
-                        ? 'Start Free — No Credit Card Needed'
-                        : 'Send Magic Link'}
+                        ? 'Create account'
+                        : 'Sign in'}
                   </button>
+
+                  {mode === 'signin' && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!email) {
+                          setError('Enter your email first, then click forgot password.');
+                          return;
+                        }
+                        setLoading(true);
+                        setError(null);
+                        const { error: err } = await supabase.auth.signInWithOtp({
+                          email,
+                          options: { emailRedirectTo: `${window.location.origin}/login` },
+                        });
+                        if (err) {
+                          setError(err.message);
+                        } else {
+                          setStep('magic-link-sent');
+                        }
+                        setLoading(false);
+                      }}
+                      className="w-full text-center text-xs py-1"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#888',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Forgot password? Send magic link
+                    </button>
+                  )}
                 </form>
 
                 {/* Toggle mode */}
@@ -594,6 +672,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       <button
                         onClick={() => {
                           setMode('signin');
+                          setPassword('');
+                          setConfirmPassword('');
                           setError(null);
                         }}
                         className="font-medium underline"
@@ -601,7 +681,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#3B82F6',
+                          color: '#d4af37',
                         }}
                       >
                         Sign in
@@ -609,10 +689,12 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     </>
                   ) : (
                     <>
-                      New to Majorka?{' '}
+                      Don&apos;t have an account?{' '}
                       <button
                         onClick={() => {
                           setMode('signup');
+                          setPassword('');
+                          setConfirmPassword('');
                           setError(null);
                         }}
                         className="font-medium underline"
@@ -620,10 +702,10 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#3B82F6',
+                          color: '#d4af37',
                         }}
                       >
-                        Create an account
+                        Sign up
                       </button>
                     </>
                   )}
@@ -656,8 +738,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
                     style={{
-                      background: 'rgba(99,102,241,0.12)',
-                      border: '1px solid rgba(99,102,241,0.25)',
+                      background: 'rgba(212,175,55,0.12)',
+                      border: '1px solid rgba(212,175,55,0.25)',
                     }}
                   >
                     <svg
@@ -686,7 +768,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     setStep('form');
                     setError(null);
                   }}
-                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#EFF6FF', color: '#3B82F6', border: '1px solid #BFDBFE', cursor: 'pointer' }}
+                  className="rounded-lg font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#111111', color: '#d4af37', border: '1px solid #1a1a1a', cursor: 'pointer' }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Back to sign in
@@ -720,7 +802,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 >
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: '#3B82F6' }}
+                    style={{ background: '#d4af37' }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -742,9 +824,9 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
                   onClick={onSuccess}
-                  className="w-full rounded-xl font-semibold py-3.5 text-sm text-white transition-colors"
+                  className="w-full rounded-lg font-semibold py-3.5 text-sm text-white transition-colors"
                   style={{
-                    background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                    background: '#3B82F6',
                     border: 'none',
                     cursor: 'pointer',
                     fontFamily: "'DM Sans', system-ui, sans-serif",
