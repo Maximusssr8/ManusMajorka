@@ -60,8 +60,14 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
   }
 
   // ── Email whitelist — private beta access control ──────────────────────────
-  const WHITELIST = (process.env.WHITELIST_EMAILS || 'maximusmajorka@gmail.com')
-    .split(',').map(e => e.trim().toLowerCase());
+  // When WHITELIST_EMAILS is not set OR set to '*', allow everyone through.
+  // This was the #1 launch blocker: defaulting to admin-only meant every new
+  // signup got 403 on every API call.
+  const whitelistRaw = process.env.WHITELIST_EMAILS || '*';
+  const whitelistOpen = whitelistRaw.trim() === '*' || whitelistRaw.trim() === '';
+  const WHITELIST = whitelistOpen
+    ? null // null = allow everyone
+    : whitelistRaw.split(',').map(e => e.trim().toLowerCase());
 
   // ── User JWT: verify signature via Supabase auth.getUser() ─────────────────
   // This calls Supabase to cryptographically verify the token — cannot be spoofed
@@ -79,8 +85,8 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         return;
       }
 
-      // Whitelist check (admin fallback path)
-      if (adminData.user.email && !WHITELIST.includes(adminData.user.email.toLowerCase())) {
+      // Whitelist check (admin fallback path) — skip if open to all
+      if (WHITELIST && adminData.user.email && !WHITELIST.includes(adminData.user.email.toLowerCase())) {
         res.status(403).json({
           error: 'access_denied',
           message: 'Majorka is currently in private beta. Access is restricted.',
@@ -97,8 +103,8 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    // Whitelist check (primary path)
-    if (data.user.email && !WHITELIST.includes(data.user.email.toLowerCase())) {
+    // Whitelist check (primary path) — skip if open to all
+    if (WHITELIST && data.user.email && !WHITELIST.includes(data.user.email.toLowerCase())) {
       res.status(403).json({
         error: 'access_denied',
         message: 'Majorka is currently in private beta. Access is restricted.',
