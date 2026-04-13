@@ -23,12 +23,12 @@ interface HookFramework {
 }
 
 const HOOK_FRAMEWORKS: HookFramework[] = [
-  { id: 'problem_solution', name: 'Problem \u2192 Solution', icon: '\u26A1', template: 'Tired of X? {Product} fixes it in Y.', description: 'Lead with the pain point, then present the product as the fix.' },
-  { id: 'before_after', name: 'Before \u2192 After', icon: '\u2728', template: 'My {area} before vs after using {Product}.', description: 'Visual transformation narrative that drives curiosity.' },
-  { id: 'social_proof', name: 'Social Proof', icon: '\uD83D\uDC65', template: '{X}k+ people already switched to {Product}.', description: 'Leverage crowd behaviour and FOMO to build trust.' },
-  { id: 'urgency_scarcity', name: 'Urgency / Scarcity', icon: '\u23F3', template: "Only {N} left at this price. Here's why everyone wants {Product}.", description: 'Create time pressure with limited stock or pricing.' },
-  { id: 'curiosity_hook', name: 'Curiosity Hook', icon: '\uD83E\uDD14', template: "I can't believe this {Product} actually works for ${price}.", description: 'Open a curiosity gap the viewer must close by watching.' },
-  { id: 'ugc_testimonial', name: 'UGC / Testimonial', icon: '\uD83C\uDFA4', template: 'I was skeptical, but after 2 weeks with {Product}...', description: 'First-person story format that feels authentic and relatable.' },
+  { id: 'problem_solution', name: 'Problem → Solution', icon: '⚡', template: 'Tired of X? {Product} fixes it in Y.', description: 'Lead with the pain point, then present the product as the fix.' },
+  { id: 'before_after', name: 'Before → After', icon: '✨', template: 'My {area} before vs after using {Product}.', description: 'Visual transformation narrative that drives curiosity.' },
+  { id: 'social_proof', name: 'Social Proof', icon: '👥', template: '{X}k+ people already switched to {Product}.', description: 'Leverage crowd behaviour and FOMO to build trust.' },
+  { id: 'urgency_scarcity', name: 'Urgency / Scarcity', icon: '⏳', template: "Only {N} left at this price. Here's why everyone wants {Product}.", description: 'Create time pressure with limited stock or pricing.' },
+  { id: 'curiosity_hook', name: 'Curiosity Hook', icon: '🤔', template: "I can't believe this {Product} actually works for ${price}.", description: 'Open a curiosity gap the viewer must close by watching.' },
+  { id: 'ugc_testimonial', name: 'UGC / Testimonial', icon: '🎤', template: 'I was skeptical, but after 2 weeks with {Product}...', description: 'First-person story format that feels authentic and relatable.' },
 ];
 
 // ── Ad Format Tabs ──

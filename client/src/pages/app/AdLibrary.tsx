@@ -44,7 +44,7 @@ const NICHE_COLORS: Record<Niche, { bg: string; text: string }> = {
   Beauty:  { bg: 'rgba(236,72,153,0.12)', text: '#ec4899' },
   Pet:     { bg: 'rgba(245,158,11,0.12)', text: '#f59e0b' },
   Tech:    { bg: 'rgba(59,130,246,0.12)', text: '#3B82F6' },
-  Fitness: { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6' },
+  Fitness: { bg: 'rgba(212,175,55,0.12)', text: '#d4af37' },
 };
 
 const WINNING_ADS: WinningAd[] = [
