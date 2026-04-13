@@ -110,7 +110,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Stripe webhook must receive raw body — register BEFORE express.json() ─────
+// ── Stripe webhook — GET returns status, POST handles events ──────────────────
+app.get("/api/stripe/webhook", (_req, res) => {
+  res.json({ status: "ok", message: "Stripe webhook endpoint active. Send POST requests only." });
+});
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const signature = req.headers["stripe-signature"];
   if (!signature || typeof signature !== "string") {
