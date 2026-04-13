@@ -71,8 +71,8 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? '#EEF2FF' : '#F9FAFB',
-        border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
+        background: copied ? 'rgba(59,130,246,0.12)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(59,130,246,0.3)' : '#E5E7EB'}`,
         color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
@@ -84,7 +84,7 @@ function CopyBtn({ text }: { text: string }) {
 
 const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
   Exploding: { color: '#e05c7a', icon: <TrendingUp size={11} />, bg: 'rgba(224,92,122,0.1)' },
-  Rising: { color: '#3B82F6', icon: <TrendingUp size={11} />, bg: '#EEF2FF' },
+  Rising: { color: '#3B82F6', icon: <TrendingUp size={11} />, bg: 'rgba(59,130,246,0.12)' },
   Stable: { color: '#3B82F6', icon: <Minus size={11} />, bg: 'rgba(59,130,246,0.1)' },
   Declining: {
     color: '#9CA3AF',

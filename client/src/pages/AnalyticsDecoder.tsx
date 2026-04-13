@@ -360,10 +360,10 @@ export default function AnalyticsDecoder() {
               className="rounded-xl overflow-hidden"
               style={{
                 background: 'rgba(59,130,246,0.06)',
-                border: '1px solid #EEF2FF',
+                border: '1px solid rgba(59,130,246,0.12)',
               }}
             >
-              <div className="px-4 py-3 border-b" style={{ borderColor: '#EEF2FF' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(59,130,246,0.12)' }}>
                 <div
                   className="text-xs font-extrabold uppercase tracking-widest"
                   style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}

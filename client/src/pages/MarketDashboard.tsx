@@ -384,7 +384,7 @@ export default function MarketDashboard() {
         {['\u{1F30D} Global', '\u{1F1E6}\u{1F1FA} AU', '\u{1F1FA}\u{1F1F8} US', '\u{1F1EC}\u{1F1E7} UK'].map(r => {
           const isActive = r === activeMarket;
           return (
-            <button key={r} onClick={() => setActiveMarket(r)} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#3B82F6' : '#E5E7EB'}`, background: isActive ? '#EEF2FF' : 'white', color: isActive ? '#3B82F6' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
+            <button key={r} onClick={() => setActiveMarket(r)} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#3B82F6' : '#E5E7EB'}`, background: isActive ? 'rgba(59,130,246,0.12)' : 'white', color: isActive ? '#3B82F6' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
               {r}
             </button>
           );

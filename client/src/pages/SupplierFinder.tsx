@@ -66,8 +66,8 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? '#EEF2FF' : '#F9FAFB',
-        border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
+        background: copied ? 'rgba(59,130,246,0.12)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(59,130,246,0.3)' : '#F5F5F5'}`,
         color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
@@ -381,7 +381,7 @@ export default function SupplierFinder() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}
+          style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)' }}
         >
           <Truck size={15} style={{ color: '#3B82F6' }} />
         </div>
@@ -502,8 +502,8 @@ export default function SupplierFinder() {
                   onClick={() => setProduct(c)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: product === c ? '#EEF2FF' : '#F9FAFB',
-                    border: `1px solid ${product === c ? '#C7D2FE' : '#E5E7EB'}`,
+                    background: product === c ? 'rgba(59,130,246,0.12)' : '#F9FAFB',
+                    border: `1px solid ${product === c ? 'rgba(59,130,246,0.3)' : '#E5E7EB'}`,
                     color: product === c ? '#3B82F6' : '#6B7280',
                     cursor: 'pointer',
                   }}
@@ -519,7 +519,7 @@ export default function SupplierFinder() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
-              background: isLoading ? '#C7D2FE' : '#3B82F6',
+              background: isLoading ? 'rgba(59,130,246,0.3)' : '#3B82F6',
               color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -556,7 +556,7 @@ export default function SupplierFinder() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: '#EEF2FF',
+                  background: 'rgba(59,130,246,0.12)',
                   border: '1px solid rgba(59,130,246,0.30)',
                 }}
               >

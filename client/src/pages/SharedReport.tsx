@@ -63,7 +63,7 @@ export default function SharedReport() {
         ))}
 
         {/* CTA */}
-        <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 16, padding: '32px 24px', textAlign: 'center' as const, marginTop: 32 }}>
+        <div style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 16, padding: '32px 24px', textAlign: 'center' as const, marginTop: 32 }}>
           <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', marginBottom: 8 }}>Want more product insights?</div>
           <div style={{ fontSize: 14, color: '#94A3B8', marginBottom: 20 }}>Majorka finds winning products before your competitors. Free to try.</div>
           <a href="/signup" style={{ display: 'inline-block', height: 44, lineHeight: '44px', padding: '0 24px', background: '#3B82F6', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>

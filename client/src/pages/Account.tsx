@@ -25,8 +25,8 @@ function StatusBadge({ status }: { status: string | undefined }) {
       <span
         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
         style={{
-          background: '#EEF2FF',
-          border: '1px solid #C7D2FE',
+          background: 'rgba(59,130,246,0.12)',
+          border: '1px solid rgba(59,130,246,0.3)',
           color: '#3B82F6',
           fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
@@ -317,7 +317,7 @@ export default function Account() {
                     className="flex items-center gap-2 p-3 rounded-xl text-sm"
                     style={{
                       background: 'rgba(59,130,246,0.09)',
-                      border: '1px solid #EEF2FF',
+                      border: '1px solid rgba(59,130,246,0.12)',
                       color: 'rgba(59,130,246,1.00)',
                     }}
                   >

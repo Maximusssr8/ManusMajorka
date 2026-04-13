@@ -210,7 +210,7 @@ const TAG_STYLE: Record<string, { color: string; bg: string }> = {
   'VIRAL':           { color: '#7C3AED', bg: '#F3E8FF' },
   'HIGH MARGIN':     { color: '#059669', bg: '#ECFDF5' },
   'AU DEMAND':       { color: '#D97706', bg: '#FEF3C7' },
-  'AU BEST SELLERS': { color: '#3B82F6', bg: '#EEF2FF' },
+  'AU BEST SELLERS': { color: '#3B82F6', bg: 'rgba(59,130,246,0.12)' },
   'TRENDING':        { color: '#9CA3AF', bg: 'rgba(255,255,255,0.06)' },
   'IN THE NEWS':     { color: '#D97706', bg: '#FEF3C7' },
   'TIKTOK':          { color: '#7C3AED', bg: '#F3E8FF' },
@@ -832,7 +832,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         
         {/* Blur gate banner */}
         {!canSeeFinancials && !isAdmin && (
-          <div style={{background:'linear-gradient(135deg,#EEF2FF,#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
+          <div style={{background:'linear-gradient(135deg,rgba(59,130,246,0.12),#F3E8FF)',border:'1px solid rgba(59,130,246,0.3)',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
             <div>
               <div style={{fontFamily: "'DM Sans', system-ui, sans-serif",fontWeight:800,fontSize:15,color:'#E2E8F0'}}>Showing 10 of {filteredProducts.length} products</div>
               <div style={{fontSize:13,color:'#4B5563',marginTop:2}}>Unlock full database, margins, and revenue data on Builder plan</div>
@@ -1763,13 +1763,13 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
               onClick={e => { e.stopPropagation(); handleCopy(audience); }}
               title="Click to copy for Meta Ads Manager"
               style={{
-                background: isCopied ? '#DCFCE7' : '#EEF2FF',
-                border: '1px solid #C7D2FE',
+                background: isCopied ? '#DCFCE7' : 'rgba(59,130,246,0.12)',
+                border: '1px solid rgba(59,130,246,0.3)',
                 borderRadius: 20,
                 padding: '6px 12px',
                 fontSize: 12,
                 fontWeight: 500,
-                color: '#3730A3',
+                color: '#2563EB',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1911,11 +1911,11 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
   );
 
   return (
-    <div style={{ marginBottom: 20, background: isDark ? 'rgba(59,130,246,0.06)' : '#F0F4FF', border: `1px solid ${isDark ? 'rgba(59,130,246,0.2)' : '#C7D2FE'}`, borderRadius: 16, overflow: 'hidden' as const }}>
+    <div style={{ marginBottom: 20, background: isDark ? 'rgba(59,130,246,0.06)' : '#F0F4FF', border: `1px solid ${isDark ? 'rgba(59,130,246,0.2)' : 'rgba(59,130,246,0.3)'}`, borderRadius: 16, overflow: 'hidden' as const }}>
       {/* Collapsible header */}
       <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
         <div>
-          <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 800, fontSize: 14, color: isDark ? '#C7D2FE' : '#1E1B4B' }}>💰 Profit Analysis</div>
+          <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 800, fontSize: 14, color: isDark ? 'rgba(59,130,246,0.3)' : '#1E1B4B' }}>💰 Profit Analysis</div>
           <div style={{ fontSize: 11, color: '#3B82F6', marginTop: 1 }}>Auto-filled from product · all values editable</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1928,7 +1928,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
       </button>
 
       {open && (
-        <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${isDark ? 'rgba(59,130,246,0.2)' : '#C7D2FE'}` }}>
+        <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${isDark ? 'rgba(59,130,246,0.2)' : 'rgba(59,130,246,0.3)'}` }}>
 
           {/* Inputs — 4 fields in 2×2 grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14, marginBottom: 10 }}>
@@ -1961,18 +1961,18 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           {/* 5 key metrics */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
             {metric('Net Margin',      `${Math.max(-99, grossMargin).toFixed(1)}%`, viableConfig.color, viableConfig.bg)}
-            {metric('Monthly Profit',  fmtAUD(monthlyProfit),    '#3B82F6', '#EEF2FF')}
+            {metric('Monthly Profit',  fmtAUD(monthlyProfit),    '#3B82F6', 'rgba(59,130,246,0.12)')}
             {metric('Daily Profit',    fmtAUD(dailyProfit),       '#8B5CF6', '#F3E8FF')}
             {metric('Break-even CPA',  `$${breakEvenCPA > 0 ? breakEvenCPA.toFixed(2) : '—'}`, '#0891B2', '#ECFEFF')}
           </div>
-          <div style={{ background: isDark ? 'rgba(59,130,246,0.08)' : '#EEF2FF', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
+          <div style={{ background: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.12)', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
             <div style={{ fontSize: 9, color: '#3B82F6', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
             <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
             <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
           </div>
 
           {/* What this means */}
-          <div style={{ background: isDark ? 'var(--card-bg, #111114)' : 'white', border: `1px solid ${isDark ? 'var(--border-color, #1E293B)' : '#E0E7FF'}`, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+          <div style={{ background: isDark ? 'var(--card-bg, #111114)' : 'white', border: `1px solid ${isDark ? 'var(--border-color, #1E293B)' : 'rgba(59,130,246,0.15)'}`, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#3B82F6', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>💡 What This Means</div>
             <div style={{ fontSize: 12, color: 'var(--cell-text, #374151)', lineHeight: 1.6 }}>{insight}</div>
           </div>
@@ -2195,7 +2195,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center', marginBottom: 16 }}>
             <QualityTierBadge tier={p.quality_tier} score={p.signal_score || score} />
-            {(p.signal_score != null && p.signal_score > 0) && <span style={{ fontSize: 11, fontWeight: 700, color: '#3B82F6', background: '#EEF2FF', padding: '2px 7px', borderRadius: 5 }}>Signal: {p.signal_score}</span>}
+            {(p.signal_score != null && p.signal_score > 0) && <span style={{ fontSize: 11, fontWeight: 700, color: '#3B82F6', background: 'rgba(59,130,246,0.12)', padding: '2px 7px', borderRadius: 5 }}>Signal: {p.signal_score}</span>}
             <SourceBadges sources={p.data_sources} isChoice={p.tags?.includes('aliexpress_choice')} />
           </div>
 
@@ -2381,7 +2381,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   <h4 style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#3B82F6', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
                     {[1, 2, 3].map(i => (
-                      <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, #EEF2FF 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
+                      <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, rgba(59,130,246,0.15) 25%, rgba(59,130,246,0.12) 50%, rgba(59,130,246,0.15) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
                     ))}
                   </div>
                 </div>
@@ -2462,7 +2462,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   ))}
                 </div>
                 <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(pName + ' review')}`} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: '#3B82F6', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: '#3B82F6', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: 'rgba(59,130,246,0.12)', borderRadius: 8, border: '1px solid rgba(59,130,246,0.3)' }}>
                   <span>🔍</span>
                   <span>Search all TikTok content for this product</span>
                   <span style={{ marginLeft: 'auto' }}>→</span>
@@ -2476,7 +2476,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>AI Market Analysis</div>
             {!aiAnalysis ? (
               <button onClick={runAnalysis} disabled={analyzing}
-                style={{ width: '100%', height: 42, background: '#EEF2FF', color: '#3B82F6', border: '1px solid #C7D2FE', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                style={{ width: '100%', height: 42, background: 'rgba(59,130,246,0.12)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 {analyzing ? 'Analysing...' : 'Generate AU Market Analysis'}
               </button>
             ) : (

@@ -173,7 +173,7 @@ export default function FinancialModeler() {
               className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{
                 background: 'rgba(59,130,246,0.18)',
-                border: '1px solid #C7D2FE',
+                border: '1px solid rgba(59,130,246,0.3)',
               }}
             >
               <DollarSign size={15} style={{ color: '#3B82F6' }} />
@@ -273,11 +273,11 @@ export default function FinancialModeler() {
             className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
             style={{
               background: generating
-                ? '#C7D2FE'
+                ? 'rgba(59,130,246,0.3)'
                 : 'linear-gradient(135deg, #3B82F6, #2563EB)',
               color: '#fff',
               fontFamily: "'Bricolage Grotesque', sans-serif",
-              boxShadow: generating ? 'none' : '0 4px 20px #C7D2FE',
+              boxShadow: generating ? 'none' : '0 4px 20px rgba(59,130,246,0.3)',
               cursor: generating ? 'not-allowed' : 'pointer',
             }}
           >

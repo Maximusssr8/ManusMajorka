@@ -2880,7 +2880,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               return (
                 <React.Fragment key={s.n}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", background: done ? "#3B82F6" : active ? "#EEF2FF" : "#F5F5F5", color: done ? "white" : active ? "#3B82F6" : "#9CA3AF", border: `1px solid ${done ? "#3B82F6" : active ? "#C7D2FE" : "#E5E7EB"}`, transition: "all 0.3s" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", background: done ? "#3B82F6" : active ? "rgba(59,130,246,0.12)" : "#F5F5F5", color: done ? "white" : active ? "#3B82F6" : "#9CA3AF", border: `1px solid ${done ? "#3B82F6" : active ? "rgba(59,130,246,0.3)" : "#E5E7EB"}`, transition: "all 0.3s" }}>
                       {done ? "✓" : s.n}
                     </div>
                     <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#3B82F6" : "#9CA3AF", fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{s.label}</span>
@@ -2905,8 +2905,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 };
                 const tileGradientMap: Record<string, string> = {
                   'DTC Minimal': 'linear-gradient(135deg, #f9fafb, #e5e7eb)',
-                  'Dropshipping Modal': 'linear-gradient(135deg, #EEF2FF, #C7D2FE)',
-                  'Dropship Bold': 'linear-gradient(135deg, #EEF2FF, #C7D2FE)',
+                  'Dropshipping Modal': 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.3))',
+                  'Dropship Bold': 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.3))',
                   'Premium Beauty': 'linear-gradient(135deg, #fdf4ff, #fce7f3)',
                   'Premium Brand': 'linear-gradient(135deg, #fdf4ff, #fce7f3)',
                   'Tech Gadgets': 'linear-gradient(135deg, #0f0f23, #1e1b4b)',
@@ -2915,14 +2915,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   'Coastal AU': 'linear-gradient(135deg, #ecfeff, #a5f3fc)',
                   'Bloom Beauty': 'linear-gradient(135deg, #fdf4ff, #fce7f3)',
                 };
-                const tileGradient = tileGradientMap[t.name] || 'linear-gradient(135deg, #EEF2FF, #C7D2FE)';
+                const tileGradient = tileGradientMap[t.name] || 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.3))';
                 return (
                   <button key={t.id}
                     onClick={() => { setPremiumTemplateId(t.id); setUserPickedTemplate(true); if (dirMap[t.id]) setDesignDirection(dirMap[t.id]); }}
                     onMouseEnter={(e) => { setHoveredTemplate(t.id); if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB'; }}
                     onMouseLeave={(e) => { setHoveredTemplate(null); if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                     className="w-full text-left transition-all"
-                    style={{ height: 64, background: isSelected ? '#EEF2FF' : 'transparent', border: 'none', borderLeft: isSelected ? '3px solid #3B82F6' : '3px solid transparent', cursor: 'pointer', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 8 }}>
+                    style={{ height: 64, background: isSelected ? 'rgba(59,130,246,0.12)' : 'transparent', border: 'none', borderLeft: isSelected ? '3px solid #3B82F6' : '3px solid transparent', cursor: 'pointer', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 8 }}>
                     <div style={{ width: 48, height: 36, borderRadius: 6, flexShrink: 0, background: tileGradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: t.palette.accent }} />
                     </div>
@@ -3052,7 +3052,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* Product URL Quality Analyzer — Hero Input */}
-          <div className="rounded-xl p-4" style={{ background: analysisResult ? '#EEF2FF' : '#FFFFFF', border: `1px solid ${analysisResult ? '#C7D2FE' : '#F0F0F0'}` }}>
+          <div className="rounded-xl p-4" style={{ background: analysisResult ? 'rgba(59,130,246,0.12)' : '#FFFFFF', border: `1px solid ${analysisResult ? 'rgba(59,130,246,0.3)' : '#F0F0F0'}` }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 10 }}>
               ✦ Import a Product URL
             </div>
@@ -4282,7 +4282,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       <Modal open={shopifyModal} onClose={() => setShopifyModal(false)}>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid #C7D2FE' }}><ShoppingBag size={16} style={{ color: '#3B82F6' }} /></div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.3)' }}><ShoppingBag size={16} style={{ color: '#3B82F6' }} /></div>
             <div>
               <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Shopify Theme Downloaded</div>
               <div className="text-xs" style={{ color: '#9CA3AF' }}>Upload the ZIP to your Shopify store</div>
@@ -4296,7 +4296,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               </li>
             ))}
           </ol>
-          <a href="https://admin.shopify.com" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-xl text-xs font-bold text-center" style={{ background: '#EEF2FF', color: '#3B82F6', border: '1px solid #C7D2FE', textDecoration: 'none' }}>
+          <a href="https://admin.shopify.com" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-xl text-xs font-bold text-center" style={{ background: 'rgba(59,130,246,0.12)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)', textDecoration: 'none' }}>
             <ExternalLink size={11} className="inline mr-1.5" />Open Shopify Admin
           </a>
         </div>

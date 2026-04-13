@@ -62,7 +62,7 @@ const ENGAGEMENT_BAR_COLOR: Record<string, string> = {
 
 const TIER_BADGES: { label: string; ring: string; bg: string; color: string }[] = [
   { label: 'TOP', ring: '0 0 0 3px #F59E0B', bg: '#FEF3C7', color: '#92400E' },
-  { label: 'ELITE', ring: '0 0 0 3px #3B82F6', bg: '#EEF2FF', color: '#4338CA' },
+  { label: 'ELITE', ring: '0 0 0 3px #3B82F6', bg: 'rgba(59,130,246,0.12)', color: '#3B82F6' },
   { label: 'RISING', ring: '0 0 0 3px #8B5CF6', bg: '#F3E8FF', color: '#6D28D9' },
 ];
 

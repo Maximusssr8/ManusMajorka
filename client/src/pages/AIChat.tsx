@@ -25,7 +25,7 @@ function renderInline(text: string): React.ReactNode {
     <>
       {parts.map((part, i) => {
         if (part.startsWith("**") && part.endsWith("**")) {
-          return <strong key={i} style={{ fontWeight: 700, color: "#E0E7FF" }}>{part.slice(2, -2)}</strong>;
+          return <strong key={i} style={{ fontWeight: 700, color: "rgba(59,130,246,0.15)" }}>{part.slice(2, -2)}</strong>;
         }
         if (part.startsWith("`") && part.endsWith("`")) {
           return <code key={i} style={{ background: "rgba(0,0,0,0.3)", padding: "1px 5px", borderRadius: 4, fontFamily: "monospace", fontSize: 12, color: "#C4B5FD" }}>{part.slice(1, -1)}</code>;
@@ -72,7 +72,7 @@ function renderMarkdown(text: string): React.ReactNode {
       i++; continue;
     }
     if (line.startsWith("## ")) {
-      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: "#E0E7FF", marginBottom: 6, marginTop: 12, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 4 }}>{line.slice(3)}</div>);
+      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: "rgba(59,130,246,0.15)", marginBottom: 6, marginTop: 12, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 4 }}>{line.slice(3)}</div>);
       i++; continue;
     }
     if (line.startsWith("# ")) {

@@ -103,7 +103,7 @@ function CopyBtn({ text }: { text: string }) {
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
         background: copied ? '#D1FAE5' : '#F5F7FF',
-        border: `1px solid ${copied ? '#A7F3D0' : '#E0E7FF'}`,
+        border: `1px solid ${copied ? '#A7F3D0' : 'rgba(59,130,246,0.15)'}`,
         color: copied ? '#065F46' : '#3B82F6',
         cursor: 'pointer',
       }}
@@ -716,7 +716,7 @@ export default function ProductDiscovery() {
                 className="p-4 rounded-2xl"
                 style={{
                   background: '#F8F8FF',
-                  border: '1px solid #E0E7FF',
+                  border: '1px solid rgba(59,130,246,0.15)',
                 }}
               >
                 <div className="flex items-center justify-between mb-2">

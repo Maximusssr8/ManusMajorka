@@ -20,7 +20,7 @@ const COMMANDS: Command[] = [
   { id: 'ad-briefs', label: 'Ad Briefs', icon: '📝', category: 'Navigate', path: '/app/ad-spy' },
   { id: 'store-builder', label: 'Store Builder', icon: '🏪', category: 'Navigate', path: '/app/store-builder' },
   { id: 'alerts', label: 'Alerts', icon: '🔔', category: 'Navigate', path: '/app/alerts' },
-  { id: 'spy', label: 'Competitor Spy', icon: '🕵️', category: 'Navigate', path: '/app/spy' },
+  { id: 'spy', label: 'Competitor Spy', icon: '🕵️', category: 'Navigate', path: '/app/competitor-spy' },
   { id: 'revenue', label: 'Revenue', icon: '📈', category: 'Navigate', path: '/app/revenue' },
   { id: 'learn', label: 'Academy', icon: '🎓', category: 'Navigate', path: '/app/learn' },
   { id: 'settings', label: 'Settings', icon: '⚙️', category: 'Navigate', path: '/app/settings' },

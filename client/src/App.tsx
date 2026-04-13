@@ -119,7 +119,7 @@ function ComingSoon({ page }: ComingSoonProps) {
       gap: 12,
     }}>
       <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: '#ededed', letterSpacing: '-0.025em' }}>{page}</div>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: '#71717a' }}>Coming soon</div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: '#71717a' }}>This page has moved. Use the sidebar to navigate.</div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ const FORMAT_META: Record<string, { emoji: string; color: string; bg: string; de
   REVIEW:    { emoji: '⭐', color: '#B45309', bg: '#FEF3C7', desc: 'Honest opinion' },
   UNBOXING:  { emoji: '📦', color: '#0369A1', bg: '#E0F2FE', desc: 'First look reveal' },
   DEMO:      { emoji: '🎬', color: '#065F46', bg: '#D1FAE5', desc: 'Product in action' },
-  LIFESTYLE: { emoji: '✨', color: '#3B82F6', bg: '#EEF2FF', desc: 'Organic placement' },
+  LIFESTYLE: { emoji: '✨', color: '#3B82F6', bg: 'rgba(59,130,246,0.12)', desc: 'Organic placement' },
 };
 
 const SIGNAL_META: Record<string, { label: string; color: string; bg: string; dot: string }> = {
@@ -509,7 +509,7 @@ export default function VideoIntelligence() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', gap: 4 }}>
                             <span style={{ fontSize: 9, color: '#9CA3AF', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
-                            {v.creatorHandle && <span style={{ fontSize: 9, color: '#3B82F6', background: '#EEF2FF', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
+                            {v.creatorHandle && <span style={{ fontSize: 9, color: '#3B82F6', background: 'rgba(59,130,246,0.12)', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
                           </div>
                           <a href={v.url || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
                             style={{ fontSize: 11, color: '#3B82F6', fontWeight: 700, textDecoration: 'none' }}
@@ -599,7 +599,7 @@ export default function VideoIntelligence() {
               </button>
 
               {aiOutput && (
-                <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 8, padding: 12 }}>
+                <div style={{ background: '#F8F8FF', border: '1px solid rgba(59,130,246,0.15)', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 11, color: '#CBD5E1', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const, maxHeight: 280, overflowY: 'auto' as const }}>{aiOutput}</div>
                   <button onClick={() => copyText(aiOutput, 'ai-out')}
                     style={{ marginTop: 8, fontSize: 10, color: copied === 'ai-out' ? '#059669' : '#3B82F6', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, padding: 0 }}>

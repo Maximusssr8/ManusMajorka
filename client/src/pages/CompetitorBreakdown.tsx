@@ -61,8 +61,8 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? '#EEF2FF' : '#F9FAFB',
-        border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
+        background: copied ? 'rgba(59,130,246,0.12)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(59,130,246,0.3)' : '#E5E7EB'}`,
         color: copied ? 'rgba(59,130,246,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
@@ -134,7 +134,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
               className="p-3 rounded-xl"
               style={{
                 background: 'rgba(59,130,246,0.06)',
-                border: '1px solid #EEF2FF',
+                border: '1px solid rgba(59,130,246,0.12)',
               }}
             >
               <div
@@ -534,7 +534,7 @@ export default function CompetitorBreakdown() {
                       <span
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"
                         style={{
-                          background: '#EEF2FF',
+                          background: 'rgba(59,130,246,0.12)',
                           color: '#3B82F6',
                           fontFamily: "'Bricolage Grotesque', sans-serif",
                         }}

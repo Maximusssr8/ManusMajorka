@@ -25,7 +25,7 @@ function CopyBtn({ text, small }: { text: string; small?: boolean }) {
     setTimeout(() => setDone(false), 2000);
   };
   return (
-    <button onClick={copy} style={{ height: small ? 24 : 28, padding: '0 10px', background: done ? '#D1FAE5' : '#EEF2FF', color: done ? '#065F46' : '#3B82F6', border: 'none', borderRadius: 6, fontSize: small ? 10 : 11, fontWeight: 700, cursor: 'pointer', transition: 'all 150ms', flexShrink: 0 }}>
+    <button onClick={copy} style={{ height: small ? 24 : 28, padding: '0 10px', background: done ? '#D1FAE5' : 'rgba(59,130,246,0.12)', color: done ? '#065F46' : '#3B82F6', border: 'none', borderRadius: 6, fontSize: small ? 10 : 11, fontWeight: 700, cursor: 'pointer', transition: 'all 150ms', flexShrink: 0 }}>
       {done ? '✓ Copied' : 'Copy'}
     </button>
   );
@@ -35,7 +35,7 @@ function CopyBtn({ text, small }: { text: string; small?: boolean }) {
 function Output({ text, label }: { text: string; label?: string }) {
   if (!text) return null;
   return (
-    <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 10, padding: 14, marginTop: 10 }}>
+    <div style={{ background: '#F8F8FF', border: '1px solid rgba(59,130,246,0.15)', borderRadius: 10, padding: 14, marginTop: 10 }}>
       {label && <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 6 }}>{label}</div>}
       <div style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const }}>{text}</div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
@@ -102,7 +102,7 @@ function LaunchPack() {
             <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: 'white' }}>Full Launch Pack</span>
             <span style={{ fontSize: 9, fontWeight: 700, color: '#93C5FD', background: '#D1D5DB', padding: '2px 8px', borderRadius: 10 }}>MAJORKA EXCLUSIVE</span>
           </div>
-          <p style={{ fontSize: 12, color: '#C7D2FE', margin: 0 }}>
+          <p style={{ fontSize: 12, color: 'rgba(59,130,246,0.3)', margin: 0 }}>
             One product → complete marketing kit: Meta ads, TikTok hooks, description, emails, hashtags + store names
           </p>
         </div>
@@ -145,7 +145,7 @@ function LaunchPack() {
 
         {/* Progress bar */}
         {loading && (
-          <div style={{ height: 3, background: '#EEF2FF', borderRadius: 99, marginBottom: 16, overflow: 'hidden' }}>
+          <div style={{ height: 3, background: 'rgba(59,130,246,0.12)', borderRadius: 99, marginBottom: 16, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)', borderRadius: 99, transition: 'width 400ms' }} />
           </div>
         )}
@@ -154,7 +154,7 @@ function LaunchPack() {
         {hasPack && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {sections.map(s => (
-              <div key={s.key} style={{ background: '#05070F', border: `1px solid ${pack[s.key] ? '#E0E7FF' : '#F3F4F6'}`, borderRadius: 10, padding: 14 }}>
+              <div key={s.key} style={{ background: '#05070F', border: `1px solid ${pack[s.key] ? 'rgba(59,130,246,0.15)' : '#F3F4F6'}`, borderRadius: 10, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: pack[s.key] ? '#3B82F6' : '#9CA3AF' }}>{s.label}</div>
                   {pack[s.key] && <CopyBtn text={pack[s.key]} small />}
@@ -231,7 +231,7 @@ function AdCopyTool() {
         <div style={{ display: 'flex', gap: 6 }}>
           {['Urgent', 'Casual', 'Premium'].map(t => (
             <button key={t} onClick={() => setTone(t)}
-              style={{ flex: 1, height: 30, background: tone === t ? '#EEF2FF' : '#F9FAFB', color: tone === t ? '#3B82F6' : '#6B7280', border: `1px solid ${tone === t ? '#C7D2FE' : '#E5E7EB'}`, borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ flex: 1, height: 30, background: tone === t ? 'rgba(59,130,246,0.12)' : '#F9FAFB', color: tone === t ? '#3B82F6' : '#6B7280', border: `1px solid ${tone === t ? 'rgba(59,130,246,0.3)' : '#E5E7EB'}`, borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               {t}
             </button>
           ))}
@@ -406,11 +406,11 @@ function HashtagTool() {
           {loading ? 'Generating…' : 'Generate Hashtags →'}
         </button>
         {result && (
-          <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 10, padding: 12, marginTop: 4 }}>
+          <div style={{ background: '#F8F8FF', border: '1px solid rgba(59,130,246,0.15)', borderRadius: 10, padding: 12, marginTop: 4 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5 }}>
               {result.split(/[\s,\n]+/).filter(h => h.startsWith('#')).map((h, i) => (
                 <button key={i} onClick={() => navigator.clipboard.writeText(h)}
-                  style={{ fontSize: 11, fontWeight: 600, color: '#3B82F6', background: '#EEF2FF', border: 'none', padding: '3px 8px', borderRadius: 20, cursor: 'pointer' }}>
+                  style={{ fontSize: 11, fontWeight: 600, color: '#3B82F6', background: 'rgba(59,130,246,0.12)', border: 'none', padding: '3px 8px', borderRadius: 20, cursor: 'pointer' }}>
                   {h}
                 </button>
               ))}
