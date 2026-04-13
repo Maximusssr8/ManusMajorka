@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Library, Sparkles, Eye, Zap, Search, TrendingUp, Globe, Loader2 } from 'lucide-react';
+import { Library, Sparkles, Eye, Zap, Search, TrendingUp, Globe, Loader2, Bookmark } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 /**
  * Ad Library — curated winning ad examples organized by niche.
@@ -8,7 +10,7 @@ import { Library, Sparkles, Eye, Zap, Search, TrendingUp, Globe, Loader2 } from 
  * "Use this angle" prefills AdsStudio via sessionStorage.
  */
 
-type Niche = 'Kitchen' | 'Beauty' | 'Pet' | 'Tech' | 'Fitness';
+type Niche = 'Kitchen' | 'Beauty' | 'Pet' | 'Tech' | 'Fitness' | 'Home' | 'Outdoor';
 
 interface WinningAd {
   id: string;
@@ -45,6 +47,8 @@ const NICHE_COLORS: Record<Niche, { bg: string; text: string }> = {
   Pet:     { bg: 'rgba(245,158,11,0.12)', text: '#f59e0b' },
   Tech:    { bg: 'rgba(59,130,246,0.12)', text: '#3B82F6' },
   Fitness: { bg: 'rgba(212,175,55,0.12)', text: '#d4af37' },
+  Home:    { bg: 'rgba(168,85,247,0.12)', text: '#a855f7' },
+  Outdoor: { bg: 'rgba(34,197,94,0.12)',  text: '#22c55e' },
 };
 
 const WINNING_ADS: WinningAd[] = [
@@ -54,7 +58,7 @@ const WINNING_ADS: WinningAd[] = [
   { id: 'a4',  niche: 'Kitchen', hook: '"POV: You just discovered the laziest way to cook"', body: 'Satisfying cooking montage with ASMR audio. Minimal text overlays. Clean plating reveal.', platform: 'TikTok', engagement: '3.2M views', angle: 'ASMR satisfying process' },
   { id: 'a5',  niche: 'Beauty',  hook: '"My dermatologist asked what I changed"', body: 'Skin transformation timeline — day 1, week 1, month 1. Close-up texture shots. No filter disclaimer.', platform: 'TikTok', engagement: '4.1M views', angle: 'Authority validation + timeline' },
   { id: 'a6',  niche: 'Beauty',  hook: '"I replaced my $200 routine with ONE product"', body: 'Side-by-side cost comparison. Shows full old routine then single product. Morning application demo.', platform: 'Meta', engagement: '1.8M reach', angle: 'Cost consolidation' },
-  { id: 'a7',  niche: 'Beauty',  hook: '"The 30-second routine that changed my skin"', body: 'Speed demo with timer overlay. Before/after split screen. Ingredient callouts.', platform: 'TikTok', engagement: '2.7M views', angle: 'Angle: Time-saving simplicity' },
+  { id: 'a7',  niche: 'Beauty',  hook: '"The 30-second routine that changed my skin"', body: 'Speed demo with timer overlay. Before/after split screen. Ingredient callouts.', platform: 'TikTok', engagement: '2.7M views', angle: 'Time-saving simplicity' },
   { id: 'a8',  niche: 'Beauty',  hook: '"Why every makeup artist has this in their kit"', body: 'Behind-the-scenes at a photoshoot. Pro artist casually uses product. Subtle endorsement.', platform: 'YouTube', engagement: '560K views', angle: 'Professional insider secret' },
   { id: 'a9',  niche: 'Pet',     hook: '"My dog has never been this calm"', body: 'Anxious dog before vs. calm dog after using product. Vet quote overlay. Owner testimonial.', platform: 'TikTok', engagement: '5.3M views', angle: 'Problem/solution with proof' },
   { id: 'a10', niche: 'Pet',     hook: '"Every pet owner needs to see this hack"', body: 'Common pet problem everyone relates to. Quick fix demo. Comment section engagement bait.', platform: 'TikTok', engagement: '2.1M views', angle: 'Universal pain point + quick fix' },
@@ -68,9 +72,19 @@ const WINNING_ADS: WinningAd[] = [
   { id: 'a18', niche: 'Fitness', hook: '"My PT said I don\'t need the gym anymore"', body: 'Home workout demo with product. Trainer quote adds authority. Full routine breakdown.', platform: 'TikTok', engagement: '1.5M views', angle: 'Expert dismissal of expensive alternative' },
   { id: 'a19', niche: 'Fitness', hook: '"The recovery tool pro athletes won\'t tell you about"', body: 'Sports footage intercut with product usage. Price comparison to pro equipment.', platform: 'Meta', engagement: '2.8M reach', angle: 'Pro secret at consumer price' },
   { id: 'a20', niche: 'Fitness', hook: '"I stopped going to the physio after buying this"', body: 'Pain point demonstration. Self-treatment with product. Cost savings calculation.', platform: 'TikTok', engagement: '4.4M views', angle: 'Self-sufficiency cost savings' },
+  // Home niche
+  { id: 'a21', niche: 'Home', hook: '"This $12 organiser freed up half my kitchen bench"', body: 'Before/after bench transformation. Timelapse of decluttering. Price tag reveal at the end.', platform: 'TikTok', engagement: '2.1M views', angle: 'Space transformation' },
+  { id: 'a22', niche: 'Home', hook: '"My partner didn\'t notice for 3 weeks. Then they opened the drawer."', body: 'Subtle home upgrade reveal. Drawer organization before/after. Partner reaction at end.', platform: 'Meta', engagement: '890K reach', angle: 'Subtle lifestyle upgrade' },
+  { id: 'a23', niche: 'Home', hook: '"POV: You finally have a junk drawer that doesn\'t make you cry"', body: 'Relatable messy drawer montage. Satisfying organization process. Clean result reveal.', platform: 'TikTok', engagement: '1.4M views', angle: 'Relatable mess' },
+  { id: 'a24', niche: 'Home', hook: '"Best home purchase under $20 this year — not even close"', body: 'Top pick showcase with multiple use cases. Value comparison to expensive alternatives.', platform: 'YouTube', engagement: '670K views', angle: 'Value superlative' },
+  // Outdoor niche
+  { id: 'a25', niche: 'Outdoor', hook: '"Camping hack that made my mates think I\'m a genius"', body: 'Campsite setup with clever gadget use. Friends reacting. Practical demo in the bush.', platform: 'TikTok', engagement: '1.8M views', angle: 'Social status hack' },
+  { id: 'a26', niche: 'Outdoor', hook: '"This light is brighter than my career prospects"', body: 'Night-time camping light test. Self-deprecating voiceover. Dramatic before/after darkness shots.', platform: 'TikTok', engagement: '3.2M views', angle: 'Self-deprecating humour' },
+  { id: 'a27', niche: 'Outdoor', hook: '"I tested 14 camping gadgets so you don\'t have to"', body: 'Rapid-fire gadget testing montage. Honest scoring system. Top 3 picks at the end.', platform: 'YouTube', engagement: '1.1M views', angle: 'Authority review' },
+  { id: 'a28', niche: 'Outdoor', hook: '"The one thing every Aussie camper forgets to pack"', body: 'Common camping fail story. Product reveal as the solution. Packing checklist overlay.', platform: 'Meta', engagement: '540K reach', angle: 'Fear of missing out' },
 ];
 
-const ALL_NICHES: Niche[] = ['Kitchen', 'Beauty', 'Pet', 'Tech', 'Fitness'];
+const ALL_NICHES: Niche[] = ['Kitchen', 'Beauty', 'Pet', 'Tech', 'Fitness', 'Home', 'Outdoor'];
 
 const PLATFORM_ICON_STYLE: Record<string, { color: string }> = {
   TikTok:  { color: '#ededed' },
@@ -80,23 +94,70 @@ const PLATFORM_ICON_STYLE: Record<string, { color: string }> = {
   Instagram: { color: '#ec4899' },
 };
 
-function getAuthHeaders(): Record<string, string> {
+type PlatformFilter = 'All' | 'TikTok' | 'Meta' | 'YouTube';
+
+const SAVED_ANGLES_KEY = 'majorka_saved_angles';
+
+function getSavedAngles(): string[] {
   try {
-    const raw = localStorage.getItem('sb-auth-token')
-      ?? localStorage.getItem('supabase.auth.token')
-      ?? sessionStorage.getItem('sb-auth-token');
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    const token = parsed?.currentSession?.access_token ?? parsed?.access_token ?? parsed;
-    if (typeof token === 'string' && token.length > 10) {
-      return { Authorization: `Bearer ${token}` };
-    }
-  } catch { /* ignore */ }
-  return {};
+    const raw = localStorage.getItem(SAVED_ANGLES_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
+}
+
+function toggleSavedAngle(hook: string): string[] {
+  const saved = getSavedAngles();
+  const idx = saved.indexOf(hook);
+  const next = idx >= 0
+    ? [...saved.slice(0, idx), ...saved.slice(idx + 1)]
+    : [...saved, hook];
+  localStorage.setItem(SAVED_ANGLES_KEY, JSON.stringify(next));
+  return next;
+}
+
+async function getAuthToken(): Promise<string | undefined> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token;
+  } catch {
+    return undefined;
+  }
+}
+
+function PlatformHeader({ platform }: { platform: 'TikTok' | 'Meta' | 'YouTube' }) {
+  if (platform === 'TikTok') {
+    return (
+      <div className="flex items-center justify-between px-3 py-1.5 rounded-t-lg -mx-5 -mt-5 mb-2" style={{ background: '#000000' }}>
+        <span className="text-[10px] text-[#ededed] font-medium">For You</span>
+        <span className="text-[10px] text-[#ededed]">{'\u266A'}</span>
+      </div>
+    );
+  }
+  if (platform === 'Meta') {
+    return (
+      <div className="flex items-center px-3 py-1.5 rounded-t-lg -mx-5 -mt-5 mb-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <span className="text-[10px] text-[#888888] font-medium">Sponsored</span>
+      </div>
+    );
+  }
+  // YouTube
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg -mx-5 -mt-5 mb-2" style={{ background: '#181818' }}>
+      <div className="w-3 h-2 rounded-sm flex items-center justify-center" style={{ background: '#ef4444' }}>
+        <span className="text-[6px] text-white leading-none">{'\u25B6'}</span>
+      </div>
+      <span className="text-[10px] text-[#ededed] font-medium">YouTube</span>
+    </div>
+  );
 }
 
 export default function AdLibrary() {
   const [activeNiche, setActiveNiche] = useState<Niche | 'All'>('All');
+  const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('All');
+  const [savedAngles, setSavedAngles] = useState<string[]>(getSavedAngles);
 
   // Meta Ad Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -111,17 +172,21 @@ export default function AdLibrary() {
   const [trendingResults, setTrendingResults] = useState<TrendingResult[]>([]);
   const [trendingLoading, setTrendingLoading] = useState(false);
 
-  const filtered = activeNiche === 'All'
-    ? WINNING_ADS
-    : WINNING_ADS.filter((ad) => ad.niche === activeNiche);
+  const filtered = WINNING_ADS.filter((ad) => {
+    const nicheMatch = activeNiche === 'All' || ad.niche === activeNiche;
+    const platformMatch = platformFilter === 'All' || ad.platform === platformFilter;
+    return nicheMatch && platformMatch;
+  });
 
   function useAngle(ad: WinningAd) {
     try {
       sessionStorage.setItem('majorka_ad_product', JSON.stringify({
         id: `adlib-${ad.id}`,
         title: ad.hook.replace(/"/g, ''),
+        description: ad.body,
         hook: ad.hook,
         angle: ad.angle,
+        platform: ad.platform,
         niche: ad.niche,
       }));
     } catch { /* ignore */ }
@@ -141,29 +206,47 @@ export default function AdLibrary() {
     window.location.href = '/app/ads-studio';
   }
 
+  function handleBookmark(hook: string) {
+    const next = toggleSavedAngle(hook);
+    setSavedAngles(next);
+    toast.success(next.includes(hook) ? 'Angle saved' : 'Angle removed');
+  }
+
   const handleSearch = useCallback(async () => {
-    if (!searchQuery.trim() || searchQuery.trim().length < 2) return;
+    if (!searchQuery.trim()) {
+      toast.error('Enter a search term');
+      return;
+    }
+    if (searchQuery.trim().length < 2) {
+      toast.error('Enter at least 2 characters');
+      return;
+    }
     setSearchLoading(true);
     setSearchError('');
     setHasSearched(true);
     try {
+      const token = await getAuthToken();
+      if (!token) {
+        setSearchError('Ad search is temporarily unavailable. Try again later.');
+        setSearchResults([]);
+        return;
+      }
       const params = new URLSearchParams({
         q: searchQuery.trim(),
         country: searchCountry,
       });
       const resp = await fetch(`/api/meta-ads/search?${params.toString()}`, {
-        headers: { ...getAuthHeaders() },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!resp.ok) {
-        const body = await resp.json().catch(() => ({ message: 'Search failed' }));
-        setSearchError(body.message ?? 'Search failed');
+        setSearchError('Search couldn\'t complete \u2014 please check your connection.');
         setSearchResults([]);
         return;
       }
       const data = await resp.json();
       setSearchResults(data.ads ?? []);
     } catch {
-      setSearchError('Network error. Please try again.');
+      setSearchError('Search couldn\'t complete \u2014 please check your connection.');
       setSearchResults([]);
     } finally {
       setSearchLoading(false);
@@ -173,9 +256,14 @@ export default function AdLibrary() {
   const fetchTrending = useCallback(async (niche: string) => {
     setTrendingLoading(true);
     try {
+      const token = await getAuthToken();
+      if (!token) {
+        setTrendingResults([]);
+        return;
+      }
       const params = new URLSearchParams({ niche, country: 'AU' });
       const resp = await fetch(`/api/meta-ads/trending?${params.toString()}`, {
-        headers: { ...getAuthHeaders() },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (resp.ok) {
         const data = await resp.json();
@@ -228,7 +316,7 @@ export default function AdLibrary() {
         </p>
       </div>
 
-      {/* ═══ Search Competitor Ads ═══ */}
+      {/* Search Competitor Ads */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Search size={14} style={{ color: '#d4af37' }} />
@@ -262,7 +350,7 @@ export default function AdLibrary() {
           </select>
           <button
             onClick={handleSearch}
-            disabled={searchLoading || searchQuery.trim().length < 2}
+            disabled={searchLoading}
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-all disabled:opacity-40"
             style={{ background: '#3B82F6' }}
           >
@@ -334,7 +422,7 @@ export default function AdLibrary() {
         )}
       </div>
 
-      {/* ═══ Trending in Your Niche ═══ */}
+      {/* Trending in Your Niche */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp size={14} style={{ color: '#d4af37' }} />
@@ -400,7 +488,7 @@ export default function AdLibrary() {
         )}
       </div>
 
-      {/* ═══ Curated Ad Library (existing) ═══ */}
+      {/* Curated Ad Library */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-4">
           <Library size={14} style={{ color: '#d4af37' }} />
@@ -409,8 +497,8 @@ export default function AdLibrary() {
           </h2>
         </div>
 
-        {/* Niche filter */}
-        <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none pb-1">
+        {/* Niche filter + Platform filter */}
+        <div className="flex items-center gap-2 mb-3 overflow-x-auto scrollbar-none pb-1">
           {(['All', ...ALL_NICHES] as const).map((n) => {
             const active = activeNiche === n;
             return (
@@ -428,6 +516,29 @@ export default function AdLibrary() {
               </button>
             );
           })}
+        </div>
+
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-none pb-1">
+          <span className="text-[10px] text-[#555555] uppercase tracking-wider mr-1" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+            Platform:
+          </span>
+          {(['All', 'TikTok', 'Meta', 'YouTube'] as const).map((p) => {
+            const active = platformFilter === p;
+            return (
+              <button
+                key={p}
+                onClick={() => setPlatformFilter(p)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
+                style={{
+                  background: active ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(212,175,55,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                  color: active ? '#d4af37' : '#888888',
+                }}
+              >
+                {p}
+              </button>
+            );
+          })}
           <span className="text-[10px] text-[#555555] ml-2 tabular-nums" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
             {filtered.length} examples
           </span>
@@ -439,15 +550,37 @@ export default function AdLibrary() {
         {filtered.map((ad) => {
           const nicheStyle = NICHE_COLORS[ad.niche];
           const platformStyle = PLATFORM_ICON_STYLE[ad.platform];
+          const isSaved = savedAngles.includes(ad.hook);
+          const displayAngle = ad.angle.replace(/^ANGLE:\s*/i, '');
           return (
             <div
               key={ad.id}
-              className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-5 flex flex-col gap-3 transition-all group"
-              style={{ borderColor: undefined }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(212,175,55,0.35)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#1a1a1a'; }}
+              onClick={() => useAngle(ad)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') useAngle(ad); }}
+              role="button"
+              tabIndex={0}
+              className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-5 flex flex-col gap-3 group"
+              style={{
+                cursor: 'pointer',
+                transition: 'all 200ms',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLDivElement;
+                el.style.borderColor = 'rgba(212,175,55,0.3)';
+                el.style.transform = 'translateY(-2px)';
+                el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLDivElement;
+                el.style.borderColor = '#1a1a1a';
+                el.style.transform = 'translateY(0)';
+                el.style.boxShadow = 'none';
+              }}
             >
-              {/* Top row: niche + platform */}
+              {/* Platform header bar */}
+              <PlatformHeader platform={ad.platform} />
+
+              {/* Top row: niche + platform + bookmark */}
               <div className="flex items-center justify-between">
                 <span
                   className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded"
@@ -455,7 +588,18 @@ export default function AdLibrary() {
                 >
                   {ad.niche}
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleBookmark(ad.hook); }}
+                    className="p-1 rounded transition-all hover:bg-white/5"
+                    aria-label={isSaved ? 'Remove saved angle' : 'Save angle'}
+                  >
+                    <Bookmark
+                      size={12}
+                      fill={isSaved ? '#d4af37' : 'none'}
+                      style={{ color: isSaved ? '#d4af37' : '#555555' }}
+                    />
+                  </button>
                   <Eye size={11} style={{ color: platformStyle.color }} />
                   <span className="text-[10px] text-[#888888]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
                     {ad.platform}
@@ -481,12 +625,12 @@ export default function AdLibrary() {
                 </span>
               </div>
               <div className="text-[10px] text-[#555555] uppercase tracking-wider" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                Angle: {ad.angle}
+                Angle: {displayAngle}
               </div>
 
               {/* CTA */}
               <button
-                onClick={() => useAngle(ad)}
+                onClick={(e) => { e.stopPropagation(); useAngle(ad); }}
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-xs font-bold text-white transition-all hover:opacity-90"
                 style={{ background: '#3B82F6' }}
               >
@@ -496,6 +640,13 @@ export default function AdLibrary() {
             </div>
           );
         })}
+      </div>
+
+      {/* Pagination indicator */}
+      <div className="mt-6 text-center">
+        <p className="text-[10px] text-[#555555]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+          Showing {WINNING_ADS.length} curated examples &middot; New angles added monthly
+        </p>
       </div>
     </div>
   );
