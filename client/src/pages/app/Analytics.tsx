@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { BarChart2, TrendingUp, Package, Star, Activity, Grid3x3, X } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useLocation } from 'wouter';
+import { BarChart2, TrendingUp, Package, Star, Activity, Grid3x3, X, Download, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -8,11 +9,13 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
   ResponsiveContainer,
   CartesianGrid,
   Cell,
 } from 'recharts';
 import { SkeletonCard, SkeletonRow } from '@/components/ui/skeleton';
+import { useStatsOverview } from '@/hooks/useStatsOverview';
 
 const CATEGORY_COLOURS = ['#3b82f6','#10b981','#f59e0b','#f97316','#d4af37','#ec4899','#14b8a6','#888888','#ef4444','#84cc16','#06b6d4','#e5c158','#78716c','#0ea5e9','#22d3ee'];
 
@@ -129,7 +132,19 @@ function whyItFits(product: MatrixProduct, category: string, score: number): str
   return `${product.name} is a weak match for ${category.toLowerCase()} creators. The product category and audience expectation do not line up cleanly, and the hook would need to bend the creator's normal content voice. Consider a different category or a more generic lifestyle creator instead.`;
 }
 
+function formatRelativeTime(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
 export default function Analytics() {
+  const [, navigate] = useLocation();
   const [tab, setTab] = useState<Tab>('analytics');
   const [overview, setOverview] = useState<Overview | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -137,11 +152,17 @@ export default function Analytics() {
   const [timeSeries, setTimeSeries] = useState<TimeSeriesPoint[]>([]);
   const [timeSeriesLoading, setTimeSeriesLoading] = useState(true);
 
+  // Stats overview for real category count + freshness
+  const { stats: statsOverview } = useStatsOverview();
+
   // Matrix state
   const [matrixProducts, setMatrixProducts] = useState<MatrixProduct[]>(FALLBACK_PRODUCTS);
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [minScore, setMinScore] = useState<number>(0);
   const [selectedCell, setSelectedCell] = useState<CellContext | null>(null);
+  const [matrixSortCol, setMatrixSortCol] = useState<CreatorCategory | null>(null);
+  const [matrixSortDir, setMatrixSortDir] = useState<'asc' | 'desc'>('desc');
+  const [matrixLimit, setMatrixLimit] = useState(15);
 
   // Fetch real products for Creator Matrix from the existing products endpoint.
   useEffect(() => {
@@ -188,10 +209,10 @@ export default function Analytics() {
     const set = new Set<string>();
     matrixProducts.forEach(p => set.add(p.category));
     return ['All', ...Array.from(set).sort()];
-  }, []);
+  }, [matrixProducts]);
 
   const filteredProducts = useMemo(() => {
-    return matrixProducts.filter(p => {
+    const filtered = matrixProducts.filter(p => {
       if (categoryFilter !== 'All' && p.category !== categoryFilter) return false;
       if (minScore > 0) {
         const hasMatch = CREATOR_CATEGORIES.some(
@@ -201,7 +222,44 @@ export default function Analytics() {
       }
       return true;
     });
-  }, [categoryFilter, minScore]);
+    if (matrixSortCol) {
+      filtered.sort((a, b) => {
+        const sa = matchScore(a.id, matrixSortCol);
+        const sb = matchScore(b.id, matrixSortCol);
+        return matrixSortDir === 'desc' ? sb - sa : sa - sb;
+      });
+    }
+    return filtered;
+  }, [matrixProducts, categoryFilter, minScore, matrixSortCol, matrixSortDir]);
+
+  const visibleProducts = useMemo(() => filteredProducts.slice(0, matrixLimit), [filteredProducts, matrixLimit]);
+
+  const handleColumnSort = useCallback((col: CreatorCategory) => {
+    if (matrixSortCol === col) {
+      setMatrixSortDir(prev => prev === 'desc' ? 'asc' : 'desc');
+    } else {
+      setMatrixSortCol(col);
+      setMatrixSortDir('desc');
+    }
+  }, [matrixSortCol]);
+
+  const exportCsv = useCallback(() => {
+    const rows: string[] = ['Metric,Value'];
+    rows.push(`Total Products,${overview?.total ?? 0}`);
+    rows.push(`Score 90+,${overview?.score90 ?? 0}`);
+    rows.push(`New This Week,${overview?.newThisWeek ?? 0}`);
+    rows.push(`Categories,${statsOverview?.categoryCount ?? categories.length}`);
+    rows.push('');
+    rows.push('Category,Product Count');
+    categories.forEach(c => rows.push(`"${c.category}",${c.count}`));
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'majorka-analytics.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [overview, categories, statsOverview]);
 
   if (loading) return (
     <div className="p-6 space-y-6">
@@ -233,8 +291,9 @@ export default function Analytics() {
     { range: '90–100', label: 'Elite',    count: elite,    pct: elitePct,                                          color: '#10b981' },
   ];
 
-  const topCategoryData = categories.slice(0, 10).map((c, i) => ({
-    name: c.category.length > 18 ? c.category.slice(0, 17) + '…' : c.category,
+  const topCategoryData = categories.map((c, i) => ({
+    name: c.category,
+    shortName: c.category.length > 18 ? c.category.slice(0, 17) + '\u2026' : c.category,
     count: c.count,
     fill: CATEGORY_COLOURS[i % CATEGORY_COLOURS.length],
   }));
@@ -290,15 +349,40 @@ export default function Analytics() {
 
       {tab === 'analytics' && (
         <>
+          {/* Data freshness + export */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-xs text-[#555555] font-mono">
+              {statsOverview?.updatedAt
+                ? `Last updated: ${formatRelativeTime(statsOverview.updatedAt)}`
+                : ''}
+            </div>
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider border border-[#1a1a1a] bg-[#0f0f0f] text-[#888] hover:text-[#ededed] hover:border-[#333] transition-colors"
+              style={{ fontFamily: 'JetBrains Mono, monospace' }}
+            >
+              <Download size={12} />
+              Export CSV
+            </button>
+          </div>
+
           {/* KPI Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Total Products', value: total.toLocaleString(), icon: Package, color: '#3B82F6', trend: 'Tracked in database' },
-              { label: 'Score 90+',      value: (overview?.score90 ?? 0).toLocaleString(), icon: Star, color: '#10b981', trend: `${elitePct}% elite` },
-              { label: 'New This Week',  value: (overview?.newThisWeek ?? 0).toLocaleString(), icon: TrendingUp, color: '#f59e0b', trend: 'Last 7 days' },
-              { label: 'Categories',     value: String(categories.length), icon: BarChart2, color: '#ededed', trend: 'Across database' },
+              { label: 'Total Products', value: total.toLocaleString(), icon: Package, color: '#3B82F6', trend: 'Tracked in database', href: '/app/products', tooltip: '' },
+              { label: 'Score 90+',      value: (overview?.score90 ?? 0).toLocaleString(), icon: Star, color: '#10b981', trend: `${elitePct}% elite`, href: '/app/products?tab=top', tooltip: '' },
+              { label: 'New This Week',  value: (overview?.newThisWeek ?? 0).toLocaleString(), icon: TrendingUp, color: '#f59e0b', trend: 'Last 7 days', href: '/app/products?tab=new', tooltip: 'Products first tracked in the last 7 days (includes re-crawled listings)' },
+              { label: 'Categories',     value: String(statsOverview?.categoryCount ?? categories.length), icon: BarChart2, color: '#ededed', trend: 'Distinct categories', href: '/app/products', tooltip: '' },
             ].map((kpi) => (
-              <div key={kpi.label} className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-5">
+              <div
+                key={kpi.label}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(kpi.href)}
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate(kpi.href); }}
+                className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-5 cursor-pointer transition-all hover:border-[#333] hover:-translate-y-px"
+              >
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
@@ -307,6 +391,11 @@ export default function Analytics() {
                     <kpi.icon size={14} color={kpi.color} />
                   </div>
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[#555555]">{kpi.label}</span>
+                  {kpi.tooltip && (
+                    <span title={kpi.tooltip} className="text-[#555555] hover:text-[#888] cursor-help">
+                      <HelpCircle size={11} />
+                    </span>
+                  )}
                 </div>
                 <div className="text-3xl font-extrabold text-[#ededed] tracking-tight mb-1 font-mono tabular-nums">{kpi.value}</div>
                 <div className="text-xs text-[#555555]">{kpi.trend}</div>
@@ -391,12 +480,9 @@ export default function Analytics() {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-10 border border-dashed border-[#1a1a1a] rounded-md bg-[#080808]">
-                  <Activity size={20} className="text-[#555555] mb-2" />
-                  <div className="text-sm font-semibold text-[#888888]">Time series builds automatically</div>
-                  <div className="text-xs text-[#555555] mt-1 text-center max-w-xs">
-                    Check back tomorrow for your first data point.
-                  </div>
+                <div className="flex items-center gap-2 py-3 px-4 text-xs text-[#555555] font-mono">
+                  <TrendingUp size={14} className="text-[#555555] flex-shrink-0" />
+                  Trend data building — first data point tomorrow
                 </div>
               )}
             </div>
@@ -435,19 +521,29 @@ export default function Analytics() {
             {/* Category bar chart */}
             <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-md p-5">
               <div className="text-sm font-bold text-[#ededed] mb-1">Top categories</div>
-              <div className="text-xs text-[#555555] mb-4">Products tracked per category (top 10)</div>
-              <div style={{ width: '100%', height: 220 }}>
+              <div className="text-xs text-[#555555] mb-4">Products tracked per category ({topCategoryData.length} shown)</div>
+              <div style={{ width: '100%', height: Math.max(220, topCategoryData.length * 28) }}>
                 <ResponsiveContainer>
                   <BarChart data={topCategoryData} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="2 4" stroke="#1a1a1a" horizontal={false} />
                     <XAxis type="number" tick={{ fill: '#555555', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }} axisLine={{ stroke: '#1a1a1a' }} tickLine={false} />
-                    <YAxis type="category" dataKey="name" width={110} tick={{ fill: '#888888', fontSize: 11 }} axisLine={{ stroke: '#1a1a1a' }} tickLine={false} />
+                    <YAxis type="category" dataKey="shortName" width={110} tick={{ fill: '#888888', fontSize: 11 }} axisLine={{ stroke: '#1a1a1a' }} tickLine={false} />
                     <Tooltip
                       cursor={{ fill: 'rgba(59,130,246,0.05)' }}
                       contentStyle={tooltipStyle}
-                      formatter={(v: number) => [v.toLocaleString(), 'Products']}
+                      formatter={(v: number) => [v.toLocaleString(), 'Product count']}
+                      labelFormatter={(label: string) => {
+                        const entry = topCategoryData.find(d => d.shortName === label);
+                        return entry ? entry.name : label;
+                      }}
                     />
-                    <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                    <Legend
+                      verticalAlign="top"
+                      align="right"
+                      wrapperStyle={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', color: '#888' }}
+                      formatter={() => 'Product count'}
+                    />
+                    <Bar dataKey="count" name="Product count" radius={[0, 4, 4, 0]}>
                       {topCategoryData.map((d, i) => <Cell key={d.name} fill={CATEGORY_COLOURS[i % CATEGORY_COLOURS.length]} />)}
                     </Bar>
                   </BarChart>
@@ -535,8 +631,16 @@ Beta: match scores are algorithmic estimates using a category-similarity heurist
           </div>
 
           {/* Matrix grid with sticky Y-axis */}
+          <div className="flex items-center justify-between px-1 mb-1">
+            <span className="text-xs text-[#555] font-mono">
+              Showing {visibleProducts.length} of {filteredProducts.length} products
+            </span>
+          </div>
           <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-md overflow-hidden">
-            <div className="overflow-x-auto">
+            <div
+              className="overflow-x-auto"
+              style={{ maskImage: 'linear-gradient(to right, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent)' }}
+            >
               <table
                 className="w-full border-collapse"
                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
@@ -552,16 +656,22 @@ Beta: match scores are algorithmic estimates using a category-similarity heurist
                     {CREATOR_CATEGORIES.map(c => (
                       <th
                         key={c}
-                        className="border-b border-[#1a1a1a] text-[10px] text-[#888] uppercase tracking-wider px-2 py-3"
+                        className="border-b border-[#1a1a1a] text-[10px] text-[#888] uppercase tracking-wider px-2 py-3 cursor-pointer hover:text-[#ededed] transition-colors select-none"
                         style={{ minWidth: 90 }}
+                        onClick={() => handleColumnSort(c)}
                       >
-                        {c}
+                        <span className="inline-flex items-center gap-1">
+                          {c}
+                          {matrixSortCol === c && (
+                            matrixSortDir === 'desc' ? <ChevronDown size={10} /> : <ChevronUp size={10} />
+                          )}
+                        </span>
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProducts.length === 0 && (
+                  {visibleProducts.length === 0 && (
                     <tr>
                       <td
                         colSpan={CREATOR_CATEGORIES.length + 1}
@@ -571,13 +681,14 @@ Beta: match scores are algorithmic estimates using a category-similarity heurist
                       </td>
                     </tr>
                   )}
-                  {filteredProducts.map(p => (
-                    <tr key={p.id}>
+                  {visibleProducts.map(p => (
+                    <tr key={p.id} className="group">
                       <td
-                        className="sticky left-0 z-10 bg-[#0f0f0f] border-b border-r border-[#1a1a1a] px-4 py-3"
+                        className="sticky left-0 z-10 bg-[#0f0f0f] group-hover:bg-[#141414] border-b border-r border-[#1a1a1a] px-4 py-3 cursor-pointer transition-colors"
                         style={{ minWidth: 220, fontFamily: 'DM Sans, sans-serif' }}
+                        onClick={() => navigate(`/app/products?search=${encodeURIComponent(p.name)}`)}
                       >
-                        <div className="text-sm text-[#ededed] font-semibold truncate">
+                        <div className="text-sm text-[#ededed] font-semibold truncate hover:text-[#d4af37] transition-colors">
                           {p.name}
                         </div>
                         <div className="text-[10px] text-[#555] uppercase tracking-wider mt-0.5 font-mono">
@@ -621,6 +732,18 @@ Beta: match scores are algorithmic estimates using a category-similarity heurist
               </table>
             </div>
           </div>
+
+          {filteredProducts.length > matrixLimit && (
+            <div className="flex justify-center mt-2">
+              <button
+                type="button"
+                onClick={() => setMatrixLimit(prev => prev + 15)}
+                className="px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider border border-[#1a1a1a] bg-[#0f0f0f] text-[#888] hover:text-[#ededed] hover:border-[#333] transition-colors font-mono"
+              >
+                Show more ({filteredProducts.length - matrixLimit} remaining)
+              </button>
+            </div>
+          )}
 
           {/* Inline drawer */}
           {selectedCell && (

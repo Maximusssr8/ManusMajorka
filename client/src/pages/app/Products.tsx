@@ -12,7 +12,6 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
-import { useFavourites } from '@/hooks/useFavourites';
 import { useTracking } from '@/hooks/useTracking';
 import { useLists } from '@/hooks/useLists';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
@@ -527,16 +526,17 @@ function ProductSheet({
   open,
   onOpenChange,
   navigate,
-  onToggleFav,
-  isFav,
+  lists,
+  onSelectProduct,
 }: {
   product: Product | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   navigate: (path: string) => void;
-  onToggleFav: (p: Product) => Promise<void> | void;
-  isFav: boolean;
+  lists: ReturnType<typeof useLists>;
+  onSelectProduct?: (p: Product) => void;
 }) {
+  const isFav = product ? lists.isInAnyList(product.id) : false;
   const { isTracked, track, untrack } = useTracking();
   const isTrackedNow = product ? isTracked(product.id) : false;
   const [calcOpen, setCalcOpen] = useState(false);
@@ -629,12 +629,17 @@ function ProductSheet({
     toast.success(`Building store from "${cleanProductTitle(product.product_title).slice(0, 40)}"…`);
   }
 
-  async function handleToggleSave() {
+  function handleToggleSave() {
     if (!product) return;
-    const wasFav = isFav;
-    await onToggleFav(product);
-    if (wasFav) toast('Removed from saved');
-    else toast.success('Product saved');
+    const defaultList = lists.lists[0];
+    if (!defaultList) return;
+    if (isFav) {
+      lists.removeFromList(defaultList.id, String(product.id));
+      toast('Removed from saved');
+    } else {
+      lists.addToList(defaultList.id, product);
+      toast.success('Saved to your list');
+    }
   }
 
   return (
@@ -675,13 +680,22 @@ function ProductSheet({
           {/* Image */}
           <div className="mx-4 mb-4">
             <div className="w-full h-[240px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
-              {product.image_url && (
+              {product.image_url ? (
                 <img
                   src={proxyImage(product.image_url) ?? product.image_url}
                   alt={product.product_title}
-                  loading="lazy"
+                  loading="eager"
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    el.style.display = 'none';
+                    if (el.parentElement) {
+                      el.parentElement.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+                    }
+                  }}
                 />
+              ) : (
+                <div className="w-full h-full" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }} />
               )}
             </div>
           </div>
@@ -782,6 +796,7 @@ function ProductSheet({
             <SimilarProducts
               category={product.category}
               excludeId={String(product.id)}
+              onSelect={onSelectProduct}
             />
           )}
 
@@ -1037,7 +1052,7 @@ export default function AppProducts() {
   const initial = readInitialParams();
   const [, navigate] = useLocation();
   const [orderBy, setOrderBy] = useState<SortKey>('sold_count');
-  const [view, setView] = useState<'table' | 'grid'>('table');
+  const [view, setView] = useState<'table' | 'grid'>('grid');
   const [perPage, setPerPage] = useState<number>(25);
   const [page, setPage] = useState<number>(1);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -1058,7 +1073,6 @@ export default function AppProducts() {
   const closePill = () => setOpenPill(null);
 
   const aeSearch = useAESearch();
-  const fav = useFavourites();
   const lists = useLists();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
@@ -1105,9 +1119,9 @@ export default function AppProducts() {
         setSelectedProduct(null);
         return;
       }
-      // G / L → switch view mode
+      // G / T → switch view mode
       if (e.key === 'g' || e.key === 'G') setView('grid');
-      else if (e.key === 'l' || e.key === 'L') setView('table');
+      else if (e.key === 't' || e.key === 'T') setView('table');
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1402,12 +1416,29 @@ export default function AppProducts() {
                 <button
                   key={mode}
                   onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
-                  className={`text-sm font-medium rounded-md px-3 py-1.5 transition-colors whitespace-nowrap ${
-                    active
-                      ? 'bg-accent/15 text-accent-hover border border-accent/30'
-                      : 'text-muted border border-transparent hover:text-text'
+                  className={`text-sm font-medium rounded-md px-3 py-1.5 transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
+                    active && mode === 'live'
+                      ? 'border'
+                      : active
+                        ? 'bg-accent/15 text-accent-hover border border-accent/30'
+                        : 'text-muted border border-transparent hover:text-text'
                   }`}
+                  style={active && mode === 'live' ? {
+                    background: 'rgba(59,130,246,0.15)',
+                    borderColor: 'rgba(59,130,246,0.4)',
+                    color: '#3B82F6',
+                  } : undefined}
                 >
+                  {mode === 'live' && active && (
+                    aeSearch.loading ? (
+                      <span className="w-3 h-3 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
+                    ) : (
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+                      </span>
+                    )
+                  )}
                   {mode === 'db' ? 'Database' : 'Live AliExpress'}
                 </button>
               );
@@ -1596,7 +1627,7 @@ export default function AppProducts() {
 
       {/* Tab bar */}
       {searchMode === 'db' && (
-        <div className="px-4 md:px-8 flex flex-nowrap items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none bg-surface/50 backdrop-blur-sm border-b border-white/[0.06] py-2">
+        <div className="px-4 md:px-8 flex flex-nowrap items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none bg-surface/50 backdrop-blur-sm border-b border-white/[0.06] py-2" style={{ maskImage: 'linear-gradient(to right, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 85%, transparent)', scrollSnapType: 'x mandatory' }}>
           {SMART_TABS.map((tab) => {
             const active = activeTab === tab.key;
             const count = tabCounts[tab.key];
@@ -1606,6 +1637,7 @@ export default function AppProducts() {
                 key={tab.key}
                 onClick={() => { setActiveTab(tab.key); setPage(1); }}
                 style={{
+                  scrollSnapAlign: 'start' as const,
                   borderLeftColor: active ? '#d4af37' : 'transparent',
                   borderLeftWidth: 2,
                   borderLeftStyle: 'solid',
@@ -1667,12 +1699,12 @@ export default function AppProducts() {
       {searchMode === 'db' && (
         <div className="px-4 md:px-8 py-3 flex items-center justify-between gap-3 flex-wrap">
           <div className="text-sm text-muted">
-            {loading ? 'Loading products…' : `${filteredTotal.toLocaleString()} products`}
+            {loading ? 'Loading products…' : `Showing ${pageSlice.length} of ${filteredTotal.toLocaleString()} matching`}
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-2 text-[10px] text-white/30">
               <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">G</kbd> grid
-              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">L</kbd> list
+              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">T</kbd> table
               <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">/</kbd> search
               <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">Esc</kbd> close
             </div>
@@ -1816,8 +1848,8 @@ export default function AppProducts() {
         open={selectedProduct !== null}
         onOpenChange={(v) => { if (!v) setSelectedProduct(null); }}
         navigate={navigate}
-        onToggleFav={fav.toggleFavourite}
-        isFav={selectedProduct ? fav.isFavourite(selectedProduct.id) : false}
+        lists={lists}
+        onSelectProduct={setSelectedProduct}
       />
     </div>
   );
@@ -1881,7 +1913,7 @@ function SortableTh({ label, column, orderBy, onSort, align = 'right' }: Sortabl
   const map = COLUMN_SORT_MAP[column];
   if (!map) {
     return (
-      <th className={`hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-${align}`}>
+      <th className={`hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-2 py-3 whitespace-nowrap text-${align}`}>
         {label}
       </th>
     );
@@ -1893,7 +1925,7 @@ function SortableTh({ label, column, orderBy, onSort, align = 'right' }: Sortabl
   const next: SortKey = isActiveDesc ? map.asc : map.desc;
   const Arrow = isActiveAsc ? ChevronUp : isActiveDesc ? ChevronDown : ChevronsUpDown;
   return (
-    <th className={`hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest px-4 py-3.5 whitespace-nowrap text-${align} ${isActive ? 'text-text' : 'text-white/45'}`}>
+    <th className={`hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest px-2 py-3 whitespace-nowrap text-${align} ${isActive ? 'text-text' : 'text-white/45'}`}>
       <button
         type="button"
         onClick={() => onSort(next)}
@@ -1956,12 +1988,12 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
         <table className="w-full table-auto">
           <thead className="sticky top-0 z-10" style={{ background: '#0d0d0d', borderBottom: '1px solid rgba(212,175,55,0.35)' }}>
             <tr style={{ background: '#0d0d0d' }}>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
-              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-2 py-3 whitespace-nowrap text-left">#</th>
+              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-2 py-3 whitespace-nowrap text-left">Product</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-2 py-3 whitespace-nowrap text-left">Category</th>
               <SortableTh label="Score" column="score" orderBy={orderBy} onSort={onSort} align="right" />
               {/* Orders is always visible on mobile — render a plain sortable header that stays inline */}
-              <th className={`text-[11px] font-semibold uppercase tracking-widest px-4 py-3.5 whitespace-nowrap text-right ${orderBy === 'sold_count' || orderBy === 'orders_asc' ? 'text-text' : 'text-white/45'}`}>
+              <th className={`text-[11px] font-semibold uppercase tracking-widest px-2 py-3 whitespace-nowrap text-right ${orderBy === 'sold_count' || orderBy === 'orders_asc' ? 'text-text' : 'text-white/45'}`}>
                 <button
                   type="button"
                   onClick={() => onSort(orderBy === 'sold_count' ? 'orders_asc' : 'sold_count')}
@@ -1977,8 +2009,8 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                 </button>
               </th>
               <SortableTh label="Price" column="price" orderBy={orderBy} onSort={onSort} align="right" />
-              <SortableTh label="Revenue" column="revenue" orderBy={orderBy} onSort={onSort} align="right" />
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-center">♡</th>
+              <SortableTh label="Rev" column="revenue" orderBy={orderBy} onSort={onSort} align="right" />
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-2 py-3 whitespace-nowrap text-center" style={{ position: 'sticky', right: 0, background: '#0d0d0d', zIndex: 1 }}>Actions</th>
             </tr>
           </thead>
         <tbody>
@@ -1994,28 +2026,28 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => onSelect(p)}
-                className={`group h-24 ${isLast ? '' : 'border-b border-white/[0.04]'} border-l-2 border-l-transparent cursor-pointer transition-colors hover:bg-[rgba(59,130,246,0.04)]`}
+                className={`group h-[72px] ${isLast ? '' : 'border-b border-white/[0.04]'} border-l-2 border-l-transparent cursor-pointer transition-colors hover:bg-[rgba(59,130,246,0.04)]`}
               >
-                <td className="hidden md:table-cell px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
+                <td className="hidden md:table-cell px-2 text-xs text-white/20 tabular-nums whitespace-nowrap">
                   {String(i + 1).padStart(2, '0')}
                 </td>
-                <td className="px-4 py-2">
+                <td className="px-2 py-1.5">
                   <div className="flex items-center gap-4 min-w-0">
                     {p.image_url ? (
                       <img
                         src={proxyImage(p.image_url) ?? p.image_url}
                         alt={p.product_title}
                         loading="lazy"
-                        className="w-20 h-20 rounded-md border border-white/[0.08] bg-card object-cover shrink-0"
+                        className="w-14 h-14 rounded-md border border-white/[0.08] bg-card object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-md border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
+                      <div className="w-14 h-14 rounded-md border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <PlatformBadge platform={p.platform} />
                         <TT content={p.product_title}>
-                          <p className="text-sm font-semibold text-white/90 truncate max-w-[220px] cursor-default">
+                          <p className="text-sm font-semibold text-white/90 truncate max-w-[160px] cursor-default">
                             {p.product_title}
                           </p>
                         </TT>
@@ -2043,7 +2075,7 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                     </div>
                   </div>
                 </td>
-                <td className="hidden md:table-cell px-4 whitespace-nowrap">
+                <td className="hidden md:table-cell px-2 whitespace-nowrap">
                   {p.category ? (
                     <span
                       className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-[124px]"
@@ -2055,7 +2087,7 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                     <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td className="hidden md:table-cell px-4 text-right whitespace-nowrap">
+                <td className="hidden md:table-cell px-2 text-right whitespace-nowrap">
                   {score ? (
                     <TT
                       content={
@@ -2075,7 +2107,7 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                     <span className="text-muted text-xs">—</span>
                   )}
                 </td>
-                <td className={`px-4 text-right whitespace-nowrap ${orders > 0 ? 'text-text' : 'text-muted'}`}>
+                <td className={`px-2 text-right whitespace-nowrap ${orders > 0 ? 'text-text' : 'text-muted'}`}>
                   {orders > 0 ? (
                     <div className="flex flex-col items-end gap-0.5">
                       <TT content={`${orders.toLocaleString()} total orders tracked`}>
@@ -2098,13 +2130,13 @@ function ListTable({ products, loading, onSelect, lists, navigate, orderBy, onSo
                     '—'
                   )}
                 </td>
-                <td className="hidden md:table-cell px-4 text-right text-base font-bold text-text font-mono tabular-nums whitespace-nowrap">
+                <td className="hidden md:table-cell px-2 text-right text-sm font-bold text-text font-mono tabular-nums whitespace-nowrap">
                   {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
                 </td>
-                <td className={`hidden md:table-cell px-4 text-right text-base font-bold font-mono tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
+                <td className={`hidden md:table-cell px-2 text-right text-sm font-bold font-mono tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
-                <td className="hidden md:table-cell px-4 text-center whitespace-nowrap">
+                <td className="hidden md:table-cell px-2 text-center whitespace-nowrap" style={{ position: 'sticky', right: 0, background: 'inherit', zIndex: 1 }}>
                   {/* Heart opens list picker popover. Hover: Zap + ShoppingBag reveal. */}
                   <div className="flex items-center justify-end gap-1">
                     <ListPickerButton product={p} lists={lists} />
@@ -2412,19 +2444,13 @@ function ProductHistoryChart({ productId }: { productId: string | number }) {
     );
   }
 
-  // Empty state — honest message, no fake data.
+  // Empty state — collapsed single-line note.
   if (!tableReady || history.length < 2) {
     return (
-      <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-md">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
-        </div>
-        <div className="h-12 flex items-center justify-center">
-          <p className="text-[11px] text-white/35 font-medium">Trend data unavailable</p>
-        </div>
-        <p className="text-[10px] text-white/25 text-center mt-1">
-          Daily snapshots will build historical trends once this product has been tracked for 2+ days.
-        </p>
+      <div className="mx-4 mt-3 px-4 py-2.5">
+        <span className="text-[11px] font-medium" style={{ color: '#d4af37' }}>
+          Trend data builds automatically — check back in 2 days
+        </span>
       </div>
     );
   }
@@ -2570,7 +2596,7 @@ function FirstSaleBlueprint({ productId }: { productId: string }) {
   );
 }
 
-function SimilarProducts({ category, excludeId }: { category: string; excludeId: string }) {
+function SimilarProducts({ category, excludeId, onSelect }: { category: string; excludeId: string; onSelect?: (p: Product) => void }) {
   const { products, loading } = useProducts({
     category,
     limit: 4,
@@ -2603,12 +2629,10 @@ function SimilarProducts({ category, excludeId }: { category: string; excludeId:
           const score = Math.round(p.winning_score ?? 0);
           const orders = p.sold_count ?? 0;
           return (
-            <a
+            <div
               key={p.id}
-              href={p.product_url ?? '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 group bg-card border border-white/[0.06] hover:border-accent/30 rounded-lg overflow-hidden transition-colors no-underline"
+              onClick={() => onSelect?.(p)}
+              className="flex-1 group bg-card border border-white/[0.06] hover:border-accent/30 rounded-lg overflow-hidden transition-colors cursor-pointer"
             >
               <div className="aspect-square bg-bg overflow-hidden">
                 {p.image_url ? (
@@ -2631,7 +2655,7 @@ function SimilarProducts({ category, excludeId }: { category: string; excludeId:
                   <span>{orders > 0 ? fmtK(orders) : '—'}</span>
                 </div>
               </div>
-            </a>
+            </div>
           );
         })}
       </div>
