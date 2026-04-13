@@ -1566,6 +1566,16 @@ function ProductSheet({
           </div>
         </Dialog.Content>
       </Dialog.Portal>
+      {product && (
+        <ShopifyPushModal
+          product={product}
+          open={shopifyModalOpen}
+          onClose={() => {
+            setShopifyModalOpen(false);
+            setPushedToShopify(isShopifyPushed(String(product.id)));
+          }}
+        />
+      )}
     </Dialog.Root>
   );
 }
@@ -1622,6 +1632,7 @@ export default function AppProducts() {
   const aeSearch = useAESearch();
   const lists = useLists();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [bulkPushOpen, setBulkPushOpen] = useState(false);
 
   /* Pre-fetched exact tab counts from /api/products/tab-counts so
      badges show real totals, not per-page slices. */
@@ -2331,6 +2342,21 @@ export default function AppProducts() {
               Delete
             </button>
           )}
+          {/* Push all to Shopify */}
+          {filtered.length > 0 && (
+            <button
+              onClick={() => setBulkPushOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ml-auto"
+              style={{
+                background: '#d4af37',
+                color: '#000',
+                boxShadow: '0 0 12px rgba(212,175,55,0.2)',
+              }}
+            >
+              <ShoppingCart size={13} />
+              Push all to Shopify
+            </button>
+          )}
         </div>
       )}
 
@@ -2397,6 +2423,12 @@ export default function AppProducts() {
         navigate={navigate}
         lists={lists}
         onSelectProduct={setSelectedProduct}
+      />
+
+      <BulkShopifyPush
+        products={filtered}
+        open={bulkPushOpen}
+        onClose={() => setBulkPushOpen(false)}
       />
     </div>
   );

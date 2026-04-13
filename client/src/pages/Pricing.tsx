@@ -1198,6 +1198,79 @@ export default function Pricing() {
       {/* ── EMOTIONAL COMPARISON ── */}
       <EmotionalComparisonTable />
 
+      {/* ── WHAT HAPPENS WHEN YOU DON'T SIGN UP ── */}
+      <section style={{ padding: '80px 24px', background: C.bg }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <h2 style={{
+            fontFamily: syne, fontWeight: 800,
+            fontSize: 'clamp(22px, 4vw, 32px)',
+            letterSpacing: '-0.8px',
+            textAlign: 'center', marginBottom: 40,
+            color: C.text,
+          }}>
+            What happens when you don&apos;t sign up?
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { icon: '\u23F0', text: 'Finding one winning product takes 40+ hours of manual research.' },
+              { icon: '\u270D\uFE0F', text: 'Writing ad copy for 4 platforms takes 6+ hours per product.' },
+              { icon: '\uD83D\uDE48', text: 'You\'re competing blind against operators who have AI scoring, real-time data, and automated pipelines.' },
+            ].map((item) => (
+              <div key={item.text} style={{
+                display: 'flex', alignItems: 'flex-start', gap: 14,
+                padding: '18px 22px',
+                background: 'rgba(239,68,68,0.04)',
+                border: '1px solid rgba(239,68,68,0.15)',
+                borderRadius: 8,
+              }}>
+                <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
+                <span style={{ fontSize: 15, color: C.secondary, lineHeight: 1.6 }}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 36 }}>
+            <Link href="/sign-up" style={{
+              display: 'inline-block',
+              background: `linear-gradient(135deg, ${C.gold}, #2563EB)`,
+              color: '#FAFAFA', borderRadius: 10,
+              padding: '14px 36px',
+              fontFamily: syne, fontWeight: 800, fontSize: 16,
+              textDecoration: 'none',
+              boxShadow: '0 0 36px rgba(59,130,246,0.35)',
+            }}>
+              Don&apos;t compete blind. Start your 7-day free trial. {'\u2192'}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TRUST STACK ── */}
+      <section style={{ padding: '0 24px 60px', background: C.bg }}>
+        <div style={{
+          maxWidth: 720, margin: '0 auto',
+          display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 14,
+        }}>
+          {[
+            { icon: '\uD83D\uDEE1\uFE0F', label: '30-day money-back guarantee' },
+            { icon: '\u2705', label: 'Cancel anytime — no contracts' },
+            { icon: '\uD83C\uDF0F', label: 'Used by operators across 7 markets' },
+            { icon: '\uD83C\uDDE6\uD83C\uDDFA', label: 'AU company — Gold Coast, Queensland' },
+            { icon: '\uD83D\uDD12', label: 'Payments secured by Stripe' },
+          ].map((badge) => (
+            <div key={badge.label} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '8px 16px',
+              background: C.card,
+              border: `1px solid ${C.border}`,
+              borderRadius: 8,
+            }}>
+              <span style={{ fontSize: 16 }}>{badge.icon}</span>
+              <span style={{ fontSize: 13, color: C.secondary, fontWeight: 500 }}>{badge.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── FAQ ── */}
       <section className="pricing-faq" style={{ padding: '0 24px 80px' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
@@ -1286,9 +1359,20 @@ export default function Pricing() {
         >
           Ready to scale your business?
         </h2>
-        <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36 }}>
-          14-day money-back guarantee. Afterpay available.
+        <p style={{ color: C.secondary, fontSize: 16, marginBottom: 12 }}>
+          30-day money-back guarantee. Zero risk. Afterpay available.
         </p>
+        <div style={{
+          display: 'inline-flex', alignItems: 'baseline', gap: 12,
+          padding: '8px 20px',
+          background: 'rgba(212,175,55,0.08)',
+          border: '1px solid rgba(212,175,55,0.2)',
+          borderRadius: 8, marginBottom: 36,
+        }}>
+          <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: C.text }}>$99/mo</span>
+          <span style={{ fontSize: 15, color: '#ef4444', textDecoration: 'line-through' }}>$149/mo</span>
+          <span style={{ fontFamily: syne, fontSize: 11, color: '#d4af37', fontWeight: 700, letterSpacing: '0.04em' }}>EARLY ACCESS</span>
+        </div>
         <Link
           href="/sign-up?plan=builder"
           style={{
