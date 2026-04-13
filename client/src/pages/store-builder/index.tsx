@@ -20,6 +20,10 @@ import {
   Upload,
   ChevronDown,
   ChevronUp,
+  ClipboardPaste,
+  X,
+  Loader2,
+  ShoppingCart,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -37,6 +41,27 @@ const TEXT_MUTED = 'rgba(245,245,245,0.35)';
 const SYNE = "'Syne', sans-serif";
 const DM_SANS = "'DM Sans', sans-serif";
 const MONO = "'JetBrains Mono', monospace";
+
+// ─── Helpers ──────────────────────────────────────────────────
+function proxyImg(url: string): string {
+  if (!url) return '';
+  if (url.includes('alicdn.com') || url.includes('aliexpress')) {
+    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
+interface ExtractedProduct {
+  product_id: string;
+  source_url: string;
+  title: string | null;
+  image_url: string;
+  price_aud: number | null;
+  category: string | null;
+  score: number | null;
+  orders: number | null;
+  description: string | null;
+}
 
 // ─── Types ─────────────────────────────────────────────────────
 type Mode = 'ai' | 'shopify' | 'marketplace';
@@ -841,6 +866,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
   <meta property="og:description" content="${safeTagline}" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_AU" />
+  ${store.products[0]?.image_url ? `<meta property="og:image" content="${escHtml(proxyImg(store.products[0].image_url))}" />` : ''}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${safeName}" />
   <meta name="twitter:description" content="${safeTagline}" />
@@ -884,8 +910,9 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
   }) => store.products.slice(0, 6).map((p, i) => {
     const safeTitle = escHtml(p.title);
     const originalPrice = (p.price_aud * 1.3).toFixed(2);
-    const imgBlock = p.image_url
-      ? `<img src="${escHtml(p.image_url)}" alt="${safeTitle}" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
+    const proxiedImg = p.image_url ? proxyImg(p.image_url) : '';
+    const imgBlock = proxiedImg
+      ? `<img src="${escHtml(proxiedImg)}" alt="${safeTitle}" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
       : `<div style="width:100%;aspect-ratio:1/1;background:${cfg.imgPlaceholderBg};display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="${cfg.priceClr}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontBody};">Product Image</span></div>`;
     const badgeLabel = i === 0 ? 'BESTSELLER' : (i === 1 ? 'NEW' : '');
     const badge = badgeLabel ? `<div style="position:absolute;top:12px;left:12px;padding:4px 12px;background:${cfg.badgeBg};color:${cfg.badgeText};font-size:11px;font-weight:700;border-radius:4px;letter-spacing:0.05em;font-family:${cfg.fontBody};">${badgeLabel}</div>` : '';
@@ -1019,6 +1046,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     <h1 style="font-family:${fH};font-size:clamp(36px,6vw,64px);font-weight:${tc.category === 'minimal' ? '700' : '800'};letter-spacing:-0.03em;margin-bottom:20px;color:${textClr};line-height:1.1;max-width:720px;margin-left:auto;margin-right:auto;">${safeTagline}</h1>
     <p style="font-size:clamp(16px,2vw,20px);color:${dimText};max-width:560px;margin:0 auto 40px;line-height:1.6;">Premium ${escHtml(nicheLabel)} for Australian shoppers. Curated for quality, backed by our 30-day guarantee.</p>
     <a href="#products" style="display:inline-block;padding:16px 40px;background:${accent};color:${btnText};font-family:${fH};font-weight:700;font-size:16px;border-radius:${rad};text-decoration:none;box-shadow:0 4px 24px ${accent}4d;transition:transform 0.2s;">${tc.category === 'luxury' ? 'Discover the Collection' : (showUrgency ? 'Shop Now - Free Shipping &#8594;' : 'Shop Now &#8594;')}</a>
+    ${store.products[0]?.image_url ? `<div style="margin:40px auto 0;max-width:320px;"><img src="${escHtml(proxyImg(store.products[0].image_url))}" alt="${escHtml(store.products[0]?.title || '')}" loading="lazy" style="width:100%;border-radius:${rad};box-shadow:0 8px 32px rgba(0,0,0,0.25);"/></div>` : ''}
     <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid ${borderClr};">
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128666; Free AU Shipping</div>
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128179; Afterpay Available</div>
@@ -1414,8 +1442,120 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
   const [includeAfterpay, setIncludeAfterpay] = useState(true);
   const [includeReviews, setIncludeReviews] = useState(true);
 
-  // Show a pre-fill banner if a product was passed from the Products page
-  const prefilledProduct = prefilled;
+  // ── AliExpress URL extraction state ──
+  const [aliUrl, setAliUrl] = useState(prefilled?.aliexpress_url || '');
+  const [extracting, setExtracting] = useState(false);
+  const [extractedProduct, setExtractedProduct] = useState<ExtractedProduct | null>(
+    prefilled
+      ? {
+          product_id: prefilled.id || '',
+          source_url: prefilled.aliexpress_url || '',
+          title: prefilled.title || null,
+          image_url: prefilled.image || '',
+          price_aud: prefilled.price ?? null,
+          category: prefilled.category || null,
+          score: prefilled.score ?? null,
+          orders: prefilled.orders ?? null,
+          description: prefilled.description || null,
+        }
+      : null,
+  );
+  const [extractError, setExtractError] = useState<string | null>(null);
+
+  // ── Shopify push state ──
+  const [shopifyPushing, setShopifyPushing] = useState(false);
+  const [shopifyProgress, setShopifyProgress] = useState('');
+  const [shopifyResults, setShopifyResults] = useState<Array<{ title: string; success: boolean; url?: string }>>([]);
+
+  // Helper to get auth token
+  const getAuthToken = useCallback(async (): Promise<string> => {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? '';
+  }, []);
+
+  // ── Extract product from AliExpress URL ──
+  const handleExtractUrl = useCallback(async () => {
+    const url = aliUrl.trim();
+    if (!url) { toast.error('Paste an AliExpress URL first'); return; }
+    if (!url.includes('aliexpress') && !url.includes('s.click')) {
+      toast.error('Please enter a valid AliExpress URL');
+      return;
+    }
+    setExtracting(true);
+    setExtractError(null);
+    setExtractedProduct(null);
+
+    const token = await getAuthToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    // Step 1: extract product ID from URL
+    const extractRes = await safeFetch<{
+      product_id: string; source_url: string; title: string | null;
+      images: string[]; price_aud: number | null; extracted: boolean;
+    }>(`/api/products/extract-url?url=${encodeURIComponent(url)}`, { headers });
+
+    if (!extractRes.ok || !extractRes.data?.product_id) {
+      setExtracting(false);
+      setExtractError('Could not extract product from this URL. Try a different link.');
+      return;
+    }
+
+    const productId = extractRes.data.product_id;
+
+    // Step 2: search Majorka DB for matching product
+    const dbRes = await safeFetch<{ products?: Array<{
+      id: string; product_title: string; image_url: string; price_aud: number;
+      category: string; winning_score: number; sold_count: number;
+    }> }>(`/api/products?search=${encodeURIComponent(productId)}&limit=1`, { headers });
+
+    const dbProduct = dbRes.ok && dbRes.data?.products?.[0] ? dbRes.data.products[0] : null;
+
+    if (dbProduct) {
+      const ep: ExtractedProduct = {
+        product_id: dbProduct.id,
+        source_url: url,
+        title: dbProduct.product_title,
+        image_url: dbProduct.image_url || '',
+        price_aud: dbProduct.price_aud,
+        category: dbProduct.category || null,
+        score: dbProduct.winning_score,
+        orders: dbProduct.sold_count,
+        description: null,
+      };
+      setExtractedProduct(ep);
+      if (dbProduct.category && !niche) setNiche(dbProduct.category);
+      if (dbProduct.product_title && !customStoreName) {
+        const words = dbProduct.product_title.split(' ').slice(0, 3).join(' ');
+        setCustomStoreName(`${words} Store`);
+      }
+    } else {
+      // Use the extracted ID info as minimal product
+      const ep: ExtractedProduct = {
+        product_id: productId,
+        source_url: url,
+        title: extractRes.data.title || `AliExpress Product #${productId}`,
+        image_url: extractRes.data.images?.[0] || '',
+        price_aud: extractRes.data.price_aud ?? null,
+        category: null,
+        score: null,
+        orders: null,
+        description: null,
+      };
+      setExtractedProduct(ep);
+    }
+
+    setExtracting(false);
+  }, [aliUrl, niche, customStoreName, getAuthToken]);
+
+  const handleClearExtracted = useCallback(() => {
+    setExtractedProduct(null);
+    setAliUrl('');
+    setExtractError(null);
+  }, []);
+
+  // The active product: either extracted from URL or carried from Products page
+  const activeProduct = extractedProduct;
 
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) {
@@ -1424,6 +1564,9 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     }
     setLoading(true);
     setPending(null);
+    const prodTitle = activeProduct?.title || niche;
+    const prodDesc = activeProduct?.description || '';
+    const prodPrice = activeProduct?.price_aud ? String(activeProduct.price_aud) : '';
     const res = await safeFetch<Record<string, unknown>>('/api/store-builder/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1431,9 +1574,9 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         niche,
         market,
         vibe,
-        productName: prefilledProduct?.title || niche,
-        productDescription: prefilledProduct?.description || '',
-        pricePoint: String(prefilledProduct?.price ?? ''),
+        productName: prodTitle,
+        productDescription: prodDesc,
+        pricePoint: prodPrice,
         storeName: customStoreName || undefined,
         targetCustomer: targetCustomer || undefined,
         priceRange,
@@ -1444,7 +1587,14 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     });
     setLoading(false);
     if (res.ok && res.data) {
-      const store = normalizeStoreResponse(res.data, prefilledProduct);
+      const prefilledForNorm = activeProduct
+        ? { title: activeProduct.title || undefined, price: activeProduct.price_aud || undefined, image: activeProduct.image_url || undefined }
+        : null;
+      const store = normalizeStoreResponse(res.data, prefilledForNorm);
+      // Ensure the extracted product image is used in the first product card
+      if (activeProduct?.image_url && store.products.length > 0 && !store.products[0].image_url) {
+        store.products[0] = { ...store.products[0], image_url: activeProduct.image_url };
+      }
       setPreview(store);
       toast.success('Store generated');
       return;
@@ -1454,7 +1604,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
       return;
     }
     toast.error(res.error ?? 'Generation failed');
-  }, [niche, market, vibe, customStoreName, targetCustomer, priceRange, usp, includeAfterpay, includeReviews]);
+  }, [niche, market, vibe, customStoreName, targetCustomer, priceRange, usp, includeAfterpay, includeReviews, activeProduct]);
 
   const handleSave = useCallback(async () => {
     if (!preview) return;
@@ -1476,6 +1626,74 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
     }
     toast.error(res.error ?? 'Save failed');
   }, [preview, onSaved]);
+
+  // ── Push products to Shopify ──
+  const handleShopifyPush = useCallback(async () => {
+    if (!preview) return;
+    setShopifyPushing(true);
+    setShopifyResults([]);
+    setShopifyProgress('');
+
+    const token = await getAuthToken();
+    if (!token) {
+      toast.error('Please sign in first');
+      setShopifyPushing(false);
+      return;
+    }
+    const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+    // Check connection
+    const statusRes = await safeFetch<{ connected: boolean; shop: string | null }>('/api/shopify/status', { headers });
+    if (!statusRes.ok || !statusRes.data?.connected) {
+      toast.error('Shopify not connected. Go to the Shopify Sync tab to connect first.');
+      setShopifyPushing(false);
+      return;
+    }
+
+    const products = preview.products;
+    const results: Array<{ title: string; success: boolean; url?: string }> = [];
+
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      setShopifyProgress(`Pushing ${i + 1}/${products.length} products...`);
+
+      const pushRes = await safeFetch<{ success: boolean; shopifyProduct?: { id: number } }>('/api/shopify/create-product', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          product: {
+            product_title: p.title,
+            price_aud: p.price_aud,
+            image_url: p.image_url || null,
+            category: niche || 'General',
+            sellPrice: p.price_aud,
+            description: `Premium ${niche || 'product'} — curated by ${preview.storeName}.`,
+          },
+        }),
+      });
+
+      const shopDomain = statusRes.data.shop || '';
+      const shopifyId = pushRes.ok && (pushRes.data as Record<string, unknown>)?.shopifyProduct
+        ? ((pushRes.data as Record<string, unknown>).shopifyProduct as { id: number }).id
+        : null;
+      results.push({
+        title: p.title,
+        success: pushRes.ok,
+        url: shopifyId ? `https://${shopDomain}/admin/products/${shopifyId}` : undefined,
+      });
+    }
+
+    setShopifyResults(results);
+    setShopifyProgress('');
+    setShopifyPushing(false);
+
+    const successCount = results.filter(r => r.success).length;
+    if (successCount === products.length) {
+      toast.success(`All ${successCount} products pushed to Shopify`);
+    } else {
+      toast.error(`${successCount}/${products.length} products pushed — some failed`);
+    }
+  }, [preview, niche, getAuthToken]);
 
   const [themesExpanded, setThemesExpanded] = useState(true);
 
@@ -1502,24 +1720,193 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         >
           Store Brief
         </div>
-        {prefilledProduct && (
-          <div style={{ marginBottom: 16, padding: '12px 14px', background: 'rgba(212,175,55,0.06)', border: `1px solid rgba(212,175,55,0.25)`, borderRadius: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: GOLD, letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: 6, fontFamily: MONO }}>
-              Product imported from database
+
+        {/* ── Add your product section ── */}
+        <div style={{ marginBottom: 20 }}>
+          <FieldLabel>Add your product</FieldLabel>
+          <div className="flex gap-2 mb-3">
+            <div
+              className="rounded-md px-3 py-1.5 text-xs font-medium"
+              style={{
+                background: !activeProduct || aliUrl ? 'rgba(59,130,246,0.1)' : 'transparent',
+                border: `1px solid ${!activeProduct || aliUrl ? CTA_BLUE : BORDER}`,
+                color: !activeProduct || aliUrl ? CTA_BLUE : TEXT_DIM,
+                cursor: 'default',
+              }}
+            >
+              <ClipboardPaste size={12} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+              Paste AliExpress URL
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {prefilledProduct.image && (
-                <img src={prefilledProduct.image} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', border: `1px solid ${BORDER}` }} />
-              )}
-              <div>
-                <div style={{ fontSize: 13, color: TEXT, fontWeight: 600 }}>{prefilledProduct.title?.slice(0, 50)}</div>
-                <div style={{ fontSize: 11, color: TEXT_DIM, fontFamily: MONO }}>
-                  {prefilledProduct.price ? `A$${prefilledProduct.price}` : ''} · Score {prefilledProduct.score ?? '---'}
+            {prefilled && (
+              <div
+                className="rounded-md px-3 py-1.5 text-xs font-medium"
+                style={{
+                  background: activeProduct && !aliUrl ? 'rgba(212,175,55,0.1)' : 'transparent',
+                  border: `1px solid ${activeProduct && !aliUrl ? GOLD : BORDER}`,
+                  color: activeProduct && !aliUrl ? GOLD : TEXT_DIM,
+                  cursor: 'default',
+                }}
+              >
+                <ShoppingBag size={12} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+                From Products page
+              </div>
+            )}
+          </div>
+
+          {/* URL input */}
+          <div style={{ position: 'relative', marginBottom: 8 }}>
+            <input
+              value={aliUrl}
+              onChange={(e) => setAliUrl(e.target.value)}
+              onFocus={inputFocusHandler}
+              onBlur={inputBlurHandler}
+              readOnly={!!prefilled?.aliexpress_url && aliUrl === prefilled.aliexpress_url}
+              placeholder="https://aliexpress.com/item/123456789.html"
+              style={{
+                ...inputStyle,
+                paddingRight: 44,
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleExtractUrl(); }}
+            />
+            <ClipboardPaste
+              size={16}
+              style={{
+                position: 'absolute',
+                right: 14,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: TEXT_MUTED,
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
+          <button
+            onClick={handleExtractUrl}
+            disabled={extracting || !aliUrl.trim()}
+            className="rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 w-full inline-flex items-center justify-center gap-2"
+            style={{
+              background: extracting || !aliUrl.trim() ? 'rgba(59,130,246,0.3)' : CTA_BLUE,
+              color: '#fff',
+              border: 'none',
+              fontFamily: DM_SANS,
+              cursor: extracting || !aliUrl.trim() ? 'not-allowed' : 'pointer',
+              opacity: extracting || !aliUrl.trim() ? 0.6 : 1,
+              marginBottom: 8,
+            }}
+          >
+            {extracting ? <><Loader2 size={14} className="animate-spin" /> Extracting...</> : 'Extract Product'}
+          </button>
+
+          {/* Extract error */}
+          {extractError && (
+            <div style={{ fontSize: 12, color: '#ef4444', fontFamily: DM_SANS, marginBottom: 8 }}>
+              {extractError}
+            </div>
+          )}
+
+          {/* Extracting skeleton */}
+          {extracting && (
+            <div
+              style={{
+                padding: '12px 14px',
+                background: 'rgba(255,255,255,0.02)',
+                border: `1px solid ${BORDER}`,
+                borderRadius: 8,
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <div className="animate-pulse" style={{ width: 48, height: 48, borderRadius: 6, background: 'rgba(255,255,255,0.05)' }} />
+                <div style={{ flex: 1 }}>
+                  <div className="animate-pulse" style={{ height: 12, width: '70%', borderRadius: 4, background: 'rgba(255,255,255,0.05)', marginBottom: 6 }} />
+                  <div className="animate-pulse" style={{ height: 10, width: '40%', borderRadius: 4, background: 'rgba(255,255,255,0.04)' }} />
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Extracted product card */}
+          {activeProduct && !extracting && (
+            <div
+              style={{
+                padding: '12px 14px',
+                background: 'rgba(212,175,55,0.06)',
+                border: `1px solid rgba(212,175,55,0.25)`,
+                borderRadius: 8,
+                position: 'relative',
+              }}
+            >
+              <button
+                onClick={handleClearExtracted}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: TEXT_MUTED,
+                  padding: 4,
+                  minWidth: 44,
+                  minHeight: 44,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-label="Clear product"
+              >
+                <X size={14} />
+              </button>
+              <div style={{ fontSize: 10, fontWeight: 700, color: GOLD, letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: 6, fontFamily: MONO }}>
+                {prefilled && !aliUrl ? 'Imported from Products' : 'Extracted from URL'}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {activeProduct.image_url ? (
+                  <img
+                    src={proxyImg(activeProduct.image_url)}
+                    alt=""
+                    style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover', border: `1px solid ${BORDER}` }}
+                  />
+                ) : (
+                  <div style={{ width: 48, height: 48, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShoppingBag size={18} style={{ color: TEXT_MUTED }} />
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, color: TEXT, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {(activeProduct.title || 'Product').slice(0, 50)}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
+                    {activeProduct.price_aud != null && (
+                      <span style={{ fontSize: 12, color: GOLD, fontFamily: MONO, fontWeight: 700 }}>
+                        A${activeProduct.price_aud.toFixed(2)}
+                      </span>
+                    )}
+                    {activeProduct.score != null && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                          background: activeProduct.score >= 80 ? 'rgba(34,197,94,0.15)' : activeProduct.score >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)',
+                          color: activeProduct.score >= 80 ? '#22c55e' : activeProduct.score >= 60 ? '#f59e0b' : '#ef4444',
+                          fontFamily: MONO,
+                        }}
+                      >
+                        {activeProduct.score}
+                      </span>
+                    )}
+                    {activeProduct.category && (
+                      <span style={{ fontSize: 10, color: TEXT_DIM, fontFamily: DM_SANS }}>{activeProduct.category}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="mb-4">
           <FieldLabel>Store Niche</FieldLabel>
           <input
@@ -1795,7 +2182,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
                   <div
                     className="aspect-square"
                     style={{
-                      backgroundImage: p.image_url ? `url(${p.image_url})` : 'none',
+                      backgroundImage: p.image_url ? `url(${proxyImg(p.image_url)})` : 'none',
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       background: p.image_url ? undefined : 'rgba(255,255,255,0.03)',
@@ -1818,11 +2205,60 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <PrimaryButton onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving...' : 'Save to Marketplace'}
               </PrimaryButton>
               <GhostButton onClick={() => setPreview(null)}>Discard</GhostButton>
+            </div>
+
+            {/* ── Push to Shopify ── */}
+            <div className="mt-4">
+              <button
+                onClick={handleShopifyPush}
+                disabled={shopifyPushing}
+                className="rounded-md px-6 py-2.5 text-sm font-semibold transition-all duration-200 w-full inline-flex items-center justify-center gap-2"
+                style={{
+                  background: shopifyPushing ? 'rgba(212,175,55,0.3)' : GOLD,
+                  color: '#080808',
+                  border: 'none',
+                  fontFamily: DM_SANS,
+                  cursor: shopifyPushing ? 'not-allowed' : 'pointer',
+                  opacity: shopifyPushing ? 0.7 : 1,
+                  boxShadow: shopifyPushing ? 'none' : '0 0 24px rgba(212,175,55,0.35)',
+                }}
+              >
+                <ShoppingCart size={16} />
+                {shopifyPushing ? shopifyProgress || 'Pushing...' : 'Push products to Shopify'}
+              </button>
+              {shopifyResults.length > 0 && (
+                <div style={{ marginTop: 10 }}>
+                  {shopifyResults.map((r, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 py-1.5"
+                      style={{ fontSize: 12, fontFamily: DM_SANS }}
+                    >
+                      {r.success ? (
+                        <CheckCircle2 size={14} style={{ color: '#22c55e', flexShrink: 0 }} />
+                      ) : (
+                        <X size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
+                      )}
+                      <span style={{ color: TEXT, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</span>
+                      {r.url && (
+                        <a
+                          href={r.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: GOLD, fontSize: 11, textDecoration: 'none', flexShrink: 0 }}
+                        >
+                          View
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── MAKE IT REAL ── */}
