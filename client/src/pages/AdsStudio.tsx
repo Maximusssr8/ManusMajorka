@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Trash2, Download, Copy, Check, Zap, TrendingUp, DollarSign, Target, ChevronRight, Plus, X } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Trash2, Download, Copy, Check, Zap, TrendingUp, DollarSign, Target, ChevronRight, Plus, X, ChevronDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -7,6 +7,7 @@ import UsageMeter from '@/components/UsageMeter';
 import { proxyImage } from '@/lib/imageProxy';
 import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 
 const syne = "'Syne', 'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
@@ -196,8 +197,14 @@ export default function AdsStudio() {
   // Saved ads
   const [saved, setSaved] = useState<SavedAd[]>([]);
   const [expandedSaved, setExpandedSaved] = useState<number | null>(null);
+  const [savedDrawerOpen, setSavedDrawerOpen] = useState(false);
+
+  // Validation
+  const [nameError, setNameError] = useState(false);
 
   const outputRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasOutput = Object.keys(formatOutputs).length > 0;
 
   useEffect(() => {
@@ -226,10 +233,27 @@ export default function AdsStudio() {
     }
   }, []);
 
+  // ── Picker: Escape key + click-outside ──
+  useEffect(() => {
+    if (!showPicker) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShowPicker(false);
+    }
+    function handleClickOutside(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowPicker(false);
+      }
+    }
+    document.addEventListener('keydown', handleKey);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPicker]);
+
   // ── Picker helpers ──
-  async function openPicker() {
-    setShowPicker(true);
-    if (dbProducts.length > 0) return;
+  const fetchTopProducts = useCallback(async () => {
     setDbLoading(true);
     try {
       const r = await fetch('/api/products/top20');
@@ -242,7 +266,42 @@ export default function AdsStudio() {
     } finally {
       setDbLoading(false);
     }
+  }, []);
+
+  async function openPicker() {
+    setShowPicker(true);
+    setPickerSearch('');
+    await fetchTopProducts();
   }
+
+  // FIX 14: Debounced search in picker
+  useEffect(() => {
+    if (!showPicker) return;
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    const q = pickerSearch.trim();
+    if (!q) {
+      fetchTopProducts();
+      return;
+    }
+    if (q.length < 2) return;
+    searchTimerRef.current = setTimeout(async () => {
+      setDbLoading(true);
+      try {
+        const r = await fetch(`/api/products/top20?q=${encodeURIComponent(q)}`);
+        if (!r.ok) return;
+        const data = await r.json() as { products: DbProduct[]; count: number };
+        // Fall back to client filter if server doesn't support q param
+        if (data.products) {
+          setDbProducts(data.products);
+        }
+      } catch {
+        // Keep existing products, just filter client-side
+      } finally {
+        setDbLoading(false);
+      }
+    }, 300);
+    return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
+  }, [pickerSearch, showPicker, fetchTopProducts]);
 
   function pickProduct(p: DbProduct) {
     setProductName(p.product_title);
@@ -276,7 +335,12 @@ export default function AdsStudio() {
 
   // ── Generate ──
   async function generate() {
-    if (!productName.trim()) return;
+    if (!productName.trim()) {
+      setNameError(true);
+      toast.error('Product name is required');
+      return;
+    }
+    setNameError(false);
     setLoading(true);
     setFormatOutputs({});
     setBulkVariations([]);
@@ -374,7 +438,11 @@ Rules:
 
   // ── Bulk Variations ──
   async function generateBulkVariations() {
-    if (!productName.trim()) return;
+    if (!productName.trim()) {
+      setNameError(true);
+      toast.error('Product name is required');
+      return;
+    }
     setBulkLoading(true);
 
     const framework = HOOK_FRAMEWORKS.find((f) => f.id === selectedFramework);
@@ -471,6 +539,7 @@ Make each variation feel genuinely different — different angles, different emo
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    toast.success('Exported as majorka-ads.csv');
   }
 
   // ── Export TXT (legacy) ──
@@ -570,8 +639,35 @@ Make each variation feel genuinely different — different angles, different emo
         </div>
       )}
 
-      {/* 3-col layout */}
-      <div className="ads-studio-layout" style={{ display: 'grid', gridTemplateColumns: '340px 1fr 280px', height: intel ? 'calc(100vh - 170px)' : 'calc(100vh - 100px)', overflow: 'hidden' }}>
+      {/* Responsive layout styles */}
+      <style>{`
+        .ads-studio-layout {
+          display: grid;
+          grid-template-columns: 340px 1fr;
+          overflow: hidden;
+        }
+        @media (min-width: 1280px) {
+          .ads-studio-layout {
+            grid-template-columns: 340px 1fr 280px;
+          }
+          .ads-studio-layout .ads-saved-panel { display: flex !important; }
+          .ads-studio-layout .ads-saved-toggle { display: none !important; }
+        }
+        @media (max-width: 1279px) {
+          .ads-studio-layout .ads-saved-panel { display: none !important; }
+          .ads-studio-layout .ads-saved-toggle { display: flex !important; }
+        }
+        .ads-mockup-grid {
+          grid-template-columns: minmax(200px, 260px) 1fr;
+        }
+        @media (max-width: 900px) {
+          .ads-mockup-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
+      {/* Layout */}
+      <div className="ads-studio-layout" style={{ height: intel ? 'calc(100vh - 170px)' : 'calc(100vh - 100px)' }}>
         {/* ── LEFT: Form ── */}
         <div style={{
           position: 'relative',
@@ -604,12 +700,12 @@ Make each variation feel genuinely different — different angles, different emo
                 <ChevronRight size={14} />
               </>
             ) : (
-              <>\uD83C\uDFAF Pick from your product database</>
+              <><Target size={14} /> Pick from your product database</>
             )}
           </button>
 
           {showPicker && (
-            <div style={{
+            <div ref={pickerRef} style={{
               position: 'absolute', top: 60, left: 18, right: 18, zIndex: 50,
               background: '#1c1c1c', border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: 10, maxHeight: 360, overflowY: 'auto',
@@ -622,7 +718,7 @@ Make each variation feel genuinely different — different angles, different emo
                   placeholder="Search products..."
                   style={{ flex: 1, height: 28, padding: '0 8px', background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, fontSize: 11, color: '#f1f1f3', outline: 'none', fontFamily: dm }}
                 />
-                <button onClick={() => setShowPicker(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 16, padding: 4 }}>\u00D7</button>
+                <button onClick={() => setShowPicker(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: 4, display: 'inline-flex' }}><X size={14} /></button>
               </div>
               {dbLoading ? (
                 <div style={{ padding: 20, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Loading\u2026</div>
@@ -672,7 +768,7 @@ Make each variation feel genuinely different — different angles, different emo
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: mono }}>Product Details</div>
 
           {[
-            { label: 'Product Name *', value: productName, set: setProductName, placeholder: 'e.g. LED Light Therapy Face Mask', required: true },
+            { label: 'Product Name *', value: productName, set: (v: string) => { setProductName(v); if (v.trim()) setNameError(false); }, placeholder: 'e.g. LED Light Therapy Face Mask', required: true },
             { label: 'Product URL', value: productUrl, set: setProductUrl, placeholder: 'https://yourstore.com/product', required: false },
             { label: 'Target Audience', value: audience, set: setAudience, placeholder: 'e.g. Women 28\u201345, AU, skincare', required: false },
             { label: 'Price Point', value: pricePoint, set: setPricePoint, placeholder: 'e.g. $49.99 AUD', required: false },
@@ -685,7 +781,7 @@ Make each variation feel genuinely different — different angles, different emo
                 placeholder={placeholder}
                 style={{
                   width: '100%', height: 34, padding: '0 10px',
-                  border: `1px solid ${required && !value ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  border: `1px solid ${required && nameError && !value ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.08)'}`,
                   borderRadius: 6, fontSize: 12, color: '#f1f1f3', background: '#0a0a0c',
                   outline: 'none', boxSizing: 'border-box', fontFamily: dm,
                 }}
@@ -697,7 +793,7 @@ Make each variation feel genuinely different — different angles, different emo
             <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Key Benefit / USP</label>
             <textarea
               value={benefit}
-              onChange={(e) => setBenefit(e.target.value)}
+              onChange={(e) => setBenefit(e.target.value.slice(0, 200))}
               placeholder="e.g. reduces back pain in 10 min, visible results in 7 days"
               rows={2}
               style={{
@@ -707,6 +803,10 @@ Make each variation feel genuinely different — different angles, different emo
                 outline: 'none', resize: 'none' as const, boxSizing: 'border-box', fontFamily: dm,
               }}
             />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', fontFamily: dm }}>50-100 chars recommended</span>
+              <span style={{ fontSize: 9, color: benefit.length > 100 ? '#f59e0b' : 'rgba(255,255,255,0.3)', fontFamily: mono }}>{benefit.length}/100</span>
+            </div>
           </div>
 
           {/* Funnel stage */}
@@ -751,7 +851,8 @@ Make each variation feel genuinely different — different angles, different emo
 
           {/* ── HOOK FRAMEWORK SELECTOR ── */}
           <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: mono }}>Hook Framework</label>
+            <label style={{ display: 'block', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4, fontFamily: mono }}>Hook Framework</label>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Choose one:</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 6 }}>
               {HOOK_FRAMEWORKS.map((fw) => {
                 const active = selectedFramework === fw.id;
@@ -759,6 +860,7 @@ Make each variation feel genuinely different — different angles, different emo
                   <button
                     key={fw.id}
                     onClick={() => setSelectedFramework(active ? null : fw.id)}
+                    title={fw.description}
                     style={{
                       textAlign: 'left', padding: '8px 10px',
                       background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
@@ -766,11 +868,21 @@ Make each variation feel genuinely different — different angles, different emo
                       borderRadius: 8, cursor: 'pointer',
                       boxShadow: active ? '0 0 12px rgba(212,175,55,0.15)' : 'none',
                       transition: 'all 150ms ease',
+                      position: 'relative',
                     }}
                   >
+                    {/* Radio indicator */}
+                    <div style={{
+                      position: 'absolute', top: 6, right: 6,
+                      width: 12, height: 12, borderRadius: '50%',
+                      border: `2px solid ${active ? '#d4af37' : 'rgba(255,255,255,0.15)'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37' }} />}
+                    </div>
                     <div style={{ fontSize: 13, lineHeight: 1, marginBottom: 4 }}>{fw.icon}</div>
                     <div style={{ fontSize: 10, fontWeight: 700, color: active ? '#d4af37' : 'rgba(255,255,255,0.6)', marginBottom: 2 }}>{fw.name}</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', lineHeight: 1.3 }}>{fw.description.slice(0, 55)}{fw.description.length > 55 ? '\u2026' : ''}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', lineHeight: 1.3 }}>{fw.description}</div>
                   </button>
                 );
               })}
@@ -809,7 +921,7 @@ Make each variation feel genuinely different — different angles, different emo
           ) : hasOutput ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Format Tabs */}
-              <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #1a1a1a', paddingBottom: 0 }}>
+              <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #1a1a1a', paddingBottom: 0, overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch', maskImage: 'linear-gradient(to right, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent)' }}>
                 {AD_FORMATS.map((fmt) => {
                   const active = activeTab === fmt.id;
                   return (
@@ -817,7 +929,9 @@ Make each variation feel genuinely different — different angles, different emo
                       key={fmt.id}
                       onClick={() => setActiveTab(fmt.id)}
                       style={{
-                        padding: '8px 14px',
+                        padding: '8px 10px',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
                         background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
                         border: 'none',
                         borderBottom: active ? '2px solid #d4af37' : '2px solid transparent',
@@ -860,15 +974,18 @@ Make each variation feel genuinely different — different angles, different emo
                         </div>
                         {/* Product image area */}
                         <div style={{ flex: 1, position: 'relative', background: '#111', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {productUrl ? (
+                          {(productUrl || selectedProduct?.image_url) ? (
                             <img
-                              src={proxyImage(productUrl) ?? productUrl}
+                              src={proxyImage(productUrl || selectedProduct?.image_url || '') ?? (productUrl || selectedProduct?.image_url || '')}
                               alt=""
                               style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }}
                               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                             />
                           ) : (
-                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: mono }}>Product Image</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 16, border: '2px dashed rgba(255,255,255,0.1)', borderRadius: 8, margin: 12 }}>
+                              <Plus size={16} color="rgba(255,255,255,0.2)" />
+                              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: mono, textAlign: 'center' }}>Add product image</div>
+                            </div>
                           )}
                           {/* Overlay copy */}
                           <div style={{
@@ -1063,9 +1180,24 @@ Make each variation feel genuinely different — different angles, different emo
                     }}
                   >Open TikTok Ads Manager &rarr;</a>
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 12, fontFamily: dm }}>
-                  Need help? Ask Maya AI for a step-by-step walkthrough.
-                </div>
+                <a
+                  href="/app/ai-chat"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    marginTop: 14, padding: '12px 16px', borderRadius: 8,
+                    background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)',
+                    textDecoration: 'none', transition: 'background 150ms',
+                  }}
+                >
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(212,175,55,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Zap size={16} color="#d4af37" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#d4af37', fontFamily: dm }}>Need help launching? Ask Maya</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: dm, marginTop: 1 }}>Step-by-step ad launch walkthrough</div>
+                  </div>
+                  <ChevronRight size={14} color="#d4af37" style={{ marginLeft: 'auto' }} />
+                </a>
               </div>
             </div>
           ) : (
@@ -1093,73 +1225,33 @@ Make each variation feel genuinely different — different angles, different emo
               </div>
             </div>
           )}
+
+          {/* Saved Creatives collapsible drawer for narrow viewports */}
+          <div className="ads-saved-toggle" style={{ display: 'none', marginTop: 16, flexDirection: 'column', gap: 0 }}>
+            <button
+              onClick={() => setSavedDrawerOpen(!savedDrawerOpen)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                width: '100%', padding: '10px 14px',
+                background: '#111111', border: '1px solid #1a1a1a', borderRadius: savedDrawerOpen ? '8px 8px 0 0' : 8,
+                color: '#ededed', fontSize: 12, fontWeight: 600, fontFamily: dm, cursor: 'pointer',
+              }}
+            >
+              <span>Saved ({saved.length})</span>
+              <ChevronDown size={14} style={{ transform: savedDrawerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }} />
+            </button>
+            {savedDrawerOpen && (
+              <div style={{ background: '#111111', border: '1px solid #1a1a1a', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: 14, maxHeight: 400, overflowY: 'auto' }}>
+                <SavedList saved={saved} expandedSaved={expandedSaved} setExpandedSaved={setExpandedSaved} deleteSaved={deleteSaved} />
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* ── RIGHT: Saved ── */}
-        <div style={{ background: '#111111', borderLeft: '1px solid #1a1a1a', overflowY: 'auto', padding: 14 }}>
+        {/* ── RIGHT: Saved (wide viewport only) ── */}
+        <div className="ads-saved-panel" style={{ background: '#111111', borderLeft: '1px solid #1a1a1a', overflowY: 'auto', padding: 14, flexDirection: 'column' }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10, fontFamily: mono }}>Saved Creatives</div>
-          {saved.length === 0 ? (
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '16px 0', lineHeight: 1.55 }}>
-              No saved ads yet \u2014 generate your first ad pack
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {saved.map((s) => {
-                const isOpen = expandedSaved === s.id;
-                return (
-                  <div key={s.id} style={{
-                    background: '#0a0a0c', border: '1px solid rgba(255,255,255,0.07)',
-                    borderRadius: 8, overflow: 'hidden',
-                  }}>
-                    <button
-                      onClick={() => setExpandedSaved(isOpen ? null : s.id)}
-                      style={{ width: '100%', textAlign: 'left', padding: '10px 12px', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 4 }}>{s.productName}</div>
-                          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
-                            <span style={{ fontSize: 9, background: 'rgba(212,175,55,0.12)', color: '#d4af37', padding: '1px 6px', borderRadius: 999, fontFamily: mono, fontWeight: 600 }}>{s.platform}</span>
-                            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>
-                              {new Date(s.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>
-                            {(s.hook ?? '').slice(0, 60)}{(s.hook ?? '').length > 60 ? '\u2026' : ''}
-                          </div>
-                        </div>
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => { e.stopPropagation(); deleteSaved(s.id); }}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); deleteSaved(s.id); } }}
-                          title="Delete"
-                          aria-label="Delete saved ad"
-                          style={{ padding: 4, background: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', flexShrink: 0, display: 'inline-flex' }}
-                        ><Trash2 size={13} /></span>
-                      </div>
-                    </button>
-                    {isOpen && (
-                      <div style={{ padding: '8px 12px 12px', borderTop: '1px solid rgba(255,255,255,0.04)', background: '#0f0f14' }}>
-                        {[
-                          { label: 'HOOK', value: s.hook },
-                          { label: 'HEADLINE', value: s.headline },
-                          { label: 'PRIMARY TEXT', value: s.primaryText },
-                          { label: 'BODY', value: s.fullBody },
-                          { label: 'CTA', value: s.cta },
-                        ].filter((x) => x.value).map((x) => (
-                          <div key={x.label} style={{ marginBottom: 8 }}>
-                            <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>{x.label}</div>
-                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{x.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <SavedList saved={saved} expandedSaved={expandedSaved} setExpandedSaved={setExpandedSaved} deleteSaved={deleteSaved} />
         </div>
       </div>
     </div>
@@ -1238,8 +1330,82 @@ function CopyCard({ label, value, limit, copied, onCopy }: { label: string; valu
         )}
       </div>
       <div style={{ fontSize: 13, fontFamily: dm, color: '#f1f1f3', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
-        {value || <span style={{ color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>\u2014</span>}
+        {value || <span style={{ color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{'\u2014'}</span>}
       </div>
+    </div>
+  );
+}
+
+// ── Saved list (shared between right panel and collapsible drawer) ──
+function SavedList({ saved, expandedSaved, setExpandedSaved, deleteSaved }: {
+  saved: SavedAd[];
+  expandedSaved: number | null;
+  setExpandedSaved: (id: number | null) => void;
+  deleteSaved: (id: number) => void;
+}) {
+  if (saved.length === 0) {
+    return (
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '16px 0', lineHeight: 1.55 }}>
+        No saved ads yet {'\u2014'} generate your first ad pack
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {saved.map((s) => {
+        const isOpen = expandedSaved === s.id;
+        return (
+          <div key={s.id} style={{
+            background: '#0a0a0c', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 8, overflow: 'hidden',
+          }}>
+            <button
+              onClick={() => setExpandedSaved(isOpen ? null : s.id)}
+              style={{ width: '100%', textAlign: 'left', padding: '10px 12px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 4 }}>{s.productName}</div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
+                    <span style={{ fontSize: 9, background: 'rgba(212,175,55,0.12)', color: '#d4af37', padding: '1px 6px', borderRadius: 999, fontFamily: mono, fontWeight: 600 }}>{s.platform}</span>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>
+                      {new Date(s.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>
+                    {(s.hook ?? '').slice(0, 60)}{(s.hook ?? '').length > 60 ? '\u2026' : ''}
+                  </div>
+                </div>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => { e.stopPropagation(); deleteSaved(s.id); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); deleteSaved(s.id); } }}
+                  title="Delete"
+                  aria-label="Delete saved ad"
+                  style={{ padding: 4, background: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', flexShrink: 0, display: 'inline-flex' }}
+                ><Trash2 size={13} /></span>
+              </div>
+            </button>
+            {isOpen && (
+              <div style={{ padding: '8px 12px 12px', borderTop: '1px solid rgba(255,255,255,0.04)', background: '#0f0f14' }}>
+                {[
+                  { label: 'HOOK', value: s.hook },
+                  { label: 'HEADLINE', value: s.headline },
+                  { label: 'PRIMARY TEXT', value: s.primaryText },
+                  { label: 'BODY', value: s.fullBody },
+                  { label: 'CTA', value: s.cta },
+                ].filter((x) => x.value).map((x) => (
+                  <div key={x.label} style={{ marginBottom: 8 }}>
+                    <div style={{ fontFamily: mono, fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>{x.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{x.value}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
