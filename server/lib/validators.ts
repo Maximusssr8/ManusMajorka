@@ -8,6 +8,15 @@ export const storeBuilderSchema = z.object({
   productDescription: z.string().max(500).optional().transform(s => s ? stripHtml(s) : s),
   pricePoint: z.string().max(20).optional(),
   template: z.string().max(50).optional(),
+  storeName: z.string().max(100).transform(stripHtml).optional(),
+  targetCustomer: z.string().max(50).optional(),
+  priceRange: z.string().max(30).optional(),
+  usp: z.string().max(300).optional().transform(s => s ? stripHtml(s) : s),
+  includeAfterpay: z.boolean().optional(),
+  includeReviews: z.boolean().optional(),
+  colorScheme: z.string().max(50).optional(),
+  market: z.string().max(10).optional(),
+  vibe: z.string().max(30).optional(),
 });
 
 export const websiteGenerateSchema = z.object({

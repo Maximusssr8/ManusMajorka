@@ -64,34 +64,98 @@ router.post('/generate', async (req, res) => {
 
     const validation = validateBody(storeBuilderSchema, req.body);
     if ('error' in validation) return res.status(400).json({ error: validation.error });
-    const { productName, productDescription, niche, pricePoint } = validation.data;
+    const {
+      productName, productDescription, niche, pricePoint,
+      storeName: requestedStoreName, targetCustomer, priceRange, usp,
+      includeAfterpay, includeReviews, colorScheme, market, vibe,
+    } = validation.data;
+
+    // Build the AI prompt with all available context
+    const customerLabel = targetCustomer || 'general shoppers';
+    const priceLabel = priceRange || '$20-$50';
+    const uspText = usp || `Curated ${niche} products tested for the Australian market`;
+    const marketLabel = market || 'AU';
+    const vibeLabel = vibe || 'minimal';
+    const showAfterpay = includeAfterpay !== false;
+    const showReviews = includeReviews !== false;
 
     let brief: Record<string, any>;
     try {
-      brief = await expandStoreBrief({
-        niche,
-        storeName: productName || niche,
-        accentColor: '#d4af37',
-        productData: productDescription ? {
-          product_title: productName,
-          description: productDescription,
-          price_aud: pricePoint,
-        } : undefined,
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const aiPrompt = `Generate complete store copy for a ${vibeLabel} ${niche} dropshipping store targeting ${customerLabel} in ${marketLabel}.
+Price range: ${priceLabel}
+USP: ${uspText}
+${productName ? `Hero product: ${productName} (${productDescription || ''}) at $${pricePoint || '49.95'}` : ''}
+${showAfterpay ? 'Store offers Afterpay/buy-now-pay-later.' : ''}
+
+Return ONLY valid JSON (no markdown):
+{
+  "brandName": "memorable 1-2 word brand name",
+  "tagline": "8 words max, specific to USP",
+  "heroHeadline": "10 words max, speaks to ${customerLabel}",
+  "heroSubheadline": "20 words max, includes USP",
+  "uniqueValueProp": "one compelling sentence",
+  "products": [
+    {"title": "product name 1", "description": "benefit-focused 15-word description for ${customerLabel}", "price_aud": 0},
+    {"title": "product name 2", "description": "benefit-focused 15-word description for ${customerLabel}", "price_aud": 0},
+    {"title": "product name 3", "description": "benefit-focused 15-word description for ${customerLabel}", "price_aud": 0}
+  ],
+  "testimonials": [
+    {"name": "first name + last initial", "location": "Australian city", "text": "20-word review matching ${customerLabel} persona", "rating": 5},
+    {"name": "first name + last initial", "location": "Australian city", "text": "20-word review matching ${customerLabel} persona", "rating": 5},
+    {"name": "first name + last initial", "location": "Australian city", "text": "20-word review matching ${customerLabel} persona", "rating": 5}
+  ],
+  "faqItems": [
+    {"q": "question addressing ${customerLabel} objection", "a": "helpful answer"},
+    {"q": "question addressing ${customerLabel} objection", "a": "helpful answer"},
+    {"q": "question addressing ${customerLabel} objection", "a": "helpful answer"}
+  ],
+  "metaDescription": "155 chars max, SEO-focused",
+  "socialShareText": "short share-worthy sentence"
+}`;
+
+      const msg = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: aiPrompt }],
       });
+
+      const text = (msg.content[0] as { type: string; text: string }).text;
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      brief = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+      if (!brief.brandName) throw new Error('No brandName in response');
     } catch {
-      // Fallback if ANTHROPIC_API_KEY is missing or AI call fails
-      brief = {
-        brandName: productName || niche,
-        tagline: `Quality ${niche} for Australian shoppers`,
-        uniqueValueProp: `Curated ${niche} products tested for the Australian market.`,
-        heroHeadline: `Premium ${niche} — built for Australia`,
-        heroSubheadline: `Fast AU shipping, Afterpay ready, quality guaranteed.`,
-        fontPairing: { heading: 'Syne', body: 'DM Sans' },
-        colourPalette: { primary: '#d4af37', secondary: '#0d0d0d', accent: '#ffffff' },
-      };
+      // Fallback — also try expandStoreBrief
+      try {
+        brief = await expandStoreBrief({
+          niche,
+          storeName: requestedStoreName || productName || niche,
+          accentColor: '#d4af37',
+          productData: productDescription ? {
+            product_title: productName,
+            description: productDescription,
+            price_aud: pricePoint,
+          } : undefined,
+        });
+      } catch {
+        brief = {
+          brandName: requestedStoreName || productName || niche,
+          tagline: `Quality ${niche} for Australian shoppers`,
+          uniqueValueProp: uspText,
+          heroHeadline: `Premium ${niche} — built for Australia`,
+          heroSubheadline: `Fast AU shipping, Afterpay ready, quality guaranteed.`,
+          metaDescription: `Shop premium ${niche} at the best prices. Free shipping, ${showAfterpay ? 'Afterpay available, ' : ''}30-day returns.`,
+          socialShareText: `Check out this amazing ${niche} store!`,
+        };
+      }
     }
 
-    const brandName = (brief.brandName as string) || productName || niche;
+    // Override brandName with requested store name if provided
+    if (requestedStoreName) {
+      brief.brandName = requestedStoreName;
+    }
+
+    const brandName = (brief.brandName as string) || requestedStoreName || productName || niche;
     const storeNameOptions = [
       brandName,
       `${brandName} AU`,
@@ -99,7 +163,7 @@ router.post('/generate', async (req, res) => {
     ];
 
     // Build products array — ensure it's never empty for the client
-    const products: Array<{ title: string; price_aud: number; image_url: string }> = [];
+    const products: Array<{ title: string; price_aud: number; image_url: string; description?: string }> = [];
     if (productName) {
       products.push({ title: productName, price_aud: Number(pricePoint) || 0, image_url: '' });
     }
@@ -112,6 +176,7 @@ router.post('/generate', async (req, res) => {
             title,
             price_aud: Number(p.price_aud || p.price || 0),
             image_url: (p.image_url || p.image || '') as string,
+            description: (p.description || '') as string,
           });
         }
       }
@@ -120,14 +185,36 @@ router.post('/generate', async (req, res) => {
     if (products.length === 0) {
       const nicheLabel = niche || 'Premium';
       products.push(
-        { title: `${nicheLabel} Essentials Kit`, price_aud: 49.95, image_url: '' },
-        { title: `${nicheLabel} Pro Bundle`, price_aud: 89.95, image_url: '' },
-        { title: `${nicheLabel} Premium Collection`, price_aud: 129.95, image_url: '' },
+        { title: `${nicheLabel} Essentials Kit`, price_aud: 49.95, image_url: '', description: `Our best-selling ${nicheLabel.toLowerCase()} starter pack for ${customerLabel}.` },
+        { title: `${nicheLabel} Pro Bundle`, price_aud: 89.95, image_url: '', description: `Everything you need — curated for ${customerLabel} who want the best.` },
+        { title: `${nicheLabel} Premium Collection`, price_aud: 129.95, image_url: '', description: `The ultimate ${nicheLabel.toLowerCase()} experience, hand-tested in Australia.` },
       );
     }
 
+    // Assign default prices based on priceRange if products have 0 price
+    const priceDefaults: Record<string, number[]> = {
+      'Under $20': [14.95, 17.95, 19.95],
+      '$20-$50': [29.95, 39.95, 49.95],
+      '$50-$100': [59.95, 79.95, 99.95],
+      '$100+': [119.95, 149.95, 199.95],
+    };
+    const defaults = priceDefaults[priceRange || '$20-$50'] || [29.95, 39.95, 49.95];
+    for (let i = 0; i < products.length; i++) {
+      if (products[i].price_aud <= 0) {
+        products[i] = { ...products[i], price_aud: defaults[i % defaults.length] };
+      }
+    }
+
     return res.json({
-      brief,
+      brief: {
+        ...brief,
+        colourPalette: brief.colourPalette || brief.colorPalette || { primary: '#d4af37', secondary: '#0d0d0d', accent: '#ffffff' },
+        fontPairing: brief.fontPairing || { heading: 'Syne', body: 'DM Sans' },
+        includeAfterpay: showAfterpay,
+        includeReviews: showReviews,
+        targetCustomer: customerLabel,
+        priceRange: priceLabel,
+      },
       storeNameOptions,
       products,
       themeRecommendation: {

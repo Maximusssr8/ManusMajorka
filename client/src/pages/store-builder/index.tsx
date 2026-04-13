@@ -13,6 +13,10 @@ import {
   CheckCircle2,
   Download,
   ExternalLink,
+  Monitor,
+  Smartphone,
+  Copy,
+  FileArchive,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -424,24 +428,8 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments with Afterpay on all orders over $35. Select Afterpay at checkout.' },
   ];
 
-  // Shared OG / schema head
-  const headMeta = (fontLink: string) => `<meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${safeName} - ${escHtml(nicheLabel)} | Australian Online Store</title>
-  <meta name="description" content="${safeTagline}. Premium ${escHtml(nicheLabel)} for Australian shoppers. Free shipping, Afterpay available, 30-day returns." />
-  <meta property="og:title" content="${safeName}" />
-  <meta property="og:description" content="${safeTagline}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="en_AU" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${safeName}" />
-  <meta name="twitter:description" content="${safeTagline}" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  ${fontLink}`;
-
-  // Shared product card builder
-  const buildProductCards = (cfg: {
+  // Legacy product card builder — replaced by buildProductCardsEnhanced below
+  const _buildProductCards = (cfg: {
     cardBg: string; borderClr: string; textClr: string; priceClr: string; btnBg: string; btnText: string;
     dimText: string; radius: string; imgPlaceholderBg: string; badgeBg: string; badgeText: string;
     fontBody: string; fontHeading: string; fontMono: string; showUrgency?: boolean;
@@ -602,6 +590,159 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     </div>
   </footer>`;
 
+  // Shared announcement bar
+  const buildAnnouncementBar = (cfg: { bg: string; textClr: string; fontBody: string }) => `
+  <div id="announcement-bar" style="background:${cfg.bg};color:${cfg.textClr};text-align:center;padding:10px 40px 10px 16px;font-size:13px;font-weight:600;font-family:${cfg.fontBody};position:relative;letter-spacing:0.02em;">
+    Free shipping on orders over A$50 &nbsp;|&nbsp; Afterpay available &nbsp;|&nbsp; 30-day returns
+    <button onclick="this.parentElement.style.display='none'" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:${cfg.textClr};cursor:pointer;font-size:18px;line-height:1;opacity:0.7;" aria-label="Dismiss">&times;</button>
+  </div>`;
+
+  // Shared social proof banner (between hero and products)
+  const buildSocialProofBanner = (cfg: { bg: string; borderClr: string; textClr: string; dimText: string; accentClr: string; fontBody: string }) => `
+  <section style="padding:24px;background:${cfg.bg};border-top:1px solid ${cfg.borderClr};border-bottom:1px solid ${cfg.borderClr};">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:24px;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:${cfg.textClr};font-family:${cfg.fontBody};">
+        <span style="color:#facc15;font-size:16px;letter-spacing:1px;">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 4.8/5 from 2,400+ reviews
+      </div>
+      <div style="width:1px;height:20px;background:${cfg.borderClr};"></div>
+      <div style="font-size:13px;color:${cfg.dimText};font-family:${cfg.fontBody};">Trusted by <strong style="color:${cfg.textClr};">2,000+</strong> Australian customers</div>
+      <div style="width:1px;height:20px;background:${cfg.borderClr};"></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:${cfg.dimText};font-family:${cfg.fontBody};">
+        <span style="display:inline-block;padding:2px 8px;background:${cfg.accentClr};color:#fff;border-radius:4px;font-size:11px;font-weight:700;">TRENDING</span> As seen on TikTok
+      </div>
+    </div>
+  </section>`;
+
+  // Shared email capture section
+  const buildEmailCapture = (cfg: { bg: string; borderClr: string; textClr: string; dimText: string; accentClr: string; fontHeading: string; fontBody: string; btnBg: string; btnText: string; inputBg: string }) => `
+  <section style="padding:80px 24px;background:${cfg.bg};border-top:1px solid ${cfg.borderClr};">
+    <div style="max-width:520px;margin:0 auto;text-align:center;">
+      <h2 style="font-family:${cfg.fontHeading};font-size:clamp(24px,3.5vw,32px);font-weight:700;color:${cfg.textClr};margin-bottom:12px;">Get 10% Off Your First Order</h2>
+      <p style="font-size:14px;color:${cfg.dimText};margin-bottom:28px;font-family:${cfg.fontBody};">Join 2,400+ subscribers and get exclusive deals, early access, and style tips.</p>
+      <form onsubmit="event.preventDefault();this.querySelector('button').textContent='Subscribed!';this.querySelector('button').style.opacity='0.7';" style="display:flex;gap:8px;max-width:440px;margin:0 auto;">
+        <input type="email" placeholder="Enter your email" required style="flex:1;padding:12px 16px;background:${cfg.inputBg};border:1px solid ${cfg.borderClr};border-radius:6px;font-size:14px;color:${cfg.textClr};font-family:${cfg.fontBody};outline:none;" />
+        <button type="submit" style="padding:12px 24px;background:${cfg.btnBg};color:${cfg.btnText};font-family:${cfg.fontBody};font-weight:600;font-size:14px;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;">Subscribe</button>
+      </form>
+      <p style="font-size:11px;color:${cfg.dimText};margin-top:12px;font-family:${cfg.fontBody};">No spam. Unsubscribe anytime. Privacy respected.</p>
+    </div>
+  </section>`;
+
+  // Shared sticky mobile cart bar
+  const buildStickyCart = (cfg: { bg: string; textClr: string; btnBg: string; btnText: string; fontBody: string; fontMono: string }) => {
+    const firstProduct = store.products[0];
+    if (!firstProduct) return '';
+    return `
+  <div class="sticky-mobile-cart" style="display:none;position:fixed;bottom:0;left:0;right:0;background:${cfg.bg};padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);z-index:200;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.1);">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:600;color:${cfg.textClr};font-family:${cfg.fontBody};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(firstProduct.title)}</div>
+      <div style="font-size:14px;font-weight:700;color:${cfg.textClr};font-family:${cfg.fontMono};">A$${firstProduct.price_aud.toFixed(2)}</div>
+    </div>
+    <button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})" style="padding:10px 24px;background:${cfg.btnBg};color:${cfg.btnText};font-family:${cfg.fontBody};font-weight:700;font-size:14px;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;">Add to Cart</button>
+  </div>
+  <script>
+  (function(){
+    var cart=document.querySelector('.sticky-mobile-cart');
+    var products=document.getElementById('products');
+    if(!cart||!products)return;
+    function check(){
+      var isMobile=window.innerWidth<=640;
+      var rect=products.getBoundingClientRect();
+      cart.style.display=(isMobile&&rect.top<0)?'flex':'none';
+    }
+    window.addEventListener('scroll',check,{passive:true});
+    window.addEventListener('resize',check,{passive:true});
+  })();
+  </script>`;
+  };
+
+  // Enhanced SEO head meta with JSON-LD
+  const buildSEOHead = (fontLink: string) => `<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${safeName} - ${escHtml(nicheLabel)} | Australian Online Store</title>
+  <meta name="description" content="${safeTagline}. Premium ${escHtml(nicheLabel)} for Australian shoppers. Free shipping, Afterpay available, 30-day returns." />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="${safeName}" />
+  <meta property="og:description" content="${safeTagline}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_AU" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${safeName}" />
+  <meta name="twitter:description" content="${safeTagline}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  ${fontLink}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "${safeName}",
+    "description": "${safeTagline}",
+    "url": "https://${emailSlug}.com.au"
+  }
+  </script>
+  ${store.products.slice(0, 3).map((p, i) => `<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "${escHtml(p.title)}",
+    "sku": "MJK-${String(i + 1).padStart(3, '0')}",
+    "offers": {
+      "@type": "Offer",
+      "price": "${p.price_aud.toFixed(2)}",
+      "priceCurrency": "AUD",
+      "availability": "https://schema.org/InStock"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "${Math.floor(Math.random() * 200) + 50}"
+    }
+  }
+  </script>`).join('\n')}`;
+
+  // Enhanced product card builder with strikethrough, badges, quantity
+  const buildProductCardsEnhanced = (cfg: {
+    cardBg: string; borderClr: string; textClr: string; priceClr: string; btnBg: string; btnText: string;
+    dimText: string; radius: string; imgPlaceholderBg: string; badgeBg: string; badgeText: string;
+    fontBody: string; fontHeading: string; fontMono: string; showUrgency?: boolean;
+  }) => store.products.slice(0, 6).map((p, i) => {
+    const safeTitle = escHtml(p.title);
+    const originalPrice = (p.price_aud * 1.3).toFixed(2);
+    const imgBlock = p.image_url
+      ? `<img src="${escHtml(p.image_url)}" alt="${safeTitle}" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
+      : `<div style="width:100%;aspect-ratio:1/1;background:${cfg.imgPlaceholderBg};display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="${cfg.priceClr}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontBody};">Product Image</span></div>`;
+    const badgeLabel = i === 0 ? 'BESTSELLER' : (i === 1 ? 'NEW' : '');
+    const badge = badgeLabel ? `<div style="position:absolute;top:12px;left:12px;padding:4px 12px;background:${cfg.badgeBg};color:${cfg.badgeText};font-size:11px;font-weight:700;border-radius:4px;letter-spacing:0.05em;font-family:${cfg.fontBody};">${badgeLabel}</div>` : '';
+    const freeShipBadge = `<div style="position:absolute;top:12px;right:12px;padding:4px 8px;background:rgba(34,197,94,0.9);color:#fff;font-size:10px;font-weight:700;border-radius:4px;letter-spacing:0.04em;font-family:${cfg.fontBody};">FREE SHIPPING</div>`;
+    const urgencyEl = cfg.showUrgency ? `<div style="font-size:11px;color:#ef4444;font-weight:600;margin-bottom:8px;font-family:${cfg.fontBody};">Only ${Math.floor(Math.random() * 8) + 2} left - Selling fast!</div>` : '';
+    return `
+      <div class="product-card" itemscope itemtype="https://schema.org/Product">
+        <meta itemprop="sku" content="MJK-${String(i + 1).padStart(3, '0')}" />
+        <div style="position:relative;overflow:hidden;border-radius:${cfg.radius} ${cfg.radius} 0 0;">${imgBlock}${badge}${freeShipBadge}</div>
+        <div style="padding:20px;">
+          <div style="display:flex;align-items:center;gap:6px;"><span style="color:#facc15;font-size:14px;letter-spacing:1px;">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontMono};">4.8</span></div>
+          <h3 itemprop="name" style="margin:8px 0 4px;font-family:${cfg.fontHeading};font-size:16px;font-weight:600;color:${cfg.textClr};line-height:1.3;">${safeTitle}</h3>
+          ${urgencyEl}
+          <div style="font-size:12px;color:${cfg.dimText};margin-bottom:12px;">Ships from AU warehouse</div>
+          <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+            <meta itemprop="priceCurrency" content="AUD" />
+            <span style="font-family:${cfg.fontMono};font-size:14px;color:${cfg.dimText};text-decoration:line-through;margin-right:8px;">A$${originalPrice}</span>
+            <span itemprop="price" content="${p.price_aud.toFixed(2)}" style="font-family:${cfg.fontMono};font-size:22px;color:${cfg.priceClr};font-weight:700;">A$${p.price_aud.toFixed(2)}</span>
+            <link itemprop="availability" href="https://schema.org/InStock" />
+          </div>
+          <div style="font-size:12px;color:${cfg.dimText};margin:8px 0 12px;">or 4 x A$${(p.price_aud / 4).toFixed(2)} with <strong style="color:${cfg.textClr};">Afterpay</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;border:1px solid ${cfg.borderClr};border-radius:6px;overflow:hidden;">
+              <button style="width:32px;height:32px;background:transparent;border:none;color:${cfg.dimText};cursor:pointer;font-size:16px;">-</button>
+              <span style="width:32px;text-align:center;font-size:13px;font-family:${cfg.fontMono};color:${cfg.textClr};">1</span>
+              <button style="width:32px;height:32px;background:transparent;border:none;color:${cfg.dimText};cursor:pointer;font-size:16px;">+</button>
+            </div>
+          </div>
+          <button style="width:100%;padding:14px 20px;background:${cfg.btnBg};color:${cfg.btnText};font-family:${cfg.fontBody};font-weight:700;font-size:14px;border:none;border-radius:6px;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.02em;">${cfg.showUrgency ? 'BUY NOW' : 'ADD TO CART'}</button>
+        </div>
+      </div>`;
+  }).join('\n');
+
   switch (theme) {
     // ─────────────────────────────────────────────────────────────
     // DAWN — Clean & Minimal (white bg, black text, thin borders)
@@ -612,12 +753,12 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
       const fH = "'Inter', sans-serif"; const fB = "'Inter', sans-serif"; const fM = "'JetBrains Mono', monospace";
 
-      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: '#f0f0f0', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
+      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: '#f0f0f0', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
       const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '4px' });
       const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
 
       return `<!DOCTYPE html><html lang="en"><head>
-  ${headMeta(fontLink)}
+  ${buildSEOHead(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -631,6 +772,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
     ${responsiveCSS(bg, borderClr)}
   </style></head><body>
+  ${buildAnnouncementBar({ bg: accent, textClr: '#fff', fontBody: fB })}
   ${buildNav({ bg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
   <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:${bg};">
     <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:${surfaceBg};border:1px solid ${borderClr};border-radius:100px;font-size:12px;font-weight:600;color:${textClr};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Australian Owned &amp; Shipped</div>
@@ -644,6 +786,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};">&#128274; Secure Checkout</div>
     </div>
   </section>
+  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
   <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
     <div class="products-grid">${productCards}</div>
@@ -657,7 +800,9 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
+  ${buildEmailCapture({ bg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: surfaceBg })}
   ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
 </body></html>`;
     }
 
@@ -670,12 +815,12 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
       const fH = "'Syne', sans-serif"; const fB = "'DM Sans', sans-serif"; const fM = "'JetBrains Mono', monospace";
 
-      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: bg, dimText, radius: '8px', imgPlaceholderBg: `linear-gradient(135deg,${cardBg},rgba(212,175,55,0.08))`, badgeBg: accent, badgeText: bg, fontBody: fB, fontHeading: fH, fontMono: fM });
+      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: bg, dimText, radius: '8px', imgPlaceholderBg: `linear-gradient(135deg,${cardBg},rgba(212,175,55,0.08))`, badgeBg: accent, badgeText: bg, fontBody: fB, fontHeading: fH, fontMono: fM });
       const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '8px' });
       const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
 
       return `<!DOCTYPE html><html lang="en"><head>
-  ${headMeta(fontLink)}
+  ${buildSEOHead(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -689,6 +834,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
     ${responsiveCSS(surfaceBg, borderClr)}
   </style></head><body>
+  ${buildAnnouncementBar({ bg: accent, textClr: bg, fontBody: fB })}
   ${buildNav({ bg: surfaceBg, borderClr, brandClr: textClr, linkClr: 'rgba(245,245,245,0.55)', accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
   <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:linear-gradient(180deg,${surfaceBg} 0%,rgba(212,175,55,0.03) 50%,${bg} 100%);">
     <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:100px;font-size:12px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">&#10022; Australian Owned &amp; Shipped</div>
@@ -702,6 +848,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(245,245,245,0.45);">&#128274; Secure Checkout</div>
     </div>
   </section>
+  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
   <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:rgba(245,245,245,0.45);max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
     <div class="products-grid">${productCards}</div>
@@ -715,7 +862,9 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
+  ${buildEmailCapture({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: bg, inputBg: cardBg })}
   ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+  ${buildStickyCart({ bg: '#111', textClr: '#ededed', btnBg: accent, btnText: bg, fontBody: fB, fontMono: fM })}
 </body></html>`;
     }
 
@@ -728,12 +877,12 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
       const fH = "'Nunito', sans-serif"; const fB = "'Nunito', sans-serif"; const fM = "'JetBrains Mono', monospace";
 
-      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '12px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
+      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '12px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
       const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '12px' });
       const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
 
       return `<!DOCTYPE html><html lang="en"><head>
-  ${headMeta(fontLink)}
+  ${buildSEOHead(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -747,6 +896,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
     ${responsiveCSS(cardBg, borderClr)}
   </style></head><body>
+  ${buildAnnouncementBar({ bg: accent, textClr: '#fff', fontBody: fB })}
   ${buildNav({ bg: cardBg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
   <section class="hero" id="about" style="text-align:center;padding:96px 24px 80px;background:linear-gradient(180deg,${cardBg} 0%,${bg} 100%);">
     <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:100px;font-size:12px;font-weight:700;color:${accent};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;">Australian Owned &amp; Shipped</div>
@@ -760,6 +910,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#128274; Secure Checkout</div>
     </div>
   </section>
+  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
   <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:80px 24px;">
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Featured Products</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected and tested for the Australian market</p></div>
     <div class="products-grid">${productCards}</div>
@@ -773,7 +924,9 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:700;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
+  ${buildEmailCapture({ bg: cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: surfaceBg })}
   ${buildFooter({ bg: cardBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
 </body></html>`;
     }
 
@@ -786,12 +939,12 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
       const fH = "'Inter', sans-serif"; const fB = "'Inter', sans-serif"; const fM = "'JetBrains Mono', monospace";
 
-      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '8px', imgPlaceholderBg: '#f5f5f5', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM, showUrgency: true });
+      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '8px', imgPlaceholderBg: '#f5f5f5', badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM, showUrgency: true });
       const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '8px' });
       const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
 
       return `<!DOCTYPE html><html lang="en"><head>
-  ${headMeta(fontLink)}
+  ${buildSEOHead(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -823,6 +976,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:${dimText};font-weight:600;">&#9733; 4.8/5 Rating</div>
     </div>
   </section>
+  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
   <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:64px 24px 100px;">
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">Best Sellers</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">These products are flying off the shelves</p></div>
     <div class="products-grid">${productCards}</div>
@@ -836,8 +990,10 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     <div style="text-align:center;margin-bottom:48px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,36px);font-weight:800;color:${textClr};margin-bottom:12px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
+  ${buildEmailCapture({ bg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: surfaceBg })}
   ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
   <div class="sticky-bar"><span>Limited stock available</span><button onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button></div>
+  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
 </body></html>`;
     }
 
@@ -851,12 +1007,12 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       const fontLink = `<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />`;
       const fH = "'Playfair Display', serif"; const fB = "'DM Sans', sans-serif"; const fM = "'JetBrains Mono', monospace";
 
-      const productCards = buildProductCards({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
+      const productCards = buildProductCardsEnhanced({ cardBg, borderClr, textClr, priceClr: accent, btnBg: accent, btnText: '#fff', dimText, radius: '4px', imgPlaceholderBg: surfaceBg, badgeBg: accent, badgeText: '#fff', fontBody: fB, fontHeading: fH, fontMono: fM });
       const testimonialCards = buildTestimonials({ cardBg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, radius: '4px' });
       const faqHTML = buildFAQ({ borderClr, textClr, dimText, accentClr: accent });
 
       return `<!DOCTYPE html><html lang="en"><head>
-  ${headMeta(fontLink)}
+  ${buildSEOHead(fontLink)}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -870,6 +1026,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     input[type="checkbox"]:checked ~ .faq-answer { max-height: 200px; }
     ${responsiveCSS(cardBg, borderClr)}
   </style></head><body>
+  ${buildAnnouncementBar({ bg: accent, textClr: '#fff', fontBody: fB })}
   ${buildNav({ bg: cardBg, borderClr, brandClr: textClr, linkClr: dimText, accentClr: accent, fontHeading: fH, hamburgerClr: textClr })}
   <section class="hero" id="about" style="text-align:center;padding:120px 24px 100px;background:${bg};">
     <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 20px;border:1px solid ${borderClr};border-radius:100px;font-size:11px;font-weight:600;color:${accent};text-transform:uppercase;letter-spacing:0.12em;margin-bottom:32px;">Australian Atelier</div>
@@ -883,6 +1040,7 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
       <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${dimText};letter-spacing:0.04em;">&#128274; Secure Checkout</div>
     </div>
   </section>
+  ${buildSocialProofBanner({ bg: surfaceBg, borderClr, textClr, dimText, accentClr: accent, fontBody: fB })}
   <section class="products-section" id="products" style="max-width:1200px;margin:0 auto;padding:100px 24px;">
     <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">The Collection</h2><p style="font-size:16px;color:${dimText};max-width:480px;margin:0 auto;">Hand-selected pieces for the Australian connoisseur</p></div>
     <div class="products-grid">${productCards}</div>
@@ -896,15 +1054,19 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     <div style="text-align:center;margin-bottom:56px;"><h2 style="font-family:${fH};font-size:clamp(24px,3.5vw,40px);font-weight:700;color:${textClr};margin-bottom:16px;">Frequently Asked Questions</h2></div>
     ${faqHTML}
   </section>
+  ${buildEmailCapture({ bg, borderClr, textClr, dimText, accentClr: accent, fontHeading: fH, fontBody: fB, btnBg: accent, btnText: '#fff', inputBg: cardBg })}
   ${buildFooter({ bg: surfaceBg, borderClr, brandClr: textClr, textClr, dimText, accentClr: accent, fontHeading: fH })}
+  ${buildStickyCart({ bg: textClr, textClr: '#fff', btnBg: accent, btnText: '#fff', fontBody: fB, fontMono: fM })}
 </body></html>`;
     }
   }
 }
 
 // ─── Store Preview Section ────────────────────────────────────
-function StorePreviewSection({ store, niche, theme = 'craft' }: { store: GeneratedStore; niche?: string; theme?: StoreTheme }) {
-  const htmlContent = useMemo(() => generateStoreHTML(store, niche, theme), [store, niche, theme]);
+function StorePreviewSection({ store, niche, theme: initialTheme = 'craft' }: { store: GeneratedStore; niche?: string; theme?: StoreTheme }) {
+  const [activeTheme, setActiveTheme] = useState<StoreTheme>(initialTheme);
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const htmlContent = useMemo(() => generateStoreHTML(store, niche, activeTheme), [store, niche, activeTheme]);
   const iframeSrcDoc = htmlContent;
   const [publishing, setPublishing] = useState(false);
   const [liveUrl, setLiveUrl] = useState<string | null>(null);
@@ -915,13 +1077,45 @@ function StorePreviewSection({ store, niche, theme = 'craft' }: { store: Generat
     const a = document.createElement('a');
     const safeName = store.storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     a.href = url;
-    a.download = `${safeName || 'store'}-store.html`;
+    a.download = `${safeName || 'store'}-complete-store.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Store HTML downloaded');
+    toast.success('Complete store HTML downloaded');
   }, [htmlContent, store.storeName]);
+
+  const handleDownloadShopify = useCallback(() => {
+    const liquidWrapped = `{% comment %}Generated by Majorka Store Builder{% endcomment %}
+{{ content_for_header }}
+${htmlContent}
+{{ content_for_layout }}`;
+    const blob = new Blob([liquidWrapped], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = store.storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    a.href = url;
+    a.download = `${safeName || 'store'}-shopify-theme.liquid`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Shopify Liquid theme downloaded');
+  }, [htmlContent, store.storeName]);
+
+  const handleCopyText = useCallback(() => {
+    const lines = [
+      `Store Name: ${store.storeName}`,
+      `Tagline: ${store.tagline}`,
+      '',
+      '--- Products ---',
+      ...store.products.map((p, i) => `${i + 1}. ${p.title} - A$${p.price_aud.toFixed(2)}`),
+      '',
+      '--- Generated by Majorka Store Builder ---',
+    ];
+    void navigator.clipboard.writeText(lines.join('\n'));
+    toast.success('Store text copied to clipboard');
+  }, [store]);
 
   const handlePreviewTab = useCallback(() => {
     const encoded = btoa(unescape(encodeURIComponent(htmlContent)));
@@ -963,34 +1157,88 @@ function StorePreviewSection({ store, niche, theme = 'craft' }: { store: Generat
   return (
     <div className="mt-8">
       <GoldCard>
-        <div className="flex items-center gap-3 mb-5">
-          <div
-            className="w-9 h-9 rounded-md flex items-center justify-center"
-            style={{
-              background: 'rgba(59,130,246,0.1)',
-              border: `1px solid rgba(59,130,246,0.3)`,
-            }}
-          >
-            <Store size={18} style={{ color: CTA_BLUE }} />
-          </div>
-          <div>
-            <div className="text-lg" style={{ fontFamily: SYNE, color: TEXT }}>
-              Your Store Preview
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-md flex items-center justify-center"
+              style={{
+                background: 'rgba(59,130,246,0.1)',
+                border: `1px solid rgba(59,130,246,0.3)`,
+              }}
+            >
+              <Store size={18} style={{ color: CTA_BLUE }} />
             </div>
-            <div className="text-xs" style={{ color: TEXT_DIM }}>
-              A complete, downloadable storefront ready to sell from
+            <div>
+              <div className="text-lg" style={{ fontFamily: SYNE, color: TEXT }}>
+                Your Store Preview
+              </div>
+              <div className="text-xs" style={{ color: TEXT_DIM }}>
+                A complete, downloadable storefront ready to sell from
+              </div>
             </div>
           </div>
+          <div className="flex items-center gap-1 rounded-md p-1" style={{ background: SURFACE, border: `1px solid ${BORDER}` }}>
+            <button
+              onClick={() => setViewMode('desktop')}
+              className="rounded px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 transition-all"
+              style={{
+                background: viewMode === 'desktop' ? 'rgba(212,175,55,0.12)' : 'transparent',
+                color: viewMode === 'desktop' ? GOLD : TEXT_DIM,
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <Monitor size={14} /> Desktop
+            </button>
+            <button
+              onClick={() => setViewMode('mobile')}
+              className="rounded px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 transition-all"
+              style={{
+                background: viewMode === 'mobile' ? 'rgba(212,175,55,0.12)' : 'transparent',
+                color: viewMode === 'mobile' ? GOLD : TEXT_DIM,
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <Smartphone size={14} /> Mobile
+            </button>
+          </div>
+        </div>
+
+        {/* Theme switcher — swap theme without regenerating */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {STORE_THEMES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTheme(t.id)}
+              className="rounded-md px-3 py-1.5 text-xs font-medium transition-all inline-flex items-center gap-2"
+              style={{
+                background: activeTheme === t.id ? 'rgba(212,175,55,0.1)' : SURFACE,
+                border: `1px solid ${activeTheme === t.id ? GOLD : BORDER}`,
+                color: activeTheme === t.id ? GOLD : TEXT_DIM,
+                cursor: 'pointer',
+              }}
+            >
+              <div className="flex gap-0.5">
+                {t.swatch.map((c, ci) => (
+                  <div key={ci} style={{ width: 10, height: 10, borderRadius: 2, background: c, border: '1px solid rgba(255,255,255,0.1)' }} />
+                ))}
+              </div>
+              {t.name}
+            </button>
+          ))}
         </div>
 
         <div
           className="store-preview-iframe"
           style={{
-            border: `1px solid ${BORDER}`,
-            borderRadius: 8,
+            border: viewMode === 'mobile' ? `3px solid ${BORDER}` : `1px solid ${BORDER}`,
+            borderRadius: viewMode === 'mobile' ? 24 : 8,
             overflow: 'hidden',
-            width: '100%',
-            height: 500,
+            width: viewMode === 'mobile' ? 375 : '100%',
+            height: viewMode === 'mobile' ? 667 : 500,
+            margin: viewMode === 'mobile' ? '0 auto' : undefined,
+            boxShadow: viewMode === 'mobile' ? '0 8px 32px rgba(0,0,0,0.4)' : undefined,
           }}
         >
           <iframe
@@ -1020,7 +1268,35 @@ function StorePreviewSection({ store, niche, theme = 'craft' }: { store: Generat
             }}
           >
             <Download size={16} />
-            Download HTML
+            Download complete store
+          </button>
+          <button
+            onClick={handleDownloadShopify}
+            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: 'transparent',
+              color: TEXT,
+              border: `1px solid ${BORDER}`,
+              fontFamily: DM_SANS,
+              cursor: 'pointer',
+            }}
+          >
+            <FileArchive size={16} />
+            Download for Shopify
+          </button>
+          <button
+            onClick={handleCopyText}
+            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
+            style={{
+              background: 'transparent',
+              color: TEXT,
+              border: `1px solid ${BORDER}`,
+              fontFamily: DM_SANS,
+              cursor: 'pointer',
+            }}
+          >
+            <Copy size={16} />
+            Copy all text
           </button>
           <button
             onClick={handlePreviewTab}
@@ -1052,23 +1328,6 @@ function StorePreviewSection({ store, niche, theme = 'craft' }: { store: Generat
           >
             <Rocket size={16} />
             {publishing ? 'Publishing...' : 'Publish to Majorka'}
-          </button>
-          <button
-            onClick={() => {
-              const el = document.querySelector('[data-tab="shopify"]');
-              if (el instanceof HTMLElement) el.click();
-            }}
-            className="rounded-md px-5 py-2.5 text-sm font-medium transition-all duration-200 inline-flex items-center gap-2"
-            style={{
-              background: 'transparent',
-              color: TEXT_DIM,
-              border: `1px solid ${BORDER}`,
-              fontFamily: DM_SANS,
-              cursor: 'pointer',
-            }}
-          >
-            <Link2 size={16} />
-            Push to Shopify
           </button>
         </div>
 
@@ -1123,6 +1382,12 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
   const [saving, setSaving] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [preview, setPreview] = useState<GeneratedStore | null>(null);
+  const [customStoreName, setCustomStoreName] = useState('');
+  const [targetCustomer, setTargetCustomer] = useState('');
+  const [priceRange, setPriceRange] = useState('$20-$50');
+  const [usp, setUsp] = useState('');
+  const [includeAfterpay, setIncludeAfterpay] = useState(true);
+  const [includeReviews, setIncludeReviews] = useState(true);
 
   // Show a pre-fill banner if a product was passed from the Products page
   const prefilledProduct = prefilled;
@@ -1141,10 +1406,15 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
         niche,
         market,
         vibe,
-        // Send the server's expected fields (storeBuilderSchema: productName, niche, pricePoint)
         productName: prefilledProduct?.title || niche,
         productDescription: prefilledProduct?.description || '',
         pricePoint: String(prefilledProduct?.price ?? ''),
+        storeName: customStoreName || undefined,
+        targetCustomer: targetCustomer || undefined,
+        priceRange,
+        usp: usp || undefined,
+        includeAfterpay,
+        includeReviews,
       }),
     });
     setLoading(false);
@@ -1159,7 +1429,7 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
       return;
     }
     toast.error(res.error ?? 'Generation failed');
-  }, [niche, market, vibe]);
+  }, [niche, market, vibe, customStoreName, targetCustomer, priceRange, usp, includeAfterpay, includeReviews]);
 
   const handleSave = useCallback(async () => {
     if (!preview) return;
@@ -1219,29 +1489,100 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
           />
         </div>
         <div className="mb-4">
-          <FieldLabel>Target Market</FieldLabel>
-          <select
-            value={market}
-            onChange={(e) => setMarket(e.target.value as Market)}
+          <FieldLabel>Store Name <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>(optional — AI generates if blank)</span></FieldLabel>
+          <input
+            value={customStoreName}
+            onChange={(e) => setCustomStoreName(e.target.value)}
+            placeholder="e.g. KitchenCraft AU"
             style={inputStyle}
-          >
-            <option value="AU">Australia</option>
-            <option value="US">United States</option>
-            <option value="UK">United Kingdom</option>
-          </select>
+          />
         </div>
-        <div className="mb-6">
-          <FieldLabel>Vibe</FieldLabel>
-          <select
-            value={vibe}
-            onChange={(e) => setVibe(e.target.value as Vibe)}
-            style={inputStyle}
-          >
-            <option value="minimal">Minimal</option>
-            <option value="bold">Bold</option>
-            <option value="luxury">Luxury</option>
-            <option value="streetwear">Streetwear</option>
-          </select>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <FieldLabel>Target Market</FieldLabel>
+            <select
+              value={market}
+              onChange={(e) => setMarket(e.target.value as Market)}
+              style={inputStyle}
+            >
+              <option value="AU">Australia</option>
+              <option value="US">United States</option>
+              <option value="UK">United Kingdom</option>
+            </select>
+          </div>
+          <div>
+            <FieldLabel>Vibe</FieldLabel>
+            <select
+              value={vibe}
+              onChange={(e) => setVibe(e.target.value as Vibe)}
+              style={inputStyle}
+            >
+              <option value="minimal">Minimal</option>
+              <option value="bold">Bold</option>
+              <option value="luxury">Luxury</option>
+              <option value="streetwear">Streetwear</option>
+            </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <FieldLabel>Target Customer</FieldLabel>
+            <select
+              value={targetCustomer}
+              onChange={(e) => setTargetCustomer(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="">General</option>
+              <option value="Budget shoppers">Budget shoppers</option>
+              <option value="Premium buyers">Premium buyers</option>
+              <option value="Gift shoppers">Gift shoppers</option>
+              <option value="Impulse buyers">Impulse buyers</option>
+              <option value="Health-conscious">Health-conscious</option>
+            </select>
+          </div>
+          <div>
+            <FieldLabel>Price Range</FieldLabel>
+            <select
+              value={priceRange}
+              onChange={(e) => setPriceRange(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="Under $20">Under $20</option>
+              <option value="$20-$50">$20-$50</option>
+              <option value="$50-$100">$50-$100</option>
+              <option value="$100+">$100+</option>
+            </select>
+          </div>
+        </div>
+        <div className="mb-4">
+          <FieldLabel>Unique Selling Point <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>(what makes your store different?)</span></FieldLabel>
+          <textarea
+            value={usp}
+            onChange={(e) => setUsp(e.target.value)}
+            placeholder="e.g. Every product is tested by real Australian families before we list it"
+            rows={2}
+            style={{ ...inputStyle, resize: 'vertical' as const }}
+          />
+        </div>
+        <div className="flex gap-4 mb-6">
+          <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 13, color: TEXT }}>
+            <input
+              type="checkbox"
+              checked={includeAfterpay}
+              onChange={(e) => setIncludeAfterpay(e.target.checked)}
+              style={{ accentColor: GOLD }}
+            />
+            Include Afterpay
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 13, color: TEXT }}>
+            <input
+              type="checkbox"
+              checked={includeReviews}
+              onChange={(e) => setIncludeReviews(e.target.checked)}
+              style={{ accentColor: GOLD }}
+            />
+            Include reviews
+          </label>
         </div>
         <div className="mb-6">
           <FieldLabel>Store Theme</FieldLabel>
