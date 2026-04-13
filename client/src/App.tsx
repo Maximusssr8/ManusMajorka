@@ -19,44 +19,43 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { MayaProvider } from './context/MayaContext';
 import { RegionProvider } from './context/RegionContext';
 
-function lazyWithRetry(factory: () => Promise<any>) {
+function lazyWithRetry(factory: () => Promise<{ default: React.ComponentType<any> }>) {
   return lazy(() =>
     factory().catch((err: unknown) => {
       // Chunk load failure = stale deploy. Force a hard reload once.
-      const reloadKey = 'mkr_chunk_reload';
-      const didReload = sessionStorage.getItem(reloadKey);
-      if (!didReload) {
+      const reloadKey = 'majorka_chunk_retry';
+      if (!sessionStorage.getItem(reloadKey)) {
         sessionStorage.setItem(reloadKey, '1');
         window.location.reload();
-        return new Promise(() => {}); // never resolves — reload is happening
+        return new Promise<{ default: React.ComponentType<any> }>(() => {}); // never resolves — reload is happening
       }
-      // Already reloaded once — surface the error
+      sessionStorage.removeItem(reloadKey);
       throw err;
     })
   );
 }
 
 // Lazy-loaded page components for code splitting
-const Home = lazy(() => import('./pages/Home'));
-const Blog = lazy(() => import('./pages/Blog'));
-const About = lazy(() => import('./pages/About'));
+const Home = lazyWithRetry(() => import('./pages/Home'));
+const Blog = lazyWithRetry(() => import('./pages/Blog'));
+const About = lazyWithRetry(() => import('./pages/About'));
 const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
-const Account = lazy(() => import('./pages/Account'));
-const SignIn = lazy(() => import('./pages/SignIn'));
-const SettingsProfile = lazy(() => import('./pages/SettingsProfile'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const Pricing = lazy(() => import('./pages/Pricing'));
-const Academy = lazy(() => import('./pages/Academy'));
-const Storefront = lazy(() => import('./pages/Storefront'));
-const AdminLeads = lazy(() => import('./pages/AdminLeads'));
+const Account = lazyWithRetry(() => import('./pages/Account'));
+const SignIn = lazyWithRetry(() => import('./pages/SignIn'));
+const SettingsProfile = lazyWithRetry(() => import('./pages/SettingsProfile'));
+const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
+const Pricing = lazyWithRetry(() => import('./pages/Pricing'));
+const Academy = lazyWithRetry(() => import('./pages/Academy'));
+const Storefront = lazyWithRetry(() => import('./pages/Storefront'));
+const AdminLeads = lazyWithRetry(() => import('./pages/AdminLeads'));
 const StoreBuilder = lazyWithRetry(() => import('./pages/store-builder/index'));
-const Onboarding = lazy(() => import('./pages/Onboarding'));
-const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
-const PublicProfitCalculator = lazy(() => import('./pages/PublicProfitCalculator'));
-const Affiliate = lazy(() => import('./pages/Affiliate'));
-const PublicProfitShare = lazy(() => import('./pages/PublicProfitShare'));
-const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
-const LearnHub = lazy(() => import('./pages/LearnHub'));
+const Onboarding = lazyWithRetry(() => import('./pages/Onboarding'));
+const VerifyEmail = lazyWithRetry(() => import('./pages/VerifyEmail'));
+const PublicProfitCalculator = lazyWithRetry(() => import('./pages/PublicProfitCalculator'));
+const Affiliate = lazyWithRetry(() => import('./pages/Affiliate'));
+const PublicProfitShare = lazyWithRetry(() => import('./pages/PublicProfitShare'));
+const KnowledgeBase = lazyWithRetry(() => import('./pages/KnowledgeBase'));
+const LearnHub = lazyWithRetry(() => import('./pages/LearnHub'));
 const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
 const CompetitorSpy = lazyWithRetry(() => import('./pages/CompetitorSpy'));
 const TikTokLeaderboard = lazyWithRetry(() => import('./pages/app/TikTokLeaderboard'));
@@ -71,22 +70,22 @@ const VideoIntelligence = lazyWithRetry(() => import('./pages/VideoIntelligence'
 const ProductIntelligence = lazyWithRetry(() =>
   import('./components/intelligence/ProductIntelligencePage').then(m => ({ default: m.ProductIntelligencePage }))
 );
-const Alerts = lazy(() => import('./pages/Alerts'));
-const AdminPanel = lazy(() => import('./pages/AdminPanel'));
-const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
-const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
-const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
-const ProductReport = lazy(() => import('./pages/ProductReport'));
-const SharedReport = lazy(() => import('./pages/SharedReport'));
-const ShopDetail = lazy(() => import('./pages/ShopDetail'));
-const ProductSearch = lazy(() => import('./pages/ProductSearch'));
-const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
+const Alerts = lazyWithRetry(() => import('./pages/Alerts'));
+const AdminPanel = lazyWithRetry(() => import('./pages/AdminPanel'));
+const AdminControlPanel = lazyWithRetry(() => import('./pages/AdminControlPanel'));
+const AdminSubscribers = lazyWithRetry(() => import('./pages/AdminSubscribers'));
+const PromoDashboard = lazyWithRetry(() => import('./pages/PromoDashboard'));
+const ProductReport = lazyWithRetry(() => import('./pages/ProductReport'));
+const SharedReport = lazyWithRetry(() => import('./pages/SharedReport'));
+const ShopDetail = lazyWithRetry(() => import('./pages/ShopDetail'));
+const ProductSearch = lazyWithRetry(() => import('./pages/ProductSearch'));
+const StoreHealthScore = lazyWithRetry(() => import('./pages/StoreHealthScore'));
 const AIChat = lazyWithRetry(() => import('./pages/AIChat'));
 const RevenuePage = lazyWithRetry(() => import('./pages/RevenuePage'));
 // SEO landing pages
-const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
-const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
-const WinningProductsAustralia = lazy(() => import('./pages/seo/WinningProductsAustralia'));
+const DropshippingAustralia = lazyWithRetry(() => import('./pages/seo/DropshippingAustralia'));
+const TikTokShopAustralia = lazyWithRetry(() => import('./pages/seo/TikTokShopAustralia'));
+const WinningProductsAustralia = lazyWithRetry(() => import('./pages/seo/WinningProductsAustralia'));
 
 // New v2 app shell (4 files only — AppShell, Nav, Home, Products)
 const NewAppShell = lazyWithRetry(() => import('./components/app/AppShell').then((m) => ({ default: m.AppShell })));
@@ -103,10 +102,10 @@ const NewAnalytics = lazyWithRetry(() => import('./pages/app/Analytics'));
 const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
 const ApiKeys = lazyWithRetry(() => import('./pages/app/ApiKeys'));
 const ApiDocs = lazyWithRetry(() => import('./pages/app/ApiDocs'));
-const ROASCalculator = lazy(() => import('./pages/tools/ROASCalculator'));
-const OperatorWall = lazy(() => import('./pages/OperatorWall'));
-const Affiliates = lazy(() => import('./pages/Affiliates'));
-const Contact = lazy(() => import('./pages/Contact'));
+const ROASCalculator = lazyWithRetry(() => import('./pages/tools/ROASCalculator'));
+const OperatorWall = lazyWithRetry(() => import('./pages/OperatorWall'));
+const Affiliates = lazyWithRetry(() => import('./pages/Affiliates'));
+const Contact = lazyWithRetry(() => import('./pages/Contact'));
 
 interface ComingSoonProps { page: string }
 function ComingSoon({ page }: ComingSoonProps) {

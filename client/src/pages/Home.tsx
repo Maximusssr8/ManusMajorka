@@ -632,7 +632,7 @@ function Hero() {
       background: '#0a0a0a',
       position: 'relative',
       overflow: 'hidden',
-      padding: '80px 24px 100px',
+      padding: '40px 24px 100px',
       borderBottom: `1px solid ${T.border}`,
       marginTop: 60,
       minHeight: 'auto',

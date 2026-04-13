@@ -94,6 +94,83 @@ interface StoredBrief {
   createdAt: string;
 }
 
+// Minimal XSS sanitizer for AI-generated markdown output
+const sanitizeHtml = (html: string) =>
+  html.replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/on\w+="[^"]*"/gi, '')
+      .replace(/on\w+='[^']*'/gi, '');
+
+function renderBriefMarkdown(text: string) {
+  const sections = text.split(/^(## .+)$/m).filter(Boolean);
+  return sections.map((section, i) => {
+    if (section.startsWith('## ')) {
+      return (
+        <h3
+          key={i}
+          style={{
+            fontFamily: display, fontSize: 18, fontWeight: 700,
+            marginTop: i === 0 ? 0 : 20, marginBottom: 8,
+            color: '#ededed',
+          }}
+        >
+          {section.replace('## ', '')}
+        </h3>
+      );
+    }
+    const lines = section.trim().split('\n');
+    return (
+      <div key={i} style={{ marginBottom: 8 }}>
+        {lines.filter(l => l.trim()).map((line, j) => {
+          if (line.startsWith('### ')) {
+            return (
+              <h4 key={j} style={{ fontFamily: display, fontSize: 15, fontWeight: 600, margin: '12px 0 6px', color: '#ededed' }}>
+                {line.replace('### ', '')}
+              </h4>
+            );
+          }
+          if (line.startsWith('- **')) {
+            const match = line.match(/^- \*\*(.+?)\*\*(.*)$/);
+            if (match) {
+              return (
+                <div key={j} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: 1.65, marginBottom: 4 }}>
+                  <span style={{ color: '#3B82F6', flexShrink: 0 }}>·</span>
+                  <span>
+                    <strong style={{ color: '#ededed', fontWeight: 700 }}>{match[1]}</strong>
+                    <span style={{ color: '#a1a1aa' }}>{match[2]}</span>
+                  </span>
+                </div>
+              );
+            }
+          }
+          if (line.startsWith('- ')) {
+            return (
+              <div key={j} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: 1.65, marginBottom: 4, color: '#a1a1aa' }}>
+                <span style={{ color: '#555', flexShrink: 0 }}>·</span>
+                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#ededed;font-weight:700">$1</strong>')) }} />
+              </div>
+            );
+          }
+          if (/^\d+\./.test(line)) {
+            return (
+              <div key={j} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: 1.65, marginBottom: 4, color: '#a1a1aa' }}>
+                <span style={{ color: '#555', flexShrink: 0, minWidth: 20, fontFamily: mono }}>{line.match(/^\d+/)?.[0]}.</span>
+                <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#ededed;font-weight:700">$1</strong>')) }} />
+              </div>
+            );
+          }
+          return (
+            <p key={j} style={{ fontSize: 13, color: '#a1a1aa', lineHeight: 1.65, margin: '0 0 4px' }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#ededed;font-weight:700">$1</strong>')) }}
+            />
+          );
+        })}
+      </div>
+    );
+  });
+}
+
 const STORAGE_KEY = 'majorka-adbriefs-v1';
 
 function loadBriefs(): StoredBrief[] {
@@ -439,12 +516,11 @@ Return a markdown brief with these sections:
             {copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy brief</>}
           </button>
           <div style={{
-            whiteSpace: 'pre-wrap',
             fontSize: 13,
             lineHeight: 1.65,
             color: 'rgba(255,255,255,0.85)',
             fontFamily: sans,
-          }}>{output}</div>
+          }}>{renderBriefMarkdown(output)}</div>
         </div>
       )}
 

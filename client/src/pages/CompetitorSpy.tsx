@@ -155,7 +155,7 @@ export default function CompetitorSpy() {
     startProgress();
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     try {
       const { data: session } = await supabase.auth.getSession();
@@ -451,89 +451,15 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             </div>
           )}
 
-          {/* Error state — blurred preview + waitlist */}
+          {/* Error state */}
           {error && !loading && !result && (
             <div className="flex flex-col items-center justify-center py-12 gap-8 px-6">
-              {/* Blurred mockup preview */}
-              <div className="relative w-full max-w-2xl">
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  backdropFilter: 'blur(6px)',
-                  background: 'rgba(0,0,0,0.6)',
-                  borderRadius: 8,
-                  zIndex: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <span style={{
-                    fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.6)',
-                    background: 'rgba(255,255,255,0.06)',
-                    padding: '8px 18px', borderRadius: 20,
-                    border: '1px solid rgba(255,255,255,0.1)',
-                  }}>
-                    Analysis failed — try a different query
-                  </span>
-                </div>
-                {/* Blurred mock UI */}
-                <div style={{
-                  background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 8, padding: 24, opacity: 0.5,
-                }}>
-                  <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} style={{ height: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }} />
-                    ))}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 12 }}>
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} style={{ height: 40, background: 'rgba(255,255,255,0.04)', borderRadius: 6 }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA + waitlist */}
-              <div style={{ textAlign: 'center', maxWidth: 440 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
-                  Competitor intelligence
-                </h3>
-                <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>
-                  Analyse any Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends. Available on Scale plan.
-                </p>
-                <div style={{ display: 'flex', gap: 8, maxWidth: 360, margin: '0 auto' }}>
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={waitlistEmail}
-                    onChange={e => setWaitlistEmail(e.target.value)}
-                    style={{
-                      flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
-                      outline: 'none',
-                    }}
-                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)')}
-                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
-                  />
-                  <button
-                    onClick={() => {
-                      if (waitlistEmail) {
-                        setWaitlistSubmitted(true);
-                        toast.success("You're on the list!");
-                      }
-                    }}
-                    style={{
-                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#3B82F6', color: 'white',
-                      border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                      cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#2563EB'; }}
-                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#3B82F6'; }}
-                  >
-                    {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
-                  </button>
-                </div>
+              <div
+                className="rounded-lg p-8 text-center w-full max-w-2xl"
+                style={{ border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)' }}
+              >
+                <p className="text-sm font-medium mb-2" style={{ color: '#f87171' }}>Analysis failed</p>
+                <p className="text-xs" style={{ color: '#94A3B8' }}>Try a different query or check your connection.</p>
               </div>
             </div>
           )}
@@ -608,89 +534,50 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             </div>
           )}
 
-          {/* Empty / initial state — blurred preview + waitlist */}
-          {!result && !loading && (
+          {/* Empty / initial state */}
+          {!result && !loading && !error && (
             <div className="flex flex-col items-center justify-center py-12 gap-8 px-6">
-              {/* Blurred mockup preview */}
-              <div className="relative w-full max-w-2xl">
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  backdropFilter: 'blur(6px)',
-                  background: 'rgba(0,0,0,0.6)',
-                  borderRadius: 8,
-                  zIndex: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <span style={{
-                    fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.6)',
-                    background: 'rgba(255,255,255,0.06)',
-                    padding: '8px 18px', borderRadius: 20,
-                    border: '1px solid rgba(255,255,255,0.1)',
-                  }}>
-                    Analysis failed — try a different query
-                  </span>
-                </div>
-                {/* Blurred mock UI */}
-                <div style={{
-                  background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 8, padding: 24, opacity: 0.5,
-                }}>
-                  <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} style={{ height: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }} />
-                    ))}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 12 }}>
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} style={{ height: 40, background: 'rgba(255,255,255,0.04)', borderRadius: 6 }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA + waitlist */}
               <div style={{ textAlign: 'center', maxWidth: 440 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 600, color: '#F1F5F9', marginBottom: 8 }}>
                   Competitor intelligence
                 </h3>
                 <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, marginBottom: 20 }}>
-                  Analyse any Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends. Available on Scale plan.
+                  Analyse any TikTok Shop or Shopify store — pricing, top products, ad spend estimates, traffic sources, and growth trends.
                 </p>
-                <div style={{ display: 'flex', gap: 8, maxWidth: 360, margin: '0 auto' }}>
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={waitlistEmail}
-                    onChange={e => setWaitlistEmail(e.target.value)}
-                    style={{
-                      flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
-                      outline: 'none',
-                    }}
-                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)')}
-                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
-                  />
-                  <button
-                    onClick={() => {
-                      if (waitlistEmail) {
-                        setWaitlistSubmitted(true);
-                        toast.success("You're on the list!");
-                      }
-                    }}
-                    style={{
-                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#3B82F6', color: 'white',
-                      border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                      cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#2563EB'; }}
-                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#3B82F6'; }}
-                  >
-                    {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
-                  </button>
-                </div>
+                {subPlan !== 'scale' && (
+                  <div style={{ display: 'flex', gap: 8, maxWidth: 360, margin: '0 auto' }}>
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={waitlistEmail}
+                      onChange={e => setWaitlistEmail(e.target.value)}
+                      style={{
+                        flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
+                        outline: 'none',
+                      }}
+                      onFocus={e => (e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)')}
+                      onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
+                    />
+                    <button
+                      onClick={() => {
+                        if (waitlistEmail) {
+                          setWaitlistSubmitted(true);
+                          toast.success("You're on the list!");
+                        }
+                      }}
+                      style={{
+                        padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#3B82F6', color: 'white',
+                        border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#2563EB'; }}
+                      onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#3B82F6'; }}
+                    >
+                      {waitlistSubmitted ? 'Noted!' : 'Notify me'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
