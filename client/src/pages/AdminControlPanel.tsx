@@ -632,7 +632,7 @@ export default function AdminControlPanel() {
     const isAdmin = email === ADMIN_EMAIL;
     setAuthorized(isAdmin);
     if (!isAdmin && email) {
-      setLocation('/app/dashboard');
+      setLocation('/app');
     }
   }, [isAuthenticated, session, setLocation]);
 

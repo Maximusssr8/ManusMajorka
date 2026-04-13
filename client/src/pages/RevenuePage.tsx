@@ -176,7 +176,7 @@ export default function RevenuePage() {
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => nav('/app/dashboard')} feature="Revenue Tracking" reason="Track your store revenue and analytics" />;
+    return <UpgradeModal isOpen={true} onClose={() => nav('/app')} feature="Revenue Tracking" reason="Track your store revenue and analytics" />;
   }
 
   return (

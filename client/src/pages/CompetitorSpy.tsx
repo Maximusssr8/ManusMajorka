@@ -301,7 +301,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Competitor Intelligence" reason="Analyse competitor shops and strategies" />;
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app')} feature="Competitor Intelligence" reason="Analyse competitor shops and strategies" />;
   }
 
   return (

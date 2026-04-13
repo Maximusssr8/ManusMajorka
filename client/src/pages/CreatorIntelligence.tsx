@@ -463,7 +463,7 @@ export default function CreatorIntelligence() {
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Creator Intelligence" reason="Discover top creators and influencers" />;
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app')} feature="Creator Intelligence" reason="Discover top creators and influencers" />;
   }
 
   if (error) return errorFallback;

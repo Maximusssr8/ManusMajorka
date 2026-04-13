@@ -330,7 +330,7 @@ export default function MarketDashboard() {
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => nav('/app/dashboard')} feature="Market Intelligence" reason="Track market trends and opportunities" />;
+    return <UpgradeModal isOpen={true} onClose={() => nav('/app')} feature="Market Intelligence" reason="Track market trends and opportunities" />;
   }
 
   return (

@@ -73,7 +73,6 @@ router.get('/callback', async (req, res) => {
     res.clearCookie('shopify_state');
     return res.redirect(`/store-builder?connected=true&shop=${encodeURIComponent(shop)}`);
   } catch (err: any) {
-    console.error('[shopify/callback]', err);
     return res.redirect('/store-builder?error=oauth_failed');
   }
 });
@@ -121,7 +120,6 @@ router.post('/connect', async (req, res) => {
     });
     if (!shopRes.ok) {
       const body = await shopRes.text().catch(() => '');
-      console.warn(`[shopify/connect] validation failed ${shopRes.status}: ${body.slice(0, 200)}`);
       return res.status(401).json({
         success: false,
         error: shopRes.status === 401 ? 'Invalid access token for this store' : 'Invalid token or store URL',
@@ -156,7 +154,6 @@ router.post('/connect', async (req, res) => {
 
     return res.json({ success: true, shopName, productCount, shopDomain: shop });
   } catch (err: unknown) {
-    console.error('[shopify/connect]', err);
     return res.status(500).json({
       success: false,
       error: err instanceof Error ? err.message : 'Connect failed',
@@ -194,7 +191,6 @@ router.get('/connect-products', async (req, res) => {
     }));
     return res.json({ success: true, products, total: products.length });
   } catch (err: unknown) {
-    console.error('[shopify/connect-products]', err);
     return res.status(500).json({ error: err instanceof Error ? err.message : 'Fetch failed' });
   }
 });

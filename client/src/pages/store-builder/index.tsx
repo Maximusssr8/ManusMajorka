@@ -14,6 +14,7 @@ import {
   Download,
   ExternalLink,
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 // ─── Design tokens ─────────────────────────────────────────────
 const BG = '#080808';
@@ -1090,6 +1091,12 @@ function ShopifySyncMode() {
   const [report, setReport] = useState<ShopifySyncReport | null>(null);
   const [pending, setPending] = useState<string | null>(null);
 
+  // Helper to get the current Supabase session token
+  const getAuthToken = useCallback(async (): Promise<string> => {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? '';
+  }, []);
+
   const handleConnect = useCallback(async () => {
     if (!url.trim() || !apiKey.trim()) {
       toast.error('Enter URL and API key');
@@ -1097,43 +1104,42 @@ function ShopifySyncMode() {
     }
     setConnecting(true);
     setPending(null);
-    const res = await safeFetch<ShopifyValidation>('/api/shopify/validate', {
+    const token = await getAuthToken();
+    const res = await safeFetch<{ success: boolean; shopName: string; productCount: number }>('/api/shopify/connect', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, apiKey }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ shopUrl: url, accessToken: apiKey }),
     });
     setConnecting(false);
-    if (res.ok && res.data) {
-      setConnected(res.data);
-      toast.success(`Connected to ${res.data.storeName}`);
-      return;
-    }
-    if (res.pending) {
-      setPending('Shopify validate endpoint pending — wire in server/routes/store.ts');
+    if (res.ok && res.data?.success) {
+      setConnected({ storeName: res.data.shopName, productCount: res.data.productCount });
+      toast.success(`Connected to ${res.data.shopName}`);
       return;
     }
     toast.error(res.error ?? 'Connection failed');
-  }, [url, apiKey]);
+  }, [url, apiKey, getAuthToken]);
 
   const handleSync = useCallback(async () => {
     setSyncing(true);
-    const res = await safeFetch<ShopifySyncReport>('/api/shopify/sync', {
+    const token = await getAuthToken();
+    const res = await safeFetch<{ synced: number; products: unknown[] }>('/api/shopify/sync', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, apiKey }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     });
     setSyncing(false);
     if (res.ok && res.data) {
-      setReport(res.data);
-      toast.success('Sync complete');
-      return;
-    }
-    if (res.pending) {
-      setPending('Shopify sync endpoint pending — wire in server/routes/store.ts');
+      setReport({ matched: res.data.synced, unmatched: 0, recommendations: [] });
+      toast.success(`Synced ${res.data.synced} products`);
       return;
     }
     toast.error(res.error ?? 'Sync failed');
-  }, [url, apiKey]);
+  }, [getAuthToken]);
 
   const isConnected = connected !== null;
 

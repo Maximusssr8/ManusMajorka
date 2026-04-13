@@ -138,7 +138,7 @@ router.post('/push', requireSubscription, async (req, res) => {
 
     const { shop_domain: shop, access_token: token } = conn;
     const headers = { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' };
-    const base = `https://${shop}/admin/api/2025-01`;
+    const base = `https://${shop}/admin/api/2024-01`;
     const steps: Record<string, { success: boolean; id?: string | number; error?: string }> = {};
 
     // Step 1: Create product
@@ -409,11 +409,10 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
       return res.json({ copy });
     }
     // Claude returned but the parse failed — use server-side fallback
-    console.warn('[generate-copy] Claude returned unparseable text, using fallback');
     return res.json({ copy: buildFallbackCopy(storeName, niche || 'General', products || []) });
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : 'Unknown error';
-    console.error('[generate-copy]', errMsg);
+    void errMsg;
     // Return a deterministic fallback instead of 500 so the user can
     // still build their store. The copy can be regenerated later.
     const { storeName: sn, niche: n, products: ps } = req.body || {};

@@ -602,7 +602,7 @@ const TRACKS: Track[] = [
         difficulty: 'Intermediate',
         content:
           'Customer service is where most dropshippers bleed money — not from refunds, but from time spent on repetitive inquiries. The fix is systematisation. First, know your obligations: Australian Consumer Law requires that products match their description, are of acceptable quality, and are fit for purpose. You must offer a remedy (repair, replacement, or refund) for faulty goods — "no refunds" policies are illegal for AU consumers. Second, build templates for the five most common issues: where is my order, I want a refund, the product is damaged, it does not match the description, and Afterpay disputes. Use Maya AI to draft these templates — give it your shipping times, refund policy, and tone of voice, and it generates professional responses in seconds. Third, set expectations upfront: shipping timeframes on the product page, order confirmation emails with tracking, and proactive delay notifications. Eighty percent of support tickets disappear when customers know what to expect before they ask.',
-        actionLink: { label: 'Draft templates with Maya AI →', href: '/app/maya' },
+        actionLink: { label: 'Draft templates with Maya AI →', href: '/app/ai-chat' },
         quiz: QUIZZES['customer-service'],
       },
       {

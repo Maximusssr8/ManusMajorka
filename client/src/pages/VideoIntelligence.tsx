@@ -266,7 +266,7 @@ export default function VideoIntelligence() {
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Video Intelligence" reason="Analyse trending videos and content" />;
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app')} feature="Video Intelligence" reason="Analyse trending videos and content" />;
   }
 
   return (

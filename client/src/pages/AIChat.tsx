@@ -345,7 +345,7 @@ export default function AIChat() {
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   if (!isAdmin && !isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Maya AI" reason="Your AI-powered ecommerce assistant" />;
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app')} feature="Maya AI" reason="Your AI-powered ecommerce assistant" />;
   }
 
   return (

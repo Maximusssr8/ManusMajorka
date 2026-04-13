@@ -380,7 +380,7 @@ function Router() {
             <Route path="/app/creator-intel">{() => { window.location.replace('/app/creators'); return null; }}</Route>
             <Route path="/app/academy">{() => { window.location.replace('/app/learn'); return null; }}</Route>
             <Route path="/app/maya">{() => { window.location.replace('/app/ai-chat'); return null; }}</Route>
-            <Route path="/app/home">{() => { window.location.replace('/app/dashboard'); return null; }}</Route>
+            <Route path="/app/home">{() => { window.location.replace('/app'); return null; }}</Route>
             <Route path="/app/maya-ai">{() => { window.location.replace('/app/ai-chat'); return null; }}</Route>
             <Route path="/app/profit-calc">{() => { window.location.replace('/app/profit'); return null; }}</Route>
             <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
