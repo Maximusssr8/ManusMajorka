@@ -50,8 +50,6 @@ const PROGRESS_STEPS = [
 // ── Competitor Quick Actions ──────────────────────────────────────────────────
 function CompetitorQuickActions({ query }: { query: string }) {
   const [, nav] = useLocation();
-  // Extract likely niche from query (first significant word)
-  const niche = encodeURIComponent(query.split(/\s+/).slice(0, 3).join(' '));
   const actions = [
     { label: 'Find Winning Products', path: `/app/products`, color: '#ef4444' },
     { label: 'Generate Ads', path: `/app/ads-studio`, color: '#e5c158' },

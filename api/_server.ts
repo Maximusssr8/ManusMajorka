@@ -638,6 +638,11 @@ app.use('/api/shopify', shopifyRouter);
 app.use('/api/store-builder', storeBuilderRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/cron', cronRouter);
+
+// ── Ads history — returns saved ad generations (empty if no table yet) ──
+app.get("/api/ads/history", async (_req: Request, res: Response) => {
+  res.json({ items: [] });
+});
 app.use('/api', imageProxyRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);

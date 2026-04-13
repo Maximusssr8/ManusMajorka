@@ -337,6 +337,10 @@ async function startServer() {
   const aiRouter = (await import('../routes/ai')).default;
   app.use('/api/ai', aiRouter);
 
+  // User preferences
+  const userRouter = (await import('../routes/user')).default;
+  app.use('/api/user', userRouter);
+
   // Developer API — key management (session-authenticated)
   const apiKeysRouter = (await import('../routes/api-keys')).default;
   app.use('/api/api-keys', apiKeysRouter);
@@ -361,7 +365,68 @@ async function startServer() {
   app.use('/api/auth/aliexpress', aliexpressAuthRouter);
   const { registerGenerationRoutes } = await import('../routes/generation');
   registerGenerationRoutes(app);
-  // ── Ad Spy Search ────────────────────────────────────────────────────────────
+  // ── Ads history — returns saved ad generations (empty if no table yet) ──
+  app.get('/api/ads/history', async (_req, res) => {
+    res.json({ items: [] });
+  });
+
+  // ── Product URL Extraction ───────────��─────────────────────────────────────
+  app.get('/api/products/extract-url', requireAuth, async (req, res) => {
+    try {
+      const url = String(req.query.url || '').trim();
+      if (!url || !url.startsWith('http')) {
+        res.status(400).json({ error: 'Invalid URL' });
+        return;
+      }
+      const idMatch = url.match(/\/item\/(\d+)|\/i\/(\d+)|itemId=(\d+)/);
+      const productId = idMatch ? (idMatch[1] || idMatch[2] || idMatch[3]) : null;
+      if (productId) {
+        res.json({
+          product_id: productId,
+          source_url: url,
+          title: null,
+          description: null,
+          images: [],
+          price_aud: null,
+          extracted: false,
+          message: 'Product ID extracted. Title and images require manual entry.',
+        });
+      } else {
+        res.status(422).json({
+          error: 'Could not extract product ID from URL',
+          message: 'Please ensure this is a valid AliExpress product URL',
+          extracted: false,
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // ── Alerts test notification ────────────────���──────────────────────────────
+  app.post('/api/alerts/test-notification', requireAuth, async (req, res) => {
+    try {
+      const email = (req as any).user?.email;
+      if (!email) { res.status(400).json({ error: 'No email on account' }); return; }
+      const RESEND_KEY = process.env.RESEND_API_KEY;
+      if (!RESEND_KEY) { res.status(503).json({ error: 'Email service not configured' }); return; }
+      const { Resend } = require('resend');
+      const resend = new Resend(RESEND_KEY);
+      await resend.emails.send({
+        from: 'Majorka Alerts <alerts@majorka.io>',
+        to: email,
+        subject: 'Majorka Alerts — Test Notification',
+        html: `<p>Your alerts are configured correctly. Sent at ${new Date().toISOString()}</p>`,
+      });
+      res.json({ ok: true, sentTo: email });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // ── Ad Spy Search ───────────────────────��────────────────────────────────────
   const adSpySearchCache = new Map<string, { ts: number; result: any }>();
   const adSpyUserCooldown = new Map<string, number>();
 
