@@ -524,6 +524,15 @@ function FilterPill({ label, active, open, onToggle, onClose, onClear, children 
    ══════════════════════════════════════════════════════════════ */
 
 const SHOPIFY_PUSHED_KEY = 'majorka_shopify_pushed';
+const SHOPIFY_IMPORTS_KEY = 'majorka_shopify_imports';
+
+interface ShopifyImportRecord {
+  productId: string;
+  title: string;
+  shopifyUrl: string | null;
+  pushedAt: string;
+  sellPrice: number;
+}
 
 function getShopifyPushedIds(): Set<string> {
   try {
@@ -534,6 +543,22 @@ function getShopifyPushedIds(): Set<string> {
   } catch { return new Set(); }
 }
 
+function getShopifyImports(): ShopifyImportRecord[] {
+  try {
+    const raw = localStorage.getItem(SHOPIFY_IMPORTS_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+
+function addShopifyImport(record: ShopifyImportRecord): void {
+  const imports = getShopifyImports().filter((r) => r.productId !== record.productId);
+  imports.unshift(record);
+  // Keep last 50 imports
+  localStorage.setItem(SHOPIFY_IMPORTS_KEY, JSON.stringify(imports.slice(0, 50)));
+}
+
 function markShopifyPushed(productId: string): void {
   const ids = getShopifyPushedIds();
   ids.add(productId);
@@ -542,6 +567,24 @@ function markShopifyPushed(productId: string): void {
 
 function isShopifyPushed(productId: string): boolean {
   return getShopifyPushedIds().has(productId);
+}
+
+/** Estimate shipping cost based on price tier */
+function estimateShipping(priceAud: number): number {
+  if (priceAud < 5) return 3;
+  if (priceAud < 15) return 5;
+  if (priceAud < 30) return 7;
+  return 10;
+}
+
+/** Calculate profit metrics for the smart pricing calculator */
+function calcProfitMetrics(sellPrice: number, costPrice: number, shippingEst: number) {
+  const stripeFee = sellPrice * 0.029;        // 2.9% Stripe/payment processing
+  const netProfit = sellPrice - costPrice - shippingEst - stripeFee;
+  const marginPct = sellPrice > 0 ? (netProfit / sellPrice) * 100 : 0;
+  const tier: 'green' | 'amber' | 'red' = marginPct >= 30 ? 'green' : marginPct >= 15 ? 'amber' : 'red';
+  const tierColor = tier === 'green' ? '#10b981' : tier === 'amber' ? '#f59e0b' : '#ef4444';
+  return { netProfit, marginPct, stripeFee, tier, tierColor };
 }
 
 interface ShopifyStatus {
@@ -615,38 +658,48 @@ function ShopifyPushModal({
   const [step, setStep] = useState<ShopifyModalStep>('checking');
   const [title, setTitle] = useState('');
   const [sellPrice, setSellPrice] = useState(0);
+  const [compareAtPrice, setCompareAtPrice] = useState(0);
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [tags, setTags] = useState('');
+  const [productType, setProductType] = useState('');
   const [resultUrl, setResultUrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     if (!open) return;
-    // Reset state on open
     const base = Number(product.price_aud ?? 0);
     const orders = product.sold_count ?? 0;
     const ordersBand = orders >= 1000 ? `${Math.round(orders / 1000)}K+` : `${orders}`;
     const cat = product.category || 'product';
-    setTitle(cleanProductTitle(product.product_title));
+    const cleaned = cleanProductTitle(product.product_title);
+    setTitle(cleaned);
     setSellPrice(Math.round(base * 3 * 100) / 100);
+    setCompareAtPrice(Math.round(base * 4 * 100) / 100);
     setDescription(
       `Premium ${cat.toLowerCase()} trusted by ${ordersBand} customers worldwide. ` +
-      `High-quality materials, fast shipping, and exceptional value.`
+      `High-quality materials, fast shipping, and exceptional value. ` +
+      `Perfect for everyday use — order yours today.`
     );
     setCategory(product.category ?? '');
+    setProductType(product.category ?? '');
+    const tagParts = [product.category, 'trending', 'majorka-import'].filter(Boolean);
+    setTags(tagParts.join(', '));
     setResultUrl('');
     setErrorMsg('');
     setStep('checking');
 
-    // Check Shopify connection
     fetchShopifyStatus().then((status) => {
-      if (status.connected) {
-        setStep('configure');
-      } else {
-        setStep('not-connected');
-      }
+      setStep(status.connected ? 'configure' : 'not-connected');
     });
   }, [open, product]);
+
+  const costPrice = Number(product.price_aud ?? 0);
+  const shippingEst = estimateShipping(costPrice);
+  const profit = calcProfitMetrics(sellPrice, costPrice, shippingEst);
+  const compareDiscount = compareAtPrice > 0 && sellPrice < compareAtPrice
+    ? Math.round(((compareAtPrice - sellPrice) / compareAtPrice) * 100)
+    : 0;
 
   async function handlePush() {
     setStep('pushing');
@@ -662,6 +715,13 @@ function ShopifyPushModal({
     if (result.success) {
       setResultUrl(result.shopifyProductUrl ?? '');
       markShopifyPushed(String(product.id));
+      addShopifyImport({
+        productId: String(product.id),
+        title,
+        shopifyUrl: result.shopifyProductUrl ?? null,
+        pushedAt: new Date().toISOString(),
+        sellPrice,
+      });
       setStep('success');
     } else {
       setErrorMsg(result.error ?? 'Unknown error');
@@ -675,7 +735,7 @@ function ShopifyPushModal({
     <div className="fixed inset-0 z-[200] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
-        className="relative z-10 w-full max-w-md mx-4 rounded-lg p-6 font-body"
+        className="relative z-10 w-full max-w-lg mx-4 rounded-lg p-6 font-body max-h-[90vh] overflow-y-auto"
         style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}
       >
         {/* Header */}
@@ -692,7 +752,6 @@ function ShopifyPushModal({
           </button>
         </div>
 
-        {/* Checking status */}
         {step === 'checking' && (
           <div className="flex flex-col items-center gap-3 py-8">
             <Loader2 size={24} className="animate-spin text-muted" />
@@ -700,7 +759,6 @@ function ShopifyPushModal({
           </div>
         )}
 
-        {/* Not connected */}
         {step === 'not-connected' && (
           <div className="flex flex-col items-center gap-4 py-6">
             <AlertCircle size={32} className="text-amber" />
@@ -717,9 +775,25 @@ function ShopifyPushModal({
           </div>
         )}
 
-        {/* Configure */}
         {step === 'configure' && (
           <div className="space-y-4">
+            {/* Product image preview */}
+            {product.image_url && (
+              <div className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <img
+                  src={proxyImage(product.image_url) ?? product.image_url}
+                  alt={title}
+                  className="w-16 h-16 rounded-md object-cover border border-white/[0.08]"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-text font-medium truncate">{product.product_title}</p>
+                  <p className="text-[10px] text-muted mt-1">Product image will be imported from AliExpress</p>
+                  <p className="text-[10px] text-white/30 mt-0.5">Cost: ${costPrice.toFixed(2)} AUD</p>
+                </div>
+              </div>
+            )}
+
+            {/* Title */}
             <div>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
                 Product Title
@@ -730,21 +804,71 @@ function ShopifyPushModal({
                 className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37]"
               />
             </div>
-            <div>
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
-                Selling Price (AUD)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={sellPrice}
-                onChange={(e) => setSellPrice(Number(e.target.value) || 0)}
-                className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37] tabular-nums"
-              />
-              <span className="text-[10px] text-muted mt-1 block">
-                Cost: ${Number(product.price_aud ?? 0).toFixed(2)} | Margin: ${(sellPrice - Number(product.price_aud ?? 0)).toFixed(2)}
-              </span>
+
+            {/* Pricing row: sell + compare-at side by side */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                  Selling Price (AUD)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={sellPrice}
+                  onChange={(e) => setSellPrice(Number(e.target.value) || 0)}
+                  className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37] tabular-nums"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                  Compare-at Price
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={compareAtPrice}
+                  onChange={(e) => setCompareAtPrice(Number(e.target.value) || 0)}
+                  className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37] tabular-nums"
+                />
+                {compareDiscount > 0 && (
+                  <span className="text-[10px] text-green mt-1 block">
+                    Shows as {compareDiscount}% OFF on your store
+                  </span>
+                )}
+              </div>
             </div>
+
+            {/* Smart profit calculator */}
+            <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${profit.tierColor}30` }}>
+              <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: profit.tierColor }}>
+                Profit Calculator
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
+                <span className="text-muted">Sell price</span>
+                <span className="text-text text-right tabular-nums font-mono">${sellPrice.toFixed(2)}</span>
+                <span className="text-muted">- Cost (AliExpress)</span>
+                <span className="text-text text-right tabular-nums font-mono">-${costPrice.toFixed(2)}</span>
+                <span className="text-muted">- Shipping (~est.)</span>
+                <span className="text-text text-right tabular-nums font-mono">-${shippingEst.toFixed(2)}</span>
+                <span className="text-muted">- Stripe fee (2.9%)</span>
+                <span className="text-text text-right tabular-nums font-mono">-${profit.stripeFee.toFixed(2)}</span>
+                <span className="border-t border-white/[0.08] pt-1.5 font-semibold text-text">Net profit / unit</span>
+                <span className="border-t border-white/[0.08] pt-1.5 text-right tabular-nums font-mono font-bold" style={{ color: profit.tierColor }}>
+                  ${profit.netProfit.toFixed(2)}
+                </span>
+                <span className="font-semibold text-text">Margin</span>
+                <span className="text-right tabular-nums font-mono font-bold" style={{ color: profit.tierColor }}>
+                  {profit.marginPct.toFixed(1)}%
+                </span>
+              </div>
+              {costPrice > 0 && (
+                <div className="mt-2 pt-2 border-t border-white/[0.06] text-[10px] text-muted">
+                  Recommended: ${(costPrice * 3).toFixed(2)} AUD (3x markup, ~67% margin)
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
             <div>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
                 Description
@@ -756,24 +880,53 @@ function ShopifyPushModal({
                 className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37] resize-none"
               />
             </div>
+
+            {/* Category + Product Type row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                  Collection
+                </label>
+                <input
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="e.g. Electronics, Home"
+                  className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
+                  Product Type
+                </label>
+                <input
+                  value={productType}
+                  onChange={(e) => setProductType(e.target.value)}
+                  placeholder="e.g. Gadget, Tool"
+                  className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37]"
+                />
+              </div>
+            </div>
+
+            {/* Tags */}
             <div>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5 block">
-                Category / Collection
+                Tags (comma-separated)
               </label>
               <input
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. Electronics, Home, Beauty"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="trending, majorka-import, electronics"
                 className="w-full bg-bg border border-white/[0.08] rounded-md px-3 py-2.5 text-sm text-text outline-none focus:border-[#d4af37]"
               />
             </div>
+
             <button
               onClick={handlePush}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all cursor-pointer"
               style={{
-                background: '#d4af37',
-                color: '#000',
-                boxShadow: '0 0 20px rgba(212,175,55,0.25)',
+                background: '#3B82F6',
+                color: 'white',
+                boxShadow: '0 2px 12px rgba(59,130,246,0.25)',
               }}
             >
               <ShoppingCart size={15} />
@@ -782,15 +935,13 @@ function ShopifyPushModal({
           </div>
         )}
 
-        {/* Pushing */}
         {step === 'pushing' && (
           <div className="flex flex-col items-center gap-3 py-8">
-            <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
+            <Loader2 size={24} className="animate-spin" style={{ color: '#3B82F6' }} />
             <span className="text-sm text-muted">Creating product on Shopify...</span>
           </div>
         )}
 
-        {/* Success */}
         {step === 'success' && (
           <div className="flex flex-col items-center gap-4 py-6">
             <div
@@ -802,6 +953,9 @@ function ShopifyPushModal({
             <p className="text-sm font-semibold text-text text-center">
               Product live on your Shopify store!
             </p>
+            <div className="text-[11px] text-muted text-center tabular-nums font-mono">
+              Selling at ${sellPrice.toFixed(2)} — est. ${profit.netProfit.toFixed(2)} profit/unit
+            </div>
             {resultUrl && (
               <a
                 href={resultUrl}
@@ -823,7 +977,6 @@ function ShopifyPushModal({
           </div>
         )}
 
-        {/* Error */}
         {step === 'error' && (
           <div className="flex flex-col items-center gap-4 py-6">
             <div
@@ -864,6 +1017,8 @@ function BulkShopifyPush({
   const [pushed, setPushed] = useState(0);
   const [failed, setFailed] = useState(0);
   const [total, setTotal] = useState(0);
+  const [excluded, setExcluded] = useState<Set<string>>(new Set());
+  const [results, setResults] = useState<Array<{ id: string; title: string; url: string | null; ok: boolean }>>([]);
 
   useEffect(() => {
     if (!open) {
@@ -871,8 +1026,23 @@ function BulkShopifyPush({
       setPushed(0);
       setFailed(0);
       setTotal(0);
+      setExcluded(new Set());
+      setResults([]);
     }
   }, [open]);
+
+  const eligible = products.filter((p) => !isShopifyPushed(String(p.id)) && !excluded.has(String(p.id)));
+  const alreadyPushed = products.filter((p) => isShopifyPushed(String(p.id)));
+  const totalEstValue = eligible.reduce((sum, p) => sum + Math.round(Number(p.price_aud ?? 0) * 3), 0);
+
+  function toggleExclude(productId: string) {
+    setExcluded((prev) => {
+      const next = new Set(prev);
+      if (next.has(productId)) next.delete(productId);
+      else next.add(productId);
+      return next;
+    });
+  }
 
   async function startBulkPush() {
     setStep('checking');
@@ -882,30 +1052,41 @@ function BulkShopifyPush({
       return;
     }
     setStep('pushing');
-    const toPush = products.filter((p) => !isShopifyPushed(String(p.id)));
+    const toPush = eligible;
     setTotal(toPush.length);
     setPushed(0);
     setFailed(0);
+    setResults([]);
 
     for (let i = 0; i < toPush.length; i++) {
       const p = toPush[i];
       const base = Number(p.price_aud ?? 0);
+      const sell = Math.round(base * 3 * 100) / 100;
+      const cleaned = cleanProductTitle(p.product_title);
       const result = await pushProductToShopify({
-        product_title: cleanProductTitle(p.product_title),
+        product_title: cleaned,
         price_aud: p.price_aud != null ? Number(p.price_aud) : null,
         sold_count: p.sold_count,
         category: p.category ?? null,
         image_url: p.image_url,
         description: null,
-        sellPrice: Math.round(base * 3 * 100) / 100,
+        sellPrice: sell,
       });
       if (result.success) {
         markShopifyPushed(String(p.id));
+        addShopifyImport({
+          productId: String(p.id),
+          title: cleaned,
+          shopifyUrl: result.shopifyProductUrl ?? null,
+          pushedAt: new Date().toISOString(),
+          sellPrice: sell,
+        });
         setPushed((prev) => prev + 1);
+        setResults((prev) => [...prev, { id: String(p.id), title: cleaned, url: result.shopifyProductUrl ?? null, ok: true }]);
       } else {
         setFailed((prev) => prev + 1);
+        setResults((prev) => [...prev, { id: String(p.id), title: cleaned, url: null, ok: false }]);
       }
-      // Rate-limit delay between pushes
       if (i < toPush.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
@@ -919,7 +1100,7 @@ function BulkShopifyPush({
     <div className="fixed inset-0 z-[200] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
-        className="relative z-10 w-full max-w-sm mx-4 rounded-lg p-6 font-body"
+        className="relative z-10 w-full max-w-xl mx-4 rounded-lg p-6 font-body max-h-[85vh] overflow-y-auto"
         style={{ background: '#0f0f0f', border: '1px solid #1a1a1a' }}
       >
         <div className="flex items-center justify-between mb-5">
@@ -936,24 +1117,92 @@ function BulkShopifyPush({
         </div>
 
         {step === 'confirm' && (
-          <div className="flex flex-col items-center gap-4 py-4">
-            <p className="text-sm text-body text-center">
-              Push <span className="text-text font-bold">{products.length}</span> saved products to your Shopify store?
-            </p>
+          <div className="space-y-4">
+            {/* Summary stats */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-3 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="text-lg font-bold text-text tabular-nums font-mono">{eligible.length}</div>
+                <div className="text-[10px] text-muted uppercase tracking-wider">To push</div>
+              </div>
+              <div className="p-3 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="text-lg font-bold text-green tabular-nums font-mono">${totalEstValue}</div>
+                <div className="text-[10px] text-muted uppercase tracking-wider">Est. value</div>
+              </div>
+              <div className="p-3 rounded-lg text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="text-lg font-bold text-muted tabular-nums font-mono">{alreadyPushed.length}</div>
+                <div className="text-[10px] text-muted uppercase tracking-wider">Already live</div>
+              </div>
+            </div>
+
+            {/* Product table with toggle */}
+            <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="max-h-[300px] overflow-y-auto">
+                {products.map((p) => {
+                  const pid = String(p.id);
+                  const alreadyLive = isShopifyPushed(pid);
+                  const isExcluded = excluded.has(pid);
+                  const base = Number(p.price_aud ?? 0);
+                  const sell = Math.round(base * 3);
+                  return (
+                    <div
+                      key={p.id}
+                      className={`flex items-center gap-3 px-3 py-2 border-b border-white/[0.04] transition-colors ${
+                        alreadyLive ? 'opacity-40' : isExcluded ? 'opacity-50' : ''
+                      }`}
+                    >
+                      {!alreadyLive && (
+                        <button
+                          onClick={() => toggleExclude(pid)}
+                          className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 cursor-pointer transition-colors ${
+                            isExcluded
+                              ? 'border-white/20 bg-transparent'
+                              : 'border-[#3B82F6] bg-[#3B82F6]'
+                          }`}
+                        >
+                          {!isExcluded && <Check size={12} className="text-white" strokeWidth={3} />}
+                        </button>
+                      )}
+                      {alreadyLive && (
+                        <span className="w-5 h-5 rounded flex items-center justify-center shrink-0" style={{ background: 'rgba(16,185,129,0.15)' }}>
+                          <Check size={12} className="text-green" strokeWidth={3} />
+                        </span>
+                      )}
+                      {p.image_url ? (
+                        <img src={proxyImage(p.image_url) ?? p.image_url} alt="" className="w-10 h-10 rounded object-cover border border-white/[0.06] shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded bg-card border border-white/[0.06] shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-text truncate">{cleanProductTitle(p.product_title)}</p>
+                        <p className="text-[10px] text-muted tabular-nums">
+                          ${base.toFixed(2)} cost / ${sell} sell
+                        </p>
+                      </div>
+                      {alreadyLive && (
+                        <span className="text-[10px] text-green font-semibold shrink-0">Live</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <p className="text-[11px] text-muted text-center">
-              Products already pushed will be skipped. Each product is created as a draft.
+              Each product is created as a draft with 3x markup. Deselect any you want to skip.
             </p>
+
             <button
               onClick={startBulkPush}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold cursor-pointer transition-all"
+              disabled={eligible.length === 0}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                background: '#d4af37',
-                color: '#000',
-                boxShadow: '0 0 20px rgba(212,175,55,0.25)',
+                background: '#3B82F6',
+                color: 'white',
+                boxShadow: '0 2px 12px rgba(59,130,246,0.25)',
               }}
             >
               <ShoppingCart size={15} />
-              Push All to Shopify
+              Push {eligible.length} Product{eligible.length !== 1 ? 's' : ''} to Shopify
             </button>
           </div>
         )}
@@ -983,42 +1232,74 @@ function BulkShopifyPush({
 
         {step === 'pushing' && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
+            <Loader2 size={24} className="animate-spin" style={{ color: '#3B82F6' }} />
             <p className="text-sm text-text font-semibold">
-              Pushed {pushed}/{total} products...
+              Pushing {pushed + failed}/{total}...
             </p>
-            {failed > 0 && (
-              <p className="text-[11px] text-red-400">{failed} failed</p>
-            )}
-            <div className="w-full bg-white/[0.06] rounded-full h-1.5 overflow-hidden">
+            <div className="w-full bg-white/[0.06] rounded-full h-2 overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: total > 0 ? `${((pushed + failed) / total) * 100}%` : '0%',
-                  background: '#d4af37',
+                  background: failed > 0 ? 'linear-gradient(90deg, #3B82F6, #ef4444)' : '#3B82F6',
                 }}
               />
+            </div>
+            <div className="flex items-center gap-4 text-[11px] tabular-nums">
+              <span className="text-green">{pushed} pushed</span>
+              {failed > 0 && <span className="text-red-400">{failed} failed</span>}
+              <span className="text-muted">{total - pushed - failed} remaining</span>
             </div>
           </div>
         )}
 
         {step === 'done' && (
-          <div className="flex flex-col items-center gap-4 py-6">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(16,185,129,0.15)' }}
-            >
-              <Check size={24} className="text-green" />
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-3 pt-4">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(16,185,129,0.15)' }}
+              >
+                <Check size={24} className="text-green" />
+              </div>
+              <p className="text-sm font-semibold text-text text-center">
+                {pushed} product{pushed !== 1 ? 's' : ''} now live on your store
+              </p>
+              {failed > 0 && (
+                <p className="text-[11px] text-red-400">{failed} failed to push</p>
+              )}
             </div>
-            <p className="text-sm font-semibold text-text text-center">
-              {pushed} product{pushed !== 1 ? 's' : ''} now live on your store
-            </p>
-            {failed > 0 && (
-              <p className="text-[11px] text-red-400">{failed} failed to push</p>
+
+            {/* Results with links */}
+            {results.length > 0 && (
+              <div className="rounded-lg overflow-hidden max-h-[200px] overflow-y-auto" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                {results.map((r) => (
+                  <div key={r.id} className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.04]">
+                    {r.ok ? (
+                      <Check size={12} className="text-green shrink-0" />
+                    ) : (
+                      <AlertCircle size={12} className="text-red-400 shrink-0" />
+                    )}
+                    <span className="text-xs text-text truncate flex-1">{r.title}</span>
+                    {r.url && (
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-medium shrink-0 no-underline flex items-center gap-1"
+                        style={{ color: '#3B82F6' }}
+                      >
+                        View <ExternalLink size={10} />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
+
             <button
               onClick={onClose}
-              className="text-xs text-muted hover:text-text transition-colors mt-1"
+              className="w-full py-2.5 text-xs text-muted hover:text-text transition-colors text-center"
             >
               Close
             </button>
@@ -1601,6 +1882,78 @@ function TT({ content, children, side = 'top' }: { content: React.ReactNode; chi
 }
 
 /* ══════════════════════════════════════════════════════════════
+   Shopify Import History — shows recently pushed products
+   ══════════════════════════════════════════════════════════════ */
+
+function ShopifyImportHistory() {
+  const [imports, setImports] = useState<ShopifyImportRecord[]>([]);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    setImports(getShopifyImports());
+  }, []);
+
+  if (imports.length === 0) return null;
+
+  const visible = expanded ? imports : imports.slice(0, 3);
+
+  return (
+    <div className="mx-4 md:mx-8 mb-8 rounded-lg overflow-hidden" style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <button
+        onClick={() => setExpanded((e) => !e)}
+        className="w-full flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Store size={14} className="text-[#3B82F6]" strokeWidth={1.75} />
+          <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
+            Recently imported to Shopify
+          </span>
+          <span className="text-[10px] text-muted tabular-nums">({imports.length})</span>
+        </div>
+        <ChevronRight
+          size={14}
+          className={`text-muted transition-transform ${expanded ? 'rotate-90' : ''}`}
+        />
+      </button>
+      <div className="border-t border-white/[0.04]">
+        {visible.map((imp) => {
+          const date = new Date(imp.pushedAt);
+          const daysAgo = Math.floor((Date.now() - date.getTime()) / 86400000);
+          const when = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
+          return (
+            <div key={imp.productId} className="flex items-center gap-3 px-4 py-2.5 border-b border-white/[0.03]">
+              <Check size={12} className="text-green shrink-0" />
+              <span className="text-xs text-text truncate flex-1">{imp.title}</span>
+              <span className="text-[10px] text-muted tabular-nums shrink-0 font-mono">${imp.sellPrice.toFixed(0)}</span>
+              <span className="text-[10px] text-white/30 shrink-0 w-16 text-right">{when}</span>
+              {imp.shopifyUrl && (
+                <a
+                  href={imp.shopifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] shrink-0 no-underline flex items-center gap-0.5"
+                  style={{ color: '#3B82F6' }}
+                >
+                  <ExternalLink size={10} />
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {imports.length > 3 && !expanded && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="w-full py-2 text-[10px] text-muted hover:text-text text-center transition-colors"
+        >
+          Show all {imports.length} imports
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
    Main component
    ══════════════════════════════════════════════════════════════ */
 
@@ -1636,6 +1989,50 @@ export default function AppProducts() {
   const lists = useLists();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [bulkPushOpen, setBulkPushOpen] = useState(false);
+  const [, forceRerender] = useState(0);
+
+  /** One-click quick push: 3x markup, auto description, toast feedback */
+  async function handleQuickPush(p: Product) {
+    const pid = String(p.id);
+    if (isShopifyPushed(pid)) {
+      toast('Already on Shopify');
+      return;
+    }
+    const toastId = toast.loading('Pushing to Shopify...');
+    const status = await fetchShopifyStatus();
+    if (!status.connected) {
+      toast.dismiss(toastId);
+      toast.error('Connect Shopify first — go to Store Builder');
+      return;
+    }
+    const base = Number(p.price_aud ?? 0);
+    const sell = Math.round(base * 3 * 100) / 100;
+    const cleaned = cleanProductTitle(p.product_title);
+    const result = await pushProductToShopify({
+      product_title: cleaned,
+      price_aud: p.price_aud != null ? Number(p.price_aud) : null,
+      sold_count: p.sold_count,
+      category: p.category ?? null,
+      image_url: p.image_url,
+      description: null,
+      sellPrice: sell,
+    });
+    toast.dismiss(toastId);
+    if (result.success) {
+      markShopifyPushed(pid);
+      addShopifyImport({
+        productId: pid,
+        title: cleaned,
+        shopifyUrl: result.shopifyProductUrl ?? null,
+        pushedAt: new Date().toISOString(),
+        sellPrice: sell,
+      });
+      toast.success(`"${cleaned.slice(0, 30)}..." pushed to Shopify`);
+      forceRerender((n) => n + 1);
+    } else {
+      toast.error(result.error ?? 'Push failed');
+    }
+  }
 
   /* Pre-fetched exact tab counts from /api/products/tab-counts so
      badges show real totals, not per-page slices. */
@@ -2381,6 +2778,7 @@ export default function AppProducts() {
             onSelect={setSelectedProduct}
             lists={lists}
             navigate={navigate}
+            onQuickPush={handleQuickPush}
           />
         )}
 
@@ -2467,6 +2865,9 @@ export default function AppProducts() {
           </div>
         </div>
       )}
+
+      {/* Import History */}
+      <ShopifyImportHistory />
 
       <ProductSheet
         product={selectedProduct}
@@ -2809,9 +3210,10 @@ interface GridCardsProps {
   onSelect: (p: Product) => void;
   lists: ReturnType<typeof useLists>;
   navigate: (path: string) => void;
+  onQuickPush?: (p: Product) => void;
 }
 
-function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
+function GridCards({ products, loading, onSelect, lists, onQuickPush }: GridCardsProps) {
   if (loading && products.length === 0) {
     return (
       <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -2927,9 +3329,29 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
                 </div>
               </div>
               <div className="flex gap-2 items-center">
-                <div className="flex-1 flex items-center justify-center bg-white/[0.06] rounded-lg hover:bg-white/10 transition-colors">
-                  <ListPickerButton product={p} lists={lists} size={14} className="w-full py-1.5" />
+                <div className="flex items-center justify-center bg-white/[0.06] rounded-lg hover:bg-white/10 transition-colors">
+                  <ListPickerButton product={p} lists={lists} size={14} className="px-2.5 py-1.5" />
                 </div>
+                {onQuickPush && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onQuickPush(p);
+                    }}
+                    aria-label="Quick push to Shopify"
+                    className={`flex items-center justify-center rounded-lg py-1.5 px-2.5 transition-all cursor-pointer ${
+                      isShopifyPushed(String(p.id))
+                        ? 'bg-green/10 text-green'
+                        : 'bg-white/[0.06] text-muted hover:text-[#3B82F6] hover:bg-[#3B82F6]/10'
+                    }`}
+                  >
+                    {isShopifyPushed(String(p.id)) ? (
+                      <Check size={14} strokeWidth={2.5} />
+                    ) : (
+                      <Store size={14} strokeWidth={1.75} />
+                    )}
+                  </button>
+                )}
                 <button
                   onClick={(e) => { e.stopPropagation(); onSelect(p); }}
                   className="flex-1 py-1.5 text-xs font-medium text-white bg-accent rounded-lg hover:bg-accent-hover transition-colors cursor-pointer"

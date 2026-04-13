@@ -203,8 +203,9 @@ router.delete('/disconnect', async (req, res) => {
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
     await supabase.from('shopify_connections').delete().eq('user_id', user.id);
     return res.json({ success: true });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Disconnect failed';
+    return res.status(500).json({ error: msg });
   }
 });
 
@@ -269,8 +270,9 @@ router.post('/products', async (req, res) => {
       shopify_product_url: `https://${shop}/admin/products/${result.product?.id}`,
       title: result.product?.title,
     });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Push failed';
+    res.status(500).json({ error: msg });
   }
 });
 
@@ -341,8 +343,9 @@ router.post('/sync', async (req, res) => {
     }
 
     return res.json({ synced: products.length, products });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Sync failed';
+    return res.status(500).json({ error: msg });
   }
 });
 
@@ -361,8 +364,9 @@ router.get('/catalog', async (req, res) => {
 
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ products: data || [] });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Catalog fetch failed';
+    return res.status(500).json({ error: msg });
   }
 });
 
@@ -646,8 +650,9 @@ router.get('/orders', async (req, res) => {
         period: '30 days',
       },
     });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Orders fetch failed';
+    return res.status(500).json({ error: msg });
   }
 });
 

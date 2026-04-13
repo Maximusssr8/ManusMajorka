@@ -44,7 +44,7 @@ type Mode = 'ai' | 'shopify' | 'marketplace';
 type Vibe = 'minimal' | 'bold' | 'luxury' | 'streetwear';
 type Market = 'AU' | 'US' | 'UK';
 
-type ThemeCategory = 'minimal' | 'bold' | 'luxury' | 'playful' | 'conversion' | 'editorial';
+type ThemeCategory = 'minimal' | 'bold' | 'luxury' | 'playful' | 'conversion';
 
 interface ThemeConfig {
   id: string;
@@ -635,38 +635,6 @@ function generateStoreHTML(store: GeneratedStore, niche?: string, theme: StoreTh
     { q: 'What is your return policy?', a: 'We offer a 30-day no-questions-asked return policy on all orders. Simply contact our team and we\'ll arrange a prepaid return label.' },
     { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments with Afterpay on all orders over $35. Select Afterpay at checkout.' },
   ];
-
-  // Legacy product card builder — replaced by buildProductCardsEnhanced below
-  const _buildProductCards = (cfg: {
-    cardBg: string; borderClr: string; textClr: string; priceClr: string; btnBg: string; btnText: string;
-    dimText: string; radius: string; imgPlaceholderBg: string; badgeBg: string; badgeText: string;
-    fontBody: string; fontHeading: string; fontMono: string; showUrgency?: boolean;
-  }) => store.products.slice(0, 6).map((p, i) => {
-    const safeTitle = escHtml(p.title);
-    const imgBlock = p.image_url
-      ? `<img src="${escHtml(p.image_url)}" alt="${safeTitle}" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;" />`
-      : `<div style="width:100%;aspect-ratio:1/1;background:${cfg.imgPlaceholderBg};display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="${cfg.priceClr}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontBody};">Product Image</span></div>`;
-    const badge = i === 0 ? `<div style="position:absolute;top:12px;left:12px;padding:4px 12px;background:${cfg.badgeBg};color:${cfg.badgeText};font-size:11px;font-weight:700;border-radius:4px;letter-spacing:0.05em;font-family:${cfg.fontBody};">BESTSELLER</div>` : '';
-    const urgencyEl = cfg.showUrgency ? `<div style="font-size:11px;color:#ef4444;font-weight:600;margin-bottom:8px;font-family:${cfg.fontBody};">Only ${Math.floor(Math.random() * 8) + 2} left - Selling fast!</div>` : '';
-    return `
-      <div class="product-card" itemscope itemtype="https://schema.org/Product">
-        <meta itemprop="sku" content="MJK-${String(i + 1).padStart(3, '0')}" />
-        <div style="position:relative;overflow:hidden;border-radius:${cfg.radius} ${cfg.radius} 0 0;">${imgBlock}${badge}</div>
-        <div style="padding:20px;">
-          <div style="display:flex;align-items:center;gap:6px;"><span style="color:#facc15;font-size:14px;letter-spacing:1px;">&#9733;&#9733;&#9733;&#9733;&#9733;</span> <span style="font-size:12px;color:${cfg.dimText};font-family:${cfg.fontMono};">4.8</span></div>
-          <h3 itemprop="name" style="margin:8px 0 4px;font-family:${cfg.fontHeading};font-size:16px;font-weight:600;color:${cfg.textClr};line-height:1.3;">${safeTitle}</h3>
-          ${urgencyEl}
-          <div style="font-size:12px;color:${cfg.dimText};margin-bottom:12px;">Ships from AU warehouse</div>
-          <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-            <meta itemprop="priceCurrency" content="AUD" />
-            <span itemprop="price" content="${p.price_aud.toFixed(2)}" style="font-family:${cfg.fontMono};font-size:22px;color:${cfg.priceClr};font-weight:700;">A$${p.price_aud.toFixed(2)}</span>
-            <link itemprop="availability" href="https://schema.org/InStock" />
-          </div>
-          <div style="font-size:12px;color:${cfg.dimText};margin:8px 0 16px;">or 4 x A$${(p.price_aud / 4).toFixed(2)} with <strong style="color:${cfg.textClr};">Afterpay</strong></div>
-          <button style="width:100%;padding:12px 20px;background:${cfg.btnBg};color:${cfg.btnText};font-family:${cfg.fontBody};font-weight:600;font-size:14px;border:none;border-radius:6px;cursor:pointer;transition:opacity 0.2s;">${cfg.showUrgency ? 'Buy Now' : 'Add to Cart'}</button>
-        </div>
-      </div>`;
-  }).join('\n');
 
   // Shared testimonial builder
   const buildTestimonials = (cfg: { cardBg: string; borderClr: string; textClr: string; dimText: string; accentClr: string; fontHeading: string; radius: string }) =>
@@ -1920,12 +1888,13 @@ function AIGeneratorMode({ onSaved }: { onSaved: () => void }) {
 // ─── Mode 2: Shopify Sync ──────────────────────────────────────
 function ShopifySyncMode() {
   const [url, setUrl] = useState('');
-  const [apiKey, setApiKey] = useState('');
+  const [accessToken, setAccessToken] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
   const [connected, setConnected] = useState<ShopifyValidation | null>(null);
   const [report, setReport] = useState<ShopifySyncReport | null>(null);
-  const [pending, setPending] = useState<string | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Helper to get the current Supabase session token
   const getAuthToken = useCallback(async (): Promise<string> => {
@@ -1933,21 +1902,42 @@ function ShopifySyncMode() {
     return data.session?.access_token ?? '';
   }, []);
 
+  // Check existing connection on mount
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const token = await supabase.auth.getSession().then(r => r.data.session?.access_token ?? '');
+      if (!token) return;
+      const res = await safeFetch<{ connected: boolean; shop: string | null }>('/api/shopify/status', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (cancelled) return;
+      if (res.ok && res.data?.connected && res.data.shop) {
+        setConnected({ storeName: res.data.shop, productCount: 0 });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const handleConnect = useCallback(async () => {
-    if (!url.trim() || !apiKey.trim()) {
-      toast.error('Enter URL and API key');
+    if (!url.trim() || !accessToken.trim()) {
+      toast.error('Enter your store URL and access token');
       return;
     }
     setConnecting(true);
-    setPending(null);
     const token = await getAuthToken();
+    if (!token) {
+      toast.error('Please sign in first');
+      setConnecting(false);
+      return;
+    }
     const res = await safeFetch<{ success: boolean; shopName: string; productCount: number }>('/api/shopify/connect', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ shopUrl: url, accessToken: apiKey }),
+      body: JSON.stringify({ shopUrl: url, accessToken }),
     });
     setConnecting(false);
     if (res.ok && res.data?.success) {
@@ -1955,8 +1945,8 @@ function ShopifySyncMode() {
       toast.success(`Connected to ${res.data.shopName}`);
       return;
     }
-    toast.error(res.error ?? 'Connection failed');
-  }, [url, apiKey, getAuthToken]);
+    toast.error(res.error ?? 'Connection failed — check your store URL and access token');
+  }, [url, accessToken, getAuthToken]);
 
   const handleSync = useCallback(async () => {
     setSyncing(true);
@@ -1965,7 +1955,7 @@ function ShopifySyncMode() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        Authorization: `Bearer ${token}`,
       },
     });
     setSyncing(false);
@@ -1975,6 +1965,25 @@ function ShopifySyncMode() {
       return;
     }
     toast.error(res.error ?? 'Sync failed');
+  }, [getAuthToken]);
+
+  const handleDisconnect = useCallback(async () => {
+    setDisconnecting(true);
+    const token = await getAuthToken();
+    const res = await safeFetch<{ success: boolean }>('/api/shopify/disconnect', {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setDisconnecting(false);
+    if (res.ok) {
+      setConnected(null);
+      setReport(null);
+      setUrl('');
+      setAccessToken('');
+      toast.success('Store disconnected');
+      return;
+    }
+    toast.error(res.error ?? 'Failed to disconnect');
   }, [getAuthToken]);
 
   const isConnected = connected !== null;
@@ -2005,45 +2014,82 @@ function ShopifySyncMode() {
             {isConnected ? 'Connected' : 'Disconnected'}
           </div>
         </div>
-        <div className="mb-4">
-          <FieldLabel>Shopify Store URL</FieldLabel>
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onFocus={inputFocusHandler}
-            onBlur={inputBlurHandler}
-            placeholder="my-store.myshopify.com"
-            style={inputStyle}
-          />
-        </div>
-        <div className="mb-5">
-          <FieldLabel>API Key</FieldLabel>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            onFocus={inputFocusHandler}
-            onBlur={inputBlurHandler}
-            placeholder="shpat_..."
-            style={inputStyle}
-          />
-        </div>
+
+        {!isConnected && (
+          <>
+            <div className="mb-4">
+              <FieldLabel>Shopify Store URL</FieldLabel>
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onFocus={inputFocusHandler}
+                onBlur={inputBlurHandler}
+                placeholder="my-store.myshopify.com"
+                style={inputStyle}
+              />
+            </div>
+            <div className="mb-5">
+              <FieldLabel>Admin API Access Token</FieldLabel>
+              <input
+                type="password"
+                value={accessToken}
+                onChange={(e) => setAccessToken(e.target.value)}
+                onFocus={inputFocusHandler}
+                onBlur={inputBlurHandler}
+                placeholder="shpat_..."
+                style={inputStyle}
+              />
+            </div>
+          </>
+        )}
+
         <div className="flex gap-2">
-          <PrimaryButton onClick={handleConnect} disabled={connecting}>
-            <span className="inline-flex items-center gap-2">
-              <Link2 size={16} />
-              {connecting ? 'Connecting...' : 'Connect'}
-            </span>
-          </PrimaryButton>
-          {isConnected && (
-            <GhostButton onClick={handleSync} disabled={syncing}>
-              {syncing ? 'Syncing...' : 'Sync Products'}
-            </GhostButton>
+          {!isConnected ? (
+            <PrimaryButton onClick={handleConnect} disabled={connecting}>
+              <span className="inline-flex items-center gap-2">
+                <Link2 size={16} />
+                {connecting ? 'Connecting...' : 'Connect'}
+              </span>
+            </PrimaryButton>
+          ) : (
+            <>
+              <PrimaryButton onClick={handleSync} disabled={syncing}>
+                <span className="inline-flex items-center gap-2">
+                  <Zap size={16} />
+                  {syncing ? 'Syncing...' : 'Sync Products'}
+                </span>
+              </PrimaryButton>
+              <GhostButton onClick={handleDisconnect} disabled={disconnecting}>
+                {disconnecting ? 'Disconnecting...' : 'Disconnect'}
+              </GhostButton>
+            </>
           )}
         </div>
-        {pending && (
-          <div className="mt-4">
-            <PendingNotice note={pending} />
+
+        {/* First-time setup guide */}
+        {!isConnected && (
+          <div className="mt-5">
+            <button
+              onClick={() => setShowGuide(!showGuide)}
+              className="flex items-center gap-2 text-xs w-full"
+              style={{ color: GOLD, fontFamily: DM_SANS, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              {showGuide ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              How to get your access token
+            </button>
+            {showGuide && (
+              <ol
+                className="mt-3 space-y-2 text-xs list-decimal list-inside"
+                style={{ color: TEXT_DIM, fontFamily: DM_SANS, lineHeight: '1.6' }}
+              >
+                <li>Go to your Shopify Admin &rarr; <strong style={{ color: TEXT }}>Settings</strong> &rarr; <strong style={{ color: TEXT }}>Apps and sales channels</strong></li>
+                <li>Click <strong style={{ color: TEXT }}>Develop apps</strong> (top right) &rarr; <strong style={{ color: TEXT }}>Create an app</strong></li>
+                <li>Name it <strong style={{ color: TEXT }}>Majorka</strong>, then open <strong style={{ color: TEXT }}>Configure Admin API scopes</strong></li>
+                <li>Enable: <span style={{ fontFamily: MONO, color: GOLD }}>write_products</span>, <span style={{ fontFamily: MONO, color: GOLD }}>read_products</span>, <span style={{ fontFamily: MONO, color: GOLD }}>read_orders</span></li>
+                <li>Click <strong style={{ color: TEXT }}>Install app</strong>, then copy the <strong style={{ color: TEXT }}>Admin API access token</strong> (starts with <span style={{ fontFamily: MONO }}>shpat_</span>)</li>
+                <li>Paste it above along with your store URL</li>
+              </ol>
+            )}
           </div>
         )}
       </GoldCard>
@@ -2092,11 +2138,11 @@ function ShopifySyncMode() {
                 style={{ background: SURFACE, border: `1px solid ${BORDER}` }}
               >
                 <div className="text-sm mb-3" style={{ color: TEXT, fontFamily: SYNE }}>
-                  Overlap Report
+                  Sync Report
                 </div>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
-                    <div className="text-xs" style={{ color: TEXT_DIM }}>Matched</div>
+                    <div className="text-xs" style={{ color: TEXT_DIM }}>Synced</div>
                     <div className="text-xl" style={{ color: GOLD, fontFamily: MONO }}>
                       {report.matched}
                     </div>
@@ -2146,7 +2192,11 @@ function MarketplaceMode({ reloadKey }: MarketplaceModeProps) {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await safeFetch<SavedStore[]>('/api/store-builder/list');
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token ?? '';
+    const res = await safeFetch<SavedStore[]>('/api/store-builder/list', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     setLoading(false);
     if (res.ok && res.data) {
       setStores(res.data);
@@ -2158,7 +2208,10 @@ function MarketplaceMode({ reloadKey }: MarketplaceModeProps) {
       setPending('Marketplace list endpoint pending — wire in server/routes/store.ts');
       return;
     }
-    setPending(res.error ?? 'Failed to load stores');
+    const friendlyMsg = (res.error ?? '').includes('does not exist') || (res.error ?? '').includes('relation')
+      ? 'The stores table has not been created yet. Run the database migration to enable the Marketplace.'
+      : (res.error ?? 'Failed to load stores');
+    setPending(friendlyMsg);
   }, []);
 
   useEffect(() => {
@@ -2168,9 +2221,18 @@ function MarketplaceMode({ reloadKey }: MarketplaceModeProps) {
   const handlePublish = useCallback(
     async (id: string) => {
       setPublishing(id);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token ?? '';
       const res = await safeFetch<{ isPublished: boolean }>(
-        `/api/store-builder/publish`,
-        { method: 'POST' },
+        '/api/store-builder/toggle-publish',
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ storeId: id }),
+        },
       );
       setPublishing(null);
       if (res.ok && res.data) {
@@ -2182,11 +2244,7 @@ function MarketplaceMode({ reloadKey }: MarketplaceModeProps) {
         toast.success(res.data.isPublished ? 'Store is live' : 'Store unpublished');
         return;
       }
-      if (res.pending) {
-        toast.error('Publish endpoint pending — wire in server/routes/store.ts');
-        return;
-      }
-      toast.error(res.error ?? 'Publish failed');
+      toast.error(res.error ?? 'Publish toggle failed');
     },
     [],
   );

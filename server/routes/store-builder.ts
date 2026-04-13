@@ -701,4 +701,37 @@ router.post('/publish', requireAuth, async (req, res) => {
   }
 });
 
+// ── PATCH /api/store-builder/toggle-publish ───────────────────
+router.patch('/toggle-publish', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user!.userId;
+    const { storeId } = req.body as { storeId?: string };
+    if (!storeId) return res.status(400).json({ error: 'storeId required' });
+
+    const supabase = getSupabaseAdmin();
+    const { data: existing, error: fetchErr } = await supabase
+      .from('generated_stores')
+      .select('id, published')
+      .eq('id', storeId)
+      .eq('user_id', userId)
+      .single();
+    if (fetchErr || !existing) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    const newState = !existing.published;
+    const { error: updateErr } = await supabase
+      .from('generated_stores')
+      .update({ published: newState })
+      .eq('id', storeId)
+      .eq('user_id', userId);
+    if (updateErr) return res.status(500).json({ error: updateErr.message });
+
+    return res.json({ isPublished: newState });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
 export default router;

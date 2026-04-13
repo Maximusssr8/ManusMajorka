@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createClient } from '@supabase/supabase-js';
+import { sendWelcomeEmail } from '../services/email';
 
 const router = Router();
 
@@ -127,6 +128,11 @@ router.post('/provision-trial', async (req, res) => {
     if (insertError) {
       return res.status(500).json({ error: 'insert_failed', message: insertError.message });
     }
+
+    // Send welcome email (fire-and-forget — don't block the response)
+    const email = authData.user.email || '';
+    const name = authData.user.user_metadata?.full_name || authData.user.user_metadata?.name || email.split('@')[0] || '';
+    sendWelcomeEmail(email, name).catch(() => {});
 
     return res.json({ provisioned: true, trialEndsAt: trialEnd.toISOString() });
   } catch {

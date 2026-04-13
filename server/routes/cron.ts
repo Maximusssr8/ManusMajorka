@@ -1186,6 +1186,68 @@ router.get('/evaluate-alerts', async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/cron/trial-check — daily: remind expiring trials + expire old ones ──
+router.get('/trial-check', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const sb = getSupabaseAdmin();
+    const now = new Date();
+    const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+    const stats = { reminded: 0, expired: 0, errors: 0 };
+
+    // 1. Find trials expiring in ~2 days (window: 1-3 days)
+    const { data: expiringSoon } = await sb
+      .from('user_subscriptions')
+      .select('user_id, current_period_end')
+      .eq('plan', 'trial')
+      .eq('status', 'active')
+      .lte('current_period_end', twoDaysFromNow.toISOString())
+      .gt('current_period_end', now.toISOString());
+
+    for (const row of expiringSoon || []) {
+      try {
+        const { data: authUser } = await sb.auth.admin.getUserById(row.user_id);
+        if (authUser?.user?.email) {
+          const daysLeft = Math.max(1, Math.ceil((new Date(row.current_period_end).getTime() - now.getTime()) / 86400000));
+          const { sendTrialReminderEmail } = await import('../services/email');
+          const name = authUser.user.user_metadata?.full_name || authUser.user.email.split('@')[0] || '';
+          await sendTrialReminderEmail(authUser.user.email, name, daysLeft);
+          stats.reminded++;
+        }
+      } catch { stats.errors++; }
+    }
+
+    // 2. Find expired trials and update status
+    const { data: expired } = await sb
+      .from('user_subscriptions')
+      .select('user_id, current_period_end')
+      .eq('plan', 'trial')
+      .eq('status', 'active')
+      .lt('current_period_end', now.toISOString());
+
+    for (const row of expired || []) {
+      try {
+        await sb.from('user_subscriptions')
+          .update({ status: 'expired', updated_at: now.toISOString() })
+          .eq('user_id', row.user_id)
+          .eq('plan', 'trial');
+
+        const { data: authUser } = await sb.auth.admin.getUserById(row.user_id);
+        if (authUser?.user?.email) {
+          const { sendTrialExpiredEmail } = await import('../services/email');
+          const name = authUser.user.user_metadata?.full_name || authUser.user.email.split('@')[0] || '';
+          await sendTrialExpiredEmail(authUser.user.email, name);
+        }
+        stats.expired++;
+      } catch { stats.errors++; }
+    }
+
+    res.json({ success: true, ...stats });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'unknown' });
+  }
+});
+
 // ── GET /api/cron/pipeline — bulk AliExpress DataHub 20-category pipeline ──
 // Dual-cron: 08:00 UTC (6 PM AEST) + 20:00 UTC (6 AM AEST).
 // Each run processes 10 categories; full coverage every 24h.

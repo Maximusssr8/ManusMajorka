@@ -7,6 +7,7 @@ import type { Express } from 'express';
 import express from 'express';
 import Stripe from 'stripe';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { sendSubscriptionConfirmedEmail, sendPaymentFailedEmail } from '../services/email';
 
 // ── Stripe client ──────────────────────────────────────────────────────────────
 
@@ -242,6 +243,17 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
       });
 
       console.info(`[Stripe] Subscription activated: user=${userId} plan=${plan}`);
+
+      // Send confirmation email (fire-and-forget)
+      try {
+        const sb = getSupabaseAdmin();
+        const { data: authUser } = await sb.auth.admin.getUserById(userId);
+        if (authUser?.user?.email) {
+          const name = authUser.user.user_metadata?.full_name || authUser.user.email.split('@')[0] || '';
+          sendSubscriptionConfirmedEmail(authUser.user.email, name, plan).catch(() => {});
+        }
+      } catch { /* non-fatal */ }
+
       break;
     }
 
@@ -309,6 +321,14 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
             updated_at: new Date().toISOString(),
           }).eq('user_id', userId);
           console.warn(`[Stripe] Payment failed → past_due for user=${userId} sub=${subId}`);
+          // Send payment failed email
+          try {
+            const { data: authUser } = await sb.auth.admin.getUserById(userId);
+            if (authUser?.user?.email) {
+              const name = authUser.user.user_metadata?.full_name || authUser.user.email.split('@')[0] || '';
+              sendPaymentFailedEmail(authUser.user.email, name).catch(() => {});
+            }
+          } catch { /* non-fatal */ }
         } else {
           console.warn(`[Stripe] invoice.payment_failed: no userId in subscription metadata for ${subId}`);
         }
