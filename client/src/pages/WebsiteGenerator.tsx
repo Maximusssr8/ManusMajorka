@@ -492,6 +492,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
               + '<div style="font-size:12px;color:#888">Qty: ' + item.qty + '</div></div>'
               + '<div style="font-weight:700">$' + (item.price * item.qty).toFixed(2) + '</div></div>';
           }).join('');
+      // TODO: [SECURITY] Replace innerHTML with DOM API to prevent potential XSS from cart item data
       modal.innerHTML = '<div style="background:rgba(0,0,0,0.5);position:fixed;inset:0;" onclick="closeCart()"></div>'
         + '<div style="background:#fff;width:380px;height:100vh;overflow-y:auto;position:relative;z-index:1;padding:24px;box-shadow:-4px 0 24px rgba(0,0,0,0.15)">'
         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">'

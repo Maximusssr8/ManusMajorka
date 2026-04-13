@@ -333,6 +333,9 @@ async function startServer() {
   app.use('/api/admin', adminApiRouter);
   const alertsRouter = (await import('../routes/alerts')).default;
   app.use('/api/alerts', alertsRouter);
+  // AI routes (generate ads, chat, copy, supplier search) — was missing from dev server
+  const aiRouter = (await import('../routes/ai')).default;
+  app.use('/api/ai', aiRouter);
 
   // Developer API — key management (session-authenticated)
   const apiKeysRouter = (await import('../routes/api-keys')).default;

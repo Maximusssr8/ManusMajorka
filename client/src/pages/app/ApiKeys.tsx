@@ -286,7 +286,6 @@ export default function ApiKeys(): ReactElement {
                 fontSize: 14,
                 fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 0 24px rgba(59,130,246,0.45)',
                 transition: 'all 200ms ease',
               }}
             >
@@ -303,7 +302,7 @@ export default function ApiKeys(): ReactElement {
               marginTop: 24,
               background: 'rgba(212,175,55,0.06)',
               border: '1px solid rgba(212,175,55,0.35)',
-              borderRadius: 10,
+              borderRadius: 8,
               padding: '18px 22px',
             }}
           >
@@ -328,7 +327,7 @@ export default function ApiKeys(): ReactElement {
               type="button"
               onClick={() => void load()}
               style={{
-                background: 'linear-gradient(135deg, #3B82F6, #2563EB)',
+                background: '#3B82F6',
                 color: 'white',
                 border: 'none',
                 borderRadius: 6,
@@ -336,7 +335,6 @@ export default function ApiKeys(): ReactElement {
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(59,130,246,0.3)',
               }}
             >
               Check again
@@ -388,7 +386,7 @@ export default function ApiKeys(): ReactElement {
               marginTop: 28,
               background: '#0f0f0f',
               border: '1px solid #1a1a1a',
-              borderRadius: 10,
+              borderRadius: 8,
               padding: 24,
             }}
           >
@@ -445,8 +443,7 @@ export default function ApiKeys(): ReactElement {
                   fontWeight: 600,
                   cursor: creating || !newName.trim() ? 'not-allowed' : 'pointer',
                   opacity: creating || !newName.trim() ? 0.6 : 1,
-                  boxShadow: '0 0 20px rgba(59,130,246,0.35)',
-                }}
+                                  }}
               >
                 {creating ? 'Creating…' : 'Create'}
               </button>
@@ -479,7 +476,7 @@ export default function ApiKeys(): ReactElement {
               marginTop: 28,
               background: 'rgba(212,175,55,0.06)',
               border: '1px solid rgba(212,175,55,0.4)',
-              borderRadius: 10,
+              borderRadius: 8,
               padding: 22,
             }}
           >
@@ -525,8 +522,7 @@ export default function ApiKeys(): ReactElement {
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  boxShadow: '0 0 16px rgba(59,130,246,0.35)',
-                }}
+                                  }}
               >
                 {copied ? 'Copied' : 'Copy key'}
               </button>
@@ -556,7 +552,7 @@ export default function ApiKeys(): ReactElement {
               style={{
                 background: '#0f0f0f',
                 border: '1px solid #1a1a1a',
-                borderRadius: 10,
+                borderRadius: 8,
                 padding: 40,
                 textAlign: 'center',
                 color: 'rgba(255,255,255,0.5)',
@@ -570,7 +566,7 @@ export default function ApiKeys(): ReactElement {
               style={{
                 background: '#0f0f0f',
                 border: '1px solid #1a1a1a',
-                borderRadius: 10,
+                borderRadius: 8,
                 padding: 48,
                 textAlign: 'center',
               }}
@@ -597,7 +593,7 @@ export default function ApiKeys(): ReactElement {
                 style={{
                   background: '#0f0f0f',
                   border: '1px solid #1a1a1a',
-                  borderRadius: 10,
+                  borderRadius: 8,
                   overflow: 'hidden',
                 }}
               >
@@ -786,7 +782,7 @@ export default function ApiKeys(): ReactElement {
                       style={{
                         background: '#0f0f0f',
                         border: '1px solid #1a1a1a',
-                        borderRadius: 10,
+                        borderRadius: 8,
                         padding: 16,
                         marginBottom: 12,
                       }}
@@ -921,7 +917,7 @@ export default function ApiKeys(): ReactElement {
               marginTop: 36,
               background: '#0f0f0f',
               border: '1px solid #1a1a1a',
-              borderRadius: 10,
+              borderRadius: 8,
               padding: 22,
             }}
           >

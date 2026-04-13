@@ -231,7 +231,7 @@ Return a markdown brief with these sections:
         <div style={{
           background: 'rgba(212,175,55,0.04)',
           border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: 10,
+          borderRadius: 8,
           padding: '18px 20px',
           marginBottom: 20,
           display: 'flex',
@@ -268,7 +268,7 @@ Return a markdown brief with these sections:
       <section style={{
         background: C.raised,
         border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 12,
+        borderRadius: 8,
         padding: 24,
         marginBottom: 28,
       }}>
@@ -282,7 +282,7 @@ Return a markdown brief with these sections:
               width: '100%',
               background: '#151515',
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 10,
+              borderRadius: 8,
               padding: '14px 18px 14px 44px',
               color: '#f5f5f5',
               fontFamily: sans,
@@ -341,14 +341,13 @@ Return a markdown brief with these sections:
           disabled={loading}
           style={{
             padding: '12px 24px',
-            borderRadius: 9,
-            background: loading ? 'rgba(212,175,55,0.3)' : 'linear-gradient(135deg,#d4af37,#d4af37)',
+            borderRadius: 8,
+            background: loading ? 'rgba(59,130,246,0.3)' : '#3B82F6',
             color: 'white',
             border: 'none',
             fontFamily: sans, fontSize: 14, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
           }}
         >{loading ? 'Generating…' : 'Generate Brief →'}</button>
       </section>
@@ -358,7 +357,7 @@ Return a markdown brief with these sections:
         <div style={{
           background: C.raised,
           border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 12,
+          borderRadius: 8,
           padding: 24,
           marginBottom: 28,
         }}>
@@ -372,7 +371,7 @@ Return a markdown brief with these sections:
         <div style={{
           background: C.raised,
           border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: 12,
+          borderRadius: 8,
           padding: 24,
           marginBottom: 28,
           whiteSpace: 'pre-wrap',
@@ -394,7 +393,7 @@ Return a markdown brief with these sections:
                 <div key={b.id} style={{
                   background: C.raised,
                   border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 10,
+                  borderRadius: 8,
                   padding: 16,
                 }}>
                   <div style={{ fontFamily: display, fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 4 }}>{b.product}</div>

@@ -178,14 +178,14 @@ export default function Revenue() {
             { label: 'Ad Spend', value: `A$${totalAdSpend.toLocaleString()}`, Icon: Target, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
             { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
           ].map(({ label, value, Icon, color, bg }) => (
-            <div key={label} className="glass-card glass-card--elevated rounded-lg p-4">
+            <div key={label} className="bg-[#0f0f0f] border border-white/[0.06] rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[9px] font-semibold uppercase tracking-[0.1em] text-white/30">{label}</span>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
                   <Icon size={13} strokeWidth={2} style={{ color }} />
                 </div>
               </div>
-              <div className="text-2xl font-display font-bold tabular-nums" style={{ color, letterSpacing: '-0.03em' }}>
+              <div className="text-2xl font-display font-bold font-mono tabular-nums" style={{ color, letterSpacing: '-0.03em' }}>
                 {entries.length === 0 ? '—' : value}
               </div>
             </div>
@@ -238,7 +238,7 @@ export default function Revenue() {
 
         {/* Empty state OR table */}
         {entries.length === 0 ? (
-          <div className="glass-card rounded-lg p-12 text-center">
+          <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-lg p-12 text-center">
             <div
               className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4"
               style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}
@@ -269,7 +269,7 @@ export default function Revenue() {
             </button>
           </div>
         ) : (
-          <div className="glass-card rounded-lg overflow-hidden">
+          <div className="bg-[#0f0f0f] border border-white/[0.06] rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="bg-white/[0.03] border-b border-white/[0.06]">
@@ -328,7 +328,7 @@ export default function Revenue() {
           onClick={() => setShowAdd(false)}
         >
           <div
-            className="w-full max-w-md rounded-lg p-6 glass-card glass-card--elevated"
+            className="w-full max-w-md rounded-lg p-6 bg-[#0f0f0f] border border-white/[0.06]"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-display font-bold text-text mb-4">Add product</h3>

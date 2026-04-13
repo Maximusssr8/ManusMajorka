@@ -133,7 +133,7 @@ export default function Creators() {
               width: '100%',
               background: C.raised,
               border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 12,
+              borderRadius: 8,
               padding: '14px 18px 14px 44px',
               color: '#f5f5f5',
               fontFamily: sans,
@@ -148,7 +148,7 @@ export default function Creators() {
           <div style={{
             background: C.raised,
             border: '1px solid rgba(212,175,55,0.2)',
-            borderRadius: 12,
+            borderRadius: 8,
             padding: 20,
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
@@ -325,7 +325,7 @@ export default function Creators() {
             <div key={t.title} style={{
               background: C.raised,
               border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 12,
+              borderRadius: 8,
               padding: 20,
               display: 'flex',
               flexDirection: 'column',

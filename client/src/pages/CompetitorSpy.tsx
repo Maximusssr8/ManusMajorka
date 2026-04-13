@@ -4,8 +4,7 @@
  * Bloomberg terminal style — clean, data-dense, no gamification.
  */
 
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { Eye, Loader2, Search, Trash2, X } from 'lucide-react';
+import { Eye, Loader2, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
@@ -50,21 +49,20 @@ const PROGRESS_STEPS = [
 
 // ── Competitor Quick Actions ──────────────────────────────────────────────────
 function CompetitorQuickActions({ query }: { query: string }) {
-  const isMobile = useIsMobile();
   const [, nav] = useLocation();
   // Extract likely niche from query (first significant word)
   const niche = encodeURIComponent(query.split(/\s+/).slice(0, 3).join(' '));
   const actions = [
-    { label: 'Find Winning Products', path: `/app/winning-products`, color: '#ef4444' },
-    { label: 'Generate Ads', path: `/app/meta-ads?category=${niche}`, color: '#e5c158' },
-    { label: 'Build Competing Store', path: `/app/website-generator?niche=${niche}`, color: '#34d399' },
-    { label: 'Find Creators', path: `/app/creators`, color: '#38bdf8' },
-    { label: 'Check Market Saturation', path: `/app/saturation-checker`, color: '#f59e0b' },
+    { label: 'Find Winning Products', path: `/app/products`, color: '#ef4444' },
+    { label: 'Generate Ads', path: `/app/ads-studio`, color: '#e5c158' },
+    { label: 'Build Competing Store', path: `/app/store-builder`, color: '#34d399' },
+    { label: 'Find Creators', path: `/app/analytics`, color: '#38bdf8' },
+    { label: 'TikTok Leaderboard', path: `/app/tiktok-leaderboard`, color: '#f59e0b' },
   ];
   return (
     <div
-      className="rounded-xl p-4 mb-4"
-      style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
+      className="rounded-lg p-4 mb-4"
+      style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0f0f0f' }}
     >
       <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#94A3B8' }}>
         Attack Plan — Jump to Tool
@@ -309,7 +307,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
   }
 
   return (
-    <div className="min-h-full" style={{ background: 'var(--content-bg, #0a0a0a)', color: 'var(--cell-text, #F1F5F9)' }}>
+    <div className="min-h-full" style={{ background: 'var(--content-bg, #080808)', color: 'var(--cell-text, #F1F5F9)' }}>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: 'var(--border-color, rgba(255,255,255,0.08))' }}>
         <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--cell-text, #F1F5F9)' }}>Competitor Spy</h1>
@@ -323,7 +321,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         {user && (
           <aside
             className="hidden lg:flex flex-col w-56 flex-shrink-0 p-4 border-r"
-            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#0a0a0a' }}
+            style={{ borderColor: 'rgba(255,255,255,0.08)', background: '#080808' }}
           >
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#94A3B8' }}>Watchlist</p>
             {watchlist.length === 0 ? (
@@ -371,15 +369,15 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 placeholder="Enter a TikTok Shop name, URL, or niche (e.g. 'PetLover AU' or 'pet water fountains')"
                 style={{
                   flex: 1, minWidth: 0,
-                  background: '#111B2E',
+                  background: '#0f0f0f',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 10, padding: '11px 16px',
+                  borderRadius: 8, padding: '11px 16px',
                   fontSize: 14, color: '#F1F5F9',
                   outline: 'none',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
                 disabled={loading}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)'; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
               />
               <button
@@ -391,7 +389,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                   background: '#3B82F6',
                   color: 'white',
                   border: 'none',
-                  borderRadius: 10,
+                  borderRadius: 8,
                   fontSize: 14, fontWeight: 600,
                   cursor: loading || !query.trim() ? 'not-allowed' : 'pointer',
                   opacity: loading || !query.trim() ? 0.5 : 1,
@@ -429,8 +427,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           {/* Loading state */}
           {loading && (
             <div
-              className="rounded-xl p-8 text-center"
-              style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
+              className="rounded-lg p-8 text-center"
+              style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0f0f0f' }}
             >
               <div className="flex justify-center mb-4">
                 <Eye size={28} style={{ color: '#3B82F6' }} className="animate-pulse" />
@@ -463,8 +461,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 <div style={{
                   position: 'absolute', inset: 0,
                   backdropFilter: 'blur(6px)',
-                  background: 'rgba(5,7,15,0.6)',
-                  borderRadius: 12,
+                  background: 'rgba(0,0,0,0.6)',
+                  borderRadius: 8,
                   zIndex: 10,
                   display: 'flex',
                   alignItems: 'center',
@@ -481,8 +479,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 </div>
                 {/* Blurred mock UI */}
                 <div style={{
-                  background: '#0d0d10', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 12, padding: 24, opacity: 0.5,
+                  background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 8, padding: 24, opacity: 0.5,
                 }}>
                   <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
@@ -554,8 +552,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               </div>
               {/* Result header */}
               <div
-                className="flex items-center justify-between mb-4 px-4 py-3 rounded-xl"
-                style={{ background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' }}
+                className="flex items-center justify-between mb-4 px-4 py-3 rounded-lg"
+                style={{ background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Analysis: <span style={{ color: '#3B82F6' }}>{result.query}</span></p>
@@ -593,8 +591,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
 
               {/* Analysis content */}
               <div
-                className="rounded-xl p-6"
-                style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
+                className="rounded-lg p-6"
+                style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0f0f0f' }}
               >
                 {renderMarkdown(result.reply)}
               </div>
@@ -620,8 +618,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 <div style={{
                   position: 'absolute', inset: 0,
                   backdropFilter: 'blur(6px)',
-                  background: 'rgba(5,7,15,0.6)',
-                  borderRadius: 12,
+                  background: 'rgba(0,0,0,0.6)',
+                  borderRadius: 8,
                   zIndex: 10,
                   display: 'flex',
                   alignItems: 'center',
@@ -638,8 +636,8 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 </div>
                 {/* Blurred mock UI */}
                 <div style={{
-                  background: '#0d0d10', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 12, padding: 24, opacity: 0.5,
+                  background: '#0f0f0f', border: '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 8, padding: 24, opacity: 0.5,
                 }}>
                   <div style={{ height: 16, width: 192, background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 16 }} />
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>

@@ -18,6 +18,9 @@ import { Router, type Request, type Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireApiKey } from '../middleware/apiKey';
+import { rateLimitMiddleware } from '../lib/ratelimit';
+
+const v1AiBriefLimiter = rateLimitMiddleware({ prefix: 'majorka:v1:ads-brief', points: 10, windowSec: 60 });
 
 const router = Router();
 
@@ -187,7 +190,7 @@ interface BriefRequest {
   productId?: string;
   format?: 'meta_feed' | 'meta_story' | 'tiktok_feed' | 'tiktok_story';
 }
-router.post('/ads/brief', async (req: Request, res: Response) => {
+router.post('/ads/brief', v1AiBriefLimiter, async (req: Request, res: Response) => {
   try {
     const body = req.body as BriefRequest;
     if (!body?.productId || !body?.format) {

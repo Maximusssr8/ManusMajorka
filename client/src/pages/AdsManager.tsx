@@ -218,10 +218,9 @@ export default function AdsManager() {
     if (!url) return;
     setExtracting(true);
     try {
-      const res = await fetch('/api/products/extract-url', {
-        method: 'POST',
+      const res = await fetch(`/api/products/extract-url?url=${encodeURIComponent(url)}`, {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -252,10 +251,15 @@ export default function AdsManager() {
     setGenerating(true);
     setGenError(null);
     try {
-      const res = await fetch('/api/ads/generate', {
+      const res = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: product.id, format }),
+        body: JSON.stringify({
+          tool: 'ad-copy',
+          productName: product.title || product.product_title || 'Product',
+          platform: format.startsWith('tiktok') ? 'TikTok' : 'Facebook',
+          tone: 'Urgent',
+        }),
       });
       if (res.status === 404) {
         throw new Error('Generate endpoint pending');
@@ -264,7 +268,22 @@ export default function AdsManager() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error || err?.message || `Request failed (${res.status})`);
       }
-      const data: AdCopyResponse = await res.json();
+      const raw = await res.json();
+      // /api/ai/generate returns { content } text — parse into structured format
+      const content: string = raw.content || raw.text || '';
+      const headlineMatch = content.match(/Headline:\s*(.+)/i);
+      const bodyMatch = content.match(/Body:\s*([\s\S]*?)(?=CTA:|Hook:|$)/i);
+      const ctaMatch = content.match(/CTA:\s*(.+)/i);
+      const hookMatch = content.match(/Hook:\s*(.+)/i);
+      const data: AdCopyResponse = {
+        headlines: headlineMatch ? [headlineMatch[1].trim()] : ['Check this out'],
+        bodies: bodyMatch ? [bodyMatch[1].trim()] : [''],
+        ctas: ctaMatch ? [ctaMatch[1].trim()] : ['Shop Now'],
+        hook: hookMatch ? hookMatch[1].trim() : '',
+        audience: 'Australian shoppers',
+        keywords: [],
+        ...raw,
+      };
       const safeHeadlines = (data.headlines || []).slice(0, 3);
       const safeBodies = (data.bodies || []).slice(0, 3);
       const safeCtas = (data.ctas || []).slice(0, 3);
