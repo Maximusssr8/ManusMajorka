@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Zap, AlertTriangle, PackageOpen, MessageSquare, Rocket } from 'lucide-react';
+import { Sparkles, Zap, AlertTriangle, PackageOpen, MessageSquare, Rocket, Copy, Check } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -7,6 +7,20 @@ import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
 const sans = C.fontBody;
 const mono = C.fontBody;
+
+const PLATFORM_TOOLTIPS: Record<Platform, string> = {
+  facebook: 'Feed + Stories + Reels',
+  tiktok: 'For You page + TikTok Shop',
+  instagram: 'Feed + Stories + Reels',
+  youtube: 'Shorts + In-stream',
+};
+
+const AD_TYPE_DESCRIPTIONS: Record<AdType, string> = {
+  video: 'Best for scroll-stopping cold traffic',
+  image: 'Clean product shots + bold text overlay',
+  carousel: 'Multiple angles or step-by-step',
+  story: '9:16 full-screen, swipe-up CTA',
+};
 
 type Platform = 'facebook' | 'tiktok' | 'instagram' | 'youtube';
 type AdType = 'video' | 'image' | 'carousel' | 'story';
@@ -115,8 +129,21 @@ export default function AdBriefs() {
   const [output, setOutput] = useState<string | null>(null);
   const [history, setHistory] = useState<StoredBrief[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => { setHistory(loadBriefs()); }, []);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => { /* ignore */ });
+  };
+
+  const applyTemplate = (prompt: string) => {
+    setProduct(prompt);
+    setError(null);
+  };
 
   const togglePlatform = (p: Platform) => {
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
@@ -181,14 +208,16 @@ Return a markdown brief with these sections:
           Authorization: token ? `Bearer ${token}` : '',
         },
         body: JSON.stringify({
+          tool: 'ads_studio',
           system,
           prompt: userMsg,
-          model: 'claude-haiku-4-5',
-          max_tokens: 1500,
+          productName: q,
+          platforms,
+          creativeType: adType,
         }),
       });
       const data = await res.json();
-      const text: string = data?.text ?? data?.output ?? data?.content ?? '';
+      const text: string = data?.result ?? data?.text ?? data?.output ?? data?.content ?? '';
       if (!res.ok || !text) {
         throw new Error(data?.error || 'AI endpoint returned no content');
       }
@@ -205,7 +234,8 @@ Return a markdown brief with these sections:
       setHistory(next);
       saveBriefs(next);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Generation failed');
+      if (e instanceof Error) console.warn('[AdBriefs] generation error:', e.message);
+      setError('Brief generation failed — please try again or check your connection.');
     } finally {
       setLoading(false);
     }
@@ -213,6 +243,11 @@ Return a markdown brief with these sections:
 
   return (
     <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
+      {/* Breadcrumb (FIX 11) */}
+      <div style={{ fontSize: 11, color: '#555', marginBottom: 12, fontFamily: mono }}>
+        Home <span style={{ margin: '0 6px', opacity: 0.5 }}>/</span> Ad Briefs
+      </div>
+
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{
@@ -221,8 +256,11 @@ Return a markdown brief with these sections:
           background: 'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Ad Briefs</h1>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>
           Generate platform-specific ad briefs for any product in seconds
+        </p>
+        <p style={{ fontSize: 12, color: '#888', margin: 0 }}>
+          A brief includes: campaign strategy, 3 headline variations, primary text, hook framework, target audience segments, creative direction, and an A/B test plan.
         </p>
       </div>
 
@@ -291,7 +329,12 @@ Return a markdown brief with these sections:
               boxSizing: 'border-box',
             }}
             onKeyDown={(e) => { if (e.key === 'Enter') generate(); }}
+            maxLength={50}
           />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 11, color: '#555' }}>
+            <span>1-5 words works best (e.g. &apos;nano tape&apos;, &apos;posture corrector&apos;)</span>
+            <span style={{ fontFamily: mono }}>{product.length}/50</span>
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, marginBottom: 18 }}>
@@ -304,6 +347,7 @@ Return a markdown brief with these sections:
                   <button
                     key={p.key}
                     onClick={() => togglePlatform(p.key)}
+                    title={PLATFORM_TOOLTIPS[p.key]}
                     style={pillStyle(active)}
                   >{p.icon} {p.label}</button>
                 );
@@ -314,11 +358,15 @@ Return a markdown brief with these sections:
             <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ad Type</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {AD_TYPES.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setAdType(t.key)}
-                  style={pillStyle(t.key === adType)}
-                >{t.label}</button>
+                <div key={t.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <button
+                    onClick={() => setAdType(t.key)}
+                    style={pillStyle(t.key === adType)}
+                  >{t.label}</button>
+                  <span style={{ fontSize: 10, color: '#555', marginTop: 2, paddingLeft: 2 }}>
+                    {AD_TYPE_DESCRIPTIONS[t.key]}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
@@ -339,6 +387,7 @@ Return a markdown brief with these sections:
         <button
           onClick={() => generate()}
           disabled={loading}
+          className={loading ? 'animate-pulse' : ''}
           style={{
             padding: '12px 24px',
             borderRadius: 8,
@@ -369,17 +418,35 @@ Return a markdown brief with these sections:
       )}
       {output && !loading && (
         <div style={{
-          background: C.raised,
-          border: '1px solid rgba(212,175,55,0.2)',
+          background: '#0f0f0f',
+          border: '1px solid #1a1a1a',
           borderRadius: 8,
           padding: 24,
           marginBottom: 28,
-          whiteSpace: 'pre-wrap',
-          fontSize: 13,
-          lineHeight: 1.65,
-          color: 'rgba(255,255,255,0.85)',
-          fontFamily: sans,
-        }}>{output}</div>
+          position: 'relative',
+        }}>
+          <button
+            onClick={() => copyToClipboard(output)}
+            style={{
+              position: 'absolute', top: 12, right: 12,
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 6, padding: '6px 12px',
+              color: copied ? '#22c55e' : '#888',
+              fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            {copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy brief</>}
+          </button>
+          <div style={{
+            whiteSpace: 'pre-wrap',
+            fontSize: 13,
+            lineHeight: 1.65,
+            color: 'rgba(255,255,255,0.85)',
+            fontFamily: sans,
+          }}>{output}</div>
+        </div>
       )}
 
       {/* Recent briefs */}
@@ -387,7 +454,7 @@ Return a markdown brief with these sections:
         <section style={{ marginBottom: 28 }}>
           <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Recent Briefs</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
-            {history.slice(0, 3).map((b) => {
+            {history.slice(0, 5).map((b) => {
               const open = expanded === b.id;
               return (
                 <div key={b.id} style={{
@@ -427,7 +494,7 @@ Return a markdown brief with these sections:
       <section>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 6px' }}>Popular Templates</h2>
         <p style={{ fontSize: 12, color: '#555555', margin: '0 0 14px' }}>
-          Battle-tested ad angles. One click generates a full brief from the template.
+          Battle-tested ad angles. Click a template to pre-fill, then review and generate.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
           {TEMPLATES.map((t) => {
@@ -435,6 +502,10 @@ Return a markdown brief with these sections:
             return (
               <div
                 key={t.name}
+                onClick={() => applyTemplate(t.prompt)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') applyTemplate(t.prompt); }}
                 style={{
                   background: '#0f0f0f',
                   border: '1px solid #1a1a1a',
@@ -443,6 +514,8 @@ Return a markdown brief with these sections:
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 12,
+                  cursor: 'pointer',
+                  transition: 'border-color 120ms ease',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -477,25 +550,23 @@ Return a markdown brief with these sections:
                 >
                   {t.description}
                 </div>
-                <button
-                  onClick={() => generate(t.prompt)}
-                  disabled={loading}
+                <span
                   style={{
                     padding: '9px 14px',
                     borderRadius: 6,
-                    background: loading ? 'rgba(59,130,246,0.2)' : '#3B82F6',
+                    background: '#3B82F6',
                     border: '1px solid #3B82F6',
                     color: '#ffffff',
                     fontFamily: sans,
                     fontSize: 12,
                     fontWeight: 600,
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    boxShadow: loading ? 'none' : '0 0 0 1px rgba(59,130,246,0.3)',
+                    boxShadow: '0 0 0 1px rgba(59,130,246,0.3)',
                     alignSelf: 'flex-start',
+                    pointerEvents: 'none',
                   }}
                 >
                   Use template →
-                </button>
+                </span>
               </div>
             );
           })}
