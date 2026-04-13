@@ -184,7 +184,7 @@ export default function ProductReport() {
         {/* Product Image */}
         {product.image_url && (
           <div style={{ width: '100%', height: 280, borderRadius: 16, overflow: 'hidden', marginBottom: 28, background: C.card }}>
-            <img src={product.image_url} alt={product.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={product.image_url} alt={product.product_title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         )}
 

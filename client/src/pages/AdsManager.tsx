@@ -410,7 +410,7 @@ export default function AdsManager() {
                         onClick={() => handleSelectProduct(p)}
                       >
                         {getProductImage(p) ? (
-                          <img src={getProductImage(p)} alt="" className="am-dropdown-thumb" />
+                          <img src={getProductImage(p)} alt="" loading="lazy" className="am-dropdown-thumb" />
                         ) : (
                           <div className="am-dropdown-thumb am-dropdown-thumb-empty" />
                         )}
@@ -450,7 +450,7 @@ export default function AdsManager() {
           {product && (
             <div className="am-product-card">
               {getProductImage(product) ? (
-                <img src={getProductImage(product)} alt="" className="am-product-image" />
+                <img src={getProductImage(product)} alt="" loading="lazy" className="am-product-image" />
               ) : (
                 <div className="am-product-image am-product-image-empty" />
               )}
@@ -683,7 +683,7 @@ function AdPreview({ format, headline, body, product }: AdPreviewProps) {
         {/* Media */}
         <div className="am-phone-media">
           {img ? (
-            <img src={img} alt="" />
+            <img src={img} alt="" loading="lazy" />
           ) : (
             <div className="am-phone-media-empty" />
           )}

@@ -220,7 +220,7 @@
   /* legacy compat */
   --bg-card-legacy: var(--bg-card);
   --color-surface-1: #0a0a0a;
-  --color-surface-2: #111114;
+  --color-surface-2: #111111;
   --color-surface-3: rgba(255,255,255,0.04);
   --color-red-dim: rgba(239,68,68,0.12);
   --color-amber-dim: rgba(245,158,11,0.12);
@@ -344,7 +344,7 @@ input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 1000px #0d0d10 inset !important;
 }
 
-select option { background: #111114; color: #ededed; }
+select option { background: #111111; color: #ededed; }
 
 * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -448,7 +448,7 @@ select option { background: #111114; color: #ededed; }
 
 /* Card system */
 .mkr-card {
-  background: #111114;
+  background: #111111;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   transition: border-color 200ms ease, background 200ms ease;
@@ -460,7 +460,7 @@ select option { background: #111114; color: #ededed; }
 }
 
 .mkr-kpi-card {
-  background: #111114;
+  background: #111111;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   padding: 20px 24px;
@@ -483,7 +483,7 @@ select option { background: #111114; color: #ededed; }
 }
 
 .mkr-table-wrap {
-  background: #111114;
+  background: #111111;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   overflow: hidden;
@@ -612,7 +612,7 @@ select option { background: #111114; color: #ededed; }
 .badge-trending {
   background: var(--accent-subtle);
   color: var(--accent);
-  border: 1px solid rgba(99,102,241,0.3);
+  border: 1px solid rgba(212,175,55,0.3);
   border-radius: var(--radius-sm);
   padding: 2px 8px;
   font-size: 11px;
@@ -742,7 +742,7 @@ select option { background: #111114; color: #ededed; }
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99,102,241,0.07), transparent 50%);
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212,175,55,0.07), transparent 50%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -769,7 +769,7 @@ select {
 select:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
 }
 
 /* Search input */
@@ -786,8 +786,8 @@ input[type="search"].mkr-search {
 input[type="text"].mkr-search:focus,
 input[type="search"].mkr-search:focus {
   outline: none;
-  border-color: rgba(99,102,241,0.6);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  border-color: rgba(212,175,55,0.6);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
 }
 
 /* Score ring in panel hero */

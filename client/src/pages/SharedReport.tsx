@@ -48,7 +48,7 @@ export default function SharedReport() {
         {products.map((p: any, i: number) => (
           <div key={i} style={{ background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20, marginBottom: 12 }}>
             <div style={{ display: 'flex', gap: 14 }}>
-              {p.image_url && <img src={p.image_url} alt={p.product_title} style={{ width: 80, height: 80, objectFit: 'cover' as const, borderRadius: 8 }} />}
+              {p.image_url && <img src={p.image_url} alt={p.product_title} loading="lazy" style={{ width: 80, height: 80, objectFit: 'cover' as const, borderRadius: 8 }} />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#F8FAFC', marginBottom: 6 }}>{p.product_title}</div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const }}>

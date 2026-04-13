@@ -243,7 +243,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           <h3
             key={i}
             className="text-sm font-semibold mt-5 mb-2 first:mt-0"
-            style={{ color: '#3B82F6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ color: '#3B82F6', fontFamily: "'Syne', 'Bricolage Grotesque', sans-serif" }}
           >
             {section.replace('## ', '')}
           </h3>
@@ -308,7 +308,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
     <div className="min-h-full" style={{ background: 'var(--content-bg, #080808)', color: 'var(--cell-text, #F1F5F9)' }}>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: 'var(--border-color, rgba(255,255,255,0.08))' }}>
-        <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--cell-text, #F1F5F9)' }}>Competitor Spy</h1>
+        <h1 className="text-xl font-bold" style={{ fontFamily: "'Syne', 'Bricolage Grotesque', sans-serif", color: 'var(--cell-text, #F1F5F9)' }}>Competitor Spy</h1>
         <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
           Research any TikTok Shop competitor — products, strategy, weaknesses, how to beat them
         </p>
@@ -394,7 +394,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                   whiteSpace: 'nowrap',
                   transition: 'background 0.15s',
                 }}
-                onMouseEnter={(e) => { if (!loading && query.trim()) e.currentTarget.style.background = '#5558E8'; }}
+                onMouseEnter={(e) => { if (!loading && query.trim()) e.currentTarget.style.background = '#2563EB'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = '#3B82F6'; }}
               >
                 {loading ? 'Analysing...' : 'Analyse'}
@@ -528,7 +528,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
                       cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
                     }}
-                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#5558E8'; }}
+                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#2563EB'; }}
                     onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#3B82F6'; }}
                   >
                     {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
@@ -685,7 +685,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
                       cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
                     }}
-                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#5558E8'; }}
+                    onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#2563EB'; }}
                     onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#3B82F6'; }}
                   >
                     {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}

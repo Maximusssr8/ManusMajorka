@@ -487,7 +487,7 @@ export default function RevenuePage() {
                   </div>
                   {/* Image */}
                   <div style={{ position:'relative' as const, flexShrink:0 }}>
-                    <img src={p.img} alt={p.name} style={{ width:54,height:54,borderRadius:12,objectFit:'cover',border:'2px solid rgba(255,255,255,.1)',display:'block' }} />
+                    <img src={p.img} alt={p.name} loading="lazy" style={{ width:54,height:54,borderRadius:12,objectFit:'cover',border:'2px solid rgba(255,255,255,.1)',display:'block' }} />
                     {p.tag && <div style={{ position:'absolute',bottom:-4,left:'50%',transform:'translateX(-50%)',background: i===0?'#EAB308':i===1?'#94A3B8':'#CD7F32',color:'#000',fontSize:8,fontWeight:900,padding:'2px 6px',borderRadius:99,whiteSpace:'nowrap' as const }}>{p.tag}</div>}
                   </div>
                   {/* Name + bar */}
@@ -612,7 +612,7 @@ export default function RevenuePage() {
                   }}>
                     {/* Product image */}
                     <div style={{ position:'relative' as const,flexShrink:0 }}>
-                      <img src={o.img} alt={o.product}
+                      <img src={o.img} alt={o.product} loading="lazy"
                         style={{ width: isMobile ? 48 : 58, height: isMobile ? 48 : 58, borderRadius:14, objectFit:'cover', border:'2px solid rgba(255,255,255,.1)', display:'block' }}
                       />
                       {/* Qty bubble */}

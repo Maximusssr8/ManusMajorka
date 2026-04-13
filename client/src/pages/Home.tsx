@@ -3966,6 +3966,22 @@ export default function Home() {
   const isMobile = useIsMobile();
   void isMobile;
   const [annual, setAnnual] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [exitEmail, setExitEmail] = useState('');
+
+  // Exit intent — show modal when mouse leaves viewport toward close/back
+  useEffect(() => {
+    function handleMouseLeave(e: MouseEvent) {
+      if (e.clientY > 0) return;
+      try {
+        if (sessionStorage.getItem('majorka_exit_shown') === '1') return;
+        sessionStorage.setItem('majorka_exit_shown', '1');
+      } catch { /* ignore */ }
+      setShowExitModal(true);
+    }
+    document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.documentElement.removeEventListener('mouseleave', handleMouseLeave);
+  }, []);
 
   // Nuclear void failsafe — runs on mount and after 2s. Walks every element
   // in <main> and if computed opacity is 0 (with no legitimate reason)
@@ -4132,6 +4148,101 @@ export default function Home() {
       <FAQ />
       <FinalCTA />
       <Footer />
+
+      {/* ── Exit Intent Modal ── */}
+      {showExitModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 24,
+          }}
+          onClick={() => setShowExitModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#0f0f0f',
+              border: '1px solid #d4af37',
+              borderRadius: 8,
+              padding: '48px 40px 36px',
+              maxWidth: 420,
+              width: '100%',
+              textAlign: 'center',
+              position: 'relative',
+            }}
+          >
+            <button
+              onClick={() => setShowExitModal(false)}
+              aria-label="Close"
+              style={{
+                position: 'absolute', top: 12, right: 12,
+                background: 'none', border: 'none', color: '#888',
+                cursor: 'pointer', fontSize: 20, width: 44, height: 44,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >&times;</button>
+            <h3 style={{
+              fontFamily: display, fontSize: 28, fontWeight: 700,
+              color: '#ededed', margin: '0 0 10px', letterSpacing: '-0.02em',
+            }}>
+              Wait &mdash; get 7 days free
+            </h3>
+            <p style={{
+              fontFamily: sans, fontSize: 15, color: '#888', margin: '0 0 28px', lineHeight: 1.6,
+            }}>
+              No credit card required. Full Builder access.
+            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (exitEmail.trim()) {
+                  window.location.href = `/sign-up?email=${encodeURIComponent(exitEmail.trim())}`;
+                }
+              }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+            >
+              <input
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={exitEmail}
+                onChange={(e) => setExitEmail(e.target.value)}
+                style={{
+                  background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 6, padding: '12px 16px', color: '#ededed',
+                  fontSize: 14, fontFamily: sans, outline: 'none', width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  background: '#3B82F6', color: '#fff', border: 'none',
+                  borderRadius: 6, padding: '12px 24px', fontSize: 15,
+                  fontWeight: 700, fontFamily: sans, cursor: 'pointer',
+                  transition: 'background 150ms',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#2563EB'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#3B82F6'; }}
+              >
+                Start free trial
+              </button>
+            </form>
+            <button
+              onClick={() => setShowExitModal(false)}
+              style={{
+                background: 'none', border: 'none', color: '#555',
+                fontSize: 13, fontFamily: sans, cursor: 'pointer',
+                marginTop: 16, padding: '4px 8px',
+              }}
+            >
+              No thanks
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

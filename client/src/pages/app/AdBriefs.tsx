@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
 const sans = C.fontBody;
-const mono = C.fontBody;
+const mono = C.fontMono;
 
 const PLATFORM_TOOLTIPS: Record<Platform, string> = {
   facebook: 'Feed + Stories + Reels',

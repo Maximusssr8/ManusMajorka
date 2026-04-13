@@ -157,7 +157,7 @@ export default function Revenue() {
           <button
             onClick={() => setShowAdd(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:scale-[1.02]"
-            style={{ background: 'var(--color-accent)', boxShadow: 'none' }}
+            style={{ background: '#3B82F6', boxShadow: 'none' }}
           >
             <Plus size={15} strokeWidth={2.5} />
             Add product
@@ -362,7 +362,7 @@ export default function Revenue() {
                 onClick={addEntry}
                 disabled={!form.productTitle.trim() || !form.dailyRevenue}
                 className="flex-1 py-3 rounded-lg text-sm font-bold text-white disabled:opacity-40"
-                style={{ background: 'var(--color-accent)' }}
+                style={{ background: '#3B82F6' }}
               >
                 Add
               </button>

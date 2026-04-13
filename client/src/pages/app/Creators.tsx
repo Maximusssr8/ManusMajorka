@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/motion';
 const display = C.fontDisplay;
 const sans = C.fontBody;
-const mono = C.fontBody;
+const mono = C.fontMono;
 
 interface Template {
   title: string;

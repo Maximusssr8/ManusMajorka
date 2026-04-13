@@ -553,13 +553,13 @@ export default function ApiKeys(): ReactElement {
                 background: '#0f0f0f',
                 border: '1px solid #1a1a1a',
                 borderRadius: 8,
-                padding: 40,
-                textAlign: 'center',
-                color: 'rgba(255,255,255,0.5)',
-                fontSize: 13,
+                padding: 24,
               }}
             >
-              Loading…
+              <div className="skeleton" style={{ height: 14, width: '40%', marginBottom: 16 }} />
+              <div className="skeleton" style={{ height: 48, width: '100%', marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 48, width: '100%', marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 48, width: '100%' }} />
             </div>
           ) : keys.length === 0 ? (
             <div

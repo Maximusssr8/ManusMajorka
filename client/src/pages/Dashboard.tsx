@@ -685,7 +685,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
               <div key={p.id} onClick={() => setLocation('/app/intelligence')} style={{ flexShrink: 0, width: 160, background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
                 <div style={{ marginBottom: 8 }}>{getRankDisplay(i)}</div>
                 {p.image_url ? (
-                  <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                  <img src={p.image_url} alt="" loading="lazy" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
                   <div style={{ width: 40, height: 40, borderRadius: 6, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#60A5FA', marginBottom: 8 }}>
                     {(p.product_title || 'P').charAt(0)}
@@ -724,7 +724,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         {p.image_url ? (
-                          <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' as const, flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                          <img src={p.image_url} alt="" loading="lazy" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' as const, flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                         ) : (
                           <div style={{ width: 36, height: 36, borderRadius: 6, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#60A5FA', flexShrink: 0 }}>
                             {(p.product_title || 'P').charAt(0)}
@@ -1188,7 +1188,7 @@ function DashboardHome() {
                       onClick={() => setLocation('/app/intelligence')}
                     >
                       {p.image_url ? (
-                        <img src={String(p.image_url)} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)', background: '#111114' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
+                        <img src={String(p.image_url)} alt="" loading="lazy" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)', background: '#111114' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
                       ) : null}
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(59,130,246,0.15)', display: p.image_url ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#60A5FA', flexShrink: 0 }}>
                         {(p.product_title ?? p.name ?? 'P').charAt(0)}
@@ -1215,7 +1215,7 @@ function DashboardHome() {
             <div style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 14, padding: '24px', color: 'white', display: 'flex', flexDirection: 'column' }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#60A5FA', marginBottom: 12 }}>🏆 Top Product Right Now</div>
               {products[0].image_url && (
-                <img src={String(products[0].image_url)} alt="" style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8, marginBottom: 12, opacity: 0.9 }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                <img src={String(products[0].image_url)} alt="" loading="lazy" style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8, marginBottom: 12, opacity: 0.9 }} onError={e => { e.currentTarget.style.display = 'none'; }} />
               )}
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 16, lineHeight: 1.4, marginBottom: 8, color: 'white', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{products[0].product_title}</div>
               <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#D1D5DB', marginBottom: 8 }}>

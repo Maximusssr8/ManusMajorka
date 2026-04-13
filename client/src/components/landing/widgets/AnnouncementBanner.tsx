@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 const STORAGE_KEY = 'majorka-announcement-dismissed-v1';
 
 const MESSAGES = [
-  '🔥 Founding member pricing — Builder locked at $99/mo for the life of your subscription. See plans →',
-  '🇦🇺 7 markets · live AliExpress data · AI scoring on 3,000+ products. Try free →',
-  '⚡ Find your first winning product in under 18 minutes — Start free →',
+  { text: 'Limited Launch Pricing — Builder from', highlight: '$99 AUD/mo', suffix: '. Lock it in before prices rise.' },
+  { text: '7 markets · live AliExpress data · AI scoring on 3,000+ products.', highlight: '', suffix: '' },
+  { text: 'Find your first winning product in under 18 minutes.', highlight: '', suffix: '' },
 ];
 
 export function AnnouncementBanner() {
@@ -43,7 +43,8 @@ export function AnnouncementBanner() {
       insetInline: 0,
       top: 0,
       zIndex: 50,
-      background: 'linear-gradient(90deg, #2563EB, #3B82F6)',
+      background: '#111',
+      borderBottom: '1px solid #1a1a1a',
       width: '100%',
       pointerEvents: 'none',
     }}>
@@ -58,19 +59,24 @@ export function AnnouncementBanner() {
         margin: '0 auto',
         position: 'relative',
       }}>
-        <a
-          href="/sign-up"
+        <span
           key={index}
           style={{
-            color: 'white',
-            fontSize: 14,
-            fontWeight: 500,
+            color: '#ededed',
+            fontSize: 13,
+            fontWeight: 400,
             fontFamily: "'DM Sans', sans-serif",
-            textDecoration: 'none',
             pointerEvents: 'auto',
             animation: 'mj-banner-fade 400ms ease',
           }}
-        >{MESSAGES[index]}</a>
+        >
+          {MESSAGES[index].text}
+          {MESSAGES[index].highlight && (
+            <span style={{ color: '#d4af37', fontWeight: 700, marginLeft: 4 }}>{MESSAGES[index].highlight}</span>
+          )}
+          {MESSAGES[index].suffix}
+          <a href="/sign-up" style={{ color: '#3B82F6', marginLeft: 12, fontWeight: 600, textDecoration: 'none' }}>Start free &rarr;</a>
+        </span>
         <button
           onClick={dismiss}
           aria-label="Dismiss announcement"

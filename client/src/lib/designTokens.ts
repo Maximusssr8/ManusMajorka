@@ -1,16 +1,16 @@
 /**
- * Majorka Design Tokens — Nohemi + Inter, electric blue accent, no hardcoded hex in UI.
+ * Majorka Design Tokens — Syne + DM Sans, gold accent, no hardcoded hex in UI.
  * Export both `C` and `t` (alias) so existing call sites keep working.
  */
 
 export const C = {
   // Backgrounds — 3-layer surface system for visible depth
-  bg:           '#0d0f14',
-  pageBg:       '#0d0f14',
-  contentBg:    '#111827',
-  cardBg:       '#1a2035',
-  surface:      '#13151c',
-  raised:       '#1a1d27',
+  bg:           '#080808',
+  pageBg:       '#080808',
+  contentBg:    '#0d0d0d',
+  cardBg:       '#0f0f0f',
+  surface:      '#0d0d0d',
+  raised:       '#111111',
 
   // Borders
   border:       'rgba(255,255,255,0.07)',
@@ -18,22 +18,22 @@ export const C = {
   borderFocus:  '#3B82F6',
 
   // Text
-  text:         '#f0f4ff',
-  body:         '#9499b0',
-  muted:        '#555a72',
+  text:         '#ededed',
+  body:         '#888888',
+  muted:        '#555555',
 
-  // Accent — electric blue
-  accent:       '#3B82F6',
-  accentHover:  '#60a5fa',
-  accentSubtle: 'rgba(59,130,246,0.12)',
+  // Accent — gold (brand), CTA blue for buttons
+  accent:       '#d4af37',
+  accentHover:  '#e5c158',
+  accentSubtle: 'rgba(212,175,55,0.08)',
   accentInk:    '#ffffff',
   white:        '#ffffff',
 
   // Data accents
   cyan:         '#22d3ee',
   cyanSubtle:   'rgba(34,211,238,0.1)',
-  green:        '#10b981',
-  greenSubtle:  'rgba(16,185,129,0.1)',
+  green:        '#22c55e',
+  greenSubtle:  'rgba(34,197,94,0.1)',
   amber:        '#f59e0b',
   amberSubtle:  'rgba(245,158,11,0.12)',
   orange:       '#f97316',
@@ -42,8 +42,9 @@ export const C = {
   redSubtle:    'rgba(239,68,68,0.12)',
 
   // Typography
-  fontDisplay:  "'Nohemi', 'Inter', sans-serif",
-  fontBody:     "'Inter', sans-serif",
+  fontDisplay:  "'Syne', 'Bricolage Grotesque', sans-serif",
+  fontBody:     "'DM Sans', 'Inter', sans-serif",
+  fontMono:     "'JetBrains Mono', 'SF Mono', ui-monospace, monospace",
 
   // Type scale
   fH1: 52, fH2: 32, fH3: 20, fH4: 16,
@@ -52,8 +53,8 @@ export const C = {
   // Spacing (8pt)
   s1: 4, s2: 8, s3: 12, s4: 16, s5: 20, s6: 24, s7: 32, s8: 40, s9: 48, s10: 64,
 
-  // Radius
-  rXs: 4, rSm: 8, rMd: 12, rLg: 16, rXl: 24,
+  // Radius — max 8px
+  rXs: 4, rSm: 6, rMd: 8, rLg: 8, rXl: 8,
 
   // Motion
   dur:  '150ms',
@@ -70,7 +71,7 @@ export const t = {
   lineStrong:   C.borderStrong,
   lineFocus:    C.borderFocus,
 
-  fontMono:     C.fontBody,
+  fontMono:     C.fontMono,
 
   // Old type scale keys
   fCaption:     C.fXs,

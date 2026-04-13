@@ -128,7 +128,7 @@ export default function ShopDetail() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               {(shop.best_selling_products || []).map((p, i) => (
                 <div key={i} style={{ background: '#0d0d10', border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
-                  <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: 100, objectFit: 'cover' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                  <img src={p.imageUrl} alt={p.name} loading="lazy" style={{ width: '100%', height: 100, objectFit: 'cover' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   <div style={{ padding: '10px', fontSize: 12, color: C.text, fontWeight: 600 }}>{p.name}</div>
                 </div>
               ))}

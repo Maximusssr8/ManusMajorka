@@ -507,7 +507,7 @@ export default function ShopIntelligence() {
 
             <div style={{ display: 'flex', gap: 3 }}>
               {(shop.best_selling_products || []).slice(0, 3).map((p, i) => (
-                <img key={i} src={p.imageUrl} alt={p.name} title={p.name} style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', border: `1px solid ${C.border}` }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                <img key={i} src={p.imageUrl} alt={p.name} title={p.name} loading="lazy" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', border: `1px solid ${C.border}` }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
               ))}
             </div>
 

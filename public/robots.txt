@@ -5,4 +5,4 @@ Disallow: /store-builder/
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://majorka.io/sitemap.xml
+Sitemap: https://www.majorka.io/sitemap.xml

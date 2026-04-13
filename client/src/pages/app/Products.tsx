@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
+import { useAuth } from '@/_core/hooks/useAuth';
 import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
 import { useTracking } from '@/hooks/useTracking';
 import { useLists } from '@/hooks/useLists';
@@ -1605,6 +1606,8 @@ function TT({ content, children, side = 'top' }: { content: React.ReactNode; chi
 
 export default function AppProducts() {
   useEffect(() => { document.title = 'Products — Majorka'; }, []);
+  const { subPlan, isPro } = useAuth();
+  const isFreeOrTrial = !isPro && ['', 'free', 'trial'].includes(subPlan.toLowerCase());
   const { stats: overviewStats } = useStatsOverview();
   const initial = readInitialParams();
   const [, navigate] = useLocation();
@@ -2361,27 +2364,79 @@ export default function AppProducts() {
       )}
 
       {/* Body */}
-      {searchMode === 'live' ? (
-        <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
-      ) : view === 'table' ? (
-        <ListTable
-          products={pageSlice}
-          loading={loading}
-          onSelect={setSelectedProduct}
-          lists={lists}
-          navigate={navigate}
-          orderBy={orderBy}
-          onSort={(k) => { setOrderBy(k); setPage(1); }}
-        />
-      ) : (
-        <GridCards
-          products={pageSlice}
-          loading={loading}
-          onSelect={setSelectedProduct}
-          lists={lists}
-          navigate={navigate}
-        />
-      )}
+      <div style={{ position: 'relative' }}>
+        {searchMode === 'live' ? (
+          <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
+        ) : view === 'table' ? (
+          <ListTable
+            products={isFreeOrTrial ? pageSlice.slice(0, 10) : pageSlice}
+            loading={loading}
+            onSelect={setSelectedProduct}
+            lists={lists}
+            navigate={navigate}
+            orderBy={orderBy}
+            onSort={(k) => { setOrderBy(k); setPage(1); }}
+          />
+        ) : (
+          <GridCards
+            products={isFreeOrTrial ? pageSlice.slice(0, 10) : pageSlice}
+            loading={loading}
+            onSelect={setSelectedProduct}
+            lists={lists}
+            navigate={navigate}
+          />
+        )}
+
+        {/* Upgrade gate blur overlay for free/trial users */}
+        {isFreeOrTrial && pageSlice.length > 10 && searchMode !== 'live' && (
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 280,
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(8,8,8,0.85) 40%, rgba(8,8,8,0.98) 100%)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            paddingBottom: 40,
+            pointerEvents: 'auto',
+            zIndex: 10,
+          }}>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 15,
+              color: '#a1a1aa',
+              marginBottom: 16,
+              textAlign: 'center',
+            }}>
+              Showing 10 of {filteredTotal.toLocaleString()} products
+            </p>
+            <a
+              href="/pricing"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '12px 28px',
+                background: '#d4af37',
+                color: '#000',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 14,
+                fontWeight: 700,
+                borderRadius: 6,
+                textDecoration: 'none',
+                boxShadow: '0 0 20px rgba(212,175,55,0.25)',
+                transition: 'background 150ms',
+              }}
+            >
+              Unlock all products
+            </a>
+          </div>
+        )}
+      </div>
 
       {/* Pagination */}
       {searchMode === 'db' && filteredTotal > 0 && (

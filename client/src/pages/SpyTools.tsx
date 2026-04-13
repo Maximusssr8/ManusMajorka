@@ -162,7 +162,7 @@ function CompetitorSpy() {
               style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '8px 14px', background: selectedStore === s.domain ? '#EFF6FF' : 'white', border: 'none', borderLeft: selectedStore === s.domain ? '3px solid #3B82F6' : '3px solid transparent', cursor: 'pointer', textAlign: 'left' as const, transition: 'background 120ms' }}
               onMouseEnter={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = '#FAFAFF'; }}
               onMouseLeave={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = 'white'; }}>
-              <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`} alt={s.name} style={{ width: 16, height: 16, borderRadius: 3 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
+              <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`} alt={s.name} loading="lazy" style={{ width: 16, height: 16, borderRadius: 3 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: selectedStore === s.domain ? '#3B82F6' : '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, direction: 'ltr' as const }}>{s.name}</div>
               </div>
@@ -206,7 +206,7 @@ function CompetitorSpy() {
                 <div key={p.id || i} style={{ padding: '10px 16px', borderBottom: '1px solid #F9FAFB', display: 'flex', gap: 10, alignItems: 'flex-start', transition: 'background 120ms' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#FAFAFF'}
                   onMouseLeave={e => e.currentTarget.style.background = 'white'}>
-                  <img src={`https://www.google.com/s2/favicons?domain=${p.store_domain}&sz=32`} alt="" style={{ width: 18, height: 18, borderRadius: 3, marginTop: 2, flexShrink: 0 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
+                  <img src={`https://www.google.com/s2/favicons?domain=${p.store_domain}&sz=32`} alt="" loading="lazy" style={{ width: 18, height: 18, borderRadius: 3, marginTop: 2, flexShrink: 0 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: '#F8FAFC', lineHeight: 1.4, marginBottom: 3 }}>{p.product_name}</div>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>

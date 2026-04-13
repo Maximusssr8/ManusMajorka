@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 import { fadeIn } from '@/lib/motion';
 const display = C.fontDisplay;
 const sans = C.fontBody;
-const mono = C.fontBody;
+const mono = C.fontMono;
 
 type AlertType = 'score' | 'new' | 'price' | 'trending';
 type Frequency = 'immediately' | 'daily' | 'weekly';
@@ -361,10 +361,10 @@ export default function Alerts() {
                       src={proxyImage(t.productImage) ?? t.productImage}
                       alt={t.productTitle ?? ''}
                       loading="lazy"
-                      style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}
+                      style={{ width: 52, height: 52, borderRadius: 8, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}
                     />
                   ) : (
-                    <div style={{ width: 52, height: 52, borderRadius: 10, background: 'rgba(255,255,255,0.04)', flexShrink: 0 }} />
+                    <div style={{ width: 52, height: 52, borderRadius: 8, background: 'rgba(255,255,255,0.04)', flexShrink: 0 }} />
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -519,7 +519,7 @@ export default function Alerts() {
                 <div key={a.id} style={{
                   background: C.raised,
                   border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 10,
+                  borderRadius: 8,
                   padding: 16,
                   position: 'relative',
                 }}>
@@ -645,14 +645,15 @@ export default function Alerts() {
             disabled={!email}
             style={{
               padding: '12px 24px',
-              borderRadius: 9,
-              background: email ? 'linear-gradient(135deg,#d4af37,#d4af37)' : 'rgba(212,175,55,0.2)',
+              borderRadius: 8,
+              background: email ? '#3B82F6' : 'rgba(59,130,246,0.2)',
               border: 'none',
               color: 'white',
               fontFamily: sans, fontSize: 14, fontWeight: 600,
               cursor: email ? 'pointer' : 'not-allowed',
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              boxShadow: email ? '0 4px 20px rgba(212,175,55,0.35)' : 'none',
+              minHeight: 44,
+              boxShadow: 'none',
             }}
           ><Plus size={14} /> Create Alert</button>
         </div>
@@ -666,7 +667,7 @@ export default function Alerts() {
           <div style={{
             background: '#0f0f0f',
             border: '1px dashed #1a1a1a',
-            borderRadius: 10,
+            borderRadius: 8,
             padding: '32px 24px',
             textAlign: 'center',
             color: 'rgba(255,255,255,0.4)',
@@ -711,7 +712,7 @@ export default function Alerts() {
             <div key={n.title} style={{
               background: n.bg,
               border: `1px solid ${n.border}`,
-              borderRadius: 10,
+              borderRadius: 8,
               padding: 16,
               display: 'flex',
               gap: 12,

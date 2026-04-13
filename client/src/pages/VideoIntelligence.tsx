@@ -360,7 +360,7 @@ export default function VideoIntelligence() {
               {searchResults.map((v, i) => (
               <a key={i} href={v.url || v.creatorProfileUrl || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'block', background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
-                {v.thumbnail && <img src={v.thumbnail} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' as const }} onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
+                {v.thumbnail && <img src={v.thumbnail} alt="" loading="lazy" style={{ width: '100%', height: 140, objectFit: 'cover' as const }} onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
                 <div style={{ padding: '10px 12px' }}>
                   <div style={{ fontSize: 12, color: '#F8FAFC', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>
