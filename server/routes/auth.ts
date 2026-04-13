@@ -10,13 +10,20 @@ function getSupabaseAdmin() {
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-const WHITELIST = (process.env.WHITELIST_EMAILS || 'maximusmajorka@gmail.com')
-  .split(',')
-  .map(e => e.trim().toLowerCase());
+// When WHITELIST_EMAILS is unset or '*', allow ALL users (launch mode).
+// Set WHITELIST_EMAILS=email1,email2 to re-enable private beta.
+const whitelistRaw = process.env.WHITELIST_EMAILS || '*';
+const whitelistOpen = whitelistRaw.trim() === '*' || whitelistRaw.trim() === '';
+const WHITELIST = whitelistOpen
+  ? null
+  : whitelistRaw.split(',').map(e => e.trim().toLowerCase());
 
 // POST /api/auth/check-whitelist
 // No auth required — called right after sign-in from client
 router.post('/check-whitelist', (req, res) => {
+  // Open mode: everyone is allowed
+  if (!WHITELIST) return res.json({ allowed: true });
+
   const { email } = req.body as { email?: string };
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: 'email required' });
