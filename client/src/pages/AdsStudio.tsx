@@ -665,9 +665,26 @@ OBJECTION KILLER:
           ))}
 
           <div style={{ marginBottom: 10 }}>
-            <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>Key Benefit / USP</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <label htmlFor="ads-usp" style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>
+                Key Benefit / USP
+              </label>
+              <span
+                aria-live="polite"
+                style={{
+                  fontFamily: mono,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: benefit.length > 100 ? '#f87171' : 'rgba(255,255,255,0.4)',
+                }}
+              >
+                {benefit.length}/100
+              </span>
+            </div>
             <textarea
+              id="ads-usp"
               value={benefit}
+              maxLength={100}
               onChange={(e) => setBenefit(e.target.value)}
               placeholder="e.g. reduces back pain in 10 min, visible results in 7 days"
               rows={2}
