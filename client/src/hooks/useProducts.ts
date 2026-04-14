@@ -117,6 +117,31 @@ function applyOrder(query: any, orderBy: OrderByColumn): any {
   }
 }
 
+/**
+ * Read the operator's chosen market (written during onboarding) so queries
+ * can match shipping availability. Returns null on SSR or when unset.
+ */
+function readMarket(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = localStorage.getItem('majorka_market');
+    return v && v.trim().length > 0 ? v.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Feature flag for the `ships_to_au` column — defaults to false so the
+ * filter is a no-op until the column is live in the DB. Flip
+ * `window.__MAJORKA_SHIPS_TO_AU_AVAILABLE = true` once migrated.
+ */
+function shipsToAuAvailable(): boolean {
+  if (typeof window === 'undefined') return false;
+  const w = window as Window & { __MAJORKA_SHIPS_TO_AU_AVAILABLE?: boolean };
+  return w.__MAJORKA_SHIPS_TO_AU_AVAILABLE === true;
+}
+
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
   const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab = 'all', searchQuery, excludeIds } = options;
   // Stable cache key for excludeIds — sort so [1,2] and [2,1] share a cache slot.
@@ -132,7 +157,10 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${maxOrders ?? ''}:${searchQuery ?? ''}:${excludeKey}`;
+      const market = readMarket();
+      const applyShipsToAu = market === 'AU' && shipsToAuAvailable();
+      const marketKey = applyShipsToAu ? 'AU' : '';
+      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${maxOrders ?? ''}:${searchQuery ?? ''}:${excludeKey}:${marketKey}`;
       const hit = cacheGet<{ products: Product[]; total: number }>(cacheKey);
       if (hit) {
         setProducts(hit.products);
@@ -213,6 +241,12 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           const tuple = `(${excludeIds.map((v) => String(v)).join(',')})`;
           query = query.not('id', 'in', tuple);
         }
+        // Market-aware shipping filter — only applied when the operator
+        // picked AU during onboarding AND the `ships_to_au` column is
+        // flagged as available. Other markets (or missing column) no-op.
+        if (applyShipsToAu) {
+          query = query.eq('ships_to_au', true);
+        }
 
         query = query.limit(limit);
 
@@ -232,6 +266,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           if (searchQuery && searchQuery.trim().length > 0) {
             q = q.ilike('product_title', `%${searchQuery.trim()}%`);
           }
+          if (applyShipsToAu) q = q.eq('ships_to_au', true);
           return q;
         }
 
