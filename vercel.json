@@ -82,10 +82,6 @@
       "schedule": "0 */6 * * *"
     },
     {
-      "path": "/api/cron/collect-cj",
-      "schedule": "30 */6 * * *"
-    },
-    {
       "path": "/api/cron/scrape-aliexpress-categories",
       "schedule": "0 */6 * * *"
     },
@@ -138,16 +134,20 @@
       "schedule": "0 */12 * * *"
     },
     {
-      "path": "/api/cron/cj-refresh",
-      "schedule": "0 2 * * *"
-    },
-    {
       "path": "/api/cron/check-alerts",
       "schedule": "0 * * * *"
     },
     {
       "path": "/api/cron/check-trials",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/apify-pipeline",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-digest",
+      "schedule": "0 23 * * 6"
     }
   ]
 }

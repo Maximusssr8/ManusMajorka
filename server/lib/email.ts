@@ -4,6 +4,7 @@ import { renderTrialReminder, type TrialReminderData } from './emailTemplates/tr
 import { renderTrialExpired, type TrialExpiredData } from './emailTemplates/trialExpired';
 import { renderPaymentConfirmed, type PaymentConfirmedData } from './emailTemplates/paymentConfirmed';
 import { renderPaymentFailed, type PaymentFailedData } from './emailTemplates/paymentFailed';
+import { renderWeeklyDigest, type WeeklyDigestData } from './emailTemplates/weeklyDigest';
 
 let _resend: Resend | null = null;
 
@@ -161,7 +162,8 @@ export type TransactionalTemplate =
   | { template: 'trial_reminder'; data: TrialReminderData }
   | { template: 'trial_expired'; data: TrialExpiredData }
   | { template: 'payment_confirmed'; data: PaymentConfirmedData }
-  | { template: 'payment_failed'; data: PaymentFailedData };
+  | { template: 'payment_failed'; data: PaymentFailedData }
+  | { template: 'weekly_digest'; data: WeeklyDigestData };
 
 export type TemplateName = TransactionalTemplate['template'];
 
@@ -172,6 +174,7 @@ function renderTemplate(t: TransactionalTemplate): { subject: string; html: stri
     case 'trial_expired':     return renderTrialExpired(t.data);
     case 'payment_confirmed': return renderPaymentConfirmed(t.data);
     case 'payment_failed':    return renderPaymentFailed(t.data);
+    case 'weekly_digest':     return renderWeeklyDigest(t.data);
   }
 }
 

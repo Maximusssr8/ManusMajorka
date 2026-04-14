@@ -30,8 +30,12 @@ import { registerWebsiteRoutes } from "../server/lib/website-api";
 import cookieParser from "cookie-parser";
 import shopifyRouter from "../server/routes/shopify";
 import storeBuilderRouter from "../server/routes/store-builder";
+import storesRouter from "../server/routes/stores";
 import aiRouter from "../server/routes/ai";
 import cronRouter from "../server/routes/cron";
+import weeklyDigestRouter from "../server/routes/weeklyDigest";
+import academyRouter from "../server/routes/academy";
+import pipelineRouter from "../server/routes/pipeline";
 import alertsRouter from "../server/routes/alerts";
 import { getEmailProvider as _getEmailProvider } from "../server/lib/email";
 import imageProxyRouter from "../server/routes/imageProxy";
@@ -586,7 +590,14 @@ app.use('/api/auth', authRouter);
 app.use('/api/shopify', shopifyRouter);
 app.use('/api/store-builder', storeBuilderRouter);
 app.use('/api/ai', aiRouter);
+// Saved stores + saved ad sets (Store Builder AI concepts, Ads Studio history)
+app.use('/api/stores', storesRouter);
 app.use('/api/cron', cronRouter);
+app.use('/api/cron', weeklyDigestRouter);
+app.use('/api/academy', academyRouter);
+// Pipeline router owns /api/cron/apify-pipeline + /api/admin/trigger-pipeline.
+// Mounted at /api so its internal paths are preserved.
+app.use('/api', pipelineRouter);
 app.use('/api/alerts', alertsRouter);
 // Alerts health endpoint is mounted at /api/alerts/health/email by the alerts router,
 // but the UI polls /api/health/email — alias it for convenience.
