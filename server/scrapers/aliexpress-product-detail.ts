@@ -277,7 +277,7 @@ export function mapApifyItem(
 
   if (rawPrice <= 0) missing.push('price');
 
-  const orders = parseOrders(item.tradeCount ?? item.soldCount ?? item.orders);
+  const orders = parseOrders((item.tradeCount ?? item.soldCount ?? item.orders) as string | number | null | undefined);
   if (orders <= 0) missing.push('orders');
 
   const rating = parseFloat(String(item.starRating ?? item.rating ?? item.averageStarRate ?? 0));

@@ -495,9 +495,10 @@ router.post('/generate-image', requireAuth, aiLimiter, async (req, res) => {
   const userId =
     (req as unknown as { user?: { userId?: string; sub?: string } }).user?.userId ||
     (req as unknown as { user?: { sub?: string } }).user?.sub;
-  const plan =
+  const rawPlan =
     ((req as unknown as { user?: { plan?: 'free' | 'builder' | 'scale' } }).user?.plan) ||
     'builder';
+  const plan: import('../../shared/plans').Plan = rawPlan === 'scale' ? 'scale' : 'builder';
 
   if (userId) {
     try {
