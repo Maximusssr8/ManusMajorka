@@ -48,7 +48,7 @@ export default function Revenue() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
 
-  useEffect(() => { document.title = 'Revenue — Majorka'; }, []);
+  useEffect(() => { document.title = 'Revenue Diary — Majorka'; }, []);
 
   function persist(updated: RevenueEntry[]) {
     setEntries(updated);
@@ -87,10 +87,10 @@ export default function Revenue() {
         <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
             <h1 className="text-3xl md:text-4xl font-display font-bold text-text tracking-tight leading-tight">
-              Revenue Tracker
+              Revenue Diary
             </h1>
             <p className="text-sm text-muted mt-2 max-w-md">
-              Your personal profit log. Data stays on your device — only you can see this.
+              Log your sales locally. This lives on this device only — we&apos;ll add store sync in a future release.
             </p>
           </div>
           <button
