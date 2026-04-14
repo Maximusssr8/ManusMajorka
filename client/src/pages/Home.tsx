@@ -5,6 +5,7 @@ import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
 import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
+import { StickyTrialBar } from '@/components/funnel/StickyTrialBar';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -707,19 +708,22 @@ function Hero() {
               <Link href="/sign-up" className="mj-cta-glow" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
-                height: 52,
-                padding: '0 28px',
-                background: 'linear-gradient(135deg, #6366F1 0%, #818cf8 50%, #6366F1 100%)',
+                gap: 10,
+                height: 60,
+                padding: '0 36px',
+                background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
                 backgroundSize: '200% 100%',
-                color: '#fff',
+                color: '#111111',
                 fontFamily: sans,
-                fontWeight: 600,
-                fontSize: 15,
+                fontWeight: 800,
+                fontSize: 17,
+                letterSpacing: '0.005em',
                 borderRadius: 999,
                 textDecoration: 'none',
+                boxShadow: '0 0 0 1px rgba(212,175,55,0.4), 0 10px 40px -6px rgba(99,102,241,0.5), 0 0 80px -10px rgba(99,102,241,0.55)',
+                transform: 'scale(1.02)',
               }}
-              >Find my first winning product →</Link>
+              >Start free trial &mdash; find my first winner &rarr;</Link>
               <a href="#features" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -2135,6 +2139,40 @@ function Pricing({ annual, setAnnual }: PricingProps) {
 
         <PricingCountdown />
 
+        {/* Trust badges strip */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: 8,
+          maxWidth: 820,
+          margin: '0 auto 28px',
+        }}>
+          {[
+            'Stripe verified',
+            '3,715 products tracked',
+            '6h refresh',
+            'Claude Sonnet-powered',
+          ].map((b) => (
+            <span key={b} style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 999,
+              fontFamily: mono,
+              fontSize: 11,
+              color: '#a1a1aa',
+              letterSpacing: '0.02em',
+            }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.6)' }} />
+              {b}
+            </span>
+          ))}
+        </div>
+
         {/* Why pay more — stack value justification */}
         <p style={{
           maxWidth: 760,
@@ -2198,39 +2236,45 @@ interface PricingCardProps {
 }
 function PricingCard({ tag, price, annual, tagline, features, cta, href, highlight }: PricingCardProps) {
   const [hover, setHover] = useState(false);
+  const gold = '#d4af37';
   const baseStyle: React.CSSProperties = {
     background: highlight
-      ? `linear-gradient(135deg, rgba(99,102,241,0.08), transparent), ${T.bgSurface}`
+      ? `linear-gradient(135deg, rgba(212,175,55,0.08), transparent), ${T.bgSurface}`
       : T.bgSurface,
-    border: highlight ? `1px solid ${T.accent}` : `1px solid ${T.border}`,
+    border: highlight ? `1px solid ${gold}` : `1px solid ${T.border}`,
     borderRadius: 10,
     padding: 32,
     position: 'relative',
     transition: 'all 250ms ease',
-    transform: hover ? 'translateY(-4px)' : 'translateY(0)',
+    transform: highlight
+      ? hover ? 'scale(1.06) translateY(-4px)' : 'scale(1.05)'
+      : hover ? 'translateY(-4px)' : 'translateY(0)',
     boxShadow: highlight
-      ? '0 0 40px rgba(99,102,241,0.2), 0 0 0 1px rgba(99,102,241,0.4)'
+      ? '0 0 48px rgba(212,175,55,0.25), 0 0 0 1px rgba(212,175,55,0.45), 0 20px 60px -10px rgba(99,102,241,0.3)'
       : 'none',
+    zIndex: highlight ? 2 : 1,
   };
   return (
     <div style={baseStyle} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       {highlight && (
         <div style={{
           position: 'absolute',
-          top: -12,
-          right: 24,
-          background: 'rgba(239,68,68,0.15)',
-          color: '#f87171',
-          border: '1px solid rgba(239,68,68,0.35)',
+          top: -14,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
+          color: '#111111',
+          border: '1px solid rgba(212,175,55,0.6)',
           fontFamily: mono,
           fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: '0.08em',
+          fontWeight: 800,
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          padding: '5px 11px',
+          padding: '6px 14px',
           borderRadius: 999,
-          boxShadow: '0 4px 20px rgba(239,68,68,0.2)',
-        }}>Early Access</div>
+          boxShadow: '0 6px 22px rgba(212,175,55,0.35)',
+          whiteSpace: 'nowrap',
+        }}>★ Most Popular</div>
       )}
       <div style={{
         fontFamily: mono,
@@ -2256,16 +2300,55 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
       </div>
       <p style={{ fontSize: 14, color: T.textMuted, margin: '0 0 24px', lineHeight: 1.5 }}>{tagline}</p>
       <div style={{ height: 1, background: T.border, marginBottom: 24 }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: highlight && annual ? 14 : 32 }}>
         {features.map((f) => (
           <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: T.textMuted }}>
-            <span style={{ color: T.accent, fontSize: 12 }}>✓</span>
+            {highlight ? (
+              <span style={{ color: gold, fontSize: 12, fontWeight: 700 }}>✓</span>
+            ) : (
+              <span aria-hidden="true" style={{ color: T.textFaint, fontSize: 11 }}>🔒</span>
+            )}
             <span>{f}</span>
           </div>
         ))}
       </div>
-      <Link href={href} className={highlight ? 'mj-btn-primary' : 'mj-btn-secondary'} style={{ width: '100%' }}>
-        {cta} →
+      {highlight && annual && (
+        <div style={{
+          marginBottom: 18,
+          padding: '10px 12px',
+          background: 'rgba(212,175,55,0.08)',
+          border: '1px solid rgba(212,175,55,0.3)',
+          borderRadius: 8,
+          textAlign: 'center',
+          fontFamily: mono,
+          fontSize: 11,
+          color: gold,
+          fontWeight: 600,
+          letterSpacing: '0.02em',
+        }}>Save $478 annually</div>
+      )}
+      <Link
+        href={href}
+        className={highlight ? undefined : 'mj-btn-secondary'}
+        style={highlight ? {
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          minHeight: 48,
+          padding: '0 20px',
+          background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
+          color: '#111111',
+          fontFamily: sans,
+          fontWeight: 800,
+          fontSize: 15,
+          letterSpacing: '0.01em',
+          borderRadius: 999,
+          textDecoration: 'none',
+          boxShadow: '0 10px 30px -8px rgba(212,175,55,0.5)',
+        } : { width: '100%' }}
+      >
+        {cta} &rarr;
       </Link>
       <p style={{ fontSize: 12, color: '#4b5563', textAlign: 'center', marginTop: 12, fontFamily: sans }}>✓ 30-day money-back guarantee · No credit card required</p>
     </div>
@@ -2768,6 +2851,7 @@ export default function Home() {
         ogImage="/og-image.svg"
       />
       <style>{STYLES}</style>
+      <StickyTrialBar />
       <AnnouncementBanner />
       <SocialProofToasts />
       <div style={{ paddingTop: 36 }} />
