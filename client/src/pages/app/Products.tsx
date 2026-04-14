@@ -12,6 +12,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
 import { useProducts, type OrderByColumn, type Product, type UseProductsOptions } from '@/hooks/useProducts';
+import { ProductFilters, type ProductFilterState, loadPersistedFilters } from '@/components/products/ProductFilters';
 import { useFavourites } from '@/hooks/useFavourites';
 import { useTracking } from '@/hooks/useTracking';
 import { useLists } from '@/hooks/useLists';
@@ -966,6 +967,30 @@ export default function AppProducts() {
   const [openPill, setOpenPill] = useState<string | null>(null);
   const closePill = () => setOpenPill(null);
 
+  // ── Flagship 100K+ products + v2 filter bar ─────────────────────────────
+  // Uses the new /api/products/list endpoint which returns flagship and
+  // list buckets. The v2 filter state is persisted to localStorage under
+  // `majorka_product_filters_v2` by the ProductFilters component itself.
+  const [v2Filters, setV2Filters] = useState<ProductFilterState>(() => loadPersistedFilters());
+  const [flagship, setFlagship] = useState<Product[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    const params = new URLSearchParams();
+    params.set('market', v2Filters.market);
+    if (v2Filters.category) params.set('category', v2Filters.category);
+    if (v2Filters.minScore > 0) params.set('minScore', String(v2Filters.minScore));
+    if (v2Filters.minOrders > 0) params.set('minOrders', String(v2Filters.minOrders));
+    params.set('sort', v2Filters.sort);
+    params.set('limit', '50');
+    fetch(`/api/products/list?${params.toString()}`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((data: { flagship?: Product[] }) => {
+        if (!cancelled && Array.isArray(data.flagship)) setFlagship(data.flagship);
+      })
+      .catch(() => { if (!cancelled) setFlagship([]); });
+    return () => { cancelled = true; };
+  }, [v2Filters]);
+
   const aeSearch = useAESearch();
   const fav = useFavourites();
   const lists = useLists();
@@ -1326,6 +1351,59 @@ export default function AppProducts() {
           >
             ← Back to All Products with filters
           </button>
+        </div>
+      )}
+
+      {/* v2 Filter bar — market/category/score/min-orders/sort with 300ms
+          debounce + majorka_product_filters_v2 localStorage persistence.
+          Rendered only on filterable tabs so curated tabs stay pristine. */}
+      {searchMode === 'db' && isFilterableTab && (
+        <ProductFilters
+          onChange={setV2Filters}
+          categories={availableCategories}
+        />
+      )}
+
+      {/* Flagship strip — products with 100K+ orders ALWAYS appear here
+          regardless of the user's sort. Gold-bordered per spec. Hidden
+          when empty so it never takes space on a cold DB. */}
+      {searchMode === 'db' && isFilterableTab && flagship.length > 0 && (
+        <div className="mx-4 md:mx-8 my-3 p-3 rounded-2xl border"
+             style={{ borderColor: 'rgba(234,179,8,0.35)', background: 'linear-gradient(90deg, rgba(234,179,8,0.06), rgba(234,179,8,0.02))' }}>
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#eab308' }}>
+              Flagship winners — 100K+ orders
+            </span>
+            <span className="text-[11px] text-white/40 tabular-nums">
+              {flagship.length} products
+            </span>
+          </div>
+          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+            {flagship.slice(0, 20).map((p) => (
+              <button
+                key={String(p.id)}
+                type="button"
+                onClick={() => setSelectedProduct(p)}
+                className="shrink-0 w-[180px] text-left bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.08] rounded-xl p-2.5 transition-colors cursor-pointer"
+              >
+                {p.image_url && (
+                  <img
+                    src={proxyImage(p.image_url)}
+                    alt=""
+                    loading="lazy"
+                    className="w-full aspect-square rounded-lg object-cover mb-2 bg-white/[0.03]"
+                  />
+                )}
+                <div className="text-[11px] text-white line-clamp-2 leading-tight mb-1">
+                  {p.product_title}
+                </div>
+                <div className="text-[10px] text-white/50 tabular-nums flex items-center justify-between">
+                  <span>${Number(p.price_aud ?? 0).toFixed(2)}</span>
+                  <span style={{ color: '#eab308' }}>{fmtK(Number(p.sold_count ?? 0))} orders</span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
