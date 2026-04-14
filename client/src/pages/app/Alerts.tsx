@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'wouter';
 import { Bell, Plus, Package, X } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -6,43 +6,52 @@ import { useNicheStats } from '@/hooks/useNicheStats';
 import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
 import { shortenCategory } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
+import { supabase } from '@/lib/supabase';
 
 import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
 const sans = C.fontBody;
 const mono = C.fontBody;
 
-type AlertType = 'score' | 'new' | 'price' | 'trending';
-type Frequency = 'immediately' | 'daily' | 'weekly';
+// ─── Types that match the server contract (server/routes/alerts.ts) ─────────
 
-interface StoredAlert {
+type AlertType = 'price_drop' | 'score_change' | 'sold_count_spike';
+type Frequency = 'instant' | 'daily' | 'weekly';
+
+interface ServerAlert {
   id: string;
+  user_id: string;
+  product_id: string | null;
   type: AlertType;
-  category: string;
-  value: number;
+  threshold: number;
   frequency: Frequency;
   email: string;
-  createdAt: string;
+  category: string | null;
+  last_fired_at: string | null;
+  created_at: string;
 }
 
-const STORAGE_KEY = 'majorka-alerts-v1';
+interface EmailHealth {
+  ok: boolean;
+  provider: 'resend' | 'postmark' | 'none';
+  reason?: 'no_provider';
+}
 
 const ALERT_TYPES: { key: AlertType; label: string; hint: string; unit: string; placeholder: string }[] = [
-  { key: 'score',    label: 'Score Threshold', hint: 'Notify me when a product exceeds a score of',          unit: '',       placeholder: '80' },
-  { key: 'new',      label: 'New Products',    hint: 'Notify me when new products are added in',             unit: 'category', placeholder: '' },
-  { key: 'price',    label: 'Price Drop',      hint: 'Notify me when any product drops below',               unit: 'AUD',    placeholder: '10' },
-  { key: 'trending', label: 'Trending Now',    hint: "Notify me when a product's orders increase by",        unit: '% in 7 days', placeholder: '20' },
+  { key: 'score_change',      label: 'Score Threshold', hint: 'Notify me when a product score is at or above',   unit: '',       placeholder: '80' },
+  { key: 'price_drop',        label: 'Price Drop',      hint: 'Notify me when any product drops to or below',    unit: 'AUD',    placeholder: '10' },
+  { key: 'sold_count_spike',  label: 'Orders Spike',    hint: 'Notify me when total orders are at or above',     unit: 'orders', placeholder: '1000' },
 ];
 
-function loadAlerts(): StoredAlert[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as StoredAlert[]) : [];
-  } catch { return []; }
-}
-function saveAlerts(alerts: StoredAlert[]) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(alerts)); } catch { /* ignore */ }
+// Optimistic cache key — kept as a fallback display only; server is source of truth.
+const CACHE_KEY = 'majorka-alerts-cache-v2';
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
 }
 
 export default function Alerts() {
@@ -50,46 +59,144 @@ export default function Alerts() {
   const { user, isPro } = useAuth();
   const { niches } = useNicheStats(20);
   const { tracked, trackedCount, untrack } = useTracking();
-  const [alerts, setAlerts] = useState<StoredAlert[]>([]);
-  const [type, setType] = useState<AlertType>('score');
+
+  const [alerts, setAlerts] = useState<ServerAlert[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [emailHealth, setEmailHealth] = useState<EmailHealth | null>(null);
+
+  const [type, setType] = useState<AlertType>('score_change');
   const [category, setCategory] = useState<string>('');
   const [value, setValue] = useState<string>('80');
   const [frequency, setFrequency] = useState<Frequency>('daily');
   const [email, setEmail] = useState<string>(user?.email ?? '');
   const [toast, setToast] = useState<string | null>(null);
+  const [toastKind, setToastKind] = useState<'ok' | 'err'>('ok');
 
-  useEffect(() => { setAlerts(loadAlerts()); }, []);
+  const emailConfigured = emailHealth?.ok === true;
+
+  const showToast = useCallback((msg: string, kind: 'ok' | 'err' = 'ok') => {
+    setToast(msg);
+    setToastKind(kind);
+    setTimeout(() => setToast(null), 3500);
+  }, []);
+
+  // ── Load alerts + email health ────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        // Optimistic cache render
+        try {
+          const raw = localStorage.getItem(CACHE_KEY);
+          if (raw) {
+            const cached = JSON.parse(raw) as ServerAlert[];
+            if (!cancelled && Array.isArray(cached)) setAlerts(cached);
+          }
+        } catch { /* ignore */ }
+
+        const headers = await authHeaders();
+        const [listRes, healthRes] = await Promise.all([
+          fetch('/api/alerts', { headers }),
+          fetch('/api/health/email'),
+        ]);
+
+        if (!cancelled && healthRes.ok) {
+          const h = (await healthRes.json()) as EmailHealth;
+          setEmailHealth(h);
+        }
+
+        if (!listRes.ok) {
+          if (!cancelled) setLoadError(`Could not load alerts (${listRes.status})`);
+        } else {
+          const json = (await listRes.json()) as { success: boolean; alerts: ServerAlert[] };
+          if (!cancelled) {
+            setAlerts(json.alerts ?? []);
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify(json.alerts ?? [])); } catch { /* ignore */ }
+          }
+        }
+      } catch (err: unknown) {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => { if (user?.email && !email) setEmail(user.email); }, [user?.email, email]);
 
   const activeType = ALERT_TYPES.find((t) => t.key === type)!;
 
-  const createAlert = () => {
-    const numericValue = Number(value) || 0;
-    const alert: StoredAlert = {
-      id: `alert-${Date.now()}`,
-      type,
-      category: category || 'All categories',
-      value: numericValue,
-      frequency,
-      email,
-      createdAt: new Date().toISOString(),
-    };
-    const next = [alert, ...alerts];
-    setAlerts(next);
-    saveAlerts(next);
-    setToast('Alert created. You\'ll be notified based on your settings.');
-    setTimeout(() => setToast(null), 3000);
+  const createAlert = async () => {
+    if (!email || saving) return;
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+      showToast('Threshold must be a number.', 'err');
+      return;
+    }
+    setSaving(true);
+    try {
+      const headers = await authHeaders();
+      const res = await fetch('/api/alerts', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          type,
+          threshold: numericValue,
+          frequency,
+          email,
+          category: category || null,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        showToast(`Could not save alert: ${body?.error ?? res.status}`, 'err');
+        return;
+      }
+      const json = (await res.json()) as { success: boolean; alert: ServerAlert };
+      const next = [json.alert, ...alerts];
+      setAlerts(next);
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      showToast(
+        emailConfigured
+          ? 'Alert created. You will be emailed when the threshold fires.'
+          : 'Alert saved. Email delivery is not configured yet — you will not receive emails until an admin enables it.',
+        'ok',
+      );
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Network error', 'err');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const deleteAlert = (id: string) => {
-    const next = alerts.filter((a) => a.id !== id);
-    setAlerts(next);
-    saveAlerts(next);
+  const deleteAlert = async (id: string) => {
+    const prev = alerts;
+    setAlerts(prev.filter((a) => a.id !== id));
+    try {
+      const headers = await authHeaders();
+      const res = await fetch(`/api/alerts/${id}`, { method: 'DELETE', headers });
+      if (!res.ok) {
+        setAlerts(prev);
+        showToast('Could not delete alert.', 'err');
+        return;
+      }
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(prev.filter((a) => a.id !== id))); } catch { /* ignore */ }
+    } catch {
+      setAlerts(prev);
+      showToast('Network error deleting alert.', 'err');
+    }
   };
 
   const scrollToForm = () => {
     document.getElementById('mj-alerts-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  const formDisabled = !emailConfigured;
 
   return (
     <div style={{ padding: '32px 36px', overflow: 'auto', color: C.text, fontFamily: sans }}>
@@ -101,23 +208,54 @@ export default function Alerts() {
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-          Get notified when products hit your thresholds. Delivered to your inbox or in-app.
+          Get notified when products hit your thresholds. Delivered to your inbox.
         </p>
       </div>
 
-      {toast && (
+      {/* Honest email-provider banner */}
+      {emailHealth && !emailConfigured && (
         <div style={{
-          background: 'rgba(16,185,129,0.1)',
-          border: '1px solid rgba(16,185,129,0.3)',
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.3)',
           borderRadius: 10,
           padding: '12px 16px',
           marginBottom: 20,
-          color: C.green,
+          color: '#f59e0b',
+          fontSize: 13,
+        }}>
+          Email delivery isn&apos;t configured yet — alerts are tracked but not emailed. An admin must set
+          <code style={{ margin: '0 4px', background: 'rgba(0,0,0,0.35)', padding: '1px 5px', borderRadius: 4, fontFamily: mono }}>RESEND_API_KEY</code>
+          or
+          <code style={{ margin: '0 4px', background: 'rgba(0,0,0,0.35)', padding: '1px 5px', borderRadius: 4, fontFamily: mono }}>POSTMARK_API_KEY</code>
+          in Vercel for emails to send.
+        </div>
+      )}
+
+      {loadError && (
+        <div style={{
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: 10,
+          padding: '12px 16px',
+          marginBottom: 20,
+          color: '#f87171',
+          fontSize: 13,
+        }}>{loadError}</div>
+      )}
+
+      {toast && (
+        <div style={{
+          background: toastKind === 'ok' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+          border: `1px solid ${toastKind === 'ok' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+          borderRadius: 10,
+          padding: '12px 16px',
+          marginBottom: 20,
+          color: toastKind === 'ok' ? C.green : '#f87171',
           fontSize: 13,
         }}>{toast}</div>
       )}
 
-      {/* Section 0 — Tracked Products (from useTracking — product-level alerts) */}
+      {/* Section 0 — Tracked Products */}
       <section style={{ marginBottom: 36 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div>
@@ -231,7 +369,7 @@ export default function Alerts() {
               ))}
             </div>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontStyle: 'italic' }}>
-              Alerts are sent to your email when a tracked product&apos;s order velocity increases significantly. Email alerts require account verification.
+              Alerts are sent to your email when a tracked product&apos;s order velocity increases significantly.
             </p>
           </>
         )}
@@ -240,7 +378,17 @@ export default function Alerts() {
       {/* Section 1 — Active alerts */}
       <section style={{ marginBottom: 36 }}>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Active Alerts</h2>
-        {alerts.length === 0 ? (
+        {loading ? (
+          <div style={{
+            background: C.raised,
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 12,
+            padding: '32px 24px',
+            textAlign: 'center',
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: 13,
+          }}>Loading your alerts…</div>
+        ) : alerts.length === 0 ? (
           <div style={{
             background: C.raised,
             border: '1px dashed rgba(255,255,255,0.1)',
@@ -268,7 +416,7 @@ export default function Alerts() {
             </div>
             <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>No alerts set up yet</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
-              Get notified when a product hits your score threshold, enters a new trend, or drops in competition
+              Get notified when a product hits your score threshold, orders spike, or price drops.
             </div>
             <button
               onClick={scrollToForm}
@@ -298,14 +446,18 @@ export default function Alerts() {
                 }}>
                   <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>{typeLabel}</div>
                   <div style={{ fontSize: 13, color: C.text, marginBottom: 4 }}>
-                    {a.type === 'score'    && <>Score ≥ {a.value} in <strong>{shortenCategory(a.category)}</strong></>}
-                    {a.type === 'new'      && <>New products in <strong>{shortenCategory(a.category)}</strong></>}
-                    {a.type === 'price'    && <>Price &lt; ${a.value} AUD in <strong>{shortenCategory(a.category)}</strong></>}
-                    {a.type === 'trending' && <>Orders +{a.value}% / 7d in <strong>{shortenCategory(a.category)}</strong></>}
+                    {a.type === 'score_change'     && <>Score ≥ {a.threshold}{a.category ? <> in <strong>{shortenCategory(a.category)}</strong></> : null}</>}
+                    {a.type === 'price_drop'       && <>Price ≤ ${a.threshold} AUD{a.category ? <> in <strong>{shortenCategory(a.category)}</strong></> : null}</>}
+                    {a.type === 'sold_count_spike' && <>Orders ≥ {a.threshold.toLocaleString()}{a.category ? <> in <strong>{shortenCategory(a.category)}</strong></> : null}</>}
                   </div>
                   <div style={{ fontFamily: mono, fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
                     {a.frequency} · {a.email}
                   </div>
+                  {a.last_fired_at && (
+                    <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>
+                      Last fired {new Date(a.last_fired_at).toLocaleDateString()}
+                    </div>
+                  )}
                   <button
                     onClick={() => deleteAlert(a.id)}
                     aria-label="Delete alert"
@@ -324,7 +476,7 @@ export default function Alerts() {
       </section>
 
       {/* Section 2 — Create alert form */}
-      <section id="mj-alerts-form" style={{ marginBottom: 36 }}>
+      <section id="mj-alerts-form" style={{ marginBottom: 36, opacity: formDisabled ? 0.5 : 1 }}>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Create an Alert</h2>
         <div style={{
           background: C.raised,
@@ -340,6 +492,7 @@ export default function Alerts() {
                 <button
                   key={t.key}
                   onClick={() => setType(t.key)}
+                  disabled={formDisabled}
                   style={{
                     padding: '8px 14px',
                     borderRadius: 8,
@@ -347,7 +500,7 @@ export default function Alerts() {
                     border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     color: active ? '#f5f5f5' : 'rgba(255,255,255,0.5)',
                     fontFamily: sans, fontSize: 12, fontWeight: active ? 600 : 500,
-                    cursor: 'pointer',
+                    cursor: formDisabled ? 'not-allowed' : 'pointer',
                   }}
                 >{t.label}</button>
               );
@@ -357,10 +510,11 @@ export default function Alerts() {
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 14 }}>{activeType.hint}</div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 20 }}>
-            <FormField label="Category">
+            <FormField label="Category (optional)">
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                disabled={formDisabled}
                 style={selectStyle}
               >
                 <option value="">All categories</option>
@@ -369,23 +523,23 @@ export default function Alerts() {
                 ))}
               </select>
             </FormField>
-            {type !== 'new' && (
-              <FormField label={`Threshold${activeType.unit ? ` (${activeType.unit})` : ''}`}>
-                <input
-                  type="number"
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
-                  placeholder={activeType.placeholder}
-                  style={inputStyle}
-                />
-              </FormField>
-            )}
+            <FormField label={`Threshold${activeType.unit ? ` (${activeType.unit})` : ''}`}>
+              <input
+                type="number"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={activeType.placeholder}
+                disabled={formDisabled}
+                style={inputStyle}
+              />
+            </FormField>
             <FormField label="Email">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
+                disabled={formDisabled}
                 style={inputStyle}
               />
             </FormField>
@@ -393,12 +547,13 @@ export default function Alerts() {
 
           <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Frequency</div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-            {(['immediately', 'daily', 'weekly'] as Frequency[]).map((f) => {
+            {(['instant', 'daily', 'weekly'] as Frequency[]).map((f) => {
               const active = f === frequency;
               return (
                 <button
                   key={f}
                   onClick={() => setFrequency(f)}
+                  disabled={formDisabled}
                   style={{
                     padding: '8px 14px',
                     borderRadius: 8,
@@ -406,7 +561,7 @@ export default function Alerts() {
                     border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.07)'}`,
                     color: active ? C.green : 'rgba(255,255,255,0.5)',
                     fontFamily: sans, fontSize: 12, fontWeight: active ? 600 : 500, textTransform: 'capitalize',
-                    cursor: 'pointer',
+                    cursor: formDisabled ? 'not-allowed' : 'pointer',
                   }}
                 >{f}</button>
               );
@@ -415,49 +570,19 @@ export default function Alerts() {
 
           <button
             onClick={createAlert}
-            disabled={!email}
+            disabled={!email || saving || formDisabled}
             style={{
               padding: '12px 24px',
               borderRadius: 9,
-              background: email ? 'linear-gradient(135deg,#7c6aff,#a78bfa)' : 'rgba(124,106,255,0.2)',
+              background: (email && !saving && !formDisabled) ? 'linear-gradient(135deg,#7c6aff,#a78bfa)' : 'rgba(124,106,255,0.2)',
               border: 'none',
               color: 'white',
               fontFamily: sans, fontSize: 14, fontWeight: 600,
-              cursor: email ? 'pointer' : 'not-allowed',
+              cursor: (email && !saving && !formDisabled) ? 'pointer' : 'not-allowed',
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              boxShadow: email ? '0 4px 20px rgba(124,106,255,0.35)' : 'none',
+              boxShadow: (email && !saving && !formDisabled) ? '0 4px 20px rgba(124,106,255,0.35)' : 'none',
             }}
-          ><Plus size={14} /> Create Alert</button>
-        </div>
-      </section>
-
-      {/* Section 3 — Example notifications */}
-      <section>
-        <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 6px' }}>Example Notifications</h2>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: '0 0 14px' }}>These illustrate what a triggered alert looks like.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
-          {[
-            { icon: '🔥', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', title: 'Score Alert', body: 'Nano Tape hit 99/100 — 231K orders this month' },
-            { icon: '⚡', bg: 'rgba(124,106,255,0.08)', border: 'rgba(124,106,255,0.2)', title: 'New Product', body: '3 new Kitchen & Bar products added today' },
-            { icon: '📉', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)', title: 'Price Drop', body: 'Oil Dispenser dropped to $7.83 AUD' },
-          ].map((n) => (
-            <div key={n.title} style={{
-              background: n.bg,
-              border: `1px solid ${n.border}`,
-              borderRadius: 10,
-              padding: 16,
-              display: 'flex',
-              gap: 12,
-              alignItems: 'flex-start',
-            }}>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>{n.icon}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{n.title}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>{n.body}</div>
-                <div style={{ marginTop: 6, fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Example</div>
-              </div>
-            </div>
-          ))}
+          ><Plus size={14} /> {saving ? 'Saving…' : 'Create Alert'}</button>
         </div>
       </section>
     </div>
