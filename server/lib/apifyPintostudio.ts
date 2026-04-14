@@ -30,7 +30,7 @@ const POLL_INTERVAL_MS = 3000;
 const QUALITY_MIN_TITLE_LEN = 5;
 const QUALITY_MIN_PRICE_AUD = 0.5;
 
-const DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR = 1000;
+const DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR = 100;
 const TARGET_SUCCESS_ROWS = 500;
 
 /**
@@ -52,13 +52,14 @@ const BESTSELLER_QUERIES: ReadonlyArray<string> = [
 ];
 
 const HOT_QUERIES: ReadonlyArray<string> = [
-  'viral', 'tiktok viral product', 'trending product',
+  'viral product 2025', 'tiktok viral', 'hot trending',
 ];
 
-/** New-arrival queries — filter post-hoc to orders >= 1000. */
+/** New-arrival queries — filter post-hoc to orders floor.
+ *  Lowered floor: 100 → anything with real traction qualifies. */
 const NEW_HIGH_VOLUME_QUERIES: ReadonlyArray<string> = [
-  'new product 2025', '2025 new arrival', 'just released',
-  'newest gadget', 'new launch',
+  'new product 2025', 'latest launch', 'fresh arrival',
+  'new gadget', 'newest release',
 ];
 
 function log(tag: string, msg: string): void {
