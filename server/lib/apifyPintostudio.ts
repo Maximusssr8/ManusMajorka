@@ -47,8 +47,8 @@ const TRENDING_QUERIES: ReadonlyArray<string> = [
 ];
 
 const BESTSELLER_QUERIES: ReadonlyArray<string> = [
-  'hot product', 'top sale', 'flash sale', 'bestseller', 'big discount',
-  'clearance', 'promotion', 'hot deal', 'top deal', 'limited offer',
+  'bestseller 2025', '100000 sold', 'top seller global', 'most orders', 'over 50000 sold',
+  'high volume seller', 'mass market product', 'bulk orders', 'wholesale popular', 'commercial bestseller',
 ];
 
 const HOT_QUERIES: ReadonlyArray<string> = [
