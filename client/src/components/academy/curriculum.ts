@@ -91,8 +91,8 @@ export const ACADEMY_CURRICULUM: AcademyModule[] = [
     ],
     fomoTrigger: {
       headline:
-        "Majorka's AI does this analysis on 10,000+ products every day — automatically. Unlock your dashboard →",
-      cta: 'Open the Products database',
+        "You've mastered product research. Majorka's AI scores 3,715 products automatically. See live scores →",
+      cta: 'See live scores',
       href: '/app/products',
     },
   },
@@ -152,9 +152,9 @@ export const ACADEMY_CURRICULUM: AcademyModule[] = [
     ],
     fomoTrigger: {
       headline:
-        "Majorka's ad intelligence shows you exactly which products your competitors are spending on. Start your trial →",
-      cta: 'Start free trial',
-      href: '/pricing',
+        'You understand Meta ads. Majorka generates complete ad sets for any product in 10 seconds. Try it →',
+      cta: 'Try Ads Studio',
+      href: '/app/ads-studio',
     },
   },
   {
@@ -189,8 +189,8 @@ export const ACADEMY_CURRICULUM: AcademyModule[] = [
     ],
     fomoTrigger: {
       headline:
-        'Now let Majorka do the heavy lifting — real-time analytics, automated alerts, and market intelligence that never sleeps.',
-      cta: 'Upgrade to Builder',
+        'You have the analytics framework. Majorka surfaces these insights automatically. Upgrade →',
+      cta: 'Upgrade',
       href: '/pricing',
     },
   },
