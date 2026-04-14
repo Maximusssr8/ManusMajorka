@@ -81,6 +81,9 @@ const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
 const AIChat = lazyWithRetry(() => import('./pages/AIChat'));
 const RevenuePage = lazyWithRetry(() => import('./pages/RevenuePage'));
 // SEO landing pages
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Cookies = lazy(() => import('./pages/Cookies'));
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
 const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
 const WinningProductsAustralia = lazy(() => import('./pages/seo/WinningProductsAustralia'));
@@ -388,9 +391,9 @@ function Router() {
             <Route path="/report/:slug" component={SharedReport} />
             <Route path="/product/:slug" component={ProductReport} />
             <Route path="/demo-dashboard" component={PromoDashboard} />
-            <Route path="/privacy">{() => <LegalPage title="Privacy Policy" slug="privacy" />}</Route>
-            <Route path="/terms">{() => <LegalPage title="Terms of Service" slug="terms" />}</Route>
-            <Route path="/cookies">{() => <LegalPage title="Cookie Policy" slug="cookie-policy" />}</Route>
+            <Route path="/privacy" component={Privacy} />
+            <Route path="/terms" component={Terms} />
+            <Route path="/cookies" component={Cookies} />
             <Route path="/refund-policy">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
             <Route path="/refunds">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
             <Route path="/contact">{() => <Contact />}</Route>
