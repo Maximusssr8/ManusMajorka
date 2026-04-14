@@ -1,42 +1,49 @@
 /**
- * Majorka Design Tokens
+ * Majorka Design Tokens (CSS) — v2 Apr 2026
  *
- * Centralised CSS custom properties for the entire app. Inspired by
- * Shopify Polaris's layered surface system but tuned for Majorka's
- * dark-mode-first aesthetic.
+ * Gold (#d4af37) + CTA blue (#3B82F6) on near-black (#080808).
+ * Headings: Syne  ·  Body: DM Sans  ·  Numbers: JetBrains Mono.
  *
- * Usage: var(--bg-surface), var(--accent), var(--radius-lg), etc.
- * Import this file at the top of index.css.
+ * Imported at the top of index.css. All other CSS/components reference
+ * these via var(--…).
  */
 
 :root {
-  /* Surfaces — 3 distinct depth layers */
-  --bg-page:    #0a0c12;
-  --bg-surface: #111827;
-  --bg-card:    #1a2035;
-  --bg-hover:   rgba(255,255,255,0.035);
-  --bg-input:   #1e2640;
+  /* Surfaces — flat editorial depth */
+  --bg-page:    #080808;
+  --bg-surface: #0c0c0c;
+  --bg-card:    #111111;
+  --bg-elevated:#141414;
+  --bg-input:   #0a0a0a;
+  --bg-hover:   rgba(212,175,55,0.04);
 
   /* Borders */
-  --border-subtle:  rgba(255,255,255,0.06);
-  --border-normal:  rgba(255,255,255,0.10);
-  --border-strong:  rgba(255,255,255,0.18);
-  --border-accent:  rgba(99,102,241,0.40);
+  --border-subtle:  #141414;
+  --border-normal:  #1a1a1a;
+  --border-strong:  #262626;
+  --border-accent:  rgba(212,175,55,0.35);
+  --border-cta:     rgba(59,130,246,0.40);
   --border-success: rgba(16,185,129,0.35);
   --border-warning: rgba(245,158,11,0.35);
   --border-danger:  rgba(239,68,68,0.35);
 
   /* Text */
-  --text-primary:   #f0f4ff;
-  --text-secondary: rgba(255,255,255,0.65);
-  --text-muted:     rgba(255,255,255,0.35);
-  --text-disabled:  rgba(255,255,255,0.20);
+  --text-primary:   #e5e5e5;
+  --text-secondary: #a3a3a3;
+  --text-muted:     #737373;
+  --text-disabled:  #525252;
 
-  /* Brand */
-  --accent:         #6366f1;
-  --accent-light:   #818cf8;
-  --accent-bg:      rgba(99,102,241,0.12);
-  --accent-glow:    rgba(99,102,241,0.20);
+  /* Brand — gold */
+  --accent:         #d4af37;
+  --accent-light:   #e5c158;
+  --accent-bg:      rgba(212,175,55,0.10);
+  --accent-glow:    rgba(212,175,55,0.22);
+
+  /* CTA — blue */
+  --cta:            #3B82F6;
+  --cta-light:      #60a5fa;
+  --cta-bg:         rgba(59,130,246,0.12);
+  --cta-glow:       rgba(59,130,246,0.35);
 
   /* Semantic */
   --green:     #10b981;
@@ -63,11 +70,14 @@
   --radius-2xl:  20px;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-card:   0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-modal:  0 20px 60px rgba(0,0,0,0.6);
-  --shadow-accent: 0 4px 20px rgba(99,102,241,0.25);
-  --shadow-hover:  0 8px 32px rgba(0,0,0,0.4);
+  /* Shadows — gold signature */
+  --shadow-card:      0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-modal:     0 20px 60px rgba(0,0,0,0.8);
+  --shadow-accent:    0 0 0 1px rgba(212,175,55,0.08), 0 8px 40px -10px rgba(212,175,55,0.15);
+  --shadow-accent-hover: 0 0 0 1px rgba(212,175,55,0.18), 0 14px 44px -10px rgba(212,175,55,0.28);
+  --shadow-cta:       0 0 0 1px rgba(59,130,246,0.12), 0 8px 32px -8px rgba(59,130,246,0.35);
+  --shadow-cta-hover: 0 0 0 1px rgba(59,130,246,0.25), 0 12px 40px -8px rgba(59,130,246,0.55);
+  --shadow-hover:     0 8px 32px rgba(0,0,0,0.55);
 
   /* Transitions */
   --transition-fast: 100ms ease;
@@ -75,7 +85,7 @@
   --transition-slow: 250ms cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Typography */
-  --font-display: 'Nohemi', 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-display: 'Syne', system-ui, sans-serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 }
@@ -87,7 +97,7 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(212,175,55,0.08) 50%, rgba(255,255,255,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-md);

@@ -1,39 +1,53 @@
 /**
- * Majorka Design Tokens — Nohemi + Inter, indigo accent, no hardcoded hex in UI.
- * Export both `C` and `t` (alias) so existing call sites keep working.
+ * Majorka Design Tokens — gold/blue, Syne + DM Sans + JetBrains Mono.
+ *
+ * Authoritative palette (v2 — Apr 2026):
+ *   bg     #080808   card #111111   border #1a1a1a
+ *   gold   #d4af37   (primary accent / brand)
+ *   blue   #3B82F6   (CTA)
+ *   text   #e5e5e5   muted #737373   success #10b981
+ *
+ * Headings: Syne.  Body: DM Sans.  Numbers/stats: JetBrains Mono.
+ *
+ * Exports both `C` and `t` (alias) so existing call sites keep working.
  */
 
 export const C = {
-  // Backgrounds — 3-layer surface system for visible depth
-  bg:           '#0d0f14',
-  pageBg:       '#0d0f14',
-  contentBg:    '#111827',
-  cardBg:       '#1a2035',
-  surface:      '#13151c',
-  raised:       '#1a1d27',
+  // Backgrounds — flat, editorial, almost-black
+  bg:           '#080808',
+  pageBg:       '#080808',
+  contentBg:    '#0c0c0c',
+  cardBg:       '#111111',
+  surface:      '#111111',
+  raised:       '#141414',
 
   // Borders
-  border:       'rgba(255,255,255,0.07)',
-  borderStrong: 'rgba(255,255,255,0.12)',
-  borderFocus:  '#6366f1',
+  border:       '#1a1a1a',
+  borderStrong: '#262626',
+  borderFocus:  '#d4af37',
 
   // Text
-  text:         '#f0f4ff',
-  body:         '#9499b0',
-  muted:        '#555a72',
+  text:         '#e5e5e5',
+  body:         '#a3a3a3',
+  muted:        '#737373',
 
-  // Accent — indigo
-  accent:       '#6366f1',
-  accentHover:  '#818cf8',
-  accentSubtle: 'rgba(99,102,241,0.12)',
-  accentInk:    '#ffffff',
+  // Accent — gold (brand)
+  accent:       '#d4af37',
+  accentHover:  '#e5c158',
+  accentSubtle: 'rgba(212,175,55,0.10)',
+  accentInk:    '#080808',
   white:        '#ffffff',
 
-  // Data accents
+  // CTA — blue (actions)
+  cta:          '#3B82F6',
+  ctaHover:     '#60a5fa',
+  ctaSubtle:    'rgba(59,130,246,0.12)',
+
+  // Data accents (kept for charts/status)
   cyan:         '#22d3ee',
-  cyanSubtle:   'rgba(34,211,238,0.1)',
+  cyanSubtle:   'rgba(34,211,238,0.10)',
   green:        '#10b981',
-  greenSubtle:  'rgba(16,185,129,0.1)',
+  greenSubtle:  'rgba(16,185,129,0.10)',
   amber:        '#f59e0b',
   amberSubtle:  'rgba(245,158,11,0.12)',
   orange:       '#f97316',
@@ -42,8 +56,9 @@ export const C = {
   redSubtle:    'rgba(239,68,68,0.12)',
 
   // Typography
-  fontDisplay:  "'Nohemi', 'Inter', sans-serif",
-  fontBody:     "'Inter', sans-serif",
+  fontDisplay:  "'Syne', system-ui, sans-serif",
+  fontBody:     "'DM Sans', system-ui, sans-serif",
+  fontMono:     "'JetBrains Mono', 'SF Mono', ui-monospace, monospace",
 
   // Type scale
   fH1: 52, fH2: 32, fH3: 20, fH4: 16,
@@ -60,30 +75,37 @@ export const C = {
   ease: 'cubic-bezier(0.16,1,0.3,1)',
 } as const;
 
-/* ── Elevation ramp — subtle, premium. Use via style={{ boxShadow: elevation.e2 }} ── */
+/* ── Elevation ramp + signature gold glows ── */
 export const elevation = {
-  e1: '0 1px 2px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03)',
-  e2: '0 2px 8px -2px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04)',
-  e3: '0 12px 32px -12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)',
-  e4: '0 30px 80px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)',
-  glow:      '0 0 40px -10px rgba(99,102,241,0.6)',
-  glowSoft:  '0 0 60px -20px rgba(99,102,241,0.35)',
-  glowHover: '0 0 60px -10px rgba(99,102,241,0.75), 0 8px 32px -8px rgba(0,0,0,0.6)',
-  ringAccent:'0 0 0 1px rgba(99,102,241,0.35), 0 0 24px -8px rgba(99,102,241,0.5)',
+  e1: '0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02)',
+  e2: '0 2px 8px -2px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)',
+  e3: '0 12px 32px -12px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.04)',
+  e4: '0 30px 80px -20px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05)',
+
+  // Gold glows — the signature
+  glow:      '0 0 0 1px rgba(212,175,55,0.08), 0 8px 40px -10px rgba(212,175,55,0.15)',
+  glowSoft:  '0 0 40px -16px rgba(212,175,55,0.25)',
+  glowHover: '0 0 0 1px rgba(212,175,55,0.18), 0 14px 44px -10px rgba(212,175,55,0.28)',
+  ringAccent:'0 0 0 1px rgba(212,175,55,0.35), 0 0 24px -6px rgba(212,175,55,0.45)',
+
+  // Blue CTA glow
+  glowBlue:      '0 0 0 1px rgba(59,130,246,0.12), 0 8px 32px -8px rgba(59,130,246,0.35)',
+  glowBlueHover: '0 0 0 1px rgba(59,130,246,0.25), 0 12px 40px -8px rgba(59,130,246,0.55)',
 } as const;
 
-/* ── Gradient presets — backgrounds, text fills, mesh ── */
+/* ── Gradient presets — sparingly used ── */
 export const gradients = {
-  accentGlow:   'radial-gradient(ellipse at center, rgba(99,102,241,0.35) 0%, transparent 70%)',
-  surfaceFade:  'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%)',
-  textPrimary:  'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
-  textAccent:   'linear-gradient(135deg, #f0f4ff 0%, #818cf8 40%, #6366f1 100%)',
-  meshBg:       'conic-gradient(from 220deg at 50% 50%, rgba(99,102,241,0.12), rgba(34,211,238,0.06), rgba(139,92,246,0.1), rgba(99,102,241,0.12))',
-  ctaShine:     'linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #6366f1 100%)',
-  border:       'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08))',
+  accentGlow:   'radial-gradient(ellipse at center, rgba(212,175,55,0.22) 0%, transparent 70%)',
+  surfaceFade:  'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)',
+  textPrimary:  'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
+  textAccent:   'linear-gradient(135deg, #ffffff 0%, #e5c158 40%, #d4af37 100%)',
+  meshBg:       'conic-gradient(from 220deg at 50% 50%, rgba(212,175,55,0.08), rgba(59,130,246,0.04), rgba(212,175,55,0.06), rgba(212,175,55,0.08))',
+  ctaShine:     'linear-gradient(135deg, #3B82F6 0%, #60a5fa 50%, #3B82F6 100%)',
+  goldShine:    'linear-gradient(135deg, #d4af37 0%, #e5c158 50%, #d4af37 100%)',
+  border:       'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(255,255,255,0.04) 50%, rgba(212,175,55,0.14))',
 } as const;
 
-/* ── Motion presets — use with CSS transition/duration utilities ── */
+/* ── Motion presets ── */
 export const motion = {
   dur: {
     fast:   '120ms',
@@ -98,30 +120,24 @@ export const motion = {
   },
 } as const;
 
-/* ── Legacy compat aliases for existing call sites ──
-   Keep Products.tsx and any other page building without a touch. */
+/* ── Legacy compat aliases — keep every existing call site building.
+   The old code referenced indigo-ish tokens; they now resolve to gold. */
 export const t = {
   ...C,
 
-  // Legacy keys that existing files reference
   line:         C.border,
   lineStrong:   C.borderStrong,
   lineFocus:    C.borderFocus,
 
-  fontMono:     C.fontBody,
-
-  // Old type scale keys
   fCaption:     C.fXs,
   fMicro:       C.fXxs,
   fKpi:         40,
   fLabel:       C.fSm,
 
-  // Old accent vars
-  accentInk:    '#ffffff',
-  accentTint:   'rgba(99,102,241,0.06)',
+  accentInk:    '#080808',
+  accentTint:   'rgba(212,175,55,0.06)',
   faint:        C.muted,
 
-  // Old status dims
   greenDim:     C.greenSubtle,
   amberDim:     C.amberSubtle,
   redDim:       C.redSubtle,
