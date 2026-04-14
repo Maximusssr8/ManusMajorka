@@ -36,6 +36,10 @@ const TARGET_SUCCESS_ROWS = 500;
 /**
  * Demand-signal queries — NO category searches, pure order-volume signals.
  * Each query triggers one pintostudio actor call, sorted by ORDERS desc.
+ * Query terms tuned empirically — broader terms yield more results on AliExpress
+ * than niche/compound phrases. Bucket mapping = SourceBreakdown keys:
+ *   trending[] → 'trending'   bestsellers[] → 'bestsellers'
+ *   hot[]      → 'hot'        newArrivals[] → 'new_arrivals'
  */
 const TRENDING_QUERIES: ReadonlyArray<string> = [
   'best selling', 'trending now', 'top selling', 'most ordered', 'viral product',
@@ -43,14 +47,18 @@ const TRENDING_QUERIES: ReadonlyArray<string> = [
 ];
 
 const BESTSELLER_QUERIES: ReadonlyArray<string> = [
-  'bestseller 2025', '100000 sold', 'top seller global', 'most orders', 'over 50000 sold',
-  'high volume seller', 'mass market product', 'bulk orders', 'wholesale popular', 'commercial bestseller',
+  'hot product', 'top sale', 'flash sale', 'bestseller', 'big discount',
+  'clearance', 'promotion', 'hot deal', 'top deal', 'limited offer',
+];
+
+const HOT_QUERIES: ReadonlyArray<string> = [
+  'viral', 'tiktok viral product', 'trending product',
 ];
 
 /** New-arrival queries — filter post-hoc to orders >= 1000. */
 const NEW_HIGH_VOLUME_QUERIES: ReadonlyArray<string> = [
-  'new arrival hot', 'just launched bestseller', 'new popular product',
-  'new trending item', 'newly listed top seller',
+  'new product 2025', '2025 new arrival', 'just released',
+  'newest gadget', 'new launch',
 ];
 
 function log(tag: string, msg: string): void {
@@ -404,6 +412,13 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
       input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
       source: `bestsellers:${q}`,
       bucket: 'bestsellers',
+    });
+  }
+  for (const q of HOT_QUERIES) {
+    calls.push({
+      input: { mode: 'hot_products', keyword: q, country: 'AU', limit: 100 },
+      source: `hot:${q}`,
+      bucket: 'hot',
     });
   }
   for (const q of NEW_HIGH_VOLUME_QUERIES) {
