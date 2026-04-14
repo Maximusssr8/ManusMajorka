@@ -208,7 +208,9 @@ export default function Alerts() {
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-          Get notified when products hit your thresholds. Delivered to your inbox.
+          {emailConfigured
+            ? 'Get notified when products hit your thresholds. Delivered to your inbox.'
+            : 'Set up tracking alerts (email delivery coming when sending domain is verified).'}
         </p>
       </div>
 
@@ -369,7 +371,9 @@ export default function Alerts() {
               ))}
             </div>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontStyle: 'italic' }}>
-              Alerts are sent to your email when a tracked product&apos;s order velocity increases significantly.
+              {emailConfigured
+                ? 'Alerts are sent to your email when a tracked product\u2019s order velocity increases significantly.'
+                : 'Tracked products will trigger alerts once an email sending domain is verified.'}
             </p>
           </>
         )}
