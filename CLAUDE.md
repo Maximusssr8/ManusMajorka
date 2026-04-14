@@ -39,7 +39,9 @@ Server uses SERVICE_ROLE key. Client uses ANON key.
 UUID cast fix: use ::text on both sides of policy comparisons.
 
 ## Standard Deploy Command
-cd /Users/maximus/Projects/ManusMajorka && pnpm build && git add -A && git commit -m "msg" && vercel --prod --yes
+cd /Users/maximus/Projects/ManusMajorka && pnpm db:migrate && pnpm build && git add -A && git commit -m "msg" && vercel --prod --yes
+
+`pnpm db:migrate` runs scripts/apply-migrations.ts — applies any pending SQL in scripts/*-migration.sql, tracked via the `schema_migrations` table. Requires DATABASE_URL (or SUPABASE_DB_URL) in .env. Safe to re-run; no-op when all migrations are recorded.
 
 ## Navigation (current — do not add back removed pages)
 INTELLIGENCE: Home, Products
