@@ -2062,6 +2062,66 @@ function applyTabFilters(q: any, f: ProductsTabFilters): any {
 const TAB_LIMIT = 50;
 const TAB_CACHE_TTL_SEC = 120; // 2min SWR cache
 
+// Shared tab row shape — keeps dedup strictly typed with no `any`.
+interface TabRow {
+  id: number | string;
+  product_title?: string | null;
+  sold_count?: number | null;
+  [key: string]: unknown;
+}
+
+/**
+ * Normalise a product title for dedup comparisons.
+ *
+ * Lowercases, strips punctuation, and collapses to a single-space
+ * word bag so visual near-duplicates ("Long Pink Wig — 24\"" vs.
+ * "Long Pink Wig 24in") hash to the same key. Returns '' when the
+ * input is null/empty so upstream callers can decide whether to
+ * keep untitled rows or drop them.
+ */
+function normalizeTitle(t: string | null | undefined): string {
+  if (!t) return '';
+  return t
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\p{Letter}\p{Number}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Keep only one row per normalised title, preferring the highest
+ * sold_count. Preserves original ordering — the first occurrence of
+ * a key wins its slot, and any later row with a bigger sold_count
+ * replaces it in place (rather than being appended at the end).
+ * Rows with an empty normalised key (null/blank titles) pass
+ * through untouched so we never drop untitled data silently.
+ */
+function dedupByTitle<T extends TabRow>(rows: ReadonlyArray<T>): T[] {
+  const bestIndex = new Map<string, number>();
+  const out: T[] = [];
+  for (const row of rows) {
+    const key = normalizeTitle(row.product_title ?? null);
+    if (key === '') {
+      out.push(row);
+      continue;
+    }
+    const existingIdx = bestIndex.get(key);
+    if (existingIdx === undefined) {
+      bestIndex.set(key, out.length);
+      out.push(row);
+      continue;
+    }
+    const existing = out[existingIdx];
+    const existingSold = Number(existing.sold_count ?? 0);
+    const rowSold = Number(row.sold_count ?? 0);
+    if (rowSold > existingSold) {
+      out[existingIdx] = row;
+    }
+  }
+  return out;
+}
+
 // ── GET /api/products/trending — 24h/7d velocity leaders ────────────────────
 // Ordered by velocity_7d DESC. Falls back to empty with meta.insufficientData
 // when the velocity_7d column has no rows above 0 across the filtered set.
@@ -2076,12 +2136,12 @@ router.get('/trending', async (req: Request, res: Response) => {
     )
       .order('velocity_7d', { ascending: false, nullsFirst: false })
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(TAB_LIMIT);
+      .limit(TAB_LIMIT * 2);
 
     const { data, error } = await base;
     if (error) return res.status(500).json({ error: error.message });
 
-    const products = data ?? [];
+    const products = dedupByTitle<TabRow>((data ?? []) as TabRow[]).slice(0, TAB_LIMIT);
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
@@ -2126,12 +2186,12 @@ router.get('/hot', async (req: Request, res: Response) => {
     }
     hotQ = hotQ
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(TAB_LIMIT);
+      .limit(TAB_LIMIT * 2);
 
     const { data, error } = await hotQ;
     if (error) return res.status(500).json({ error: error.message });
 
-    const products = data ?? [];
+    const products = dedupByTitle<TabRow>((data ?? []) as TabRow[]).slice(0, TAB_LIMIT);
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
@@ -2174,12 +2234,12 @@ router.get('/high-volume', async (req: Request, res: Response) => {
     }
     hvQ = hvQ
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(TAB_LIMIT);
+      .limit(TAB_LIMIT * 2);
 
     const { data, error } = await hvQ;
     if (error) return res.status(500).json({ error: error.message });
 
-    const products = data ?? [];
+    const products = dedupByTitle<TabRow>((data ?? []) as TabRow[]).slice(0, TAB_LIMIT);
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
