@@ -133,9 +133,11 @@ export interface PintostudioItem {
 export async function runPintostudio(input: PintostudioInput): Promise<PintostudioItem[]> {
   const token = getToken();
   if (!token) {
-    logErr('pintostudio', 'APIFY_API_TOKEN not set');
+    logErr('pintostudio', 'APIFY_API_TOKEN missing — check Vercel env APIFY_API_KEY');
     return [];
   }
+  // Debug — prints first 8 chars of key and mode/country. Never the full key.
+  logErr('pintostudio', `mode=${input.mode} country=${input.country ?? 'AU'} key=${token.slice(0, 8)}… limit=${input.limit}`);
 
   const body = buildInput(input);
   try {
@@ -148,9 +150,10 @@ export async function runPintostudio(input: PintostudioInput): Promise<Pintostud
     });
     if (!startRes.ok) {
       const text = await startRes.text().catch(() => '');
-      logErr('pintostudio', `start ${startRes.status}: ${text.slice(0, 200)}`);
+      logErr('pintostudio', `start HTTP ${startRes.status}: ${text.slice(0, 300)}`);
       return [];
     }
+    logErr('pintostudio', `start OK HTTP ${startRes.status}`);
     const startData = (await startRes.json()) as { data?: { id?: string; defaultDatasetId?: string } };
     const runId = startData.data?.id;
     if (!runId) return [];

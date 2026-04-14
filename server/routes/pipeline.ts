@@ -77,4 +77,126 @@ router.post('/admin/trigger-pipeline', async (req: Request, res: Response) => {
   await handleRun(res);
 });
 
+/**
+ * GET /api/admin/test-apify
+ *
+ * Diagnostic endpoint. Calls the pintostudio actor ONCE with a tiny query
+ * (`home gadgets`, maxItems=5) and returns the raw Apify run + dataset so
+ * we can see exactly what the actor is doing. Admin-token gated.
+ *
+ * Returns:
+ *   {
+ *     env: { apifyKeyPresent, apifyKeyPrefix, nodeEnv },
+ *     start: { url, status, body },        // actor run start
+ *     poll:  { status, datasetId },         // final poll status
+ *     dataset: { url, status, itemCount, sample } // first 3 items
+ *   }
+ */
+router.get('/admin/test-apify', async (req: Request, res: Response) => {
+  if (!verifyAdminToken(req)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  const apifyKey = process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN || '';
+  const ACTOR = 'pintostudio~aliexpress-product-search';
+  const APIFY_BASE = 'https://api.apify.com/v2';
+
+  const report: Record<string, unknown> = {
+    env: {
+      apifyKeyPresent: apifyKey.length > 0,
+      apifyKeyPrefix: apifyKey ? `${apifyKey.slice(0, 8)}…` : '(missing)',
+      nodeEnv: process.env.NODE_ENV ?? '(unset)',
+      adminTokenPresent: Boolean(process.env.ADMIN_TOKEN),
+      supabaseUrlPresent: Boolean(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL),
+      supabaseServiceKeyPresent: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    },
+  };
+
+  if (!apifyKey) {
+    res.status(200).json({ ...report, error: 'APIFY_API_KEY not set in Vercel env' });
+    return;
+  }
+
+  const body = {
+    query: 'home gadgets',
+    keyword: 'home gadgets',
+    searchQuery: 'home gadgets',
+    searchText: 'home gadgets',
+    text: 'home gadgets',
+    q: 'home gadgets',
+    maxItems: 5,
+    maxResults: 5,
+    resultsLimit: 5,
+    sortBy: 'ORDERS',
+    sort: 'ORDERS',
+    shipTo: 'AU',
+    country: 'AU',
+  };
+
+  try {
+    // 1) Start run
+    const startUrl = `${APIFY_BASE}/acts/${ACTOR}/runs?token=${apifyKey}&timeout=120`;
+    const startRes = await fetch(startUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const startText = await startRes.text();
+    report.start = {
+      url: startUrl.replace(apifyKey, `${apifyKey.slice(0, 6)}…`),
+      status: startRes.status,
+      bodySent: body,
+      responseBody: startText.slice(0, 1500),
+    };
+    if (!startRes.ok) {
+      res.status(200).json(report);
+      return;
+    }
+
+    const startJson = JSON.parse(startText) as { data?: { id?: string; defaultDatasetId?: string } };
+    const runId = startJson.data?.id;
+    let datasetId = startJson.data?.defaultDatasetId;
+    if (!runId) {
+      res.status(200).json(report);
+      return;
+    }
+
+    // 2) Poll up to 60s (20 × 3s) — short enough to stay within the
+    //    serverless response budget on Vercel.
+    let status = 'RUNNING';
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const pollRes = await fetch(`${APIFY_BASE}/actor-runs/${runId}?token=${apifyKey}`);
+      if (!pollRes.ok) continue;
+      const pollJson = (await pollRes.json()) as { data?: { status?: string; defaultDatasetId?: string } };
+      status = pollJson.data?.status ?? 'RUNNING';
+      datasetId = pollJson.data?.defaultDatasetId ?? datasetId;
+      if (status === 'SUCCEEDED' || status === 'FAILED' || status === 'ABORTED' || status === 'TIMED-OUT') break;
+    }
+    report.poll = { status, datasetId };
+
+    // 3) Dataset items
+    if (datasetId) {
+      const dsUrl = `${APIFY_BASE}/datasets/${datasetId}/items?token=${apifyKey}&clean=true&limit=3`;
+      const dsRes = await fetch(dsUrl);
+      const dsText = await dsRes.text();
+      let parsed: unknown = null;
+      try { parsed = JSON.parse(dsText); } catch { parsed = dsText.slice(0, 500); }
+      const items = Array.isArray(parsed) ? parsed : [];
+      report.dataset = {
+        url: dsUrl.replace(apifyKey, `${apifyKey.slice(0, 6)}…`),
+        status: dsRes.status,
+        itemCount: items.length,
+        sample: items.slice(0, 3),
+      };
+    }
+
+    res.status(200).json(report);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'unknown error';
+    res.status(200).json({ ...report, fatal: msg });
+  }
+});
+
 export default router;
