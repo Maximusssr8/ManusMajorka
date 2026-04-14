@@ -274,9 +274,25 @@ function StorePreview({ copy, template, products, storeName, primaryColor, isMob
               </div>
             ))}
           </div>
-          <div className="text-xs" style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: TEXT_MUTED, fontFamily: FONT_BODY }}>
-            <Info size={11} />
-            <span>Sample reviews — replace with real customer feedback before going live.</span>
+          <div
+            style={{
+              marginTop: 14,
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: '1px solid rgba(245,158,11,0.35)',
+              background: 'rgba(245,158,11,0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              color: '#f59e0b',
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            <Info size={12} />
+            <span>Illustrative sample reviews — not real customers. Replace with genuine feedback before launch.</span>
           </div>
         </div>
 
