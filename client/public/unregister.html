@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resetting Majorka…</title>
+<style>
+  html,body{margin:0;padding:0;background:#080808;color:#e5e5e5;font-family:'DM Sans',system-ui,sans-serif;height:100%;}
+  .wrap{position:fixed;inset:0;display:grid;place-items:center;padding:24px;}
+  .card{text-align:center;max-width:360px;}
+  h1{font-family:'Syne',system-ui,sans-serif;font-size:24px;font-weight:800;color:#d4af37;margin:0 0 12px;}
+  p{font-size:14px;color:#a1a1aa;line-height:1.55;margin:0 0 16px;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12px;color:#e5e5e5;background:#111;padding:2px 6px;border-radius:4px;}
+  .spinner{width:32px;height:32px;border:2px solid #1a1a1a;border-top-color:#d4af37;border-radius:50%;margin:0 auto 16px;animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  button{padding:12px 24px;min-height:44px;background:#d4af37;color:#080808;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;}
+  #log{font-size:11px;color:#737373;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:8px;padding:10px 12px;text-align:left;margin-top:12px;max-height:160px;overflow:auto;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="spinner"></div>
+      <h1>Clearing Majorka cache</h1>
+      <p id="status">Unregistering service worker and wiping caches…</p>
+      <div id="log"></div>
+      <div id="done" style="display:none;margin-top:20px;">
+        <p style="color:#22c55e;">✓ Done. Majorka has been fully reset.</p>
+        <button id="go">Open Majorka</button>
+      </div>
+    </div>
+  </div>
+<script>
+(async function(){
+  var log = document.getElementById('log');
+  function line(msg){ log.textContent += msg + '\n'; }
+  try {
+    if ('serviceWorker' in navigator) {
+      var regs = await navigator.serviceWorker.getRegistrations();
+      line('Found ' + regs.length + ' service worker registration(s)');
+      for (var r of regs) {
+        try { var ok = await r.unregister(); line('Unregistered: ' + (r.scope || '/') + ' → ' + ok); }
+        catch (e) { line('Unregister failed: ' + (e && e.message || e)); }
+      }
+    } else line('No serviceWorker API');
+  } catch (e) { line('SW enumeration failed: ' + (e && e.message || e)); }
+  try {
+    if (window.caches && caches.keys) {
+      var keys = await caches.keys();
+      line('Found ' + keys.length + ' cache(s): ' + keys.join(', '));
+      for (var k of keys) {
+        try { await caches.delete(k); line('Deleted cache: ' + k); }
+        catch (e) { line('Delete failed: ' + k + ' → ' + (e && e.message || e)); }
+      }
+    }
+  } catch (e) { line('Cache wipe failed: ' + (e && e.message || e)); }
+  try {
+    // Nuke localStorage + sessionStorage keys that might point at stale bundles
+    localStorage.clear();
+    sessionStorage.clear();
+    line('Cleared local + session storage');
+  } catch (e) { line('Storage clear failed: ' + (e && e.message || e)); }
+  document.getElementById('status').textContent = 'All clear.';
+  document.getElementById('done').style.display = 'block';
+  document.getElementById('go').addEventListener('click', function(){
+    // Cache-bust the home URL so no intermediate CDN or SW can serve stale.
+    window.location.href = '/?cb=' + Date.now();
+  });
+  // Auto-redirect after 2s if user doesn't click
+  setTimeout(function(){ window.location.href = '/?cb=' + Date.now(); }, 2500);
+})();
+</script>
+</body>
+</html>
