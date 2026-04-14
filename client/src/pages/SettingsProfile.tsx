@@ -322,7 +322,7 @@ export default function SettingsProfile() {
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm animate-pulse"
           style={{
-            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+            background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
             color: '#FAFAFA',
             fontFamily: "'Syne', sans-serif",
           }}
@@ -341,7 +341,7 @@ export default function SettingsProfile() {
         <button
           onClick={() => setLocation('/login')}
           className="px-4 py-2 rounded-lg text-sm font-bold"
-          style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', border: 'none', cursor: 'pointer' }}
+          style={{ background: 'linear-gradient(135deg, #d4af37, #3B82F6)', color: '#fff', border: 'none', cursor: 'pointer' }}
         >
           Sign In
         </button>
@@ -390,16 +390,16 @@ export default function SettingsProfile() {
                   width: '100%', height: 40, padding: '0 12px',
                   borderRadius: 8, border: 'none', cursor: 'pointer',
                   textAlign: 'left', fontSize: 14,
-                  background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
-                  borderLeft: active ? '3px solid #6366f1' : '3px solid transparent',
-                  color: active ? '#818cf8' : 'rgba(255,255,255,0.55)',
+                  background: active ? 'rgba(212,175,55,0.12)' : 'transparent',
+                  borderLeft: active ? '3px solid #d4af37' : '3px solid transparent',
+                  color: active ? '#e5c158' : 'rgba(255,255,255,0.55)',
                   fontWeight: active ? 600 : 400,
                   fontFamily: "'DM Sans', sans-serif",
                   transition: 'all 0.1s',
                   marginBottom: 2,
                 }}
                 onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = active ? 'rgba(99,102,241,0.12)' : 'transparent'; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = active ? 'rgba(212,175,55,0.12)' : 'transparent'; }}
               >
                 <Icon size={16} />
                 {tab.label}
@@ -455,10 +455,10 @@ export default function SettingsProfile() {
 
               {/* Onboarding prompt when profile is empty */}
               {!form.businessName && !form.targetNiche && (
-                <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '14px 16px', marginBottom: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 12, padding: '14px 16px', marginBottom: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 20, flexShrink: 0 }}>✏️</span>
                   <div>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13, color: '#818CF8', marginBottom: 3 }}>Complete your business profile</div>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13, color: '#e5c158', marginBottom: 3 }}>Complete your business profile</div>
                     <div style={{ fontSize: 12, color: '#A5B4FC', lineHeight: 1.5 }}>Maya AI and Market Intel use your niche &amp; business details to personalise results. Fill in the fields below to get better recommendations.</div>
                   </div>
                 </div>
@@ -564,14 +564,14 @@ export default function SettingsProfile() {
                           style={{
                             background:
                               form.experienceLevel === level
-                                ? 'rgba(99,102,241,0.15)'
+                                ? 'rgba(212,175,55,0.15)'
                                 : 'rgba(255,255,255,0.04)',
                             borderColor:
                               form.experienceLevel === level
-                                ? 'rgba(99,102,241,0.4)'
+                                ? 'rgba(212,175,55,0.4)'
                                 : 'rgba(255,255,255,0.08)',
                             color:
-                              form.experienceLevel === level ? '#6366F1' : '#94A3B8',
+                              form.experienceLevel === level ? '#d4af37' : '#94A3B8',
                             cursor: 'pointer',
                           }}
                         >
@@ -596,13 +596,13 @@ export default function SettingsProfile() {
                           style={{
                             background:
                               form.mainGoal === goal
-                                ? 'rgba(99,102,241,0.15)'
+                                ? 'rgba(212,175,55,0.15)'
                                 : 'rgba(255,255,255,0.04)',
                             borderColor:
                               form.mainGoal === goal
-                                ? 'rgba(99,102,241,0.4)'
+                                ? 'rgba(212,175,55,0.4)'
                                 : 'rgba(255,255,255,0.08)',
-                            color: form.mainGoal === goal ? '#6366F1' : '#94A3B8',
+                            color: form.mainGoal === goal ? '#d4af37' : '#94A3B8',
                             cursor: 'pointer',
                           }}
                         >
@@ -638,9 +638,9 @@ export default function SettingsProfile() {
                     }}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: 'rgba(99,102,241,0.08)',
-                      border: '1px solid rgba(99,102,241,0.2)',
-                      color: '#6366F1',
+                      background: 'rgba(212,175,55,0.08)',
+                      border: '1px solid rgba(212,175,55,0.2)',
+                      color: '#d4af37',
                       cursor: 'pointer',
                     }}
                   >
@@ -654,7 +654,7 @@ export default function SettingsProfile() {
                 disabled={saving}
                 className="w-full rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                  background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
                   color: '#fff',
                   fontFamily: "'Syne', sans-serif",
                   border: 'none',
@@ -679,7 +679,7 @@ export default function SettingsProfile() {
                   </div>
                   <button onClick={handlePasswordChange} disabled={changingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
                     className="rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
-                    style={{ padding: '10px 24px', background: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'rgba(99,102,241,0.2)', color: '#FAFAFA', border: 'none', fontFamily: "'Syne', sans-serif", cursor: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' as const }}>
+                    style={{ padding: '10px 24px', background: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'linear-gradient(135deg, #d4af37, #3B82F6)' : 'rgba(212,175,55,0.2)', color: '#FAFAFA', border: 'none', fontFamily: "'Syne', sans-serif", cursor: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' as const }}>
                     {changingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                   {newPassword && confirmPassword && newPassword !== confirmPassword && (
@@ -743,7 +743,7 @@ export default function SettingsProfile() {
                       className="w-10 h-5 rounded-full transition-all relative flex-shrink-0"
                       style={{
                         background: emailNotifs[key]
-                          ? 'rgba(99,102,241,0.3)'
+                          ? 'rgba(212,175,55,0.3)'
                           : 'rgba(0,0,0,0.1)',
                         border: 'none',
                         cursor: 'pointer',
@@ -752,7 +752,7 @@ export default function SettingsProfile() {
                       <div
                         className="absolute top-0.5 w-4 h-4 rounded-full transition-all"
                         style={{
-                          background: emailNotifs[key] ? '#6366F1' : '#9CA3AF',
+                          background: emailNotifs[key] ? '#d4af37' : '#9CA3AF',
                           left: emailNotifs[key] ? 22 : 2,
                         }}
                       />
@@ -763,7 +763,7 @@ export default function SettingsProfile() {
               <button
                 className="mt-4 w-full rounded-lg py-3 font-bold text-sm"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                  background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
                   color: '#fff',
                   fontFamily: "'Syne', sans-serif",
                   border: 'none',
@@ -779,10 +779,10 @@ export default function SettingsProfile() {
           {/* ── Billing Tab ─────────────────────────────────────────────── */}
           {activeTab === 'billing' && (
             <div className="space-y-4">
-              <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>Current Plan</div>
+              <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>Current Plan</div>
                 {!subInfo ? (
-                  <div className="animate-pulse" style={{ height: 48, background: 'rgba(99,102,241,0.08)', borderRadius: 8 }} />
+                  <div className="animate-pulse" style={{ height: 48, background: 'rgba(212,175,55,0.08)', borderRadius: 8 }} />
                 ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
@@ -796,7 +796,7 @@ export default function SettingsProfile() {
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' as const }}>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: '#6366F1', fontFamily: "'Syne', sans-serif" }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: '#d4af37', fontFamily: "'Syne', sans-serif" }}>
                       {subInfo.plan === 'scale' ? '$199' : subInfo.plan === 'builder' ? '$99' : subInfo.plan === 'pro' ? '$99' : '$0'}
                     </div>
                     <div style={{ fontSize: 12, color: '#9CA3AF' }}>AUD/month</div>
@@ -813,11 +813,11 @@ export default function SettingsProfile() {
                   cursor: 'pointer',
                   color: '#F1F5F9',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)')}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E7EB')}
               >
                 <div className="flex items-center gap-3">
-                  <CreditCard size={16} style={{ color: '#6366F1' }} />
+                  <CreditCard size={16} style={{ color: '#d4af37' }} />
                   <div className="text-left">
                     <div className="text-sm font-medium">Manage Subscription</div>
                     <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -847,7 +847,7 @@ export default function SettingsProfile() {
                         <div style={{ fontSize: 12, color: '#9CA3AF' }}>Sync products, orders, and inventory</div>
                       </div>
                     </div>
-                    <button onClick={() => setLocation('/app/store-builder')} style={{ padding: '8px 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    <button onClick={() => setLocation('/app/store-builder')} style={{ padding: '8px 16px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                       Connect →
                     </button>
                   </div>
@@ -860,7 +860,7 @@ export default function SettingsProfile() {
                         <div style={{ fontSize: 12, color: '#9CA3AF' }}>Connect Facebook & Instagram ad accounts</div>
                       </div>
                     </div>
-                    <button onClick={() => setLocation('/app/ads-manager')} style={{ padding: '8px 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    <button onClick={() => setLocation('/app/ads-manager')} style={{ padding: '8px 16px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                       Set Up →
                     </button>
                   </div>
@@ -914,9 +914,9 @@ export default function SettingsProfile() {
                   onClick={handleExportData}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all"
                   style={{
-                    background: 'rgba(99,102,241,0.08)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    color: '#6366F1',
+                    background: 'rgba(212,175,55,0.08)',
+                    border: '1px solid rgba(212,175,55,0.2)',
+                    color: '#d4af37',
                     cursor: 'pointer',
                   }}
                 >

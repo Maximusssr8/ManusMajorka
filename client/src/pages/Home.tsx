@@ -24,9 +24,9 @@ const T = {
   textDim: '#8a8a8f',
   textFaint: '#52525b',
   textGhost: '#3f3f46',
-  accent: '#6366F1',
+  accent: '#d4af37',
   accentHover: '#7c83f4',
-  accentDim: 'rgba(99,102,241,0.12)',
+  accentDim: 'rgba(212,175,55,0.12)',
   green: '#22c55e',
   red: '#ef4444',
   amber: '#f59e0b',
@@ -38,7 +38,7 @@ const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
 
 // ── Global styles ────────────────────────────────────────────────────────────
 const STYLES = `
-*::selection { background: rgba(99,102,241,0.3); color: #fff; }
+*::selection { background: rgba(212,175,55,0.3); color: #fff; }
 html, body { background: ${T.bg}; }
 
 /* CRITICAL: Force every landing section + every scroll-reveal variant to
@@ -159,7 +159,7 @@ section [data-transform-ok] {
   transition: border-color 150ms, background 150ms;
   white-space: nowrap;
 }
-.mj-btn-secondary:hover { border-color: ${T.accent}; background: rgba(99,102,241,0.06); }
+.mj-btn-secondary:hover { border-color: ${T.accent}; background: rgba(212,175,55,0.06); }
 
 .mj-card {
   background: ${T.bgSurface};
@@ -236,9 +236,9 @@ section [data-transform-ok] {
 
 .mj-window-shadow {
   box-shadow:
-    0 0 0 1px rgba(99,102,241,0.18),
+    0 0 0 1px rgba(212,175,55,0.18),
     0 40px 80px rgba(0,0,0,0.6),
-    0 8px 24px rgba(99,102,241,0.18);
+    0 8px 24px rgba(212,175,55,0.18);
 }
 .mj-mockup-shadow {
   box-shadow:
@@ -417,8 +417,8 @@ function Nav() {
           <span style={{
             fontSize: 9,
             fontFamily: mono,
-            background: 'rgba(99,102,241,0.08)',
-            border: '1px solid rgba(99,102,241,0.18)',
+            background: 'rgba(212,175,55,0.08)',
+            border: '1px solid rgba(212,175,55,0.18)',
             color: '#a5b4fc',
             padding: '2px 7px',
             borderRadius: 20,
@@ -460,7 +460,7 @@ function Nav() {
           <Link href="/sign-up" style={{
             display: 'inline-flex',
             alignItems: 'center',
-            background: '#6366F1',
+            background: '#d4af37',
             color: '#fff',
             padding: '8px 20px',
             borderRadius: 999,
@@ -470,7 +470,7 @@ function Nav() {
             transition: 'background 150ms',
           }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#7c83f4')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = '#6366F1')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#d4af37')}
           >Get Started</Link>
         </div>
 
@@ -569,7 +569,7 @@ function Nav() {
             }}>Log in</Link>
             <Link href="/sign-up" onClick={() => setMobileOpen(false)} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: 52, background: '#6366f1', borderRadius: 10,
+              height: 52, background: '#d4af37', borderRadius: 10,
               color: 'white', textDecoration: 'none', fontSize: 15, fontWeight: 600,
               fontFamily: sans,
             }}>Get Started →</Link>
@@ -595,7 +595,7 @@ function Hero() {
       {/* Full-bleed ambient background so the hero never shows dead black above the content */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%), #0a0a0a',
+        background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212,175,55,0.08) 0%, transparent 60%), #0a0a0a',
       }} />
       {/* Bottom fade into next section */}
       <div style={{
@@ -606,17 +606,17 @@ function Hero() {
       {/* Glow blobs */}
       <div style={{
         position: 'absolute', width: 600, height: 600, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 70%)',
         top: -100, left: -150, pointerEvents: 'none', zIndex: 0,
       }} />
       <div style={{
         position: 'absolute', width: 500, height: 500, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)',
         top: 50, right: -100, pointerEvents: 'none', zIndex: 0,
       }} />
       <div style={{
         position: 'absolute', width: 300, height: 300, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)',
         bottom: -50, left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none', zIndex: 0,
       }} />
 
@@ -639,8 +639,8 @@ function Hero() {
               alignItems: 'center',
               gap: 10,
               padding: '7px 16px 7px 12px',
-              background: 'rgba(99,102,241,0.1)',
-              border: '1px solid rgba(99,102,241,0.25)',
+              background: 'rgba(212,175,55,0.1)',
+              border: '1px solid rgba(212,175,55,0.25)',
               borderRadius: 100,
               marginBottom: 24,
               fontFamily: sans,
@@ -657,7 +657,7 @@ function Hero() {
                 display: 'inline-block',
               }} />
               <span>1,776 products trending hot right now</span>
-              <span style={{ color: '#818cf8', fontSize: 12, marginLeft: -4 }}>→</span>
+              <span style={{ color: '#e5c158', fontSize: 12, marginLeft: -4 }}>→</span>
             </div>
 
             {/* Headline */}
@@ -683,7 +683,7 @@ function Hero() {
               <br />
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #818cf8 0%, #6366F1 45%, #4f46e5 100%)',
+                  background: 'linear-gradient(135deg, #e5c158 0%, #d4af37 45%, #3B82F6 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -720,7 +720,7 @@ function Hero() {
                 letterSpacing: '0.005em',
                 borderRadius: 999,
                 textDecoration: 'none',
-                boxShadow: '0 0 0 1px rgba(212,175,55,0.4), 0 10px 40px -6px rgba(99,102,241,0.5), 0 0 80px -10px rgba(99,102,241,0.55)',
+                boxShadow: '0 0 0 1px rgba(212,175,55,0.4), 0 10px 40px -6px rgba(212,175,55,0.5), 0 0 80px -10px rgba(212,175,55,0.55)',
                 transform: 'scale(1.02)',
               }}
               >Start free trial &mdash; find my first winner &rarr;</Link>
@@ -739,7 +739,7 @@ function Hero() {
                 textDecoration: 'none',
                 transition: 'border-color 150ms, color 150ms',
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#ededed'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.color = '#ededed'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#9ca3af'; }}
               >Explore features ↓</a>
             </div>
@@ -778,7 +778,7 @@ function Hero() {
               position: 'absolute',
               inset: -20,
               borderRadius: 20,
-              background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.15) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.15) 0%, transparent 70%)',
               zIndex: 0,
               pointerEvents: 'none',
             }} />
@@ -801,7 +801,7 @@ function Hero() {
               alignItems: 'center',
               gap: 12,
               zIndex: 3,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.12)',
               pointerEvents: 'none',
               animation: 'mj-float 4s ease-in-out infinite',
             }}>
@@ -830,14 +830,14 @@ function Hero() {
               alignItems: 'center',
               gap: 12,
               zIndex: 3,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(99,102,241,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.12)',
               pointerEvents: 'none',
               animation: 'mj-float 4s ease-in-out 1.5s infinite',
             }}>
               <span style={{
                 width: 8, height: 8, borderRadius: '50%',
-                background: '#6366f1',
-                boxShadow: '0 0 8px rgba(99,102,241,0.7)',
+                background: '#d4af37',
+                boxShadow: '0 0 8px rgba(212,175,55,0.7)',
                 flexShrink: 0,
               }} />
               <div>
@@ -852,7 +852,7 @@ function Hero() {
               bottom: -16,
               right: -16,
               background: '#111114',
-              border: '1px solid rgba(99,102,241,0.3)',
+              border: '1px solid rgba(212,175,55,0.3)',
               borderRadius: 10,
               padding: '10px 14px',
               zIndex: 2,
@@ -873,7 +873,7 @@ function Hero() {
 // ── Social Proof Bar ────────────────────────────────────────────────────────
 function SocialProofBar() {
   const avatars = [
-    { i: 'A', from: '#6366F1', to: '#8B5CF6' },
+    { i: 'A', from: '#d4af37', to: '#d4af37' },
     { i: 'J', from: '#059669', to: '#10B981' },
     { i: 'S', from: '#DC2626', to: '#F97316' },
     { i: 'M', from: '#0891B2', to: '#06B6D4' },
@@ -999,7 +999,7 @@ function BrowserWindow() {
       border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 16,
       overflow: 'hidden',
-      boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.15)',
+      boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.15)',
       fontFamily: sans,
     }}>
       {/* Window chrome */}
@@ -1028,7 +1028,7 @@ function BrowserWindow() {
           { label: 'Products',  value: '2,302', color: '#ededed' },
           { label: 'Hot Today', value: '1,776', color: '#f97316' },
           { label: 'Avg Score', value: '80/100', color: '#f59e0b' },
-          { label: 'Top Niche', value: 'Fashion', color: '#6366F1' },
+          { label: 'Top Niche', value: 'Fashion', color: '#d4af37' },
         ].map((s) => (
           <div key={s.label} style={{ background: '#0d0d14', padding: '12px 14px' }}>
             <div style={{ fontFamily: mono, fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
@@ -1042,10 +1042,10 @@ function BrowserWindow() {
         {HERO_PRODUCTS.map((p) => (
           <div key={p.name} style={{
             background: '#111118',
-            border: p.highlight ? '1px solid rgba(99,102,241,0.25)' : '1px solid rgba(255,255,255,0.07)',
+            border: p.highlight ? '1px solid rgba(212,175,55,0.25)' : '1px solid rgba(255,255,255,0.07)',
             borderRadius: 10,
             overflow: 'hidden',
-            boxShadow: p.highlight ? '0 0 12px rgba(99,102,241,0.1)' : 'none',
+            boxShadow: p.highlight ? '0 0 12px rgba(212,175,55,0.1)' : 'none',
           }}>
             <div style={{
               background: '#1a1a24',
@@ -1194,7 +1194,7 @@ function Stats() {
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
-              color: '#6366F1',
+              color: '#d4af37',
               marginBottom: 4,
             }}>{s.eyebrow}</div>
             <div className="mj-stat-num" style={{
@@ -1259,7 +1259,7 @@ function PartnerBar() {
               borderRadius: 8,
               transition: 'border-color 200ms',
             }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
             >
               <span style={{ fontSize: 16 }}>{p.icon}</span>
@@ -1283,14 +1283,14 @@ function ThePlatform() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(99,102,241,0.1)',
-            border: '1px solid rgba(99,102,241,0.2)',
+            background: 'rgba(212,175,55,0.1)',
+            border: '1px solid rgba(212,175,55,0.2)',
             borderRadius: 100,
             padding: '4px 14px',
             marginBottom: 20,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', display: 'inline-block' }} />
-            <span style={{ fontFamily: mono, fontSize: 12, color: '#6366F1', fontWeight: 600, letterSpacing: '0.05em' }}>THE FULL STACK</span>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', display: 'inline-block' }} />
+            <span style={{ fontFamily: mono, fontSize: 12, color: '#d4af37', fontWeight: 600, letterSpacing: '0.05em' }}>THE FULL STACK</span>
           </div>
           <h2 style={{
             fontFamily: display,
@@ -1323,7 +1323,7 @@ function ThePlatform() {
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <span style={{ fontSize: 20 }}>🔥</span>
-              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Product Intelligence</span>
+              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Product Intelligence</span>
             </div>
             <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 28, color: '#ededed', marginBottom: 12, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
               2,302 winning products.<br />Ranked by real orders.
@@ -1382,7 +1382,7 @@ function ThePlatform() {
                 gridTemplateColumns: '2fr 1fr 1fr 1fr',
                 gap: 8,
                 alignItems: 'center',
-                background: i === 0 ? 'rgba(99,102,241,0.04)' : 'transparent',
+                background: i === 0 ? 'rgba(212,175,55,0.04)' : 'transparent',
               }}>
                 <div>
                   <div style={{ color: '#ededed', fontWeight: 500 }}>{p.name}</div>
@@ -1414,7 +1414,7 @@ function ThePlatform() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📡</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
+            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your market before your competitor does</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Global, AU, US, UK signals. Today&apos;s top products with revenue-per-day estimates. Category rankings updated in real time.
@@ -1440,7 +1440,7 @@ function ThePlatform() {
 
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📊</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Profit Calculator</div>
+            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Profit Calculator</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your margin before you launch</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Model product cost, sell price, ad spend, shipping, fees. Get real break-even CPA and monthly projections in seconds.
@@ -1474,20 +1474,20 @@ function ThePlatform() {
 
           <div style={{
             background: 'linear-gradient(135deg, #111118 0%, #13111f 100%)',
-            border: '1px solid rgba(99,102,241,0.2)',
+            border: '1px solid rgba(212,175,55,0.2)',
             borderRadius: 16,
             padding: 28,
           }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🧠</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Maya AI</div>
+            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Maya AI</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Your AI ecommerce strategist</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
               Maya knows your market, your products, and your plan. Ask anything — she answers with AU pricing, ad angles, and supplier recs.
             </p>
-            <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 8, padding: 12, fontSize: 12 }}>
+            <div style={{ background: 'rgba(212,175,55,0.06)', borderRadius: 8, padding: 12, fontSize: 12 }}>
               <div style={{ color: '#6b7280', marginBottom: 6, fontSize: 10, fontFamily: mono }}>→ &ldquo;Find me 3 winning Beauty products under $5 cost&rdquo;</div>
               <div style={{ color: '#ededed', lineHeight: 1.5 }}>
-                <strong style={{ color: '#6366F1' }}>Maya:</strong> Here are 3 Beauty products with explosive potential…<br />
+                <strong style={{ color: '#d4af37' }}>Maya:</strong> Here are 3 Beauty products with explosive potential…<br />
                 <span style={{ color: '#22c55e' }}>Sakura Exfoliating Gel</span> — $4.19 cost, 50% margin, TikTok viral<br />
                 <span style={{ color: '#6b7280', fontSize: 10 }}>Fastest to profit · easiest UGC content</span>
               </div>
@@ -1499,7 +1499,7 @@ function ThePlatform() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🎯</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
+            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Meta + TikTok ad creative generator</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Select funnel stage, platform, and creative type. Get 5 headline variants, VSL scripts, and AU-specific ad angles — ready to launch.
@@ -1510,14 +1510,14 @@ function ThePlatform() {
               <div style={{ color: '#6b7280' }}>Hook · Cold Traffic · Facebook Feed</div>
               <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
                 {['Hook', 'VSL', 'UGC', 'Carousel'].map((t) => (
-                  <span key={t} style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontFamily: mono }}>{t}</span>
+                  <span key={t} style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontFamily: mono }}>{t}</span>
                 ))}
               </div>
             </div>
           </div>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🏪</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Store Builder</div>
+            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Store Builder</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Zero to live store in 7 minutes</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Build with AI from your niche. Connect existing Shopify. Or list directly on Majorka — no Shopify needed. Scale plan gets you the full suite.
@@ -1547,7 +1547,7 @@ function ThePlatform() {
           </div>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📱</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Creators &amp; Video</div>
+            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Creators &amp; Video</div>
             <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Find your next viral partner</h4>
             <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
               Browse TOP, ELITE, and RISING creators by niche. Filter by engagement tier. One-click AI Pitch — personalised outreach generated instantly.
@@ -1566,7 +1566,7 @@ function ThePlatform() {
                 }}>
                   <div style={{
                     width: 24, height: 24, borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#6366F1,#8b5cf6)',
+                    background: 'linear-gradient(135deg,#d4af37,#d4af37)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 9, fontWeight: 700, color: '#fff',
                     flexShrink: 0,
@@ -1714,9 +1714,9 @@ function Comparison() {
                   fontWeight: 700,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color: '#6366F1',
-                  background: 'rgba(99,102,241,0.08)',
-                  borderTop: '2px solid #6366F1',
+                  color: '#d4af37',
+                  background: 'rgba(212,175,55,0.08)',
+                  borderTop: '2px solid #d4af37',
                   borderBottom: `1px solid ${T.border}`,
                 }}>Majorka</th>
                 {['Minea', 'AutoDS', 'Ecomhunt'].map((label) => (
@@ -1756,9 +1756,9 @@ function Comparison() {
                       color: starred && accent ? '#a5b4fc' : cellColor,
                       borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
                       background: accent
-                        ? (starred ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.08)')
+                        ? (starred ? 'rgba(212,175,55,0.18)' : 'rgba(212,175,55,0.08)')
                         : 'transparent',
-                      boxShadow: accent ? 'inset 2px 0 0 #6366F1, inset -2px 0 0 #6366F1' : 'none',
+                      boxShadow: accent ? 'inset 2px 0 0 #d4af37, inset -2px 0 0 #d4af37' : 'none',
                     }}>{val}</td>
                   );
                 };
@@ -1769,7 +1769,7 @@ function Comparison() {
                       color: starred ? '#e5e7eb' : T.text,
                       fontWeight: starred ? 700 : 500,
                       borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
-                      background: starred ? 'rgba(99,102,241,0.04)' : 'transparent',
+                      background: starred ? 'rgba(212,175,55,0.04)' : 'transparent',
                     }}>{row.feature}</td>
                     {renderCell(row.m, true)}
                     {renderCell(row.minea, false)}
@@ -1834,7 +1834,7 @@ function Markets() {
                 </div>
               </div>
               <p style={{ fontSize: 13, lineHeight: 1.55, color: T.textMuted, margin: 0 }}>{m.value}</p>
-              <div style={{ fontSize: 11, color: '#6366F1', fontWeight: 600, marginTop: 6, fontFamily: mono }}>{m.stat}</div>
+              <div style={{ fontSize: 11, color: '#d4af37', fontWeight: 600, marginTop: 6, fontFamily: mono }}>{m.stat}</div>
             </div>
           ))}
         </div>
@@ -1893,8 +1893,8 @@ function Workflow() {
                 <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
                   {['🇦🇺 AU', '🇺🇸 US', '🇬🇧 UK', '🇨🇦 CA', '🇳🇿 NZ', '🇩🇪 DE', '🇸🇬 SG'].map((m) => (
                     <span key={m} style={{
-                      background: 'rgba(99,102,241,0.1)',
-                      border: '1px solid rgba(99,102,241,0.2)',
+                      background: 'rgba(212,175,55,0.1)',
+                      border: '1px solid rgba(212,175,55,0.2)',
                       color: '#a1a1aa',
                       padding: '3px 8px',
                       borderRadius: 100,
@@ -1957,7 +1957,7 @@ const TESTIMONIALS: { initials: string; name: string; flag: string; country: str
   {
     initials: 'JT', name: 'James T.', flag: '🇦🇺', country: 'Australia',
     quote: "The product scoring system saved me hours of research every week. I stopped second-guessing which products to test.",
-    from: '#6366F1', to: '#8B5CF6',
+    from: '#d4af37', to: '#d4af37',
   },
   {
     initials: 'SK', name: 'Sarah K.', flag: '🇬🇧', country: 'United Kingdom',
@@ -2061,8 +2061,8 @@ function PricingCountdown() {
       gap: 12,
       flexWrap: 'wrap',
       padding: '14px 22px',
-      background: 'rgba(99,102,241,0.06)',
-      border: '1px solid rgba(99,102,241,0.2)',
+      background: 'rgba(212,175,55,0.06)',
+      border: '1px solid rgba(212,175,55,0.2)',
       borderRadius: 8,
       maxWidth: 720,
       margin: '0 auto 32px',
@@ -2250,7 +2250,7 @@ function PricingCard({ tag, price, annual, tagline, features, cta, href, highlig
       ? hover ? 'scale(1.06) translateY(-4px)' : 'scale(1.05)'
       : hover ? 'translateY(-4px)' : 'translateY(0)',
     boxShadow: highlight
-      ? '0 0 48px rgba(212,175,55,0.25), 0 0 0 1px rgba(212,175,55,0.45), 0 20px 60px -10px rgba(99,102,241,0.3)'
+      ? '0 0 48px rgba(212,175,55,0.25), 0 0 0 1px rgba(212,175,55,0.45), 0 20px 60px -10px rgba(212,175,55,0.3)'
       : 'none',
     zIndex: highlight ? 2 : 1,
   };
@@ -2428,13 +2428,13 @@ function FinalCTA() {
       <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 80% 60% at 50% 90%, rgba(99,102,241,0.18) 0%, rgba(99,102,241,0.05) 45%, transparent 70%)',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 90%, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.05) 45%, transparent 70%)',
         pointerEvents: 'none',
         zIndex: 0,
       }} />
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(99,102,241,0.08) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(212,175,55,0.08) 0%, transparent 60%)',
         pointerEvents: 'none',
         zIndex: 0,
       }} />
@@ -2463,8 +2463,8 @@ function FinalCTA() {
           alignItems: 'center',
           gap: 8,
           padding: '8px 16px',
-          background: 'rgba(99,102,241,0.08)',
-          border: '1px solid rgba(99,102,241,0.22)',
+          background: 'rgba(212,175,55,0.08)',
+          border: '1px solid rgba(212,175,55,0.22)',
           borderRadius: 999,
           color: '#a5b4fc',
           fontFamily: mono,
@@ -2617,12 +2617,12 @@ function TrustBar() {
               <div style={{
                 width: 40, height: 40,
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(99,102,241,0.08)',
-                border: '1px solid rgba(99,102,241,0.2)',
+                background: 'rgba(212,175,55,0.08)',
+                border: '1px solid rgba(212,175,55,0.2)',
                 borderRadius: 10,
                 flexShrink: 0,
               }}>
-                <Icon size={18} color="#6366F1" strokeWidth={2} />
+                <Icon size={18} color="#d4af37" strokeWidth={2} />
               </div>
               <div>
                 <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>{it.headline}</div>
@@ -2665,14 +2665,14 @@ function VideoPreview() {
         }}>
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 60%)',
+            background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 60%)',
             pointerEvents: 'none',
           }} />
           <div style={{
             position: 'relative',
             width: 84, height: 84, borderRadius: '50%',
-            background: 'rgba(99,102,241,0.12)',
-            border: '2px solid rgba(99,102,241,0.4)',
+            background: 'rgba(212,175,55,0.12)',
+            border: '2px solid rgba(212,175,55,0.4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <span style={{
@@ -2691,7 +2691,7 @@ function VideoPreview() {
           <Link href="/sign-up" style={{
             fontFamily: sans,
             fontSize: 14,
-            color: '#6366F1',
+            color: '#d4af37',
             textDecoration: 'none',
             fontWeight: 500,
           }}>
@@ -2753,19 +2753,19 @@ function Founder() {
         }}>
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-            background: 'linear-gradient(90deg, transparent 0%, #6366F1 50%, transparent 100%)',
+            background: 'linear-gradient(90deg, transparent 0%, #d4af37 50%, transparent 100%)',
           }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
             <div style={{
               width: 44, height: 44,
-              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              background: 'linear-gradient(135deg, #d4af37, #d4af37)',
               borderRadius: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: display, fontWeight: 800, fontSize: 20, color: '#fff',
               letterSpacing: '-0.04em',
             }}>M</div>
             <div>
-              <div style={{ fontFamily: mono, fontSize: 11, color: '#6366F1', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+              <div style={{ fontFamily: mono, fontSize: 11, color: '#d4af37', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
                 Our mission
               </div>
               <h3 style={{ fontFamily: display, fontSize: 26, fontWeight: 700, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>

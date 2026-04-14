@@ -23,7 +23,7 @@ export default function SharedReport() {
       <div style={{ fontSize: 48 }}>{'\u{1F50D}'}</div>
       <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F8FAFC' }}>Report not found</div>
       <div style={{ fontSize: 14, color: '#9CA3AF' }}>{error}</div>
-      <a href="/" style={{ fontSize: 13, color: '#6366F1', fontWeight: 600 }}>Try Majorka free \u2192</a>
+      <a href="/" style={{ fontSize: 13, color: '#d4af37', fontWeight: 600 }}>Try Majorka free \u2192</a>
     </div>
   );
 
@@ -33,8 +33,8 @@ export default function SharedReport() {
     <div style={{ background: '#05070F', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ background: '#0d0d10', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#6366F1' }}>Majorka</div>
-        <a href="/signup" style={{ height: 34, padding: '0 16px', background: '#6366F1', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#d4af37' }}>Majorka</div>
+        <a href="/signup" style={{ height: 34, padding: '0 16px', background: '#d4af37', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           Get free access \u2192
         </a>
       </div>
@@ -52,10 +52,10 @@ export default function SharedReport() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#F8FAFC', marginBottom: 6 }}>{p.product_title}</div>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const }}>
-                  {p.winning_score && <div style={{ fontSize: 12, color: '#6366F1', fontWeight: 600 }}>Score: {p.winning_score}/100</div>}
+                  {p.winning_score && <div style={{ fontSize: 12, color: '#d4af37', fontWeight: 600 }}>Score: {p.winning_score}/100</div>}
                   {p.profit_margin && <div style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>Margin: {p.profit_margin}%</div>}
                   {p.est_monthly_revenue_aud && <div style={{ fontSize: 12, color: '#F8FAFC', fontWeight: 600 }}>~${p.est_monthly_revenue_aud}/mo</div>}
-                  {p.aliexpress_url && <a href={p.aliexpress_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1', fontWeight: 600 }}>View Supplier \u2192</a>}
+                  {p.aliexpress_url && <a href={p.aliexpress_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#d4af37', fontWeight: 600 }}>View Supplier \u2192</a>}
                 </div>
               </div>
             </div>
@@ -63,10 +63,10 @@ export default function SharedReport() {
         ))}
 
         {/* CTA */}
-        <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 16, padding: '32px 24px', textAlign: 'center' as const, marginTop: 32 }}>
+        <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid #C7D2FE', borderRadius: 16, padding: '32px 24px', textAlign: 'center' as const, marginTop: 32 }}>
           <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#F8FAFC', marginBottom: 8 }}>Want more product insights?</div>
           <div style={{ fontSize: 14, color: '#94A3B8', marginBottom: 20 }}>Majorka finds winning products before your competitors. Free to try.</div>
-          <a href="/signup" style={{ display: 'inline-block', height: 44, lineHeight: '44px', padding: '0 24px', background: '#6366F1', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+          <a href="/signup" style={{ display: 'inline-block', height: 44, lineHeight: '44px', padding: '0 24px', background: '#d4af37', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
             Start free \u2192
           </a>
         </div>

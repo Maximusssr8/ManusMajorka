@@ -16,9 +16,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#6366F1',
-  goldDim: 'rgba(99,102,241,0.08)',
-  goldBorder: 'rgba(99,102,241,0.2)',
+  gold: '#d4af37',
+  goldDim: 'rgba(212,175,55,0.08)',
+  goldBorder: 'rgba(212,175,55,0.2)',
 };
 
 const syne = "'Syne', sans-serif";
@@ -128,7 +128,7 @@ export default function DropshippingAustralia() {
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/pricing" style={{ color: C.secondary, fontSize: 13, textDecoration: 'none', fontFamily: syne, fontWeight: 600 }}>Pricing</Link>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: 'white', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
           </div>
         </div>
       </nav>
@@ -142,13 +142,13 @@ export default function DropshippingAustralia() {
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
             The Smartest Way to<br />
-            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' as const, color: '#6366F1' }}>Dropship in Australia</span> in 2026
+            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' as const, color: '#d4af37' }}>Dropship in Australia</span> in 2026
           </h1>
           <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', maxWidth: 620, margin: '0 auto 36px', lineHeight: 1.65 }}>
             Majorka is the <strong style={{ color: C.text }}>AI-powered product intelligence platform</strong> built exclusively for Australian dropshippers. Find winning products, source AU-ready suppliers, and launch profitable stores — faster than your competition.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(99,102,241,0.3)` }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: 'white', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(212,175,55,0.3)` }}>
               Start Finding Products Free →
             </Link>
             <Link href="/winning-products-australia" style={{ background: 'transparent', color: C.text, fontFamily: syne, fontWeight: 600, fontSize: 15, padding: '16px 30px', borderRadius: 12, textDecoration: 'none', border: `1px solid ${C.border}` }}>
@@ -298,7 +298,7 @@ export default function DropshippingAustralia() {
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
             Join 2,400+ Australian dropshippers already using Majorka to find $10k/month products. Start free — no credit card needed.
           </p>
-          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(99,102,241,0.35)` }}>
+          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: 'white', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(212,175,55,0.35)` }}>
             Start Finding Products Free →
           </Link>
           <p style={{ color: C.muted, fontSize: 12, marginTop: 14 }}>Free tier: 10 product searches/day · No credit card · Cancel anytime</p>

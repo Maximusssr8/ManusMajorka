@@ -20,10 +20,10 @@ const C = {
   text: '#FAFAFA',
   muted: '#A1A1AA',
   dim: '#71717A',
-  indigo: '#6366F1',
-  indigoHover: '#4F46E5',
-  indigoBg: 'rgba(99,102,241,0.08)',
-  indigoBorder: 'rgba(99,102,241,0.2)',
+  gold: '#d4af37',
+  goldHover: '#3B82F6',
+  goldBg: 'rgba(212,175,55,0.08)',
+  goldBorder: 'rgba(212,175,55,0.2)',
   green: '#10B981',
   greenBg: 'rgba(16,185,129,0.08)',
   greenBorder: 'rgba(16,185,129,0.2)',
@@ -224,7 +224,7 @@ function Btn({
   loading?: boolean;
   style?: React.CSSProperties;
 }) {
-  const bg = variant === 'primary' ? C.indigo : variant === 'danger' ? C.red : 'transparent';
+  const bg = variant === 'primary' ? C.gold : variant === 'danger' ? C.red : 'transparent';
   const border = variant === 'secondary' ? `1px solid ${C.border}` : 'none';
   const color = variant === 'secondary' ? C.muted : '#fff';
   return (
@@ -560,16 +560,16 @@ function CampaignBuilder({
                 onClick={() => setObjective(obj.key)}
                 style={{
                   padding: 16, borderRadius: 10,
-                  border: `1px solid ${objective === obj.key ? C.indigo : C.border}`,
-                  background: objective === obj.key ? C.indigoBg : C.surface,
+                  border: `1px solid ${objective === obj.key ? C.gold : C.border}`,
+                  background: objective === obj.key ? C.goldBg : C.surface,
                   cursor: 'pointer', transition: 'border 150ms',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <obj.icon size={18} style={{ color: objective === obj.key ? C.indigo : C.muted }} />
+                  <obj.icon size={18} style={{ color: objective === obj.key ? C.gold : C.muted }} />
                   <span style={{ fontWeight: 600, color: C.text, fontSize: 14 }}>{obj.label}</span>
                   {obj.recommended && (
-                    <span style={{ fontSize: 10, background: C.indigo, color: '#fff', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>RECOMMENDED</span>
+                    <span style={{ fontSize: 10, background: C.gold, color: '#fff', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>RECOMMENDED</span>
                   )}
                 </div>
                 <p style={{ color: C.dim, fontSize: 12, margin: 0, lineHeight: 1.4 }}>{obj.desc}</p>
@@ -593,8 +593,8 @@ function CampaignBuilder({
               {catalog.map((p) => (
                 <div key={p.id} onClick={() => toggleProduct(p.id)} style={{
                   padding: 12, borderRadius: 10,
-                  border: `1px solid ${selectedProducts.includes(p.id) ? C.indigo : C.border}`,
-                  background: selectedProducts.includes(p.id) ? C.indigoBg : C.surface,
+                  border: `1px solid ${selectedProducts.includes(p.id) ? C.gold : C.border}`,
+                  background: selectedProducts.includes(p.id) ? C.goldBg : C.surface,
                   cursor: 'pointer', display: 'flex', gap: 10, alignItems: 'center',
                 }}>
                   {p.image_url ? (
@@ -627,8 +627,8 @@ function CampaignBuilder({
             {(['advantage', 'manual'] as const).map((mode) => (
               <div key={mode} onClick={() => setAudienceMode(mode)} style={{
                 flex: 1, padding: 16, borderRadius: 10,
-                border: `1px solid ${audienceMode === mode ? C.indigo : C.border}`,
-                background: audienceMode === mode ? C.indigoBg : C.surface, cursor: 'pointer',
+                border: `1px solid ${audienceMode === mode ? C.gold : C.border}`,
+                background: audienceMode === mode ? C.goldBg : C.surface, cursor: 'pointer',
               }}>
                 <div style={{ fontWeight: 600, color: C.text, fontSize: 14, marginBottom: 4 }}>
                   {mode === 'advantage' ? 'Advantage+ (Recommended)' : 'Manual Targeting'}
@@ -691,8 +691,8 @@ function CampaignBuilder({
               </select>
             </div>
           </div>
-          <Card style={{ marginBottom: 20, background: C.indigoBg, border: `1px solid ${C.indigoBorder}` }}>
-            <div style={{ fontSize: 12, color: C.indigo, fontWeight: 700, marginBottom: 8, fontFamily: FONT_HEADING, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
+          <Card style={{ marginBottom: 20, background: C.goldBg, border: `1px solid ${C.goldBorder}` }}>
+            <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, marginBottom: 8, fontFamily: FONT_HEADING, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>
               ESTIMATED DAILY RESULTS
             </div>
             <div style={{ display: 'flex', gap: 24 }}>
@@ -715,8 +715,8 @@ function CampaignBuilder({
 
           {/* Cloned Ad banner */}
           {clonedAd && (
-            <Card style={{ marginBottom: 16, background: 'rgba(99,102,241,0.06)', border: `1px solid ${C.indigoBorder}` }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, marginBottom: 8, fontFamily: FONT_HEADING, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>CLONED AD</div>
+            <Card style={{ marginBottom: 16, background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.goldBorder}` }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 8, fontFamily: FONT_HEADING, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>CLONED AD</div>
               {clonedAd.hook && <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>{clonedAd.hook}</div>}
               {clonedAd.bodyText && <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>{clonedAd.bodyText.slice(0, 120)}</div>}
               <Btn onClick={handleClonedAdRewrite} loading={mayaLoading} style={{ fontSize: 12 }}>
@@ -729,8 +729,8 @@ function CampaignBuilder({
           <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
             {(['existing', 'maya'] as const).map((t) => (
               <button key={t} onClick={() => setCreativeTab(t)} style={{
-                padding: '8px 16px', borderRadius: 8, border: `1px solid ${creativeTab === t ? C.indigo : C.border}`,
-                background: creativeTab === t ? C.indigoBg : 'transparent', color: creativeTab === t ? C.text : C.muted,
+                padding: '8px 16px', borderRadius: 8, border: `1px solid ${creativeTab === t ? C.gold : C.border}`,
+                background: creativeTab === t ? C.goldBg : 'transparent', color: creativeTab === t ? C.text : C.muted,
                 fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13, cursor: 'pointer',
               }}>
                 {t === 'existing' ? 'Use Existing Creative' : 'Generate with Maya'}
@@ -762,8 +762,8 @@ function CampaignBuilder({
                 <div style={{ display: 'flex', gap: 8 }}>
                   {FORMAT_OPTIONS.map((f) => (
                     <button key={f} onClick={() => setAdFormat(f)} style={{
-                      padding: '6px 12px', borderRadius: 6, border: `1px solid ${adFormat === f ? C.indigo : C.border}`,
-                      background: adFormat === f ? C.indigoBg : 'transparent', color: adFormat === f ? C.text : C.muted,
+                      padding: '6px 12px', borderRadius: 6, border: `1px solid ${adFormat === f ? C.gold : C.border}`,
+                      background: adFormat === f ? C.goldBg : 'transparent', color: adFormat === f ? C.text : C.muted,
                       fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: FONT_BODY,
                     }}>{f}</button>
                   ))}
@@ -781,7 +781,7 @@ function CampaignBuilder({
                 <div style={{ display: 'grid', gap: 10 }}>
                   {mayaVariations.map((v, i) => (
                     <Card key={i} style={{ padding: 16 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, marginBottom: 8 }}>Variation {i + 1}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 8 }}>Variation {i + 1}</div>
                       <div style={{ fontSize: 13, color: C.text, marginBottom: 4 }}><strong>Primary:</strong> {v.primaryText}</div>
                       <div style={{ fontSize: 13, color: C.text, marginBottom: 4 }}><strong>Headline:</strong> {v.headline}</div>
                       <div style={{ fontSize: 13, color: C.text, marginBottom: 8 }}><strong>Description:</strong> {v.description}</div>
@@ -826,8 +826,8 @@ function CampaignBuilder({
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {(['feed', 'stories'] as const).map((f) => (
                 <button key={f} onClick={() => setPreviewFormat(f)} style={{
-                  padding: '4px 10px', borderRadius: 6, border: `1px solid ${previewFormat === f ? C.indigo : C.border}`,
-                  background: previewFormat === f ? C.indigoBg : 'transparent', color: previewFormat === f ? C.text : C.muted,
+                  padding: '4px 10px', borderRadius: 6, border: `1px solid ${previewFormat === f ? C.gold : C.border}`,
+                  background: previewFormat === f ? C.goldBg : 'transparent', color: previewFormat === f ? C.text : C.muted,
                   fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: FONT_BODY, textTransform: 'capitalize' as const,
                 }}>{f}</button>
               ))}
@@ -848,7 +848,7 @@ function CampaignBuilder({
                 {headline && <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{headline}</div>}
                 <button style={{
                   padding: '6px 14px', borderRadius: 6, border: 'none',
-                  background: C.indigo, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'default',
+                  background: C.gold, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'default',
                 }}>{ctaChoice}</button>
               </div>
             </div>
@@ -870,7 +870,7 @@ function CampaignBuilder({
             <div style={{ display: 'grid', gap: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: C.text, fontFamily: FONT_HEADING }}>{campaignName}</div>
-                <span style={{ fontSize: 11, background: C.indigoBg, color: C.indigo, padding: '3px 8px', borderRadius: 4, fontWeight: 700, border: `1px solid ${C.indigoBorder}` }}>
+                <span style={{ fontSize: 11, background: C.goldBg, color: C.gold, padding: '3px 8px', borderRadius: 4, fontWeight: 700, border: `1px solid ${C.goldBorder}` }}>
                   {objective.replace('OUTCOME_', '')}
                 </span>
               </div>
@@ -917,8 +917,8 @@ function CampaignBuilder({
               )}
 
               {/* Estimated results */}
-              <Card style={{ background: C.indigoBg, border: `1px solid ${C.indigoBorder}`, padding: 16 }}>
-                <div style={{ fontSize: 11, color: C.indigo, fontWeight: 700, textTransform: 'uppercase' as const, marginBottom: 8, letterSpacing: '0.05em' }}>ESTIMATED RESULTS (DAILY)</div>
+              <Card style={{ background: C.goldBg, border: `1px solid ${C.goldBorder}`, padding: 16 }}>
+                <div style={{ fontSize: 11, color: C.gold, fontWeight: 700, textTransform: 'uppercase' as const, marginBottom: 8, letterSpacing: '0.05em' }}>ESTIMATED RESULTS (DAILY)</div>
                 <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' as const }}>
                   <div><div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{Math.round(budget * 50)}-{Math.round(budget * 120)}</div><div style={{ fontSize: 10, color: C.muted }}>Reach</div></div>
                   <div><div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{Math.round(budget * 2)}-{Math.round(budget * 8)}</div><div style={{ fontSize: 10, color: C.muted }}>Clicks</div></div>
@@ -951,7 +951,7 @@ function CampaignBuilder({
                   top: '-10px',
                   width: 8, height: 8,
                   borderRadius: i % 2 === 0 ? '50%' : 0,
-                  background: ['#6366F1', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6'][i % 5],
+                  background: ['#d4af37', '#22C55E', '#F59E0B', '#EF4444', '#d4af37'][i % 5],
                   animation: `confettiFall ${1.5 + (i % 10) * 0.2}s ease-in forwards`,
                   animationDelay: `${(i % 8) * 0.1}s`,
                 }} />
@@ -973,7 +973,7 @@ function CampaignBuilder({
               href={`https://www.facebook.com/adsmanager/manage/campaigns?act=${metaStatus?.adAccountId?.replace('act_', '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: C.indigo, fontSize: 14, fontWeight: 600, marginBottom: 24 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: C.gold, fontSize: 14, fontWeight: 600, marginBottom: 24 }}
             >
               <ExternalLink size={14} /> View in Meta Ads Manager
             </a>
@@ -1388,7 +1388,7 @@ export default function AdsManager() {
                 Launch Meta campaigns directly from Majorka. No switching between tools. Find product → calculate profit → spy on competitors → launch ad → track results. All in one place. No other tool does this.
               </div>
               <button onClick={() => setShowUpgrade(true)} style={{
-                marginTop: 8, padding: '14px 32px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)',
+                marginTop: 8, padding: '14px 32px', background: 'linear-gradient(135deg,#d4af37,#d4af37)',
                 color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700,
                 cursor: 'pointer', fontFamily: FONT_HEADING,
               }}>
@@ -1451,7 +1451,7 @@ export default function AdsManager() {
           {TABS.map((t) => (
             <button key={t.key} onClick={() => { setTab(t.key); setShowBuilder(false); }} style={{
               padding: '10px 16px', background: 'none', border: 'none',
-              borderBottom: `2px solid ${tab === t.key ? C.indigo : 'transparent'}`,
+              borderBottom: `2px solid ${tab === t.key ? C.gold : 'transparent'}`,
               color: tab === t.key ? C.text : C.muted, fontFamily: FONT_BODY, fontWeight: 600,
               fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
               transition: 'color 150ms', marginBottom: -1, whiteSpace: 'nowrap' as const,
@@ -1489,7 +1489,7 @@ export default function AdsManager() {
                   </div>
                 ) : metaStatus?.meta_not_configured ? (
                   <div>
-                    <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '20px 24px' }}>
+                    <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 12, padding: '20px 24px' }}>
                       <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>
                         Meta Ads Integration — In Development
                       </div>
@@ -1514,7 +1514,7 @@ export default function AdsManager() {
                               emailEl.value = '';
                             } catch { toast.error('Something went wrong. Try again.'); }
                           }}
-                          style={{ padding: '10px 20px', background: C.indigo, color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' as const, whiteSpace: 'nowrap' as const }}
+                          style={{ padding: '10px 20px', background: C.gold, color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' as const, whiteSpace: 'nowrap' as const }}
                         >
                           Join Waitlist →
                         </button>
@@ -1553,7 +1553,7 @@ export default function AdsManager() {
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#fff', fontWeight: 700 }}>M</div>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #d4af37, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#fff', fontWeight: 700 }}>M</div>
                     <span style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 15 }}>Majorka Plugin</span>
                   </div>
                   <StatusBadge
@@ -1573,7 +1573,7 @@ export default function AdsManager() {
                     ))}
                     {shopifyStatus.shop && (
                       <a href={`https://${shopifyStatus.shop}/admin/apps`} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 12, color: C.indigo, textDecoration: 'none' }}>
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 12, color: C.gold, textDecoration: 'none' }}>
                         <ExternalLink size={12} /> View in Shopify Admin
                       </a>
                     )}
@@ -1586,7 +1586,7 @@ export default function AdsManager() {
                         <span style={{ fontSize: 13, color: C.muted }}>{f}</span>
                       </div>
                     ))}
-                    {pluginStep && <div style={{ fontSize: 12, color: C.indigo, marginTop: 8, marginBottom: 4 }}>{pluginStep}</div>}
+                    {pluginStep && <div style={{ fontSize: 12, color: C.gold, marginTop: 8, marginBottom: 4 }}>{pluginStep}</div>}
                     <Btn onClick={handlePluginInstall} loading={pluginInstalling} style={{ marginTop: 8 }}>
                       <Zap size={12} /> Install All
                     </Btn>
@@ -1600,7 +1600,7 @@ export default function AdsManager() {
 
             {/* Next Steps */}
             <Card style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>SETUP CHECKLIST</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>SETUP CHECKLIST</div>
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
                 {nextSteps.map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
@@ -1615,7 +1615,7 @@ export default function AdsManager() {
             {swipeFile.length > 0 && (
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>SWIPE FILE</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>SWIPE FILE</div>
                   <button onClick={() => { localStorage.removeItem('majorka_swipe_file'); setSwipeFile([]); }} style={{ fontSize: 11, color: C.dim, background: 'none', border: 'none', cursor: 'pointer' }}>Clear Swipe File</button>
                 </div>
                 <div style={{ display: 'grid', gap: 8 }}>
@@ -1723,7 +1723,7 @@ export default function AdsManager() {
                       )}
                       <div style={{ padding: 16 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.title}</div>
-                        <div style={{ fontSize: 13, color: C.indigo, fontWeight: 700, marginBottom: 4 }}>${p.price_aud?.toFixed(2)} AUD</div>
+                        <div style={{ fontSize: 13, color: C.gold, fontWeight: 700, marginBottom: 4 }}>${p.price_aud?.toFixed(2)} AUD</div>
                         <StatusBadge ok={p.inventory_status === 'active'} label={p.inventory_status} />
                         <Btn variant="secondary" onClick={() => { setBuilderProduct(p); setShowBuilder(true); setTab('campaigns'); }} style={{ marginTop: 12, width: '100%', justifyContent: 'center' }}>
                           <Target size={12} /> Advertise
@@ -1750,7 +1750,7 @@ export default function AdsManager() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
                 <Card>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>META PIXEL</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>META PIXEL</div>
                   {metaStatus.pixelId ? (
                     <div>
                       <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>Pixel ID: <span style={{ color: C.text, fontFamily: 'monospace' }}>{metaStatus.pixelId}</span></div>
@@ -1769,7 +1769,7 @@ export default function AdsManager() {
                   )}
                 </Card>
                 <Card>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>CONVERSIONS API</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>CONVERSIONS API</div>
                   {metaStatus.capiEnabled ? (
                     <div>
                       <StatusBadge ok={true} label="Active" />
@@ -1791,7 +1791,7 @@ export default function AdsManager() {
                 </Card>
                 {/* Plugin status */}
                 <Card>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>MAJORKA PLUGIN</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>MAJORKA PLUGIN</div>
                   {metaStatus.pixelId && metaStatus.capiEnabled ? (
                     <div>
                       <StatusBadge ok={true} label="All Active" />
@@ -1919,7 +1919,7 @@ export default function AdsManager() {
         {tab === 'performance' && (
           <div>
             {/* Competitive callout — Phase 8 */}
-            <Card style={{ marginBottom: 20, background: C.indigoBg, border: `1px solid ${C.indigoBorder}`, padding: 16 }}>
+            <Card style={{ marginBottom: 20, background: C.goldBg, border: `1px solid ${C.goldBorder}`, padding: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 16 }}>📊</span>
                 <div>
@@ -1948,7 +1948,7 @@ export default function AdsManager() {
                 {/* Campaign table */}
                 {metricsLoading ? (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-                    <Loader2 size={20} style={{ color: C.indigo, animation: 'spin 1s linear infinite' }} />
+                    <Loader2 size={20} style={{ color: C.gold, animation: 'spin 1s linear infinite' }} />
                     <span style={{ marginLeft: 8, color: C.muted, fontSize: 14 }}>Loading metrics...</span>
                   </div>
                 ) : (
@@ -2004,12 +2004,12 @@ export default function AdsManager() {
                                       <button onClick={() => handleUpdateCampaign(c.id, { budget_multiplier: 1.2 })} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: C.greenBg, border: `1px solid ${C.greenBorder}`, color: C.green, cursor: 'pointer', fontWeight: 600 }} title="Scale +20%">Scale ↑</button>
                                       <button onClick={() => handleUpdateCampaign(c.id, { status: 'PAUSED' })} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: C.orangeBg, border: `1px solid ${C.orangeBorder}`, color: C.orange, cursor: 'pointer', fontWeight: 600 }}>Pause</button>
                                       {c.meta_campaign_id && (
-                                        <a href={`https://www.facebook.com/adsmanager/manage/campaigns?act=${metaStatus?.adAccountId?.replace('act_', '')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: C.indigoBg, border: `1px solid ${C.indigoBorder}`, color: C.indigo, textDecoration: 'none', fontWeight: 600 }}>View</a>
+                                        <a href={`https://www.facebook.com/adsmanager/manage/campaigns?act=${metaStatus?.adAccountId?.replace('act_', '')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, textDecoration: 'none', fontWeight: 600 }}>View</a>
                                       )}
                                     </>
                                   )}
                                   {isDraft && (
-                                    <button onClick={() => { setBuilderProduct(undefined); setBuilderInitialStep(undefined); setShowBuilder(true); setTab('campaigns'); }} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: C.indigoBg, border: `1px solid ${C.indigoBorder}`, color: C.indigo, cursor: 'pointer', fontWeight: 600 }}>Publish</button>
+                                    <button onClick={() => { setBuilderProduct(undefined); setBuilderInitialStep(undefined); setShowBuilder(true); setTab('campaigns'); }} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, cursor: 'pointer', fontWeight: 600 }}>Publish</button>
                                   )}
                                 </div>
                               </td>
@@ -2024,7 +2024,7 @@ export default function AdsManager() {
                 {/* Phase 6 — Enhanced AI Budget Optimiser Recommendations */}
                 {recommendations.filter((r) => !dismissedRecs.includes(`${r.campaign.id}_${r.type}`)).length > 0 && (
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>MAYA AI RECOMMENDATIONS</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>MAYA AI RECOMMENDATIONS</div>
                     <div style={{ display: 'grid', gap: 10 }}>
                       {recommendations.filter((r) => !dismissedRecs.includes(`${r.campaign.id}_${r.type}`)).map((rec, i) => {
                         const emoji = rec.type === 'pause' ? '🔴' : rec.type === 'scale' ? '🟢' : rec.type === 'creative' ? '🎨' : '👥';
@@ -2090,8 +2090,8 @@ export default function AdsManager() {
             <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
               {([['all', 'All'], ['winners', 'Winners (ROAS >2x)'], ['drafts', 'Drafts']] as const).map(([key, label]) => (
                 <button key={key} onClick={() => setCreativeFilter(key)} style={{
-                  padding: '7px 14px', borderRadius: 8, border: `1px solid ${creativeFilter === key ? C.indigo : C.border}`,
-                  background: creativeFilter === key ? C.indigoBg : 'transparent', color: creativeFilter === key ? C.text : C.muted,
+                  padding: '7px 14px', borderRadius: 8, border: `1px solid ${creativeFilter === key ? C.gold : C.border}`,
+                  background: creativeFilter === key ? C.goldBg : 'transparent', color: creativeFilter === key ? C.text : C.muted,
                   fontFamily: FONT_BODY, fontWeight: 600, fontSize: 12, cursor: 'pointer',
                 }}>{label}</button>
               ))}
@@ -2170,7 +2170,7 @@ export default function AdsManager() {
 
                           {/* Maya "Why It Worked" analysis */}
                           {creativeAnalysis[c.id] && (
-                            <div style={{ marginTop: 10, padding: 12, background: 'rgba(99,102,241,0.06)', border: `1px solid ${C.indigoBorder}`, borderRadius: 8, fontSize: 12, color: C.muted, lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>
+                            <div style={{ marginTop: 10, padding: 12, background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12, color: C.muted, lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>
                               {creativeAnalysis[c.id]}
                             </div>
                           )}
@@ -2197,7 +2197,7 @@ export default function AdsManager() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
                   {swipeFile.map((entry) => (
                     <Card key={entry.id} style={{ padding: 14 }}>
-                      {entry.platform && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: C.indigoBg, color: C.indigo, border: `1px solid ${C.indigoBorder}`, marginBottom: 8, display: 'inline-block' }}>{entry.platform}</span>}
+                      {entry.platform && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: C.goldBg, color: C.gold, border: `1px solid ${C.goldBorder}`, marginBottom: 8, display: 'inline-block' }}>{entry.platform}</span>}
                       {entry.hook && <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>{entry.hook}</div>}
                       {entry.bodyText && <div style={{ fontSize: 12, color: C.muted, marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{entry.bodyText.slice(0, 80)}</div>}
                       <Btn variant="secondary" onClick={() => {
@@ -2215,7 +2215,7 @@ export default function AdsManager() {
         {tab === 'automation' && (
           <div>
             {/* Competitive messaging */}
-            <Card style={{ marginBottom: 20, background: C.indigoBg, border: `1px solid ${C.indigoBorder}`, padding: 14 }}>
+            <Card style={{ marginBottom: 20, background: C.goldBg, border: `1px solid ${C.goldBorder}`, padding: 14 }}>
               <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>
                 Your rules use your actual break-even CPA from Profit Calc — not a number you have to manually enter.
                 <span style={{ color: C.dim }}> Competitors make you enter this manually. Majorka calculates it from your real product costs.</span>
@@ -2225,7 +2225,7 @@ export default function AdsManager() {
             {/* Active Rules */}
             {automationRules.length > 0 && (
               <div style={{ marginBottom: 28 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>ACTIVE RULES</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>ACTIVE RULES</div>
                 <div style={{ display: 'grid', gap: 10 }}>
                   {automationRules.map((rule) => (
                     <Card key={rule.id} style={{ padding: 14, opacity: rule.enabled ? 1 : 0.5 }}>
@@ -2258,7 +2258,7 @@ export default function AdsManager() {
 
             {/* Rule Templates */}
             <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>RULE TEMPLATES</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14 }}>RULE TEMPLATES</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
                 {RULE_TEMPLATES.map((tmpl) => {
                   const alreadyAdded = automationRules.some((r) => r.name === tmpl.name);
@@ -2285,7 +2285,7 @@ export default function AdsManager() {
             {/* Custom Rule Builder */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: C.indigo, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>CUSTOM RULE</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: FONT_HEADING, letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>CUSTOM RULE</div>
                 <Btn variant="secondary" onClick={() => setShowCustomRuleBuilder(!showCustomRuleBuilder)} style={{ fontSize: 12 }}>
                   {showCustomRuleBuilder ? 'Hide' : '+ Create Custom Rule'}
                 </Btn>
@@ -2352,7 +2352,7 @@ export default function AdsManager() {
             {/* Progress bar */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 24 }}>
               {[1, 2, 3, 4].map((s) => (
-                <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: onboardingStep >= s ? C.indigo : 'rgba(255,255,255,0.08)' }} />
+                <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: onboardingStep >= s ? C.gold : 'rgba(255,255,255,0.08)' }} />
               ))}
             </div>
 
@@ -2406,7 +2406,7 @@ export default function AdsManager() {
             {onboardingStep === 3 && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff' }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #d4af37, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff' }}>
                     <Zap size={24} />
                   </div>
                   <div>

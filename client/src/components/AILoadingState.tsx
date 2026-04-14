@@ -71,7 +71,7 @@ export function AILoadingState({
           <div className="space-y-2">
             <div
               className="rounded-lg animate-pulse"
-              style={{ height: 32, background: 'rgba(99,102,241,0.06)' }}
+              style={{ height: 32, background: 'rgba(212,175,55,0.06)' }}
             />
             {[0, 1, 2, 3].map((i) => (
               <div
@@ -95,7 +95,7 @@ export function AILoadingState({
             key={i}
             className="w-2 h-2 rounded-full animate-bounce"
             style={{
-              background: '#6366F1',
+              background: '#d4af37',
               opacity: 0.6,
               animationDelay: `${i * 0.15}s`,
             }}
@@ -107,7 +107,7 @@ export function AILoadingState({
       <p
         className="text-xs font-semibold transition-opacity duration-300"
         style={{
-          color: 'rgba(99,102,241,0.7)',
+          color: 'rgba(212,175,55,0.7)',
           fontFamily: "'Syne', sans-serif",
         }}
       >

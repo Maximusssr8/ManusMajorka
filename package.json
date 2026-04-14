@@ -12,6 +12,7 @@
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "db:migrate": "tsx scripts/apply-migrations.ts",
+    "pipeline:trigger": "tsx scripts/trigger-pipeline.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed"

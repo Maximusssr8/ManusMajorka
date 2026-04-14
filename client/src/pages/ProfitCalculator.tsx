@@ -170,7 +170,7 @@ export default function ProfitCalculator() {
   const cardStyle: React.CSSProperties = { background: '#0d0d10', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '24px' };
   const labelStyle: React.CSSProperties = { fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#94A3B8', marginBottom: 8, display: 'block' };
   const numberInputStyle: React.CSSProperties = { fontFamily: "'DM Sans', system-ui, sans-serif", background: '#0d0d10', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#F8FAFC', padding: '8px 12px', width: 90, fontSize: 14, outline: 'none' };
-  const sliderStyle: React.CSSProperties = { flex: 1, accentColor: '#6366F1', height: 6, cursor: 'pointer' };
+  const sliderStyle: React.CSSProperties = { flex: 1, accentColor: '#d4af37', height: 6, cursor: 'pointer' };
 
   const InputGroup = ({ label, value, onChange, min, max, step, prefix = '$', suffix = '' }: {
     label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; prefix?: string; suffix?: string;
@@ -209,8 +209,8 @@ export default function ProfitCalculator() {
 
       {/* Header */}
       <div style={{ maxWidth: 1200, margin: '0 auto 40px', display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Calculator size={24} color="#6366F1" />
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(212,175,55,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Calculator size={24} color="#d4af37" />
         </div>
         <div>
           <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 700, color: '#F8FAFC', margin: 0 }}>Profit Calculator</h1>
@@ -303,7 +303,7 @@ export default function ProfitCalculator() {
                 </div>
                 <button onClick={() => setGstEnabled(!gstEnabled)} style={{
                   width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
-                  background: gstEnabled ? '#6366F1' : '#E5E7EB', position: 'relative', transition: 'background 150ms',
+                  background: gstEnabled ? '#d4af37' : '#E5E7EB', position: 'relative', transition: 'background 150ms',
                 }}>
                   <div style={{
                     width: 18, height: 18, borderRadius: '50%', background: '#0d0d10',
@@ -335,7 +335,7 @@ export default function ProfitCalculator() {
                 </div>
                 <button onClick={() => setAfterpayEnabled(!afterpayEnabled)} style={{
                   width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
-                  background: afterpayEnabled ? '#6366F1' : '#E5E7EB', position: 'relative', transition: 'background 150ms',
+                  background: afterpayEnabled ? '#d4af37' : '#E5E7EB', position: 'relative', transition: 'background 150ms',
                 }}>
                   <div style={{
                     width: 18, height: 18, borderRadius: '50%', background: '#0d0d10',
@@ -377,9 +377,9 @@ export default function ProfitCalculator() {
                 navigator.clipboard.writeText(summary);
                 toast.success('Results copied to clipboard!');
               }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#6366F1', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.08)')}>
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#d4af37', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}>
                 <Share2 size={12} /> Share Results
               </button>
             </div>
@@ -407,8 +407,8 @@ export default function ProfitCalculator() {
           </div>
 
           {/* AI Interpretation Card */}
-          <div style={{ ...cardStyle, background: 'rgba(99,102,241,0.04)', borderColor: 'rgba(99,102,241,0.18)' }}>
-            <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, color: '#6366F1', margin: '0 0 12px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>What This Means</h3>
+          <div style={{ ...cardStyle, background: 'rgba(212,175,55,0.04)', borderColor: 'rgba(212,175,55,0.18)' }}>
+            <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, color: '#d4af37', margin: '0 0 12px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>What This Means</h3>
             <p style={{ fontSize: 13, color: '#94A3B8', margin: 0, lineHeight: 1.7 }}>
               {calc.netMarginPct > 30
                 ? `You're looking at a ${pct(calc.netMarginPct)} net margin — genuinely strong for AU ecommerce. At ${fmt(calc.netProfit)} profit per unit and ${unitsPerDay} units/day, that's ${fmt(calc.dailyProfit)}/day or ${fmt(calc.monthlyProfit)}/month. Next step: run a $50/day validation campaign targeting AU buyers.`
@@ -476,8 +476,8 @@ export default function ProfitCalculator() {
           .profit-calc-grid { grid-template-columns: 1fr !important; }
         }
         input[type="range"] { -webkit-appearance: none; appearance: none; background: #E5E7EB; border-radius: 4px; height: 6px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #6366F1; cursor: pointer; border: 2px solid #FFFFFF; box-shadow: 0 0 8px rgba(99,102,241,0.3); }
-        input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #6366F1; cursor: pointer; border: 2px solid #FFFFFF; box-shadow: 0 0 8px rgba(99,102,241,0.3); }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #d4af37; cursor: pointer; border: 2px solid #FFFFFF; box-shadow: 0 0 8px rgba(212,175,55,0.3); }
+        input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #d4af37; cursor: pointer; border: 2px solid #FFFFFF; box-shadow: 0 0 8px rgba(212,175,55,0.3); }
       `}</style>
     </div>
   );

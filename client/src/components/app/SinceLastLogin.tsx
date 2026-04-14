@@ -112,7 +112,7 @@ export function SinceLastLogin() {
       value: `+${deltas.most_viewed_jump.pct}%`,
       sub: title.length > 48 ? `${title.slice(0, 45)}…` : title,
       href: `/app/products?product=${deltas.most_viewed_jump.product_id}`,
-      color: '#818cf8',
+      color: '#e5c158',
     });
   }
   if ((deltas.trending_count ?? 0) > 0) {

@@ -2,8 +2,10 @@ import { Router } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 
-import { checkRateLimit, aiLimiter } from '../lib/ratelimit';
+import { checkRateLimit, aiLimiter, chatLimiter } from '../lib/ratelimit';
 import { requireAuth } from '../middleware/requireAuth';
+import { buildMayaContext, renderMayaContext, renderTierLine } from '../lib/mayaContext';
+import { getSupabaseAdmin } from '../_core/supabase';
 import {
   generateAdImage,
   getImageProviderHealth,
@@ -20,16 +22,28 @@ function getClient() {
 
 // POST /api/ai/chat — Majorka product-research chat (Maya AI).
 // Uses claude-sonnet-4-6 for quality answers on niche/product/strategy questions.
-router.post('/chat', async (req, res) => {
+const chatInputSchema = z.object({
+  message: z.string().min(1).max(10000),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().max(10000),
+      })
+    )
+    .max(50)
+    .optional(),
+  demo: z.boolean().optional(),
+});
+
+router.post('/chat', chatLimiter, async (req, res) => {
   try {
-    const { message, history, demo } = req.body as {
-      message?: string;
-      history?: { role: 'user' | 'assistant'; content: string }[];
-      demo?: boolean;
-    };
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: 'message is required' });
+    const parsed = chatInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'invalid_input', details: parsed.error.flatten() });
     }
+    const { message, history, demo } = parsed.data;
+
     if (demo) {
       return res.json({
         response:
@@ -37,15 +51,36 @@ router.post('/chat', async (req, res) => {
       });
     }
 
-    const systemPrompt = `You are Maya, Majorka's AI research analyst for Australian dropshipping operators.
-You help operators pick winning products, read AliExpress signals, understand margin/shipping, and run profitable Meta/TikTok ads.
+    // Resolve authenticated user (optional — chat works anonymously too)
+    let userId: string | null = null;
+    let userEmail: string | null = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.slice(7);
+        const { data: { user } } = await getSupabaseAdmin().auth.getUser(token);
+        if (user) {
+          userId = user.id;
+          userEmail = user.email ?? null;
+        }
+      } catch {
+        /* not authenticated */
+      }
+    }
+
+    const ctx = await buildMayaContext(userId, userEmail);
+
+    const systemPrompt = `You are Maya, the Majorka product-research AI.
+You have real data in the context below — use it.
+When the user asks "find me a winner for AU in pets", query the context for matching products and return real ones by title + price + orders + why-it-might-win reasoning.
+Never make up products. If the context doesn't have a match, say so and suggest a broader filter.
+${renderTierLine(ctx.tier)}
 Always use AU English. Be specific, data-driven, and concise — 3 short paragraphs max unless asked for depth.
-Never invent product statistics. When unsure, say so and suggest the next research step inside Majorka (Products tab, Ads Studio, Revenue tracker).`;
+${renderMayaContext(ctx)}`;
 
     const client = getClient();
     const priorMessages = Array.isArray(history)
       ? history
-          .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
           .slice(-10)
           .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }))
       : [];
@@ -60,7 +95,10 @@ Never invent product statistics. When unsure, say so and suggest the next resear
     const text = resp.content[0]?.type === 'text' ? resp.content[0].text : '';
     return res.json({ response: text || 'No response generated — try rephrasing your question.' });
   } catch (err) {
-    console.error('[/api/ai/chat]', err);
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line no-console
+      console.error('[/api/ai/chat]', err);
+    }
     return res.status(500).json({ error: 'Chat failed. Try again in a moment.' });
   }
 });
@@ -565,5 +603,272 @@ router.post('/save-output', requireAuth, async (req, res) => {
     res.json({ ok: true } as any);
   } catch (err: any) {
     res.status(500).json({ error: err.message } as any);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/ai/generate-store-concept
+// Generates a complete store concept for the Store Builder AI mode.
+// Model: claude-haiku-4-5-20251001. Returns JSON matching storeConceptSchema.
+// Fetches 5 real products from winning_products matching the niche, then asks
+// Claude to pick copy + palette + fonts + per-product rationale.
+// ─────────────────────────────────────────────────────────────────────────────
+const storeConceptInputSchema = z.object({
+  niche: z.string().min(2).max(120),
+  market: z.string().min(2).max(60).optional().default('Australia'),
+  tone: z.string().min(2).max(60).optional(),
+});
+
+interface WinningProductRow {
+  id: string;
+  product_title: string;
+  image_url: string | null;
+  price_aud: number | null;
+  category: string | null;
+  winning_score: number | null;
+  sold_count: number | null;
+}
+
+async function fetchNicheProducts(niche: string, limit = 8): Promise<WinningProductRow[]> {
+  try {
+    const sb = getSupabaseAdmin();
+    // Case-insensitive match on category OR title — DB is small enough
+    const term = niche.trim();
+    const like = `%${term}%`;
+    const { data } = await sb
+      .from('winning_products')
+      .select('id, product_title, image_url, price_aud, category, winning_score, sold_count')
+      .or(`category.ilike.${like},product_title.ilike.${like}`)
+      .not('image_url', 'is', null)
+      .gt('price_aud', 0)
+      .order('winning_score', { ascending: false, nullsFirst: false })
+      .limit(limit);
+    return (data as WinningProductRow[] | null) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+const storeConceptSchemaLines = `{
+  "names": ["string", "string", "string"],  // 3 candidate store names, 2-4 words each, brandable
+  "tagline": "string (max 80 chars)",
+  "palette": {
+    "primary": "#RRGGBB",
+    "secondary": "#RRGGBB",
+    "accent": "#RRGGBB"
+  },
+  "fonts": {
+    "heading": "one of: Syne, Inter, Playfair Display, DM Serif Display, Space Grotesk, Poppins, Manrope",
+    "body": "one of: DM Sans, Inter, Manrope, Nunito, Work Sans"
+  },
+  "audience": "one sentence describing the target AU buyer",
+  "productRationales": [  // MUST have exactly 5 entries, one per input product (in same order)
+    { "id": "product id as string", "rationale": "one sentence starting with 'This fits because' explaining why it belongs in this store" }
+  ]
+}`;
+
+router.post('/generate-store-concept', requireAuth, aiLimiter, async (req, res) => {
+  try {
+    const parsed = storeConceptInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'invalid_input', details: parsed.error.flatten() });
+    }
+    const { niche, market, tone } = parsed.data;
+
+    const candidates = await fetchNicheProducts(niche, 8);
+    const chosen = candidates.slice(0, 5);
+
+    if (chosen.length === 0) {
+      return res.json({
+        ok: false,
+        reason: 'no_products',
+        message: `No products in our database match "${niche}" yet. Try a broader niche.`,
+      });
+    }
+
+    const client = getClient();
+    const productLines = chosen
+      .map((p, i) => `${i + 1}. id=${p.id} · "${p.product_title}" · $${p.price_aud ?? '?'} AUD · category=${p.category ?? 'n/a'}`)
+      .join('\n');
+
+    const systemPrompt = `You are a senior e-commerce brand director.
+Return ONLY valid JSON. No prose before or after. No markdown fences.
+Output shape:
+${storeConceptSchemaLines}
+Rules:
+- AU English. ${tone ? `Tone: ${tone}. ` : ''}Target market: ${market}.
+- Store names must be distinctive, pronounceable, 2-4 words. No generic words like "Shop", "Store", "World" on their own.
+- Colour palette must read well on a dark luxury background and pass basic contrast checks.
+- The productRationales array MUST include exactly one entry per product listed, in the same order, with the exact id string.`;
+
+    const userPrompt = `Niche: ${niche}
+Market: ${market}
+Candidate products (use these exact IDs in productRationales):
+${productLines}`;
+
+    const completion = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1400,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    const textBlock = completion.content.find((c) => c.type === 'text');
+    const raw = textBlock && textBlock.type === 'text' ? textBlock.text : '';
+    const jsonStart = raw.indexOf('{');
+    const jsonEnd = raw.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+      return res.status(502).json({ ok: false, reason: 'parse_error', message: 'Model did not return JSON.' });
+    }
+    let concept: unknown;
+    try {
+      concept = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+    } catch (parseErr: unknown) {
+      const msg = parseErr instanceof Error ? parseErr.message : 'parse_error';
+      return res.status(502).json({ ok: false, reason: 'parse_error', message: msg });
+    }
+
+    const conceptSchema = z.object({
+      names: z.array(z.string()).min(1).max(5),
+      tagline: z.string().min(1).max(200),
+      palette: z.object({
+        primary: z.string().regex(/^#?[0-9a-fA-F]{6}$/),
+        secondary: z.string().regex(/^#?[0-9a-fA-F]{6}$/),
+        accent: z.string().regex(/^#?[0-9a-fA-F]{6}$/),
+      }),
+      fonts: z.object({ heading: z.string(), body: z.string() }),
+      audience: z.string().min(1),
+      productRationales: z.array(z.object({
+        id: z.string(),
+        rationale: z.string().min(1),
+      })),
+    });
+    const check = conceptSchema.safeParse(concept);
+    if (!check.success) {
+      return res.status(502).json({ ok: false, reason: 'schema_error', message: 'Concept did not match schema.', issues: check.error.flatten() });
+    }
+
+    const rationalesById = new Map(check.data.productRationales.map((r) => [String(r.id), r.rationale]));
+    const products = chosen.map((p) => ({
+      id: String(p.id),
+      product_title: p.product_title,
+      image_url: p.image_url,
+      price_aud: p.price_aud,
+      rationale: rationalesById.get(String(p.id)) ?? 'Strong fit for this niche based on category match.',
+    }));
+
+    return res.json({
+      ok: true,
+      concept: {
+        names: check.data.names,
+        tagline: check.data.tagline,
+        palette: check.data.palette,
+        fonts: check.data.fonts,
+        audience: check.data.audience,
+      },
+      products,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, error: message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/ai/generate-meta-ad
+// Produces a 3×3×3 Meta ad variants pack + hook + audience + interests.
+// Model: claude-haiku-4-5-20251001. JSON-only output validated by Zod.
+// ─────────────────────────────────────────────────────────────────────────────
+const metaAdInputSchema = z.object({
+  productTitle: z.string().min(1).max(300),
+  productUrl: z.string().url().optional(),
+  pricePoint: z.string().max(60).optional(),
+  benefit: z.string().max(500).optional(),
+  audience: z.string().max(500).optional(),
+  format: z.enum(['feed', 'reels', 'stories']).optional().default('feed'),
+});
+
+const META_CTAS = [
+  'Shop Now',
+  'Learn More',
+  'Get Offer',
+  'Order Now',
+  'Sign Up',
+  'See More',
+  'Get Quote',
+  'Subscribe',
+] as const;
+
+router.post('/generate-meta-ad', requireAuth, aiLimiter, async (req, res) => {
+  try {
+    const parsed = metaAdInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'invalid_input', details: parsed.error.flatten() });
+    }
+    const { productTitle, pricePoint, benefit, audience, format } = parsed.data;
+
+    const client = getClient();
+    const systemPrompt = `You are a senior Meta Ads direct-response copywriter for the AU market.
+Return ONLY valid JSON matching this shape (no prose, no markdown):
+{
+  "headlines": ["string (max 40 chars)", "string", "string"],
+  "bodies": ["string (max 125 chars)", "string", "string"],
+  "ctas": ["one of: ${META_CTAS.join(', ')}", "different from #1", "different from #1 and #2"],
+  "hook": "first-3-seconds hook line (max 120 chars) — scroll-stopping, specific",
+  "audience": "1 paragraph describing the ideal AU buyer for Meta targeting",
+  "interests": ["exactly 5 Meta interest-targeting keywords"]
+}
+Rules:
+- AU English. Specific, benefit-led. No em-dashes, no hype words ("amazing", "game-changing").
+- Headlines ≤ 40 chars; bodies ≤ 125 chars. Count carefully.
+- CTAs must be exact matches from the Meta allowed list provided.
+- Interests must be plausible Meta Ads Manager interest categories.`;
+
+    const userPrompt = `PRODUCT: ${productTitle}
+PRICE: ${pricePoint ?? 'n/a'}
+BENEFIT: ${benefit ?? 'not specified'}
+AUDIENCE HINT: ${audience ?? 'AU buyers 25-45'}
+FORMAT: Meta ${format}`;
+
+    const completion = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    const textBlock = completion.content.find((c) => c.type === 'text');
+    const raw = textBlock && textBlock.type === 'text' ? textBlock.text : '';
+    const jsonStart = raw.indexOf('{');
+    const jsonEnd = raw.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+      return res.status(502).json({ ok: false, reason: 'parse_error', message: 'Model did not return JSON.' });
+    }
+    let payload: unknown;
+    try {
+      payload = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+    } catch (parseErr: unknown) {
+      const msg = parseErr instanceof Error ? parseErr.message : 'parse_error';
+      return res.status(502).json({ ok: false, reason: 'parse_error', message: msg });
+    }
+
+    const allowedCtas = [...META_CTAS] as string[];
+    const metaAdSchema = z.object({
+      headlines: z.array(z.string().min(1)).length(3),
+      bodies: z.array(z.string().min(1)).length(3),
+      ctas: z.array(z.string().refine((c) => allowedCtas.includes(c), 'cta not allowed')).length(3),
+      hook: z.string().min(1),
+      audience: z.string().min(1),
+      interests: z.array(z.string().min(1)).length(5),
+    });
+    const check = metaAdSchema.safeParse(payload);
+    if (!check.success) {
+      return res.status(502).json({ ok: false, reason: 'schema_error', issues: check.error.flatten() });
+    }
+
+    return res.json({ ok: true, ad: check.data });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, error: message });
   }
 });

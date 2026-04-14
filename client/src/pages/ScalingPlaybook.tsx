@@ -140,7 +140,7 @@ export default function ScalingPlaybook() {
     }
   };
 
-  const phaseColors = ['#6366F1', '#7c6af5', '#6366F1', '#ff6b6b', '#00b4d8', '#f472b6'];
+  const phaseColors = ['#d4af37', '#7c6af5', '#d4af37', '#ff6b6b', '#00b4d8', '#f472b6'];
 
   return (
     <div
@@ -275,7 +275,7 @@ export default function ScalingPlaybook() {
                 border: '1.5px solid #F5F5F5',
                 color: '#CBD5E1',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
               onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
             />
             <button
@@ -283,9 +283,9 @@ export default function ScalingPlaybook() {
               disabled={emailSending}
               className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-60"
               style={{
-                background: emailSending ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.15)',
-                border: '1px solid rgba(99,102,241,0.3)',
-                color: '#6366F1',
+                background: emailSending ? 'rgba(212,175,55,0.2)' : 'rgba(212,175,55,0.15)',
+                border: '1px solid rgba(212,175,55,0.3)',
+                color: '#d4af37',
                 cursor: emailSending ? 'not-allowed' : 'pointer',
                 fontFamily: "'Syne', sans-serif",
               }}

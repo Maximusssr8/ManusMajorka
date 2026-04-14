@@ -66,9 +66,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? '#EEF2FF' : '#F9FAFB',
+        background: copied ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(212,175,55,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -167,7 +167,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                     className="text-xs flex items-start gap-1.5 mb-1"
                     style={{ color: '#CBD5E1' }}
                   >
-                    <span style={{ color: '#6366F1', flexShrink: 0 }}>✓</span>
+                    <span style={{ color: '#d4af37', flexShrink: 0 }}>✓</span>
                     {d}
                   </div>
                 ))}
@@ -205,7 +205,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                   className="text-xs flex items-start gap-1.5 mb-1"
                   style={{ color: '#CBD5E1' }}
                 >
-                  <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
+                  <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
                   {t}
                 </div>
               ))}
@@ -293,14 +293,14 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
             <div
               className="p-3 rounded-xl"
               style={{
-                background: 'rgba(99,102,241,0.06)',
-                border: '1px solid rgba(99,102,241,0.15)',
+                background: 'rgba(212,175,55,0.06)',
+                border: '1px solid rgba(212,175,55,0.15)',
               }}
             >
               <div className="flex items-center justify-between mb-1.5">
                 <div
                   className="text-xs font-bold uppercase tracking-wider"
-                  style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+                  style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
                 >
                   🎣 Ad Hook
                 </div>

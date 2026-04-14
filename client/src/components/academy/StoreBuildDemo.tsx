@@ -70,7 +70,7 @@ export function StoreBuildDemo() {
       <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #6366f1, #10b981)' }}
+          style={{ background: 'linear-gradient(90deg, #d4af37, #10b981)' }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.3 }}
         />
@@ -87,8 +87,8 @@ export function StoreBuildDemo() {
               key={i}
               className="flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-colors"
               style={{
-                background: isActive ? 'rgba(99,102,241,0.08)' : isDone ? 'rgba(16,185,129,0.04)' : 'transparent',
-                borderColor: isActive ? 'rgba(99,102,241,0.25)' : isDone ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)',
+                background: isActive ? 'rgba(212,175,55,0.08)' : isDone ? 'rgba(16,185,129,0.04)' : 'transparent',
+                borderColor: isActive ? 'rgba(212,175,55,0.25)' : isDone ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)',
               }}
             >
               <div className="w-5 h-5 flex-shrink-0 mt-0.5 flex items-center justify-center">

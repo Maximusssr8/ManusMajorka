@@ -11,7 +11,7 @@ const C = {
   bg: '#FAFAFA',
   surface: '#FFFFFF',
   border: '#E5E7EB',
-  gold: '#6366F1',
+  gold: '#d4af37',
   text: '#0A0A0A',
   muted: 'rgba(0,0,0,0.4)',
   sub: 'rgba(0,0,0,0.6)',
@@ -90,9 +90,9 @@ export default function Billing() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Current Plan Card */}
-          <div style={{ background: C.card, border: `1px solid ${isActive ? 'rgba(99,102,241,0.25)' : C.border}`, borderRadius: 16, padding: 24 }}>
+          <div style={{ background: C.card, border: `1px solid ${isActive ? 'rgba(212,175,55,0.25)' : C.border}`, borderRadius: 16, padding: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: isActive ? 'rgba(99,102,241,0.15)' : C.surface, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: isActive ? 'rgba(212,175,55,0.15)' : C.surface, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {planLabel === 'Free' ? <Zap size={18} style={{ color: C.muted }} /> : <Star size={18} style={{ color: C.gold }} />}
               </div>
               <div>
@@ -100,7 +100,7 @@ export default function Billing() {
                 <div style={{ fontSize: 12, color: isActive ? C.green : C.muted }}>{isActive ? '● Active' : '● Inactive'}</div>
               </div>
               {isActive && (
-                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: 'rgba(99,102,241,0.12)', color: C.gold, fontFamily: "'Syne', sans-serif" }}>
+                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: 'rgba(212,175,55,0.12)', color: C.gold, fontFamily: "'Syne', sans-serif" }}>
                   SUBSCRIBED
                 </span>
               )}
@@ -129,7 +129,7 @@ export default function Billing() {
             {planLabel === 'Free' && (
               <a
                 href="/pricing"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: '#6366F1', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: '#d4af37', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
               >
                 <Star size={14} /> Upgrade Plan
               </a>
@@ -138,7 +138,7 @@ export default function Billing() {
             {planLabel === 'Builder' && (
               <a
                 href="/pricing"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: C.surface, border: '1px solid rgba(99,102,241,0.3)', color: C.gold, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: C.surface, border: '1px solid rgba(212,175,55,0.3)', color: C.gold, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
               >
                 <Zap size={14} /> Upgrade to Scale
               </a>

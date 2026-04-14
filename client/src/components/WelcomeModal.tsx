@@ -82,7 +82,7 @@ export default function WelcomeModal({ userName }: Props) {
         className="relative w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
           background: '#111114',
-          border: '1px solid rgba(99,102,241,0.25)',
+          border: '1px solid rgba(212,175,55,0.25)',
           borderRadius: 16,
           boxShadow: '0 32px 80px rgba(0,0,0,0.8)',
         }}
@@ -126,13 +126,13 @@ export default function WelcomeModal({ userName }: Props) {
                 key={stat.label}
                 className="text-center rounded-xl py-3 px-2"
                 style={{
-                  background: 'rgba(99,102,241,0.1)',
-                  border: '1px solid rgba(99,102,241,0.2)',
+                  background: 'rgba(212,175,55,0.1)',
+                  border: '1px solid rgba(212,175,55,0.2)',
                 }}
               >
                 <div
                   className="text-lg font-bold"
-                  style={{ fontFamily: "'Syne', sans-serif", color: '#818cf8' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#e5c158' }}
                 >
                   {stat.value}
                 </div>
@@ -161,18 +161,18 @@ export default function WelcomeModal({ userName }: Props) {
                     onClick={() => setSelectedGoal(goal.id)}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all"
                     style={{
-                      background: selected ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${selected ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                      background: selected ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${selected ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
                       cursor: 'pointer',
                     }}
                   >
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)',
+                        background: selected ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
                       }}
                     >
-                      <Icon size={14} style={{ color: selected ? '#818cf8' : '#71717a' }} />
+                      <Icon size={14} style={{ color: selected ? '#e5c158' : '#71717a' }} />
                     </div>
                     <span
                       className="text-sm"
@@ -184,8 +184,8 @@ export default function WelcomeModal({ userName }: Props) {
                       <div
                         className="w-4 h-4 rounded-full flex items-center justify-center"
                         style={{
-                          border: `2px solid ${selected ? '#6366F1' : '#D1D5DB'}`,
-                          background: selected ? '#6366F1' : 'transparent',
+                          border: `2px solid ${selected ? '#d4af37' : '#D1D5DB'}`,
+                          background: selected ? '#d4af37' : 'transparent',
                         }}
                       >
                         {selected && (
@@ -221,12 +221,12 @@ export default function WelcomeModal({ userName }: Props) {
               onClick={handleStartExploring}
               className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
               style={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
                 border: 'none',
                 color: '#FAFAFA',
                 cursor: 'pointer',
                 fontFamily: "'Syne', sans-serif",
-                boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
+                boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
               }}
             >
               Start Exploring {'\u2192'}

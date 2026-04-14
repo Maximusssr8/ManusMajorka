@@ -17,14 +17,14 @@ export function MetricTooltip({ label, tip, children }: MetricTooltipProps) {
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: 14, height: 14, borderRadius: '50%',
-          background: 'rgba(99,102,241,0.2)', color: '#9CA3AF',
+          background: 'rgba(212,175,55,0.2)', color: '#9CA3AF',
           fontSize: 9, fontWeight: 700, cursor: 'help', flexShrink: 0,
         }}
       >?</span>
       {show && (
         <div style={{
           position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
-          background: '#1E2433', border: '1px solid rgba(99,102,241,0.3)',
+          background: '#1E2433', border: '1px solid rgba(212,175,55,0.3)',
           borderRadius: 8, padding: '8px 12px', width: 220, fontSize: 12,
           color: '#D1D5DB', lineHeight: 1.5, zIndex: 9999,
           boxShadow: '0 4px 16px rgba(0,0,0,0.4)', marginBottom: 6,

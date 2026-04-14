@@ -14,7 +14,7 @@ export function ShimmerButton({ children, onClick, className = '', disabled }: S
       disabled={disabled}
       className={`relative overflow-hidden ${className}`}
       style={{
-        background: '#6366F1',
+        background: '#d4af37',
         color: 'white',
         border: 'none',
         borderRadius: '8px',

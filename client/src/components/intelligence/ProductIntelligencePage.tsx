@@ -122,7 +122,7 @@ export function ProductIntelligencePage() {
             {tab.badge && (
               <span
                 className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-[#e5c158]"
-                style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}
+                style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.2)' }}
               >
                 {tab.badge}
               </span>

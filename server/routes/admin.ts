@@ -11,7 +11,6 @@ import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
 import { launchTikTokScrape } from '../lib/apifyTikTokShop';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
-import { collectCJRealProducts } from '../scrapers/cj-real-products';
 import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 
 const router = Router();
@@ -1468,15 +1467,9 @@ router.post('/scrape-aliexpress', requireAuth, requireAdmin, async (req: Request
   }
 });
 
-// POST /api/admin/run-cj-real — pulls 100 real CJ products per category, upserts to winning_products
-router.post('/run-cj-real', requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  res.json({ success: true, message: 'CJ real data collection started in background. Check logs.' });
-  // Fire and forget (this takes ~15 minutes due to per-product detail fetches)
-  import('../lib/cjRealData').then(({ collectRealCJProducts }) => {
-    collectRealCJProducts()
-      .then(r => console.log('[admin] CJ real data complete:', r))
-      .catch(e => console.error('[admin] CJ real data error:', e.message));
-  });
+// /run-cj-real removed — CJ pipeline purged. Use /api/admin/trigger-pipeline.
+router.post('/run-cj-real', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  res.status(410).json({ success: false, error: 'CJ pipeline removed. Use /api/admin/trigger-pipeline.' });
 });
 
 // POST /api/admin/run-full-scrape — triggers all scrapers (fire-and-forget)
@@ -1647,20 +1640,7 @@ router.post('/run-ae-detail-scrape', requireAuth, requireAdmin, async (req: Requ
   }
 });
 
-// ── Phase 3: CJ Real Products by Category ID ────────────────────────────
-
-router.post('/run-cj-real-products', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
-  // Fire-and-forget — takes ~20 min to complete
-  res.json({ message: 'CJ real data collection started' });
-  setImmediate(async () => {
-    try {
-      const result = await collectCJRealProducts();
-      console.log('[admin/cj-real] Complete:', result);
-    } catch (err: any) {
-      console.error('[admin/cj-real] Error:', err.message);
-    }
-  });
-});
+// /run-cj-real-products removed — CJ pipeline purged. Use /api/admin/trigger-pipeline.
 
 // ── Phase 7: Score Recalibration ────────────────────────────────────────
 

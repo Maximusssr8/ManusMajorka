@@ -105,7 +105,7 @@ export default function MarketIntel() {
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm"
-            style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: '#FAFAFA' }}
+            style={{ background: 'linear-gradient(135deg, #d4af37, #d4af37)', color: '#FAFAFA' }}
           >
             I
           </div>
@@ -126,7 +126,7 @@ export default function MarketIntel() {
           <div className="space-y-4 p-4">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                <Sparkles className="w-12 h-12 mb-4" style={{ color: '#6366F1', opacity: 0.3 }} />
+                <Sparkles className="w-12 h-12 mb-4" style={{ color: '#d4af37', opacity: 0.3 }} />
                 <p className="text-sm text-muted-foreground max-w-xs">
                   Tell me about your market or product, and I'll provide competitive intelligence
                   and market insights.
@@ -141,7 +141,7 @@ export default function MarketIntel() {
               >
                 {msg.role === 'assistant' && (
                   <div className="w-8 h-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4" style={{ color: '#6366F1' }} />
+                    <Sparkles className="w-4 h-4" style={{ color: '#d4af37' }} />
                   </div>
                 )}
 
@@ -169,7 +169,7 @@ export default function MarketIntel() {
             {status === 'streaming' && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" style={{ color: '#6366F1' }} />
+                  <Sparkles className="w-4 h-4" style={{ color: '#d4af37' }} />
                 </div>
                 <div className="bg-muted rounded-lg px-4 py-2.5">
                   <div className="flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function MarketIntel() {
                 disabled={status === 'streaming' || !input.trim()}
                 size="sm"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #c09a28)',
+                  background: 'linear-gradient(135deg, #d4af37, #c09a28)',
                   color: '#FAFAFA',
                 }}
               >

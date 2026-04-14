@@ -73,7 +73,7 @@ export function TeamFeatureCards() {
           <h3 style={{
             marginTop: 40,
             marginBottom: 0,
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 30,
             lineHeight: '36px',
             fontWeight: 500,

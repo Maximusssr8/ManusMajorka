@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const brico = "'Syne', sans-serif";
 const dm = 'DM Sans, sans-serif';
 // Always dark — the app is dark-mode only
-const C = { bg: '#0a0a0a', card: '#111114', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', indigo: '#6366F1', indigoBg: 'rgba(99,102,241,0.1)', indigoBorder: 'rgba(99,102,241,0.25)' };
+const C = { bg: '#0a0a0a', card: '#111114', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', gold: '#d4af37', goldBg: 'rgba(212,175,55,0.1)', goldBorder: 'rgba(212,175,55,0.25)' };
 
 type AlertType = 'trending' | 'price_drop' | 'competitor';
 interface Alert { id: string; alert_type: AlertType; config: Record<string, unknown>; is_active: boolean; last_triggered_at: string | null; created_at: string; }
@@ -95,10 +95,10 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
 
   if (!isPro) return (
     <div style={{ padding: isMobile ? '24px 16px' : '48px 32px', textAlign: 'center', background: C.bg, minHeight: '100vh' }}>
-      <Bell size={40} style={{ color: C.indigo, margin: '0 auto 16px' }} />
+      <Bell size={40} style={{ color: C.gold, margin: '0 auto 16px' }} />
       <h2 style={{ fontFamily: brico, fontSize: 22, color: C.text, marginBottom: 8 }}>Smart Alerts</h2>
       <p style={{ color: C.sub, fontSize: 14, maxWidth: 400, margin: '0 auto 24px' }}>Set up intelligent alerts for trending products, price drops, and competitor moves. Available on Builder and Scale plans.</p>
-      <a href="/pricing" style={{ display: 'inline-flex', padding: '12px 28px', background: C.indigo, color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: brico }}>Upgrade to Enable Alerts →</a>
+      <a href="/pricing" style={{ display: 'inline-flex', padding: '12px 28px', background: C.gold, color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: brico }}>Upgrade to Enable Alerts →</a>
     </div>
   );
 
@@ -111,7 +111,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
             <h1 style={{ fontFamily: brico, fontSize: 26, fontWeight: 800, color: C.text, marginBottom: 4 }}>Smart Alerts</h1>
             <p style={{ color: C.sub, fontSize: 14 }}>{alerts.length} active alert{alerts.length !== 1 ? 's' : ''} · Get notified when opportunities emerge</p>
           </div>
-          <button onClick={() => setShowCreate(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: brico }}>
+          <button onClick={() => setShowCreate(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: C.gold, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: brico }}>
             <Plus size={14} /> New Alert
           </button>
         </div>
@@ -123,7 +123,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
           {(['active', 'history'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ padding: '7px 18px', borderRadius: 20, fontSize: 13, cursor: 'pointer', transition: 'all 150ms', fontFamily: dm, fontWeight: tab === t ? 600 : 400, background: tab === t ? C.indigoBg : 'transparent', color: tab === t ? C.indigo : C.sub, border: `1px solid ${tab === t ? C.indigoBorder : 'transparent'}` }}>
+            <button key={t} onClick={() => setTab(t)} style={{ padding: '7px 18px', borderRadius: 20, fontSize: 13, cursor: 'pointer', transition: 'all 150ms', fontFamily: dm, fontWeight: tab === t ? 600 : 400, background: tab === t ? C.goldBg : 'transparent', color: tab === t ? C.gold : C.sub, border: `1px solid ${tab === t ? C.goldBorder : 'transparent'}` }}>
               {t === 'active' ? `Active (${alerts.length})` : `History (${history.length})`}
             </button>
           ))}
@@ -149,11 +149,11 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
         ) : tab === 'active' && alerts.length === 0 ? (
           <div>
             {/* Email notice */}
-            <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Bell size={15} style={{ color: '#6366F1', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: C.sub, flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+            <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Bell size={15} style={{ color: '#d4af37', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: C.sub, flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#d4af37', fontWeight: 600 }}>Settings → Notifications</a>.</span>
               <button onClick={sendTestNotification} disabled={testSending || testSent}
-                style={{ flexShrink: 0, height: 28, padding: '0 10px', background: testSent ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: testSending || testSent ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
+                style={{ flexShrink: 0, height: 28, padding: '0 10px', background: testSent ? '#059669' : '#d4af37', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: testSending || testSent ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
                 {testSent ? '✓ Sent!' : testSending ? 'Sending…' : 'Test Email'}
               </button>
             </div>
@@ -174,7 +174,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                       <div style={{ fontSize: 11, color: C.sub }}>{s.preview}</div>
                     </div>
                     <button onClick={() => setShowCreate(true)}
-                      style={{ flexShrink: 0, height: 30, padding: '0 12px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                      style={{ flexShrink: 0, height: 30, padding: '0 12px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                       + Set Up
                     </button>
                   </div>
@@ -194,8 +194,8 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               const cfgText = alert.alert_type === 'trending' ? `${cfg.niche} · ${cfg.region}` : alert.alert_type === 'price_drop' ? `${cfg.keyword ? cfg.keyword + ' · ' : ''}Below $${cfg.threshold} AUD` : `${cfg.store_domain} · ${cfg.category}`;
               return (
                 <div key={alert.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: C.indigoBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <TypeIcon size={16} style={{ color: C.indigo }} />
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: C.goldBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <TypeIcon size={16} style={{ color: C.gold }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: brico, fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 2 }}>{typeLabel}</div>
@@ -206,7 +206,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                     }
                     <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>Fired 0 times this week</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                      <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(212,175,55,0.1)', color: '#d4af37', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
                       <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(255,255,255,0.05)', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
                     </div>
                   </div>
@@ -238,7 +238,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               {/* Alert type selector */}
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8, marginBottom: 20 }}>
                 {ALERT_TYPES.map(at => (
-                  <label key={at.type} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', border: `1px solid ${alertType === at.type ? C.indigoBorder : C.border}`, borderRadius: 10, cursor: 'pointer', background: alertType === at.type ? C.indigoBg : 'rgba(255,255,255,0.03)' }}>
+                  <label key={at.type} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', border: `1px solid ${alertType === at.type ? C.goldBorder : C.border}`, borderRadius: 10, cursor: 'pointer', background: alertType === at.type ? C.goldBg : 'rgba(255,255,255,0.03)' }}>
                     <input type="radio" name="alertType" value={at.type} checked={alertType === at.type} onChange={() => setAlertType(at.type)} style={{ marginTop: 2 }} />
                     <div>
                       <div style={{ fontFamily: dm, fontWeight: 600, fontSize: 13, color: C.text, marginBottom: 2 }}>{at.label}</div>
@@ -298,7 +298,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               )}
               <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
                 <button onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '11px', border: `1px solid ${C.border}`, borderRadius: 10, background: C.card, color: C.sub, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: dm }}>Cancel</button>
-                <button onClick={createAlert} disabled={saving || !!domainError} style={{ flex: 2, padding: '11px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (saving || !!domainError) ? 'not-allowed' : 'pointer', fontFamily: brico, opacity: domainError ? 0.6 : 1 }}>
+                <button onClick={createAlert} disabled={saving || !!domainError} style={{ flex: 2, padding: '11px', background: C.gold, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (saving || !!domainError) ? 'not-allowed' : 'pointer', fontFamily: brico, opacity: domainError ? 0.6 : 1 }}>
                   {saving ? 'Creating…' : 'Create Alert'}
                 </button>
               </div>

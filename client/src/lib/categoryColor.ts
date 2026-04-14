@@ -63,7 +63,7 @@ export function fmtK(n: number | null | undefined): string {
  */
 export function getCategoryStyle(category: string | null | undefined): CategoryStyle {
   const c = (category ?? '').toLowerCase();
-  if (c.includes('kid') || c.includes('toy') || c.includes('baby'))                            return { gradient: 'linear-gradient(135deg,#4c1d95,#7c3aed)', emoji: '🧸' };
+  if (c.includes('kid') || c.includes('toy') || c.includes('baby'))                            return { gradient: 'linear-gradient(135deg,#4c1d95,#d4af37)', emoji: '🧸' };
   if (c.includes('fitness') || c.includes('sport') || c.includes('health') || c.includes('beauty')) return { gradient: 'linear-gradient(135deg,#14532d,#16a34a)', emoji: '💪' };
   if (c.includes('electron') || c.includes('phone') || c.includes('tech') || c.includes('mobile')) return { gradient: 'linear-gradient(135deg,#1e1b4b,#3730a3)', emoji: '⚡' };
   if (c.includes('kitchen') || c.includes('food') || c.includes('cook'))                        return { gradient: 'linear-gradient(135deg,#7c2d12,#c2410c)', emoji: '🍳' };

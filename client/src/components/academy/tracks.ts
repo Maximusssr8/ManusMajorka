@@ -121,7 +121,7 @@ export const ACADEMY_TRACKS: TrackSpec[] = [
     title: 'Building the Store',
     blurb:
       'Niche, creatives, copy, conversion — the full launch-day stack, without the guru fluff.',
-    accent: '#6366f1',
+    accent: '#d4af37',
     tier: 'scale',
     lessons: [
       {

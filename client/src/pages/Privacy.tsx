@@ -7,7 +7,7 @@ const C = {
   border: '#E5E7EB',
   text: '#0A0A0A',
   secondary: '#6B7280',
-  gold: '#6366F1',
+  gold: '#d4af37',
 };
 
 const syne = "'Syne', sans-serif";
@@ -78,7 +78,7 @@ export default function Privacy() {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                background: 'linear-gradient(135deg, #d4af37, #d4af37)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

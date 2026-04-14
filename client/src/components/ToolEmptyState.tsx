@@ -27,14 +27,14 @@ export default function ToolEmptyState({
       <div className="relative mb-6">
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center"
-          style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' }}
+          style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)' }}
         >
-          {createElement(toolIcon, { size: 28, style: { color: '#6366F1' } })}
+          {createElement(toolIcon, { size: 28, style: { color: '#d4af37' } })}
         </div>
         <div
           className="absolute inset-0 rounded-2xl animate-ping"
           style={{
-            background: 'rgba(99,102,241,0.06)',
+            background: 'rgba(212,175,55,0.06)',
             animationDuration: '3s',
             animationIterationCount: 'infinite',
           }}
@@ -57,23 +57,23 @@ export default function ToolEmptyState({
         onClick={onTryExample}
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
         style={{
-          background: 'rgba(99,102,241,0.06)',
-          border: '1px solid rgba(99,102,241,0.15)',
+          background: 'rgba(212,175,55,0.06)',
+          border: '1px solid rgba(212,175,55,0.15)',
           cursor: 'pointer',
           color: '#F8FAFC',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)';
-          e.currentTarget.style.background = 'rgba(99,102,241,0.1)';
+          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)';
+          e.currentTarget.style.background = 'rgba(212,175,55,0.1)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(99,102,241,0.15)';
-          e.currentTarget.style.background = 'rgba(99,102,241,0.06)';
+          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)';
+          e.currentTarget.style.background = 'rgba(212,175,55,0.06)';
         }}
       >
-        <Sparkles size={13} style={{ color: '#6366F1', flexShrink: 0 }} />
+        <Sparkles size={13} style={{ color: '#d4af37', flexShrink: 0 }} />
         <span className="text-sm">
-          Try this: <span style={{ color: '#6366F1' }}>&ldquo;{examplePrompt}&rdquo;</span>
+          Try this: <span style={{ color: '#d4af37' }}>&ldquo;{examplePrompt}&rdquo;</span>
         </span>
       </button>
     </div>

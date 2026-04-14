@@ -66,9 +66,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? '#EEF2FF' : '#F9FAFB',
+        background: copied ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(212,175,55,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -78,23 +78,23 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 const RELIABILITY_COLORS: Record<string, string> = {
-  High: '#6366F1',
-  Medium: '#6366F1',
+  High: '#d4af37',
+  Medium: '#d4af37',
   Low: '#e05c7a',
 };
 const PLATFORM_COLORS: Record<string, string> = {
   Alibaba: '#e05c7a',
-  AliExpress: '#6366F1',
+  AliExpress: '#d4af37',
   DHgate: '#4ab8f5',
   '1688': '#9c5fff',
-  Faire: '#6366F1',
-  Local: '#6366F1',
+  Faire: '#d4af37',
+  Local: '#d4af37',
 };
 
 function SupplierCard({ supplier }: { supplier: Supplier }) {
   const [tab, setTab] = useState<'overview' | 'search' | 'contact'>('overview');
   const pc = PLATFORM_COLORS[supplier.platform] || '#4ab8f5';
-  const rc = RELIABILITY_COLORS[supplier.reliability] || '#6366F1';
+  const rc = RELIABILITY_COLORS[supplier.reliability] || '#d4af37';
 
   return (
     <div
@@ -190,7 +190,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                   className="text-xs flex items-start gap-1.5 mb-1"
                   style={{ color: '#CBD5E1' }}
                 >
-                  <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
+                  <span style={{ color: '#d4af37', flexShrink: 0 }}>+</span>
                   {p}
                 </div>
               ))}
@@ -381,9 +381,9 @@ export default function SupplierFinder() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}
+          style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid #C7D2FE' }}
         >
-          <Truck size={15} style={{ color: '#6366F1' }} />
+          <Truck size={15} style={{ color: '#d4af37' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
@@ -502,9 +502,9 @@ export default function SupplierFinder() {
                   onClick={() => setProduct(c)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: product === c ? '#EEF2FF' : '#F9FAFB',
+                    background: product === c ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
                     border: `1px solid ${product === c ? '#C7D2FE' : '#E5E7EB'}`,
-                    color: product === c ? '#6366F1' : '#6B7280',
+                    color: product === c ? '#d4af37' : '#6B7280',
                     cursor: 'pointer',
                   }}
                 >
@@ -519,7 +519,7 @@ export default function SupplierFinder() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
-              background: isLoading ? '#C7D2FE' : '#6366F1',
+              background: isLoading ? '#C7D2FE' : '#d4af37',
               color: '#FAFAFA',
               fontFamily: "'Syne', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -556,11 +556,11 @@ export default function SupplierFinder() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: '#EEF2FF',
-                  border: '1px solid rgba(99,102,241,0.30)',
+                  background: 'rgba(212,175,55,0.08)',
+                  border: '1px solid rgba(212,175,55,0.30)',
                 }}
               >
-                <Truck size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
+                <Truck size={24} style={{ color: '#d4af37' }} className="animate-pulse" />
               </div>
               <div className="text-center">
                 <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
@@ -579,13 +579,13 @@ export default function SupplierFinder() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(99,102,241,0.06)',
-                    border: '1px solid rgba(99,102,241,0.18)',
+                    background: 'rgba(212,175,55,0.06)',
+                    border: '1px solid rgba(212,175,55,0.18)',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
                   >
                     Recommended Platforms
                   </div>
@@ -595,7 +595,7 @@ export default function SupplierFinder() {
                       className="text-xs flex items-start gap-1.5 mb-1.5"
                       style={{ color: '#CBD5E1' }}
                     >
-                      <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
+                      <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
                       {p}
                     </div>
                   ))}
@@ -636,13 +636,13 @@ export default function SupplierFinder() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(99,102,241,0.04)',
-                    border: '1px solid rgba(99,102,241,0.12)',
+                    background: 'rgba(212,175,55,0.04)',
+                    border: '1px solid rgba(212,175,55,0.12)',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
                   >
                     Negotiation Tips
                   </div>
@@ -652,7 +652,7 @@ export default function SupplierFinder() {
                       className="text-xs flex items-start gap-1.5 mb-1.5"
                       style={{ color: '#CBD5E1' }}
                     >
-                      <span style={{ color: '#6366F1', flexShrink: 0 }}>{i + 1}.</span>
+                      <span style={{ color: '#d4af37', flexShrink: 0 }}>{i + 1}.</span>
                       {tip}
                     </div>
                   ))}

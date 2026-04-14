@@ -67,7 +67,7 @@ function LogoItem({ logo }: { logo: Logo }) {
         />
       ) : (
         <span style={{
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
           fontSize: 18,
           fontWeight: 700,
           color: 'white',

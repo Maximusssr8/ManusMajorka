@@ -43,7 +43,7 @@ export function Pagination({ currentPage, totalPages, total, limit, onPageChange
         <div className="flex items-center gap-0.5 mx-1">
           {getPageNumbers().map((p, i) =>
             p === '...' ? <span key={`d${i}`} className="w-8 text-center text-[12px] select-none" style={{ color: 'rgba(255,255,255,0.2)' }}>···</span> :
-            <button key={p} onClick={() => onPageChange(p as number)} className={`${btnBase} font-medium`} style={currentPage === p ? { background: '#6366f1', color: 'white', border: '1px solid #6366f1' } : { ...btnStyle, color: 'rgba(255,255,255,0.45)' }}>{p}</button>
+            <button key={p} onClick={() => onPageChange(p as number)} className={`${btnBase} font-medium`} style={currentPage === p ? { background: '#d4af37', color: 'white', border: '1px solid #d4af37' } : { ...btnStyle, color: 'rgba(255,255,255,0.45)' }}>{p}</button>
           )}
         </div>
         {[{ label: '›', page: currentPage + 1, disabled: currentPage === totalPages }, { label: '»', page: totalPages, disabled: currentPage === totalPages, title: 'Last' }].map(b => (

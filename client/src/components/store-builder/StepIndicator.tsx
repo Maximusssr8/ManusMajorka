@@ -38,7 +38,7 @@ export default function StepIndicator({ steps, currentIndex, onStepClick }: Step
                     'flex items-center justify-center rounded-full transition-all duration-200',
                     'w-9 h-9 text-sm font-bold',
                     active
-                      ? 'bg-gradient-to-br from-[#d4af37] to-[#3B82F6] text-white shadow-[0_0_0_4px_rgba(99,102,241,0.2),0_8px_24px_-4px_rgba(99,102,241,0.6)]'
+                      ? 'bg-gradient-to-br from-[#d4af37] to-[#3B82F6] text-white shadow-[0_0_0_4px_rgba(212,175,55,0.2),0_8px_24px_-4px_rgba(212,175,55,0.6)]'
                       : done
                         ? 'bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40'
                         : 'bg-white/[0.04] text-white/40 border border-white/[0.08]',

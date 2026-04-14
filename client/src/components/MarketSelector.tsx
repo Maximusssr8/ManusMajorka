@@ -32,7 +32,7 @@ export default function MarketSelector() {
         }}
         onMouseEnter={(e) => {
           if (!open)
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(99,102,241,0.2)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(212,175,55,0.2)';
         }}
         onMouseLeave={(e) => {
           if (!open)
@@ -75,7 +75,7 @@ export default function MarketSelector() {
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-all"
                 style={{
-                  background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
+                  background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
                   color: active ? '#0A0A0A' : '#6B7280',
                   cursor: 'pointer',
                   border: 'none',
@@ -94,7 +94,7 @@ export default function MarketSelector() {
                 <span className="text-sm">{m.flag}</span>
                 <span className="flex-1 text-left">{m.name}</span>
                 {active && (
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#6366F1' }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#d4af37' }} />
                 )}
               </button>
             );

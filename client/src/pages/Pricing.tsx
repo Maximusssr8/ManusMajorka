@@ -13,13 +13,13 @@ const C = {
   card: 'white',
   elevated: '#F9FAFB',
   border: '#E5E7EB',
-  borderHover: 'rgba(99,102,241,0.3)',
+  borderHover: 'rgba(212,175,55,0.3)',
   text: '#374151',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#6366F1',
-  goldDim: 'rgba(99,102,241,0.1)',
-  goldBorder: 'rgba(99,102,241,0.25)',
+  gold: '#d4af37',
+  goldDim: 'rgba(212,175,55,0.1)',
+  goldBorder: 'rgba(212,175,55,0.25)',
 };
 
 const syne = "'Syne', sans-serif";
@@ -52,7 +52,7 @@ function LockedToolOverlay({ toolName }: { toolName: string }) {
         href="/pricing"
         style={{
           padding: '6px 14px',
-          background: '#6366F1',
+          background: '#d4af37',
           color: '#FAFAFA',
           borderRadius: 8,
           fontSize: 12,
@@ -110,7 +110,7 @@ function EmotionalComparisonTable() {
                 fontFamily: syne,
                 fontWeight: 800,
                 fontSize: 'clamp(48px, 8vw, 80px)',
-                color: '#6366F1',
+                color: '#d4af37',
                 lineHeight: 1,
               }}
             >
@@ -177,7 +177,7 @@ function EmotionalComparisonTable() {
                 fontSize: 11,
                 fontWeight: 700,
                 fontFamily: syne,
-                color: '#6366F1',
+                color: '#d4af37',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 textAlign: 'center',
@@ -203,7 +203,7 @@ function EmotionalComparisonTable() {
                 ${tool.cost}/mo
               </span>
               <span
-                style={{ textAlign: 'center', fontSize: 14, color: '#6366F1', fontWeight: 700 }}
+                style={{ textAlign: 'center', fontSize: 14, color: '#d4af37', fontWeight: 700 }}
               >
                 ✓ Included
               </span>
@@ -214,7 +214,7 @@ function EmotionalComparisonTable() {
           <div
             style={{
               background: 'rgba(255,255,255,0.03)',
-              borderTop: '1px solid rgba(99,102,241,0.2)',
+              borderTop: '1px solid rgba(212,175,55,0.2)',
               padding: '16px 20px',
             }}
           >
@@ -253,7 +253,7 @@ function EmotionalComparisonTable() {
                   fontFamily: syne,
                   fontWeight: 800,
                   fontSize: 16,
-                  color: '#6366F1',
+                  color: '#d4af37',
                 }}
               >
                 ${MAJORKA_PRICE}/mo
@@ -270,9 +270,9 @@ function EmotionalComparisonTable() {
             >
               <span
                 style={{
-                  background: 'rgba(99,102,241,0.12)',
-                  border: '1px solid rgba(99,102,241,0.25)',
-                  color: '#6366F1',
+                  background: 'rgba(212,175,55,0.12)',
+                  border: '1px solid rgba(212,175,55,0.25)',
+                  color: '#d4af37',
                   borderRadius: 100,
                   padding: '4px 14px',
                   fontFamily: syne,
@@ -303,8 +303,8 @@ function EmotionalComparisonTable() {
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: '#6366F1',
-                boxShadow: '0 0 6px #6366F1',
+                background: '#d4af37',
+                boxShadow: '0 0 6px #d4af37',
               }}
             />
             <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 500 }}>
@@ -316,14 +316,14 @@ function EmotionalComparisonTable() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: 'rgba(99,102,241,0.06)',
-              border: '1px solid rgba(99,102,241,0.2)',
+              background: 'rgba(212,175,55,0.06)',
+              border: '1px solid rgba(212,175,55,0.2)',
               borderRadius: 100,
               padding: '5px 14px',
             }}
           >
             <span style={{ fontSize: 12 }}>⚡</span>
-            <span style={{ fontSize: 12, color: '#6366F1', fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: '#d4af37', fontWeight: 600 }}>
             </span>
           </div>
         </div>
@@ -396,13 +396,13 @@ function SavingsCalculator() {
         maxWidth: 860,
         margin: '0 auto',
         background: '#0d0d10',
-        border: '1px solid rgba(99,102,241,0.2)',
+        border: '1px solid rgba(212,175,55,0.2)',
         borderRadius: 20,
         padding: '40px 36px',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #6366F1, transparent)' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 24, marginBottom: 8 }}>💸</div>
           <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#CBD5E1', letterSpacing: '-0.02em', marginBottom: 6 }}>
@@ -415,7 +415,7 @@ function SavingsCalculator() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <span style={{ fontSize: 13, color: '#94A3B8' }}>Your monthly ad spend:</span>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: '#6366F1' }}>{fmt(adSpend)}/month</span>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: '#d4af37' }}>{fmt(adSpend)}/month</span>
           </div>
           <input
             type="range"
@@ -430,7 +430,7 @@ function SavingsCalculator() {
               WebkitAppearance: 'none',
               height: 6,
               borderRadius: 3,
-              background: `linear-gradient(to right, #6366F1 ${((adSpend - 500) / (50000 - 500)) * 100}%, #F0F0F0 ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
+              background: `linear-gradient(to right, #d4af37 ${((adSpend - 500) / (50000 - 500)) * 100}%, #F0F0F0 ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
               outline: 'none',
               cursor: 'pointer',
             }}
@@ -453,8 +453,8 @@ function SavingsCalculator() {
               <div key={item} style={{ fontSize: 13, color: '#94A3B8', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
             ))}
           </div>
-          <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '20px 18px' }}>
-            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#6366F1', marginBottom: 14 }}>With Majorka Pro</div>
+          <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 14, padding: '20px 18px' }}>
+            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#d4af37', marginBottom: 14 }}>With Majorka Pro</div>
             {[
               `✅ Data-backed choices`,
               `✅ Save ~${fmt(savings)}/month`,
@@ -466,8 +466,8 @@ function SavingsCalculator() {
         </div>
 
         {/* Payback box */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.06))', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 14, padding: '20px 24px', textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#6366F1', marginBottom: 4, transition: 'all 0.3s' }}>
+        <div style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06))', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 14, padding: '20px 24px', textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#d4af37', marginBottom: 4, transition: 'all 0.3s' }}>
             💰 Majorka Pro pays for itself in {paybackDays} day{paybackDays !== 1 ? 's' : ''}
           </div>
           <div style={{ fontSize: 13, color: '#94A3B8' }}>
@@ -476,7 +476,7 @@ function SavingsCalculator() {
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#FAFAFA', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
+          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #d4af37, #3B82F6)', color: '#FAFAFA', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
             Start Saving Now →
           </a>
         </div>
@@ -675,7 +675,7 @@ export default function Pricing() {
                 width: 32,
                 height: 32,
                 borderRadius: 7,
-                background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+                background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -756,7 +756,7 @@ export default function Pricing() {
               fontSize: 14,
               fontWeight: 700,
               fontFamily: syne,
-              background: !annual ? `linear-gradient(135deg, ${C.gold}, #4F46E5)` : 'transparent',
+              background: !annual ? `linear-gradient(135deg, ${C.gold}, #3B82F6)` : 'transparent',
               color: !annual ? '#FAFAFA' : C.secondary,
               border: 'none',
               cursor: 'pointer',
@@ -772,7 +772,7 @@ export default function Pricing() {
               fontSize: 14,
               fontWeight: 700,
               fontFamily: syne,
-              background: annual ? `linear-gradient(135deg, ${C.gold}, #4F46E5)` : 'transparent',
+              background: annual ? `linear-gradient(135deg, ${C.gold}, #3B82F6)` : 'transparent',
               color: annual ? '#FAFAFA' : C.secondary,
               border: 'none',
               cursor: 'pointer',
@@ -784,8 +784,8 @@ export default function Pricing() {
             Annual
             <span
               style={{
-                background: 'rgba(99,102,241,0.15)',
-                color: '#6366F1',
+                background: 'rgba(212,175,55,0.15)',
+                color: '#d4af37',
                 fontSize: 10,
                 fontWeight: 800,
                 padding: '2px 8px',
@@ -808,10 +808,10 @@ export default function Pricing() {
           {/* Metrics-based social proof — no fake names */}
           <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto 0' }}>
             {[
-              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#6366F1', bg: '#EEF2FF', border: '#C7D2FE' },
+              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#d4af37', bg: 'rgba(212,175,55,0.08)', border: '#C7D2FE' },
               { stat: '7',   label: 'global markets covered',   icon: '🌏', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
               { stat: '14',  label: 'day money-back guarantee', icon: '✅', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
-              { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#7C3AED', bg: '#F3E8FF', border: '#DDD6FE' },
+              { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#d4af37', bg: '#F3E8FF', border: '#e5c158' },
             ].map(m => (
               <div key={m.label} style={{ background: m.bg, border: `1px solid ${m.border}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' as const }}>
                 <div style={{ fontSize: 22, marginBottom: 6 }}>{m.icon}</div>
@@ -847,7 +847,7 @@ export default function Pricing() {
                 borderRadius: 20,
                 padding: 36,
                 position: 'relative',
-                boxShadow: plan.highlight ? '0 0 48px rgba(99,102,241,0.18)' : 'none',
+                boxShadow: plan.highlight ? '0 0 48px rgba(212,175,55,0.18)' : 'none',
               }}
             >
               {/* Badge */}
@@ -858,7 +858,7 @@ export default function Pricing() {
                     top: -14,
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+                    background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
                     color: '#FAFAFA',
                     borderRadius: 100,
                     padding: '5px 18px',
@@ -900,7 +900,7 @@ export default function Pricing() {
                   <span style={{ textDecoration: 'line-through', color: C.muted }}>
                     ${parseInt(plan.price.replace(/\$/g, '')) * 12}/yr
                   </span>{' '}
-                  <span style={{ color: '#6366F1', fontWeight: 700 }}>
+                  <span style={{ color: '#d4af37', fontWeight: 700 }}>
                     ${getAnnualTotal(plan)}/yr — save ${Math.round(parseInt(plan.price.replace(/\$/g, '')) * 12 * 0.2)}
                   </span>
                 </div>
@@ -915,7 +915,7 @@ export default function Pricing() {
                     display: 'block',
                     textAlign: 'center',
                     background: plan.highlight
-                      ? `linear-gradient(135deg, ${C.gold}, #4F46E5)`
+                      ? `linear-gradient(135deg, ${C.gold}, #3B82F6)`
                       : 'transparent',
                     color: plan.highlight ? '#FAFAFA' : C.text,
                     border: plan.highlight ? 'none' : `1px solid ${C.border}`,
@@ -938,7 +938,7 @@ export default function Pricing() {
                     display: 'block',
                     width: '100%',
                     textAlign: 'center',
-                    background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+                    background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
                     color: '#FAFAFA',
                     border: 'none',
                     borderRadius: 10,
@@ -948,7 +948,7 @@ export default function Pricing() {
                     fontSize: 15,
                     cursor: checkoutLoading ? 'not-allowed' : 'pointer',
                     marginBottom: 16,
-                    boxShadow: '0 0 24px rgba(99,102,241,0.3)',
+                    boxShadow: '0 0 24px rgba(212,175,55,0.3)',
                     opacity: checkoutLoading ? 0.7 : 1,
                   }}
                 >
@@ -1033,7 +1033,7 @@ export default function Pricing() {
                     }}
                   >
                     <span
-                      style={{ color: '#6366F1', fontWeight: 700, flexShrink: 0, marginTop: 1 }}
+                      style={{ color: '#d4af37', fontWeight: 700, flexShrink: 0, marginTop: 1 }}
                     >
                       {'\u2713'}
                     </span>
@@ -1153,7 +1153,7 @@ export default function Pricing() {
                     fontSize: 13,
                     color:
                       row.builder === '\u2713'
-                        ? '#6366F1'
+                        ? '#d4af37'
                         : row.builder === '\u2717'
                           ? C.muted
                           : C.gold,
@@ -1168,7 +1168,7 @@ export default function Pricing() {
                     fontSize: 13,
                     color:
                       row.scale === '\u2713'
-                        ? '#6366F1'
+                        ? '#d4af37'
                         : row.scale === '\u2717'
                           ? C.muted
                           : C.gold,
@@ -1210,7 +1210,7 @@ export default function Pricing() {
                   border: `1px solid ${openFaq === i ? C.goldBorder : C.border}`,
                   borderRadius: 12,
                   overflow: 'hidden',
-                  background: openFaq === i ? 'rgba(99,102,241,0.04)' : C.card,
+                  background: openFaq === i ? 'rgba(212,175,55,0.04)' : C.card,
                   transition: 'border-color 0.2s, background 0.2s',
                 }}
               >
@@ -1259,7 +1259,7 @@ export default function Pricing() {
         className="pricing-bottom-cta"
         style={{
           padding: isMobile ? '40px 16px' : '80px 24px',
-          background: `linear-gradient(135deg, rgba(99,102,241,0.10) 0%, rgba(99,102,241,0.03) 60%, ${C.bg} 100%)`,
+          background: `linear-gradient(135deg, rgba(212,175,55,0.10) 0%, rgba(212,175,55,0.03) 60%, ${C.bg} 100%)`,
           borderTop: `1px solid ${C.goldBorder}`,
           textAlign: 'center',
         }}
@@ -1282,7 +1282,7 @@ export default function Pricing() {
           href="/sign-up?plan=builder"
           style={{
             display: 'inline-block',
-            background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+            background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
             color: '#FAFAFA',
             borderRadius: 10,
             padding: '14px 36px',
@@ -1290,7 +1290,7 @@ export default function Pricing() {
             fontWeight: 800,
             fontSize: 16,
             textDecoration: 'none',
-            boxShadow: '0 0 36px rgba(99,102,241,0.35)',
+            boxShadow: '0 0 36px rgba(212,175,55,0.35)',
             marginBottom: 24,
           }}
         >
@@ -1335,7 +1335,7 @@ export default function Pricing() {
               width: 28,
               height: 28,
               borderRadius: 6,
-              background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+              background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

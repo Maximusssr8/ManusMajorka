@@ -58,8 +58,8 @@ const C = {
   bg: '#FAFAFA',
   surface: 'white',
   border: '#E5E7EB',
-  borderHover: 'rgba(99,102,241,0.35)',
-  primary: '#6366F1',
+  borderHover: 'rgba(212,175,55,0.35)',
+  primary: '#d4af37',
   text: '#0A0A0A',
   sub: '#6B7280',
   muted: '#9CA3AF',
@@ -298,7 +298,7 @@ export default function TrendSignals() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                background: 'rgba(99,102,241,0.08)', border: `1px solid rgba(99,102,241,0.25)`,
+                background: 'rgba(212,175,55,0.08)', border: `1px solid rgba(212,175,55,0.25)`,
                 color: C.primary, cursor: refreshing ? 'not-allowed' : 'pointer', opacity: refreshing ? 0.7 : 1,
                 fontFamily: "'Syne', sans-serif",
               }}
@@ -314,8 +314,8 @@ export default function TrendSignals() {
       {products.length > 0 && (
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366F1', boxShadow: '0 0 8px #6366F1' }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d4af37', boxShadow: '0 0 8px #d4af37' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#d4af37', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
               Top 10 Today
             </span>
             <span style={{ fontSize: 11, color: '#9CA3AF' }}>· Refreshed every 6h</span>
@@ -328,11 +328,11 @@ export default function TrendSignals() {
                 <div key={p.id || p.name + '-top'}
                   style={{
                     flexShrink: 0, width: 160, background: '#0d0d10',
-                    border: `1px solid ${idx === 0 ? '#6366F1' : '#E5E7EB'}`,
+                    border: `1px solid ${idx === 0 ? '#d4af37' : '#E5E7EB'}`,
                     borderRadius: 10, overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.15s',
                   }}
-                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1'}
-                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#6366F1' : '#E5E7EB'}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#d4af37'}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#d4af37' : '#E5E7EB'}
                 >
                   <div style={{ height: 90, overflow: 'hidden' }}>
                     <ProductImage src={p.image_url} alt={p.name || ''} size={90} style={{ width: '100%', height: 90, borderRadius: 0 }} />
@@ -342,8 +342,8 @@ export default function TrendSignals() {
                       {p.name}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1' }}>${p.estimated_retail_aud}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#6366F1' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d4af37' }}>${p.estimated_retail_aud}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#d4af37' }}>
                         {p.winning_score || p.trend_score}
                       </span>
                     </div>
@@ -510,7 +510,7 @@ export default function TrendSignals() {
                               title={p.trend_reason || ''}
                               style={{
                                 fontSize: 13, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: C.text,
-                                cursor: 'help', textDecoration: p.trend_reason ? 'underline dotted rgba(99,102,241,0.3)' : 'none',
+                                cursor: 'help', textDecoration: p.trend_reason ? 'underline dotted rgba(212,175,55,0.3)' : 'none',
                               }}
                             >
                               {p.name}
@@ -537,7 +537,7 @@ export default function TrendSignals() {
 
                     {/* Revenue */}
                     <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#6366F1', fontFamily: "'Syne', sans-serif" }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#d4af37', fontFamily: "'Syne', sans-serif" }}>
                         ${Math.round(p.est_monthly_revenue_aud || 0).toLocaleString()}/mo
                       </div>
                     </td>
@@ -552,7 +552,7 @@ export default function TrendSignals() {
 
                     {/* Growth */}
                     <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#6366F1' : '#ef4444' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#d4af37' : '#ef4444' }}>
                         {(p.growth_rate_pct || 0) >= 0 ? '\u2191' : '\u2193'} {Math.abs(p.growth_rate_pct || 0)}%
                       </span>
                     </td>
@@ -590,7 +590,7 @@ export default function TrendSignals() {
                             <div key={i} style={{
                               width: 8, height: 8, borderRadius: 2,
                               background: i <= Math.round((p.saturation_score || 5) / 2)
-                                ? (p.saturation_score || 5) >= 7 ? '#6366F1' : (p.saturation_score || 5) >= 4 ? '#6366F1' : '#ef4444'
+                                ? (p.saturation_score || 5) >= 7 ? '#d4af37' : (p.saturation_score || 5) >= 4 ? '#d4af37' : '#ef4444'
                                 : '#E5E7EB',
                             }} />
                           ))}
@@ -656,7 +656,7 @@ export default function TrendSignals() {
                             navigate(`/app/store-builder?${params.toString()}`);
                           }}
                           style={{
-                            height: 28, padding: '0 12px', background: '#6366F1', color: 'white',
+                            height: 28, padding: '0 12px', background: '#d4af37', color: 'white',
                             border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600,
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const,
                           }}
@@ -672,8 +672,8 @@ export default function TrendSignals() {
                             navigate(`/app/suppliers?${sparams.toString()}`);
                           }}
                           style={{
-                            height: 28, padding: '0 12px', background: '#0d0d10', color: '#6366F1',
-                            border: '1px solid #6366F1', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                            height: 28, padding: '0 12px', background: '#0d0d10', color: '#d4af37',
+                            border: '1px solid #d4af37', borderRadius: 6, fontSize: 12, fontWeight: 600,
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' as const,
                           }}
                         >
@@ -759,7 +759,7 @@ export default function TrendSignals() {
               onClick={() => setPage(i + 1)}
               style={{
                 width: 32, height: 32, borderRadius: 7, border: `1px solid ${page === i + 1 ? C.primary : C.border}`,
-                background: page === i + 1 ? 'rgba(99,102,241,0.12)' : C.surface,
+                background: page === i + 1 ? 'rgba(212,175,55,0.12)' : C.surface,
                 color: page === i + 1 ? C.primary : C.muted,
                 cursor: 'pointer', fontSize: 12, fontWeight: page === i + 1 ? 700 : 400,
               }}

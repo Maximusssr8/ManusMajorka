@@ -234,7 +234,7 @@ export default function Academy() {
           >
             <a
               href="#modules"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#d4af37] hover:bg-[#e5c158] text-white text-sm font-semibold transition-all hover:scale-[1.02] shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_20px_60px_rgba(99,102,241,0.3)]"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#d4af37] hover:bg-[#e5c158] text-white text-sm font-semibold transition-all hover:scale-[1.02] shadow-[0_0_0_1px_rgba(212,175,55,0.4),0_20px_60px_rgba(212,175,55,0.3)]"
             >
               Start free
               <ArrowRight size={16} />
@@ -375,7 +375,7 @@ export default function Academy() {
                 <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #6366f1 0%, #10b981 100%)' }}
+                    style={{ background: 'linear-gradient(90deg, #d4af37 0%, #10b981 100%)' }}
                     animate={{ width: `${progressPct}%` }}
                     transition={{ duration: 0.5 }}
                   />
@@ -449,7 +449,7 @@ export default function Academy() {
                 role: 'Melbourne · Home & kitchen',
                 rev: '$9,200 / mo',
                 quote: 'The velocity score is the only metric I look at now. If it\'s not 85+, I don\'t even click the product. Saved me from three losers already.',
-                color: '#6366f1',
+                color: '#d4af37',
               },
               {
                 name: 'Priya S.',
@@ -578,8 +578,8 @@ export default function Academy() {
               whileHover={{ y: -4 }}
               className="relative bg-gradient-to-b from-[#d4af37]/[0.08] to-surface border rounded-2xl p-7 flex flex-col"
               style={{
-                borderColor: 'rgba(99,102,241,0.35)',
-                boxShadow: '0 0 0 1px rgba(99,102,241,0.25), 0 30px 80px rgba(99,102,241,0.15)',
+                borderColor: 'rgba(212,175,55,0.35)',
+                boxShadow: '0 0 0 1px rgba(212,175,55,0.25), 0 30px 80px rgba(212,175,55,0.15)',
               }}
             >
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#d4af37] text-white text-[10px] font-mono uppercase tracking-widest">

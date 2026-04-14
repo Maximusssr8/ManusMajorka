@@ -237,7 +237,7 @@ export function ProductDeepDive({ product, onClose }: ProductDeepDiveProps) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '10px 16px',
-                background: '#6366F1',
+                background: '#d4af37',
                 color: 'white',
                 textDecoration: 'none',
                 borderRadius: 8,
@@ -248,10 +248,10 @@ export function ProductDeepDive({ product, onClose }: ProductDeepDiveProps) {
                 transition: 'background 150ms',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = '#4F46E5';
+                (e.currentTarget as HTMLAnchorElement).style.background = '#3B82F6';
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = '#6366F1';
+                (e.currentTarget as HTMLAnchorElement).style.background = '#d4af37';
               }}
             >
               View on AliExpress →

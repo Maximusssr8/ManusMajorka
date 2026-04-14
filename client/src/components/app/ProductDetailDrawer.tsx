@@ -141,7 +141,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             {[
               { label: 'Sell Price', value: price > 0 ? `$${price.toFixed(2)}` : '—', color: '#f0f4ff' },
               { label: 'Orders/Mo', value: product.sold_count ? product.sold_count.toLocaleString() : 'pending', color: product.sold_count ? '#10b981' : '#4b5563' },
-              { label: 'AI Score',  value: `${Math.round(product.winning_score ?? 0)}/100`, color: '#818cf8' },
+              { label: 'AI Score',  value: `${Math.round(product.winning_score ?? 0)}/100`, color: '#e5c158' },
               { label: 'Source',    value: product.platform ?? 'AliExpress', color: '#a1a1aa' },
             ].map((m) => (
               <div key={m.label} style={{

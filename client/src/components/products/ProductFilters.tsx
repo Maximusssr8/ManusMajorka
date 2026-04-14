@@ -9,7 +9,7 @@
  *
  * Styling is intentionally neutral — uses generic Tailwind utility
  * classes (bg-white/[0.04], border-white/[0.08], etc.) so it renders
- * correctly whether the project is on the old indigo accent or the new
+ * correctly whether the project is on the old gold accent or the new
  * gold token palette.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';

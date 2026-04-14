@@ -104,7 +104,7 @@ function CopyBtn({ text }: { text: string }) {
       style={{
         background: copied ? '#D1FAE5' : '#F5F7FF',
         border: `1px solid ${copied ? '#A7F3D0' : '#E0E7FF'}`,
-        color: copied ? '#065F46' : '#6366F1',
+        color: copied ? '#065F46' : '#d4af37',
         cursor: 'pointer',
       }}
     >
@@ -114,8 +114,8 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 const COMPETITION_COLORS: Record<string, string> = {
-  Low: '#6366F1',
-  Medium: '#6366F1',
+  Low: '#d4af37',
+  Medium: '#d4af37',
   High: '#e05c7a',
 };
 const TREND_ICONS: Record<string, string> = {
@@ -129,7 +129,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   const [photos, setPhotos] = useState<string[]>([]);
   const { setProduct } = useActiveProduct();
   const [, setLocation] = useLocation();
-  const cc = COMPETITION_COLORS[product.competitionLevel] || '#6366F1';
+  const cc = COMPETITION_COLORS[product.competitionLevel] || '#d4af37';
 
   useEffect(() => {
     searchPhotos(product.name, 3)
@@ -155,9 +155,9 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               product.score >= 75
                 ? '#D1FAE5'
                 : product.score >= 50
-                  ? 'rgba(99,102,241,0.15)'
+                  ? 'rgba(212,175,55,0.15)'
                   : 'rgba(224,92,122,0.15)',
-            color: product.score >= 75 ? '#6366F1' : product.score >= 50 ? '#6366F1' : '#e05c7a',
+            color: product.score >= 75 ? '#d4af37' : product.score >= 50 ? '#d4af37' : '#e05c7a',
             border: `1px solid ${product.score >= 75 ? '#6EE7B7' : product.score >= 50 ? '#C7D2FE' : '#FECACA'}`,
             fontFamily: "'Syne', sans-serif",
           }}
@@ -187,10 +187,10 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             style={{
               color:
                 product.trendDirection === 'Rising'
-                  ? '#6366F1'
+                  ? '#d4af37'
                   : product.trendDirection === 'Declining'
                     ? '#e05c7a'
-                    : '#6366F1',
+                    : '#d4af37',
             }}
           >
             {TREND_ICONS[product.trendDirection]} {product.trendDirection}
@@ -237,7 +237,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               </div>
               <div
                 className="text-sm font-extrabold"
-                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+                style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
               >
                 {product.estimatedMargin}
               </div>
@@ -257,13 +257,13 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           <div
             className="p-3 rounded-xl"
             style={{
-              background: 'rgba(99,102,241,0.04)',
-              border: '1px solid rgba(99,102,241,0.12)',
+              background: 'rgba(212,175,55,0.04)',
+              border: '1px solid rgba(212,175,55,0.12)',
             }}
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+              style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
             >
               Why Now
             </div>
@@ -304,9 +304,9 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               }}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold"
               style={{
-                background: '#EEF2FF',
+                background: 'rgba(212,175,55,0.08)',
                 border: '1px solid #C7D2FE',
-                color: '#6366F1',
+                color: '#d4af37',
                 cursor: 'pointer',
               }}
             >
@@ -506,9 +506,9 @@ export default function ProductDiscovery() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}
+          style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid #C7D2FE' }}
         >
-          <Search size={15} style={{ color: '#6366F1' }} />
+          <Search size={15} style={{ color: '#d4af37' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
@@ -645,9 +645,9 @@ export default function ProductDiscovery() {
                   onClick={() => handleGenerate(n)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: niche === n ? '#EEF2FF' : '#F5F7FF',
+                    background: niche === n ? 'rgba(212,175,55,0.08)' : '#F5F7FF',
                     border: `1px solid ${niche === n ? '#C7D2FE' : '#E5E7EB'}`,
-                    color: niche === n ? '#6366F1' : '#6B7280',
+                    color: niche === n ? '#d4af37' : '#6B7280',
                     cursor: 'pointer',
                   }}
                 >
@@ -662,7 +662,7 @@ export default function ProductDiscovery() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm transition-all"
             style={{
-              background: isLoading ? '#C7D2FE' : '#6366F1',
+              background: isLoading ? '#C7D2FE' : '#d4af37',
               color: 'white',
               fontFamily: "'Syne', sans-serif",
               fontWeight: 700,
@@ -722,7 +722,7 @@ export default function ProductDiscovery() {
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
                   >
                     Market Overview
                   </div>
@@ -737,15 +737,15 @@ export default function ProductDiscovery() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(99,102,241,0.06)',
-                  border: '1px solid rgba(99,102,241,0.2)',
+                  background: 'rgba(212,175,55,0.06)',
+                  border: '1px solid rgba(212,175,55,0.2)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Star size={12} style={{ color: '#6366F1' }} />
+                  <Star size={12} style={{ color: '#d4af37' }} />
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
                   >
                     Top Pick
                   </div>
@@ -809,14 +809,14 @@ export default function ProductDiscovery() {
                   width: 56,
                   height: 56,
                   borderRadius: 16,
-                  background: '#EEF2FF',
+                  background: 'rgba(212,175,55,0.08)',
                   border: '1px solid #C7D2FE',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Search size={24} style={{ color: '#6366F1' }} />
+                <Search size={24} style={{ color: '#d4af37' }} />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
@@ -856,7 +856,7 @@ export default function ProductDiscovery() {
                       border: '1px solid rgba(255,255,255,0.08)',
                     }}
                   >
-                    <span style={{ color: '#6366F1' }}>{icon}</span>
+                    <span style={{ color: '#d4af37' }}>{icon}</span>
                     <span className="text-xs" style={{ color: '#94A3B8' }}>
                       {label}
                     </span>

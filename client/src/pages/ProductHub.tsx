@@ -26,9 +26,9 @@ const stageLabels: Record<string, string> = {
 const stageColors: Record<string, string> = {
   research: '#00b4d8',
   validate: '#7c6af5',
-  build: '#6366F1',
+  build: '#d4af37',
   launch: '#ff6b6b',
-  optimize: '#6366F1',
+  optimize: '#d4af37',
   scale: '#f472b6',
 };
 
@@ -59,7 +59,7 @@ export default function ProductHub() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full" style={{ background: '#05070F' }}>
-        <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
+        <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function ProductHub() {
   if (loadingProduct || loadingOutputs) {
     return (
       <div className="flex items-center justify-center h-full" style={{ background: '#05070F' }}>
-        <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
+        <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
       </div>
     );
   }
@@ -102,7 +102,7 @@ export default function ProductHub() {
           <button
             onClick={() => navigate('/app/my-products')}
             className="mt-3 text-xs underline"
-            style={{ color: '#6366F1', cursor: 'pointer' }}
+            style={{ color: '#d4af37', cursor: 'pointer' }}
           >
             Back to My Products
           </button>
@@ -143,7 +143,7 @@ export default function ProductHub() {
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <Package size={16} style={{ color: stageColors[product.status] || '#6366F1' }} />
+              <Package size={16} style={{ color: stageColors[product.status] || '#d4af37' }} />
               <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 {product.name}
               </h1>

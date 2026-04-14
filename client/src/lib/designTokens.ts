@@ -121,7 +121,7 @@ export const motion = {
 } as const;
 
 /* ── Legacy compat aliases — keep every existing call site building.
-   The old code referenced indigo-ish tokens; they now resolve to gold. */
+   The old code referenced gold-ish tokens; they now resolve to gold. */
 export const t = {
   ...C,
 

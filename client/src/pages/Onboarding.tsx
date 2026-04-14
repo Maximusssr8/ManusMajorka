@@ -92,9 +92,9 @@ const PLATFORMS = ['Shopify', 'WooCommerce', 'eBay AU', 'Amazon', 'Other'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const GOLD = '#6366F1';
-const GOLD_DIM = 'rgba(99,102,241,0.18)';
-const GOLD_BORDER = 'rgba(99,102,241,0.4)';
+const GOLD = '#d4af37';
+const GOLD_DIM = 'rgba(212,175,55,0.18)';
+const GOLD_BORDER = 'rgba(212,175,55,0.4)';
 const DIM_BG = '#FAFAFA';
 const DIM_BORDER = '#F5F5F5';
 
@@ -123,7 +123,7 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
                 background: active
                   ? GOLD
                   : done
-                    ? 'rgba(99,102,241,0.5)'
+                    ? 'rgba(212,175,55,0.5)'
                     : '#D1D5DB',
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -360,7 +360,7 @@ export default function Onboarding() {
       style={{
         background: '#05070F',
         backgroundImage:
-          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(99,102,241,0.06) 0%, transparent 70%)',
+          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 70%)',
       }}
     >
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
@@ -411,7 +411,7 @@ export default function Onboarding() {
         >
           <motion.div
             className="h-full"
-            style={{ background: `linear-gradient(90deg, ${GOLD}, #8B5CF6)` }}
+            style={{ background: `linear-gradient(90deg, ${GOLD}, #d4af37)` }}
             animate={{ width: `${((typeof step === 'number' ? step : 5) / 5) * 100}%` }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           />
@@ -490,7 +490,7 @@ export default function Onboarding() {
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                   style={{
                     background: name.trim()
-                      ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
+                      ? `linear-gradient(135deg, ${GOLD}, #3B82F6)`
                       : '#F9FAFB',
                     color: name.trim() ? '#FAFAFA' : '#9CA3AF',
                     fontFamily: "'Syne', sans-serif",
@@ -618,7 +618,7 @@ export default function Onboarding() {
                     style={{
                       background:
                         niche || customNiche.trim()
-                          ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
+                          ? `linear-gradient(135deg, ${GOLD}, #3B82F6)`
                           : '#F9FAFB',
                       color: niche || customNiche.trim() ? '#FAFAFA' : '#9CA3AF',
                       fontFamily: "'Syne', sans-serif",
@@ -726,7 +726,7 @@ export default function Onboarding() {
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: experience
-                        ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
+                        ? `linear-gradient(135deg, ${GOLD}, #3B82F6)`
                         : '#F9FAFB',
                       color: experience ? '#FAFAFA' : '#9CA3AF',
                       fontFamily: "'Syne', sans-serif",
@@ -826,7 +826,7 @@ export default function Onboarding() {
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: goal
-                        ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
+                        ? `linear-gradient(135deg, ${GOLD}, #3B82F6)`
                         : '#F9FAFB',
                       color: goal ? '#FAFAFA' : '#9CA3AF',
                       fontFamily: "'Syne', sans-serif",
@@ -975,13 +975,13 @@ export default function Onboarding() {
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: storeType
-                        ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
+                        ? `linear-gradient(135deg, ${GOLD}, #3B82F6)`
                         : '#F9FAFB',
                       color: storeType ? '#FAFAFA' : '#9CA3AF',
                       fontFamily: "'Syne', sans-serif",
                       cursor: storeType ? 'pointer' : 'not-allowed',
                       border: 'none',
-                      boxShadow: storeType ? '0 8px 24px rgba(99,102,241,0.2)' : 'none',
+                      boxShadow: storeType ? '0 8px 24px rgba(212,175,55,0.2)' : 'none',
                     }}
                   >
                     Finish Setup <ChevronRight size={15} />
@@ -1032,7 +1032,7 @@ export default function Onboarding() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   style={{
-                    background: 'rgba(99,102,241,0.05)',
+                    background: 'rgba(212,175,55,0.05)',
                     border: `1.5px solid ${GOLD_BORDER}`,
                     borderRadius: 16,
                     padding: '20px 24px',
@@ -1094,12 +1094,12 @@ export default function Onboarding() {
                     onClick={() => navigate('/app')}
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-bold transition-all"
                     style={{
-                      background: `linear-gradient(135deg, ${GOLD}, #4F46E5)`,
+                      background: `linear-gradient(135deg, ${GOLD}, #3B82F6)`,
                       color: '#FAFAFA',
                       fontFamily: "'Syne', sans-serif",
                       cursor: 'pointer',
                       border: 'none',
-                      boxShadow: '0 8px 32px rgba(99,102,241,0.25)',
+                      boxShadow: '0 8px 32px rgba(212,175,55,0.25)',
                     }}
                   >
                     Go to Dashboard <ArrowRight size={15} />

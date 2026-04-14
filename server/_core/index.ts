@@ -257,6 +257,12 @@ async function startServer() {
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
   app.use('/api/apify', apifyRouter);
+  // Majorka ai router (chat, generate, image, store concept, meta ad variants)
+  const aiRouter = (await import('../routes/ai')).default;
+  app.use('/api/ai', aiRouter);
+  // Saved stores + saved ad sets (user CRUD behind RLS)
+  const storesRouter = (await import('../routes/stores')).default;
+  app.use('/api/stores', storesRouter);
   const marketplaceRouter = (await import('../routes/marketplace')).default;
   app.use('/api/marketplace', marketplaceRouter);
   const metaRouter = (await import('../routes/meta')).default;

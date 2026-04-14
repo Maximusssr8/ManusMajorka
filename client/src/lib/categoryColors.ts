@@ -21,12 +21,12 @@ export function getCategoryStyle(category: string): { background: string; color:
   if (cat.includes('fashion') || cat.includes('clothing') || cat.includes('apparel')) return { background: 'rgba(244,63,94,0.15)', color: '#fb7185', border: '1px solid rgba(244,63,94,0.3)' };
   if (cat.includes('electron') || cat.includes('tech') || cat.includes('phone')) return { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)' };
   if (cat.includes('beauty') || cat.includes('cosmetic')) return { background: 'rgba(236,72,153,0.15)', color: '#f472b6', border: '1px solid rgba(236,72,153,0.3)' };
-  if (cat.includes('kids') || cat.includes('baby') || cat.includes('child')) return { background: 'rgba(139,92,246,0.15)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' };
+  if (cat.includes('kids') || cat.includes('baby') || cat.includes('child')) return { background: 'rgba(212,175,55,0.15)', color: '#a78bfa', border: '1px solid rgba(212,175,55,0.3)' };
   if (cat.includes('outdoor') || cat.includes('garden') || cat.includes('camp')) return { background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' };
   if (cat.includes('pet') || cat.includes('animal')) return { background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)' };
   if (cat.includes('home') || cat.includes('decor') || cat.includes('furniture')) return { background: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.3)' };
   if (cat.includes('sport') || cat.includes('fitness') || cat.includes('gym')) return { background: 'rgba(6,182,212,0.15)', color: '#22d3ee', border: '1px solid rgba(6,182,212,0.3)' };
-  if (cat.includes('supplement')) return { background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' };
+  if (cat.includes('supplement')) return { background: 'rgba(212,175,55,0.15)', color: '#e5c158', border: '1px solid rgba(212,175,55,0.3)' };
   if (cat.includes('car') || cat.includes('auto') || cat.includes('vehicle')) return { background: 'rgba(234,179,8,0.15)', color: '#facc15', border: '1px solid rgba(234,179,8,0.3)' };
-  return { background: 'rgba(99,102,241,0.15)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' };
+  return { background: 'rgba(212,175,55,0.15)', color: '#e5c158', border: '1px solid rgba(212,175,55,0.3)' };
 }

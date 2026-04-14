@@ -30,7 +30,7 @@ export const ACADEMY_MODULES: ModuleSpec[] = [
     blurb: 'The business model in five minutes — no fluff, no gurus, no "passive income" myths.',
     duration: '5 min',
     difficulty: 'Beginner',
-    accent: '#6366f1',
+    accent: '#d4af37',
     keyPoints: [
       'You list products. Customers buy. You order from AliExpress. The supplier ships direct.',
       'You never touch inventory. You never pre-pay stock. Capital risk is close to zero.',
@@ -50,7 +50,7 @@ export const ACADEMY_MODULES: ModuleSpec[] = [
     blurb: 'The supply chain that makes this business possible — and the supplier red flags that kill stores.',
     duration: '7 min',
     difficulty: 'Beginner',
-    accent: '#818cf8',
+    accent: '#e5c158',
     keyPoints: [
       'AliExpress Standard Shipping → AU = 10–20 days. Set expectations on the product page.',
       'Look for suppliers with >95% positive ratings and >500 orders — anything less is a coin flip.',
@@ -112,7 +112,7 @@ export const ACADEMY_MODULES: ModuleSpec[] = [
     blurb: 'How Store Builder takes one AliExpress URL and returns a conversion-ready Shopify store.',
     duration: '12 min',
     difficulty: 'Intermediate',
-    accent: '#6366f1',
+    accent: '#d4af37',
     product: { label: 'Open Store Builder', path: '/app/store-builder' },
     demo: 'store',
     keyPoints: [
@@ -233,7 +233,7 @@ export const ACADEMY_MODULES: ModuleSpec[] = [
     blurb: 'When does the $99 Builder plan pay for itself? After your first validated product — here\'s how to tell.',
     duration: '5 min',
     difficulty: 'Beginner',
-    accent: '#6366f1',
+    accent: '#d4af37',
     product: { label: 'See pricing', path: '/pricing' },
     keyPoints: [
       'Academy is free forever. It teaches the game. It does not give you the product database, Store Builder, or Ads Studio.',
@@ -253,7 +253,7 @@ export const ACADEMY_MODULES: ModuleSpec[] = [
     blurb: 'Twelve boxes to tick before you hit "Launch ads". Miss one and you\'ll know why.',
     duration: '6 min',
     difficulty: 'Beginner',
-    accent: '#818cf8',
+    accent: '#e5c158',
     keyPoints: [
       'Domain + brand email set up (Google Workspace, $8.40/mo, worth it for trust).',
       'Shopify payment processor live + test order completed end-to-end.',

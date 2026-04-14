@@ -11,8 +11,8 @@ const mono = "'DM Mono', 'Fira Code', 'Courier New', monospace";
 
 const DEMO_STYLES = `
 @keyframes border-breathe {
-  0%, 100% { box-shadow: 0 0 40px rgba(99,102,241,0.08); }
-  50%       { box-shadow: 0 0 60px rgba(99,102,241,0.16); }
+  0%, 100% { box-shadow: 0 0 40px rgba(212,175,55,0.08); }
+  50%       { box-shadow: 0 0 60px rgba(212,175,55,0.16); }
 }
 @keyframes thinking-bounce {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
@@ -28,13 +28,13 @@ const DEMO_STYLES = `
 }
 .demo-cursor {
   display: inline-block; width: 2px; height: 14px;
-  background: #6366F1; border-radius: 1px;
+  background: #d4af37; border-radius: 1px;
   vertical-align: middle; margin-left: 2px;
   animation: cursor-blink 0.8s step-end infinite;
 }
 .thinking-dot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: #6366F1;
+  background: #d4af37;
   animation: thinking-bounce 1.4s ease-in-out infinite;
 }
 .thinking-dot:nth-child(2) { animation-delay: 0.16s; }
@@ -143,7 +143,7 @@ function renderLine(line: string, idx: number) {
           fontFamily: syne,
           fontWeight: 800,
           fontSize: 14,
-          color: '#6366F1',
+          color: '#d4af37',
           marginBottom: 6,
           marginTop: idx > 0 ? 12 : 0,
         }}
@@ -299,7 +299,7 @@ export default function DemoWidget() {
       <div
         style={{
           background: 'rgba(13,17,23,0.92)',
-          border: '1px solid rgba(99,102,241,0.25)',
+          border: '1px solid rgba(212,175,55,0.25)',
           borderRadius: 16,
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
@@ -331,7 +331,7 @@ export default function DemoWidget() {
             gap: 8,
             padding: '11px 16px',
             background: 'rgba(0,0,0,0.35)',
-            borderBottom: '1px solid rgba(99,102,241,0.1)',
+            borderBottom: '1px solid rgba(212,175,55,0.1)',
           }}
         >
           <div style={{ display: 'flex', gap: 6 }}>
@@ -346,9 +346,9 @@ export default function DemoWidget() {
               fontFamily: syne,
               fontWeight: 700,
               fontSize: 12,
-              color: '#6366F1',
+              color: '#d4af37',
               letterSpacing: '0.06em',
-              textShadow: '0 0 10px rgba(99,102,241,0.5)',
+              textShadow: '0 0 10px rgba(212,175,55,0.5)',
             }}
           >
             Majorka AI
@@ -370,15 +370,15 @@ export default function DemoWidget() {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: 'rgba(99,102,241,0.04)',
-              border: '1px solid rgba(99,102,241,0.14)',
+              background: 'rgba(212,175,55,0.04)',
+              border: '1px solid rgba(212,175,55,0.14)',
               borderRadius: 8,
               padding: '8px 12px',
             }}
           >
             <span
               style={{
-                color: '#6366F1',
+                color: '#d4af37',
                 fontFamily: mono,
                 fontSize: 14,
                 fontWeight: 700,
@@ -444,7 +444,7 @@ export default function DemoWidget() {
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  background: 'rgba(99,102,241,0.3)',
+                  background: 'rgba(212,175,55,0.3)',
                 }}
               />
               <span style={{ fontSize: 12, color: '#94A3B8', fontFamily: dm }}>
@@ -473,7 +473,7 @@ export default function DemoWidget() {
                 width: i === promptIdx ? 18 : 6,
                 height: 6,
                 borderRadius: 3,
-                background: i === promptIdx ? '#6366F1' : '#F0F0F0',
+                background: i === promptIdx ? '#d4af37' : '#F0F0F0',
                 transition: 'all 0.35s ease',
               }}
             />
@@ -496,7 +496,7 @@ export default function DemoWidget() {
           href="/sign-in"
           className="demo-cta-primary"
           style={{
-            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+            background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
             color: '#FFFFFF',
             borderRadius: 10,
             padding: '11px 28px',
@@ -506,7 +506,7 @@ export default function DemoWidget() {
             textDecoration: 'none',
             display: 'block',
             textAlign: 'center',
-            boxShadow: '0 0 24px rgba(99,102,241,0.25)',
+            boxShadow: '0 0 24px rgba(212,175,55,0.25)',
             width: '100%',
             maxWidth: 300,
             minHeight: 48,
@@ -519,8 +519,8 @@ export default function DemoWidget() {
           href="#features"
           style={{
             background: 'transparent',
-            border: '1px solid rgba(99,102,241,0.3)',
-            color: '#6366F1',
+            border: '1px solid rgba(212,175,55,0.3)',
+            color: '#d4af37',
             borderRadius: 10,
             padding: '11px 28px',
             fontFamily: syne,
@@ -536,7 +536,7 @@ export default function DemoWidget() {
             boxSizing: 'border-box',
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(99,102,241,0.08)';
+            (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(212,175,55,0.08)';
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';

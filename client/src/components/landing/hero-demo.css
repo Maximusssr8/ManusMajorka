@@ -65,7 +65,7 @@
 }
 .mkr-logo {
   width: 28px; height: 28px;
-  background: #6366f1;
+  background: #d4af37;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   color: white; font-weight: 700; font-size: 14px;
@@ -82,7 +82,7 @@
   color: rgba(255,255,255,0.4);
 }
 .mkr-nav-item:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); }
-.mkr-nav-active { background: rgba(99,102,241,0.12) !important; color: #818CF8 !important; }
+.mkr-nav-active { background: rgba(212,175,55,0.12) !important; color: #e5c158 !important; }
 .mkr-nav-icon { font-size: 13px; }
 .mkr-nav-label { font-size: 11px; font-weight: 500; }
 
@@ -199,7 +199,7 @@
 .mkr-badge-green  { background: rgba(52,211,153,0.12); color: #34D399; border-color: rgba(52,211,153,0.2); }
 .mkr-badge-amber  { background: rgba(251,191,36,0.12); color: #FBBF24; border-color: rgba(251,191,36,0.2); }
 .mkr-badge-red    { background: rgba(248,113,113,0.12); color: #F87171; border-color: rgba(248,113,113,0.2); }
-.mkr-badge-indigo { background: rgba(99,102,241,0.12); color: #818CF8; border-color: rgba(99,102,241,0.2); }
+.mkr-badge-gold { background: rgba(212,175,55,0.12); color: #e5c158; border-color: rgba(212,175,55,0.2); }
 .mkr-badge-sm { font-size: 9px; padding: 2px 5px; }
 
 /* ── Market panel ────────────────────────────────────────────────────── */
@@ -235,12 +235,12 @@
 .mkr-chat-ai { display: flex; gap: 8px; align-items: flex-start; }
 .mkr-chat-avatar {
   width: 24px; height: 24px;
-  background: #6366f1; border-radius: 6px;
+  background: #d4af37; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   color: white; font-size: 11px; font-weight: 700; flex-shrink: 0;
 }
 .mkr-chat-bubble { border-radius: 10px; padding: 8px 12px; font-size: 11px; line-height: 1.5; max-width: 90%; }
-.mkr-chat-user-bubble { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.2); color: #C7D2FE; }
+.mkr-chat-user-bubble { background: rgba(212,175,55,0.2); border: 1px solid rgba(212,175,55,0.2); color: #C7D2FE; }
 .mkr-chat-ai-bubble { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #E2E8F0; }
 .mkr-chat-input-row {
   display: flex; gap: 6px; margin-top: auto;
@@ -251,7 +251,7 @@
 .mkr-chat-input { flex: 1; background: none; border: none; outline: none; color: rgba(255,255,255,0.35); font-size: 11px; }
 .mkr-chat-send {
   width: 24px; height: 24px;
-  background: #6366f1; border: none; border-radius: 6px;
+  background: #d4af37; border: none; border-radius: 6px;
   color: white; font-size: 12px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
@@ -303,16 +303,16 @@
   position: absolute;
   width: 14px; height: 14px;
   border-radius: 50%;
-  background: rgba(99,102,241,0.6);
+  background: rgba(212,175,55,0.6);
   border: 2px solid white;
   pointer-events: none;
   opacity: 0;
   transform: translate(-50%, -50%);
   transition: left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
   z-index: 50;
-  box-shadow: 0 0 8px rgba(99,102,241,0.5);
+  box-shadow: 0 0 8px rgba(212,175,55,0.5);
 }
 .mkr-cursor-click {
   transform: translate(-50%,-50%) scale(0.7);
-  background: rgba(99,102,241,0.9);
+  background: rgba(212,175,55,0.9);
 }

@@ -16,9 +16,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#6366F1',
-  goldDim: 'rgba(99,102,241,0.10)',
-  goldBorder: 'rgba(99,102,241,0.25)',
+  gold: '#d4af37',
+  goldDim: 'rgba(212,175,55,0.10)',
+  goldBorder: 'rgba(212,175,55,0.25)',
   green: '#22c55e',
   amber: '#f59e0b',
   red: '#ef4444',
@@ -165,7 +165,7 @@ function LoadingAnimation({ storeUrl }: { storeUrl: string }) {
                   style={{
                     background: done
                       ? `linear-gradient(90deg, ${C.gold}, #f0c84a)`
-                      : 'rgba(99,102,241,0.4)',
+                      : 'rgba(212,175,55,0.4)',
                     height: '100%',
                     width: `${pct}%`,
                     borderRadius: 6,
@@ -419,7 +419,7 @@ function ResultsScreen({ result, storeUrl }: { result: HealthScoreResult; storeU
             left: 0,
             right: 0,
             height: 4,
-            background: `linear-gradient(90deg, ${C.gold}, #4F46E5)`,
+            background: `linear-gradient(90deg, ${C.gold}, #3B82F6)`,
           }}
         />
 
@@ -477,7 +477,7 @@ function ResultsScreen({ result, storeUrl }: { result: HealthScoreResult; storeU
           style={{
             display: 'block',
             textAlign: 'center',
-            background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+            background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
             color: '#000',
             borderRadius: 12,
             padding: '14px 24px',
@@ -672,8 +672,8 @@ export default function StoreHealthScore() {
                   disabled={!storeUrl.trim()}
                   style={{
                     background: storeUrl.trim()
-                      ? `linear-gradient(135deg, ${C.gold}, #4F46E5)`
-                      : 'rgba(99,102,241,0.2)',
+                      ? `linear-gradient(135deg, ${C.gold}, #3B82F6)`
+                      : 'rgba(212,175,55,0.2)',
                     color: storeUrl.trim() ? '#000' : C.muted,
                     border: 'none',
                     borderRadius: 12,

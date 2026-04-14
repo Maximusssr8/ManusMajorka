@@ -187,8 +187,8 @@ const PIP_CSS = `
   50%       { opacity: 0.5; transform: scale(0.85); }
 }
 @keyframes gold-glow-pulse {
-  0%, 100% { box-shadow: 0 0 60px rgba(99,102,241,0.05); }
-  50%       { box-shadow: 0 0 80px rgba(99,102,241,0.09); }
+  0%, 100% { box-shadow: 0 0 60px rgba(212,175,55,0.05); }
+  50%       { box-shadow: 0 0 80px rgba(212,175,55,0.09); }
 }
 @keyframes shimmer-pip {
   0%,100% { opacity: 0.4; }
@@ -198,7 +198,7 @@ const PIP_CSS = `
 .pip-kalo-wrap { animation: pip-fade-in 0.6s ease-out forwards; }
 
 .pip-section-container {
-  border: 1px solid rgba(99,102,241,0.2);
+  border: 1px solid rgba(212,175,55,0.2);
   border-radius: 20px;
   background: rgba(10,12,18,0.6);
   animation: gold-glow-pulse 4s ease-in-out infinite;
@@ -212,12 +212,12 @@ const PIP_CSS = `
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.4) 50%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4) 50%, transparent);
   pointer-events: none;
 }
 
 .pip-row-1:hover {
-  background: rgba(99,102,241,0.06) !important;
+  background: rgba(212,175,55,0.06) !important;
   cursor: pointer;
 }
 
@@ -229,9 +229,9 @@ const PIP_CSS = `
   gap: 4px;
   padding: 6px 14px;
   background: transparent;
-  border: 1px solid rgba(99,102,241,0.35);
+  border: 1px solid rgba(212,175,55,0.35);
   border-radius: 6px;
-  color: #6366F1;
+  color: #d4af37;
   font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -241,8 +241,8 @@ const PIP_CSS = `
   white-space: nowrap;
 }
 .pip-action-sm:hover {
-  background: rgba(99,102,241,0.1);
-  border-color: rgba(99,102,241,0.6);
+  background: rgba(212,175,55,0.1);
+  border-color: rgba(212,175,55,0.6);
 }
 
 .pip-filter-chip {
@@ -261,12 +261,12 @@ const PIP_CSS = `
   transition: border-color 0.15s;
 }
 .pip-filter-chip:hover {
-  border-color: rgba(99,102,241,0.25);
-  color: #6366F1;
+  border-color: rgba(212,175,55,0.25);
+  color: #d4af37;
 }
 
 .pip-unlock-cta {
-  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  background: linear-gradient(135deg, #d4af37, #3B82F6);
   color: #FAFAFA;
   border-radius: 10px;
   padding: 14px 36px;
@@ -276,13 +276,13 @@ const PIP_CSS = `
   text-decoration: none;
   display: inline-block;
   transition: all 0.15s;
-  box-shadow: 0 4px 24px rgba(99,102,241,0.3);
+  box-shadow: 0 4px 24px rgba(212,175,55,0.3);
   letter-spacing: 0.01em;
 }
 .pip-unlock-cta:hover {
   filter: brightness(1.08);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(99,102,241,0.4);
+  box-shadow: 0 8px 32px rgba(212,175,55,0.4);
 }
 
 .pip-detail-panel {
@@ -345,7 +345,7 @@ function SkeletonRow({ isFirst }: { isFirst?: boolean }) {
       height: 56,
       borderBottom: '1px solid #F9FAFB',
       alignItems: 'center',
-      background: isFirst ? 'rgba(99,102,241,0.02)' : 'transparent',
+      background: isFirst ? 'rgba(212,175,55,0.02)' : 'transparent',
     }}>
       <div className="pip-skeleton" style={{ width: 18, height: 14 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -495,7 +495,7 @@ export default function ProductIntelligencePreview() {
                 }}>
                   Find your next{' '}
                   <span style={{
-                    background: 'linear-gradient(135deg, #6366F1, #f0c840)',
+                    background: 'linear-gradient(135deg, #d4af37, #f0c840)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -579,7 +579,7 @@ export default function ProductIntelligencePreview() {
                         height: 56,
                         borderBottom: '1px solid #F9FAFB',
                         alignItems: 'center',
-                        background: product.rank === 1 ? 'rgba(99,102,241,0.04)' : 'transparent',
+                        background: product.rank === 1 ? 'rgba(212,175,55,0.04)' : 'transparent',
                         position: 'relative',
                         transition: 'background 0.15s',
                         ...(product.locked ? {
@@ -593,7 +593,7 @@ export default function ProductIntelligencePreview() {
                       <span style={{
                         fontFamily: 'JetBrains Mono, monospace',
                         fontSize: 12,
-                        color: product.rank === 1 ? '#6366F1' : '#4b5563',
+                        color: product.rank === 1 ? '#d4af37' : '#4b5563',
                         fontWeight: 600,
                       }}>
                         {product.rank}
@@ -668,7 +668,7 @@ export default function ProductIntelligencePreview() {
                         fontFamily: "'Syne', sans-serif",
                         fontSize: 15,
                         fontWeight: 700,
-                        color: '#6366F1',
+                        color: '#d4af37',
                         letterSpacing: '-0.01em',
                       }}>
                         {product.revenue}
@@ -718,16 +718,16 @@ export default function ProductIntelligencePreview() {
                     {product.rank === 1 && (
                       <div className={`pip-detail-panel${showDetail ? ' open' : ''}`}>
                         <div style={{
-                          background: 'rgba(99,102,241,0.04)',
-                          borderTop: '1px solid rgba(99,102,241,0.12)',
-                          borderBottom: '1px solid rgba(99,102,241,0.08)',
+                          background: 'rgba(212,175,55,0.04)',
+                          borderTop: '1px solid rgba(212,175,55,0.12)',
+                          borderBottom: '1px solid rgba(212,175,55,0.08)',
                           padding: '14px 20px 14px 72px',
                           fontSize: 12,
                           color: '#9ca3af',
                           fontFamily: 'DM Sans, sans-serif',
                         }}>
                           <div style={{ marginBottom: 8 }}>
-                            <span style={{ color: '#6366F1', fontWeight: 700 }}>💡 Why it's winning:</span>{' '}
+                            <span style={{ color: '#d4af37', fontWeight: 700 }}>💡 Why it's winning:</span>{' '}
                             {product.whyWinning ?? 'Celebrity-endorsed skincare at 1/3 clinic price. 34% repeat buyer rate on TikTok Shop AU.'}
                           </div>
                           <div style={{ marginBottom: 12 }}>
@@ -778,11 +778,11 @@ export default function ProductIntelligencePreview() {
                   pointerEvents: 'none',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
-                    <span style={{ color: '#6366F1', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
+                    <span style={{ color: '#d4af37', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
                       {productCount - 1} more products locked — updated {lastUpdated}
                     </span>
                   </div>
@@ -809,7 +809,7 @@ export default function ProductIntelligencePreview() {
               {loading ? (
                 <div style={{
                   background: 'rgba(6,8,14,0.9)',
-                  border: '1px solid rgba(99,102,241,0.2)',
+                  border: '1px solid rgba(212,175,55,0.2)',
                   borderRadius: 14,
                   padding: 20,
                 }}>
@@ -821,7 +821,7 @@ export default function ProductIntelligencePreview() {
               ) : first ? (
                 <div style={{
                   background: 'rgba(6,8,14,0.9)',
-                  border: '1px solid rgba(99,102,241,0.2)',
+                  border: '1px solid rgba(212,175,55,0.2)',
                   borderRadius: 14,
                   padding: 20,
                 }}>
@@ -842,7 +842,7 @@ export default function ProductIntelligencePreview() {
                     {first.name}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                    <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: '#6366F1' }}>
+                    <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: '#d4af37' }}>
                       {first.revenue}
                     </span>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#4ade80' }}>
@@ -850,11 +850,11 @@ export default function ProductIntelligencePreview() {
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
-                    <span style={{ color: '#6366F1', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
+                    <span style={{ color: '#d4af37', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
                       {productCount - 1} more products locked
                     </span>
                   </div>

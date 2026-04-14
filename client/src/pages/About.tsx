@@ -21,7 +21,7 @@ export default function About() {
           </a>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <a href="/" style={{ fontSize: 14, color: '#94A3B8', textDecoration: 'none' }}>← Home</a>
-            <Link href="/sign-up" style={{ background: '#6366F1', color: 'white', borderRadius: 8, padding: '7px 16px', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
+            <Link href="/sign-up" style={{ background: '#d4af37', color: 'white', borderRadius: 8, padding: '7px 16px', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
               Start Free →
             </Link>
           </div>
@@ -30,8 +30,8 @@ export default function About() {
 
       {/* Hero */}
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '72px 24px 56px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', borderRadius: 20, padding: '4px 14px', marginBottom: 20 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#6366F1', letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>About Majorka</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(212,175,55,0.08)', borderRadius: 20, padding: '4px 14px', marginBottom: 20 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#d4af37', letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>About Majorka</span>
         </div>
         <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px, 5vw, 52px)', color: '#F8FAFC', marginBottom: 20, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
           We believe every seller deserves<br />intelligence-grade data.
@@ -78,10 +78,10 @@ export default function About() {
 
       {/* CTA */}
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 24px 80px' }}>
-        <div style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', borderRadius: 20, padding: '48px', textAlign: 'center' }}>
+        <div style={{ background: 'linear-gradient(135deg, #d4af37, #d4af37)', borderRadius: 20, padding: '48px', textAlign: 'center' }}>
           <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: 'white', marginBottom: 12, letterSpacing: '-0.01em' }}>Ready to find your next winner?</h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 28, lineHeight: 1.6 }}>Start free. No credit card required.</p>
-          <Link href="/sign-up" style={{ display: 'inline-block', background: '#0d0d10', color: '#6366F1', borderRadius: 10, padding: '14px 36px', fontWeight: 700, fontSize: 16, textDecoration: 'none', letterSpacing: '-0.01em' }}>
+          <Link href="/sign-up" style={{ display: 'inline-block', background: '#0d0d10', color: '#d4af37', borderRadius: 10, padding: '14px 36px', fontWeight: 700, fontSize: 16, textDecoration: 'none', letterSpacing: '-0.01em' }}>
             Get Started Free →
           </Link>
         </div>

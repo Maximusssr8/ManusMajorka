@@ -71,7 +71,7 @@ export default function UpgradeModalA({
         className="relative w-full max-w-lg mx-4 rounded-2xl overflow-hidden"
         style={{
           background: '#0d0d10',
-          border: '1px solid rgba(99,102,241,0.15)',
+          border: '1px solid rgba(212,175,55,0.15)',
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
       >
@@ -92,12 +92,12 @@ export default function UpgradeModalA({
         <div className="p-6 pb-2 text-center">
           <div
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4"
-            style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}
+            style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)' }}
           >
-            <Zap size={12} style={{ color: '#6366F1' }} />
+            <Zap size={12} style={{ color: '#d4af37' }} />
             <span
               className="text-xs font-bold"
-              style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
+              style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
             >
               Unlock Full Power
             </span>
@@ -119,15 +119,15 @@ export default function UpgradeModalA({
               key={plan.id}
               className="relative rounded-xl p-4 flex flex-col"
               style={{
-                background: plan.popular ? 'rgba(99,102,241,0.06)' : '#FAFAFA',
-                border: `1.5px solid ${plan.popular ? 'rgba(99,102,241,0.3)' : '#F9FAFB'}`,
+                background: plan.popular ? 'rgba(212,175,55,0.06)' : '#FAFAFA',
+                border: `1.5px solid ${plan.popular ? 'rgba(212,175,55,0.3)' : '#F9FAFB'}`,
               }}
             >
               {plan.popular && (
                 <div
                   className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-xs font-bold"
                   style={{
-                    background: '#6366F1',
+                    background: '#d4af37',
                     color: '#FAFAFA',
                     fontFamily: "'Syne', sans-serif",
                     fontSize: 9,
@@ -148,7 +148,7 @@ export default function UpgradeModalA({
                     className="text-2xl font-extrabold"
                     style={{
                       fontFamily: "'Syne', sans-serif",
-                      color: plan.popular ? '#6366F1' : '#0A0A0A',
+                      color: plan.popular ? '#d4af37' : '#0A0A0A',
                     }}
                   >
                     {plan.price}
@@ -164,7 +164,7 @@ export default function UpgradeModalA({
                     <Check
                       size={11}
                       className="mt-0.5 flex-shrink-0"
-                      style={{ color: plan.popular ? '#6366F1' : '#4ade80' }}
+                      style={{ color: plan.popular ? '#d4af37' : '#4ade80' }}
                     />
                     <span className="text-xs" style={{ color: '#CBD5E1' }}>
                       {f}
@@ -177,7 +177,7 @@ export default function UpgradeModalA({
                 className="w-full py-2.5 rounded-lg text-xs font-bold transition-all"
                 style={{
                   background: plan.popular
-                    ? 'linear-gradient(135deg, #6366F1, #8B5CF6)'
+                    ? 'linear-gradient(135deg, #d4af37, #d4af37)'
                     : '#F9FAFB',
                   color: plan.popular ? '#FAFAFA' : '#0A0A0A',
                   border: plan.popular ? 'none' : '1px solid #F0F0F0',

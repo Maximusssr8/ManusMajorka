@@ -49,7 +49,7 @@ const CATEGORY_RANKINGS = [
   { name: 'Automotive', size: 3800000, sellers: 540, growth: 15, competition: 'Medium', score: 78 },
 ];
 
-const C = { bg: '#FAFAFA', surface: 'white', border: '#E5E7EB', gold: '#6366F1', text: '#0A0A0A', muted: '#6B7280' };
+const C = { bg: '#FAFAFA', surface: 'white', border: '#E5E7EB', gold: '#d4af37', text: '#0A0A0A', muted: '#6B7280' };
 
 function fmtRevenue(n: number) {
   if (n >= 1000000) return `$${(n/1000000).toFixed(1)}M`;
@@ -64,9 +64,9 @@ const fmtSold = (n: number | null | undefined) => {
 
 function ShopTypeBadge({ type }: { type: string }) {
   const colors: Record<string, { bg: string; text: string }> = {
-    'dropship': { bg: 'rgba(99,102,241,0.12)', text: '#6366F1' },
-    'brand': { bg: 'rgba(99,102,241,0.18)', text: '#6366F1' },
-    'print-on-demand': { bg: 'rgba(99,102,241,0.12)', text: '#a5b4fc' },
+    'dropship': { bg: 'rgba(212,175,55,0.12)', text: '#d4af37' },
+    'brand': { bg: 'rgba(212,175,55,0.18)', text: '#d4af37' },
+    'print-on-demand': { bg: 'rgba(212,175,55,0.12)', text: '#a5b4fc' },
   };
   const c = colors[type] || colors['dropship'];
   return (
@@ -250,7 +250,7 @@ export default function ShopIntelligence() {
               { niche: 'Water Bottles',       searches: 124000, trend: '+8%', competition: 'High',   opp: 65 },
             ];
             const compColor = (c: string) => c === 'Low' ? { bg: '#ECFDF5', text: '#059669' } : c === 'Medium' ? { bg: '#FFFBEB', text: '#D97706' } : { bg: '#FEF2F2', text: '#DC2626' };
-            const oppColor = (o: number) => o >= 90 ? '#6366F1' : o >= 80 ? '#059669' : '#D97706';
+            const oppColor = (o: number) => o >= 90 ? '#d4af37' : o >= 80 ? '#059669' : '#D97706';
             return (
               <div style={{ padding: 24 }}>
                 <div style={{ marginBottom: 16 }}>
@@ -302,7 +302,7 @@ export default function ShopIntelligence() {
               <p style={{ fontSize: 13, color: C.muted, margin: '0 0 20px' }}>AU Google Trends data, updated daily</p>
               {(() => {
                 const trendData = [
-                  { name: 'Pet GPS Trackers', color: '#6366F1', data: [180, 210, 195, 240, 260, 310, 350] },
+                  { name: 'Pet GPS Trackers', color: '#d4af37', data: [180, 210, 195, 240, 260, 310, 350] },
                   { name: 'Smart Home Plugs', color: '#059669', data: [280, 290, 310, 300, 330, 340, 358] },
                   { name: 'LED Desk Lamps', color: '#D97706', data: [500, 520, 510, 540, 560, 600, 674] },
                   { name: 'Resistance Bands', color: '#EC4899', data: [200, 210, 220, 230, 250, 270, 293] },
@@ -355,7 +355,7 @@ export default function ShopIntelligence() {
                 {[
                   { season: 'Summer', months: 'Oct – Feb', emoji: '☀️', categories: ['Beach & Swim', 'Outdoor Living', 'Fitness & Sports', 'Sunscreen & Skincare'], color: '#F59E0B' },
                   { season: 'Autumn', months: 'Mar – May', emoji: '🍂', categories: ['Home Decor', 'Cooking & Kitchen', 'Cosy Fashion', 'Candles & Aromatherapy'], color: '#D97706' },
-                  { season: 'Winter', months: 'Jun – Aug', emoji: '❄️', categories: ['Weighted Blankets', 'Indoor Fitness', 'Heating & Warmth', 'Hot Beverages'], color: '#6366F1' },
+                  { season: 'Winter', months: 'Jun – Aug', emoji: '❄️', categories: ['Weighted Blankets', 'Indoor Fitness', 'Heating & Warmth', 'Hot Beverages'], color: '#d4af37' },
                   { season: 'Spring', months: 'Sep – Nov', emoji: '🌸', categories: ['Garden & Plants', 'Fitness Restart', 'Beauty & Self-Care', 'Cleaning & Organisation'], color: '#059669' },
                 ].map(s => (
                   <div key={s.season} style={{ background: '#05070F', border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
@@ -481,7 +481,7 @@ export default function ShopIntelligence() {
         ) : (shops.length > 0 ? shops : AU_SHOPS_STATIC).map((shop, idx) => (
           <div key={shop.id}
             style={{ display: 'grid', gridTemplateColumns: '40px 1fr 130px 110px 80px 90px 90px 100px 90px', padding: '14px 16px', gap: 12, borderBottom: `1px solid ${C.border}`, alignItems: 'center', cursor: 'pointer', transition: 'border-left 0.15s', borderLeft: '3px solid transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderLeft = `3px solid ${C.gold}`; (e.currentTarget as HTMLDivElement).style.background = 'rgba(99,102,241,0.03)'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderLeft = `3px solid ${C.gold}`; (e.currentTarget as HTMLDivElement).style.background = 'rgba(212,175,55,0.03)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderLeft = '3px solid transparent'; (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
             onClick={() => navigate(`/app/shops/${shop.id}`)}
           >
@@ -515,7 +515,7 @@ export default function ShopIntelligence() {
               <Sparkline data={shop.revenue_trend || [100,110,105,115,108,120,118]} width={72} height={28} />
             </div>
 
-            <div style={{ fontSize: 13, fontWeight: 700, color: shop.growth_rate_pct >= 0 ? '#6366F1' : '#ef4444' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: shop.growth_rate_pct >= 0 ? '#d4af37' : '#ef4444' }}>
               {shop.growth_rate_pct >= 0 ? '↑' : '↓'} {Math.abs(shop.growth_rate_pct)}%
             </div>
 
@@ -525,7 +525,7 @@ export default function ShopIntelligence() {
 
             <button
               onClick={e => { e.stopPropagation(); navigate(`/app/shops/${shop.id}`); }}
-              style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne', sans-serif", whiteSpace: 'nowrap' }}
+              style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(212,175,55,0.1)', border: `1px solid rgba(212,175,55,0.25)`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne', sans-serif", whiteSpace: 'nowrap' }}
             >
               Analyse →
             </button>
@@ -538,7 +538,7 @@ export default function ShopIntelligence() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
           {Array.from({ length: Math.min(pages, 5) }, (_, i) => i + 1).map(p => (
             <button key={p} onClick={() => fetchShops(p)}
-              style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${page === p ? C.gold : C.border}`, background: page === p ? 'rgba(99,102,241,0.1)' : 'transparent', color: page === p ? C.gold : C.muted, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+              style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${page === p ? C.gold : C.border}`, background: page === p ? 'rgba(212,175,55,0.1)' : 'transparent', color: page === p ? C.gold : C.muted, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
               {p}
             </button>
           ))}

@@ -10,7 +10,7 @@ export function AnimatedGradient() {
         className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] rounded-full blur-3xl opacity-40 academy-float"
         style={{
           background:
-            'radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(99,102,241,0.12) 40%, transparent 70%)',
+            'radial-gradient(circle, rgba(212,175,55,0.35) 0%, rgba(212,175,55,0.12) 40%, transparent 70%)',
         }}
       />
       {/* Secondary emerald blob */}

@@ -23,7 +23,7 @@ export default function LivestreamAnalytics() {
             <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#F8FAFC', margin: 0 }}>
               Livestream Analytics
             </h1>
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '3px 8px', borderRadius: 20 }}>DEMO</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#d4af37', background: '#F3E8FF', padding: '3px 8px', borderRadius: 20 }}>DEMO</span>
           </div>
           <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>
             Track trending niches, top products, and GMV across TikTok Live sessions globally
@@ -33,7 +33,7 @@ export default function LivestreamAnalytics() {
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {[
-            { label: 'Active Livestreams', value: '12,421', icon: 'broadcast', color: '#EEF2FF' },
+            { label: 'Active Livestreams', value: '12,421', icon: 'broadcast', color: 'rgba(212,175,55,0.08)' },
             { label: 'Products Promoted Live', value: '8,300+', icon: 'package', color: '#ECFDF5' },
             { label: 'Avg Viewers/Stream', value: '3,200', icon: 'eye', color: '#FEF3C7' },
             { label: 'Top Niche GMV Today', value: '$9,700', icon: 'dollar', color: '#FEE2E2' },
@@ -46,7 +46,7 @@ export default function LivestreamAnalytics() {
         </div>
 
         {/* Notice */}
-        <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 12, color: '#4338CA' }}>
+        <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid #C7D2FE', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 12, color: '#3B82F6' }}>
           <strong>Coming soon:</strong> Live GMV tracking requires TikTok Shop Partner API (application in progress). Current data reflects estimated live activity from product trend signals.
         </div>
 

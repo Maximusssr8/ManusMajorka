@@ -40,7 +40,7 @@ function QuickActions({
   const actions = [
     { label: 'Generate Ads', path: `/app/growth?product=${pt}&category=${cat}`, color: '#a78bfa' },
     { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
-    { label: 'Check Profit', path: `/app/profit-calculator?price=${priceAud}`, color: '#6366F1' },
+    { label: 'Check Profit', path: `/app/profit-calculator?price=${priceAud}`, color: '#d4af37' },
     { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
   ];
   return (
@@ -188,7 +188,7 @@ function parseSparkline(raw: string | number[] | null | undefined): number[] {
 
 const QUICK_CARDS = [
   { label: 'Trending Products', sub: 'Top winners right now', icon: Flame, path: '/app/winning-products', color: '#ef4444' },
-  { label: 'Creator Intel',     sub: 'Find TikTok partners',   icon: Users,  path: '/app/creators',         color: '#6366F1' },
+  { label: 'Creator Intel',     sub: 'Find TikTok partners',   icon: Users,  path: '/app/creators',         color: '#d4af37' },
   { label: 'Video Intel',       sub: 'Top-converting videos',     icon: Play,   path: '/app/videos',           color: '#a78bfa' },
   { label: 'Competitor Spy',    sub: 'Research any competitor',   icon: Eye,    path: '/app/competitor-spy',   color: '#38bdf8' },
   { label: 'Category Rankings',  sub: 'Top niches by demand',       icon: TrendingUp, path: '/app/intelligence', color: '#34d399' },
@@ -365,7 +365,7 @@ export default function MarketDashboard() {
             <LiveBadge label="Live market data" />
             {isScale && (
               <button onClick={triggerProductRefresh} disabled={refreshingProducts}
-                style={{ height: 30, padding: '0 10px', background: refreshingProducts ? '#9CA3AF' : 'white', color: refreshingProducts ? 'white' : '#6366F1', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: refreshingProducts ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                style={{ height: 30, padding: '0 10px', background: refreshingProducts ? '#9CA3AF' : 'white', color: refreshingProducts ? 'white' : '#d4af37', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: refreshingProducts ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {refreshingProducts ? (
                   <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>{'\u21BB'}</span> Refreshing...</>
                 ) : (
@@ -383,7 +383,7 @@ export default function MarketDashboard() {
         {['\u{1F30D} Global', '\u{1F1E6}\u{1F1FA} AU', '\u{1F1FA}\u{1F1F8} US', '\u{1F1EC}\u{1F1E7} UK'].map(r => {
           const isActive = r === activeMarket;
           return (
-            <button key={r} onClick={() => setActiveMarket(r)} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#6366F1' : '#E5E7EB'}`, background: isActive ? '#EEF2FF' : 'white', color: isActive ? '#6366F1' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
+            <button key={r} onClick={() => setActiveMarket(r)} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#d4af37' : '#E5E7EB'}`, background: isActive ? 'rgba(212,175,55,0.08)' : 'white', color: isActive ? '#d4af37' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
               {r}
             </button>
           );
@@ -435,7 +435,7 @@ export default function MarketDashboard() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>Today's Top Products</h2>
-            <button onClick={() => nav('/app/winning-products')} className="text-xs" style={{ color: '#6366F1' }}>View all →</button>
+            <button onClick={() => nav('/app/winning-products')} className="text-xs" style={{ color: '#d4af37' }}>View all →</button>
           </div>
           <div
             className="rounded-xl overflow-hidden"
@@ -481,7 +481,7 @@ export default function MarketDashboard() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-xs" style={{ color: '#94a3b8' }}>{p.category}</td>
-                      <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#6366F1' }}>
+                      <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#d4af37' }}>
                         {(() => {
                           const calc = p.real_orders_count && p.price_aud
                             ? Math.round((p.real_orders_count * p.price_aud) / 30)
@@ -506,7 +506,7 @@ export default function MarketDashboard() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#64748b' }}>Top Creator</h2>
-              <button onClick={() => nav('/app/creators')} className="text-xs" style={{ color: '#6366F1' }}>All →</button>
+              <button onClick={() => nav('/app/creators')} className="text-xs" style={{ color: '#d4af37' }}>All →</button>
             </div>
             {loading ? (
               <div className="rounded-xl p-4 text-sm" style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>Loading…</div>
@@ -518,7 +518,7 @@ export default function MarketDashboard() {
                 <div className="flex items-start gap-3 mb-4">
                   <div
                     className="w-12 h-12 rounded-full flex-shrink-0 bg-center bg-cover"
-                    style={{ backgroundImage: topCreator.avatar_url ? `url(${topCreator.avatar_url})` : undefined, background: topCreator.avatar_url ? undefined : 'rgba(99,102,241,0.2)' }}
+                    style={{ backgroundImage: topCreator.avatar_url ? `url(${topCreator.avatar_url})` : undefined, background: topCreator.avatar_url ? undefined : 'rgba(212,175,55,0.2)' }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -532,7 +532,7 @@ export default function MarketDashboard() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs" style={{ color: '#64748b' }}>30-day GMV</p>
-                    <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}>
+                    <p className="text-xl font-bold" style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}>
                       {((topCreator as any).gmv_30d_aud || (topCreator as any).est_monthly_revenue_aud) ? fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud) : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>No data yet</span>}
                     </p>
                   </div>
@@ -543,7 +543,7 @@ export default function MarketDashboard() {
                     <span
                       key={c}
                       className="text-xs px-2 py-0.5 rounded"
-                      style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}
+                      style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}
                     >
                       {c}
                     </span>
@@ -552,9 +552,9 @@ export default function MarketDashboard() {
                 <button
                   onClick={() => nav('/app/creators')}
                   className="w-full py-2 rounded-lg text-sm font-medium transition-colors"
-                  style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+                  style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.25)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
                 >
                   View All Creators →
                 </button>

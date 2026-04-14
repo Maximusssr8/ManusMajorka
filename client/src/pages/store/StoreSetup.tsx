@@ -258,7 +258,7 @@ export default function StoreSetup() {
               onClick={handleLaunch}
               disabled={createStore.isPending}
               className="w-full py-3 text-lg font-semibold text-slate-100"
-              style={{ background: '#6366F1' }}
+              style={{ background: '#d4af37' }}
             >
               {createStore.isPending ? 'Launching...' : '🚀 Launch My Store'}
             </Button>
@@ -281,7 +281,7 @@ export default function StoreSetup() {
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
               className="text-slate-100 font-semibold"
-              style={{ background: '#6366F1' }}
+              style={{ background: '#d4af37' }}
             >
               Continue
               <ArrowRight className="w-4 h-4 ml-2" />

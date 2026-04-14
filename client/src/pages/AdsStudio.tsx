@@ -7,6 +7,10 @@ import UsageMeter from '@/components/UsageMeter';
 import { proxyImage } from '@/lib/imageProxy';
 import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
+import MetaVariantsPanel, {
+  SavedAdSetsDrawer,
+  type SavedAdSet,
+} from '@/components/ads/MetaVariantsPanel';
 
 const brico = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
@@ -756,7 +760,7 @@ OBJECTION KILLER:
                 height: 44,
                 background: !productName.trim()
                   ? 'rgba(124,106,255,0.25)'
-                  : 'linear-gradient(135deg, #7c6aff, #6366f1)',
+                  : 'linear-gradient(135deg, #7c6aff, #d4af37)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 10,
@@ -775,7 +779,7 @@ OBJECTION KILLER:
         <div ref={outputRef} style={{ overflowY: 'auto', padding: '24px 28px' }}>
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #7c6aff, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #7c6aff, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
               <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800 }}>Writing your ad package…</div>
             </div>
           ) : parsed ? (
@@ -795,7 +799,28 @@ OBJECTION KILLER:
                 health={imageHealth}
                 urlCopied={imageUrlCopied}
               />
+              <MetaVariantsPanel
+                product={{
+                  title: productName,
+                  image: productUrl || null,
+                  url: null,
+                  price: pricePoint,
+                  benefit,
+                  audienceHint: audience,
+                }}
+              />
             </>
+          ) : productName.trim() ? (
+            <MetaVariantsPanel
+              product={{
+                title: productName,
+                image: productUrl || null,
+                url: null,
+                price: pricePoint,
+                benefit,
+                audienceHint: audience,
+              }}
+            />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60%' }}>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', fontFamily: dm }}>
@@ -898,6 +923,12 @@ OBJECTION KILLER:
           )}
         </div>
       </div>
+      <SavedAdSetsDrawer
+        onRestore={(s: SavedAdSet) => {
+          setProductName(s.product_title);
+          if (s.product_image) setProductUrl(s.product_image);
+        }}
+      />
     </div>
   );
 }
@@ -1125,7 +1156,7 @@ function VisualCreativeCard({
         title={disabledTooltip || undefined}
         style={{
           width: '100%', padding: '11px 14px', borderRadius: 10,
-          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7c6aff, #6366f1)',
+          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7c6aff, #d4af37)',
           border: 'none',
           color: disabled ? 'rgba(255,255,255,0.35)' : '#ffffff',
           fontSize: 13, fontWeight: 700, fontFamily: brico, letterSpacing: '-0.01em',

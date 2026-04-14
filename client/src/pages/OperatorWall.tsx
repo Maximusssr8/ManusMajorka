@@ -73,7 +73,7 @@ export default function OperatorWall() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+            background: 'linear-gradient(135deg, #d4af37, #d4af37)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: display,
           }}>M</div>
@@ -93,8 +93,8 @@ export default function OperatorWall() {
             display: 'inline-block',
             padding: '6px 14px',
             borderRadius: 999,
-            background: 'rgba(99,102,241,0.08)',
-            border: '1px solid rgba(99,102,241,0.2)',
+            background: 'rgba(212,175,55,0.08)',
+            border: '1px solid rgba(212,175,55,0.2)',
             fontSize: 11, fontFamily: mono, color: '#a5b4fc',
             letterSpacing: '0.08em', textTransform: 'uppercase',
             marginBottom: 18,
@@ -162,8 +162,8 @@ export default function OperatorWall() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',
-                  background: 'rgba(99,102,241,0.15)',
-                  border: '1px solid rgba(99,102,241,0.3)',
+                  background: 'rgba(212,175,55,0.15)',
+                  border: '1px solid rgba(212,175,55,0.3)',
                   color: '#a5b4fc',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: display, fontWeight: 800, fontSize: 16, letterSpacing: '0.02em',
@@ -181,8 +181,8 @@ export default function OperatorWall() {
               <div style={{
                 display: 'inline-flex', alignSelf: 'flex-start',
                 padding: '4px 10px',
-                background: 'rgba(99,102,241,0.08)',
-                border: '1px solid rgba(99,102,241,0.18)',
+                background: 'rgba(212,175,55,0.08)',
+                border: '1px solid rgba(212,175,55,0.18)',
                 borderRadius: 999,
                 fontSize: 10, fontFamily: mono, color: '#a5b4fc',
                 letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600,
@@ -209,8 +209,8 @@ export default function OperatorWall() {
           marginTop: 80,
           padding: 40,
           borderRadius: 18,
-          background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.04))',
-          border: '1px solid rgba(99,102,241,0.22)',
+          background: 'linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.04))',
+          border: '1px solid rgba(212,175,55,0.22)',
           textAlign: 'center',
         }}>
           <h2 style={{
@@ -229,7 +229,7 @@ export default function OperatorWall() {
             alignItems: 'center',
             gap: 8,
             padding: '13px 26px',
-            background: '#6366F1',
+            background: '#d4af37',
             color: '#fff',
             fontWeight: 600,
             fontSize: 14,

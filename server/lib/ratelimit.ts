@@ -128,6 +128,14 @@ export const aiLimiter = rateLimitMiddleware({
   keyFn: (req) => getUserIdHint(req) ?? getIp(req),
 });
 
+/** Prebuilt limiter: Maya chat — 20 req/min per user (fallback IP). */
+export const chatLimiter = rateLimitMiddleware({
+  prefix: 'majorka:ai-chat',
+  points: 20,
+  windowSec: 60,
+  keyFn: (req) => getUserIdHint(req) ?? getIp(req),
+});
+
 /** Prebuilt limiter: cron endpoint — 5 req/min. */
 export const cronLimiter = rateLimitMiddleware({
   prefix: 'majorka:cron',

@@ -11,14 +11,14 @@ interface FomoEvent {
 
 const EVENTS: FomoEvent[] = [
   { city: 'Melbourne', name: 'Sarah K.',   action: 'flagged a winner',        detail: '$47k/mo pet niche product',      accent: '#10b981' },
-  { city: 'Sydney',    name: 'James L.',   action: 'launched their first ad', detail: 'Meta creative via Ads Studio',   accent: '#6366f1' },
+  { city: 'Sydney',    name: 'James L.',   action: 'launched their first ad', detail: 'Meta creative via Ads Studio',   accent: '#d4af37' },
   { city: 'Brisbane',  name: 'Ayana P.',   action: 'made their first sale',   detail: '$89 AOV, 54% margin',            accent: '#10b981' },
   { city: 'Perth',     name: 'Tom R.',     action: 'built a store',           detail: '11 min, 12 products imported',   accent: '#f59e0b' },
   { city: 'Adelaide',  name: 'Lena M.',    action: 'hit $1k day',             detail: 'Home & kitchen, 4 SKUs',         accent: '#10b981' },
-  { city: 'Auckland',  name: 'Noah T.',    action: 'tracked 8 products',      detail: 'Velocity alert triggered 2x',    accent: '#6366f1' },
+  { city: 'Auckland',  name: 'Noah T.',    action: 'tracked 8 products',      detail: 'Velocity alert triggered 2x',    accent: '#d4af37' },
   { city: 'Gold Coast',name: 'Priya S.',   action: 'scaled to $12k/mo',      detail: 'Scale plan, 3 alerts hot',       accent: '#10b981' },
   { city: 'Wellington',name: 'Harper J.',  action: 'beat a competitor',       detail: 'Spotted via Competitor Spy',     accent: '#f59e0b' },
-  { city: 'Canberra',  name: 'Omar B.',    action: 'found a rising niche',    detail: '+340% 7-day velocity',           accent: '#6366f1' },
+  { city: 'Canberra',  name: 'Omar B.',    action: 'found a rising niche',    detail: '+340% 7-day velocity',           accent: '#d4af37' },
   { city: 'Hobart',    name: 'Chloe D.',   action: 'saved a list',            detail: '23 winners under $20 CoGS',      accent: '#f59e0b' },
 ];
 

@@ -82,8 +82,8 @@ function TrackCard({ track, completed, onComplete, userName }: TrackCardProps) {
             <span
               className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-md"
               style={{
-                background: track.tier === 'scale' ? 'rgba(245,158,11,0.12)' : 'rgba(99,102,241,0.12)',
-                color: track.tier === 'scale' ? '#fbbf24' : '#818cf8',
+                background: track.tier === 'scale' ? 'rgba(245,158,11,0.12)' : 'rgba(212,175,55,0.12)',
+                color: track.tier === 'scale' ? '#fbbf24' : '#e5c158',
               }}
             >
               {track.tier === 'scale' ? 'Scale only' : 'Builder + Scale'}

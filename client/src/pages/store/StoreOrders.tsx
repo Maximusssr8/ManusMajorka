@@ -39,7 +39,7 @@ export default function StoreOrders() {
         <Button
           onClick={() => navigate('/app/store/setup')}
           className="text-slate-100 font-semibold"
-          style={{ background: '#6366F1' }}
+          style={{ background: '#d4af37' }}
         >
           Set Up Store
         </Button>

@@ -91,7 +91,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const content = line.replace(/^[\-\*•] /, "");
       nodes.push(
         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
-          <span style={{ color: "#818CF8", flexShrink: 0, marginTop: 2, fontSize: 10 }}>▸</span>
+          <span style={{ color: "#e5c158", flexShrink: 0, marginTop: 2, fontSize: 10 }}>▸</span>
           <span style={{ lineHeight: 1.6, fontSize: 14 }}>{renderInline(content)}</span>
         </div>
       );
@@ -119,7 +119,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const content = line.replace(/^\d+\. /, "");
       nodes.push(
         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
-          <span style={{ color: "#818CF8", flexShrink: 0, fontWeight: 700, minWidth: 18, fontSize: 13 }}>{num}.</span>
+          <span style={{ color: "#e5c158", flexShrink: 0, fontWeight: 700, minWidth: 18, fontSize: 13 }}>{num}.</span>
           <span style={{ lineHeight: 1.6, fontSize: 14 }}>{renderInline(content)}</span>
         </div>
       );
@@ -150,7 +150,7 @@ function renderMarkdown(text: string): React.ReactNode {
 function TypingDots() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
       </div>
       <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px 18px 18px 4px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
@@ -198,7 +198,7 @@ function MayaContextChips() {
   const chips = [
     niche ? { label: niche, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' } : null,
     { label: `${region} market`, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' },
-    planLabel ? { label: planLabel, color: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.2)', text: '#818CF8' } : null,
+    planLabel ? { label: planLabel, color: 'rgba(212,175,55,0.1)', border: 'rgba(212,175,55,0.2)', text: '#e5c158' } : null,
   ].filter(Boolean) as Array<{ label: string; color: string; border: string; text: string }>;
 
   if (!chips.length) return null;
@@ -439,7 +439,7 @@ export default function AIChat() {
         {/* ── Header ────────────────────────────────────────────────────────── */}
         <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(99,102,241,0.4)" }}>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(212,175,55,0.4)" }}>
               <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "white" }}>M</span>
             </div>
             <div>
@@ -472,7 +472,7 @@ export default function AIChat() {
           {messages.length === 0 && !loading && (
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, paddingTop: 40 }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 0 32px rgba(99,102,241,0.3)" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 0 32px rgba(212,175,55,0.3)" }}>
                   <Sparkles size={28} color="white" />
                 </div>
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "white", marginBottom: 8 }}>How can I help you win today?</div>
@@ -484,7 +484,7 @@ export default function AIChat() {
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
                     style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, cursor: "pointer", color: "#D1D5DB", fontFamily: dm, fontSize: 13, textAlign: "left" as const, lineHeight: 1.4, transition: "all 150ms" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)"; e.currentTarget.style.background = "rgba(99,102,241,0.08)"; e.currentTarget.style.color = "#E0E7FF"; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)"; e.currentTarget.style.background = "rgba(212,175,55,0.08)"; e.currentTarget.style.color = "#E0E7FF"; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = "#D1D5DB"; }}
                   >
                     {prompt}
@@ -498,7 +498,7 @@ export default function AIChat() {
           {messages.map(msg => (
             <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 8 }}>
               {msg.role === "assistant" && (
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #6366F1, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 18 }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 18 }}>
                   <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
                 </div>
               )}
@@ -552,7 +552,7 @@ export default function AIChat() {
               style={{
                 width: 36, height: 36, borderRadius: 10, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: input.trim() && !loading ? "pointer" : "not-allowed", border: "none", transition: "all 150ms",
-                background: input.trim() && !loading ? "linear-gradient(135deg, #6366F1, #8B5CF6)" : "rgba(255,255,255,0.06)",
+                background: input.trim() && !loading ? "linear-gradient(135deg, #d4af37, #d4af37)" : "rgba(255,255,255,0.06)",
                 opacity: input.trim() && !loading ? 1 : 0.4,
               }}
               onMouseEnter={e => { if (input.trim() && !loading) e.currentTarget.style.transform = "scale(1.05)"; }}

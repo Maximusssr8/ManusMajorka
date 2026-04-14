@@ -14,6 +14,7 @@ import { CLAUDE_MODEL, getAnthropicClient } from '../lib/anthropic';
 import { addMemory, searchMemories } from '../lib/memory';
 import { logTrace, runAURelevanceEval } from '../lib/opik';
 import { rateLimit } from '../lib/rate-limit';
+import { chatLimiter } from '../lib/ratelimit';
 import { getSupabaseAdmin } from './supabase';
 
 const MAX_HISTORY = 10; // reduced from 20
@@ -925,6 +926,77 @@ function buildSystemPrompt(
 }
 
 export function registerChatRoutes(app: Application) {
+  // ── Get chat history (last 50 for current user) ─────────────────────────
+  app.get('/api/chat/history', async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace(/^Bearer\s+/i, '');
+      const toolName = (req.query.tool as string) || 'ai-chat';
+      if (!token) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      const {
+        data: { user },
+      } = await getSupabaseAdmin().auth.getUser(token);
+      if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      const { data } = await getSupabaseAdmin()
+        .from('chat_messages')
+        .select('id, role, content, created_at')
+        .eq('user_id', user.id)
+        .eq('tool_name', toolName)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      const rows = ((data ?? []) as Array<{
+        id: string;
+        role: 'user' | 'assistant';
+        content: string;
+        created_at: string;
+      }>).reverse();
+      res.json({ messages: rows });
+    } catch (e: unknown) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'internal' });
+    }
+  });
+
+  // ── Append a single message to history (client-driven persistence) ──────
+  app.post('/api/chat/history', async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace(/^Bearer\s+/i, '');
+      if (!token) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      const {
+        data: { user },
+      } = await getSupabaseAdmin().auth.getUser(token);
+      if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      const body = req.body as {
+        role?: string;
+        content?: string;
+        tool?: string;
+      };
+      const role = body.role === 'assistant' ? 'assistant' : 'user';
+      const content = typeof body.content === 'string' ? body.content.slice(0, 10000) : '';
+      const toolName = typeof body.tool === 'string' && body.tool ? body.tool : 'ai-chat';
+      if (!content.trim()) {
+        res.status(400).json({ error: 'content is required' });
+        return;
+      }
+      await getSupabaseAdmin()
+        .from('chat_messages')
+        .insert({ user_id: user.id, tool_name: toolName, role, content });
+      res.json({ ok: true });
+    } catch (e: unknown) {
+      res.status(500).json({ error: e instanceof Error ? e.message : 'internal' });
+    }
+  });
+
   // ── Clear chat history ──────────────────────────────────────────────────
   app.delete('/api/chat/history', async (req, res) => {
     try {
@@ -953,7 +1025,7 @@ export function registerChatRoutes(app: Application) {
   });
 
   // ── Main chat endpoint ──────────────────────────────────────────────────
-  app.post('/api/chat', async (req, res) => {
+  app.post('/api/chat', chatLimiter, async (req, res) => {
     try {
       const {
         messages: rawMessages,
@@ -1068,6 +1140,7 @@ export function registerChatRoutes(app: Application) {
 
       // ── Auth + memory ───────────────────────────────────────────────────
       let userId: string | null = null;
+      let userEmail: string | null = null;
       let profile: Record<string, string> | null = null;
 
       const authHeader = req.headers.authorization;
@@ -1080,6 +1153,7 @@ export function registerChatRoutes(app: Application) {
           } = await getSupabaseAdmin().auth.getUser(token);
           if (!error && user) {
             userId = user.id;
+            userEmail = user.email ?? null;
             profile = await fetchUserProfile(userId);
 
             // Load persistent history for all tools so users get session continuity
@@ -1199,7 +1273,26 @@ export function registerChatRoutes(app: Application) {
 
       // ── Build system prompt ─────────────────────────────────────────────
       const mayaMarketCtx = await fetchMayaMarketContext();
-      const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market, pageContext) + webContext + mayaMarketCtx;
+
+      // ── Maya live user + trending context (only for ai-chat) ──────────
+      let mayaLiveCtx = '';
+      if (toolName === 'ai-chat') {
+        try {
+          const { buildMayaContext, renderMayaContext, renderTierLine } = await import(
+            '../lib/mayaContext'
+          );
+          const mc = await buildMayaContext(userId, userEmail);
+          mayaLiveCtx = `\n\n${renderTierLine(mc.tier)}${renderMayaContext(mc)}`;
+        } catch {
+          /* non-fatal */
+        }
+      }
+
+      const baseSystem =
+        buildSystemPrompt(systemPrompt, profile, toolName, market, pageContext) +
+        webContext +
+        mayaMarketCtx +
+        mayaLiveCtx;
 
       // ── Inject mem0 persistent memories (prepended at TOP for priority) ─
       const userQuery = messages[messages.length - 1]?.content || '';

@@ -35,9 +35,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#6366F1',
-  goldDim: 'rgba(99,102,241,0.1)',
-  goldBorder: 'rgba(99,102,241,0.25)',
+  gold: '#d4af37',
+  goldDim: 'rgba(212,175,55,0.1)',
+  goldBorder: 'rgba(212,175,55,0.25)',
   green: '#22c55e',
 };
 
@@ -254,7 +254,7 @@ export default function PublicProfitCalculator() {
                 width: 34,
                 height: 34,
                 borderRadius: 8,
-                background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+                background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -281,7 +281,7 @@ export default function PublicProfitCalculator() {
           <Link
             href="/app"
             style={{
-              background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+              background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
               color: '#000',
               borderRadius: 8,
               padding: '8px 20px',
@@ -602,7 +602,7 @@ export default function PublicProfitCalculator() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
-            background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
+            background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
             color: '#000',
             borderRadius: 12,
             padding: '16px 36px',
@@ -610,7 +610,7 @@ export default function PublicProfitCalculator() {
             fontWeight: 800,
             fontSize: 17,
             textDecoration: 'none',
-            boxShadow: `0 0 40px rgba(99,102,241,0.3)`,
+            boxShadow: `0 0 40px rgba(212,175,55,0.3)`,
           }}
         >
           Sign Up Free <ArrowRight size={18} />
@@ -626,7 +626,7 @@ export default function PublicProfitCalculator() {
           .profit-calc-grid { grid-template-columns: 1fr !important; }
         }
         input[type="range"] { -webkit-appearance: none; appearance: none; background: #1e1e24; border-radius: 4px; height: 6px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #6366F1; cursor: pointer; border: 2px solid #060608; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #d4af37; cursor: pointer; border: 2px solid #060608; }
       `}</style>
     </div>
   );

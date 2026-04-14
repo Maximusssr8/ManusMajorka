@@ -73,7 +73,7 @@ export function SampleWinnerCard() {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
-      whileHover={{ scale: 1.015, borderColor: 'rgba(99,102,241,0.3)' }}
+      whileHover={{ scale: 1.015, borderColor: 'rgba(212,175,55,0.3)' }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="bg-surface border border-white/[0.07] rounded-2xl overflow-hidden group"
       style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}

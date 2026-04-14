@@ -44,8 +44,8 @@ export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps
               key={r.code}
               onClick={() => setSelected(r.code as RegionCode)}
               style={{
-                padding: '14px 16px', background: selected === r.code ? '#EEF2FF' : '#FAFAFA',
-                border: `2px solid ${selected === r.code ? '#6366F1' : '#E5E7EB'}`,
+                padding: '14px 16px', background: selected === r.code ? 'rgba(212,175,55,0.08)' : '#FAFAFA',
+                border: `2px solid ${selected === r.code ? '#d4af37' : '#E5E7EB'}`,
                 borderRadius: 12, cursor: 'pointer', textAlign: 'left' as const,
                 transition: 'all 150ms',
               }}
@@ -53,7 +53,7 @@ export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 24 }}>{r.flag}</span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: selected === r.code ? '#6366F1' : '#0A0A0A' }}>{r.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: selected === r.code ? '#d4af37' : '#0A0A0A' }}>{r.name}</div>
                   <div style={{ fontSize: 10, color: '#9CA3AF' }}>{r.currency} · {r.popular_niches.slice(0, 2).join(', ')}</div>
                 </div>
               </div>
@@ -63,7 +63,7 @@ export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps
 
         <button onClick={handleConfirm}
           style={{
-            width: '100%', height: 48, background: '#6366F1', color: 'white',
+            width: '100%', height: 48, background: '#d4af37', color: 'white',
             border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700,
             cursor: 'pointer', fontFamily: brico,
           }}>

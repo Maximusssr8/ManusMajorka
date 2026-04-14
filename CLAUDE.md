@@ -34,6 +34,14 @@ RLS: ENABLED — server always uses SERVICE_ROLE key, never anon key
 Quality rules: sold_count > 0, image_url NOT NULL, price_aud > 0, title length >= 5
 Current count: 3715 (verified 2026-04-14 — all quality rules hold: 0 NULL image_url, 0 sold_count<=0, 0 price_aud<=0)
 
+Table: pipeline_logs
+Tracks every pipeline run (Apify pintostudio + legacy crons).
+Core columns: id, pipeline_type, status ('running'|'success'|'partial'|'error'|'failed'), started_at, finished_at, duration_ms, products_added, products_updated, products_rejected, source_breakdown (jsonb), error_message. Legacy columns kept for back-compat: inserted, updated, skipped, raw_collected, completed_at.
+RLS ENABLED; writes gated through service-role. Trigger manually via `pnpm pipeline:trigger` or `POST /api/admin/trigger-pipeline` (X-Admin-Token). Cron: `/api/cron/apify-pipeline` every 6h.
+
+## CJ Dropshipping — REMOVED (do not reintroduce as a data source)
+The CJ Dropshipping ingestion pipeline (server/scrapers/cj-*, server/lib/cj{Products,RealData}.ts, /api/cron/collect-cj, /api/cron/cj-refresh, /api/admin/run-cj-real) has been purged. CJ is still referenced as a supplier option in UI copy / blog / chat prompts — that's user-facing content, not infra, and is intentional. New product data flows exclusively through `server/lib/apifyPintostudio.ts` (pintostudio~aliexpress-product-search actor).
+
 ## Supabase RLS Pattern
 Server uses SERVICE_ROLE key. Client uses ANON key.
 UUID cast fix: use ::text on both sides of policy comparisons.
