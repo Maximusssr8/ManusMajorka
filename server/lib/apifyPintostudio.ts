@@ -211,10 +211,15 @@ function buildInput(input: PintostudioInput): Record<string, unknown> {
         shipTo,
       };
     case 'bestsellers':
+      // Send BOTH startUrls (pintostudio canonical) and categoryUrl (alt shape)
+      // + sortBy: 'total_tranqt' as a fallback to ORDERS — defensive against
+      // actor schema changes. Pintostudio accepts extra keys without erroring.
       return {
         startUrls: input.categoryUrl ? [{ url: input.categoryUrl }] : [],
+        categoryUrl: input.categoryUrl,
         maxItems: input.limit,
         sortBy: 'ORDERS',
+        sortByAlt: 'total_tranqt',
         shipTo,
       };
     case 'hot_products':

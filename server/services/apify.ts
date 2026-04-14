@@ -139,32 +139,12 @@ export async function startAliExpressKeywordScrape(
     console.error('[apify-svc] pintostudio error:', msg);
   }
 
-  // Fallback: playwright scraper
-  const searchUrl = `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(keyword)}&SortType=total_tranpro_desc`;
-  const playwrightInput = {
-    startUrls: [{ url: searchUrl }],
-    pageFunction: `async function pageFunction(context) {
-      const { page } = context;
-      await page.waitForTimeout(3000);
-      const items = await page.$$eval('[class*="product-snippet"]', cards => {
-        return cards.slice(0, ${maxResults}).map(card => {
-          const title = card.querySelector('[class*="title"]')?.textContent?.trim() || '';
-          const priceEl = card.querySelector('[class*="price"]');
-          const price = priceEl?.textContent?.replace(/[^0-9.]/g, '') || '0';
-          const img = card.querySelector('img')?.src || card.querySelector('img')?.getAttribute('data-src') || '';
-          const link = card.querySelector('a')?.href || '';
-          const orders = card.querySelector('[class*="sold"]')?.textContent?.replace(/[^0-9]/g, '') || '0';
-          const rating = card.querySelector('[class*="star"]')?.textContent?.replace(/[^0-9.]/g, '') || '0';
-          return { title, price: parseFloat(price), imageUrl: img, productUrl: link, orders: parseInt(orders), rating: parseFloat(rating) };
-        }).filter(p => p.title && p.price > 0);
-      });
-      return items;
-    }`,
-    proxyConfiguration: { useApifyProxy: true },
-    maxRequestRetries: 2,
-  };
-
-  return startApifyActor(ALIEXPRESS_FALLBACK_ACTOR, playwrightInput, 120);
+  // DISABLED — playwright-scraper fallback produced 0 results for AE since Apr 1.
+  // Pintostudio rental must be restored at console.apify.com. Returning null here
+  // fails loudly so the caller + pipeline_logs surface the real problem instead
+  // of silently writing zero rows every cron tick.
+  console.error('[apify-svc] pintostudio unavailable and playwright fallback is disabled — check APIFY rental');
+  return null;
 }
 
 /** Map pintostudio item to ApifyProduct */

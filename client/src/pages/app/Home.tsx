@@ -103,12 +103,12 @@ export default function AppHome() {
   const topIds = topProductsRaw.map((p) => p.id);
 
   // Velocity Leaders carousel: genuinely different query from the table.
-  // Newest products with strong orders (>10k) that are NOT in the Top 20.
-  // This works even when velocity_7d column is NULL across the dataset.
+  // Newest products with strong orders (>5k) that are NOT in the Top 20.
+  // Threshold 5k per spec — works even when velocity_7d column is NULL.
   const { products: velocityProducts } = useProducts({
     limit: 10,
     orderBy: 'created_at',
-    minOrders: 10000,
+    minOrders: 5000,
     excludeIds: topIds.length > 0 ? topIds : undefined,
   });
 
