@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 import { useAuth } from '@/contexts/AuthContext';
+import { GUARANTEE_DAYS } from '@/lib/constants';
 
 // ── Design tokens ───────────────────────────────────────────────────────────
 const C = {
@@ -496,7 +497,7 @@ const FAQS = [
   },
   {
     q: 'Is there a money-back guarantee?',
-    a: "Yes. Both plans include a 14-day money-back guarantee. If you're not happy within 14 days of your first payment, we'll refund you in full — no questions asked.",
+    a: `Yes. Both plans include a ${GUARANTEE_DAYS}-day money-back guarantee. If you're not happy within ${GUARANTEE_DAYS} days of your first payment, we'll refund you in full — no questions asked.`,
   },
   {
     q: 'What happens to my data if I downgrade?',
@@ -504,7 +505,7 @@ const FAQS = [
   },
   {
     q: 'Do you offer refunds?',
-    a: "Yes. If you're not satisfied within the first 14 days, contact us for a full refund \u2014 no questions asked. Australian Consumer Law applies to all purchases.",
+    a: `Yes. If you're not satisfied within the first ${GUARANTEE_DAYS} days, contact us for a full refund \u2014 no questions asked. Australian Consumer Law applies to all purchases.`,
   },
   {
     q: 'Can I pay with Afterpay or Zip?',
@@ -613,7 +614,7 @@ export default function Pricing() {
     >
       <SEO
         title="Pricing — Majorka AI Ecommerce OS"
-        description="Builder $99/mo AUD. Scale $199/mo AUD. No lock-in. 14-day money-back guarantee."
+        description={`Builder $99/mo AUD. Scale $199/mo AUD. No lock-in. ${GUARANTEE_DAYS}-day money-back guarantee.`}
         path="/pricing"
       />
 
@@ -735,7 +736,7 @@ export default function Pricing() {
             marginBottom: 32,
           }}
         >
-          Simple pricing. No hidden fees. 14-day money-back guarantee.
+          Simple pricing. No hidden fees. {GUARANTEE_DAYS}-day money-back guarantee.
         </p>
 
         {/* Monthly / Annual toggle */}
@@ -813,7 +814,7 @@ export default function Pricing() {
             {[
               { stat: '131', label: 'trending products tracked', icon: '📦', color: '#d4af37', bg: 'rgba(212,175,55,0.08)', border: '#C7D2FE' },
               { stat: '7',   label: 'global markets covered',   icon: '🌏', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
-              { stat: '14',  label: 'day money-back guarantee', icon: '✅', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
+              { stat: String(GUARANTEE_DAYS),  label: 'day money-back guarantee', icon: '✅', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
               { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#d4af37', bg: '#F3E8FF', border: '#e5c158' },
             ].map(m => (
               <div key={m.label} style={{ background: m.bg, border: `1px solid ${m.border}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' as const }}>
@@ -824,7 +825,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="pricing-trust-badges" style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
-            {['Secure checkout', '14-day money-back guarantee', 'Australian Consumer Law', 'Cancel anytime'].map(badge => (
+            {['Secure checkout', `${GUARANTEE_DAYS}-day money-back guarantee`, 'Australian Consumer Law', 'Cancel anytime'].map(badge => (
               <span key={badge} style={{ fontSize: 12, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
             ))}
           </div>
@@ -1279,7 +1280,7 @@ export default function Pricing() {
           Ready to scale your business?
         </h2>
         <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36 }}>
-          14-day money-back guarantee. Afterpay available.
+          {GUARANTEE_DAYS}-day money-back guarantee. Afterpay available.
         </p>
         <Link
           href="/sign-up?plan=builder"
@@ -1310,7 +1311,7 @@ export default function Pricing() {
         >
           <span style={{ fontSize: 16 }}>{'\uD83D\uDEE1\uFE0F'}</span>
           <span style={{ fontSize: 13, color: C.secondary, fontWeight: 500 }}>
-            14-day money-back guarantee &middot; Australian Consumer Law applies
+            {GUARANTEE_DAYS}-day money-back guarantee &middot; Australian Consumer Law applies
           </span>
         </div>
       </section>
