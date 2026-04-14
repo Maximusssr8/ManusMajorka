@@ -801,6 +801,7 @@ router.post('/ae-hot-products', async (req: Request, res: Response) => {
     }
 
     const AUD_RATE = 1.55;
+    const rejects = { no_image: 0, bad_image: 0, zero_price: 0, short_title: 0, zero_orders: 0 };
     const rows = products.map((p: Record<string, unknown>) => {
       const priceUsd = parseFloat(String(p.sale_price || '0').replace(/[^\d.]/g, ''));
       const priceAud = Math.round(priceUsd * AUD_RATE * 100) / 100;
@@ -841,7 +842,18 @@ router.post('/ae-hot-products', async (req: Request, res: Response) => {
         last_seen_at: new Date().toISOString(),
         last_seen_in_scrape_at: new Date().toISOString(),
       };
-    }).filter((r: Record<string, unknown>) => r.image_url && String(r.image_url).startsWith('http') && (r.price_aud as number) > 0);
+    }).filter((r: Record<string, unknown>) => {
+      const title = String(r.product_title ?? '');
+      const img = String(r.image_url ?? '');
+      const price = (r.price_aud as number) ?? 0;
+      const orders = (r.sold_count as number) ?? 0;
+      if (!img) { rejects.no_image++; return false; }
+      if (!img.startsWith('http')) { rejects.bad_image++; return false; }
+      if (price <= 0) { rejects.zero_price++; return false; }
+      if (title.length < 5) { rejects.short_title++; return false; }
+      if (orders <= 0) { rejects.zero_orders++; return false; }
+      return true;
+    });
 
     if (rows.length > 0) {
       const { error } = await sb.from('winning_products')
@@ -849,8 +861,13 @@ router.post('/ae-hot-products', async (req: Request, res: Response) => {
       if (error) console.error('[cron/ae-hot-products] upsert error:', error.message);
     }
 
-    console.info(`[cron/ae-hot-products] Synced ${rows.length} hot products`);
-    res.json({ synced: rows.length, total_fetched: products.length });
+    const fetched = products.length;
+    const totalRejected = Object.values(rejects).reduce((a, b) => a + b, 0);
+    const rejectPct = fetched > 0 ? Math.round((totalRejected / fetched) * 100) : 0;
+    console.info(
+      `[ingest] fetched ${fetched}, filtered ${totalRejected} (${rejectPct}% — reasons: ${JSON.stringify(rejects)}), upserted ${rows.length}`,
+    );
+    res.json({ synced: rows.length, total_fetched: fetched, rejects, reject_pct: rejectPct });
   } catch (err: unknown) {
     console.error('[cron/ae-hot-products] Error:', err);
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
@@ -881,8 +898,48 @@ async function runRefreshHotProducts(req: Request, res: Response) {
   try {
     console.info('[cron/refresh-hotproducts] Starting multi-market hot products refresh…');
     const sb = getSupabaseAdmin();
-    const { fetchHotProductsAllMarkets } = await import('../lib/aliexpressHotProducts');
-    const buckets = await fetchHotProductsAllMarkets(50);
+    const { fetchHotProducts, fetchHotProductsAllMarkets, SUPPORTED_MARKETS } = await import('../lib/aliexpressHotProducts');
+
+    // Niche coverage — AliExpress first-level category IDs. Looping these
+    // multiplies results per tick and stops us from only pulling whatever
+    // the default (unsegmented) endpoint returns.
+    // 200000343 Pet · 66 Beauty/Health · 15 Home/Garden · 18 Sports
+    // 44 Consumer Electronics · 1501 Mother & Kids · 3 Apparel & Accessories
+    // 1511 Home Appliances (kitchen) · 34 Automobiles & Motorcycles · 13 Tools (garden)
+    const NICHE_CATEGORIES: Array<{ id: string; niche: string }> = [
+      { id: '66',  niche: 'Beauty' },
+      { id: '200000343', niche: 'Pets' },
+      { id: '15',  niche: 'Home' },
+      { id: '18',  niche: 'Fitness' },
+      { id: '44',  niche: 'Tech' },
+      { id: '3',   niche: 'Fashion' },
+      { id: '1501', niche: 'Kids' },
+      { id: '1511', niche: 'Kitchen' },
+      { id: '34',  niche: 'Auto' },
+      { id: '13',  niche: 'Garden' },
+    ];
+
+    // Per-tick budget: 7 markets × 50 (broad) + 10 niches × 2 pages × 50 (AU)
+    // = 350 broad + 1000 niche-targeted = up to ~1350 raw rows before dedupe.
+    const broadBuckets = await fetchHotProductsAllMarkets(50);
+    const nicheBuckets: Array<{ market: string; products: Awaited<ReturnType<typeof fetchHotProducts>> }> = [];
+    for (const cat of NICHE_CATEGORIES) {
+      for (const pageNo of [1, 2]) {
+        try {
+          const products = await fetchHotProducts({
+            country: 'AU',
+            categoryId: cat.id,
+            pageNo,
+            pageSize: 50,
+          });
+          nicheBuckets.push({ market: `AU:${cat.niche}:p${pageNo}`, products });
+        } catch (err) {
+          console.error(`[cron/refresh-hotproducts] niche ${cat.niche} p${pageNo} failed:`, err instanceof Error ? err.message : err);
+        }
+      }
+    }
+    const buckets = [...broadBuckets, ...nicheBuckets];
+    void SUPPORTED_MARKETS;
 
     const FX_TO_AUD: Record<string, number> = {
       USD: 1.55, GBP: 1.95, CAD: 1.13, NZD: 0.93, EUR: 1.65, SGD: 1.15, AUD: 1.0,
@@ -902,12 +959,16 @@ async function runRefreshHotProducts(req: Request, res: Response) {
       product_detail_url: string;
     }> = [];
     let totalFetched = 0;
+    const rejects = { no_id: 0, no_image: 0, bad_image_url: 0, duplicate: 0, zero_price: 0, short_title: 0, zero_orders: 0 };
 
     for (const { market, products } of buckets) {
       totalFetched += products.length;
       for (const p of products) {
-        if (!p.product_id || !p.product_main_image_url || !p.product_main_image_url.startsWith('http')) continue;
-        if (seen.has(p.product_id)) continue;
+        if (!p.product_id) { rejects.no_id++; continue; }
+        if (!p.product_main_image_url) { rejects.no_image++; continue; }
+        if (!p.product_main_image_url.startsWith('http')) { rejects.bad_image_url++; continue; }
+        if (seen.has(p.product_id)) { rejects.duplicate++; continue; }
+        if (!p.product_title || p.product_title.length < 5) { rejects.short_title++; continue; }
         seen.add(p.product_id);
 
         const currency = (p.sale_price_currency || 'USD').toUpperCase();
@@ -916,6 +977,9 @@ async function runRefreshHotProducts(req: Request, res: Response) {
         const priceAud = Math.round(salePriceLocal * fx * 100) / 100;
         const costAud = Math.round(priceAud * 0.4 * 100) / 100;
         const orders = p.lastest_volume || 0;
+
+        if (priceAud <= 0) { rejects.zero_price++; seen.delete(p.product_id); continue; }
+        if (orders <= 0) { rejects.zero_orders++; seen.delete(p.product_id); continue; }
 
         stagedInputs.push({
           market,
@@ -1047,6 +1111,23 @@ async function runRefreshHotProducts(req: Request, res: Response) {
       }
     }
 
+    // Diagnostic: total rows in table after this run so we can watch growth.
+    let totalRowsAfter: number | null = null;
+    try {
+      const { count: totalCount } = await sb
+        .from('winning_products')
+        .select('id', { count: 'exact', head: true });
+      totalRowsAfter = totalCount ?? null;
+    } catch {
+      totalRowsAfter = null;
+    }
+
+    const totalRejected = Object.values(rejects).reduce((a, b) => a + b, 0);
+    const rejectPct = totalFetched > 0 ? Math.round((totalRejected / totalFetched) * 100) : 0;
+    console.info(
+      `[ingest] fetched ${totalFetched}, filtered ${totalRejected} (${rejectPct}% — reasons: ${JSON.stringify(rejects)}), staged ${stagedInputs.length} unique, upserted ${upserted}, table_total=${totalRowsAfter ?? 'unknown'}`,
+    );
+
     const { LAST_RAW_RESPONSE } = await import('../lib/aliexpress-affiliate');
     const summary = {
       success: true,
@@ -1054,6 +1135,9 @@ async function runRefreshHotProducts(req: Request, res: Response) {
       total_fetched: totalFetched,
       unique_products: rows.length,
       upserted,
+      rejects,
+      reject_pct: rejectPct,
+      table_total_after: totalRowsAfter,
       raw_sample: LAST_RAW_RESPONSE,
       timestamp: new Date().toISOString(),
     };

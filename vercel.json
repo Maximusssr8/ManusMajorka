@@ -127,7 +127,7 @@
     },
     {
       "path": "/api/cron/ae-hot-products",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 */3 * * *"
     },
     {
       "path": "/api/cron/refresh-hotproducts",
