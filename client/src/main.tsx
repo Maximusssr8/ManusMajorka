@@ -62,6 +62,7 @@ if (
 }
 
 import * as Sentry from '@sentry/react';
+import { initSentry } from '@/lib/sentry';
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink, TRPCClientError } from '@trpc/client';
@@ -76,26 +77,9 @@ import { trpc } from '@/lib/trpc';
 import App from './App';
 import './index.css';
 
-// Initialise Sentry error tracking — only when a valid DSN URL is set.
-// Skips all 'pending', empty-string, or non-https values to avoid the
-// 'Invalid Sentry DSN' console error that was firing on every page load.
-const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-if (SENTRY_DSN && typeof SENTRY_DSN === 'string' && SENTRY_DSN.startsWith('https://') && SENTRY_DSN !== 'pending') {
-  Sentry.init({
-    dsn: SENTRY_DSN as string,
-    environment: import.meta.env.MODE || 'production',
-    tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0.0,
-    replaysOnErrorSampleRate: 0.1,
-    integrations: [
-      Sentry.browserTracingIntegration(),
-    ],
-    beforeSend(event) {
-      if (window.location.hostname === 'localhost') return null;
-      return event;
-    },
-  });
-}
+// Initialise Sentry error tracking — delegated to client/src/lib/sentry.ts
+// which no-ops when VITE_SENTRY_DSN is absent or invalid.
+initSentry();
 
 // Initialise analytics and capture UTM params on first load
 initPostHog();

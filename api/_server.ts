@@ -2,17 +2,18 @@
  * Vercel Serverless Function — wraps the Express app for serverless deployment.
  * All /api/* requests are routed here via vercel.json rewrites.
  */
-import * as Sentry from '@sentry/node';
+import { initSentry, isSentryEnabled, Sentry } from '../server/lib/sentry';
+import {
+  adminRateLimit,
+  aiRateLimit,
+  alertsRateLimit,
+  publicRateLimit,
+} from '../server/middleware/rateLimit';
+import { securityHeaders, warnIfWeakAdminToken } from '../server/middleware/security';
 
-// Initialize Sentry server-side (Vercel serverless)
-const SENTRY_DSN = process.env.SENTRY_DSN;
-if (SENTRY_DSN) {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'production',
-    tracesSampleRate: 0.05,
-  });
-}
+// Initialize observability at cold start — no-ops without SENTRY_DSN.
+initSentry();
+warnIfWeakAdminToken();
 
 import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -76,13 +77,7 @@ app.disable('x-powered-by'); // Don't expose Express in response headers
 app.set('trust proxy', 1); // Trust Vercel's load balancer for req.ip
 
 // ═══ Security headers — applied to every API response ═══
-app.use((_req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  next();
-});
+app.use(securityHeaders);
 
 // ═══ CORS Lockdown ═══
 const ALLOWED_ORIGINS = [
@@ -123,7 +118,9 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
   }
 });
 
-app.use(express.json({ limit: "50mb" }));
+// Standard request body cap. Stripe webhook is registered above with its own
+// raw-body parser, so it is unaffected by this 1mb limit.
+app.use(express.json({ limit: "1mb" }));
 // ── Image proxy — fixes AliExpress CDN AVIF/format issues ─────────────────
 app.get("/api/proxy-img", async (req: Request, res: Response) => {
   const url = req.query.url as string;
@@ -159,18 +156,20 @@ app.get("/api/proxy-img", async (req: Request, res: Response) => {
   }
 });
 
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.urlencoded({ limit: "1mb", extended: true }));
 app.use(cookieParser());
 
-// ── Security headers (production) ────────────────────────────────────────────
-app.use((_req, res, next) => {
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  next();
-});
+// ── Per-tier rate limits — applied before route handlers. Fail-open when
+// Upstash is unreachable (see server/lib/ratelimit.ts). ─────────────────────
+app.use('/api/ai', aiRateLimit);
+app.use('/api/alerts', alertsRateLimit);
+app.use('/api/admin', adminRateLimit);
+// Public default — apply narrowly to read-heavy public endpoints.
+app.use('/api/trend-signals', publicRateLimit);
+app.use('/api/competitor', publicRateLimit);
+app.use('/api/creators', publicRateLimit);
+app.use('/api/videos', publicRateLimit);
+app.use('/api/reports', publicRateLimit);
 
 // ── POST /api/images/pexels-search — website generator image fallback ─────────
 app.post("/api/images/pexels-search", async (req: Request, res: Response) => {
@@ -593,6 +592,11 @@ app.use('/api/alerts', alertsRouter);
 app.get('/api/health/email', (_req, res) => {
   const provider = _getEmailProvider();
   res.json({ ok: provider !== 'none', provider, reason: provider === 'none' ? 'no_provider' : undefined });
+});
+// Alias for image generation provider health — UI (Ads Studio) polls this path.
+app.get('/api/health/image', async (_req, res) => {
+  const { getImageProviderHealth } = await import('../server/lib/imageGen');
+  res.json(getImageProviderHealth());
 });
 app.use('/api', imageProxyRouter);
 app.use('/api/subscription', subscriptionRouter);
@@ -1090,7 +1094,7 @@ app.get("/api/products/extract-url", async (req: Request, res: Response) => {
 });
 
 // Sentry error handler — must be before other error handlers
-if (SENTRY_DSN) {
+if (isSentryEnabled()) {
   app.use(Sentry.expressErrorHandler());
 }
 
@@ -1142,7 +1146,7 @@ app.post("/api/alerts/test-notification", requireAuth, async (req: Request, res:
 
 
 // ── Sentry error handler (must be after all routes) ─────────────────────────
-if (SENTRY_DSN) {
+if (isSentryEnabled()) {
   app.use(Sentry.expressErrorHandler());
 }
 
