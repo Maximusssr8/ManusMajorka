@@ -65,11 +65,15 @@ export default function AdBriefs() {
 
   useEffect(() => { setHistory(loadBriefs()); }, []);
 
-  // Pre-fill from a 'Create Ad Brief' click on the Products page. Mirrors
-  // the pattern in AdsStudio.tsx so both tools accept the same handoff key.
+  // Pre-fill from a 'Create Ad Brief' or 'Create Ad' click on Products.
+  // We consume either key without removing — AdsStudio is the sole consumer
+  // that calls removeItem, preventing a race where whichever page mounts
+  // first wipes the handoff before the other reads it.
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem('majorka_ad_product');
+      const stored =
+        sessionStorage.getItem('majorka_brief_product') ??
+        sessionStorage.getItem('majorka_ad_product');
       if (!stored) return;
       const prod = JSON.parse(stored) as {
         id?: string | number;
@@ -78,7 +82,9 @@ export default function AdBriefs() {
         price?: number | string;
       };
       if (prod.title) setProduct(String(prod.title));
-      sessionStorage.removeItem('majorka_ad_product');
+      // Only remove the brief-specific key if present. Leave majorka_ad_product
+      // intact so AdsStudio can still consume it on its own mount.
+      sessionStorage.removeItem('majorka_brief_product');
     } catch {
       // ignore malformed payload
     }
