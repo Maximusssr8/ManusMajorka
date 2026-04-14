@@ -1,66 +1,82 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavourites } from '@/hooks/useFavourites';
 import UpgradeModal from '@/components/UpgradeModal';
-import { Check, X, Plus, ChevronDown, ChevronUp, Loader2, ExternalLink, RefreshCw, Eye, Smartphone, Monitor, Copy, ShoppingCart } from 'lucide-react';
+import StepIndicator from '@/components/store-builder/StepIndicator';
+import {
+  Check, X, Plus, Loader2, ExternalLink, RefreshCw, Eye, Smartphone,
+  Monitor, Copy, ShoppingCart, Sparkles, Store as StoreIcon, Globe, ArrowLeft, ArrowRight,
+} from 'lucide-react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 
-// ── Constants ──────────────────────────────────────────────────
-const accent = '#6366F1';
-const violet = '#8B5CF6';
-const brico = "'Bricolage Grotesque', sans-serif";
-const dmSans = "'DM Sans', sans-serif";
-const bgDark = '#0a0a0a';
-const cardBg = 'rgba(255,255,255,0.04)';
-const cardBorder = '1px solid rgba(255,255,255,0.08)';
-const textPrimary = '#FFFFFF';
-const textSecondary = 'rgba(255,255,255,0.6)';
-const textMuted = 'rgba(255,255,255,0.35)';
+/* ────────────────────────────────────────────────────────────────
+ * Store Builder — Deerflow/Minea-inspired two-panel wizard
+ * Left: step-by-step config. Right: live store preview.
+ * Design tokens from Majorka CLAUDE.md. Keeps all existing handlers
+ * and API contracts intact.
+ * ──────────────────────────────────────────────────────────────── */
+
+// ── Design tokens ──────────────────────────────────────────────
+const ACCENT = '#6366f1';
+const VIOLET = '#8b5cf6';
+const BG = '#0d0f14';
+const SURFACE = '#13151c';
+const TEXT_PRIMARY = '#f0f4ff';
+const TEXT_BODY = '#a1a1aa';
+const TEXT_MUTED = '#52525b';
+const FONT_DISPLAY = "'Nohemi', 'Bricolage Grotesque', sans-serif";
+const FONT_BODY = "'DM Sans', sans-serif";
 
 type Mode = 'select' | 'ai' | 'shopify' | 'marketplace';
-type AIStep = 'setup' | 'products' | 'generating' | 'template' | 'preview' | 'publish';
+type WizardStepId = 'niche' | 'products' | 'branding' | 'publish';
 
-// ── Niche options ──────────────────────────────────────────────
+const WIZARD_STEPS: Array<{ id: WizardStepId; label: string }> = [
+  { id: 'niche', label: 'Niche' },
+  { id: 'products', label: 'Products' },
+  { id: 'branding', label: 'Branding' },
+  { id: 'publish', label: 'Publish' },
+];
+
 const NICHES = ['Pet Products', 'Beauty & Skincare', 'Home & Garden', 'Fashion', 'Electronics', 'Fitness', 'Baby & Kids', 'General'];
 const MARKETS = ['Australia', 'United States', 'United Kingdom', 'Global'];
 const TONES = ['Professional', 'Fun & Casual', 'Luxury', 'Minimal'];
+
 const COLOR_SWATCHES = [
-  { color: '#6366F1', label: 'Indigo' },
-  { color: '#8B5CF6', label: 'Violet' },
-  { color: '#F43F5E', label: 'Rose' },
-  { color: '#10B981', label: 'Emerald' },
-  { color: '#F59E0B', label: 'Amber' },
-  { color: '#06B6D4', label: 'Cyan' },
+  { color: '#6366f1', label: 'Indigo' },
+  { color: '#8b5cf6', label: 'Violet' },
+  { color: '#f43f5e', label: 'Rose' },
+  { color: '#10b981', label: 'Emerald' },
+  { color: '#f59e0b', label: 'Amber' },
+  { color: '#06b6d4', label: 'Cyan' },
 ];
 
-// ── Templates ──────────────────────────────────────────────────
 const TEMPLATES = [
-  { id: 'minimal', name: 'Minimal', style: 'White · Premium spacing · Elegant', bestFor: ['Beauty', 'Skincare', 'Fashion', 'Jewellery'], bg: '#FFFFFF', accent: '#0A0A0A', font: 'serif', preview: { bg: '#fff', text: '#0a0a0a', btn: '#0a0a0a' } },
-  { id: 'bold', name: 'Bold', style: 'Dark · High contrast · Energetic', bestFor: ['Fitness', 'Sports', 'Electronics', 'Gadgets'], bg: '#09090B', accent: '#6366F1', font: 'sans-serif', preview: { bg: '#09090B', text: '#fff', btn: '#6366F1' } },
-  { id: 'luxury', name: 'Luxury', style: 'Black · Gold accents · Sophisticated', bestFor: ['Premium', 'Watches', 'High-end Home'], bg: '#080808', accent: '#d4af37', font: 'serif', preview: { bg: '#080808', text: '#d4af37', btn: '#d4af37' } },
-  { id: 'warm', name: 'Warm', style: 'Cream · Earthy tones · Approachable', bestFor: ['Pet', 'Baby', 'Eco', 'Natural'], bg: '#FDF6EC', accent: '#B45309', font: 'sans-serif', preview: { bg: '#FDF6EC', text: '#1C1917', btn: '#B45309' } },
-  { id: 'clean', name: 'Clean', style: 'Light grey · Systematic · Trustworthy', bestFor: ['Electronics', 'Tools', 'Gadgets', 'Tech'], bg: '#F8FAFC', accent: '#0F172A', font: 'sans-serif', preview: { bg: '#F8FAFC', text: '#0F172A', btn: '#0F172A' } },
-  { id: 'high-energy', name: 'High Energy', style: 'Bright · Sale-focused · Impulsive', bestFor: ['General', 'Impulse buys', 'Seasonal'], bg: '#FFF7ED', accent: '#DC2626', font: 'sans-serif', preview: { bg: '#FFF7ED', text: '#1C1917', btn: '#DC2626' } },
+  { id: 'minimal',     name: 'Minimal',     style: 'White · Premium spacing',       bestFor: ['Beauty', 'Fashion', 'Jewellery'],  bg: '#ffffff', preview: { bg: '#fff',     text: '#0a0a0a', btn: '#0a0a0a' } },
+  { id: 'bold',        name: 'Bold',        style: 'Dark · High contrast',          bestFor: ['Fitness', 'Electronics'],           bg: '#09090b', preview: { bg: '#09090b', text: '#fff',    btn: '#6366f1' } },
+  { id: 'luxury',      name: 'Luxury',      style: 'Black · Gold accents',          bestFor: ['Premium', 'Watches'],               bg: '#080808', preview: { bg: '#080808', text: '#d4af37', btn: '#d4af37' } },
+  { id: 'warm',        name: 'Warm',        style: 'Cream · Earthy tones',          bestFor: ['Pet', 'Baby', 'Eco'],               bg: '#fdf6ec', preview: { bg: '#fdf6ec', text: '#1c1917', btn: '#b45309' } },
+  { id: 'clean',       name: 'Clean',       style: 'Light grey · Systematic',       bestFor: ['Electronics', 'Tools'],             bg: '#f8fafc', preview: { bg: '#f8fafc', text: '#0f172a', btn: '#0f172a' } },
+  { id: 'high-energy', name: 'High Energy', style: 'Bright · Sale-focused',         bestFor: ['General', 'Impulse buys'],          bg: '#fff7ed', preview: { bg: '#fff7ed', text: '#1c1917', btn: '#dc2626' } },
 ];
 
 const REVIEW_TEMPLATES = [
-  { name: 'Sarah M.', rating: 5, text: 'Absolutely love this! Exactly what I was looking for. Delivery was super fast too.', date: '2 weeks ago' },
-  { name: 'James T.', rating: 5, text: 'Really impressive quality for the price. Already ordered a second one for a gift.', date: '3 weeks ago' },
-  { name: 'Priya K.', rating: 5, text: 'Shipping was quicker than expected and the packaging was really nice. Very happy!', date: '1 month ago' },
-  { name: 'Daniel W.', rating: 4, text: 'Does exactly what it says. Simple, effective, and great value. Would recommend.', date: '3 weeks ago' },
-  { name: 'Emma R.', rating: 5, text: 'Bought as a gift and the recipient absolutely loved it. Presentation was beautiful.', date: '1 week ago' },
-  { name: 'Marcus O.', rating: 5, text: 'Great product. Even better than I expected from the photos. Solid construction.', date: '2 months ago' },
-  { name: 'Liam H.', rating: 4, text: 'Good quality, fast shipping, easy to use. Nothing to complain about honestly.', date: '1 month ago' },
-  { name: 'Olivia S.', rating: 5, text: "This solved a problem I didn't even know I had. Now I use it every single day!", date: '2 weeks ago' },
-  { name: 'Noah B.', rating: 5, text: 'Excellent customer service when I had a question. Product is great too!', date: '3 weeks ago' },
-  { name: 'Isabella C.', rating: 5, text: 'Looks even better in person. The quality is obvious the moment you unbox it.', date: '1 week ago' },
-  { name: 'Ethan F.', rating: 4, text: 'Value for money is excellent. Premium feel without the premium price tag.', date: '5 weeks ago' },
-  { name: 'Mia J.', rating: 5, text: 'Third time buying from here. Consistent quality every time. Trust this store completely.', date: '2 weeks ago' },
-  { name: 'Alex D.', rating: 5, text: 'Was skeptical at first but this totally exceeded my expectations. Brilliant product.', date: '1 month ago' },
-  { name: 'Charlotte P.', rating: 4, text: 'Arrived well-packaged and in perfect condition. Happy with the purchase overall.', date: '3 weeks ago' },
-  { name: 'Ryan M.', rating: 5, text: 'Exactly as described. No surprises, just a genuinely good product. Will buy again.', date: '2 months ago' },
+  { name: 'Sarah M.',   rating: 5, text: 'Absolutely love this! Exactly what I was looking for. Delivery was super fast too.',     date: '2 weeks ago' },
+  { name: 'James T.',   rating: 5, text: 'Really impressive quality for the price. Already ordered a second one for a gift.',     date: '3 weeks ago' },
+  { name: 'Priya K.',   rating: 5, text: 'Shipping was quicker than expected and the packaging was really nice. Very happy!',      date: '1 month ago' },
+  { name: 'Daniel W.',  rating: 4, text: 'Does exactly what it says. Simple, effective, and great value. Would recommend.',        date: '3 weeks ago' },
+  { name: 'Emma R.',    rating: 5, text: 'Bought as a gift and the recipient absolutely loved it. Presentation was beautiful.',    date: '1 week ago'  },
+  { name: 'Marcus O.',  rating: 5, text: 'Great product. Even better than I expected from the photos. Solid construction.',        date: '2 months ago'},
+  { name: 'Liam H.',    rating: 4, text: 'Good quality, fast shipping, easy to use. Nothing to complain about honestly.',          date: '1 month ago' },
+  { name: 'Olivia S.',  rating: 5, text: "This solved a problem I didn't even know I had. Now I use it every single day!",         date: '2 weeks ago' },
+  { name: 'Noah B.',    rating: 5, text: 'Excellent customer service when I had a question. Product is great too!',                date: '3 weeks ago' },
+  { name: 'Isabella C.',rating: 5, text: 'Looks even better in person. The quality is obvious the moment you unbox it.',           date: '1 week ago'  },
+  { name: 'Ethan F.',   rating: 4, text: 'Value for money is excellent. Premium feel without the premium price tag.',              date: '5 weeks ago' },
+  { name: 'Mia J.',     rating: 5, text: 'Third time buying from here. Consistent quality every time. Trust this store completely.',date: '2 weeks ago' },
+  { name: 'Alex D.',    rating: 5, text: 'Was skeptical at first but this totally exceeded my expectations. Brilliant product.',   date: '1 month ago' },
+  { name: 'Charlotte P.',rating:4, text: 'Arrived well-packaged and in perfect condition. Happy with the purchase overall.',       date: '3 weeks ago' },
+  { name: 'Ryan M.',    rating: 5, text: 'Exactly as described. No surprises, just a genuinely good product. Will buy again.',     date: '2 months ago'},
 ];
 
 function getStoreReviews(storeName: string): typeof REVIEW_TEMPLATES {
@@ -82,7 +98,6 @@ interface WinningProduct {
   trend: string | null;
   category: string | null;
 }
-
 interface CustomProduct {
   id: string;
   product_title: string;
@@ -93,7 +108,6 @@ interface CustomProduct {
   category: null;
   isCustom: true;
 }
-
 type ProductItem = WinningProduct | CustomProduct;
 
 interface GeneratedCopy {
@@ -109,36 +123,28 @@ interface GeneratedCopy {
   products?: Array<{ id: string; seo_title: string; description: string; bullet_points: string[] }>;
 }
 
-// ── Pill button component ──────────────────────────────────────
-function PillButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+// ── Shared small UI ─────────────────────────────────────────────
+function Chip({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
-    <button onClick={onClick} style={{
-      padding: '8px 16px', borderRadius: 999, border: `1px solid ${selected ? accent : 'rgba(255,255,255,0.12)'}`,
-      background: selected ? 'rgba(99,102,241,0.15)' : 'transparent', color: selected ? accent : textSecondary,
-      fontSize: 13, fontWeight: 600, cursor: 'pointer' as const, transition: 'all 150ms', fontFamily: dmSans,
-    }}>{label}</button>
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        'px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150',
+        selected
+          ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/60 shadow-[0_0_0_3px_rgba(99,102,241,0.12)]'
+          : 'bg-white/[0.03] text-white/60 border border-white/[0.08] hover:border-white/20 hover:text-white/80',
+      ].join(' ')}
+      style={{ fontFamily: FONT_BODY }}
+    >
+      {label}
+    </button>
   );
 }
 
-// ── Template mini preview ──────────────────────────────────────
-function TemplatePreview({ preview }: { preview: { bg: string; text: string; btn: string } }) {
-  return (
-    <div style={{ background: preview.bg, borderRadius: 6, padding: 8, height: 80, overflow: 'hidden' as const, position: 'relative' as const }}>
-      <div style={{ height: 6, background: preview.text, borderRadius: 2, marginBottom: 4, width: '60%', opacity: 0.8 }} />
-      <div style={{ height: 4, background: preview.text, borderRadius: 2, marginBottom: 8, width: '40%', opacity: 0.4 }} />
-      <div style={{ display: 'flex', gap: 4 }}>
-        {[1, 2, 3].map(i => <div key={i} style={{ flex: 1, background: preview.text, borderRadius: 4, height: 28, opacity: 0.1 }} />)}
-      </div>
-      <div style={{ position: 'absolute' as const, bottom: 8, left: 8 }}>
-        <div style={{ background: preview.btn, borderRadius: 3, padding: '2px 8px', fontSize: 8, color: preview.bg === '#080808' || preview.bg === '#09090B' ? '#fff' : preview.bg, fontWeight: 700 }}>Buy Now</div>
-      </div>
-    </div>
-  );
-}
-
-// ── Store Preview Component ────────────────────────────────────
+// ── Live store preview ─────────────────────────────────────────
 function StorePreview({ copy, template, products, storeName, primaryColor, isMobilePreview }: {
-  copy: GeneratedCopy;
+  copy: GeneratedCopy | null;
   template: typeof TEMPLATES[0];
   products: ProductItem[];
   storeName: string;
@@ -149,61 +155,93 @@ function StorePreview({ copy, template, products, storeName, primaryColor, isMob
   const bgColor = template.bg;
   const textColor = template.preview.text;
   const btnColor = template.preview.btn;
-  const isLightBg = bgColor === '#FFFFFF' || bgColor === '#FDF6EC' || bgColor === '#F8FAFC' || bgColor === '#FFF7ED';
+  const isLightBg = ['#ffffff', '#fdf6ec', '#f8fafc', '#fff7ed'].includes(bgColor);
   const mutedColor = isLightBg ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
   const borderColor = isLightBg ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
   const surfaceColor = isLightBg ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)';
 
-  const containerWidth = isMobilePreview ? 375 : 800;
-  const scale = isMobilePreview ? 0.42 : 0.45;
+  const frameWidth = isMobilePreview ? 375 : 900;
   const productCols = isMobilePreview ? 1 : 3;
 
+  const safeCopy = copy || {};
+  const displayName = storeName || 'Your Store';
+
   return (
-    <div style={{ width: containerWidth * scale, height: 600, overflow: 'hidden' as const, borderRadius: 8, border: cardBorder }}>
-      <div style={{ width: containerWidth, height: 600 / scale, transform: `scale(${scale})`, transformOrigin: 'top left' as const, background: bgColor, color: textColor, fontFamily: dmSans }}>
-        {/* Nav */}
-        <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, padding: '12px 24px', borderBottom: `1px solid ${borderColor}` }}>
-          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: primaryColor }}>{storeName}</div>
-          <div style={{ display: 'flex', gap: 20, fontSize: 13, color: mutedColor }}>
-            <span>Home</span><span>Products</span><span>About</span><span>Contact</span>
+    <div
+      className="mx-auto shadow-2xl"
+      style={{
+        width: '100%',
+        maxWidth: isMobilePreview ? 375 : '100%',
+        borderRadius: 16,
+        overflow: 'hidden',
+        border: '1px solid rgba(255,255,255,0.06)',
+        background: bgColor,
+        color: textColor,
+        fontFamily: FONT_BODY,
+      }}
+    >
+      <div style={{ width: '100%', margin: '0 auto' }}>
+        {/* Browser chrome */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderBottom: `1px solid ${borderColor}`, background: surfaceColor }}>
+          <span style={{ width: 10, height: 10, borderRadius: 99, background: '#ff5f57' }} />
+          <span style={{ width: 10, height: 10, borderRadius: 99, background: '#febc2e' }} />
+          <span style={{ width: 10, height: 10, borderRadius: 99, background: '#28c840' }} />
+          <div style={{ flex: 1, textAlign: 'center', fontSize: 11, color: mutedColor, fontFamily: FONT_BODY }}>
+            {displayName.toLowerCase().replace(/\s+/g, '')}.majorka.io
           </div>
-          <ShoppingCart size={18} color={mutedColor} />
+        </div>
+
+        {/* Nav */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 22px', borderBottom: `1px solid ${borderColor}` }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 17, color: primaryColor }}>{displayName}</div>
+          <div style={{ display: isMobilePreview ? 'none' : 'flex', gap: 18, fontSize: 12, color: mutedColor }}>
+            <span>Home</span><span>Shop</span><span>About</span><span>Contact</span>
+          </div>
+          <ShoppingCart size={16} color={mutedColor} />
         </div>
 
         {/* Hero */}
-        <div style={{ padding: isMobilePreview ? '40px 20px' : '60px 40px', textAlign: 'center' as const, background: surfaceColor }}>
-          <h1 style={{ fontFamily: brico, fontSize: isMobilePreview ? 24 : 36, fontWeight: 700, marginBottom: 12, lineHeight: 1.2 }}>{copy.hero_headline || `The ${storeName} Collection`}</h1>
-          <p style={{ fontSize: 15, color: mutedColor, marginBottom: 20, maxWidth: 480, margin: '0 auto 20px' }}>{copy.hero_subheading || 'Premium products curated for quality and value.'}</p>
-          <button style={{ background: btnColor, color: isLightBg ? '#fff' : bgColor, padding: '12px 28px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' as const }}>{copy.hero_cta || 'Shop Now'}</button>
+        <div style={{ padding: isMobilePreview ? '36px 20px' : '64px 40px', textAlign: 'center', background: surfaceColor }}>
+          <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: isMobilePreview ? 24 : 40, fontWeight: 700, marginBottom: 14, lineHeight: 1.15 }}>
+            {safeCopy.hero_headline || `Welcome to ${displayName}`}
+          </h1>
+          <p style={{ fontSize: 14, color: mutedColor, marginBottom: 22, maxWidth: 520, margin: '0 auto 22px' }}>
+            {safeCopy.hero_subheading || 'Premium products curated for quality and value.'}
+          </p>
+          <button style={{ background: btnColor, color: isLightBg ? '#fff' : bgColor, padding: '12px 28px', borderRadius: 10, border: 'none', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            {safeCopy.hero_cta || 'Shop Now'}
+          </button>
         </div>
 
-        {/* Social proof ticker */}
-        <div style={{ padding: '10px 0', borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}`, textAlign: 'center' as const, fontSize: 12, color: mutedColor, overflow: 'hidden' as const, whiteSpace: 'nowrap' as const }}>
+        {/* Ticker */}
+        <div style={{ padding: '10px 0', borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}`, textAlign: 'center', fontSize: 11, color: mutedColor, whiteSpace: 'nowrap', overflow: 'hidden' }}>
           500+ happy customers · Free shipping · 4.8★ rated · Secure checkout
         </div>
 
-        {/* Products grid */}
+        {/* Products */}
         {products.length > 0 && (
-          <div style={{ padding: '30px 24px' }}>
-            <h2 style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 20, textAlign: 'center' as const }}>Featured Products</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${productCols}, 1fr)`, gap: 16 }}>
+          <div style={{ padding: '32px 22px' }}>
+            <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 700, marginBottom: 18, textAlign: 'center' }}>Featured Products</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${productCols}, 1fr)`, gap: 14 }}>
               {products.slice(0, 6).map((p, i) => {
-                const copyProduct = copy.products?.find(cp => cp.id === p.id);
-                const reviewCount = (parseInt(p.id?.slice(-4) || '0', 16) % 200) + 50;
+                const copyProduct = safeCopy.products?.find(cp => cp.id === p.id);
+                const reviewCount = (parseInt(String(p.id || '0').slice(-4), 16) % 200) + 50;
                 return (
-                  <div key={p.id || i} style={{ borderRadius: 10, overflow: 'hidden' as const, border: `1px solid ${borderColor}`, background: surfaceColor }}>
-                    <div style={{ height: 120, background: isLightBg ? '#f5f5f5' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const }}>
+                  <div key={p.id || i} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${borderColor}`, background: surfaceColor }}>
+                    <div style={{ height: 140, background: isLightBg ? '#f5f5f5' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {p.image_url ? (
-                        <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       ) : (
-                        <div style={{ fontSize: 32, opacity: 0.3 }}>📦</div>
+                        <div style={{ fontSize: 28, opacity: 0.25 }}>📦</div>
                       )}
                     </div>
                     <div style={{ padding: 12 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{copyProduct?.seo_title || p.product_title}</div>
-                      <div style={{ fontSize: 11, color: mutedColor, marginBottom: 6 }}>★★★★★ ({reviewCount})</div>
-                      <div style={{ fontWeight: 700, fontSize: 16, color: primaryColor, marginBottom: 8 }}>${(p.price_aud || 49.95).toFixed(2)}</div>
-                      <button style={{ width: '100%', padding: '8px', borderRadius: 6, border: 'none', background: btnColor, color: isLightBg ? '#fff' : bgColor, fontSize: 12, fontWeight: 700, cursor: 'pointer' as const }}>Add to Cart</button>
+                      <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {copyProduct?.seo_title || p.product_title}
+                      </div>
+                      <div style={{ fontSize: 10, color: mutedColor, marginBottom: 6 }}>★★★★★ ({reviewCount})</div>
+                      <div style={{ fontWeight: 700, fontSize: 15, color: primaryColor, marginBottom: 8 }}>${(p.price_aud || 49.95).toFixed(2)}</div>
+                      <button style={{ width: '100%', padding: 8, borderRadius: 6, border: 'none', background: btnColor, color: isLightBg ? '#fff' : bgColor, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Add to Cart</button>
                     </div>
                   </div>
                 );
@@ -213,83 +251,78 @@ function StorePreview({ copy, template, products, storeName, primaryColor, isMob
         )}
 
         {/* Trust badges */}
-        {copy.trust_badges && (
-          <div style={{ display: 'flex', justifyContent: 'center' as const, gap: 24, padding: '20px 24px', borderTop: `1px solid ${borderColor}` }}>
-            {copy.trust_badges.slice(0, 4).map((badge, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center' as const, gap: 6, fontSize: 11, color: mutedColor }}>
+        {safeCopy.trust_badges && safeCopy.trust_badges.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 20, padding: '20px 22px', borderTop: `1px solid ${borderColor}` }}>
+            {safeCopy.trust_badges.slice(0, 4).map((badge, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: mutedColor }}>
                 <span>✓</span> {badge}
               </div>
             ))}
           </div>
         )}
 
-        {/* How it works */}
-        <div style={{ padding: '30px 24px', background: surfaceColor }}>
-          <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>How It Works</h3>
-          <div style={{ display: 'flex', justifyContent: 'center' as const, gap: 32 }}>
-            {['Browse products', 'Add to cart', 'We ship to you'].map((step, i) => (
-              <div key={i} style={{ textAlign: 'center' as const }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: primaryColor, color: isLightBg ? '#fff' : bgColor, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, fontWeight: 700, fontSize: 14, margin: '0 auto 8px' }}>{i + 1}</div>
-                <div style={{ fontSize: 12 }}>{step}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Customer Reviews */}
-        <div style={{ padding: '30px 24px' }}>
-          <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>What Our Customers Say</h3>
+        {/* Reviews */}
+        <div style={{ padding: '32px 22px', background: surfaceColor }}>
+          <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700, marginBottom: 16, textAlign: 'center' }}>What customers say</h3>
           <div style={{ display: 'grid', gridTemplateColumns: isMobilePreview ? '1fr' : 'repeat(3, 1fr)', gap: 12 }}>
-            {getStoreReviews(storeName).map((review, i) => (
-              <div key={i} style={{ padding: 14, borderRadius: 10, border: `1px solid ${borderColor}`, background: surfaceColor }}>
-                <div style={{ fontSize: 12, color: primaryColor, marginBottom: 6 }}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
-                <div style={{ fontSize: 12, color: textColor, marginBottom: 8, lineHeight: 1.5 }}>{review.text}</div>
-                <div style={{ fontSize: 11, color: mutedColor }}>{review.name} · {review.date}</div>
+            {getStoreReviews(displayName).map((review, i) => (
+              <div key={i} style={{ padding: 14, borderRadius: 10, border: `1px solid ${borderColor}`, background: isLightBg ? '#fff' : 'rgba(255,255,255,0.04)' }}>
+                <div style={{ fontSize: 11, color: primaryColor, marginBottom: 6 }}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
+                <div style={{ fontSize: 11, color: textColor, marginBottom: 8, lineHeight: 1.5 }}>{review.text}</div>
+                <div style={{ fontSize: 10, color: mutedColor }}>{review.name} · {review.date}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* FAQ */}
-        {copy.faq && copy.faq.length > 0 && (
-          <div style={{ padding: '30px 24px', background: surfaceColor }}>
-            <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>FAQ</h3>
-            {copy.faq.slice(0, 5).map((item, i) => (
+        {safeCopy.faq && safeCopy.faq.length > 0 && (
+          <div style={{ padding: '32px 22px' }}>
+            <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700, marginBottom: 14, textAlign: 'center' }}>FAQ</h3>
+            {safeCopy.faq.slice(0, 5).map((item, i) => (
               <div key={i} style={{ borderBottom: `1px solid ${borderColor}`, padding: '12px 0' }}>
-                <div onClick={() => setExpandedFaq(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i])} style={{ display: 'flex', justifyContent: 'space-between' as const, cursor: 'pointer' as const, fontSize: 13, fontWeight: 600 }}>
+                <div
+                  onClick={() => setExpandedFaq(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i])}
+                  style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}
+                >
                   {item.question}
                   <span>{expandedFaq.includes(i) ? '−' : '+'}</span>
                 </div>
-                {expandedFaq.includes(i) && <div style={{ fontSize: 12, color: mutedColor, marginTop: 8 }}>{item.answer}</div>}
+                {expandedFaq.includes(i) && (
+                  <div style={{ fontSize: 11, color: mutedColor, marginTop: 8 }}>{item.answer}</div>
+                )}
               </div>
             ))}
           </div>
         )}
 
         {/* Footer */}
-        <div style={{ padding: '30px 24px', borderTop: `1px solid ${borderColor}`, textAlign: 'center' as const, fontSize: 11, color: mutedColor }}>
-          © 2026 {storeName}. All rights reserved. · Privacy Policy · Terms of Service
+        <div style={{ padding: '24px 22px', borderTop: `1px solid ${borderColor}`, textAlign: 'center', fontSize: 10, color: mutedColor }}>
+          © 2026 {displayName}. All rights reserved · Privacy · Terms
         </div>
       </div>
     </div>
   );
 }
 
-// ── Confetti animation CSS ─────────────────────────────────────
-const confettiCSS = `
-@keyframes confetti-fall {
-  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-@keyframes progress-fill {
-  0% { width: 0%; }
-  100% { width: 100%; }
-}
+// ── CSS keyframes ───────────────────────────────────────────────
+const KEYFRAMES_CSS = `
+@keyframes confetti-fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+@keyframes progress-fill { 0% { width: 0%; } 100% { width: 100%; } }
+@keyframes sb-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+@keyframes sb-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.sb-fade-in { animation: sb-fade-in 300ms ease-out both; }
+.sb-glow-cta { box-shadow: 0 0 0 1px rgba(99,102,241,0.4), 0 10px 40px -10px rgba(99,102,241,0.6), 0 0 60px -10px rgba(139,92,246,0.4); }
+.sb-glow-cta:hover { box-shadow: 0 0 0 1px rgba(99,102,241,0.6), 0 14px 50px -10px rgba(99,102,241,0.8), 0 0 80px -10px rgba(139,92,246,0.6); transform: translateY(-1px); }
+.sb-input { width: 100%; padding: 13px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: ${TEXT_PRIMARY}; font-size: 14px; font-family: ${FONT_BODY}; outline: none; transition: all 150ms; box-sizing: border-box; }
+.sb-input:focus { border-color: rgba(99,102,241,0.6); background: rgba(99,102,241,0.05); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+.sb-card-hover { transition: transform 200ms, border-color 200ms, box-shadow 200ms; }
+.sb-card-hover:hover { transform: translateY(-2px); border-color: rgba(99,102,241,0.4); box-shadow: 0 12px 40px -12px rgba(99,102,241,0.4); }
 `;
 
-// ══════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
-// ══════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 export default function StoreBuilder() {
   const { session, subPlan, subStatus } = useAuth();
   const [, setLocation] = useLocation();
@@ -297,25 +330,28 @@ export default function StoreBuilder() {
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<{ done: number; total: number; failed: number }>({ done: 0, total: 0, failed: 0 });
 
-  // ── Auth & subscription ──────────────────────────────────────
+  // Auth & subscription
   const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
   const isBuilder = (subPlan === 'builder' && subStatus === 'active') || isAdmin;
   const isScale = (subPlan === 'scale' && subStatus === 'active') || isAdmin;
   const isPaid = isBuilder || isScale;
-  const storeLimit = isScale ? Infinity : isBuilder ? 3 : 0;
 
-  // ── Mode state ───────────────────────────────────────────────
+  // Mode
   const [mode, setMode] = useState<Mode>('select');
   const [upgradeModal, setUpgradeModal] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState('');
 
-  // ── AI wizard state ──────────────────────────────────────────
-  const [aiStep, setAiStep] = useState<AIStep>('setup');
+  // Wizard step (consolidated 4-step flow)
+  const [stepId, setStepId] = useState<WizardStepId>('niche');
+  const stepIndex = WIZARD_STEPS.findIndex(s => s.id === stepId);
+
+  // Config
   const [storeName, setStoreName] = useState('');
   const [niche, setNiche] = useState('');
   const [targetMarket, setTargetMarket] = useState('Australia');
   const [tone, setTone] = useState('Professional');
-  const [primaryColor, setPrimaryColor] = useState('#6366F1');
+  const [primaryColor, setPrimaryColor] = useState(ACCENT);
+  const [selectedTemplate, setSelectedTemplate] = useState('bold');
 
   // Products
   const [nicheProducts, setNicheProducts] = useState<WinningProduct[]>([]);
@@ -332,45 +368,8 @@ export default function StoreBuilder() {
   const [generating, setGenerating] = useState(false);
   const [genStep, setGenStep] = useState(0);
 
-  // Template
-  const [selectedTemplate, setSelectedTemplate] = useState('bold');
-
   // Preview
   const [isMobilePreview, setIsMobilePreview] = useState(false);
-
-  // Pre-fill from a 'Import to Store' click on the Products page.
-  // sessionStorage key written by ProductSheet handleImportToStore.
-  useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem('majorka_import_product');
-      if (!stored) return;
-      const prod = JSON.parse(stored) as {
-        id?: string | number;
-        title?: string;
-        rawTitle?: string;
-        image?: string;
-        price?: number | string;     // suggested retail (3× markup)
-        cost?: number | string;      // landed cost
-        description?: string;
-        category?: string | null;
-      };
-      if (prod.title) {
-        setCustomTitle(String(prod.title));
-        // Seed the store name from the cleaned product title and the
-        // niche from the category (falls back to the title if missing).
-        if (!storeName) setStoreName(String(prod.title).split(/\s+/).slice(0, 2).join(' '));
-        if (!niche) setNiche(prod.category ? String(prod.category) : String(prod.title).split(/\s+/).slice(0, 3).join(' '));
-      }
-      if (prod.image) setCustomImageUrl(String(prod.image));
-      if (prod.price != null) setCustomPrice(String(prod.price));
-      if (prod.description) setCustomDesc(String(prod.description));
-      setCustomProductModal(true);
-      sessionStorage.removeItem('majorka_import_product');
-    } catch {
-      // ignore malformed payload
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Publish
   const [subdomain, setSubdomain] = useState('');
@@ -380,7 +379,7 @@ export default function StoreBuilder() {
   const [publishing, setPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<{ success: boolean; liveUrl?: string; storeId?: string } | null>(null);
 
-  // Shopify sync
+  // Shopify
   const [shopifyStatus, setShopifyStatus] = useState<{ connected: boolean; shop?: string }>({ connected: false });
   const [shopifyDomain, setShopifyDomain] = useState('');
   const [shopifyCatalog, setShopifyCatalog] = useState<Array<{ id: string; title: string; price_aud: number; image_url: string | null; inventory_status: string }>>([]);
@@ -404,7 +403,34 @@ export default function StoreBuilder() {
   const authToken = session?.access_token || '';
   const authHeaders = { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' };
 
-  // ── Fetch existing stores on mount ───────────────────────────
+  // Reference unused imports for the curated experience (kept for future use)
+  void mpProfile; void Eye; void Globe;
+
+  // ── Pre-fill from Products page (majorka_import_product) ──────
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('majorka_import_product');
+      if (!stored) return;
+      const prod = JSON.parse(stored) as {
+        id?: string | number; title?: string; rawTitle?: string; image?: string;
+        price?: number | string; cost?: number | string; description?: string; category?: string | null;
+      };
+      if (prod.title) {
+        setCustomTitle(String(prod.title));
+        if (!storeName) setStoreName(String(prod.title).split(/\s+/).slice(0, 2).join(' '));
+        if (!niche) setNiche(prod.category ? String(prod.category) : String(prod.title).split(/\s+/).slice(0, 3).join(' '));
+      }
+      if (prod.image) setCustomImageUrl(String(prod.image));
+      if (prod.price != null) setCustomPrice(String(prod.price));
+      if (prod.description) setCustomDesc(String(prod.description));
+      setMode('ai');
+      setCustomProductModal(true);
+      sessionStorage.removeItem('majorka_import_product');
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Fetch existing stores & shopify status ────────────────────
   useEffect(() => {
     if (!authToken) return;
     fetch('/api/shopify/status', { headers: authHeaders })
@@ -412,25 +438,26 @@ export default function StoreBuilder() {
       .then(d => { if (d.connected) setShopifyStatus({ connected: true, shop: d.shop }); })
       .catch(() => {});
 
-    // Load existing stores from generated_stores
-    const supabaseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_SUPABASE_URL;
-    const supabaseKey = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_SUPABASE_ANON_KEY;
+    const env = (import.meta as unknown as Record<string, Record<string, string>>).env;
+    const supabaseUrl = env?.VITE_SUPABASE_URL;
+    const supabaseKey = env?.VITE_SUPABASE_ANON_KEY;
     if (supabaseUrl && supabaseKey) {
       fetch(`${supabaseUrl}/rest/v1/generated_stores?select=id,store_name,subdomain,created_at,published&order=created_at.desc&limit=10&subdomain=not.ilike.*test*&subdomain=not.ilike.*qa*`, {
         headers: { apikey: supabaseKey, Authorization: `Bearer ${authToken}` },
       })
         .then(r => r.json())
-        .then(data => { if (Array.isArray(data)) setExistingStores(data.filter((s: any) => s.store_name && !s.store_name.toLowerCase().includes('test'))); })
+        .then(data => {
+          if (Array.isArray(data)) setExistingStores(data.filter((s: { store_name?: string }) => s.store_name && !s.store_name.toLowerCase().includes('test')));
+        })
         .catch(() => {});
     }
-  }, [authToken]);
+  }, [authToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Subscription gate ────────────────────────────────────────
   if (!isPaid) {
     return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Store Builder" reason="Build and launch your dropshipping store" />;
   }
 
-  // ── Fetch products for niche ─────────────────────────────────
+  // ── Fetch niche products ──────────────────────────────────────
   const fetchNicheProducts = async (selectedNiche: string) => {
     setLoadingProducts(true);
     try {
@@ -441,105 +468,70 @@ export default function StoreBuilder() {
     setLoadingProducts(false);
   };
 
-  // ── Generate copy ────────────────────────────────────────────
+  // ── Generate copy (kicked off on entering Branding step) ──────
   const generateCopy = async () => {
-    if (!storeName.trim()) {
-      toast.error('Enter a store name first');
-      return;
-    }
+    if (!storeName.trim()) { toast.error('Enter a store name first'); return; }
     setGenerating(true);
-    setAiStep('generating');
     setGenStep(0);
-
     const steps = [
-      { msg: 'Analysing your niche...', delay: 0 },
-      { msg: 'Writing your store copy...', delay: 1500 },
+      { msg: 'Analysing your niche...',          delay: 0    },
+      { msg: 'Writing your store copy...',       delay: 1500 },
       { msg: 'Optimising product descriptions...', delay: 3000 },
-      { msg: 'Almost ready...', delay: 4500 },
+      { msg: 'Almost ready...',                  delay: 4500 },
     ];
     steps.forEach((s, i) => { setTimeout(() => setGenStep(i), s.delay); });
 
+    const fallback = (): GeneratedCopy => ({
+      tagline: `Quality ${niche || 'products'} delivered fast`,
+      hero_headline: `Welcome to ${storeName || 'My Store'}`,
+      hero_subheading: `Discover our curated collection of ${niche || 'products'} — trusted by thousands worldwide.`,
+      hero_cta: 'Shop Now',
+      about_text: `${storeName} is your destination for high-quality ${niche || 'products'}.`,
+      trust_badges: ['Free Shipping', 'Secure Checkout', '30-Day Returns', '24/7 Support'],
+      faq: [
+        { question: 'How fast is shipping?', answer: 'Standard shipping takes 7-14 business days. Express options are available at checkout.' },
+        { question: 'What is your return policy?', answer: 'We offer a 30-day money-back guarantee.' },
+        { question: 'Is checkout secure?', answer: 'Yes. We use SSL encryption and trusted payment processors.' },
+      ],
+      meta_title: `${storeName} — ${niche || 'Quality Products'}`,
+      meta_description: `Shop ${niche || 'products'} at ${storeName}.`,
+      products: selectedProducts.map(p => ({
+        id: String(p.id),
+        seo_title: p.product_title || 'Product',
+        description: `Premium ${((p as WinningProduct).category || niche || 'product').toLowerCase()} — fast shipping, excellent quality.`,
+        bullet_points: ['High quality materials', 'Fast worldwide shipping', 'Trusted by thousands'],
+      })),
+    });
+
     try {
       const res = await fetch('/api/store-builder/generate-copy', {
-        method: 'POST',
-        headers: authHeaders,
+        method: 'POST', headers: authHeaders,
         body: JSON.stringify({
           storeName, niche: niche || 'General', targetMarket, tone,
           products: selectedProducts.map(p => ({ id: p.id, product_title: p.product_title, price_aud: p.price_aud })),
         }),
       });
-
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
         throw new Error(errData.error || `Generation failed (${res.status})`);
       }
-
       const data = await res.json();
       if (data.copy && Object.keys(data.copy).length > 0) {
         setGeneratedCopy(data.copy);
         toast.success('Store copy generated');
-        setTimeout(() => { setAiStep('template'); setGenerating(false); }, 800);
       } else {
-        // API returned but no copy — use a deterministic fallback so the
-        // user can still proceed (the copy can be edited/regenerated later)
-        const fallbackCopy = {
-          tagline: `Quality ${niche || 'products'} delivered fast`,
-          hero_headline: `Welcome to ${storeName}`,
-          hero_subheading: `Discover our curated collection of ${niche || 'products'} — trusted by thousands worldwide.`,
-          hero_cta: 'Shop Now',
-          about_text: `${storeName} is your destination for high-quality ${niche || 'products'}. We source the best items and deliver them to your door.`,
-          trust_badges: ['Free Shipping', 'Secure Checkout', '30-Day Returns', '24/7 Support'],
-          faq: [
-            { question: 'How fast is shipping?', answer: 'Standard shipping takes 7-14 business days. Express options are available at checkout.' },
-            { question: 'What is your return policy?', answer: 'We offer a 30-day money-back guarantee. Contact us for a hassle-free return.' },
-            { question: 'Is checkout secure?', answer: 'Yes. We use SSL encryption and trusted payment processors to keep your data safe.' },
-          ],
-          meta_title: `${storeName} — ${niche || 'Quality Products'}`,
-          meta_description: `Shop ${niche || 'products'} at ${storeName}. Fast shipping, secure checkout, 30-day returns.`,
-          products: selectedProducts.map(p => ({
-            id: String(p.id),
-            seo_title: p.product_title || 'Product',
-            description: `Premium ${(p.category || niche || 'product').toLowerCase()} — fast shipping, excellent quality.`,
-            bullet_points: ['High quality materials', 'Fast worldwide shipping', 'Trusted by thousands'],
-          })),
-        };
-        setGeneratedCopy(fallbackCopy);
+        setGeneratedCopy(fallback());
         toast('AI copy unavailable — using template. You can edit everything.', { duration: 4000 });
-        setTimeout(() => { setAiStep('template'); setGenerating(false); }, 800);
       }
     } catch (err) {
-      // NEVER silently fail. Show what went wrong and use fallback.
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      console.error('[StoreBuilder] generate-copy failed:', msg);
       toast.error(`Generation error: ${msg.slice(0, 80)}. Using template copy instead.`, { duration: 5000 });
-
-      // Deterministic fallback so the user can still build their store
-      const fallbackCopy = {
-        tagline: `Quality ${niche || 'products'} delivered fast`,
-        hero_headline: `Welcome to ${storeName || 'My Store'}`,
-        hero_subheading: `Discover our curated collection — trusted by thousands worldwide.`,
-        hero_cta: 'Shop Now',
-        about_text: `Your destination for high-quality ${niche || 'products'}.`,
-        trust_badges: ['Free Shipping', 'Secure Checkout', '30-Day Returns', '24/7 Support'],
-        faq: [
-          { question: 'How fast is shipping?', answer: 'Standard shipping takes 7-14 business days.' },
-          { question: 'What is your return policy?', answer: '30-day money-back guarantee.' },
-        ],
-        meta_title: `${storeName || 'My Store'}`,
-        meta_description: `Shop at ${storeName || 'My Store'}.`,
-        products: selectedProducts.map(p => ({
-          id: String(p.id),
-          seo_title: p.product_title || 'Product',
-          description: `Quality product with fast shipping.`,
-          bullet_points: ['Fast shipping', 'Great quality'],
-        })),
-      };
-      setGeneratedCopy(fallbackCopy);
-      setTimeout(() => { setAiStep('template'); setGenerating(false); }, 500);
+      setGeneratedCopy(fallback());
     }
+    setTimeout(() => setGenerating(false), 600);
   };
 
-  // ── Check subdomain ──────────────────────────────────────────
+  // ── Subdomain availability ────────────────────────────────────
   const checkSubdomain = async (slug: string) => {
     if (!slug || slug.length < 3) { setSubdomainAvailable(null); return; }
     setCheckingSubdomain(true);
@@ -557,43 +549,29 @@ export default function StoreBuilder() {
     return () => clearTimeout(t);
   }, [subdomain]);
 
-  // ── Publish store ────────────────────────────────────────────
+  // ── Publish ───────────────────────────────────────────────────
   const publishStore = async () => {
-    if (!subdomain || subdomain.length < 3) {
-      toast.error('Enter a store URL slug (at least 3 characters)');
-      return;
-    }
+    if (!subdomain || subdomain.length < 3) { toast.error('Enter a store URL slug (at least 3 characters)'); return; }
     setPublishing(true);
     try {
       const res = await fetch('/api/store-builder/publish', {
-        method: 'POST',
-        headers: authHeaders,
+        method: 'POST', headers: authHeaders,
         body: JSON.stringify({
           storeName: storeName || 'My Store',
           niche: niche || 'General',
           targetMarket, tone, primaryColor,
           templateId: selectedTemplate,
           selectedProducts: selectedProducts.map(p => ({
-            id: p.id,
-            product_title: p.product_title,
-            price_aud: p.price_aud,
-            image_url: p.image_url,
-            category: p.category,
+            id: p.id, product_title: p.product_title, price_aud: p.price_aud,
+            image_url: p.image_url, category: (p as WinningProduct).category,
           })),
           generatedCopy, subdomain, customDomain, mode: 'ai',
         }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || `Publish failed (${res.status})`);
-        setPublishResult({ success: false });
-      } else if (data.success) {
-        toast.success('Store published!');
-        setPublishResult(data);
-      } else {
-        toast.error(data.error || 'Publish returned no success flag');
-        setPublishResult({ success: false });
-      }
+      if (!res.ok)        { toast.error(data.error || `Publish failed (${res.status})`); setPublishResult({ success: false }); }
+      else if (data.success) { toast.success('Store published!'); setPublishResult(data); }
+      else                 { toast.error(data.error || 'Publish returned no success flag'); setPublishResult({ success: false }); }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Network error';
       toast.error(`Publish failed: ${msg}`);
@@ -602,13 +580,12 @@ export default function StoreBuilder() {
     setPublishing(false);
   };
 
-  // ── Shopify handlers ─────────────────────────────────────────
+  // ── Shopify handlers ──────────────────────────────────────────
   const connectShopify = () => {
     const domain = shopifyDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
     if (!domain.includes('.myshopify.com')) return;
     window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(domain)}`;
   };
-
   const syncShopify = async () => {
     setSyncing(true);
     try {
@@ -619,7 +596,6 @@ export default function StoreBuilder() {
     } catch { /* silent */ }
     setSyncing(false);
   };
-
   const fetchTopProducts = async () => {
     try {
       const res = await fetch('/api/store-builder/products-for-niche?niche=General', { headers: authHeaders });
@@ -628,7 +604,7 @@ export default function StoreBuilder() {
     } catch { /* silent */ }
   };
 
-  // ── Marketplace handlers ─────────────────────────────────────
+  // ── Marketplace handlers ──────────────────────────────────────
   const fetchMpProfile = async () => {
     try {
       const res = await fetch('/api/marketplace/profile', { headers: authHeaders });
@@ -636,11 +612,10 @@ export default function StoreBuilder() {
       if (data.profile) {
         setMpProfile(data.profile);
         setMpStep('dashboard');
-        // Fetch listings + orders + earnings
         const [listRes, ordRes, earnRes] = await Promise.all([
           fetch('/api/marketplace/listings', { headers: authHeaders }),
-          fetch('/api/marketplace/orders', { headers: authHeaders }),
-          fetch('/api/marketplace/earnings', { headers: authHeaders }),
+          fetch('/api/marketplace/orders',  { headers: authHeaders }),
+          fetch('/api/marketplace/earnings',{ headers: authHeaders }),
         ]);
         const [listData, ordData, earnData] = await Promise.all([listRes.json(), ordRes.json(), earnRes.json()]);
         setMpListings(listData.listings || []);
@@ -649,7 +624,6 @@ export default function StoreBuilder() {
       }
     } catch { /* silent */ }
   };
-
   const checkMpUsername = async (username: string) => {
     if (username.length < 3) { setMpUsernameAvail(null); return; }
     try {
@@ -658,13 +632,11 @@ export default function StoreBuilder() {
       setMpUsernameAvail(data.available);
     } catch { setMpUsernameAvail(null); }
   };
-
   const createMpProfile = async () => {
     if (!mpUsername || !mpDisplayName) return;
     try {
       const res = await fetch('/api/marketplace/profile', {
-        method: 'POST',
-        headers: authHeaders,
+        method: 'POST', headers: authHeaders,
         body: JSON.stringify({ username: mpUsername, display_name: mpDisplayName, bio: mpBio }),
       });
       const data = await res.json();
@@ -672,107 +644,128 @@ export default function StoreBuilder() {
     } catch { /* silent */ }
   };
 
-  // ── Input style ──────────────────────────────────────────────
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.04)', color: textPrimary, fontSize: 14,
-    fontFamily: dmSans, outline: 'none', boxSizing: 'border-box',
+  // ── Step transitions ──────────────────────────────────────────
+  const goToStep = (id: WizardStepId) => {
+    if (id === 'products' && nicheProducts.length === 0 && niche) fetchNicheProducts(niche);
+    if (id === 'branding' && !generatedCopy && !generating) generateCopy();
+    setStepId(id);
   };
 
-  const btnPrimary: React.CSSProperties = {
-    padding: '14px 28px', borderRadius: 10, border: 'none', cursor: 'pointer',
-    background: accent, color: '#fff', fontFamily: brico, fontWeight: 700, fontSize: 15,
-    transition: 'all 150ms',
+  const canContinueFrom: Record<WizardStepId, boolean> = {
+    niche: Boolean(storeName.trim() && niche),
+    products: selectedProducts.length > 0,
+    branding: Boolean(selectedTemplate),
+    publish: subdomainAvailable === true,
   };
 
-  const btnSecondary: React.CSSProperties = {
-    padding: '14px 28px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)',
-    background: 'transparent', color: textSecondary, fontFamily: brico, fontWeight: 600,
-    fontSize: 14, cursor: 'pointer', transition: 'all 150ms',
+  const nextStep = () => {
+    const idx = stepIndex;
+    if (idx < WIZARD_STEPS.length - 1) goToStep(WIZARD_STEPS[idx + 1].id);
+  };
+  const prevStep = () => {
+    const idx = stepIndex;
+    if (idx > 0) goToStep(WIZARD_STEPS[idx - 1].id);
   };
 
   // ══════════════════════════════════════════════════════════════
   // RENDER
   // ══════════════════════════════════════════════════════════════
   return (
-    <div style={{ minHeight: '100vh', background: bgDark, color: textPrimary, fontFamily: dmSans }}>
+    <div style={{ minHeight: '100vh', background: BG, color: TEXT_PRIMARY, fontFamily: FONT_BODY }}>
       <Helmet><title>Store Builder — Majorka</title><meta name="robots" content="noindex, nofollow" /></Helmet>
-      <style>{confettiCSS}</style>
+      <style>{KEYFRAMES_CSS}</style>
 
-      {/* Upgrade modal */}
       {upgradeModal && <UpgradeModal isOpen={true} onClose={() => setUpgradeModal(false)} scaleOnly={true} reason={upgradeReason} feature="Majorka Marketplace" />}
 
-      {/* ══════ MODE SELECTION ══════ */}
+      {/* ══════ MODE SELECT ══════ */}
       {mode === 'select' && (
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '60px 24px' }}>
-          <div style={{ textAlign: 'center' as const, marginBottom: 48 }}>
-            <h1 style={{ fontFamily: brico, fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 700, marginBottom: 12 }}>Store Builder</h1>
-            <p style={{ color: textSecondary, fontSize: 16 }}>Zero to live dropshipping store in under 7 minutes.</p>
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          {/* Hero */}
+          <div className="text-center mb-14 sb-fade-in">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+              <Sparkles size={14} color={ACCENT} />
+              <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: ACCENT, letterSpacing: '0.1em' }}>AI Store Builder</span>
+            </div>
+            <h1 className="mb-4" style={{ fontFamily: FONT_DISPLAY, fontSize: 'clamp(36px, 6vw, 64px)', fontWeight: 700, lineHeight: 1.05, letterSpacing: '-0.02em' }}>
+              From niche to <span style={{ background: `linear-gradient(90deg, ${ACCENT}, ${VIOLET})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>live store</span> in 7 minutes
+            </h1>
+            <p className="mx-auto" style={{ color: TEXT_BODY, fontSize: 17, maxWidth: 560, lineHeight: 1.5 }}>
+              Pick a path. Our AI handles copy, layout, and product optimisation.
+            </p>
           </div>
 
-          {/* Three mode cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, marginBottom: 40 }}>
-            {/* Mode A — Build with AI */}
+          {/* Mode cards */}
+          <div className="grid gap-5 mb-12" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
             <div
-              onClick={() => { setMode('ai'); setAiStep('setup'); }}
-              style={{ background: cardBg, border: cardBorder, borderRadius: 24, padding: 32, cursor: 'pointer', transition: 'all 200ms' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              onClick={() => { setMode('ai'); setStepId('niche'); }}
+              className="sb-card-hover group cursor-pointer relative overflow-hidden p-8"
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}
             >
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🤖</div>
-              <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Build with AI</div>
-              <div style={{ fontSize: 13, color: accent, marginBottom: 8 }}>Zero to store in 7 minutes</div>
-              <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>AI builds your store from your niche and products</div>
-              <button style={{ ...btnPrimary, width: '100%' }}>Start Building →</button>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: `radial-gradient(600px circle at 50% 0%, rgba(99,102,241,0.10), transparent 40%)` }} />
+              <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center justify-center w-11 h-11 rounded-xl" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)' }}>
+                  <Sparkles size={20} color={ACCENT} />
+                </div>
+                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ background: 'rgba(99,102,241,0.1)', color: ACCENT, letterSpacing: '0.12em' }}>Recommended</span>
+              </div>
+              <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 22, fontWeight: 700 }}>Build with AI</div>
+              <div className="mb-6" style={{ color: TEXT_BODY, fontSize: 14, lineHeight: 1.5 }}>Wizard generates copy, selects products, and publishes a live storefront in minutes.</div>
+              <div className="flex items-center gap-2" style={{ color: ACCENT, fontSize: 13, fontWeight: 600 }}>
+                Start building <ArrowRight size={14} />
+              </div>
             </div>
 
-            {/* Mode B — Connect Shopify */}
             <div
               onClick={() => { setMode('shopify'); syncShopify(); fetchTopProducts(); }}
-              style={{ background: cardBg, border: cardBorder, borderRadius: 24, padding: 32, cursor: 'pointer', transition: 'all 200ms' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              className="sb-card-hover cursor-pointer p-8"
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}
             >
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🛍️</div>
-              <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Connect Shopify</div>
-              <div style={{ fontSize: 13, color: accent, marginBottom: 8 }}>Already on Shopify?</div>
-              <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>Sync your products and orders. Keep Shopify, add Majorka's intelligence layer.</div>
-              <button style={{ ...btnPrimary, width: '100%' }}>Connect Store →</button>
+              <div className="flex items-center justify-center w-11 h-11 rounded-xl mb-5" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)' }}>
+                <StoreIcon size={20} color="#10b981" />
+              </div>
+              <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 22, fontWeight: 700 }}>Connect Shopify</div>
+              <div className="mb-6" style={{ color: TEXT_BODY, fontSize: 14, lineHeight: 1.5 }}>Sync existing products and orders. Layer Majorka intelligence over your Shopify store.</div>
+              <div className="flex items-center gap-2" style={{ color: '#10b981', fontSize: 13, fontWeight: 600 }}>
+                Connect store <ArrowRight size={14} />
+              </div>
             </div>
 
-            {/* Mode C — Sell on Majorka */}
             <div
               onClick={() => {
                 if (!isScale) { setUpgradeReason('Majorka Marketplace is available on Scale plan'); setUpgradeModal(true); return; }
                 setMode('marketplace'); fetchMpProfile();
               }}
-              style={{ background: cardBg, border: cardBorder, borderRadius: 24, padding: 32, cursor: 'pointer', transition: 'all 200ms', position: 'relative' as const }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(139,92,246,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              className="sb-card-hover cursor-pointer relative p-8"
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}
             >
-              <div style={{ position: 'absolute' as const, top: 16, right: 16, background: 'rgba(139,92,246,0.15)', color: violet, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999 }}>Scale Only</div>
-              <div style={{ fontSize: 36, marginBottom: 16 }}>🏪</div>
-              <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Sell on Majorka</div>
-              <div style={{ fontSize: 13, color: violet, marginBottom: 8 }}>No Shopify needed</div>
-              <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>List products. We handle the storefront. 5% platform fee per sale.</div>
-              <button style={{ ...btnPrimary, width: '100%', background: violet }}>Start Selling →</button>
+              <div className="absolute top-4 right-4 text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ background: 'rgba(139,92,246,0.12)', color: VIOLET, letterSpacing: '0.1em' }}>Scale</div>
+              <div className="flex items-center justify-center w-11 h-11 rounded-xl mb-5" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                <StoreIcon size={20} color={VIOLET} />
+              </div>
+              <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 22, fontWeight: 700 }}>Sell on Majorka</div>
+              <div className="mb-6" style={{ color: TEXT_BODY, fontSize: 14, lineHeight: 1.5 }}>List products. We handle the storefront. 5% platform fee, no monthly cost.</div>
+              <div className="flex items-center gap-2" style={{ color: VIOLET, fontSize: 13, fontWeight: 600 }}>
+                Start selling <ArrowRight size={14} />
+              </div>
             </div>
           </div>
 
           {/* Existing stores */}
           {existingStores.length > 0 && (
             <div>
-              <div style={{ textAlign: 'center' as const, color: textMuted, fontSize: 13, marginBottom: 16, cursor: 'pointer' }}>Or continue to your existing stores ↓</div>
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+              <div className="text-xs uppercase tracking-widest mb-4" style={{ color: TEXT_MUTED, letterSpacing: '0.15em' }}>Your stores</div>
+              <div className="flex flex-col gap-2">
                 {existingStores.map(store => (
-                  <div key={store.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '14px 20px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                  <div key={store.id} className="flex items-center justify-between px-5 py-4" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: 14 }}>{store.store_name}</div>
-                      <div style={{ fontSize: 12, color: textMuted }}>{store.subdomain ? `majorka.io/store/${store.subdomain}` : 'Not published'} · {new Date(store.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
+                      <div style={{ fontSize: 12, color: TEXT_MUTED }}>
+                        {store.subdomain ? `majorka.io/store/${store.subdomain}` : 'Not published'} · {new Date(store.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
+                      </div>
                     </div>
                     {store.published && store.subdomain && (
-                      <a href={`https://majorka.io/store/${store.subdomain}`} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' as const, gap: 4 }}>
-                        <ExternalLink size={12} /> View
+                      <a href={`https://majorka.io/store/${store.subdomain}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: ACCENT, textDecoration: 'none' }}>
+                        View <ExternalLink size={12} />
                       </a>
                     )}
                   </div>
@@ -780,407 +773,491 @@ export default function StoreBuilder() {
               </div>
             </div>
           )}
-
-          {/* Empty state competitive copy */}
-          {existingStores.length === 0 && isBuilder && (
-            <div style={{ textAlign: 'center' as const, padding: 32, background: 'rgba(99,102,241,0.05)', borderRadius: 16, border: '1px solid rgba(99,102,241,0.1)' }}>
-              <p style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Shopify takes hours and charges 2% on every sale.</p>
-              <p style={{ color: textSecondary, fontSize: 14 }}>Majorka takes 7 minutes and charges nothing. Build your first store →</p>
-            </div>
-          )}
         </div>
       )}
 
-      {/* ══════ MODE A: AI WIZARD ══════ */}
+      {/* ══════ AI WIZARD — two-panel layout ══════ */}
       {mode === 'ai' && (
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
-          {/* Back button */}
-          <button onClick={() => setMode('select')} style={{ ...btnSecondary, padding: '8px 16px', fontSize: 13, marginBottom: 24 }}>← Back</button>
-
-          {/* Step indicator */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
-            {(['setup', 'products', 'generating', 'template', 'preview', 'publish'] as AIStep[]).map((step, i) => (
-              <div key={step} style={{ flex: 1, height: 4, borderRadius: 2, background: (['setup', 'products', 'generating', 'template', 'preview', 'publish'] as AIStep[]).indexOf(aiStep) >= i ? accent : 'rgba(255,255,255,0.08)' }} />
-            ))}
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-6 md:py-10">
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={() => setMode('select')}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+              style={{ color: TEXT_BODY, fontFamily: FONT_BODY }}
+            >
+              <ArrowLeft size={15} /> Back
+            </button>
+            <div className="hidden md:block flex-1 max-w-2xl mx-8">
+              <StepIndicator
+                steps={WIZARD_STEPS}
+                currentIndex={stepIndex}
+                onStepClick={(i) => goToStep(WIZARD_STEPS[i].id)}
+              />
+            </div>
+            <div className="hidden md:flex items-center gap-1 px-1 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <button onClick={() => setIsMobilePreview(false)} className={`px-2.5 py-1.5 rounded ${!isMobilePreview ? '' : ''}`} style={{ background: !isMobilePreview ? 'rgba(99,102,241,0.15)' : 'transparent', color: !isMobilePreview ? ACCENT : TEXT_MUTED }}>
+                <Monitor size={15} />
+              </button>
+              <button onClick={() => setIsMobilePreview(true)} style={{ background: isMobilePreview ? 'rgba(99,102,241,0.15)' : 'transparent', color: isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2.5 py-1.5 rounded">
+                <Smartphone size={15} />
+              </button>
+            </div>
           </div>
 
-          {/* ── STEP 1: STORE SETUP ── */}
-          {aiStep === 'setup' && (
-            <div>
-              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Set up your store</h2>
-              <p style={{ color: textSecondary, marginBottom: 32 }}>Tell us about your brand. AI will generate everything from this.</p>
+          {/* Mobile step indicator */}
+          <div className="md:hidden mb-6">
+            <StepIndicator steps={WIZARD_STEPS} currentIndex={stepIndex} onStepClick={(i) => goToStep(WIZARD_STEPS[i].id)} />
+          </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 20 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Store Name *</label>
-                  <input value={storeName} onChange={e => setStoreName(e.target.value)} placeholder="e.g. PawsAustralia" style={inputStyle} />
-                </div>
+          {/* Two-panel grid */}
+          <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}>
+            <div className="grid gap-6 lg:gap-8" style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}>
+              <div className="grid gap-6 lg:gap-8 lg:grid-cols-[minmax(0,_520px)_minmax(0,_1fr)]">
+                {/* ── LEFT PANEL — CONFIG ── */}
+                <div className="sb-fade-in">
+                  <div className="p-6 md:p-8" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}>
+                    {/* STEP 1: NICHE */}
+                    {stepId === 'niche' && (
+                      <div>
+                        <div className="mb-1 text-xs uppercase tracking-widest" style={{ color: ACCENT, letterSpacing: '0.15em' }}>Step 1 of 4</div>
+                        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Define your brand</h2>
+                        <p className="mb-7" style={{ color: TEXT_BODY, fontSize: 14 }}>AI uses these to generate copy, pick colours, and shape the storefront.</p>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Niche *</label>
-                  <select value={niche} onChange={e => setNiche(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' as const }}>
-                    <option value="">Select a niche...</option>
-                    {NICHES.map(n => <option key={n} value={n}>{n}</option>)}
-                  </select>
-                </div>
+                        <div className="flex flex-col gap-5">
+                          <div>
+                            <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Store name</label>
+                            <input value={storeName} onChange={e => setStoreName(e.target.value)} placeholder="e.g. PawsAustralia" className="sb-input" />
+                          </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>Target Market</label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
-                    {MARKETS.map(m => <PillButton key={m} label={m} selected={targetMarket === m} onClick={() => setTargetMarket(m)} />)}
-                  </div>
-                </div>
+                          <div>
+                            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Niche</label>
+                            <div className="flex flex-wrap gap-2">
+                              {NICHES.map(n => <Chip key={n} label={n} selected={niche === n} onClick={() => setNiche(n)} />)}
+                            </div>
+                          </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>Brand Tone</label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
-                    {TONES.map(t => <PillButton key={t} label={t} selected={tone === t} onClick={() => setTone(t)} />)}
-                  </div>
-                </div>
+                          <div>
+                            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Target market</label>
+                            <div className="flex flex-wrap gap-2">
+                              {MARKETS.map(m => <Chip key={m} label={m} selected={targetMarket === m} onClick={() => setTargetMarket(m)} />)}
+                            </div>
+                          </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>Primary Colour</label>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' as const }}>
-                    {COLOR_SWATCHES.map(s => (
-                      <div key={s.color} onClick={() => setPrimaryColor(s.color)} style={{
-                        width: 32, height: 32, borderRadius: '50%', background: s.color, cursor: 'pointer' as const,
-                        border: primaryColor === s.color ? '3px solid #fff' : '3px solid transparent',
-                        boxShadow: primaryColor === s.color ? `0 0 0 2px ${s.color}` : 'none',
-                        transition: 'all 150ms',
-                      }} title={s.label} />
-                    ))}
-                    <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} style={{ width: 32, height: 32, border: 'none', background: 'transparent', cursor: 'pointer' }} />
-                  </div>
-                </div>
-              </div>
+                          <div>
+                            <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Brand tone</label>
+                            <div className="flex flex-wrap gap-2">
+                              {TONES.map(t => <Chip key={t} label={t} selected={tone === t} onClick={() => setTone(t)} />)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-              <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' as const }}>
-                <button
-                  onClick={() => { if (storeName && niche) { setAiStep('products'); fetchNicheProducts(niche); } }}
-                  disabled={!storeName || !niche}
-                  style={{ ...btnPrimary, opacity: !storeName || !niche ? 0.4 : 1, cursor: !storeName || !niche ? 'not-allowed' : 'pointer' }}
-                >Continue → Products</button>
-              </div>
-            </div>
-          )}
+                    {/* STEP 2: PRODUCTS */}
+                    {stepId === 'products' && (
+                      <div>
+                        <div className="mb-1 text-xs uppercase tracking-widest" style={{ color: ACCENT, letterSpacing: '0.15em' }}>Step 2 of 4</div>
+                        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Choose products</h2>
+                        <p className="mb-5" style={{ color: TEXT_BODY, fontSize: 14 }}>Top performers in <span style={{ color: TEXT_PRIMARY, fontWeight: 600 }}>{niche || 'your niche'}</span>. Pick up to 10.</p>
 
-          {/* ── STEP 2: PRODUCT SELECTION ── */}
-          {aiStep === 'products' && (
-            <div>
-              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Select products</h2>
-              <p style={{ color: textSecondary, marginBottom: 24 }}>Choose 1-10 products for your store. These are top performers in {niche}.</p>
-
-              {loadingProducts ? (
-                <div style={{ textAlign: 'center' as const, padding: 40 }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} color={accent} /></div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
-                  {nicheProducts.map(p => {
-                    const isSelected = selectedProducts.some(sp => sp.id === p.id);
-                    const scoreColor = (p.winning_score || 0) > 70 ? '#10B981' : (p.winning_score || 0) > 50 ? '#F59E0B' : textMuted;
-                    return (
-                      <div key={p.id} onClick={() => {
-                        if (isSelected) setSelectedProducts(prev => prev.filter(sp => sp.id !== p.id));
-                        else if (selectedProducts.length < 10) setSelectedProducts(prev => [...prev, p]);
-                      }} style={{
-                        background: cardBg, border: isSelected ? `2px solid ${accent}` : cardBorder, borderRadius: 14, padding: 12,
-                        cursor: 'pointer' as const, transition: 'all 150ms', position: 'relative' as const,
-                      }}>
-                        {isSelected && (
-                          <div style={{ position: 'absolute' as const, top: 8, right: 8, width: 24, height: 24, borderRadius: '50%', background: accent, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const }}>
-                            <Check size={14} color="#fff" />
+                        {loadingProducts ? (
+                          <div className="flex flex-col items-center gap-3 py-14">
+                            <Loader2 size={22} color={ACCENT} style={{ animation: 'spin 1s linear infinite' }} />
+                            <span style={{ color: TEXT_MUTED, fontSize: 13 }}>Finding top products...</span>
+                          </div>
+                        ) : nicheProducts.length === 0 ? (
+                          <div className="text-center py-12" style={{ color: TEXT_MUTED, fontSize: 14 }}>
+                            <div className="mb-3">No matching products yet.</div>
+                            <button onClick={() => setCustomProductModal(true)} className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: ACCENT }}>
+                              <Plus size={14} /> Add manually
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="grid gap-3 max-h-[520px] overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
+                            {nicheProducts.map(p => {
+                              const isSelected = selectedProducts.some(sp => sp.id === p.id);
+                              const scoreColor = (p.winning_score || 0) >= 90 ? '#10b981' : (p.winning_score || 0) >= 75 ? '#f59e0b' : '#f97316';
+                              return (
+                                <button
+                                  key={p.id}
+                                  onClick={() => {
+                                    if (isSelected) setSelectedProducts(prev => prev.filter(sp => sp.id !== p.id));
+                                    else if (selectedProducts.length < 10) setSelectedProducts(prev => [...prev, p]);
+                                  }}
+                                  className="text-left p-2.5 transition-all relative"
+                                  style={{
+                                    background: 'rgba(255,255,255,0.02)',
+                                    border: isSelected ? `2px solid ${ACCENT}` : '1px solid rgba(255,255,255,0.07)',
+                                    borderRadius: 12,
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  {isSelected && (
+                                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: ACCENT }}>
+                                      <Check size={11} color="#fff" />
+                                    </div>
+                                  )}
+                                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                                    {p.image_url ? (
+                                      <img src={p.image_url} alt={p.product_title} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center opacity-30 text-2xl">📦</div>
+                                    )}
+                                  </div>
+                                  <div className="text-[11px] font-semibold leading-tight mb-1.5" style={{ color: TEXT_PRIMARY, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.product_title}</div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-bold" style={{ color: ACCENT }}>${(p.price_aud || 0).toFixed(2)}</span>
+                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ color: scoreColor, background: `${scoreColor}20` }}>{p.winning_score || 0}</span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                            <button
+                              onClick={() => setCustomProductModal(true)}
+                              className="flex flex-col items-center justify-center aspect-square"
+                              style={{ background: 'transparent', border: '2px dashed rgba(255,255,255,0.1)', borderRadius: 12, minHeight: 180 }}
+                            >
+                              <Plus size={20} color={TEXT_MUTED} />
+                              <div className="text-[11px] mt-1.5" style={{ color: TEXT_MUTED }}>Custom</div>
+                            </button>
                           </div>
                         )}
-                        <div style={{ width: 80, height: 80, borderRadius: 8, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', marginBottom: 8 }}>
-                          {p.image_url ? (
-                            <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                          ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, fontSize: 24, opacity: 0.3 }}>📦</div>
+
+                        <div className="mt-4 flex items-center justify-between text-xs" style={{ color: TEXT_MUTED }}>
+                          <span>{selectedProducts.length} / 10 selected</span>
+                          {selectedProducts.length > 0 && (
+                            <button onClick={() => setSelectedProducts([])} className="underline hover:text-white/60">Clear</button>
                           )}
                         </div>
-                        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, lineHeight: 1.3 }}>{p.product_title}</div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: accent, marginBottom: 4 }}>${(p.price_aud || 0).toFixed(2)}</div>
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' as const }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor, background: `${scoreColor}15`, padding: '2px 6px', borderRadius: 4 }}>{p.winning_score || 0}</span>
-                          {p.trend === 'rising' && <span style={{ fontSize: 11 }}>🔥 Trending</span>}
+                      </div>
+                    )}
+
+                    {/* STEP 3: BRANDING */}
+                    {stepId === 'branding' && (
+                      <div>
+                        <div className="mb-1 text-xs uppercase tracking-widest" style={{ color: ACCENT, letterSpacing: '0.15em' }}>Step 3 of 4</div>
+                        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Brand & template</h2>
+                        <p className="mb-6" style={{ color: TEXT_BODY, fontSize: 14 }}>Pick a template and accent colour. Preview updates live.</p>
+
+                        {generating && (
+                          <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12 }}>
+                            <Loader2 size={18} color={ACCENT} style={{ animation: 'spin 1s linear infinite' }} />
+                            <div className="flex-1">
+                              <div className="text-sm font-semibold" style={{ color: TEXT_PRIMARY }}>Generating copy...</div>
+                              <div className="text-xs" style={{ color: TEXT_BODY }}>
+                                {['Analysing your niche', 'Writing store copy', 'Optimising product descriptions', 'Almost ready'][genStep]}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Template</label>
+                        <div className="grid gap-3 mb-6" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                          {TEMPLATES.map(tpl => (
+                            <button
+                              key={tpl.id}
+                              onClick={() => setSelectedTemplate(tpl.id)}
+                              className="text-left overflow-hidden transition-all relative"
+                              style={{
+                                background: 'rgba(255,255,255,0.02)',
+                                border: selectedTemplate === tpl.id ? `2px solid ${ACCENT}` : '1px solid rgba(255,255,255,0.07)',
+                                borderRadius: 12,
+                              }}
+                            >
+                              <div style={{ background: tpl.preview.bg, padding: 10, height: 66 }}>
+                                <div style={{ height: 5, background: tpl.preview.text, borderRadius: 2, marginBottom: 4, width: '55%', opacity: 0.8 }} />
+                                <div style={{ height: 3, background: tpl.preview.text, borderRadius: 2, marginBottom: 6, width: '35%', opacity: 0.4 }} />
+                                <div style={{ display: 'flex', gap: 4 }}>
+                                  {[1, 2, 3].map(i => <div key={i} style={{ flex: 1, height: 22, background: tpl.preview.text, opacity: 0.1, borderRadius: 3 }} />)}
+                                </div>
+                              </div>
+                              <div className="p-3">
+                                <div className="flex items-center justify-between mb-1">
+                                  <div style={{ fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 700 }}>{tpl.name}</div>
+                                  {selectedTemplate === tpl.id && <Check size={13} color={ACCENT} />}
+                                </div>
+                                <div className="text-[10px]" style={{ color: TEXT_MUTED }}>{tpl.style}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+
+                        <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Accent colour</label>
+                        <div className="flex items-center gap-2 mb-6">
+                          {COLOR_SWATCHES.map(s => (
+                            <button
+                              key={s.color}
+                              onClick={() => setPrimaryColor(s.color)}
+                              title={s.label}
+                              className="w-8 h-8 rounded-full transition-all"
+                              style={{
+                                background: s.color,
+                                border: primaryColor === s.color ? '3px solid #fff' : '3px solid transparent',
+                                boxShadow: primaryColor === s.color ? `0 0 0 2px ${s.color}` : 'none',
+                              }}
+                            />
+                          ))}
+                          <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-8 h-8 cursor-pointer bg-transparent border-0" />
+                        </div>
+
+                        {generatedCopy && !generating && (
+                          <button
+                            onClick={generateCopy}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold"
+                            style={{ color: TEXT_BODY }}
+                          >
+                            <RefreshCw size={12} /> Regenerate copy
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* STEP 4: PUBLISH */}
+                    {stepId === 'publish' && !publishResult && (
+                      <div>
+                        <div className="mb-1 text-xs uppercase tracking-widest" style={{ color: ACCENT, letterSpacing: '0.15em' }}>Step 4 of 4</div>
+                        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Go live</h2>
+                        <p className="mb-6" style={{ color: TEXT_BODY, fontSize: 14 }}>Pick your URL. Your store will be live on the internet in seconds.</p>
+
+                        <div className="mb-5">
+                          <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Store URL</label>
+                          <div className="flex items-stretch">
+                            <div className="flex items-center px-3 text-xs" style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '10px 0 0 10px', border: '1px solid rgba(255,255,255,0.1)', borderRight: 'none', color: TEXT_MUTED, fontFamily: FONT_BODY }}>
+                              majorka.io/store/
+                            </div>
+                            <input
+                              value={subdomain}
+                              onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                              placeholder="yourstore"
+                              className="sb-input"
+                              style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, flex: 1 }}
+                            />
+                          </div>
+                          {subdomain.length >= 3 && (
+                            <div className="mt-2 text-xs flex items-center gap-1.5" style={{ color: subdomainAvailable === true ? '#10b981' : subdomainAvailable === false ? '#ef4444' : TEXT_MUTED }}>
+                              {checkingSubdomain ? 'Checking…' : subdomainAvailable === true ? <><Check size={12} /> Available</> : subdomainAvailable === false ? 'Already taken' : ''}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mb-2">
+                          <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Custom domain (optional)</label>
+                          <input value={customDomain} onChange={e => setCustomDomain(e.target.value)} placeholder="shop.yourdomain.com" className="sb-input" />
+                          <div className="mt-2 text-xs" style={{ color: TEXT_MUTED }}>Point your CNAME to <span style={{ color: TEXT_BODY, fontFamily: 'monospace' }}>stores.majorka.io</span></div>
                         </div>
                       </div>
-                    );
-                  })}
+                    )}
 
-                  {/* Add manually card */}
-                  <div onClick={() => setCustomProductModal(true)} style={{
-                    background: 'transparent', border: '2px dashed rgba(255,255,255,0.12)', borderRadius: 14, padding: 12,
-                    cursor: 'pointer' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center' as const, justifyContent: 'center' as const, minHeight: 180,
-                  }}>
-                    <Plus size={24} color={textMuted} style={{ marginBottom: 8 }} />
-                    <div style={{ fontSize: 13, color: textMuted }}>Add Custom Product</div>
+                    {/* PUBLISH SUCCESS */}
+                    {stepId === 'publish' && publishResult && publishResult.success && (
+                      <div className="text-center py-6">
+                        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 100 }}>
+                          {Array.from({ length: 30 }).map((_, i) => (
+                            <div key={i} style={{
+                              position: 'absolute',
+                              left: `${(i * 37) % 100}%`,
+                              top: '-10px',
+                              width: 8, height: 8,
+                              borderRadius: i % 2 === 0 ? '50%' : '0',
+                              background: [ACCENT, VIOLET, '#f43f5e', '#10b981', '#f59e0b', '#06b6d4'][i % 6],
+                              animation: `confetti-fall ${2 + (i % 3)}s ease-in ${(i * 0.1)}s forwards`,
+                            }} />
+                          ))}
+                        </div>
+                        <div className="text-5xl mb-4">🚀</div>
+                        <h2 className="mb-3" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700 }}>Your store is live!</h2>
+                        {publishResult.liveUrl && (
+                          <a href={publishResult.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mb-6" style={{ color: ACCENT, fontSize: 14, textDecoration: 'none' }}>
+                            {publishResult.liveUrl} <ExternalLink size={14} />
+                          </a>
+                          )}
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
+                          <button
+                            onClick={() => { if (publishResult.liveUrl) { navigator.clipboard.writeText(publishResult.liveUrl); toast.success('Link copied'); } }}
+                            className="inline-flex items-center gap-1.5 justify-center px-5 py-3 rounded-lg text-sm font-semibold"
+                            style={{ background: 'rgba(255,255,255,0.04)', color: TEXT_BODY, border: '1px solid rgba(255,255,255,0.08)' }}
+                          >
+                            <Copy size={14} /> Share
+                          </button>
+                          <button
+                            onClick={() => setLocation('/app/ads-studio')}
+                            className="px-5 py-3 rounded-lg text-sm font-bold sb-glow-cta"
+                            style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none' }}
+                          >
+                            Launch ad campaign →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Wizard nav (only on config steps, not success screen) */}
+                    {!(stepId === 'publish' && publishResult?.success) && (
+                      <div className="mt-8 flex items-center justify-between gap-3">
+                        <button
+                          onClick={prevStep}
+                          disabled={stepIndex === 0}
+                          className="inline-flex items-center gap-1.5 px-4 py-3 rounded-lg text-sm font-semibold transition-colors"
+                          style={{
+                            background: 'transparent',
+                            color: stepIndex === 0 ? TEXT_MUTED : TEXT_BODY,
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            opacity: stepIndex === 0 ? 0.4 : 1,
+                            cursor: stepIndex === 0 ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          <ArrowLeft size={14} /> Back
+                        </button>
+                        {stepId !== 'publish' ? (
+                          <button
+                            onClick={nextStep}
+                            disabled={!canContinueFrom[stepId]}
+                            className="inline-flex items-center gap-1.5 px-6 py-3 rounded-lg text-sm font-bold transition-all sb-glow-cta"
+                            style={{
+                              background: canContinueFrom[stepId] ? `linear-gradient(135deg, ${ACCENT}, ${VIOLET})` : 'rgba(99,102,241,0.3)',
+                              color: '#fff',
+                              border: 'none',
+                              opacity: canContinueFrom[stepId] ? 1 : 0.5,
+                              cursor: canContinueFrom[stepId] ? 'pointer' : 'not-allowed',
+                              fontFamily: FONT_BODY,
+                            }}
+                          >
+                            Continue <ArrowRight size={14} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={publishStore}
+                            disabled={!subdomainAvailable || publishing}
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all sb-glow-cta"
+                            style={{
+                              background: subdomainAvailable ? `linear-gradient(135deg, ${ACCENT}, ${VIOLET})` : 'rgba(99,102,241,0.3)',
+                              color: '#fff',
+                              border: 'none',
+                              opacity: !subdomainAvailable ? 0.5 : 1,
+                              cursor: !subdomainAvailable ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            {publishing ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Publishing…</> : <>Publish store 🚀</>}
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
 
-              <div style={{ fontSize: 13, color: textMuted, marginBottom: 16 }}>{selectedProducts.length} of 10 products selected</div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button onClick={() => setAiStep('setup')} style={btnSecondary}>← Back</button>
-                <button onClick={generateCopy} disabled={selectedProducts.length === 0} style={{ ...btnPrimary, flex: 1, opacity: selectedProducts.length === 0 ? 0.4 : 1 }}>Generate Store Copy →</button>
-              </div>
-            </div>
-          )}
-
-          {/* ── STEP 3: AI GENERATION ── */}
-          {aiStep === 'generating' && (
-            <div style={{ textAlign: 'center' as const, padding: '60px 0' }}>
-              <Loader2 size={32} color={accent} style={{ animation: 'spin 1s linear infinite', marginBottom: 24 }} />
-              <h2 style={{ fontFamily: brico, fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Building your store...</h2>
-              <div style={{ maxWidth: 400, margin: '0 auto', marginBottom: 24 }}>
-                <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 999, overflow: 'hidden' as const }}>
-                  <div style={{ height: '100%', background: `linear-gradient(90deg, ${accent}, ${violet})`, borderRadius: 999, animation: 'progress-fill 6s ease-out forwards' }} />
-                </div>
-              </div>
-              {['Analysing your niche...', 'Writing your store copy...', 'Optimising product descriptions...', 'Almost ready...'].map((msg, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center' as const, gap: 10, justifyContent: 'center' as const, marginBottom: 8 }}>
-                  <span style={{ fontSize: 14 }}>{i < genStep ? '✅' : i === genStep ? '⏳' : '○'}</span>
-                  <span style={{ fontSize: 14, color: i <= genStep ? textPrimary : textMuted }}>{msg}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* ── STEP 4: TEMPLATE SELECTION ── */}
-          {aiStep === 'template' && (
-            <div>
-              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Choose a template</h2>
-              <p style={{ color: textSecondary, marginBottom: 24 }}>Each template is optimised for conversions. Pick one that matches your brand.</p>
-
-              {/* Competitive callout */}
-              {generatedCopy && (
-                <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, padding: '12px 16px', marginBottom: 20 }}>
-                  <p style={{ fontSize: 13, color: accent }}>✅ Store copy generated! Built in under 7 minutes. Powered by the same product data that found your winners.</p>
-                </div>
-              )}
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 20 }}>
-                {TEMPLATES.map(tpl => (
-                  <div key={tpl.id} onClick={() => setSelectedTemplate(tpl.id)} style={{
-                    background: cardBg, border: selectedTemplate === tpl.id ? `2px solid ${accent}` : cardBorder, borderRadius: 16, overflow: 'hidden' as const,
-                    cursor: 'pointer' as const, transition: 'all 150ms',
-                  }}>
-                    <TemplatePreview preview={tpl.preview} />
-                    <div style={{ padding: 14 }}>
-                      <div style={{ fontFamily: brico, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{tpl.name}</div>
-                      <div style={{ fontSize: 12, color: textSecondary, marginBottom: 8 }}>{tpl.style}</div>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
-                        {tpl.bestFor.map(tag => (
-                          <span key={tag} style={{ fontSize: 10, fontWeight: 600, color: accent, background: 'rgba(99,102,241,0.1)', padding: '2px 6px', borderRadius: 4 }}>{tag}</span>
-                        ))}
+                {/* ── RIGHT PANEL — LIVE PREVIEW ── */}
+                <div className="sb-fade-in">
+                  <div className="sticky top-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ background: '#10b981', animation: 'sb-pulse 2s ease-in-out infinite' }} />
+                        <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: TEXT_BODY, letterSpacing: '0.12em' }}>Live preview</span>
                       </div>
-                      {selectedTemplate === tpl.id && (
-                        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center' as const, gap: 6, color: accent, fontSize: 12, fontWeight: 700 }}>
-                          <Check size={14} /> Selected
+                      <div className="md:hidden flex items-center gap-1 px-1 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <button onClick={() => setIsMobilePreview(false)} style={{ background: !isMobilePreview ? 'rgba(99,102,241,0.15)' : 'transparent', color: !isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2 py-1 rounded"><Monitor size={13} /></button>
+                        <button onClick={() => setIsMobilePreview(true)} style={{ background: isMobilePreview ? 'rgba(99,102,241,0.15)' : 'transparent', color: isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2 py-1 rounded"><Smartphone size={13} /></button>
+                      </div>
+                    </div>
+                    <div
+                      className="relative overflow-hidden"
+                      style={{
+                        background: 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        borderRadius: 20,
+                        padding: 16,
+                        minHeight: 600,
+                        maxHeight: 'calc(100vh - 140px)',
+                        overflowY: 'auto',
+                      }}
+                    >
+                      {selectedProducts.length === 0 && stepId !== 'niche' ? (
+                        <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center px-6">
+                          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                            <StoreIcon size={22} color={ACCENT} />
+                          </div>
+                          <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700 }}>Preview will appear here</div>
+                          <div style={{ color: TEXT_BODY, fontSize: 13, maxWidth: 320 }}>Select products to see your storefront come to life.</div>
                         </div>
+                      ) : (
+                        <StorePreview
+                          copy={generatedCopy}
+                          template={TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[1]}
+                          products={selectedProducts}
+                          storeName={storeName}
+                          primaryColor={primaryColor}
+                          isMobilePreview={isMobilePreview}
+                        />
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Competitive callout */}
-              <div style={{ background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.1)', borderRadius: 10, padding: '12px 16px', marginBottom: 24 }}>
-                <p style={{ fontSize: 12, color: textMuted }}>Every template includes urgency triggers, trust badges, and mobile-first layouts that PageFly charges $99/mo for. Included on every Majorka store.</p>
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button onClick={() => setAiStep('products')} style={btnSecondary}>← Back</button>
-                <button onClick={() => setAiStep('preview')} style={{ ...btnPrimary, flex: 1 }}>Preview Store →</button>
-              </div>
-            </div>
-          )}
-
-          {/* ── STEP 5: PREVIEW & EDIT ── */}
-          {aiStep === 'preview' && generatedCopy && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, marginBottom: 20 }}>
-                <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700 }}>Preview your store</h2>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => setIsMobilePreview(false)} style={{ padding: '6px 10px', borderRadius: 6, border: !isMobilePreview ? `1px solid ${accent}` : '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: !isMobilePreview ? accent : textMuted, cursor: 'pointer' as const }}><Monitor size={16} /></button>
-                  <button onClick={() => setIsMobilePreview(true)} style={{ padding: '6px 10px', borderRadius: 6, border: isMobilePreview ? `1px solid ${accent}` : '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: isMobilePreview ? accent : textMuted, cursor: 'pointer' as const }}><Smartphone size={16} /></button>
-                  <button onClick={generateCopy} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: textSecondary, cursor: 'pointer' as const, fontSize: 12, display: 'flex', alignItems: 'center' as const, gap: 4 }}><RefreshCw size={12} /> Regenerate</button>
                 </div>
               </div>
-
-              {/* Colour palette switcher */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' as const }}>
-                <span style={{ fontSize: 12, color: textMuted }}>Colour:</span>
-                {COLOR_SWATCHES.map(s => (
-                  <div key={s.color} onClick={() => setPrimaryColor(s.color)} style={{
-                    width: 24, height: 24, borderRadius: '50%', background: s.color, cursor: 'pointer' as const,
-                    border: primaryColor === s.color ? '2px solid #fff' : '2px solid transparent',
-                  }} />
-                ))}
-              </div>
-
-              {/* Preview */}
-              <div style={{ display: 'flex', justifyContent: 'center' as const, marginBottom: 24 }}>
-                <StorePreview
-                  copy={generatedCopy}
-                  template={TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[1]}
-                  products={selectedProducts}
-                  storeName={storeName}
-                  primaryColor={primaryColor}
-                  isMobilePreview={isMobilePreview}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button onClick={() => setAiStep('template')} style={btnSecondary}>← Back</button>
-                <button onClick={() => setAiStep('publish')} style={{ ...btnPrimary, flex: 1 }}>Go Live →</button>
-              </div>
             </div>
-          )}
-
-          {/* ── STEP 6: GO LIVE ── */}
-          {aiStep === 'publish' && !publishResult && (
-            <div>
-              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Go live</h2>
-              <p style={{ color: textSecondary, marginBottom: 24 }}>Choose your store URL and publish.</p>
-
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Store URL</label>
-                <div style={{ display: 'flex', alignItems: 'center' as const, gap: 0 }}>
-                  <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: '8px 0 0 8px', border: '1px solid rgba(255,255,255,0.12)', borderRight: 'none', fontSize: 14, color: textMuted }}>majorka.io/store/</div>
-                  <input
-                    value={subdomain}
-                    onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="yourstore"
-                    style={{ ...inputStyle, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, flex: 1 }}
-                  />
-                </div>
-                {subdomain.length >= 3 && (
-                  <div style={{ marginTop: 6, fontSize: 12, color: subdomainAvailable === true ? '#10B981' : subdomainAvailable === false ? '#EF4444' : textMuted }}>
-                    {checkingSubdomain ? 'Checking...' : subdomainAvailable === true ? '✓ Available' : subdomainAvailable === false ? '✗ Already taken' : ''}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ marginBottom: 24 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Custom domain (optional)</label>
-                <p style={{ fontSize: 12, color: textMuted, marginBottom: 8 }}>Point your CNAME to: stores.majorka.io</p>
-                <input value={customDomain} onChange={e => setCustomDomain(e.target.value)} placeholder="shop.yourdomain.com" style={inputStyle} />
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button onClick={() => setAiStep('preview')} style={btnSecondary}>← Back</button>
-                <button
-                  onClick={publishStore}
-                  disabled={!subdomainAvailable || publishing}
-                  style={{ ...btnPrimary, flex: 1, opacity: !subdomainAvailable ? 0.4 : 1, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, gap: 8 }}
-                >
-                  {publishing ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Publishing...</> : 'Publish Store 🚀'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── PUBLISH SUCCESS ── */}
-          {aiStep === 'publish' && publishResult && (
-            <div style={{ textAlign: 'center' as const, padding: '40px 0' }}>
-              {/* Confetti */}
-              <div style={{ position: 'fixed' as const, inset: 0, pointerEvents: 'none' as const, zIndex: 100 }}>
-                {Array.from({ length: 30 }).map((_, i) => (
-                  <div key={i} style={{
-                    position: 'absolute' as const,
-                    left: `${(i * 37) % 100}%`,
-                    top: '-10px',
-                    width: 8, height: 8,
-                    borderRadius: i % 2 === 0 ? '50%' : '0',
-                    background: [accent, violet, '#F43F5E', '#10B981', '#F59E0B', '#06B6D4'][i % 6],
-                    animation: `confetti-fall ${2 + (i % 3)}s ease-in ${(i * 0.1)}s forwards`,
-                  }} />
-                ))}
-              </div>
-
-              <div style={{ fontSize: 64, marginBottom: 16 }}>🚀</div>
-              <h2 style={{ fontFamily: brico, fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your store is live!</h2>
-              {publishResult.liveUrl && (
-                <a href={publishResult.liveUrl} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 16, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' as const, gap: 6, marginBottom: 24 }}>
-                  {publishResult.liveUrl} <ExternalLink size={16} />
-                </a>
-              )}
-
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' as const, marginTop: 24 }}>
-                <button onClick={() => {
-                  if (publishResult.liveUrl) navigator.clipboard.writeText(publishResult.liveUrl);
-                }} style={{ ...btnSecondary, display: 'flex', alignItems: 'center' as const, gap: 6 }}>
-                  <Copy size={14} /> Share your store
-                </button>
-                <button onClick={() => setLocation('/app/ads-manager')} style={btnPrimary}>Launch an Ad Campaign →</button>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* ══════ MODE B: SHOPIFY SYNC ══════ */}
+      {/* ══════ SHOPIFY ══════ */}
       {mode === 'shopify' && (
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
-          <button onClick={() => setMode('select')} style={{ ...btnSecondary, padding: '8px 16px', fontSize: 13, marginBottom: 24 }}>← Back</button>
+        <div className="max-w-3xl mx-auto px-6 py-10">
+          <button onClick={() => setMode('select')} className="flex items-center gap-1.5 mb-6 px-3 py-2 rounded-lg text-sm font-medium hover:bg-white/5" style={{ color: TEXT_BODY }}>
+            <ArrowLeft size={15} /> Back
+          </button>
 
-          <div style={{ textAlign: 'center' as const, marginBottom: 32 }}>
-            <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Already on Shopify? Good — keep it.</h2>
-            <p style={{ color: textSecondary, fontSize: 15 }}>Majorka gives you the product intelligence, profit tracking, and Meta ads that Shopify doesn't.</p>
+          <div className="text-center mb-10 sb-fade-in">
+            <h2 className="mb-3" style={{ fontFamily: FONT_DISPLAY, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em' }}>Already on Shopify? Keep it.</h2>
+            <p style={{ color: TEXT_BODY, fontSize: 15 }}>Majorka layers product intelligence, profit tracking, and Meta ads on top of your existing store.</p>
           </div>
 
           {!shopifyStatus.connected ? (
-            <div style={{ background: cardBg, border: cardBorder, borderRadius: 20, padding: 32 }}>
-              <div style={{ fontSize: 36, marginBottom: 16, textAlign: 'center' as const }}>🛍️</div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Enter your Shopify store URL</label>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                <input value={shopifyDomain} onChange={e => setShopifyDomain(e.target.value)} placeholder="yourstore.myshopify.com" style={{ ...inputStyle, flex: 1 }} />
-                <button onClick={connectShopify} style={btnPrimary}>Connect Store →</button>
+            <div className="p-8" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}>
+              <div className="flex items-center justify-center w-14 h-14 rounded-xl mb-5 mx-auto" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>
+                <StoreIcon size={24} color="#10b981" />
               </div>
-              <p style={{ fontSize: 12, color: textMuted }}>We request read access to products, orders, and inventory. We never modify your store without permission.</p>
+              <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Shopify store URL</label>
+              <div className="flex gap-2 mb-3">
+                <input value={shopifyDomain} onChange={e => setShopifyDomain(e.target.value)} placeholder="yourstore.myshopify.com" className="sb-input flex-1" />
+                <button onClick={connectShopify} className="px-5 rounded-lg text-sm font-bold sb-glow-cta" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none' }}>
+                  Connect →
+                </button>
+              </div>
+              <p className="text-xs" style={{ color: TEXT_MUTED }}>Read-only access to products, orders, and inventory. We never modify your store without permission.</p>
             </div>
           ) : (
             <div>
-              {/* Connected status */}
-              <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 16, padding: 20, marginBottom: 24, display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
-                <div style={{ display: 'flex', alignItems: 'center' as const, gap: 10 }}>
-                  <Check size={18} color="#10B981" />
+              <div className="flex items-center justify-between p-5 mb-6" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 16 }}>
+                <div className="flex items-center gap-2.5">
+                  <Check size={18} color="#10b981" />
                   <span style={{ fontWeight: 600 }}>Connected to {shopifyStatus.shop}</span>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={syncShopify} disabled={syncing} style={{ ...btnSecondary, padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center' as const, gap: 4 }}>
-                    {syncing ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <RefreshCw size={12} />} Sync Now
-                  </button>
-                </div>
+                <button onClick={syncShopify} disabled={syncing} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.04)', color: TEXT_BODY, border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {syncing ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <RefreshCw size={12} />} Sync now
+                </button>
               </div>
 
-              {/* Synced products */}
               {shopifyCatalog.length > 0 && (
-                <div style={{ marginBottom: 32 }}>
-                  <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Your Shopify Products</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                <div className="mb-8">
+                  <h3 className="mb-3" style={{ fontFamily: FONT_DISPLAY, fontSize: 18, fontWeight: 700 }}>Your Shopify Products</h3>
+                  <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
                     {shopifyCatalog.map(p => (
-                      <div key={p.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 12 }}>
-                        <div style={{ width: '100%', height: 100, borderRadius: 8, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', marginBottom: 8 }}>
-                          {p.image_url && <img src={p.image_url} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />}
+                      <div key={p.id} className="p-3" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
+                        <div className="w-full h-24 rounded-lg overflow-hidden mb-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                          {p.image_url && <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" />}
                         </div>
-                        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.title}</div>
-                        <div style={{ fontSize: 12, color: accent, fontWeight: 700 }}>${p.price_aud?.toFixed(2)}</div>
-                        <span style={{ fontSize: 10, color: '#10B981', background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>In Your Shopify</span>
+                        <div className="text-xs font-semibold truncate mb-1">{p.title}</div>
+                        <div className="text-xs font-bold" style={{ color: ACCENT }}>${p.price_aud?.toFixed(2)}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Import saved favourites */}
               {fav.count > 0 && (
-                <div style={{ marginBottom: 32, background: cardBg, border: cardBorder, borderRadius: 16, padding: 20 }}>
-                  <div style={{ display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const, marginBottom: 12 }}>
+                <div className="mb-8 p-5" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }}>
+                  <div className="flex items-center justify-between mb-3">
                     <div>
-                      <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Import your saved products</h3>
-                      <p style={{ color: textSecondary, fontSize: 13, margin: 0 }}>You have {fav.count} saved product{fav.count === 1 ? '' : 's'} ready to import.</p>
+                      <h3 className="mb-1" style={{ fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700 }}>Import saved products</h3>
+                      <p className="text-xs" style={{ color: TEXT_BODY }}>{fav.count} product{fav.count === 1 ? '' : 's'} ready to import.</p>
                     </div>
                     <button
                       onClick={async () => {
@@ -1190,16 +1267,12 @@ export default function StoreBuilder() {
                         for (const item of fav.favourites) {
                           try {
                             const r = await fetch('/api/shopify/create-product', {
-                              method: 'POST',
-                              headers: authHeaders,
+                              method: 'POST', headers: authHeaders,
                               body: JSON.stringify({
                                 product: {
-                                  product_title: item.product_title,
-                                  price_aud: item.price_aud,
-                                  sold_count: item.sold_count,
-                                  category: item.category,
-                                  image_url: item.image_url,
-                                  product_url: item.product_url,
+                                  product_title: item.product_title, price_aud: item.price_aud,
+                                  sold_count: item.sold_count, category: item.category,
+                                  image_url: item.image_url, product_url: item.product_url,
                                 },
                               }),
                             });
@@ -1211,63 +1284,36 @@ export default function StoreBuilder() {
                         setExporting(false);
                       }}
                       disabled={exporting}
-                      style={{ ...btnPrimary, padding: '10px 16px', fontSize: 13, opacity: exporting ? 0.7 : 1 }}
+                      className="px-4 py-2 rounded-lg text-xs font-bold sb-glow-cta"
+                      style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none', opacity: exporting ? 0.7 : 1 }}
                     >
-                      {exporting
-                        ? `Importing ${exportProgress.done} of ${exportProgress.total}…`
-                        : 'Export all to Shopify →'}
+                      {exporting ? `Importing ${exportProgress.done}/${exportProgress.total}…` : 'Export all →'}
                     </button>
                   </div>
-                  <div style={{ display: 'flex', gap: 10, overflowX: 'auto' as const, paddingBottom: 4 }}>
-                    {fav.favourites.slice(0, 5).map((item) => (
-                      <div key={item.id} style={{ flexShrink: 0, width: 120 }}>
-                        <div style={{ width: 120, height: 120, borderRadius: 10, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', marginBottom: 6 }}>
-                          {item.image_url && <img src={item.image_url} alt={item.product_title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />}
-                        </div>
-                        <div style={{ fontSize: 11, color: textSecondary, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{item.product_title || '—'}</div>
-                      </div>
-                    ))}
-                    {fav.favourites.length > 5 && (
-                      <div style={{ flexShrink: 0, alignSelf: 'center' as const, color: textMuted, fontSize: 12 }}>+{fav.favourites.length - 5} more</div>
-                    )}
-                  </div>
-                  {exporting && (
-                    <div style={{ marginTop: 10, fontSize: 12, color: textMuted }}>
-                      Imported {exportProgress.done}/{exportProgress.total}{exportProgress.failed > 0 ? ` · ${exportProgress.failed} failed` : ''}
-                    </div>
-                  )}
-                  {!exporting && exportProgress.done > 0 && exportProgress.done === exportProgress.total && (
-                    <div style={{ marginTop: 10, fontSize: 12, color: '#10B981' }}>
-                      ✓ Imported {exportProgress.done - exportProgress.failed} of {exportProgress.total} products
-                      {exportProgress.failed > 0 ? ` (${exportProgress.failed} failed)` : ''}
-                    </div>
-                  )}
                 </div>
               )}
 
-              {/* Push winning products to Shopify */}
               {topProducts.length > 0 && (
                 <div>
-                  <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Push winning products to your Shopify store</h3>
-                  <p style={{ color: textSecondary, fontSize: 13, marginBottom: 12 }}>Add Majorka's top products directly as drafts in your Shopify catalog.</p>
-                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  <h3 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700 }}>Push winners to your store</h3>
+                  <p className="text-xs mb-3" style={{ color: TEXT_BODY }}>Add Majorka's top products as drafts in your Shopify catalog.</p>
+                  <div className="flex flex-col gap-2">
                     {topProducts.map(p => (
-                      <div key={p.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center' as const, gap: 12 }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', flexShrink: 0 }}>
-                          {p.image_url && <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />}
+                      <div key={p.id} className="flex items-center gap-3 px-4 py-3" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
+                        <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                          {p.image_url && <img src={p.image_url} alt={p.product_title} className="w-full h-full object-cover" />}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.product_title}</div>
-                          <div style={{ fontSize: 12, color: accent }}>${(p.price_aud || 0).toFixed(2)}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold truncate">{p.product_title}</div>
+                          <div className="text-xs" style={{ color: ACCENT }}>${(p.price_aud || 0).toFixed(2)}</div>
                         </div>
-                        <button onClick={async () => {
-                          try {
-                            await fetch('/api/shopify/push-product', {
-                              method: 'POST', headers: authHeaders,
-                              body: JSON.stringify({ productId: p.id }),
-                            });
-                          } catch { /* silent */ }
-                        }} style={{ ...btnPrimary, padding: '8px 14px', fontSize: 12 }}>Add to Shopify</button>
+                        <button
+                          onClick={async () => { try { await fetch('/api/shopify/push-product', { method: 'POST', headers: authHeaders, body: JSON.stringify({ productId: p.id }) }); toast.success('Added to Shopify'); } catch { /* silent */ } }}
+                          className="px-3 py-2 rounded-lg text-xs font-bold"
+                          style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none' }}
+                        >
+                          Add
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -1278,110 +1324,100 @@ export default function StoreBuilder() {
         </div>
       )}
 
-      {/* ══════ MODE C: MARKETPLACE ══════ */}
+      {/* ══════ MARKETPLACE ══════ */}
       {mode === 'marketplace' && (
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
-          <button onClick={() => setMode('select')} style={{ ...btnSecondary, padding: '8px 16px', fontSize: 13, marginBottom: 24 }}>← Back</button>
+        <div className="max-w-3xl mx-auto px-6 py-10">
+          <button onClick={() => setMode('select')} className="flex items-center gap-1.5 mb-6 px-3 py-2 rounded-lg text-sm font-medium hover:bg-white/5" style={{ color: TEXT_BODY }}>
+            <ArrowLeft size={15} /> Back
+          </button>
 
-          {/* Competitive copy */}
-          <div style={{ textAlign: 'center' as const, marginBottom: 32 }}>
-            <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Sell on Majorka</h2>
-            <p style={{ color: textSecondary, fontSize: 14, marginBottom: 8 }}>No Shopify subscription. No monthly fees. Just a 5% platform fee when you make a sale.</p>
-            <p style={{ color: textMuted, fontSize: 12 }}>Shopify Basic costs $29/mo + 2% per transaction. Majorka Marketplace costs $0/mo + 5% per sale.</p>
+          <div className="text-center mb-10 sb-fade-in">
+            <h2 className="mb-3" style={{ fontFamily: FONT_DISPLAY, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em' }}>Sell on Majorka</h2>
+            <p style={{ color: TEXT_BODY, fontSize: 15, marginBottom: 8 }}>No Shopify subscription. No monthly fees. 5% platform fee per sale.</p>
           </div>
 
-          {/* Onboarding */}
           {mpStep === 'onboarding' && (
-            <div style={{ background: cardBg, border: cardBorder, borderRadius: 20, padding: 32 }}>
-              <h3 style={{ fontFamily: brico, fontSize: 20, fontWeight: 700, marginBottom: 20 }}>Create your seller profile</h3>
-
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 16 }}>
+            <div className="p-8" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}>
+              <h3 className="mb-5" style={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 700 }}>Create your seller profile</h3>
+              <div className="flex flex-col gap-4">
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Display Name *</label>
-                  <input value={mpDisplayName} onChange={e => setMpDisplayName(e.target.value)} placeholder="Your brand name" style={inputStyle} />
+                  <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Display name</label>
+                  <input value={mpDisplayName} onChange={e => setMpDisplayName(e.target.value)} placeholder="Your brand name" className="sb-input" />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Username *</label>
-                  <input value={mpUsername} onChange={e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); setMpUsername(v); checkMpUsername(v); }} placeholder="your-shop-name" style={inputStyle} />
-                  <div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>Your shop URL: /shop/{mpUsername || 'username'}</div>
-                  {mpUsernameAvail !== null && <div style={{ fontSize: 12, color: mpUsernameAvail ? '#10B981' : '#EF4444', marginTop: 4 }}>{mpUsernameAvail ? '✓ Available' : '✗ Taken'}</div>}
+                  <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Username</label>
+                  <input value={mpUsername} onChange={e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); setMpUsername(v); checkMpUsername(v); }} placeholder="your-shop-name" className="sb-input" />
+                  <div className="mt-1.5 text-xs" style={{ color: TEXT_MUTED }}>Your shop URL: /shop/{mpUsername || 'username'}</div>
+                  {mpUsernameAvail !== null && <div className="text-xs mt-1" style={{ color: mpUsernameAvail ? '#10b981' : '#ef4444' }}>{mpUsernameAvail ? '✓ Available' : '✗ Taken'}</div>}
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Bio</label>
-                  <textarea value={mpBio} onChange={e => setMpBio(e.target.value)} placeholder="Tell buyers about your brand..." rows={3} style={{ ...inputStyle, resize: 'vertical' as const }} />
-                </div>
-
-                {/* Stripe placeholder */}
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 16 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Connect Stripe to receive payments</div>
-                  <p style={{ fontSize: 12, color: textMuted, marginBottom: 12 }}>Stripe Connect setup required — contact support to enable payouts.</p>
-                  <button disabled style={{ ...btnPrimary, opacity: 0.4, cursor: 'not-allowed' as const, padding: '10px 20px', fontSize: 13 }}>Connect Stripe →</button>
+                  <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Bio</label>
+                  <textarea value={mpBio} onChange={e => setMpBio(e.target.value)} placeholder="Tell buyers about your brand..." rows={3} className="sb-input" style={{ resize: 'vertical' }} />
                 </div>
               </div>
-
-              <div style={{ marginTop: 24 }}>
-                <button onClick={createMpProfile} disabled={!mpUsername || !mpDisplayName || mpUsernameAvail === false} style={{ ...btnPrimary, width: '100%', opacity: (!mpUsername || !mpDisplayName) ? 0.4 : 1 }}>Create Profile</button>
-              </div>
+              <button
+                onClick={createMpProfile}
+                disabled={!mpUsername || !mpDisplayName || mpUsernameAvail === false}
+                className="w-full mt-6 px-5 py-3 rounded-lg text-sm font-bold sb-glow-cta"
+                style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none', opacity: (!mpUsername || !mpDisplayName) ? 0.4 : 1 }}
+              >
+                Create profile
+              </button>
             </div>
           )}
 
-          {/* Seller Dashboard */}
           {mpStep === 'dashboard' && (
             <div>
-              {/* Stats */}
               {mpEarnings && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+                <div className="grid grid-cols-4 gap-3 mb-6">
                   {[
                     { label: 'Products', value: String(mpListings.length) },
                     { label: 'Total Sales', value: String(mpEarnings.total_sales) },
                     { label: 'Earnings', value: `$${(mpEarnings.net_earnings || 0).toFixed(2)}` },
                     { label: 'Pending', value: String(mpEarnings.pending_orders) },
                   ].map(stat => (
-                    <div key={stat.label} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 16, textAlign: 'center' as const }}>
-                      <div style={{ fontSize: 22, fontWeight: 700, fontFamily: brico, color: accent }}>{stat.value}</div>
-                      <div style={{ fontSize: 11, color: textMuted }}>{stat.label}</div>
+                    <div key={stat.label} className="p-4 text-center" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
+                      <div style={{ fontFamily: FONT_DISPLAY, fontSize: 22, fontWeight: 700, color: ACCENT }}>{stat.value}</div>
+                      <div className="text-xs" style={{ color: TEXT_MUTED }}>{stat.label}</div>
                     </div>
                   ))}
                 </div>
               )}
-
-              {/* Listings */}
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, marginBottom: 12 }}>
-                  <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700 }}>Your Listings</h3>
-                  <button style={{ ...btnPrimary, padding: '8px 16px', fontSize: 13 }}>+ Add New Listing</button>
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700 }}>Your listings</h3>
+                  <button className="px-3 py-2 rounded-lg text-xs font-bold" style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none' }}>+ New listing</button>
                 </div>
                 {mpListings.length === 0 ? (
-                  <div style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 32, textAlign: 'center' as const, color: textMuted }}>No listings yet. Add your first product to start selling.</div>
+                  <div className="text-center py-10" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, color: TEXT_MUTED }}>No listings yet. Add your first product to start selling.</div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  <div className="flex flex-col gap-2">
                     {mpListings.map(l => (
-                      <div key={l.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                      <div key={l.id} className="flex items-center justify-between px-4 py-3" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{l.title}</div>
-                          <div style={{ fontSize: 12, color: textMuted }}>${l.price_aud?.toFixed(2)} · {l.inventory_qty} in stock</div>
+                          <div className="text-sm font-semibold">{l.title}</div>
+                          <div className="text-xs" style={{ color: TEXT_MUTED }}>${l.price_aud?.toFixed(2)} · {l.inventory_qty} in stock</div>
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: l.status === 'active' ? '#10B981' : textMuted, background: l.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>{l.status}</span>
+                        <span className="text-[11px] font-bold px-2 py-1 rounded" style={{ color: l.status === 'active' ? '#10b981' : TEXT_MUTED, background: l.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)' }}>{l.status}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Orders */}
               <div>
-                <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Orders</h3>
+                <h3 className="mb-3" style={{ fontFamily: FONT_DISPLAY, fontSize: 17, fontWeight: 700 }}>Orders</h3>
                 {mpOrders.length === 0 ? (
-                  <div style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 32, textAlign: 'center' as const, color: textMuted }}>No orders yet.</div>
+                  <div className="text-center py-10" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, color: TEXT_MUTED }}>No orders yet.</div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  <div className="flex flex-col gap-2">
                     {mpOrders.map(o => (
-                      <div key={o.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                      <div key={o.id} className="flex items-center justify-between px-4 py-3" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{o.buyer_name}</div>
-                          <div style={{ fontSize: 12, color: textMuted }}>${o.subtotal?.toFixed(2)} · {new Date(o.created_at).toLocaleDateString('en-AU')}</div>
+                          <div className="text-sm font-semibold">{o.buyer_name}</div>
+                          <div className="text-xs" style={{ color: TEXT_MUTED }}>${o.subtotal?.toFixed(2)} · {new Date(o.created_at).toLocaleDateString('en-AU')}</div>
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'shipped' ? '#10B981' : '#F59E0B', background: o.status === 'shipped' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', padding: '3px 8px', borderRadius: 4 }}>{o.status}</span>
+                        <span className="text-[11px] font-bold px-2 py-1 rounded" style={{ color: o.status === 'shipped' ? '#10b981' : '#f59e0b', background: o.status === 'shipped' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)' }}>{o.status}</span>
                       </div>
                     ))}
                   </div>
@@ -1394,34 +1430,38 @@ export default function StoreBuilder() {
 
       {/* ══════ CUSTOM PRODUCT MODAL ══════ */}
       {customProductModal && (
-        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, zIndex: 1000, padding: 24 }}>
-          <div style={{ background: '#0D1117', borderRadius: 20, padding: 32, maxWidth: 440, width: '90%', border: cardBorder }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, marginBottom: 20 }}>
-              <h3 style={{ fontFamily: brico, fontSize: 20, fontWeight: 700 }}>Add Custom Product</h3>
-              <button onClick={() => setCustomProductModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: textMuted }}><X size={20} /></button>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-md p-7 sb-fade-in" style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20 }}>
+            <div className="flex justify-between items-center mb-5">
+              <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 700 }}>Add custom product</h3>
+              <button onClick={() => setCustomProductModal(false)} className="p-1 rounded hover:bg-white/5" style={{ color: TEXT_MUTED }}><X size={18} /></button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 14 }}>
-              <input value={customTitle} onChange={e => setCustomTitle(e.target.value)} placeholder="Product title *" style={inputStyle} />
-              <input value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)} placeholder="Image URL (optional)" style={inputStyle} />
-              <input value={customPrice} onChange={e => setCustomPrice(e.target.value)} placeholder="Price (AUD)" type="number" style={inputStyle} />
-              <textarea value={customDesc} onChange={e => setCustomDesc(e.target.value)} placeholder="Description (optional)" rows={3} style={{ ...inputStyle, resize: 'vertical' as const }} />
+            <div className="flex flex-col gap-3">
+              <input value={customTitle}    onChange={e => setCustomTitle(e.target.value)}    placeholder="Product title *"          className="sb-input" />
+              <input value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)} placeholder="Image URL (optional)"      className="sb-input" />
+              <input value={customPrice}    onChange={e => setCustomPrice(e.target.value)}    placeholder="Price (AUD)" type="number" className="sb-input" />
+              <textarea value={customDesc}  onChange={e => setCustomDesc(e.target.value)}     placeholder="Description (optional)" rows={3} className="sb-input" style={{ resize: 'vertical' }} />
             </div>
-            <button onClick={() => {
-              if (!customTitle) return;
-              const product: CustomProduct = {
-                id: `custom-${Date.now()}`,
-                product_title: customTitle,
-                image_url: customImageUrl || null,
-                price_aud: parseFloat(customPrice) || null,
-                winning_score: null,
-                trend: null,
-                category: null,
-                isCustom: true,
-              };
-              setSelectedProducts(prev => [...prev, product]);
-              setCustomTitle(''); setCustomImageUrl(''); setCustomPrice(''); setCustomDesc('');
-              setCustomProductModal(false);
-            }} disabled={!customTitle} style={{ ...btnPrimary, width: '100%', marginTop: 16, opacity: !customTitle ? 0.4 : 1 }}>Add Product</button>
+            <button
+              onClick={() => {
+                if (!customTitle) return;
+                const product: CustomProduct = {
+                  id: `custom-${Date.now()}`,
+                  product_title: customTitle,
+                  image_url: customImageUrl || null,
+                  price_aud: parseFloat(customPrice) || null,
+                  winning_score: null, trend: null, category: null, isCustom: true,
+                };
+                setSelectedProducts(prev => [...prev, product]);
+                setCustomTitle(''); setCustomImageUrl(''); setCustomPrice(''); setCustomDesc('');
+                setCustomProductModal(false);
+              }}
+              disabled={!customTitle}
+              className="w-full mt-5 px-5 py-3 rounded-lg text-sm font-bold sb-glow-cta"
+              style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none', opacity: !customTitle ? 0.4 : 1 }}
+            >
+              Add product
+            </button>
           </div>
         </div>
       )}
