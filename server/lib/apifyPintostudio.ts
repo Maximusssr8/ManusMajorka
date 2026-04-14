@@ -528,8 +528,12 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
     .upsert(rows, { onConflict: 'aliexpress_id', ignoreDuplicates: false });
 
   if (error) {
-    logErr('upsert', `${source} n=${rows.length}: ${error.message}`);
-    return { added: 0, updated: 0, rejected: rows.length };
+    const msg = `upsert ${source} n=${rows.length}: ${error.message}${error.details ? ` | ${error.details}` : ''}${error.hint ? ` | hint: ${error.hint}` : ''}`;
+    logErr('upsert', msg);
+    // Throw so the outer Promise.allSettled captures the message and it
+    // shows up in the pipeline response errors array — otherwise we just
+    // see "empty" with no root cause.
+    throw new Error(msg);
   }
 
   for (const r of rows) {

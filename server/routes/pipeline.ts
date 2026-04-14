@@ -221,9 +221,10 @@ router.get('/admin/db-info', async (req: Request, res: Response) => {
       const { count, error } = await sb.from(t).select('*', { count: 'exact', head: true });
       counts[t] = error ? `ERROR: ${error.message}` : (count ?? 0);
     }
+    // Select '*' so schema drift doesn't break the endpoint.
     const { data: recentLogs, error: logsErr } = await sb
       .from('pipeline_logs')
-      .select('id,pipeline_type,status,started_at,finished_at,duration_ms,products_added,products_updated,products_rejected,inserted,updated,raw_collected,source_breakdown,error_message')
+      .select('*')
       .order('started_at', { ascending: false })
       .limit(5);
     res.json({
