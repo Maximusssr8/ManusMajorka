@@ -322,9 +322,10 @@ function mapItem(item: Record<string, unknown>, audRate: number): PintostudioIte
   if (priceAud < QUALITY_MIN_PRICE_AUD) return null;
 
   // Orders — prefer nested trade.realTradeCount, fall back to flat.
+  // Global quality gate: require orders >= 1000 (demand-signal-only spec).
   const ordersRaw = numOrNull(pick<number>(item, 'trade.realTradeCount'));
   const orders = ordersRaw != null && ordersRaw > 0 ? Math.round(ordersRaw) : ordersFromAny(item);
-  if (orders <= 0) return null;
+  if (orders < 1000) return null;
 
   // Rating — nested evaluation.starRating, fall back to flat.
   const rating = numOrNull(pick<number>(item, 'evaluation.starRating'))
@@ -505,9 +506,12 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
   let updated = 0;
   let rejected = 0;
 
-  // Check existing by aliexpress_id — that's the conflict key and it's
-  // guaranteed to have a unique index (used by the legacy refresh-hotproducts
-  // pipeline already).
+  // The live winning_products table has NO unique constraint on aliexpress_id
+  // so ON CONFLICT fails with "no unique or exclusion constraint". Work around
+  // by diffing: SELECT existing aliexpress_ids, filter to NEW only, then INSERT.
+  // Updates are skipped for now — sold_count / winning_score refresh can land
+  // in a follow-up once we add a unique index (ALTER TABLE winning_products
+  // ADD CONSTRAINT winning_products_aliexpress_id_key UNIQUE (aliexpress_id)).
   const ids = rows.map((r) => r.aliexpress_id).filter(Boolean);
   const existingIds = new Set<string>();
   if (ids.length > 0) {
@@ -520,25 +524,24 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
       if (v) existingIds.add(v);
     }
   }
+  const newRows = rows.filter((r) => !existingIds.has(r.aliexpress_id));
+  updated = rows.length - newRows.length;
+
+  if (newRows.length === 0) {
+    return { added: 0, updated, rejected: 0 };
+  }
 
   const { error } = await supabase
     .from('winning_products')
-    .upsert(rows, { onConflict: 'aliexpress_id', ignoreDuplicates: false });
+    .insert(newRows);
 
   if (error) {
-    const msg = `upsert ${source} n=${rows.length}: ${error.message}${error.details ? ` | ${error.details}` : ''}${error.hint ? ` | hint: ${error.hint}` : ''}`;
+    const msg = `insert ${source} n=${newRows.length}: ${error.message}${error.details ? ` | ${error.details}` : ''}${error.hint ? ` | hint: ${error.hint}` : ''}`;
     logErr('upsert', msg);
-    // Throw so the outer Promise.allSettled captures the message and it
-    // shows up in the pipeline response errors array — otherwise we just
-    // see "empty" with no root cause.
     throw new Error(msg);
   }
 
-  for (const r of rows) {
-    if (existingIds.has(r.aliexpress_id)) updated++;
-    else added++;
-  }
-
+  added = newRows.length;
   return { added, updated, rejected };
 }
 
