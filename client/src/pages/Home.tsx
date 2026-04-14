@@ -295,6 +295,16 @@ section [data-transform-ok] {
   .mj-discovery-grid { grid-template-columns: 1fr !important; }
   .mj-creative-grid { grid-template-columns: 1fr !important; }
 }
+@media (max-width: 480px) {
+  .mj-hero-h1 { font-size: 34px !important; line-height: 1.08 !important; }
+  .mj-section-h2 { font-size: 26px !important; }
+  .mj-cta-h2 { font-size: 34px !important; }
+  .mj-footer-grid { grid-template-columns: 1fr !important; }
+  .mj-stats-grid { grid-template-columns: 1fr !important; }
+}
+/* Landing safety net: prevent horizontal overflow from any descendant */
+section, section * { max-width: 100%; }
+section img, section video { max-width: 100%; height: auto; }
 `;
 
 // ── Data ─────────────────────────────────────────────────────────────────────
@@ -1020,7 +1030,7 @@ function BrowserWindow() {
       {/* Stats bar */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4,1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
         gap: 1,
         background: 'rgba(255,255,255,0.04)',
       }}>
@@ -1038,7 +1048,7 @@ function BrowserWindow() {
       </div>
 
       {/* Product cards grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, padding: 12, background: '#0a0a10' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 10, padding: 12, background: '#0a0a10' }}>
         {HERO_PRODUCTS.map((p) => (
           <div key={p.name} style={{
             background: '#111118',
@@ -1411,7 +1421,7 @@ function ThePlatform() {
         </div>
 
         {/* Tool grid row 1 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16, marginBottom: 16 }}>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📡</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
@@ -1496,7 +1506,7 @@ function ThePlatform() {
         </div>
 
         {/* Tool grid row 2 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
           <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
             <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🎯</span>
             <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
@@ -1615,7 +1625,7 @@ function RevenueProofBanner() {
         }}>What operators using Majorka are tracking</p>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
           gap: 0,
           borderRadius: 16,
           overflow: 'hidden',
@@ -2498,7 +2508,7 @@ function Footer() {
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="mj-footer-grid" style={{
           display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
           gap: 40,
           marginBottom: 48,
         }}>
