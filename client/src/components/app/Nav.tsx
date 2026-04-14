@@ -86,6 +86,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
 
   return (
     <nav
+      aria-label="Main navigation"
       className="relative w-[220px] h-full border-r flex flex-col shrink-0 font-body overflow-hidden"
       style={{
         background: 'linear-gradient(180deg, rgba(10,11,15,0.92) 0%, rgba(10,11,15,0.96) 100%)',
@@ -171,6 +172,8 @@ export function Nav({ onNavigate }: NavProps = {}) {
                     <Link
                       key={item.path}
                       href={item.soon ? '#' : item.path}
+                      aria-current={active ? 'page' : undefined}
+                      aria-disabled={item.soon || undefined}
                       onClick={(e) => {
                         if (item.soon) {
                           e.preventDefault();

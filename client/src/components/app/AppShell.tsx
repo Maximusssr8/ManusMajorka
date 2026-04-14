@@ -45,6 +45,10 @@ export function AppShell({ children }: AppShellProps) {
         style={{ height: '100dvh' }}
       >
         <div className="app-glow" aria-hidden="true" />
+        {/* Skip-link — hidden until focused, jumps past sidebar to main content */}
+        <a href="#main-content" className="mj-skip-link">
+          Skip to main content
+        </a>
         {/* Mobile backdrop */}
         {sidebarOpen && (
           <div
@@ -111,11 +115,13 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <motion.main
+            id="main-content"
+            tabIndex={-1}
             key={typeof window !== 'undefined' ? window.location.pathname : 'page'}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-1 overflow-y-auto min-w-0"
+            className="flex-1 overflow-y-auto min-w-0 focus:outline-none"
           >
             {children}
           </motion.main>
