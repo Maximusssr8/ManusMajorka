@@ -130,11 +130,13 @@ function EmotionalComparisonTable() {
         </div>
 
         {/* Table */}
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', marginLeft: -4, marginRight: -4, paddingLeft: 4, paddingRight: 4 }}>
         <div
           style={{
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 16,
             overflow: 'hidden',
+            minWidth: 520,
           }}
         >
           {/* Table header */}
@@ -284,6 +286,7 @@ function EmotionalComparisonTable() {
               </span>
             </div>
           </div>
+        </div>
         </div>
 
         {/* Social proof + urgency */}
