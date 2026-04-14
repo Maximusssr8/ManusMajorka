@@ -85,9 +85,25 @@ export function Nav({ onNavigate }: NavProps = {}) {
   };
 
   return (
-    <nav className="relative w-[220px] h-full bg-[#0a0b0f] border-r border-white/[0.06] flex flex-col shrink-0 font-body overflow-hidden">
-      {/* Top ambient gradient */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-accent/[0.04] to-transparent pointer-events-none" />
+    <nav
+      className="relative w-[220px] h-full border-r flex flex-col shrink-0 font-body overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, rgba(10,11,15,0.92) 0%, rgba(10,11,15,0.96) 100%)',
+        borderColor: 'rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(16px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+      }}
+    >
+      {/* Top ambient mesh */}
+      <div
+        className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 60% at 30% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)',
+        }}
+      />
+      {/* Hairline inner glow */}
+      <div className="absolute inset-y-0 right-0 w-px pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent, rgba(99,102,241,0.18), transparent)' }} />
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Logo + wordmark — uses shared MajorkaLogo lockup */}
@@ -103,15 +119,17 @@ export function Nav({ onNavigate }: NavProps = {}) {
             style={{ height: 32, width: 32, borderRadius: 8, objectFit: 'cover' }}
           />
           <span
-            className="text-[15px] font-display font-bold tracking-tight"
+            className="text-[15px] font-display font-bold tracking-tight inline-flex items-baseline"
             style={{
               background: 'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
+              letterSpacing: '-0.02em',
             }}
           >
             Majorka
+            <span className="mj-wordmark-dot" aria-hidden="true" />
           </span>
         </Link>
 
@@ -161,12 +179,12 @@ export function Nav({ onNavigate }: NavProps = {}) {
                         }
                         onNavigate?.();
                       }}
-                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg mb-0.5 text-[13px] transition-colors no-underline ${
+                      className={`mj-tap flex items-center gap-2.5 px-3 py-1.5 rounded-lg mb-0.5 text-[13px] transition-all duration-200 no-underline ${
                         active
-                          ? 'bg-accent/15 border-l-2 border-accent text-text font-medium shadow-[inset_0_0_12px_rgba(99,102,241,0.08)]'
+                          ? 'bg-accent/15 border-l-2 border-accent text-text font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.04),inset_0_0_20px_rgba(99,102,241,0.12),0_0_20px_-8px_rgba(99,102,241,0.4)]'
                           : item.soon
                             ? 'text-muted cursor-not-allowed'
-                            : 'text-body hover:bg-white/[0.04] hover:text-text border-l-2 border-transparent'
+                            : 'text-body hover:bg-white/[0.04] hover:text-text hover:translate-x-[1px] border-l-2 border-transparent'
                       }`}
                     >
                       <Icon size={16} strokeWidth={1.5} className="shrink-0" />
