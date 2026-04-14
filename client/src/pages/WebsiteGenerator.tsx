@@ -2976,7 +2976,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 <div className="flex gap-2.5 items-start mb-2">
                   <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
                     {importedProduct.images && importedProduct.images.length > 0 ? (
-                      <img src={proxyImage(importedProduct.images[0])} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                      <img src={proxyImage(importedProduct.images[0]) ?? undefined} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                     ) : '📦'}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -3083,7 +3083,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(99,102,241,0.15)', marginBottom: 8 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {((analysisResult.product_images as string[]) || []).length > 0 ? (
-                    <img src={proxyImage((analysisResult.product_images as string[])[0])} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                    <img src={proxyImage((analysisResult.product_images as string[])[0]) ?? undefined} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   ) : <span style={{ fontSize: 20 }}>📦</span>}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
