@@ -147,16 +147,19 @@ function renderMarkdown(text: string): React.ReactNode {
 }
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
-function TypingDots() {
+function TypingDots({ label = 'Maya is thinking' }: { label?: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
       </div>
-      <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px 18px 18px 4px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
-        {[0, 1, 2].map(i => (
-          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#d4af37", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
-        ))}
+      <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px 18px 18px 4px", padding: "12px 16px", display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ fontFamily: dm, fontSize: 13, color: "#d4af37", fontWeight: 500 }}>{label}</span>
+        <span style={{ display: "flex", gap: 5, alignItems: "center" }}>
+          {[0, 1, 2].map(i => (
+            <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#d4af37", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
+          ))}
+        </span>
       </div>
     </div>
   );
@@ -229,6 +232,7 @@ export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [userNiche, setUserNiche] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -329,6 +333,7 @@ export default function AIChat() {
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setLoading(true);
+    setStreaming(false);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -368,6 +373,7 @@ export default function AIChat() {
               const parsed = JSON.parse(data);
               const token = parsed.token || parsed.text || parsed.delta || parsed.content || '';
               if (token) {
+                if (!fullText) setStreaming(true);
                 fullText += token;
                 // Strip ACTION blocks before rendering — complete blocks stripped, partial blocks hidden
                 const displayText = fullText
@@ -405,6 +411,7 @@ export default function AIChat() {
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: "Connection error. Please check your internet and try again.", ts: new Date() }]);
     } finally {
       setLoading(false);
+      setStreaming(false);
     }
   };
 
@@ -529,7 +536,7 @@ export default function AIChat() {
             </div>
           ))}
 
-          {loading && <TypingDots />}
+          {loading && !streaming && <TypingDots />}
           <div ref={bottomRef} />
         </div>
 

@@ -1189,129 +1189,130 @@ export function registerChatRoutes(app: Application) {
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('X-Accel-Buffering', 'no');
         res.flushHeaders();
-        res.write(`data: ${JSON.stringify({ thinking: true })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({ thinking: true, status: 'Maya is thinking…' })}\n\n`,
+        );
       }
 
-      // ── Web search context ──────────────────────────────────────────────
-      let webContext = '';
-      if (searchQuery && typeof searchQuery === 'string' && searchQuery.trim()) {
+      // ── Tavily helper with hard timeout so enrichment can't gate streaming ─
+      // PERF: first-token target <3s. Tavily can stall 8-15s — we bound it at 2.5s.
+      const tavilySearch = async (
+        query: string,
+        maxResults: number,
+        timeoutMs = 2500,
+      ): Promise<{ results?: Array<{ title?: string; content?: string }> } | null> => {
+        const tavilyKey = process.env.TAVILY_API_KEY;
+        if (!tavilyKey) return null;
         try {
-          const tavilyKey = process.env.TAVILY_API_KEY;
-          if (tavilyKey) {
-            const sr = await fetch('https://api.tavily.com/search', {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({
-                api_key: tavilyKey,
-                query: searchQuery,
-                search_depth: 'basic',
-                max_results: 4,
-              }),
-            })
-              .then((r) => r.json())
-              .catch(() => null);
-            if (sr?.results?.length > 0) {
-              webContext = `\n\nLIVE WEB DATA:\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
-            }
-          }
+          const r = await fetch('https://api.tavily.com/search', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              api_key: tavilyKey,
+              query,
+              search_depth: 'basic',
+              max_results: maxResults,
+            }),
+            signal: AbortSignal.timeout(timeoutMs),
+          });
+          if (!r.ok) return null;
+          return (await r.json()) as { results?: Array<{ title?: string; content?: string }> };
         } catch {
-          /* non-fatal */
+          return null;
         }
-      }
+      };
 
-      // ── Auto-Tavily enrichment for product/trend queries ──────────────
+      const formatWebContext = (
+        label: string,
+        sr: { results?: Array<{ title?: string; content?: string }> } | null,
+      ): string => {
+        if (!sr?.results || sr.results.length === 0) return '';
+        return `\n\n${label}:\n${sr.results
+          .slice(0, 3)
+          .map(
+            (r, i) =>
+              `[${i + 1}] ${r.title ?? ''}: ${String(r.content ?? '').slice(0, 150)}`,
+          )
+          .join('\n')}`;
+      };
+
+      // ── Parallelise all context enrichment (PERF) ─────────────────────
       const lastUserContent = (messages[messages.length - 1]?.content || '').toLowerCase();
-      if (!webContext && toolName === 'ai-chat') {
-        const isProductQuery =
-          lastUserContent.includes('trending') ||
-          lastUserContent.includes('product') ||
-          lastUserContent.includes('sell') ||
-          lastUserContent.includes('niche') ||
-          lastUserContent.includes('winning');
-        if (isProductQuery) {
-          try {
-            const tavilyKey = process.env.TAVILY_API_KEY;
-            if (tavilyKey) {
-              const autoQuery = `${messages[messages.length - 1]?.content} Australia TikTok Shop trending 2025 best sellers`;
-              const sr = await fetch('https://api.tavily.com/search', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({
-                  api_key: tavilyKey,
-                  query: autoQuery,
-                  search_depth: 'basic',
-                  max_results: 3,
-                }),
-              })
-                .then((r) => r.json())
-                .catch(() => null);
-              if (sr?.results?.length > 0) {
-                webContext = `\n\nLIVE WEB DATA (AU product intelligence):\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
-              }
-            }
-          } catch {
-            /* non-fatal */
-          }
-        }
-      }
+      const lastUserMsg = messages[messages.length - 1]?.content || '';
+      const userQuery = lastUserMsg;
 
-      // ── Tavily enrichment for saturation-checker, store-spy, competitor-spy ─
-      if (!webContext && (toolName === 'saturation-checker' || toolName === 'store-spy' || toolName === 'competitor-spy')) {
-        try {
-          const tavilyKey = process.env.TAVILY_API_KEY;
-          if (tavilyKey) {
-            const lastMsg = messages[messages.length - 1]?.content || '';
-            const autoQuery = toolName === 'store-spy' || toolName === 'competitor-spy'
-              ? `${lastMsg} Shopify store competitor analysis Australia 2025`
-              : `${lastMsg} market saturation competition Australia dropshipping TikTok Shop 2025`;
-            const sr = await fetch('https://api.tavily.com/search', {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({
-                api_key: tavilyKey,
-                query: autoQuery,
-                search_depth: 'basic',
-                max_results: 4,
-              }),
-            })
-              .then((r) => r.json())
-              .catch(() => null);
-            if (sr?.results?.length > 0) {
-              const label = (toolName === 'store-spy' || toolName === 'competitor-spy') ? 'LIVE COMPETITOR INTELLIGENCE' : 'LIVE MARKET SATURATION DATA';
-              webContext = `\n\n${label}:\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
-            }
-          }
-        } catch {
-          /* non-fatal */
+      const isProductQuery =
+        lastUserContent.includes('trending') ||
+        lastUserContent.includes('product') ||
+        lastUserContent.includes('sell') ||
+        lastUserContent.includes('niche') ||
+        lastUserContent.includes('winning');
+
+      // Choose ONE Tavily query based on routing (explicit searchQuery takes priority)
+      const tavilyPromise: Promise<string> = (async () => {
+        if (searchQuery && typeof searchQuery === 'string' && searchQuery.trim()) {
+          const sr = await tavilySearch(searchQuery, 4);
+          return formatWebContext('LIVE WEB DATA', sr);
         }
-      }
+        if (toolName === 'ai-chat' && isProductQuery) {
+          const autoQuery = `${lastUserMsg} Australia TikTok Shop trending 2025 best sellers`;
+          const sr = await tavilySearch(autoQuery, 3);
+          return formatWebContext('LIVE WEB DATA (AU product intelligence)', sr);
+        }
+        if (
+          toolName === 'saturation-checker' ||
+          toolName === 'store-spy' ||
+          toolName === 'competitor-spy'
+        ) {
+          const autoQuery =
+            toolName === 'store-spy' || toolName === 'competitor-spy'
+              ? `${lastUserMsg} Shopify store competitor analysis Australia 2025`
+              : `${lastUserMsg} market saturation competition Australia dropshipping TikTok Shop 2025`;
+          const sr = await tavilySearch(autoQuery, 4);
+          const label =
+            toolName === 'store-spy' || toolName === 'competitor-spy'
+              ? 'LIVE COMPETITOR INTELLIGENCE'
+              : 'LIVE MARKET SATURATION DATA';
+          return formatWebContext(label, sr);
+        }
+        return '';
+      })();
+
+      const mayaMarketPromise = fetchMayaMarketContext().catch(() => '');
+
+      const mayaLivePromise: Promise<string> =
+        toolName === 'ai-chat'
+          ? (async () => {
+              try {
+                const { buildMayaContext, renderMayaContext, renderTierLine } = await import(
+                  '../lib/mayaContext'
+                );
+                const mc = await buildMayaContext(userId, userEmail);
+                return `\n\n${renderTierLine(mc.tier)}${renderMayaContext(mc)}`;
+              } catch {
+                return '';
+              }
+            })()
+          : Promise.resolve('');
+
+      const memoriesPromise: Promise<string> = userId
+        ? searchMemories(userId, userQuery).catch(() => '')
+        : Promise.resolve('');
+
+      const [webContext, mayaMarketCtx, mayaLiveCtx, rawMemories] = await Promise.all([
+        tavilyPromise,
+        mayaMarketPromise,
+        mayaLivePromise,
+        memoriesPromise,
+      ]);
 
       // ── Build system prompt ─────────────────────────────────────────────
-      const mayaMarketCtx = await fetchMayaMarketContext();
-
-      // ── Maya live user + trending context (only for ai-chat) ──────────
-      let mayaLiveCtx = '';
-      if (toolName === 'ai-chat') {
-        try {
-          const { buildMayaContext, renderMayaContext, renderTierLine } = await import(
-            '../lib/mayaContext'
-          );
-          const mc = await buildMayaContext(userId, userEmail);
-          mayaLiveCtx = `\n\n${renderTierLine(mc.tier)}${renderMayaContext(mc)}`;
-        } catch {
-          /* non-fatal */
-        }
-      }
-
       const baseSystem =
         buildSystemPrompt(systemPrompt, profile, toolName, market, pageContext) +
         webContext +
         mayaMarketCtx +
         mayaLiveCtx;
 
-      // ── Inject mem0 persistent memories (prepended at TOP for priority) ─
-      const userQuery = messages[messages.length - 1]?.content || '';
-      const rawMemories = userId ? await searchMemories(userId, userQuery) : '';
       const userMemories = rawMemories
         ? `USER MEMORY (from previous conversations — use this to personalise your response):\n${rawMemories}\n`
         : '';
