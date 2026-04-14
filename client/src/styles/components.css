@@ -568,16 +568,32 @@ body::after {
   align-items: flex-start;
   justify-content: center;
   padding-top: 15vh;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+@media (max-width: 640px) {
+  .mkr-cmdk-overlay {
+    padding-top: 8vh;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
 }
 
 .mkr-cmdk-container {
-  width: 560px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
   background: rgba(10, 18, 40, 0.95);
   border: 1px solid rgba(212,175,55,0.25);
   border-radius: 16px;
   box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06), 0 0 40px rgba(212,175,55,0.10);
-  overflow: hidden;
   backdrop-filter: blur(20px);
+}
+
+.mkr-cmdk-result-item {
+  min-height: 44px;
 }
 
 .mkr-cmdk-input {

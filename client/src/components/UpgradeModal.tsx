@@ -30,15 +30,16 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 16,
     }} onClick={onClose}>
-      <div style={{
-        background: '#0d0d10', borderRadius: 20, padding: 32,
+      <div className="p-5 sm:p-8" style={{
+        background: '#0d0d10', borderRadius: 20,
         maxWidth: 480, width: '100%', position: 'relative',
         boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+        maxHeight: '92vh', overflowY: 'auto',
       }} onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} style={{
-          position: 'absolute', top: 16, right: 16,
-          background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 8,
-          width: 32, height: 32, cursor: 'pointer',
+        <button onClick={onClose} aria-label="Close" style={{
+          position: 'absolute', top: 10, right: 10,
+          background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 10,
+          width: 44, height: 44, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <X size={16} color="#6B7280" />

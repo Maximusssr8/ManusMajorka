@@ -437,7 +437,7 @@ export default function AIChat() {
       <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, background: "linear-gradient(160deg, #0F0F1A 0%, #1A1330 50%, #0D1117 100%)", overflow: "hidden" }}>
 
         {/* ── Header ────────────────────────────────────────────────────────── */}
-        <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div className="px-3 sm:px-6 py-3 sm:py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(212,175,55,0.4)" }}>
               <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "white" }}>M</span>
@@ -466,7 +466,7 @@ export default function AIChat() {
         <MayaContextChips />
 
         {/* ── Messages ─────────────────────────────────────────────────────── */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="px-3 sm:px-6" style={{ flex: 1, overflowY: "auto", paddingTop: 20, paddingBottom: 20, display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Empty state */}
           {messages.length === 0 && !loading && (
@@ -478,7 +478,7 @@ export default function AIChat() {
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "white", marginBottom: 8 }}>How can I help you win today?</div>
                 <div style={{ fontFamily: dm, fontSize: 14, color: "#94A3B8" }}>Ask me anything about products, marketing, or your Shopify store</div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", maxWidth: 520 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, width: "100%", maxWidth: 520 }}>
                 {suggestedPrompts.map(prompt => (
                   <button
                     key={prompt}
@@ -534,7 +534,7 @@ export default function AIChat() {
         </div>
 
         {/* ── Input ────────────────────────────────────────────────────────── */}
-        <div style={{ padding: "12px 24px max(20px, env(safe-area-inset-bottom, 20px))", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,17,23,0.98)" }}>
+        <div className="px-3 sm:px-6" style={{ paddingTop: 12, paddingBottom: "max(20px, env(safe-area-inset-bottom, 20px))", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,17,23,0.98)", position: "sticky", bottom: 0, zIndex: 10 }}>
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
             <textarea
               ref={textareaRef}

@@ -1159,3 +1159,37 @@ html { scroll-behavior: smooth; }
   font-weight: 600;
 }
 
+/* ────────────────────────────────────────────────────────────────
+   Mobile responsiveness guard rails — applies at <768px viewport.
+   Ensures no horizontal overflow, 44px tap targets, legible body
+   text, and safe-area padding on sticky bottom bars.
+   ──────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  html, body { max-width: 100vw; overflow-x: hidden; }
+  /* Images never blow out a container */
+  img { max-width: 100%; height: auto; }
+  /* Long strings (URLs, code) never overflow */
+  pre, code { white-space: pre-wrap; word-break: break-word; }
+  /* Terminal-style visualizers stay inside viewport */
+  .mj-terminal, .mj-hero-terminal { max-width: 100%; overflow-x: auto; }
+  /* Prevent iOS zoom-on-focus for text inputs (font must be >= 16px) */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  select { font-size: 16px !important; }
+  /* Legacy 3/4/5-col inline grids stack to 2-col on phones by default */
+  .mj-pricing-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Hide scrollbars for horizontal scroll containers used as mobile card-stacks */
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* Global safe-area helper for sticky bottom bars */
+.mj-safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+
