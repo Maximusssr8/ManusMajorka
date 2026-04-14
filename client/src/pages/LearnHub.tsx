@@ -682,7 +682,7 @@ export default function LearnHub() {
           color: 'rgba(255,255,255,0.55)',
         }}>
           <CheckCircle2 size={13} style={{ color: '#a78bfa', flexShrink: 0 }} />
-          <span>You&apos;re on Scale Plan — all lessons unlocked. Progress is stored locally in your browser.</span>
+          <span>You&apos;re on Scale Plan — all lessons unlocked. Progress syncs to your account.</span>
         </div>
       ) : (
         <div style={{
