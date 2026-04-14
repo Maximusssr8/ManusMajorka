@@ -1439,20 +1439,16 @@ router.post('/refresh-creators', requireAuth, requireAdmin, async (req: Request,
 });
 
 // POST /api/admin/refresh-videos
-router.post('/refresh-videos', requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  res.json({ message: 'Video refresh started', status: 'running' });
+// Triggers a fresh Apify TikTok scrape (clockworks/tiktok-scraper) and primes
+// the shared tiktokData cache. Real data only — Tavily path is deprecated.
+router.post('/refresh-videos', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  res.json({ message: 'Real TikTok refresh started', status: 'running' });
   (async () => {
     try {
-      const { searchViralVideos, upsertVideos } = await import('../lib/video-scraper');
-      const niches = ['beauty', 'fitness', 'home decor', 'pet care', 'tech accessories'];
-      for (const niche of niches) {
-        try {
-          const vids = await searchViralVideos(niche, 'US');
-          await upsertVideos(vids);
-          console.log(`[videos] ${niche}: ${vids.length}`);
-        } catch { /* silent */ }
-        await new Promise(r => setTimeout(r, 400));
-      }
+      const { fetchRawTikTokData, fetchRealVideos } = await import('../lib/tiktokData');
+      await fetchRawTikTokData(true); // bypass cache, force live Apify run
+      const videos = await fetchRealVideos();
+      console.log(`[refresh-videos] live Apify scrape complete: ${videos.length} real videos cached`);
     } catch (err) {
       console.error('[refresh-videos] fatal:', err);
     }

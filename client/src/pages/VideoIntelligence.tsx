@@ -217,16 +217,45 @@ export default function VideoIntelligence() {
   const triggerRefresh = async () => {
     setRefreshing(true);
     try {
-      await fetch('/api/admin/refresh-videos', { method: 'POST' });
-      showToast('Scraping videos in background — refresh in ~60 seconds');
-      setTimeout(() => {
-        fetch('/api/videos?limit=50').then(r => r.json()).then(d => {
-          if (Array.isArray(d.videos)) setAllVideos(d.videos);
-        });
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
+      await fetch('/api/admin/refresh-videos', { method: 'POST', headers });
+      showToast('Scraping TikTok in background — refreshing in ~60s');
+      setTimeout(async () => {
+        try {
+          const { data: { session: s2 } } = await supabase.auth.getSession();
+          const h: Record<string, string> = {};
+          if (s2?.access_token) h['Authorization'] = `Bearer ${s2.access_token}`;
+          const r = await fetch('/api/videos/real', { headers: h });
+          const d = await r.json();
+          if (Array.isArray(d.videos)) {
+            setAllVideos(d.videos.map((v: any) => ({
+              id: v.id,
+              title: v.title || '',
+              url: v.videoUrl || '',
+              product_mentioned: v.title ? v.title.slice(0, 80) : 'TikTok Video',
+              niche: v.hashtags?.length > 0 ? detectVideoNiche(v.hashtags) : 'general',
+              hook_text: v.title || null,
+              engagement_signal: v.playCount >= 1_000_000 ? 'VIRAL' : v.playCount >= 100_000 ? 'HIGH' : 'MEDIUM',
+              format: detectVideoFormat(v.title || '', v.hashtags || []),
+              region_code: 'AU',
+              created_at: v.postedAt || undefined,
+              thumbnail: v.thumbnail || undefined,
+              playCount: v.playCount || 0,
+              likes: v.likes || 0,
+              shares: v.shares || 0,
+              comments: v.comments || 0,
+              creator: v.creator || '',
+              creatorHandle: v.creatorHandle || '',
+              creatorProfileUrl: v.creatorProfileUrl || '',
+            })));
+          }
+        } catch { /* keep current */ }
         setRefreshing(false);
       }, 60000);
     } catch {
-      showToast('Scrape failed — Tavily resets daily');
+      showToast('Scrape failed — try again in a moment');
       setRefreshing(false);
     }
   };

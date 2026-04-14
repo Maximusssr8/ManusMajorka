@@ -405,6 +405,13 @@ export async function createIntelligenceTables(): Promise<{ ok: boolean; message
 }
 
 async function seedIntelligenceData(): Promise<void> {
+  // REAL-DATA-ONLY GUARD: never seed fabricated TikTok creators/videos into production.
+  // These SEED_* constants are placeholder examples only — the live leaderboard uses
+  // real Apify TikTok scrapes (see server/lib/tiktokData.ts).
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('[seed] Intelligence seed skipped in production (fabricated data is dev-only).');
+    return;
+  }
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) { console.warn('[seed] Supabase env vars missing for intelligence seed'); return; }

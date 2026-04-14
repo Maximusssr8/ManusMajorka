@@ -84,6 +84,49 @@ export interface Video {
   postedAt: string;
   hashtags: string[];
   thumbnail: string;
+  productLink: string | null; // first URL extracted from caption — AliExpress / Shopify / amzn / bit.ly / linktree
+  hasProductLink: boolean;
+  duration: number | null;    // seconds
+}
+
+// ── Quality-gate config ───────────────────────────────────────────────────
+// Real-data-only leaderboard. Rows that fail any rule are rejected and logged.
+export const QUALITY_RULES = {
+  MIN_VIEWS: 1000,                    // filter spam / dead videos
+  MAX_AGE_DAYS: 30,                   // only fresh content
+  REQUIRE_CREATOR_HANDLE: true,
+  REQUIRE_VIDEO_ID: true,
+  REQUIRE_VIDEO_URL: true,
+} as const;
+
+const PRODUCT_LINK_RE = /https?:\/\/(?:[a-z0-9-]+\.)?(aliexpress|amazon|amzn|shopify|myshopify|bit\.ly|linktr\.ee|beacons\.ai|shopmy|tiktokshop|shop\.tiktok|temu|shein)[^\s]*/i;
+
+function extractProductLink(item: any): string | null {
+  // Apify TikTok scraper surfaces caption URLs in a few spots depending on video type.
+  const candidates: string[] = [];
+  if (typeof item.text === 'string') candidates.push(item.text);
+  if (Array.isArray(item.textExtra)) {
+    for (const t of item.textExtra) if (t?.awemeId || t?.hashtagName || t?.userUniqueId) { /* skip */ }
+  }
+  if (typeof item.webVideoUrl === 'string' && item.webVideoUrl.includes('redirect')) candidates.push(item.webVideoUrl);
+  if (Array.isArray(item.anchors)) {
+    for (const a of item.anchors) {
+      if (typeof a?.actionUrl === 'string') candidates.push(a.actionUrl);
+      if (typeof a?.url === 'string') candidates.push(a.url);
+    }
+  }
+  for (const c of candidates) {
+    const m = c.match(PRODUCT_LINK_RE);
+    if (m) return m[0];
+  }
+  return null;
+}
+
+interface RejectionBucket { reason: string; count: number }
+function logRejections(rejections: RejectionBucket[]): void {
+  if (!rejections.length) return;
+  const total = rejections.reduce((s, r) => s + r.count, 0);
+  console.log(`[tiktokData] Quality gate rejected ${total} rows:`, rejections.map(r => `${r.reason}=${r.count}`).join(', '));
 }
 
 // ── Raw REST Apify call ────────────────────────────────────────────────────
@@ -98,25 +141,39 @@ async function runApifyRaw(input: Record<string, unknown>): Promise<any[]> {
   console.log('[tiktokData] Token present:', !!token, 'len:', token.length);
   console.log('[tiktokData] Input:', JSON.stringify(input));
 
-  // Start actor run — body IS the input (flat, not nested)
+  // Start actor run — body IS the input (flat, not nested). Retry up to 3x on transient errors.
   let startData: any;
-  try {
-    const startRes = await fetch(
-      `https://api.apify.com/v2/acts/${ACTOR}/runs?token=${token}&memory=256`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-        signal: AbortSignal.timeout(20000),
+  let lastErr: string | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const startRes = await fetch(
+        `https://api.apify.com/v2/acts/${ACTOR}/runs?token=${token}&memory=256`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+          signal: AbortSignal.timeout(20000),
+        }
+      );
+      console.log(`[tiktokData] Start attempt ${attempt + 1} status:`, startRes.status);
+      const startText = await startRes.text();
+      if (!startRes.ok) {
+        lastErr = `HTTP ${startRes.status}: ${startText.slice(0, 200)}`;
+        // 5xx → retry, 4xx → fail fast
+        if (startRes.status < 500) break;
+        await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+        continue;
       }
-    );
-    console.log('[tiktokData] Start response status:', startRes.status);
-    const startText = await startRes.text();
-    console.log('[tiktokData] Start response (first 500):', startText.slice(0, 500));
-    if (!startRes.ok) return [];
-    startData = JSON.parse(startText);
-  } catch (err: any) {
-    console.error('[tiktokData] Start run error:', err.message);
+      startData = JSON.parse(startText);
+      break;
+    } catch (err: any) {
+      lastErr = err?.message || String(err);
+      console.warn(`[tiktokData] Start attempt ${attempt + 1} error:`, lastErr);
+      await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+    }
+  }
+  if (!startData) {
+    console.error('[tiktokData] Start run failed after retries:', lastErr);
     return [];
   }
 
@@ -298,36 +355,86 @@ export async function fetchRealCreators(): Promise<Creator[]> {
 
 // ── Videos ────────────────────────────────────────────────────────────────
 
+/**
+ * Map a raw Apify TikTok scraper item → Video, applying the quality gate.
+ * Returns null with a rejection reason if the row fails any rule.
+ */
+function mapAndValidate(item: any, maxAgeMs: number): { video: Video | null; reason?: string } {
+  if (!item || typeof item !== 'object') return { video: null, reason: 'not_object' };
+
+  const id = String(item.id || '').trim();
+  if (QUALITY_RULES.REQUIRE_VIDEO_ID && !id) return { video: null, reason: 'missing_video_id' };
+
+  const author = item.authorMeta || {};
+  const handle = String(author.name || author.uniqueId || '').trim();
+  if (QUALITY_RULES.REQUIRE_CREATOR_HANDLE && !handle) return { video: null, reason: 'missing_creator_handle' };
+
+  const videoUrl = String(item.webVideoUrl || '').trim();
+  if (QUALITY_RULES.REQUIRE_VIDEO_URL && !videoUrl) return { video: null, reason: 'missing_video_url' };
+
+  const playCount = Number(item.playCount) || 0;
+  if (playCount < QUALITY_RULES.MIN_VIEWS) return { video: null, reason: 'low_views' };
+
+  const postedAt = String(item.createTimeISO || '').trim();
+  if (postedAt) {
+    const ts = Date.parse(postedAt);
+    if (Number.isFinite(ts) && (Date.now() - ts) > maxAgeMs) {
+      return { video: null, reason: 'too_old' };
+    }
+  } else {
+    return { video: null, reason: 'missing_posted_at' };
+  }
+
+  const hashtags = Array.isArray(item.hashtags)
+    ? item.hashtags.map(extractHashtagName).filter(Boolean)
+    : [];
+
+  const productLink = extractProductLink(item);
+
+  return {
+    video: {
+      id,
+      title: (item.text || '').slice(0, 120),
+      creator: author.nickName || author.nickname || handle,
+      creatorHandle: handle,
+      creatorProfileUrl: `https://www.tiktok.com/@${handle}`,
+      playCount,
+      likes: Number(item.diggCount) || 0,
+      shares: Number(item.shareCount) || 0,
+      comments: Number(item.commentCount) || 0,
+      videoUrl,
+      postedAt,
+      hashtags,
+      thumbnail: item.videoMeta?.coverUrl || item.videoMeta?.originalCoverUrl || '',
+      productLink,
+      hasProductLink: !!productLink,
+      duration: Number(item.videoMeta?.duration) || null,
+    },
+  };
+}
+
 export async function fetchRealVideos(): Promise<Video[]> {
   const raw = await fetchRawTikTokData();
   if (!raw.length) return [];
 
-  const videos: Video[] = raw
-    .filter(item => (Number(item.playCount) || 0) >= 10000)
-    .map(item => {
-      const author = item.authorMeta || {};
-      const handle = author.name || author.uniqueId || '';
-      const hashtags = Array.isArray(item.hashtags)
-        ? item.hashtags.map(extractHashtagName).filter(Boolean)
-        : [];
-      return {
-        id: item.id || String(Date.now()),
-        title: (item.text || '').slice(0, 120),
-        creator: author.nickName || author.nickname || handle,
-        creatorHandle: handle,
-        creatorProfileUrl: `https://www.tiktok.com/@${handle}`,
-        playCount: Number(item.playCount) || 0,
-        likes: Number(item.diggCount) || 0,
-        shares: Number(item.shareCount) || 0,
-        comments: Number(item.commentCount) || 0,
-        videoUrl: item.webVideoUrl || '',
-        postedAt: item.createTimeISO || '',
-        hashtags,
-        thumbnail: item.videoMeta?.coverUrl || item.videoMeta?.originalCoverUrl || '',
-      };
-    });
+  const maxAgeMs = QUALITY_RULES.MAX_AGE_DAYS * 86400 * 1000;
+  const byId = new Map<string, Video>();
+  const rejections: Record<string, number> = {};
 
-  videos.sort((a, b) => b.playCount - a.playCount);
+  for (const item of raw) {
+    const { video, reason } = mapAndValidate(item, maxAgeMs);
+    if (!video) {
+      rejections[reason || 'unknown'] = (rejections[reason || 'unknown'] || 0) + 1;
+      continue;
+    }
+    // Dedup by video_id — keep highest playCount on collision
+    const existing = byId.get(video.id);
+    if (!existing || video.playCount > existing.playCount) byId.set(video.id, video);
+  }
+
+  logRejections(Object.entries(rejections).map(([reason, count]) => ({ reason, count })));
+  const videos = Array.from(byId.values()).sort((a, b) => b.playCount - a.playCount);
+  console.log(`[tiktokData] Leaderboard: ${videos.length} real videos (from ${raw.length} raw, ${videos.filter(v => v.hasProductLink).length} with product link)`);
   return videos;
 }
 
@@ -348,7 +455,7 @@ export async function getTikTokCacheStatus(): Promise<{ cached_at: string | null
 
 // ── Live search (no cache — always fresh) ─────────────────────────────────
 
-export async function searchVideos(query: string): Promise<any[]> {
+export async function searchVideos(query: string): Promise<Video[]> {
   try {
     const raw = await runApifyRaw({
       searchQueries: [query],
@@ -359,31 +466,26 @@ export async function searchVideos(query: string): Promise<any[]> {
       maxProfilesPerQuery: 10,
     });
     if (!raw.length) return [];
-    const mapped = raw.map((item: any) => {
-      const author = item.authorMeta || {};
-      const handle = author.name || author.uniqueId || '';
-      const hashtags = Array.isArray(item.hashtags)
-        ? item.hashtags.map(extractHashtagName).filter(Boolean)
-        : [];
-      return {
-        id: item.id || String(Date.now()),
-        title: (item.text || '').slice(0, 120),
-        creator: author.nickName || author.nickname || handle,
-        creatorHandle: handle,
-        creatorProfileUrl: `https://www.tiktok.com/@${handle}`,
-        playCount: Number(item.playCount) || 0,
-        likes: Number(item.diggCount) || 0,
-        shares: Number(item.shareCount) || 0,
-        comments: Number(item.commentCount) || 0,
-        videoUrl: item.webVideoUrl || '',
-        postedAt: item.createTimeISO || '',
-        hashtags,
-        thumbnail: item.videoMeta?.coverUrl || item.videoMeta?.originalCoverUrl || '',
-      };
-    });
-    mapped.sort((a: any, b: any) => b.playCount - a.playCount);
-    return mapped;
-  } catch {
+
+    // Search uses a wider age window (90d) — relevance matters more than freshness here.
+    const maxAgeMs = 90 * 86400 * 1000;
+    const byId = new Map<string, Video>();
+    const rejections: Record<string, number> = {};
+
+    for (const item of raw) {
+      const { video, reason } = mapAndValidate(item, maxAgeMs);
+      if (!video) {
+        rejections[reason || 'unknown'] = (rejections[reason || 'unknown'] || 0) + 1;
+        continue;
+      }
+      const existing = byId.get(video.id);
+      if (!existing || video.playCount > existing.playCount) byId.set(video.id, video);
+    }
+
+    logRejections(Object.entries(rejections).map(([reason, count]) => ({ reason, count })));
+    return Array.from(byId.values()).sort((a, b) => b.playCount - a.playCount);
+  } catch (err: any) {
+    console.error('[tiktokData] searchVideos error:', err?.message || err);
     return [];
   }
 }
