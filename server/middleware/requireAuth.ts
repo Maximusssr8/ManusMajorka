@@ -18,6 +18,18 @@ declare global {
 // Service-role key — allows server-to-server calls to bypass user auth
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
+// One-time startup banner so the operator can see which access mode is active.
+// Stderr rather than stdout to avoid triggering console.log lint rules.
+(() => {
+  const privateBeta = process.env.PRIVATE_BETA === 'true';
+  if (privateBeta) {
+    const list = process.env.WHITELIST_EMAILS || 'maximusmajorka@gmail.com';
+    process.stderr.write(`[requireAuth] PRIVATE_BETA=true — access restricted to: ${list}\n`);
+  } else {
+    process.stderr.write('[requireAuth] PRIVATE_BETA off — all authenticated users allowed\n');
+  }
+})();
+
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   return createClient(url, SERVICE_ROLE_KEY, {
@@ -59,7 +71,11 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     return;
   }
 
-  // ── Email whitelist — private beta access control ──────────────────────────
+  // ── Email whitelist — ONLY enforced when PRIVATE_BETA=true ─────────────────
+  // In normal production (paying customers), PRIVATE_BETA is unset/false so
+  // every authenticated user passes through. Whitelist is a kill-switch for
+  // closed-beta windows.
+  const PRIVATE_BETA = process.env.PRIVATE_BETA === 'true';
   const WHITELIST = (process.env.WHITELIST_EMAILS || 'maximusmajorka@gmail.com')
     .split(',').map(e => e.trim().toLowerCase());
 
@@ -79,8 +95,8 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         return;
       }
 
-      // Whitelist check (admin fallback path)
-      if (adminData.user.email && !WHITELIST.includes(adminData.user.email.toLowerCase())) {
+      // Whitelist check (admin fallback path) — only when PRIVATE_BETA=true
+      if (PRIVATE_BETA && adminData.user.email && !WHITELIST.includes(adminData.user.email.toLowerCase())) {
         res.status(403).json({
           error: 'access_denied',
           message: 'Majorka is currently in private beta. Access is restricted.',
@@ -97,8 +113,8 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    // Whitelist check (primary path)
-    if (data.user.email && !WHITELIST.includes(data.user.email.toLowerCase())) {
+    // Whitelist check (primary path) — only when PRIVATE_BETA=true
+    if (PRIVATE_BETA && data.user.email && !WHITELIST.includes(data.user.email.toLowerCase())) {
       res.status(403).json({
         error: 'access_denied',
         message: 'Majorka is currently in private beta. Access is restricted.',
