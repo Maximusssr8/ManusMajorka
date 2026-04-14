@@ -942,8 +942,8 @@ function DashboardHome() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0]
-    || user?.user_metadata?.name?.split(' ')[0]
+  const firstName = (user as any)?.user_metadata?.full_name?.split(' ')[0]
+    || (user as any)?.user_metadata?.name?.split(' ')[0]
     || (user as any)?.name?.split(' ')[0]
     || user?.email?.split('@')[0]
     || 'there';
@@ -1258,7 +1258,7 @@ function DashboardHome() {
               { id: 'trend', label: 'Trend Radar', desc: 'Spot trends early', icon: '📡', path: '/app/trend-radar' },
               { id: 'learn', label: 'Learn Hub', desc: 'Courses & tutorials', icon: '🎓', path: '/app/learn' },
             ] as const).map(tool => (
-              <div key={tool.id} className={`mkr-bento-cell ${tool.wide ? 'mkr-bento-cell-wide' : ''}`} onClick={() => setLocation(tool.path)} style={{ cursor: 'pointer' }}>
+              <div key={tool.id} className={`mkr-bento-cell ${(tool as any).wide ? 'mkr-bento-cell-wide' : ''}`} onClick={() => setLocation(tool.path)} style={{ cursor: 'pointer' }}>
                 <span className="bento-icon">{tool.icon}</span>
                 <span className="bento-name">{tool.label}</span>
                 <span className="bento-desc">{tool.desc}</span>

@@ -1464,7 +1464,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Why this product?</div>
                               {[
                                 { label: 'Order Volume', v: p.score_breakdown?.order_score ?? Math.round((Math.min(orders, 5000) / 5000) * 25), max: 25 },
-                                { label: 'Margin Potential', v: p.score_breakdown?.margin_score ?? Math.round((margin / 75) * 25), max: 25 },
+                                { label: 'Margin Potential', v: p.score_breakdown?.margin_score ?? Math.round(((margin ?? 0) / 75) * 25), max: 25 },
                                 { label: 'Trend Velocity', v: p.score_breakdown?.trend_score ?? 8, max: 20 },
                                 { label: 'Supplier Rating', v: p.score_breakdown?.supplier_score ?? 10, max: 15 },
                                 { label: 'AU Market Fit', v: p.score_breakdown?.au_fit_score ?? 8, max: 15 },
