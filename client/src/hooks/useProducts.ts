@@ -53,6 +53,9 @@ export interface Product {
   velocity_7d?: number | null;
   sold_count_7d_ago?: number | null;
   last_seen_at?: string | null;
+  ships_to_au?: boolean | null;
+  ships_to_us?: boolean | null;
+  ships_to_uk?: boolean | null;
 }
 
 export type OrderByColumn =
@@ -82,6 +85,8 @@ export interface UseProductsOptions {
   searchQuery?: string;
   /** Exclude these product IDs — used on Home to dedup between sections. */
   excludeIds?: Array<number | string>;
+  /** Market filter — when not 'all', filters by ships_to_<market>=true. */
+  market?: 'AU' | 'US' | 'UK' | 'all';
 }
 
 export interface UseProductsResult {
@@ -143,7 +148,7 @@ function shipsToAuAvailable(): boolean {
 }
 
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
-  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab = 'all', searchQuery, excludeIds } = options;
+  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab = 'all', searchQuery, excludeIds, market } = options;
   // Stable cache key for excludeIds — sort so [1,2] and [2,1] share a cache slot.
   const excludeKey = excludeIds && excludeIds.length > 0
     ? excludeIds.map(String).sort().join(',')
@@ -157,9 +162,20 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const market = readMarket();
-      const applyShipsToAu = market === 'AU' && shipsToAuAvailable();
-      const marketKey = applyShipsToAu ? 'AU' : '';
+      // Resolution order for the market filter:
+      //   1. Explicit `market` prop (caller is in full control)
+      //   2. Operator's onboarding market (AU/US/UK) if it matches and
+      //      the legacy feature flag is set — preserves old behaviour
+      //   3. 'all' (no filter)
+      const onboardingMarket = readMarket();
+      const legacyAuActive = onboardingMarket === 'AU' && shipsToAuAvailable();
+      const effectiveMarket: 'AU' | 'US' | 'UK' | 'all' =
+        market !== undefined
+          ? market
+          : legacyAuActive
+            ? 'AU'
+            : 'all';
+      const marketKey = effectiveMarket;
       const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${maxOrders ?? ''}:${searchQuery ?? ''}:${excludeKey}:${marketKey}`;
       const hit = cacheGet<{ products: Product[]; total: number }>(cacheKey);
       if (hit) {
@@ -241,11 +257,15 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           const tuple = `(${excludeIds.map((v) => String(v)).join(',')})`;
           query = query.not('id', 'in', tuple);
         }
-        // Market-aware shipping filter — only applied when the operator
-        // picked AU during onboarding AND the `ships_to_au` column is
-        // flagged as available. Other markets (or missing column) no-op.
-        if (applyShipsToAu) {
+        // Market-aware shipping filter — applies per-market boolean flag.
+        // Columns default to true so this is safe even before the
+        // pipeline starts populating them; 'all' is a no-op.
+        if (effectiveMarket === 'AU') {
           query = query.eq('ships_to_au', true);
+        } else if (effectiveMarket === 'US') {
+          query = query.eq('ships_to_us', true);
+        } else if (effectiveMarket === 'UK') {
+          query = query.eq('ships_to_uk', true);
         }
 
         query = query.limit(limit);
@@ -266,7 +286,9 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
           if (searchQuery && searchQuery.trim().length > 0) {
             q = q.ilike('product_title', `%${searchQuery.trim()}%`);
           }
-          if (applyShipsToAu) q = q.eq('ships_to_au', true);
+          if (effectiveMarket === 'AU') q = q.eq('ships_to_au', true);
+          else if (effectiveMarket === 'US') q = q.eq('ships_to_us', true);
+          else if (effectiveMarket === 'UK') q = q.eq('ships_to_uk', true);
           return q;
         }
 
@@ -322,7 +344,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
     }
     load();
     return () => { cancelled = true; };
-  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab, searchQuery, excludeKey]);
+  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab, searchQuery, excludeKey, market]);
 
   return { products, loading, error, total, cached };
 }

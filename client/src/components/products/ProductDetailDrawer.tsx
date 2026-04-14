@@ -309,7 +309,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             >
               Product detail
             </span>
-            <MarketFlags size="md" />
+            <MarketFlags size="md" product={product} />
           </div>
           <button
             type="button"
@@ -463,7 +463,13 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
                 Last 7 days
               </span>
             </div>
-            <Sparkline data={sparkSeries} width={500} height={72} />
+            <Sparkline
+              data={sparkSeries}
+              productId={product.id}
+              range={30}
+              width={500}
+              height={72}
+            />
           </section>
 
           {/* AI Brief */}
