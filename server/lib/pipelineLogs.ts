@@ -87,6 +87,7 @@ export async function finishRun(
         inserted: input.products_added,
         updated: input.products_updated,
         skipped: input.products_rejected,
+        raw_collected: input.products_added + input.products_updated + input.products_rejected,
         error_message: input.error_message ?? null,
       })
       .eq('id', run.id);

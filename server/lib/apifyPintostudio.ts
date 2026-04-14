@@ -200,42 +200,57 @@ export async function runPintostudio(input: PintostudioInput): Promise<Pintostud
   }
 }
 
+/**
+ * Build the actor input. Pintostudio describes itself as
+ * "Search for products on AliExpress based on a query" — it is query-based,
+ * NOT URL-based. We defensively send every common synonym for the search
+ * field (`query`, `keyword`, `searchQuery`, `text`, `searchText`, `q`) and
+ * every common sort-field name so the actor cannot silently no-op because
+ * we used the wrong key. Apify actors ignore unknown inputs.
+ */
 function buildInput(input: PintostudioInput): Record<string, unknown> {
   const shipTo = input.country ?? 'AU';
+  const q = queryForMode(input);
+  const sortKey = input.mode === 'new_arrivals' ? 'NEWEST' : 'ORDERS';
+  return {
+    query: q,
+    keyword: q,
+    searchQuery: q,
+    searchText: q,
+    text: q,
+    q,
+    maxItems: input.limit,
+    maxResults: input.limit,
+    resultsLimit: input.limit,
+    sortBy: sortKey,
+    sort: sortKey,
+    sortType: sortKey === 'ORDERS' ? 'total_tranqt_desc' : 'newest_desc',
+    shipTo,
+    shipCountry: shipTo,
+    country: shipTo,
+  };
+}
+
+/**
+ * Derive a search query from the input mode. For bestsellers (category-based)
+ * we fall back to the keyword field if provided, else extract a human-readable
+ * category name from the URL slug.
+ */
+function queryForMode(input: PintostudioInput): string {
+  if (input.keyword && input.keyword.trim().length > 0) return input.keyword;
   switch (input.mode) {
     case 'trending':
-      return {
-        keyword: input.keyword ?? 'trending',
-        maxItems: input.limit,
-        sortBy: 'ORDERS',
-        shipTo,
-      };
-    case 'bestsellers':
-      // Send BOTH startUrls (pintostudio canonical) and categoryUrl (alt shape)
-      // + sortBy: 'total_tranqt' as a fallback to ORDERS — defensive against
-      // actor schema changes. Pintostudio accepts extra keys without erroring.
-      return {
-        startUrls: input.categoryUrl ? [{ url: input.categoryUrl }] : [],
-        categoryUrl: input.categoryUrl,
-        maxItems: input.limit,
-        sortBy: 'ORDERS',
-        sortByAlt: 'total_tranqt',
-        shipTo,
-      };
+      return 'trending';
     case 'hot_products':
-      return {
-        keyword: input.keyword ?? 'hot product',
-        maxItems: input.limit,
-        sortBy: 'ORDERS',
-        shipTo,
-      };
+      return 'hot product';
     case 'new_arrivals':
-      return {
-        keyword: input.keyword ?? 'new arrival',
-        maxItems: input.limit,
-        sortBy: 'NEWEST',
-        shipTo,
-      };
+      return 'new arrival';
+    case 'bestsellers': {
+      if (!input.categoryUrl) return 'bestseller';
+      // https://www.aliexpress.com/category/200000343/pet-products.html?... → "pet products"
+      const slug = input.categoryUrl.split('/category/')[1]?.split('.html')[0]?.split('/')[1];
+      return slug ? slug.replace(/-/g, ' ') : 'bestseller';
+    }
   }
 }
 
