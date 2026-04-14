@@ -678,7 +678,7 @@ function AdSpyContent() {
 
         {/* Empty state */}
         {!isLoading && !result && !genError && (
-          <div className="flex flex-col items-center justify-center py-24 gap-5">
+          <div className="flex flex-col items-center justify-center py-20 gap-5">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center"
               style={{
@@ -698,6 +698,52 @@ function AdSpyContent() {
               >
                 Enter a product keyword to generate AI-powered ad creative briefs
                 for Facebook, TikTok, and Instagram.
+              </div>
+            </div>
+
+            {/* Honest beta notice — real ad scraping ships with TikTok Shop AU */}
+            <div
+              className="w-full max-w-md rounded-xl px-4 py-3"
+              style={{
+                background: 'rgba(245,158,11,0.06)',
+                border: '1px solid rgba(245,158,11,0.2)',
+              }}
+            >
+              <div
+                className="text-[10px] font-bold uppercase tracking-widest mb-1.5"
+                style={{ color: '#f59e0b' }}
+              >
+                Ad Library — Beta
+              </div>
+              <div
+                className="text-xs leading-relaxed mb-2"
+                style={{ color: '#CBD5E1' }}
+              >
+                Real ad capture arrives with TikTok Shop AU launch. Today this
+                tool generates AI creative briefs modelled on proven AU ad
+                patterns — use Facebook Ad Library and TikTok Creative Center
+                for real competitor ads.
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <a
+                  href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=AU"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-bold"
+                  style={{ color: '#f59e0b' }}
+                >
+                  Facebook Ad Library ↗
+                </a>
+                <span style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
+                <a
+                  href="https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] font-bold"
+                  style={{ color: '#f59e0b' }}
+                >
+                  TikTok Creative Center ↗
+                </a>
               </div>
             </div>
             <div style={{ marginTop: 32, textAlign: 'center' as const }}>
