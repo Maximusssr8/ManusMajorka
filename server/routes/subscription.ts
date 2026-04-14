@@ -28,31 +28,39 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
 
     const { data, error } = await getSupabase()
       .from('user_subscriptions')
-      .select('plan, status, current_period_end')
+      .select('plan, status, current_period_end, trial_ends_at')
       .eq('user_id', userId)
       .single();
 
     if (error || !data) {
-      res.json({ plan: '', status: 'inactive', subscribed: false });
+      res.json({ plan: '', status: 'inactive', subscribed: false, trial_ends_at: null });
       return;
     }
 
-    // Check expiry
+    const trialEndsAt = data.trial_ends_at ?? null;
+
+    // Check expiry for paid subs
     if (data.current_period_end && new Date(data.current_period_end) < new Date()) {
-      res.json({ plan: '', status: 'expired', subscribed: false });
+      res.json({ plan: '', status: 'expired', subscribed: false, trial_ends_at: trialEndsAt });
       return;
     }
 
     const plan = data.plan?.toLowerCase() || '';
     const status = data.status?.toLowerCase() || 'inactive';
-    const isValid = ['builder', 'scale'].includes(plan) && status === 'active';
 
-    if (!isValid) {
-      res.json({ plan: '', status: 'inactive', subscribed: false });
+    // Surface trialing status verbatim so the client-side trial countdown/gate work.
+    if (status === 'trialing' || status === 'trial') {
+      res.json({ plan, status: 'trialing', subscribed: false, trial_ends_at: trialEndsAt, current_period_end: data.current_period_end ?? null });
       return;
     }
 
-    res.json({ plan, status, subscribed: true });
+    const isValid = ['builder', 'scale'].includes(plan) && status === 'active';
+    if (!isValid) {
+      res.json({ plan: '', status: 'inactive', subscribed: false, trial_ends_at: trialEndsAt });
+      return;
+    }
+
+    res.json({ plan, status, subscribed: true, trial_ends_at: trialEndsAt, current_period_end: data.current_period_end ?? null });
   } catch (err) {
     console.error('[subscription/me]', err);
     res.json({ plan: '', status: 'inactive', subscribed: false });
