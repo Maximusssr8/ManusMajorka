@@ -55,6 +55,7 @@ const Affiliate = lazy(() => import('./pages/Affiliate'));
 const PublicProfitShare = lazy(() => import('./pages/PublicProfitShare'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
+const Academy = lazy(() => import('./pages/app/Academy'));
 const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
 const CompetitorSpy = lazyWithRetry(() => import('./pages/CompetitorSpy'));
 const AdsStudio = lazyWithRetry(() => import('./pages/AdsStudio'));
@@ -272,6 +273,13 @@ function Router() {
             <Route path="/app/ads-studio">{() => <ProtectedRoute><AppLayout><AdsStudio /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ads-manager">{() => <ProtectedRoute><AppLayout><AdsManager /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/learn">
+              {() => (
+                <ProtectedRoute>
+                  <AppLayout><Academy /></AppLayout>
+                </ProtectedRoute>
+              )}
+            </Route>
+            <Route path="/app/learn-legacy">
               {() => (
                 <ProtectedRoute>
                   <AppLayout><LearnHub /></AppLayout>
