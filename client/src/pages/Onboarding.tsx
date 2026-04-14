@@ -394,6 +394,8 @@ export default function Onboarding() {
               border: 'none',
               color: '#D1D5DB',
               cursor: 'pointer',
+              minHeight: 44,
+              padding: '0 8px',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#6B7280')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#D1D5DB')}
