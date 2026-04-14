@@ -33,6 +33,10 @@ import { LiveCounter } from '@/components/academy/LiveCounter';
 import { FomoTicker } from '@/components/academy/FomoTicker';
 import { ModuleCard } from '@/components/academy/ModuleCard';
 import { ACADEMY_MODULES } from '@/components/academy/modules';
+import { ACADEMY_TRACKS } from '@/components/academy/tracks';
+import { TracksSection } from '@/components/academy/TracksSection';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { supabase } from '@/lib/supabase';
 
 const PROGRESS_KEY = 'majorka_academy_progress';
 
@@ -72,10 +76,64 @@ export default function Academy() {
     document.title = 'Academy — Majorka';
   }, []);
 
+  const { user } = useAuth();
   const initial = useMemo(loadProgress, []);
   const [completed, setCompleted] = useState<Set<string>>(new Set(initial.completed));
   const [openId, setOpenId] = useState<string | null>(initial.openId);
   const moduleRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // ── Track (lesson-level) progress: server-backed via /api/academy/progress.
+  // Optimistic UI: mark locally first, then POST. On mount, sync from server
+  // so cross-device progress wins over local state.
+  const [lessonsDone, setLessonsDone] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = (await supabase.auth.getSession()).data.session?.access_token;
+        if (!token) return;
+        const r = await fetch('/api/academy/progress', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!r.ok) return;
+        const body = (await r.json()) as { completed?: { lesson_id: string }[] };
+        if (cancelled) return;
+        const ids = Array.isArray(body.completed) ? body.completed.map((c) => c.lesson_id) : [];
+        setLessonsDone(new Set(ids));
+      } catch {
+        // non-fatal — page still works from local state
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const markLessonDone = useCallback(
+    async (lessonId: string) => {
+      // optimistic
+      setLessonsDone((prev) => {
+        if (prev.has(lessonId)) return prev;
+        const next = new Set(prev);
+        next.add(lessonId);
+        return next;
+      });
+      try {
+        const token = (await supabase.auth.getSession()).data.session?.access_token;
+        if (!token) return;
+        await fetch('/api/academy/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ lesson_id: lessonId }),
+        });
+      } catch {
+        // Server failed — local state still shows completion; next mount will reconcile.
+      }
+    },
+    [],
+  );
 
   // Persist progress
   useEffect(() => {
@@ -346,6 +404,14 @@ export default function Academy() {
           </div>
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────────────────── TRACKS v2 */}
+      <TracksSection
+        tracks={ACADEMY_TRACKS}
+        completed={lessonsDone}
+        onComplete={markLessonDone}
+        userName={user?.name ?? user?.email ?? 'Operator'}
+      />
 
       {/* ─────────────────────────────────────────────────────── PROOF */}
       <section className="relative py-16 md:py-24 border-t border-white/[0.05] overflow-hidden">
