@@ -1,14 +1,16 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactElement, type ReactNode } from 'react';
 import { Menu, Bell } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import { Nav } from './Nav';
 import { GradientM } from '@/components/MajorkaLogo';
 import { useTracking } from '@/hooks/useTracking';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { TrialCountdown } from '@/components/funnel/TrialCountdown';
+import { useSubscriptionTier } from '@/hooks/useSubscriptionTier';
+import { useAuth } from '@/_core/hooks/useAuth';
 
 interface AppShellProps { children: ReactNode }
 
@@ -25,6 +27,40 @@ export function AppShell({ children }: AppShellProps) {
   const { trackedCount } = useTracking();
   useKeyboardShortcuts();
   const [location, navigate] = useLocation();
+  const { tier, status, daysRemaining, refetch } = useSubscriptionTier();
+
+  // ── Post-Stripe return handler ─────────────────────────────────────────────
+  // When the user lands back at /app?upgraded=true after Stripe Checkout,
+  // eagerly refetch the subscription, show a success toast, and scrub the
+  // query param so the toast doesn't re-fire on refresh.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('upgraded') !== 'true') return;
+
+    refetch();
+
+    // Briefly poll for the webhook to land, then confirm via toast.
+    const started = Date.now();
+    const poll = window.setInterval(() => {
+      refetch();
+      if (tier === 'builder' || tier === 'scale' || Date.now() - started > 15_000) {
+        window.clearInterval(poll);
+      }
+    }, 1500);
+
+    const label = tier === 'scale' ? 'Scale' : 'Builder';
+    toast.success(`Welcome to ${label}! All features unlocked.`, { duration: 5000 });
+
+    // Strip ?upgraded=true (keep other params intact)
+    params.delete('upgraded');
+    params.delete('session_id');
+    const next = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+    window.history.replaceState({}, '', next);
+
+    return () => window.clearInterval(poll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // First-time users are routed to the full-page /onboarding flow.
   // The legacy modal wizard has been removed in favour of one canonical path.
@@ -148,11 +184,16 @@ export function AppShell({ children }: AppShellProps) {
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 overflow-y-auto min-w-0 focus:outline-none"
           >
-            {children}
+            {status === 'trialing' && daysRemaining !== null && daysRemaining < 0 ? (
+              <TrialExpiredGate />
+            ) : (
+              children
+            )}
           </motion.main>
         </div>
       </div>
 
+      {/* Trial-expired gate rendered above so it covers the whole app */}
       <Toaster
         position="bottom-right"
         theme="dark"
@@ -169,5 +210,128 @@ export function AppShell({ children }: AppShellProps) {
         }}
       />
     </Tooltip.Provider>
+  );
+}
+
+// ── TrialExpiredGate ─────────────────────────────────────────────────────────
+// Full-viewport blocker shown when the user's trial has ended and no active
+// paid subscription has taken over. Offers direct Stripe Checkout CTAs for
+// Builder and Scale so there's a zero-friction path to unblock the app.
+function TrialExpiredGate(): ReactElement {
+  const { session } = useAuth();
+  const [loading, setLoading] = useState<'builder' | 'scale' | null>(null);
+
+  const handleCheckout = async (plan: 'builder' | 'scale'): Promise<void> => {
+    const token = session?.access_token;
+    if (!token) {
+      window.location.href = '/sign-in?redirect=/app';
+      return;
+    }
+    setLoading(plan);
+    try {
+      const res = await fetch('/api/stripe/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan, billing: 'monthly' }),
+      });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error(data.error ?? 'Checkout error — please try again.');
+        setLoading(null);
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Network error');
+      setLoading(null);
+    }
+  };
+
+  return (
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-label="Trial ended"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100%',
+        padding: 24,
+        background: 'radial-gradient(circle at 50% 30%, rgba(212,175,55,0.08), transparent 60%), #080808',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 520,
+          width: '100%',
+          background: '#111114',
+          border: '1px solid rgba(212,175,55,0.3)',
+          borderRadius: 18,
+          padding: 36,
+          textAlign: 'center',
+          fontFamily: "'DM Sans', system-ui, sans-serif",
+          boxShadow: '0 0 80px rgba(212,175,55,0.12)',
+        }}
+      >
+        <div style={{ fontSize: 32, marginBottom: 12 }}>⏱</div>
+        <h2
+          style={{
+            fontFamily: "'Syne', system-ui, sans-serif",
+            fontSize: 26,
+            fontWeight: 800,
+            color: '#f0f4ff',
+            margin: '0 0 10px',
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Trial ended — upgrade to continue
+        </h2>
+        <p style={{ fontSize: 14, color: '#a1a1aa', margin: '0 0 24px', lineHeight: 1.55 }}>
+          Your free trial has finished. Pick a plan to restore access to product research, alerts, Maya, and the full Ads Studio.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <button
+            type="button"
+            onClick={() => handleCheckout('builder')}
+            disabled={loading !== null}
+            style={{
+              height: 52,
+              background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
+              color: '#111',
+              border: 'none',
+              borderRadius: 12,
+              fontWeight: 800,
+              fontSize: 14,
+              cursor: loading ? 'wait' : 'pointer',
+              opacity: loading && loading !== 'builder' ? 0.5 : 1,
+            }}
+          >
+            {loading === 'builder' ? 'Redirecting…' : 'Builder · $99/mo'}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleCheckout('scale')}
+            disabled={loading !== null}
+            style={{
+              height: 52,
+              background: '#0d1424',
+              color: '#f0f4ff',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 12,
+              fontWeight: 800,
+              fontSize: 14,
+              cursor: loading ? 'wait' : 'pointer',
+              opacity: loading && loading !== 'scale' ? 0.5 : 1,
+            }}
+          >
+            {loading === 'scale' ? 'Redirecting…' : 'Scale · $199/mo'}
+          </button>
+        </div>
+        <p style={{ fontSize: 12, color: '#737373', marginTop: 18 }}>
+          Cancel anytime · 14-day money-back guarantee
+        </p>
+      </div>
+    </div>
   );
 }

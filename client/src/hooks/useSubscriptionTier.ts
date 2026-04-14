@@ -120,6 +120,31 @@ export function useSubscriptionTier(): SubscriptionTierState {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
+  // Refetch on tab focus so a user returning from Stripe Checkout sees
+  // their new tier within seconds without a manual refresh.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onFocus = (): void => {
+      cache = null;
+      load();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  // Also refetch immediately when the app mounts with ?upgraded=true
+  // (post-Stripe redirect target).
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('upgraded') === 'true') {
+      cache = null;
+      load();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
   const tier: Tier = token ? normalizeTier(data?.plan) : 'free';
   const status: SubscriptionStatus = token
     ? normalizeStatus(data?.status, data?.subscribed)
