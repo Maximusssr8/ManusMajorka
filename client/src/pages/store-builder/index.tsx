@@ -7,7 +7,7 @@ import StepIndicator from '@/components/store-builder/StepIndicator';
 import {
   Check, X, Plus, Loader2, ExternalLink, RefreshCw, Eye, Smartphone,
   Monitor, Copy, ShoppingCart, Sparkles, Store as StoreIcon, Globe, ArrowLeft, ArrowRight,
-  Lock,
+  Lock, Info,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
@@ -273,6 +273,10 @@ function StorePreview({ copy, template, products, storeName, primaryColor, isMob
                 <div style={{ fontSize: 10, color: mutedColor }}>{review.name} · {review.date}</div>
               </div>
             ))}
+          </div>
+          <div className="text-xs" style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: TEXT_MUTED, fontFamily: FONT_BODY }}>
+            <Info size={11} />
+            <span>Sample reviews — replace with real customer feedback before going live.</span>
           </div>
         </div>
 
