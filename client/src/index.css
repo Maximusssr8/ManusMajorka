@@ -852,10 +852,38 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  html { scroll-behavior: auto !important; }
+}
+
+/* Skip-link — visually hidden until keyboard-focused, then jumps to the top */
+.mj-skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translateY(-120%);
+  z-index: 10000;
+  padding: 10px 16px;
+  margin: 8px;
+  background: #6366f1;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+.mj-skip-link:focus,
+.mj-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 /* Mesh gradient background — use on hero / key sections */
