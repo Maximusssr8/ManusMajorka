@@ -15,12 +15,9 @@ import { runCleanup } from '../pipeline/cleanup';
 import { runScoreRefresh } from '../pipeline/refresh-scores';
 // New scrapers
 import { launchTikTokCCScrape } from '../scrapers/tiktok-creative-center';
-import { collectCJProducts } from '../scrapers/cj-products';
 import { fetchGoogleTrends, saveTrends } from '../scrapers/google-trends';
 import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
-import { collectCJRealProducts } from '../scrapers/cj-real-products';
 import { runTrendFirstPipeline } from '../pipeline/trendFirst';
-import { scrapeCJTopSellers } from '../scrapers/cj-top-sellers';
 import { launchAEBestsellerScrapes } from '../scrapers/ae-bestseller-urls';
 
 const router = Router();
@@ -528,20 +525,7 @@ router.get('/collect-tiktok-cc', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/collect-cj', async (req: Request, res: Response) => {
-  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  const logId = await logPipelineStart('collect', 'cj_api');
-  const startedAt = new Date().toISOString();
-
-  try {
-    const result = await collectCJProducts();
-    await logPipelineEnd(logId, { startedAt, inserted: result.collected, failed: result.errors.length }, result.errors.length > 0 ? 'failed' : 'success', result.errors.join('; '));
-    res.json({ success: true, ...result });
-  } catch (err: any) {
-    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
+// /collect-cj removed — CJ pipeline purged. Use /api/cron/apify-pipeline.
 
 router.get('/collect-trends', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
@@ -578,31 +562,7 @@ router.get('/ae-detail-scrape', async (req: Request, res: Response) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PHASE 3: CJ Real Products by Category ID
-// ═══════════════════════════════════════════════════════════════════════════
-
-router.get('/collect-cj-real', async (req: Request, res: Response) => {
-  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  const logId = await logPipelineStart('collect', 'cj_real_products');
-  const startedAt = new Date().toISOString();
-
-  // Fire-and-forget (takes ~20 min)
-  res.json({ success: true, message: 'CJ real products collection started' });
-  setImmediate(async () => {
-    try {
-      const result = await collectCJRealProducts();
-      await logPipelineEnd(logId, {
-        startedAt,
-        inserted: result.inserted,
-        updated: result.updated,
-        failed: result.errors.length,
-      }, result.errors.length > 0 ? 'failed' : 'success', result.errors.join('; '));
-    } catch (err: any) {
-      await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
-    }
-  });
-});
+// /collect-cj-real removed — CJ pipeline purged. Use /api/cron/apify-pipeline.
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PHASE 8: AUTOMATED QUALITY PIPELINE
@@ -765,22 +725,7 @@ router.get('/trend-pipeline', async (req: Request, res: Response) => {
   });
 });
 
-// POST /api/cron/cj-refresh — CJ-only refresh (every 12h)
-router.post('/cj-refresh', async (req: Request, res: Response) => {
-  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  res.json({ ok: true });
-  scrapeCJTopSellers(5).catch(e => {
-    console.error('[cron/cj-refresh] Error:', e instanceof Error ? e.message : e);
-  });
-});
-
-router.get('/cj-refresh', async (req: Request, res: Response) => {
-  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  res.json({ ok: true });
-  scrapeCJTopSellers(5).catch(e => {
-    console.error('[cron/cj-refresh] Error:', e instanceof Error ? e.message : e);
-  });
-});
+// /cj-refresh removed — CJ pipeline purged. Use /api/cron/apify-pipeline.
 
 // POST /api/cron/ae-hot-products — every 6h via Vercel cron
 // Fetches hot products from AliExpress Affiliate API → upserts into winning_products
@@ -1532,3 +1477,104 @@ router.get('/ae-bestsellers', async (req: Request, res: Response) => {
   res.json({ ok: true, started: true });
   launchAEBestsellerScrapes().catch(e => console.error('[cron/ae-bestsellers]', e instanceof Error ? e.message : e));
 });
+
+// ── GET/POST /api/cron/snapshot-history ──────────────────────────────────
+// Daily 02:00 UTC snapshot of the winning_products table into
+// product_history so the Products detail drawer sparkline has real data.
+// Idempotent: skips rows that already have a snapshot for today via a
+// unique index on (product_id, date_trunc('day', snapshot_at)). Bulk
+// inserts in pages of 1000 to stay well under Vercel's 60s function cap.
+interface SnapshotRow {
+  product_id: string;
+  sold_count: number | null;
+  winning_score: number | null;
+  velocity_7d: number | null;
+}
+
+async function runSnapshotHistory(req: Request, res: Response): Promise<void> {
+  if (!verifyCronSecret(req)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  const supabase = getSupabaseAdmin();
+  const PAGE = 1000;
+  let from = 0;
+  let totalInserted = 0;
+  let totalSkipped = 0;
+  const startedAt = Date.now();
+  try {
+    while (from < 50_000) {
+      const { data, error } = await supabase
+        .from('winning_products')
+        .select('id,sold_count,winning_score,velocity_7d')
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      const batch = (data ?? []) as Array<{
+        id: string | number;
+        sold_count: number | null;
+        winning_score: number | null;
+        velocity_7d: number | null;
+      }>;
+      if (batch.length === 0) break;
+
+      const rows: SnapshotRow[] = batch.map((r) => ({
+        product_id: String(r.id),
+        sold_count: r.sold_count,
+        winning_score: r.winning_score,
+        velocity_7d: r.velocity_7d,
+      }));
+
+      // onConflict on the (product_id, day) unique index — if a row for
+      // today already exists we skip silently. ignoreDuplicates keeps the
+      // earlier snapshot so the first-of-day value is the canonical one.
+      const { error: insErr, count } = await supabase
+        .from('product_history')
+        .upsert(rows, {
+          onConflict: 'product_id,snapshot_date',
+          ignoreDuplicates: true,
+          count: 'exact',
+        });
+
+      if (insErr) {
+        // Fallback: insert without onConflict hint (unique index will
+        // still raise 23505 per-row which we translate to a skip count).
+        if (/no unique|on conflict|constraint/i.test(insErr.message)) {
+          const { error: plainErr } = await supabase
+            .from('product_history')
+            .insert(rows);
+          if (plainErr && !/duplicate key|23505/i.test(plainErr.message)) {
+            throw plainErr;
+          }
+          totalInserted += plainErr ? 0 : rows.length;
+          totalSkipped += plainErr ? rows.length : 0;
+        } else if (/does not exist|relation .* does not exist/i.test(insErr.message)) {
+          res.json({ ok: false, skipped: true, reason: 'table_missing' });
+          return;
+        } else {
+          throw insErr;
+        }
+      } else {
+        const inserted = count ?? 0;
+        totalInserted += inserted;
+        totalSkipped += rows.length - inserted;
+      }
+
+      if (batch.length < PAGE) break;
+      from += PAGE;
+    }
+    res.json({
+      ok: true,
+      inserted: totalInserted,
+      skipped: totalSkipped,
+      duration_ms: Date.now() - startedAt,
+    });
+  } catch (err: unknown) {
+    console.error('[cron/snapshot-history]', err);
+    res
+      .status(500)
+      .json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+}
+
+router.get('/snapshot-history', runSnapshotHistory);
+router.post('/snapshot-history', runSnapshotHistory);
