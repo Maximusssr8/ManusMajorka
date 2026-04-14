@@ -65,6 +65,25 @@ export default function AdBriefs() {
 
   useEffect(() => { setHistory(loadBriefs()); }, []);
 
+  // Pre-fill from a 'Create Ad Brief' click on the Products page. Mirrors
+  // the pattern in AdsStudio.tsx so both tools accept the same handoff key.
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('majorka_ad_product');
+      if (!stored) return;
+      const prod = JSON.parse(stored) as {
+        id?: string | number;
+        title?: string;
+        image?: string;
+        price?: number | string;
+      };
+      if (prod.title) setProduct(String(prod.title));
+      sessionStorage.removeItem('majorka_ad_product');
+    } catch {
+      // ignore malformed payload
+    }
+  }, []);
+
   const copyBrief = async (text: string, id: string) => {
     try {
       await navigator.clipboard.writeText(text);
