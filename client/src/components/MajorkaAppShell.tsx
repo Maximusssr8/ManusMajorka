@@ -760,7 +760,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 background: 'rgba(255,255,255,0.1)',
                 color: '#CBD5E1',
                 fontSize: 9,
-                fontFamily: 'DM Mono, monospace',
+                fontFamily: "'JetBrains Mono', monospace",
               }}
             >
               ⌘K

@@ -304,7 +304,7 @@ const MOST_USED_IDS = ['product-discovery', 'website-generator'];
 const NEW_TOOL_IDS = ['au-trending', 'launch-kit'];
 
 /* ─── Sales Overview — demo data + Shopify-style layout ─── */
-const UI = "'Inter', 'DM Sans', system-ui, sans-serif";  // Inter for all data/labels
+const UI = "'DM Sans', system-ui, sans-serif";  // Inter for all data/labels
 
 const DEMO_PRODUCTS = [
   { rank: 1, name: 'EMS Muscle Stimulator Pro', cat: 'Fitness',      emoji: '⚡', units: 847,  revenue: 38_115, trend: 18.4 },

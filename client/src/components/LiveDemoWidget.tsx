@@ -9,7 +9,7 @@ import { Link } from 'wouter';
 
 const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
-const mono = "'DM Mono', 'Fira Code', monospace";
+const mono = "'JetBrains Mono', 'Fira Code', monospace";
 
 const STYLES = `
 @keyframes live-glow {

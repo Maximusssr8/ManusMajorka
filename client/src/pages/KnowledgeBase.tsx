@@ -937,7 +937,7 @@ function InlineMarkdown({ text }: { text: string }) {
           style={{
             background: 'rgba(212,175,55,0.1)',
             color: '#d4af37',
-            fontFamily: 'DM Mono, monospace',
+            fontFamily: "'JetBrains Mono', monospace",
           }}
         >
           {firstMatch[1]}

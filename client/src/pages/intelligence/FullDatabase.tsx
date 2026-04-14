@@ -98,7 +98,7 @@ interface Product {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const brico = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+const brico = "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 function slugify(text: string): string {

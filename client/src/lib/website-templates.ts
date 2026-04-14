@@ -246,7 +246,7 @@ const tplE: WebsiteTemplate = {
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--accent:{BRAND_COLOR};--bg:#080808;--surface:#101010;--card:#161616;--text:#f5f5f7;--muted:#86868b;--border:rgba(255,255,255,.07)}
-html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
 a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit;border:none}h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-height:1.1}
 .nav{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:rgba(8,8,8,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .nl{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;cursor:pointer}
