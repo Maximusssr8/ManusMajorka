@@ -807,7 +807,7 @@ export default function StoreBuilderAnimation() {
                     📦 AUTO FULFILMENT
                   </div>
                   <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 14 }}>
-                    Supplier: CJ Dropshipping
+                    Supplier: AliExpress
                   </div>
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginBottom: 14 }} />
 

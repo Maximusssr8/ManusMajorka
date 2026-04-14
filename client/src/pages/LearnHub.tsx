@@ -277,7 +277,7 @@ const MODULES: Module[] = [
         body: [
           "Once you are doing 20+ orders/day of a product, message the AliExpress seller directly and ask for a private rate. 'Hi, I am importing this to Australia for a dropship brand. At volume, can we discuss per-unit pricing and faster dispatch?' You will get a better price, priority packing, and sometimes a contact at the factory.",
           "Ask for an 'AE Standard Shipping' upgrade at your cost — often 2-3 days faster than the default.",
-          "Move to CJDropshipping or Zendrop as soon as you can afford the 5-10% premium. Faster shipping, better QC, real support. Your customers will never know — your refund rate will plummet.",
+          "Move to AliExpress or Zendrop as soon as you can afford the 5-10% premium. Faster shipping, better QC, real support. Your customers will never know — your refund rate will plummet.",
         ],
       },
     ],

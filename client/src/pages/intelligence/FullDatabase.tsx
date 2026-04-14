@@ -1668,7 +1668,7 @@ function SupplierFinder({ productName }: { productName: string }) {
   const suppliers = [
     { label: 'AliExpress', icon: '🛒', desc: 'Search all listings', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be', url: `https://www.aliexpress.com/wholesale?SearchText=${enc}&shipCountry=au&SortType=total_tranpro_desc` },
     { label: 'Alibaba', icon: '🏭', desc: 'Bulk / wholesale', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be', url: `https://www.alibaba.com/trade/search?SearchText=${enc}&shipToCountry=AU&sortType=BEST_MATCH` },
-    { label: 'CJ Dropship', icon: '📦', desc: 'No MOQ dropship', color: '#059669', bg: '#F0FDF4', border: '#BBF7D0', url: `https://cjdropshipping.com/search.html?q=${enc}` },
+    { label: 'CJ Dropship', icon: '📦', desc: 'No MOQ dropship', color: '#059669', bg: '#F0FDF4', border: '#BBF7D0', url: `https://aliexpress.com/search.html?q=${enc}` },
     { label: 'DHgate', icon: '🔧', desc: 'Low MOQ wholesale', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', url: `https://www.dhgate.com/wholesale/search.do?searchkey=${enc}&pt=Home` },
     { label: 'Temu', icon: '🏷️', desc: 'Ultra-low prices', color: '#d4af37', bg: '#F5F3FF', border: '#e5c158', url: `https://www.temu.com/search_result.html?search_key=${enc}` },
     { label: 'Made-in-China', icon: '🏗️', desc: 'Factory direct', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', url: `https://www.made-in-china.com/multi-search/q-${enc.replace(/%20/g, '+')}.html` },
@@ -2184,7 +2184,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>
             {p.niche || p.category}
             {orders > 0 && <> &middot; <span style={hasRealData ? { color: '#22C55E', fontWeight: 600 } : {}}>{orders.toLocaleString()} {hasRealData ? 'real' : 'AE'} orders</span></>}
-            {p.data_source === 'cj_api' && <> &middot; <span style={{ color: '#d4af37', fontWeight: 600 }}>CJ ✅</span></>}
+            {p.data_source === "aliexpress" && <> &middot; <span style={{ color: '#d4af37', fontWeight: 600 }}>AliExpress ✅</span></>}
             {p.link_status === 'verified' && <> &middot; <span style={{ color: '#22C55E' }}>Verified ✓</span></>}
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center', marginBottom: 16 }}>
@@ -2223,7 +2223,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>📦 Supplier</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 700, color: '#f4f4f5' }}>
-                {p.supplier_name || (p.data_source === 'cj_api' ? 'CJ Dropshipping' : p.aliexpress_url ? 'AliExpress' : 'Unknown')}
+                {p.supplier_name || (p.data_source === "aliexpress" ? 'AliExpress' : p.aliexpress_url ? 'AliExpress' : 'Unknown')}
               </span>
               {p.link_status === 'verified' && <span style={{ fontSize: 11, fontWeight: 700, color: '#22C55E', background: 'rgba(34,197,94,0.1)', padding: '1px 6px', borderRadius: 4 }}>✅ Verified</span>}
             </div>
@@ -2234,7 +2234,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             {supplierLink && (
               <a href={supplierLink} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 10, fontSize: 12, fontWeight: 700, color: '#d4af37', textDecoration: 'none', padding: '6px 12px', background: 'rgba(212,175,55,0.08)', borderRadius: 6, border: '1px solid rgba(212,175,55,0.2)' }}>
-                View on {p.data_source === 'cj_api' ? 'CJ' : 'AliExpress'} →
+                View on {p.data_source === "aliexpress" ? 'AliExpress' : 'AliExpress'} →
               </a>
             )}
           </div>
@@ -2302,7 +2302,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           />
           {p.real_cost_aud && (
             <div style={{ fontSize: 10, color: '#22C55E', marginTop: -14, marginBottom: 16, paddingLeft: 4 }}>
-              (real {p.data_source === 'cj_api' ? 'CJ' : 'AE'} cost)
+              (real {p.data_source === "aliexpress" ? 'AliExpress' : 'AE'} cost)
             </div>
           )}
 
@@ -2484,9 +2484,9 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             <div style={{ fontSize: 10, fontWeight: 700, color: '#71717a', textTransform: 'uppercase' as const, letterSpacing: '0.07em', marginBottom: 6 }}>Data Sources</div>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
               {[
-                { field: 'Product name & image', source: p.data_source === 'cj_api' ? 'CJ API' : 'AliExpress', real: true },
+                { field: 'Product name & image', source: p.data_source === "aliexpress" ? 'AliExpress API' : 'AliExpress', real: true },
                 { field: 'Orders', source: p.real_orders_count ? 'Real scraped data' : 'AI demand signal (est.)', real: !!p.real_orders_count },
-                { field: 'Supplier cost', source: p.real_cost_aud ? `Real ${p.data_source === 'cj_api' ? 'CJ' : 'AE'} cost` : 'Estimated', real: !!p.real_cost_aud },
+                { field: 'Supplier cost', source: p.real_cost_aud ? `Real ${p.data_source === "aliexpress" ? 'AliExpress' : 'AE'} cost` : 'Estimated', real: !!p.real_cost_aud },
                 { field: 'Rating', source: p.real_rating ? 'Real scraped' : p.rating ? 'Scraped' : 'Not available', real: !!(p.real_rating || p.rating) },
                 { field: 'Link status', source: p.link_status || 'unverified', real: p.link_status === 'verified' },
                 { field: 'Dropship score', source: 'Composite formula', real: true },

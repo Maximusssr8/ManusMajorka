@@ -46,7 +46,7 @@ interface DiscoveryResult {
 const SYSTEM_PROMPT = `You are an expert ecommerce product researcher. You MUST respond with ONLY a valid JSON object — no markdown, no explanation, no code blocks, no backticks, just raw JSON.
 
 The JSON must have this EXACT structure:
-{"summary":"Brief market overview","products":[{"name":"Product name","niche":"Sub-niche","problemSolved":"Problem it solves","targetAudience":"Who buys this","estimatedMargin":"40-60%","competitionLevel":"Low|Medium|High","trendDirection":"Rising|Stable|Declining","avgPrice":"$29-49","whyNow":"Why this opportunity is good now","suppliers":"AliExpress/Alibaba/CJ Dropshipping","score":85}],"topPick":"Name of best product and why","marketContext":"Key market insight"}
+{"summary":"Brief market overview","products":[{"name":"Product name","niche":"Sub-niche","problemSolved":"Problem it solves","targetAudience":"Who buys this","estimatedMargin":"40-60%","competitionLevel":"Low|Medium|High","trendDirection":"Rising|Stable|Declining","avgPrice":"$29-49","whyNow":"Why this opportunity is good now","suppliers":"AliExpress/Alibaba/AliExpress","score":85}],"topPick":"Name of best product and why","marketContext":"Key market insight"}
 
 Return exactly 5 products. Score each 0-100. ONLY raw JSON, nothing else.`;
 

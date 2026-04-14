@@ -334,7 +334,7 @@ const STEPS: { num: string; title: string; body: string; time: string }[] = [
 
 const FAQ_DATA: { q: string; a: string }[] = [
   { q: 'How is Majorka different from KaloData or Minea?', a: 'Majorka is the operating system, not a single tool. Product research, competitor spying, store building, ad creative, and profit math live in one dashboard with one bill.' },
-  { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and CJ Dropshipping. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
+  { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and AliExpress. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
   { q: 'Do I need a Shopify store first?',     a: "No. You can use Majorka's built-in Store Builder to generate and launch a store from scratch, or connect an existing Shopify store in one click. Majorka adds an intelligence layer on top of whatever setup you have." },
   { q: 'Which markets are supported?',         a: 'Australia, United States, United Kingdom, Canada, New Zealand, Germany, and Singapore. Each market has localised pricing, supplier recommendations, tax calculations, and regional ad benchmarks built in.' },
   { q: 'Can I cancel anytime?',                a: "Yes. No contracts, no lock-ins. Cancel before your next billing date and you won't be charged. Your data exports (CSV) are available for 30 days after cancellation." },
@@ -1339,7 +1339,7 @@ function ThePlatform() {
               2,302 winning products.<br />Ranked by real orders.
             </h3>
             <p style={{ color: '#8a8a8f', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
-              Every product is sourced directly from the AliExpress Affiliate API and CJ Dropshipping — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
+              Every product is sourced directly from the AliExpress Affiliate API and AliExpress — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[

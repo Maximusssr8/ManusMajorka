@@ -26,7 +26,7 @@ import { SEO } from '@/components/SEO';
 
 interface Supplier {
   supplier_name: string;
-  platform: 'AliExpress' | 'Alibaba' | 'CJ Dropshipping' | 'DHgate';
+  platform: 'AliExpress' | 'Alibaba' | 'AliExpress' | 'DHgate';
   unit_cost_aud: number;
   moq: number;
   shipping_days_to_au: number;
@@ -51,11 +51,11 @@ const FEATURED_PLATFORMS = [
     bg: 'rgba(228,57,60,0.08)',
   },
   {
-    name: 'CJ Dropshipping',
+    name: 'AliExpress',
     description: 'Warehouses in SYD, faster AU shipping',
     shipping: '7–15 days',
     margin: '55–65%',
-    url: 'https://cjdropshipping.com',
+    url: 'https://aliexpress.com',
     color: '#f59e0b',
     bg: 'rgba(245,158,11,0.08)',
   },
@@ -102,7 +102,6 @@ const FEATURED_PLATFORMS = [
 const PLATFORM_COLOURS: Record<string, string> = {
   AliExpress: '#e4393c',
   Alibaba: '#f97316',
-  'CJ Dropshipping': '#f59e0b',
   DHgate: '#d4af37',
 };
 
@@ -305,7 +304,7 @@ export default function SupplierIntelligence() {
                 Supplier Intelligence
               </h1>
               <p className="text-xs" style={{ color: '#9CA3AF' }}>
-                Find AU-ready suppliers · AliExpress · Alibaba · CJ Dropshipping
+                Find AU-ready suppliers · AliExpress · Alibaba · AliExpress
               </p>
             </div>
           </div>
@@ -382,7 +381,7 @@ export default function SupplierIntelligence() {
                 ))}
               </div>
               <span className="text-sm" style={{ color: '#d4af37' }}>
-                Searching AliExpress, Alibaba, CJ Dropshipping...
+                Searching AliExpress, Alibaba, AliExpress...
               </span>
             </div>
           )}
@@ -790,7 +789,7 @@ export default function SupplierIntelligence() {
           </div>
           <ul className="text-xs space-y-1.5" style={{ color: '#94A3B8' }}>
             <li>• Search exact product names for better results</li>
-            <li>• CJ Dropshipping ships fastest to AU</li>
+            <li>• AliExpress ships fastest to AU</li>
             <li>• Margin &gt;60% = strong product</li>
             <li>• Save top suppliers before they go</li>
           </ul>

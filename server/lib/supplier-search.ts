@@ -1,7 +1,7 @@
 /**
  * supplier-search.ts — Supplier Intelligence Engine
  *
- * Fires parallel Tavily searches across AliExpress, Alibaba, and CJ Dropshipping,
+ * Fires parallel Tavily searches across AliExpress, Alibaba, and AliExpress,
  * then uses Claude Haiku to extract and rank the top 6 AU-ready suppliers.
  * Falls back to realistic hardcoded data if Tavily/Claude returns poor results.
  */
@@ -12,7 +12,7 @@ import { getAnthropicClient } from './anthropic';
 
 export interface SupplierResult {
   supplier_name: string;
-  platform: 'AliExpress' | 'Alibaba' | 'CJ Dropshipping' | 'DHgate';
+  platform: 'AliExpress' | 'Alibaba' | 'AliExpress' | 'DHgate';
   unit_cost_aud: number;
   moq: number;
   shipping_days_to_au: number;
@@ -55,15 +55,15 @@ function generateFallbackSuppliers(query: string): SupplierResult[] {
 
   return [
     {
-      supplier_name: 'CJ Dropshipping (AU Warehouse)',
-      platform: 'CJ Dropshipping',
+      supplier_name: 'AliExpress (AU Warehouse)',
+      platform: 'AliExpress',
       unit_cost_aud: baseUnitCost,
       moq: 1,
       shipping_days_to_au: 5,
       shipping_cost_aud: 3.50,
       rating: 4.8,
       review_count: 2840,
-      url: `https://cjdropshipping.com/search?q=${encodeURIComponent(query)}`,
+      url: `https://aliexpress.com/search?q=${encodeURIComponent(query)}`,
       why_recommended: `AU warehouse stock — ships in 4-6 days. No MOQ. Best for testing before scaling. Integrates directly with Shopify.`,
       profit_margin_pct: Math.round(((baseUnitCost * 3.2 - baseUnitCost) / (baseUnitCost * 3.2)) * 100),
     },
@@ -124,8 +124,8 @@ ${formatResults(tavilyResults.slice(0, 3), 'AliExpress')}
 === Alibaba Results ===
 ${formatResults(tavilyResults.slice(3, 6), 'Alibaba')}
 
-=== CJ Dropshipping Results ===
-${formatResults(tavilyResults.slice(6, 9), 'CJ Dropshipping')}
+=== AliExpress Results ===
+${formatResults(tavilyResults.slice(6, 9), 'AliExpress')}
 `.trim();
 
   const claude = getAnthropicClient();
@@ -139,7 +139,7 @@ ${formatResults(tavilyResults.slice(6, 9), 'CJ Dropshipping')}
 Return JSON array:
 [{
   "supplier_name": "store/company name",
-  "platform": "AliExpress | Alibaba | CJ Dropshipping | DHgate",
+  "platform": "AliExpress | Alibaba | AliExpress | DHgate",
   "unit_cost_aud": <estimated AUD cost>,
   "moq": <minimum order quantity, usually 1 for dropshipping>,
   "shipping_days_to_au": <estimated days to Australia>,
@@ -200,7 +200,7 @@ export async function searchSuppliers(query: string): Promise<SupplierResult[]> 
     const [aliResults, alibabaResults, cjResults] = await Promise.all([
       tavilySearch(`"${query}" AliExpress supplier price wholesale Australia dropshipping`, 3),
       tavilySearch(`"${query}" Alibaba supplier price manufacturer wholesale`, 3),
-      tavilySearch(`"${query}" CJ Dropshipping Australia fast shipping`, 3),
+      tavilySearch(`"${query}" AliExpress Australia fast shipping`, 3),
     ]);
     tavilyResults = [...aliResults, ...alibabaResults, ...cjResults];
   } catch {

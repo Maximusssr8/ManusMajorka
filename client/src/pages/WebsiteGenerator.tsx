@@ -3014,7 +3014,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>{importError}</div>
                     {/* Task 3C — Supported sources */}
                     <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
-                      Supported: AliExpress, Amazon AU, eBay AU, CJDropshipping, DHgate
+                      Supported: AliExpress, Amazon AU, eBay AU, AliExpress, DHgate
                     </div>
                   </div>
                 )}
