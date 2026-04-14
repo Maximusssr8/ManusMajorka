@@ -11,6 +11,7 @@ import { useFavourites } from '@/hooks/useFavourites';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
+import { SinceLastLogin } from '@/components/app/SinceLastLogin';
 
 /* ──────────────────────────────────────────────────────────────
    Helpers — all data from hooks, no hardcoded values
@@ -657,6 +658,8 @@ export default function AppHome() {
 
         </div>
       </div>
+
+      <SinceLastLogin />
 
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
