@@ -1115,6 +1115,177 @@ async function runBackfillImages(req: Request, res: Response) {
 router.get('/backfill-images', runBackfillImages);
 router.post('/backfill-images', runBackfillImages);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/cron/check-alerts — hourly
+// Queries the `alerts` table, compares each row to the current `winning_products`
+// state, sends an email through the configured provider, and updates
+// `last_fired_at`. Dedup is enforced by `last_fired_at` + frequency window.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface CheckAlertsAlertRow {
+  id: string;
+  user_id: string;
+  product_id: string | null;
+  type: 'price_drop' | 'score_change' | 'sold_count_spike';
+  threshold: number;
+  frequency: 'instant' | 'daily' | 'weekly';
+  email: string;
+  category: string | null;
+  last_fired_at: string | null;
+}
+
+interface CheckAlertsProductRow {
+  id: string;
+  product_title: string | null;
+  price_aud: number | null;
+  winning_score: number | null;
+  sold_count: number | null;
+  image_url: string | null;
+  product_url: string | null;
+}
+
+function frequencyWindowMs(freq: 'instant' | 'daily' | 'weekly'): number {
+  switch (freq) {
+    case 'instant': return 0;
+    case 'daily': return 24 * 60 * 60 * 1000;
+    case 'weekly': return 7 * 24 * 60 * 60 * 1000;
+  }
+}
+
+function shouldFire(alert: CheckAlertsAlertRow, product: CheckAlertsProductRow): boolean {
+  const thr = Number(alert.threshold);
+  if (alert.type === 'price_drop') {
+    return product.price_aud != null && product.price_aud <= thr;
+  }
+  if (alert.type === 'score_change') {
+    return product.winning_score != null && product.winning_score >= thr;
+  }
+  if (alert.type === 'sold_count_spike') {
+    return product.sold_count != null && product.sold_count >= thr;
+  }
+  return false;
+}
+
+function renderAlertHtml(alert: CheckAlertsAlertRow, product: CheckAlertsProductRow): { subject: string; html: string } {
+  const title = product.product_title ?? 'Untitled product';
+  const label = alert.type === 'price_drop' ? 'Price drop'
+    : alert.type === 'score_change' ? 'Score threshold'
+    : 'Orders spike';
+  const subject = `Majorka alert: ${label} — ${title}`;
+  const imgHtml = product.image_url
+    ? `<img src="${product.image_url}" alt="" style="width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid #1f2937"/>`
+    : '';
+  const linkHtml = product.product_url
+    ? `<a href="${product.product_url}" style="color:#a78bfa">View on AliExpress →</a>`
+    : '';
+  const html = `<!doctype html><html><body style="margin:0;background:#0d0f14;font-family:-apple-system,sans-serif;color:#f0f4ff">
+    <div style="max-width:560px;margin:0 auto;padding:32px 20px">
+      <h1 style="font-size:22px;margin:0 0 6px;color:#a78bfa">${label}</h1>
+      <p style="color:#a1a1aa;margin:0 0 24px;font-size:14px">Threshold ${alert.threshold} · ${alert.frequency}</p>
+      <div style="background:#13151c;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;display:flex;gap:16px;align-items:flex-start">
+        ${imgHtml}
+        <div>
+          <div style="font-weight:700;margin-bottom:6px">${title}</div>
+          <div style="color:#a1a1aa;font-size:13px;margin-bottom:4px">Price: $${product.price_aud ?? '—'} AUD</div>
+          <div style="color:#a1a1aa;font-size:13px;margin-bottom:4px">Score: ${product.winning_score ?? '—'}</div>
+          <div style="color:#a1a1aa;font-size:13px;margin-bottom:10px">Orders: ${product.sold_count ?? '—'}</div>
+          ${linkHtml}
+        </div>
+      </div>
+      <p style="color:#52525b;font-size:11px;margin-top:32px">Majorka · <a href="https://www.majorka.io/app/alerts" style="color:#52525b">Manage alerts</a></p>
+    </div>
+  </body></html>`;
+  return { subject, html };
+}
+
+async function runCheckAlerts(req: Request, res: Response): Promise<void> {
+  if (!verifyCronSecret(req)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: alertsData, error: alertsErr } = await supabase
+      .from('alerts')
+      .select('*');
+    if (alertsErr) {
+      res.status(500).json({ error: 'db_error', message: alertsErr.message });
+      return;
+    }
+    const alerts = (alertsData ?? []) as CheckAlertsAlertRow[];
+    if (alerts.length === 0) {
+      res.json({ ok: true, checked: 0, fired: 0 });
+      return;
+    }
+
+    const { sendAlertEmail, getEmailProvider } = await import('../lib/email');
+    const provider = getEmailProvider();
+    if (provider === 'none') {
+      res.json({
+        ok: false,
+        reason: 'no_provider',
+        checked: alerts.length,
+        fired: 0,
+        message: 'No email provider configured (set RESEND_API_KEY or POSTMARK_API_KEY).',
+      });
+      return;
+    }
+
+    const productIds = Array.from(new Set(alerts.map(a => a.product_id).filter((x): x is string => !!x)));
+    const productMap = new Map<string, CheckAlertsProductRow>();
+    if (productIds.length > 0) {
+      const { data: products, error: prodErr } = await supabase
+        .from('winning_products')
+        .select('id, product_title, price_aud, winning_score, sold_count, image_url, product_url')
+        .in('id', productIds);
+      if (prodErr) {
+        res.status(500).json({ error: 'db_error', message: prodErr.message });
+        return;
+      }
+      for (const p of (products ?? []) as CheckAlertsProductRow[]) productMap.set(p.id, p);
+    }
+
+    const now = Date.now();
+    let fired = 0;
+    let skipped = 0;
+
+    for (const alert of alerts) {
+      // Dedup: honour frequency window
+      if (alert.last_fired_at) {
+        const lastMs = new Date(alert.last_fired_at).getTime();
+        if (now - lastMs < frequencyWindowMs(alert.frequency)) {
+          skipped++;
+          continue;
+        }
+      }
+
+      if (!alert.product_id) { skipped++; continue; }
+      const product = productMap.get(alert.product_id);
+      if (!product) { skipped++; continue; }
+      if (!shouldFire(alert, product)) { skipped++; continue; }
+
+      const { subject, html } = renderAlertHtml(alert, product);
+      const result = await sendAlertEmail(alert.email, subject, html);
+      if (result.ok) {
+        fired++;
+        await supabase
+          .from('alerts')
+          .update({ last_fired_at: new Date().toISOString() })
+          .eq('id', alert.id);
+      } else {
+        console.warn('[cron/check-alerts] send failed for', alert.id, result.error);
+      }
+    }
+
+    res.json({ ok: true, checked: alerts.length, fired, skipped, provider });
+  } catch (err: unknown) {
+    res.status(500).json({ error: 'internal', message: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+router.get('/check-alerts', runCheckAlerts);
+router.post('/check-alerts', runCheckAlerts);
+
 export default router;
 
 // POST /api/cron/ae-bestsellers — runs every 6h via Vercel cron (0 */6 * * *)

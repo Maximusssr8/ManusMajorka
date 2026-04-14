@@ -31,6 +31,8 @@ import shopifyRouter from "../server/routes/shopify";
 import storeBuilderRouter from "../server/routes/store-builder";
 import aiRouter from "../server/routes/ai";
 import cronRouter from "../server/routes/cron";
+import alertsRouter from "../server/routes/alerts";
+import { getEmailProvider as _getEmailProvider } from "../server/lib/email";
 import imageProxyRouter from "../server/routes/imageProxy";
 import subscriptionRouter from "../server/routes/subscription";
 import adminApiRouter from "../server/routes/admin";
@@ -585,6 +587,13 @@ app.use('/api/shopify', shopifyRouter);
 app.use('/api/store-builder', storeBuilderRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/cron', cronRouter);
+app.use('/api/alerts', alertsRouter);
+// Alerts health endpoint is mounted at /api/alerts/health/email by the alerts router,
+// but the UI polls /api/health/email — alias it for convenience.
+app.get('/api/health/email', (_req, res) => {
+  const provider = _getEmailProvider();
+  res.json({ ok: provider !== 'none', provider, reason: provider === 'none' ? 'no_provider' : undefined });
+});
 app.use('/api', imageProxyRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);

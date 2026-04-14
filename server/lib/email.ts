@@ -10,6 +10,116 @@ function getResend(): Resend | null {
   return _resend;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Generic alert email — prefers Resend, falls back to Postmark, honest failure
+// if neither is configured. Used by /api/cron/check-alerts.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type EmailProvider = 'resend' | 'postmark' | 'none';
+
+export interface SendEmailResult {
+  ok: boolean;
+  provider: EmailProvider;
+  id?: string;
+  reason?: 'no_provider' | 'send_failed';
+  error?: string;
+}
+
+export function getEmailProvider(): EmailProvider {
+  if (process.env.RESEND_API_KEY) return 'resend';
+  if (process.env.POSTMARK_API_KEY) return 'postmark';
+  return 'none';
+}
+
+const FROM_ADDRESS = 'Majorka Alerts <alerts@majorka.io>';
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function sendViaResend(to: string, subject: string, html: string): Promise<SendEmailResult> {
+  const resend = getResend();
+  if (!resend) return { ok: false, provider: 'none', reason: 'no_provider' };
+  try {
+    const result = await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
+    if (result && 'error' in result && result.error) {
+      return { ok: false, provider: 'resend', reason: 'send_failed', error: String(result.error) };
+    }
+    const id = (result as { data?: { id?: string } })?.data?.id;
+    return { ok: true, provider: 'resend', id };
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      provider: 'resend',
+      reason: 'send_failed',
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+async function sendViaPostmark(to: string, subject: string, html: string): Promise<SendEmailResult> {
+  const token = process.env.POSTMARK_API_KEY;
+  if (!token) return { ok: false, provider: 'none', reason: 'no_provider' };
+  try {
+    const resp = await fetch('https://api.postmarkapp.com/email', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Postmark-Server-Token': token,
+      },
+      body: JSON.stringify({
+        From: FROM_ADDRESS,
+        To: to,
+        Subject: subject,
+        HtmlBody: html,
+        MessageStream: 'outbound',
+      }),
+    });
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      return { ok: false, provider: 'postmark', reason: 'send_failed', error: `${resp.status} ${text}` };
+    }
+    const json = (await resp.json()) as { MessageID?: string };
+    return { ok: true, provider: 'postmark', id: json?.MessageID };
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      provider: 'postmark',
+      reason: 'send_failed',
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+/**
+ * sendAlertEmail — resilient alert delivery.
+ * Retries 3× with exponential backoff (250ms, 500ms, 1000ms).
+ * Returns an honest result object; callers must NOT assume success.
+ */
+export async function sendAlertEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<SendEmailResult> {
+  const provider = getEmailProvider();
+  if (provider === 'none') {
+    console.warn('[email] sendAlertEmail: no provider configured (set RESEND_API_KEY or POSTMARK_API_KEY)');
+    return { ok: false, provider: 'none', reason: 'no_provider' };
+  }
+
+  const send = provider === 'resend' ? sendViaResend : sendViaPostmark;
+  let lastResult: SendEmailResult = { ok: false, provider, reason: 'send_failed' };
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const result = await send(to, subject, html);
+    if (result.ok) return result;
+    lastResult = result;
+    if (attempt < 2) await sleep(250 * Math.pow(2, attempt));
+  }
+  console.error('[email] sendAlertEmail failed after 3 attempts:', lastResult.error);
+  return lastResult;
+}
+
 export async function sendPlaybook(to: string, playbookContent: string) {
   const resend = getResend();
   if (!resend) {
