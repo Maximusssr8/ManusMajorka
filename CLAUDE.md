@@ -52,7 +52,7 @@ ACCOUNT: Academy, Settings
 (radar/niches/market features live in Products tab now, profit calc lives in product detail panel)
 
 ## SessionStorage Keys (cross-page data passing)
-majorka_instant_store → pre-fills Store Builder from Products page
+majorka_import_product → pre-fills Store Builder from Products page
 majorka_ad_product → pre-fills Ads Studio from Products page
 
 ## localStorage Keys
