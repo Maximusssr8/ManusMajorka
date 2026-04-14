@@ -1,8 +1,16 @@
 import { Router } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
+import { z } from 'zod';
 
 import { checkRateLimit, aiLimiter } from '../lib/ratelimit';
 import { requireAuth } from '../middleware/requireAuth';
+import {
+  generateAdImage,
+  getImageProviderHealth,
+  type ImageStyle,
+  type ImageAspect,
+} from '../lib/imageGen';
+import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
 
 const router = Router();
 
@@ -460,6 +468,81 @@ router.get('/saved-outputs', requireAuth, async (req, res) => {
   } catch (err: any) {
     res.json({ outputs: [] } as any);
   }
+});
+
+// ── GET /api/health/image — surface image provider state to the UI ────────
+// Also exposed as /api/ai/health/image (mounted under /api/ai).
+router.get('/health/image', (_req, res) => {
+  res.json(getImageProviderHealth());
+});
+
+// ── POST /api/ai/generate-image — real ad creative image generation ───────
+const generateImageSchema = z.object({
+  productId: z.string().max(64).optional(),
+  productTitle: z.string().min(2).max(300),
+  adCopy: z.string().max(4000).optional().default(''),
+  style: z.enum(['lifestyle', 'product', 'ugc', 'flatlay']).optional().default('lifestyle'),
+  aspect: z.enum(['1:1', '9:16', '4:5']).optional().default('1:1'),
+  prompt: z.string().max(1500).optional(),
+});
+
+router.post('/generate-image', requireAuth, aiLimiter, async (req, res) => {
+  const parsed = generateImageSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false, reason: 'invalid_input', details: parsed.error.flatten() });
+  }
+
+  const userId =
+    (req as unknown as { user?: { userId?: string; sub?: string } }).user?.userId ||
+    (req as unknown as { user?: { sub?: string } }).user?.sub;
+  const plan =
+    ((req as unknown as { user?: { plan?: 'free' | 'builder' | 'scale' } }).user?.plan) ||
+    'builder';
+
+  if (userId) {
+    try {
+      const usage = await checkUsageLimit(userId, 'image_generation', plan);
+      if (!usage.allowed) {
+        return res.status(429).json({
+          ok: false,
+          reason: 'usage_limit',
+          used: usage.used,
+          limit: usage.limit,
+        });
+      }
+    } catch {
+      // Non-fatal: continue if usage tracking is unavailable
+    }
+  }
+
+  const health = getImageProviderHealth();
+  if (!health.ok) {
+    return res.json({ ok: false, reason: 'no_provider' });
+  }
+
+  const result = await generateAdImage({
+    prompt: parsed.data.prompt ?? '',
+    productTitle: parsed.data.productTitle,
+    adCopy: parsed.data.adCopy,
+    style: parsed.data.style as ImageStyle,
+    aspect: parsed.data.aspect as ImageAspect,
+  });
+
+  if (!result.ok) {
+    return res.json(result);
+  }
+
+  if (userId) {
+    try { await incrementUsage(userId, 'image_generation'); } catch { /* non-fatal */ }
+  }
+
+  return res.json({
+    ok: true,
+    imageUrl: result.imageUrl,
+    provider: result.provider,
+    model: result.model,
+    warning: result.warning,
+  });
 });
 
 // ── POST /api/ai/save-output — save an ad creative ────────────────────────
