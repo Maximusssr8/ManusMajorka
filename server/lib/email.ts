@@ -1,4 +1,9 @@
 import { Resend } from 'resend';
+import { renderWelcome, type WelcomeData } from './emailTemplates/welcome';
+import { renderTrialReminder, type TrialReminderData } from './emailTemplates/trialReminder';
+import { renderTrialExpired, type TrialExpiredData } from './emailTemplates/trialExpired';
+import { renderPaymentConfirmed, type PaymentConfirmedData } from './emailTemplates/paymentConfirmed';
+import { renderPaymentFailed, type PaymentFailedData } from './emailTemplates/paymentFailed';
 
 let _resend: Resend | null = null;
 
@@ -142,6 +147,126 @@ export async function sendPlaybook(to: string, playbookContent: string) {
       </div>
     `,
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Transactional dispatcher — one surface for all templated emails.
+// Prefers Resend, falls back to Postmark, returns honest result object.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TRANSACTIONAL_FROM = 'Majorka <hello@majorka.io>';
+
+export type TransactionalTemplate =
+  | { template: 'welcome'; data: WelcomeData }
+  | { template: 'trial_reminder'; data: TrialReminderData }
+  | { template: 'trial_expired'; data: TrialExpiredData }
+  | { template: 'payment_confirmed'; data: PaymentConfirmedData }
+  | { template: 'payment_failed'; data: PaymentFailedData };
+
+export type TemplateName = TransactionalTemplate['template'];
+
+function renderTemplate(t: TransactionalTemplate): { subject: string; html: string } {
+  switch (t.template) {
+    case 'welcome':           return renderWelcome(t.data);
+    case 'trial_reminder':    return renderTrialReminder(t.data);
+    case 'trial_expired':     return renderTrialExpired(t.data);
+    case 'payment_confirmed': return renderPaymentConfirmed(t.data);
+    case 'payment_failed':    return renderPaymentFailed(t.data);
+  }
+}
+
+async function sendViaResendFrom(
+  from: string,
+  to: string,
+  subject: string,
+  html: string,
+): Promise<SendEmailResult> {
+  const resend = getResend();
+  if (!resend) return { ok: false, provider: 'none', reason: 'no_provider' };
+  try {
+    const result = await resend.emails.send({ from, to, subject, html });
+    if (result && 'error' in result && result.error) {
+      return { ok: false, provider: 'resend', reason: 'send_failed', error: String(result.error) };
+    }
+    const id = (result as { data?: { id?: string } })?.data?.id;
+    return { ok: true, provider: 'resend', id };
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      provider: 'resend',
+      reason: 'send_failed',
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+async function sendViaPostmarkFrom(
+  from: string,
+  to: string,
+  subject: string,
+  html: string,
+): Promise<SendEmailResult> {
+  const token = process.env.POSTMARK_API_KEY;
+  if (!token) return { ok: false, provider: 'none', reason: 'no_provider' };
+  try {
+    const resp = await fetch('https://api.postmarkapp.com/email', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Postmark-Server-Token': token,
+      },
+      body: JSON.stringify({
+        From: from,
+        To: to,
+        Subject: subject,
+        HtmlBody: html,
+        MessageStream: 'outbound',
+      }),
+    });
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      return { ok: false, provider: 'postmark', reason: 'send_failed', error: `${resp.status} ${text}` };
+    }
+    const json = (await resp.json()) as { MessageID?: string };
+    return { ok: true, provider: 'postmark', id: json?.MessageID };
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      provider: 'postmark',
+      reason: 'send_failed',
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+/**
+ * sendTransactional — dispatch a templated Majorka email.
+ * Uses Resend if RESEND_API_KEY set, else Postmark, else returns no_provider.
+ * Retries once (network resilience) and returns an honest SendEmailResult.
+ */
+export async function sendTransactional(
+  to: string,
+  spec: TransactionalTemplate,
+): Promise<SendEmailResult> {
+  const provider = getEmailProvider();
+  if (provider === 'none') {
+    console.warn('[email] sendTransactional: no provider (set RESEND_API_KEY or POSTMARK_API_KEY)');
+    return { ok: false, provider: 'none', reason: 'no_provider' };
+  }
+
+  const { subject, html } = renderTemplate(spec);
+  const send = provider === 'resend' ? sendViaResendFrom : sendViaPostmarkFrom;
+
+  let lastResult: SendEmailResult = { ok: false, provider, reason: 'send_failed' };
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await send(TRANSACTIONAL_FROM, to, subject, html);
+    if (result.ok) return result;
+    lastResult = result;
+    if (attempt === 0) await sleep(300);
+  }
+  console.error(`[email] sendTransactional(${spec.template}) failed:`, lastResult.error);
+  return lastResult;
 }
 
 export async function sendWelcomeEmail(to: string, name: string) {

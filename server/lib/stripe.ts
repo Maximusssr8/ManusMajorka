@@ -7,6 +7,7 @@ import type { Express } from 'express';
 import express from 'express';
 import Stripe from 'stripe';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { sendTransactional } from './email';
 
 // ── Stripe client ──────────────────────────────────────────────────────────────
 
@@ -197,6 +198,35 @@ function priceIdToPlan(priceId: string | undefined | null): string {
   return map[priceId] ?? 'builder';
 }
 
+// ── Email notification helpers ───────────────────────────────────────────────
+
+async function resolveUserEmail(userId: string): Promise<{ email: string; firstName?: string } | null> {
+  try {
+    const sb = getSupabaseAdmin();
+    const { data } = await sb.auth.admin.getUserById(userId);
+    const email = data?.user?.email;
+    if (!email) return null;
+    const meta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
+    const rawName = (meta.full_name ?? meta.name ?? meta.first_name ?? '') as string;
+    const firstName = typeof rawName === 'string' ? rawName.trim().split(' ')[0] : undefined;
+    return { email, firstName };
+  } catch {
+    return null;
+  }
+}
+
+function formatAmount(amountCents: number | null | undefined, currency: string | null | undefined): string {
+  if (typeof amountCents !== 'number') return '';
+  const ccy = (currency ?? 'aud').toUpperCase();
+  return `$${(amountCents / 100).toFixed(2)} ${ccy}`;
+}
+
+function planDisplayName(plan: string): string {
+  if (plan === 'scale') return 'Scale';
+  if (plan === 'builder') return 'Builder';
+  return plan.charAt(0).toUpperCase() + plan.slice(1);
+}
+
 export async function handleWebhook(rawBody: Buffer, signature: string): Promise<boolean> {
   const event = constructWebhookEvent(rawBody, signature);
   if (!event) return false;
@@ -242,6 +272,56 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
       });
 
       console.info(`[Stripe] Subscription activated: user=${userId} plan=${plan}`);
+
+      // Fire payment-confirmed email (first payment).
+      try {
+        const user = await resolveUserEmail(userId);
+        if (user) {
+          const amount = formatAmount(session.amount_total ?? null, session.currency);
+          await sendTransactional(user.email, {
+            template: 'payment_confirmed',
+            data: {
+              firstName: user.firstName,
+              planName: planDisplayName(plan),
+              amount,
+              invoiceId: typeof session.invoice === 'string' ? session.invoice : session.invoice?.id,
+              nextBillingDate: periodEnd.toISOString().slice(0, 10),
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('[Stripe] payment_confirmed email dispatch failed:', err);
+      }
+      break;
+    }
+
+    case 'invoice.paid': {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subId =
+        typeof invoice.subscription === 'string' ? invoice.subscription : (invoice.subscription as Stripe.Subscription | null)?.id;
+      if (!subId) break;
+      try {
+        const stripe = getStripe()!;
+        const stripeSub = await stripe.subscriptions.retrieve(subId);
+        const userId = stripeSub.metadata?.userId;
+        if (!userId) break;
+        const priceId = stripeSub.items.data[0]?.price?.id;
+        const plan = priceIdToPlan(priceId);
+        const user = await resolveUserEmail(userId);
+        if (!user) break;
+        await sendTransactional(user.email, {
+          template: 'payment_confirmed',
+          data: {
+            firstName: user.firstName,
+            planName: planDisplayName(plan),
+            amount: formatAmount(invoice.amount_paid, invoice.currency),
+            invoiceId: invoice.id,
+            nextBillingDate: new Date(stripeSub.current_period_end * 1000).toISOString().slice(0, 10),
+          },
+        });
+      } catch (err) {
+        console.warn('[Stripe] invoice.paid email dispatch failed:', err);
+      }
       break;
     }
 
@@ -309,6 +389,36 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
             updated_at: new Date().toISOString(),
           }).eq('user_id', userId);
           console.warn(`[Stripe] Payment failed → past_due for user=${userId} sub=${subId}`);
+
+          // Fire payment-failed email with Stripe portal link.
+          try {
+            const user = await resolveUserEmail(userId);
+            if (user) {
+              const priceId = stripeSub.items.data[0]?.price?.id;
+              const plan = priceIdToPlan(priceId);
+              let portalUrl = 'https://majorka.io/app/billing';
+              try {
+                const customerId =
+                  typeof stripeSub.customer === 'string' ? stripeSub.customer : stripeSub.customer?.id;
+                if (customerId) {
+                  const portal = await createCustomerPortal(customerId, 'https://majorka.io/app/billing');
+                  if (portal?.url) portalUrl = portal.url;
+                }
+              } catch { /* fall back to static billing page */ }
+              await sendTransactional(user.email, {
+                template: 'payment_failed',
+                data: {
+                  firstName: user.firstName,
+                  planName: planDisplayName(plan),
+                  amount: formatAmount(invoice.amount_due, invoice.currency),
+                  portalUrl,
+                  reason: 'Card declined or expired',
+                },
+              });
+            }
+          } catch (err) {
+            console.warn('[Stripe] payment_failed email dispatch failed:', err);
+          }
         } else {
           console.warn(`[Stripe] invoice.payment_failed: no userId in subscription metadata for ${subId}`);
         }
