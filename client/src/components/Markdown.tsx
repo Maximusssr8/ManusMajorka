@@ -61,10 +61,18 @@
  * @see https://shiki.style/themes for full list
  */
 
-import { code } from '@streamdown/code';
-import { type ComponentProps, memo, type ReactNode } from 'react';
-import { Streamdown } from 'streamdown';
+import { type ComponentProps, lazy, memo, type ReactNode, Suspense } from 'react';
+import type { Streamdown as StreamdownType } from 'streamdown';
 import { cn } from '@/lib/utils';
+
+// Lazy-load Streamdown + Shiki + Mermaid. These pull in ~3MB of syntax
+// highlighter grammars (emacs-lisp, cpp, wasm, etc.) and mermaid/cytoscape.
+// Splitting them keeps the main entry bundle small — consumers only pay
+// when they actually render a Markdown block.
+const LazyStreamdown = lazy(async () => {
+  const mod = await import('streamdown');
+  return { default: mod.Streamdown };
+});
 
 // ============================================================================
 // DEFAULT COMPONENT OVERRIDES
@@ -153,7 +161,7 @@ const components = {
 // MARKDOWN COMPONENT
 // ============================================================================
 
-type MarkdownProps = Omit<ComponentProps<typeof Streamdown>, 'components' | 'mermaid'> & {
+type MarkdownProps = Omit<ComponentProps<typeof StreamdownType>, 'components' | 'mermaid'> & {
   /** Override specific element renderers */
   components?: Partial<typeof components>;
   /** Enable/disable code syntax highlighting (default: true) */
@@ -191,15 +199,17 @@ export const Markdown = memo(function Markdown({
   ...props
 }: MarkdownProps) {
   return (
-    <Streamdown
-      className={cn('text-foreground leading-relaxed', className)}
-      components={{ ...components, ...customComponents }}
-      shikiTheme={shikiTheme}
-      controls={controls}
-      {...props}
-    >
-      {children}
-    </Streamdown>
+    <Suspense fallback={<div className={cn('text-foreground leading-relaxed whitespace-pre-wrap', className)}>{typeof children === 'string' ? children : null}</div>}>
+      <LazyStreamdown
+        className={cn('text-foreground leading-relaxed', className)}
+        components={{ ...components, ...customComponents }}
+        shikiTheme={shikiTheme}
+        controls={controls}
+        {...props}
+      >
+        {children}
+      </LazyStreamdown>
+    </Suspense>
   );
 });
 
