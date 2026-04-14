@@ -2177,10 +2177,18 @@ function LiveSearchView({ aeSearch, onSelect }: {
           </div>
           <div className="p-3.5">
             <p className="text-sm text-text line-clamp-2 mb-2">{p.product_title}</p>
-            <p className="text-xs text-body tabular-nums">
-              {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
-              {p.sold_count ? ` · ${fmtK(p.sold_count)} orders` : ''}
-            </p>
+            <div className="flex items-center justify-between tabular-nums">
+              <span className="text-xs text-body">
+                {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
+              </span>
+              {p.sold_count > 0 ? (
+                <span className="text-xs font-semibold text-emerald-400">
+                  {fmtK(p.sold_count)} orders
+                </span>
+              ) : (
+                <span className="text-[11px] text-muted">No order data</span>
+              )}
+            </div>
           </div>
         </div>
       ))}

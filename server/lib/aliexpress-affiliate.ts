@@ -166,7 +166,7 @@ export async function searchAffiliateProducts(options: {
     page_size: String(Math.min(options.pageSize || 50, 50)),
     sort: options.sortBy || 'LAST_VOLUME_DESC',
     tracking_id: options.trackingId || trackingId,
-    fields: 'product_id,product_title,product_main_image_url,product_detail_url,sale_price,original_price,discount,commission_rate,hot_product_flag,category_id,evaluate_rate,lastupdated_time',
+    fields: 'product_id,product_title,product_main_image_url,product_detail_url,sale_price,original_price,discount,commission_rate,hot_product_flag,category_id,evaluate_rate,lastupdated_time,lastest_volume,target_sale_price,target_original_price,sale_price_currency,second_level_category_name',
   });
 }
 

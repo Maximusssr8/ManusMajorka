@@ -1275,6 +1275,16 @@ router.get('/ae-live-search', aeSearchLimiter, async (req: Request, res: Respons
       (maxP == null || p.price_aud <= maxP)
     );
 
+    // Orders-first ordering: rows with a real sold_count come first (DESC),
+    // rows with 0/missing orders are pushed to the bottom instead of being
+    // mixed in by the upstream's default ranking.
+    products.sort((a: { sold_count: number }, b: { sold_count: number }) => {
+      const av = a.sold_count > 0 ? 1 : 0;
+      const bv = b.sold_count > 0 ? 1 : 0;
+      if (av !== bv) return bv - av;
+      return (b.sold_count || 0) - (a.sold_count || 0);
+    });
+
     const totalCount = result.result?.total_record_count || products.length;
 
     res.json({
