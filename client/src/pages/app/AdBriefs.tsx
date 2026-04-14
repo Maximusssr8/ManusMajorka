@@ -61,8 +61,40 @@ export default function AdBriefs() {
   const [output, setOutput] = useState<string | null>(null);
   const [history, setHistory] = useState<StoredBrief[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => { setHistory(loadBriefs()); }, []);
+
+  const copyBrief = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(id);
+      setTimeout(() => setCopied(null), 1800);
+    } catch {
+      setError('Could not copy to clipboard');
+    }
+  };
+
+  const downloadBrief = (b: StoredBrief) => {
+    const safeProduct = b.product.replace(/[^a-z0-9-]+/gi, '-').toLowerCase().slice(0, 40) || 'brief';
+    const header = `# Ad Brief — ${b.product}\nPlatforms: ${b.platforms.join(', ')}\nAd type: ${b.adType}\nGenerated: ${new Date(b.createdAt).toLocaleString()}\n\n`;
+    const blob = new Blob([header + b.brief], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeProduct}-brief.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const deleteBrief = (id: string) => {
+    const next = history.filter((h) => h.id !== id);
+    setHistory(next);
+    saveBriefs(next);
+    if (expanded === id) setExpanded(null);
+  };
 
   const togglePlatform = (p: Platform) => {
     setPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
@@ -249,12 +281,25 @@ export default function AdBriefs() {
           borderRadius: 12,
           padding: 24,
           marginBottom: 28,
-          whiteSpace: 'pre-wrap',
-          fontSize: 13,
-          lineHeight: 1.65,
-          color: 'rgba(255,255,255,0.85)',
           fontFamily: sans,
-        }}>{output}</div>
+        }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+            <button
+              onClick={() => copyBrief(output, 'current')}
+              style={actionBtnStyle(copied === 'current')}
+            >{copied === 'current' ? 'Copied ✓' : 'Copy brief'}</button>
+            <button
+              onClick={() => {
+                const latest = history[0];
+                if (latest) downloadBrief(latest);
+              }}
+              style={actionBtnStyle(false)}
+            >Download .md</button>
+          </div>
+          <div style={{ whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.65, color: 'rgba(255,255,255,0.85)' }}>
+            {output}
+          </div>
+        </div>
       )}
 
       {/* Recent briefs */}
@@ -281,16 +326,27 @@ export default function AdBriefs() {
                     maxHeight: open ? 'none' : 60,
                     overflow: 'hidden',
                   }}>{open ? b.brief : b.brief.slice(0, 120) + (b.brief.length > 120 ? '…' : '')}</div>
-                  {b.brief.length > 120 && (
+                  <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+                    {b.brief.length > 120 && (
+                      <button
+                        onClick={() => setExpanded(open ? null : b.id)}
+                        style={miniBtnStyle(false)}
+                      >{open ? 'Collapse' : 'View full'}</button>
+                    )}
                     <button
-                      onClick={() => setExpanded(open ? null : b.id)}
-                      style={{
-                        marginTop: 8,
-                        background: 'none', border: 'none',
-                        color: C.accentHover, fontSize: 12, cursor: 'pointer', padding: 0,
-                      }}
-                    >{open ? 'Collapse ↑' : 'View full brief →'}</button>
-                  )}
+                      onClick={() => copyBrief(b.brief, b.id)}
+                      style={miniBtnStyle(copied === b.id)}
+                    >{copied === b.id ? 'Copied ✓' : 'Copy'}</button>
+                    <button
+                      onClick={() => downloadBrief(b)}
+                      style={miniBtnStyle(false)}
+                    >Download</button>
+                    <button
+                      onClick={() => deleteBrief(b.id)}
+                      style={{ ...miniBtnStyle(false), color: '#f87171', borderColor: 'rgba(239,68,68,0.2)' }}
+                      aria-label="Delete brief"
+                    >Delete</button>
+                  </div>
                 </div>
               );
             })}
@@ -331,6 +387,36 @@ export default function AdBriefs() {
       </section>
     </div>
   );
+}
+
+function actionBtnStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: '7px 12px',
+    borderRadius: 7,
+    background: active ? 'rgba(16,185,129,0.12)' : 'rgba(124,106,255,0.1)',
+    border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(124,106,255,0.28)'}`,
+    color: active ? '#10b981' : '#a78bfa',
+    fontFamily: C.fontBody,
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 120ms ease',
+  };
+}
+
+function miniBtnStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: '5px 10px',
+    borderRadius: 6,
+    background: active ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)',
+    border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`,
+    color: active ? '#10b981' : 'rgba(255,255,255,0.65)',
+    fontFamily: C.fontBody,
+    fontSize: 11,
+    fontWeight: 500,
+    cursor: 'pointer',
+    transition: 'all 120ms ease',
+  };
 }
 
 function pillStyle(active: boolean): React.CSSProperties {
