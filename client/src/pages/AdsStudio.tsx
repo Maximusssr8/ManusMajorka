@@ -8,7 +8,7 @@ import { proxyImage } from '@/lib/imageProxy';
 import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 const mono = "'JetBrains Mono', monospace";
 

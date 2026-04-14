@@ -96,7 +96,7 @@ export function ModuleCard({ m, completed, open, onToggle, onComplete }: ModuleC
             </div>
             <h3
               className="text-lg md:text-xl font-semibold text-white/95 leading-tight mb-1"
-              style={{ fontFamily: "'Nohemi', 'DM Sans', sans-serif" }}
+              style={{ fontFamily: "'Syne', 'DM Sans', sans-serif" }}
             >
               {m.title}
             </h3>

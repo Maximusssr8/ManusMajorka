@@ -41,7 +41,7 @@ const C = {
   green: '#22c55e',
 };
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 export default function PublicProfitCalculator() {

@@ -276,7 +276,7 @@ export function FullDatabaseTab() {
               setSearchResults([]);
               setSearchSource(null);
             }}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors"
+            className="bg-[#d4af37] hover:bg-[#d4af37] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors"
           >
             {isSearchMode ? 'Clear search' : 'Clear all filters'}
           </button>
@@ -348,7 +348,7 @@ export function FullDatabaseTab() {
                 href={selectedProduct.product_url || selectedProduct.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 block bg-indigo-600 hover:bg-indigo-500 text-white text-[13px] font-medium py-2.5 px-4 rounded-lg text-center transition-colors"
+                className="mt-4 block bg-[#d4af37] hover:bg-[#d4af37] text-white text-[13px] font-medium py-2.5 px-4 rounded-lg text-center transition-colors"
               >
                 View on AliExpress ↗
               </a>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { ArrowLeft, Mail, MessageCircle, Send, CheckCircle } from 'lucide-react';
 
-const display = "'Bricolage Grotesque', sans-serif";
+const display = "'Syne', sans-serif";
 const sans = "'DM Sans', sans-serif";
 const mono = 'monospace';
 

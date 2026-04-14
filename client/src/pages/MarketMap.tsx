@@ -152,7 +152,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
             <Map className="w-4 h-4" style={{ color: '#6366F1' }} />
             <h1
               className="font-extrabold text-sm"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
             >
               Market Map
             </h1>
@@ -166,7 +166,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
           <div>
             <label
               className="text-xs font-bold uppercase tracking-widest mb-2 block"
-              style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
             >
               Niche / Market *
             </label>
@@ -186,7 +186,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
           <div>
             <label
               className="text-xs font-bold uppercase tracking-widest mb-2 block"
-              style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
             >
               Known Competitors (optional)
             </label>
@@ -210,7 +210,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
           <div>
             <label
               className="text-xs font-bold uppercase tracking-widest mb-2 block"
-              style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
             >
               Your Brand / Product (optional)
             </label>
@@ -236,7 +236,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 ? 'rgba(99,102,241,0.3)'
                 : 'linear-gradient(135deg, #6366F1, #c09a28)',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}
           >
             {loading ? (
@@ -255,7 +255,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
             <div className="space-y-2">
               <p
                 className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Try these
               </p>
@@ -291,7 +291,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               </div>
               <p
                 className="text-sm font-bold mb-1"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#94A3B8' }}
+                style={{ fontFamily: "'Syne', sans-serif", color: '#94A3B8' }}
               >
                 Your market map will appear here
               </p>
@@ -321,7 +321,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 <div>
                   <h2
                     className="text-lg font-extrabold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                   >
                     {niche} — Market Positioning Map
                   </h2>
@@ -355,7 +355,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   {/* X axis label */}
                   <div
                     className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     Price →
                   </div>
@@ -364,7 +364,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                     className="absolute left-2 top-1/2 text-xs font-bold uppercase tracking-widest"
                     style={{
                       color: '#9CA3AF',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       transform: 'translateY(-50%) rotate(-90deg)',
                       transformOrigin: 'center',
                     }}
@@ -374,25 +374,25 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   {/* Quadrant labels */}
                   <div
                     className="absolute top-3 left-8 text-xs"
-                    style={{ color: '#E5E7EB', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#E5E7EB', fontFamily: "'Syne', sans-serif" }}
                   >
                     Budget / High Quality
                   </div>
                   <div
                     className="absolute top-3 right-4 text-xs"
-                    style={{ color: '#E5E7EB', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#E5E7EB', fontFamily: "'Syne', sans-serif" }}
                   >
                     Premium
                   </div>
                   <div
                     className="absolute bottom-8 left-8 text-xs"
-                    style={{ color: '#E5E7EB', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#E5E7EB', fontFamily: "'Syne', sans-serif" }}
                   >
                     Budget
                   </div>
                   <div
                     className="absolute bottom-8 right-4 text-xs"
-                    style={{ color: '#E5E7EB', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#E5E7EB', fontFamily: "'Syne', sans-serif" }}
                   >
                     Expensive / Low Quality
                   </div>
@@ -438,7 +438,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                       style={{
                         background: c.color,
                         color: '#FAFAFA',
-                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                         boxShadow: `0 0 12px ${c.color}40`,
                       }}
                       title={`${c.name}: ${c.description}`}
@@ -474,7 +474,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                         background: '#F0F0F0',
                         borderColor: '#ffffff',
                         color: '#ffffff',
-                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                         boxShadow: '0 0 16px #9CA3AF',
                       }}
                       title={`You: ${mapData.yourBrand.description}`}
@@ -535,7 +535,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 >
                   <h3
                     className="text-xs font-extrabold uppercase tracking-widest mb-3"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Opportunity Zone
                   </h3>
@@ -562,7 +562,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   <div className="flex items-center justify-between mb-3">
                     <h3
                       className="text-xs font-extrabold uppercase tracking-widest"
-                      style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                     >
                       Key Insights
                     </h3>
@@ -595,7 +595,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               <div>
                 <h3
                   className="text-xs font-extrabold uppercase tracking-widest mb-3"
-                  style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                 >
                   Competitor Details
                 </h3>
@@ -615,7 +615,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                         </div>
                         <span
                           className="text-sm font-bold"
-                          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                          style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                         >
                           {c.name}
                         </span>

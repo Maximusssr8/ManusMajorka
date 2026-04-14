@@ -342,7 +342,7 @@ export default function MarketDashboard() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif", fontWeight: 700, color: '#fff' }}>
+            <h1 className="text-xl font-bold" style={{ fontFamily: "'Syne', 'DM Sans', system-ui, sans-serif", fontWeight: 700, color: '#fff' }}>
               Market Intelligence
             </h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
@@ -406,7 +406,7 @@ export default function MarketDashboard() {
               style={{ background: '#05070F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
             >
               <p className="text-xs mb-1" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{s.label}</p>
-              <p className="text-2xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}>{s.value}</p>
+              <p className="text-2xl font-bold" style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}>{s.value}</p>
               <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{s.sub}</p>
             </div>
           ))}
@@ -532,7 +532,7 @@ export default function MarketDashboard() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs" style={{ color: '#64748b' }}>30-day GMV</p>
-                    <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}>
                       {((topCreator as any).gmv_30d_aud || (topCreator as any).est_monthly_revenue_aud) ? fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud) : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>No data yet</span>}
                     </p>
                   </div>

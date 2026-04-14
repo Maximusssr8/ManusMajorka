@@ -194,7 +194,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
         <span style={{
           fontSize: 11, color: '#6366F1', fontWeight: 700,
           textTransform: 'uppercase', letterSpacing: '0.08em',
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
         }}>
           Maya's Smart Actions
         </span>
@@ -296,7 +296,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
 
                   {/* Title */}
                   <div style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontWeight: 700, fontSize: 13,
                     color: '#F8FAFC', marginBottom: 4, lineHeight: 1.3,
                   }}>
@@ -316,7 +316,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     fontSize: 12, fontWeight: 700, color: cardColor,
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                   }}>
                     {card.action}
                     <ArrowRight size={11} />

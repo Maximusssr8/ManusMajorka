@@ -215,7 +215,7 @@ export default function MyProducts() {
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
-          <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
             Sign in to manage products
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function MyProducts() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               My Products
             </h1>
             <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -266,7 +266,7 @@ export default function MyProducts() {
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                 color: '#FAFAFA',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 cursor: 'pointer',
               }}
             >
@@ -305,7 +305,7 @@ export default function MyProducts() {
               }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Import Product from URL
                 </div>
                 <button
@@ -346,7 +346,7 @@ export default function MyProducts() {
                   style={{
                     background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                     color: '#FAFAFA',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     cursor: importing ? 'not-allowed' : 'pointer',
                   }}
                 >
@@ -392,7 +392,7 @@ export default function MyProducts() {
                     <Check size={14} style={{ color: '#6366F1' }} />
                     <div
                       className="text-xs font-bold uppercase tracking-wider"
-                      style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                     >
                       Product Extracted
                     </div>
@@ -400,7 +400,7 @@ export default function MyProducts() {
                   <div className="mb-2">
                     <div
                       className="text-sm font-extrabold mb-1"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                      style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                     >
                       {importedProduct.productTitle || 'Product'}
                     </div>
@@ -453,7 +453,7 @@ export default function MyProducts() {
                     style={{
                       background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                       color: '#FAFAFA',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
                     }}
                   >
@@ -480,7 +480,7 @@ export default function MyProducts() {
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 {editId ? 'Edit Product' : 'New Product'}
               </div>
               <button
@@ -514,7 +514,7 @@ export default function MyProducts() {
                 <div key={label}>
                   <label
                     className="block text-xs font-bold uppercase tracking-wider mb-1"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     {label}
                   </label>
@@ -541,7 +541,7 @@ export default function MyProducts() {
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                 color: '#FAFAFA',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',
               }}
             >
@@ -557,7 +557,7 @@ export default function MyProducts() {
         {error ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="text-4xl">⚠️</div>
-            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Database not connected
             </div>
             <div
@@ -575,7 +575,7 @@ export default function MyProducts() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="text-5xl">📦</div>
             <div className="text-center">
-              <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
                 No products yet
               </div>
               <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -623,7 +623,7 @@ export default function MyProducts() {
                       <div>
                         <div
                           className="text-sm font-bold"
-                          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ fontFamily: "'Syne', sans-serif" }}
                         >
                           {p.name}
                         </div>

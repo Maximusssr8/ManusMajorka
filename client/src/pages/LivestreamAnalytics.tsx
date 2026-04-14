@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 
 const LIVE_NICHES = [
   { niche: 'Beauty & Skincare', live_count: '2,847', peak_viewers: '12,400', top_product: 'LED Face Mask', avg_gmv: '$8,200' },

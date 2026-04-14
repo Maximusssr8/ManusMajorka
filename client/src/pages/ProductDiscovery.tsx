@@ -159,7 +159,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                   : 'rgba(224,92,122,0.15)',
             color: product.score >= 75 ? '#6366F1' : product.score >= 50 ? '#6366F1' : '#e05c7a',
             border: `1px solid ${product.score >= 75 ? '#6EE7B7' : product.score >= 50 ? '#C7D2FE' : '#FECACA'}`,
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
           }}
         >
           {product.score}
@@ -167,7 +167,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
           >
             {product.name}
           </div>
@@ -209,7 +209,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Problem Solved
               </div>
@@ -220,7 +220,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Target Audience
               </div>
@@ -231,13 +231,13 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Est. Margin
               </div>
               <div
                 className="text-sm font-extrabold"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 {product.estimatedMargin}
               </div>
@@ -245,7 +245,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Suppliers
               </div>
@@ -263,7 +263,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
             >
               Why Now
             </div>
@@ -513,7 +513,7 @@ export default function ProductDiscovery() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Product Discovery
           </div>
@@ -554,7 +554,7 @@ export default function ProductDiscovery() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Research Parameters
             </div>
@@ -562,7 +562,7 @@ export default function ProductDiscovery() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Niche / Category *
                 </label>
@@ -587,7 +587,7 @@ export default function ProductDiscovery() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Price Range (AUD)
                 </label>
@@ -606,7 +606,7 @@ export default function ProductDiscovery() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Target Market
                 </label>
@@ -634,7 +634,7 @@ export default function ProductDiscovery() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Quick Start
             </div>
@@ -664,7 +664,7 @@ export default function ProductDiscovery() {
             style={{
               background: isLoading ? '#C7D2FE' : '#6366F1',
               color: 'white',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontWeight: 700,
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
@@ -698,7 +698,7 @@ export default function ProductDiscovery() {
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading && !result && (
             <div className="space-y-4 animate-fade-in p-4 max-w-3xl">
-              <div className="text-sm font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-sm font-extrabold mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Researching {niche}…
               </div>
               <div className="skeleton-shimmer h-16 w-full rounded-2xl" />
@@ -722,7 +722,7 @@ export default function ProductDiscovery() {
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Market Overview
                   </div>
@@ -745,7 +745,7 @@ export default function ProductDiscovery() {
                   <Star size={12} style={{ color: '#6366F1' }} />
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Top Pick
                   </div>
@@ -762,7 +762,7 @@ export default function ProductDiscovery() {
               <div>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   {result.products.length} Product Opportunities
                 </div>
@@ -784,7 +784,7 @@ export default function ProductDiscovery() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     Market Context
                   </div>
@@ -826,7 +826,7 @@ export default function ProductDiscovery() {
               >
                 <div
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Find your next winning product
                 </div>

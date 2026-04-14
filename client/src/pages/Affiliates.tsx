@@ -9,7 +9,7 @@ import { ArrowLeft, DollarSign, Link2, Gift, CheckCircle } from 'lucide-react';
  * to load — form gracefully handles 404.
  */
 
-const display = "'Bricolage Grotesque', sans-serif";
+const display = "'Syne', sans-serif";
 const sans = "'DM Sans', sans-serif";
 const mono = 'monospace';
 

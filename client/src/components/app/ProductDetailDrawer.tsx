@@ -4,7 +4,7 @@ import { proxyImage } from '@/lib/imageProxy';
 import { ProductSparkline } from '@/components/app/Sparkline';
 import { scorePillStyle } from '@/lib/scorePill';
 
-const display = "'Bricolage Grotesque', system-ui, sans-serif";
+const display = "'Syne', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
 const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
 
@@ -51,7 +51,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           gap: 12,
         }}>
           <h3 style={{
-            fontFamily: "'Nohemi', 'Inter', sans-serif",
+            fontFamily: "'Syne', 'Inter', sans-serif",
             fontSize: 16,
             fontWeight: 600,
             color: '#f0f4ff',
@@ -170,39 +170,76 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             ))}
           </div>
 
-          {/* Score breakdown */}
-          <div style={{
-            background: '#1c1c1c',
-            border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 8,
-            padding: '14px 16px',
-            marginBottom: 16,
-          }}>
-            <div style={{
-              fontFamily: mono,
-              fontSize: 10,
-              color: '#7c6aff',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              marginBottom: 14,
-            }}>Score Breakdown</div>
-            {([
-              { label: 'Demand',         pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.92 + ((Number(String(product.id).slice(-2)) || 0) % 10))), color: '#10b981' },
-              { label: 'Trend',          pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.95 + ((Number(String(product.id).slice(-2)) || 0) % 5))),  color: '#10b981' },
-              { label: 'Margin Signal',  pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.86 + ((Number(String(product.id).slice(-2)) || 0) % 14))), color: '#f59e0b' },
-              { label: 'Competition',    pct: Math.min(100, Math.round((product.winning_score ?? 0) * 0.72 + ((Number(String(product.id).slice(-2)) || 0) % 18))), color: '#f59e0b' },
-            ] as const).map((item) => (
-              <div key={item.label} style={{ marginBottom: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontFamily: sans, fontSize: 12, color: '#71717a' }}>{item.label}</span>
-                  <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: item.color }}>{item.pct}</span>
-                </div>
-                <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
-                  <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: 2, opacity: 0.9 }} />
+          {/* Score breakdown — real signals only, honest "—" fallback */}
+          {(() => {
+            // Demand: normalised sold_count. 100k+ orders = 100.
+            const soldCount = product.sold_count ?? null;
+            const demandPct = soldCount != null && soldCount > 0
+              ? Math.max(5, Math.min(100, Math.round(Math.log10(soldCount + 1) * 20)))
+              : null;
+
+            // Trend: 7-day velocity ratio vs prior baseline.
+            const velocity = product.velocity_7d ?? null;
+            const sold7dAgo = product.sold_count_7d_ago ?? null;
+            const trendPct = velocity != null && sold7dAgo != null && sold7dAgo > 0
+              ? Math.max(5, Math.min(100, Math.round((velocity / Math.max(sold7dAgo / 7, 1)) * 50)))
+              : velocity != null && velocity > 0
+                ? Math.max(5, Math.min(100, Math.round(Math.log10(velocity + 1) * 25)))
+                : null;
+
+            // Competition + Margin: no columns exist in winning_products for these yet.
+            // Render honest "—" with provenance tooltip rather than faking it.
+            type Row = { label: string; pct: number | null; color: string; tooltip: string };
+            const rows: Row[] = [
+              { label: 'Demand',        pct: demandPct, color: '#10b981', tooltip: 'Computed from lifetime sold_count (log-scaled)' },
+              { label: 'Trend',         pct: trendPct,  color: '#10b981', tooltip: 'Computed from 7-day velocity vs prior baseline' },
+              { label: 'Margin Signal', pct: null,      color: '#f59e0b', tooltip: 'Signal not yet scored — supplier cost data pending' },
+              { label: 'Competition',   pct: null,      color: '#f59e0b', tooltip: 'Signal not yet scored — competitor tracking coming soon' },
+            ];
+
+            return (
+              <div style={{
+                background: '#1c1c1c',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 8,
+                padding: '14px 16px',
+                marginBottom: 16,
+              }}>
+                <div style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  color: '#7c6aff',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginBottom: 14,
+                }}>Score Breakdown</div>
+                {rows.map((item) => (
+                  <div key={item.label} style={{ marginBottom: 10 }} title={item.tooltip}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontFamily: sans, fontSize: 12, color: '#71717a' }}>{item.label}</span>
+                      <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: item.pct == null ? '#52525b' : item.color }}>
+                        {item.pct == null ? '—' : item.pct}
+                      </span>
+                    </div>
+                    <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
+                      {item.pct != null && (
+                        <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: 2, opacity: 0.9 }} />
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <div style={{
+                  marginTop: 10,
+                  fontFamily: sans,
+                  fontSize: 10,
+                  color: '#4b5563',
+                  lineHeight: 1.5,
+                }}>
+                  Computed from 7-day velocity + lifetime sold_count. Margin and competition signals are not yet scored — we&apos;ll backfill once supplier cost and competitor data land.
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })()}
 
           {/* 30-day order trend */}
           <div style={{

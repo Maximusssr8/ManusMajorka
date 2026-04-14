@@ -20,7 +20,7 @@ export default function NotFound() {
         >
           <span
             className="text-black font-extrabold text-2xl"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             M
           </span>
@@ -29,7 +29,7 @@ export default function NotFound() {
         {/* 404 */}
         <h1
           className="text-6xl font-extrabold mb-3"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', letterSpacing: '-2px' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC', letterSpacing: '-2px' }}
         >
           404
         </h1>
@@ -37,7 +37,7 @@ export default function NotFound() {
         {/* Witty AU message */}
         <p
           className="text-base font-semibold mb-2"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
         >
           Yeah nah, this page doesn't exist.
         </p>
@@ -54,7 +54,7 @@ export default function NotFound() {
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid #F0F0F0',
               color: '#CBD5E1',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}
             aria-label="Go back to previous page"
           >
@@ -67,7 +67,7 @@ export default function NotFound() {
             style={{
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               border: 'none',
               boxShadow: '0 4px 16px rgba(99,102,241,0.25)',
             }}

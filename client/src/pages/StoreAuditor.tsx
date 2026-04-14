@@ -138,7 +138,7 @@ export default function StoreAuditor() {
             <ShieldCheck size={15} style={{ color: '#00b4d8' }} />
           </div>
           <div>
-            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Store Auditor
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -150,7 +150,7 @@ export default function StoreAuditor() {
         <div>
           <label
             className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-            style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
           >
             Store URL <span style={{ color: '#00b4d8' }}>*</span>
           </label>
@@ -179,7 +179,7 @@ export default function StoreAuditor() {
               ? 'rgba(0,180,216,0.25)'
               : 'linear-gradient(135deg, #00b4d8, #0096c7)',
             color: '#fff',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(0,180,216,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -206,7 +206,7 @@ export default function StoreAuditor() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Store Audit Report
               </h2>
               <SaveToProduct toolId="store-auditor" toolName="Store Auditor" outputData={result} />
@@ -258,7 +258,7 @@ export default function StoreAuditor() {
                 <div
                   className="absolute inset-0 flex items-center justify-center text-lg font-extrabold"
                   style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     color:
                       result.score >= 70 ? '#6366F1' : result.score >= 40 ? '#F59E0B' : '#ff6b6b',
                   }}
@@ -283,7 +283,7 @@ export default function StoreAuditor() {
             >
               <div
                 className="text-xs font-extrabold uppercase tracking-widest mb-3"
-                style={{ color: '#ff6b6b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#ff6b6b', fontFamily: "'Syne', sans-serif" }}
               >
                 Priority Fixes
               </div>
@@ -298,7 +298,7 @@ export default function StoreAuditor() {
                     style={{
                       background: 'rgba(255,100,100,0.15)',
                       color: '#ff6b6b',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                     }}
                   >
                     {i + 1}
@@ -327,7 +327,7 @@ export default function StoreAuditor() {
                   >
                     <div
                       className="text-xs font-extrabold uppercase tracking-widest"
-                      style={{ color: '#00b4d8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#00b4d8', fontFamily: "'Syne', sans-serif" }}
                     >
                       {cat}
                     </div>
@@ -390,7 +390,7 @@ export default function StoreAuditor() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#00b4d8' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Auditing your store…
                 </div>
                 <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -403,7 +403,7 @@ export default function StoreAuditor() {
                 <div className="text-center">
                   <div
                     className="text-base font-extrabold mb-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Store Auditor
                   </div>

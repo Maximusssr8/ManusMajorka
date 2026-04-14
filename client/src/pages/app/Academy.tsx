@@ -36,7 +36,7 @@ import { ACADEMY_MODULES } from '@/components/academy/modules';
 
 const PROGRESS_KEY = 'majorka_academy_progress';
 
-const displayFont = "'Nohemi', 'DM Sans', sans-serif";
+const displayFont = "'Syne', 'DM Sans', sans-serif";
 
 interface StoredProgress {
   completed: string[];
@@ -153,7 +153,7 @@ export default function Academy() {
           >
             From zero to your first sale
             <br />
-            <span className="bg-gradient-to-r from-indigo-300 via-indigo-200 to-emerald-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#e5c158] via-[#e5c158] to-emerald-300 bg-clip-text text-transparent">
               in 60 minutes.
             </span>
           </motion.h1>
@@ -176,7 +176,7 @@ export default function Academy() {
           >
             <a
               href="#modules"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-semibold transition-all hover:scale-[1.02] shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_20px_60px_rgba(99,102,241,0.3)]"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#d4af37] hover:bg-[#e5c158] text-white text-sm font-semibold transition-all hover:scale-[1.02] shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_20px_60px_rgba(99,102,241,0.3)]"
             >
               Start free
               <ArrowRight size={16} />
@@ -267,10 +267,10 @@ export default function Academy() {
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 whileHover={{ y: -4 }}
-                className="bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all hover:border-indigo-400/30"
+                className="bg-surface border border-white/[0.07] rounded-2xl p-6 transition-all hover:border-[#e5c158]/30"
                 style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.01)' }}
               >
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-400/20 flex items-center justify-center text-indigo-300 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#d4af37]/15 border border-[#e5c158]/20 flex items-center justify-center text-[#e5c158] mb-4">
                   {c.icon}
                 </div>
                 <div className="text-lg font-semibold text-white/95 mb-2" style={{ fontFamily: displayFont }}>
@@ -293,7 +293,7 @@ export default function Academy() {
             transition={{ duration: 0.6 }}
             className="mb-10 md:mb-14"
           >
-            <div className="text-[10px] font-mono uppercase tracking-widest text-indigo-300/70 mb-3">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-[#e5c158]/70 mb-3">
               The Learning Path · 12 modules · ~2 hrs total
             </div>
             <h2
@@ -461,7 +461,7 @@ export default function Academy() {
             transition={{ duration: 0.6 }}
             className="text-center mb-14"
           >
-            <div className="text-[10px] font-mono uppercase tracking-widest text-indigo-300/70 mb-3">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-[#e5c158]/70 mb-3">
               You've learned the basics
             </div>
             <h2
@@ -510,31 +510,31 @@ export default function Academy() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.12 }}
               whileHover={{ y: -4 }}
-              className="relative bg-gradient-to-b from-indigo-500/[0.08] to-surface border rounded-2xl p-7 flex flex-col"
+              className="relative bg-gradient-to-b from-[#d4af37]/[0.08] to-surface border rounded-2xl p-7 flex flex-col"
               style={{
                 borderColor: 'rgba(99,102,241,0.35)',
                 boxShadow: '0 0 0 1px rgba(99,102,241,0.25), 0 30px 80px rgba(99,102,241,0.15)',
               }}
             >
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-indigo-500 text-white text-[10px] font-mono uppercase tracking-widest">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#d4af37] text-white text-[10px] font-mono uppercase tracking-widest">
                 Most popular
               </div>
-              <div className="text-[11px] font-mono uppercase tracking-widest text-indigo-300 mb-3">Builder</div>
+              <div className="text-[11px] font-mono uppercase tracking-widest text-[#e5c158] mb-3">Builder</div>
               <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-4xl font-semibold text-white" style={{ fontFamily: displayFont }}>$99</span>
                 <span className="text-sm text-white/50">/ mo AUD</span>
               </div>
               <ul className="space-y-3 text-sm text-white/75 flex-1 mb-6">
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-indigo-300 flex-shrink-0" /> Everything in Academy</li>
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-indigo-300 flex-shrink-0" /> Full Products database (3,715+ SKUs)</li>
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-indigo-300 flex-shrink-0" /> Velocity Leaders &amp; winning scores</li>
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-indigo-300 flex-shrink-0" /> Store Builder — unlimited stores</li>
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-indigo-300 flex-shrink-0" /> Ads Studio (Meta + TikTok copy)</li>
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-indigo-300 flex-shrink-0" /> 10 tracked products in Alerts</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-[#e5c158] flex-shrink-0" /> Everything in Academy</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-[#e5c158] flex-shrink-0" /> Full Products database (3,715+ SKUs)</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-[#e5c158] flex-shrink-0" /> Velocity Leaders &amp; winning scores</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-[#e5c158] flex-shrink-0" /> Store Builder — unlimited stores</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-[#e5c158] flex-shrink-0" /> Ads Studio (Meta + TikTok copy)</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-[#e5c158] flex-shrink-0" /> 10 tracked products in Alerts</li>
               </ul>
               <Link
                 href="/pricing"
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-semibold transition-all hover:scale-[1.02]"
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#d4af37] hover:bg-[#e5c158] text-white text-sm font-semibold transition-all hover:scale-[1.02]"
               >
                 Start 7-day trial
                 <ArrowRight size={14} />

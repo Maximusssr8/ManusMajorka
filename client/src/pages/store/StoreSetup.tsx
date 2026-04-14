@@ -85,7 +85,7 @@ export default function StoreSetup() {
                   done
                     ? 'bg-emerald-500 border-emerald-500 text-white'
                     : active
-                      ? 'border-indigo-500 text-indigo-600'
+                      ? 'border-[#d4af37] text-[#d4af37]'
                       : 'border-white/[0.08] text-gray-400'
                 }`}
               >
@@ -165,7 +165,7 @@ export default function StoreSetup() {
             </div>
             <div className="bg-[#111B2E] rounded-lg p-6 border border-white/[0.08]">
               <div className="flex items-center gap-3 mb-4">
-                <CreditCard className="w-6 h-6 text-[#6366F1]" />
+                <CreditCard className="w-6 h-6 text-[#d4af37]" />
                 <span className="text-slate-100 font-medium">Stripe Payments</span>
               </div>
               <p className="text-gray-500 text-sm mb-4">
@@ -223,7 +223,7 @@ export default function StoreSetup() {
                 href="https://business.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#6366F1] text-sm hover:underline"
+                className="text-[#d4af37] text-sm hover:underline"
               >
                 How to find your Meta IDs →
               </a>
@@ -245,7 +245,7 @@ export default function StoreSetup() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Store URL</span>
-                <span className="text-[#6366F1] text-sm">/store/{form.storeSlug}</span>
+                <span className="text-[#d4af37] text-sm">/store/{form.storeSlug}</span>
               </div>
               {form.metaPixelId && (
                 <div className="flex justify-between">

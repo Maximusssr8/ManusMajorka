@@ -66,7 +66,7 @@ export function Typewriter({ lines, speed = 28, lineDelay = 600, loop = true, cl
         <div key={i} className="whitespace-pre-wrap">
           {line}
           {i === rendered.length - 1 && (
-            <span className="inline-block w-[2px] h-[1em] ml-0.5 -mb-0.5 bg-indigo-400 align-middle animate-pulse" />
+            <span className="inline-block w-[2px] h-[1em] ml-0.5 -mb-0.5 bg-[#e5c158] align-middle animate-pulse" />
           )}
         </div>
       ))}

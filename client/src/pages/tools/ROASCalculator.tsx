@@ -146,10 +146,10 @@ export default function ROASCalculator() {
             background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14,
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
           }}>M</div>
           <span style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 16, fontWeight: 700, color: '#f5f5f5',
             letterSpacing: '-0.02em',
           }}>Majorka</span>
@@ -179,7 +179,7 @@ export default function ROASCalculator() {
             }}>Free tool</span>
           </div>
           <h1 style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 'clamp(32px, 5vw, 52px)',
             fontWeight: 800,
             letterSpacing: '-0.03em',
@@ -305,7 +305,7 @@ export default function ROASCalculator() {
           textAlign: 'center',
         }}>
           <div style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 22, fontWeight: 700, color: '#f5f5f5',
             marginBottom: 8, letterSpacing: '-0.02em',
           }}>
@@ -380,7 +380,7 @@ function StatCard({ label, value, color, hint }: { label: string; value: string;
         letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10,
       }}>{label}</div>
       <div style={{
-        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontFamily: "'Syne', sans-serif",
         fontSize: 30, fontWeight: 700, color, letterSpacing: '-0.02em',
         lineHeight: 1, marginBottom: 8,
       }}>{value}</div>

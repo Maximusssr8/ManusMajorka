@@ -49,7 +49,7 @@ export default function AdminLeads() {
           <div className="text-4xl mb-3">🔒</div>
           <h2
             className="text-lg font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
           >
             Admin Only
           </h2>
@@ -159,7 +159,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
           <div>
             <h1
               className="text-xl font-extrabold flex items-center gap-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
             >
               <Users size={20} style={{ color: '#6366F1' }} />
               Lead Intelligence
@@ -180,7 +180,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   border: `1px solid ${tab === t ? 'rgba(99,102,241,0.3)' : '#F5F5F5'}`,
                   color: tab === t ? '#6366F1' : '#6B7280',
                   cursor: 'pointer',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                 }}
               >
                 {t === 'leads' ? (
@@ -212,7 +212,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               >
                 <h2
                   className="text-sm font-bold mb-4 flex items-center gap-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
                 >
                   <Globe size={14} /> Market Breakdown
                 </h2>
@@ -261,7 +261,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <Mail size={14} style={{ color: '#6366F1' }} />
                 <span
                   className="text-sm font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
                 >
                   All Users ({leads.length})
                 </span>
@@ -285,7 +285,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                             className="px-4 py-2.5 text-left font-bold uppercase tracking-wider"
                             style={{
                               color: '#9CA3AF',
-                              fontFamily: "'Bricolage Grotesque', sans-serif",
+                              fontFamily: "'Syne', sans-serif",
                               fontSize: 10,
                             }}
                           >
@@ -358,7 +358,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                 color: '#FAFAFA',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 cursor: 'pointer',
                 border: 'none',
               }}
@@ -392,7 +392,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                   color: '#FAFAFA',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   cursor: 'pointer',
                   border: 'none',
                 }}
@@ -414,7 +414,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 >
                   <h2
                     className="text-sm font-bold mb-3 flex items-center gap-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
                   >
                     <Globe size={14} /> Where Your Customers Are (Top 20)
                   </h2>
@@ -445,7 +445,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 >
                   <h2
                     className="text-sm font-bold mb-3 flex items-center gap-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
                   >
                     <Mail size={14} /> Outreach Templates
                   </h2>
@@ -464,7 +464,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                             className="text-xs font-bold uppercase"
                             style={{
                               color: '#94A3B8',
-                              fontFamily: "'Bricolage Grotesque', sans-serif",
+                              fontFamily: "'Syne', sans-serif",
                               letterSpacing: '0.05em',
                             }}
                           >
@@ -505,7 +505,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   <div className="flex items-center justify-between mb-3">
                     <h2
                       className="text-sm font-bold flex items-center gap-2"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                      style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
                     >
                       <MessageSquare size={14} /> Weekly Schedule
                     </h2>

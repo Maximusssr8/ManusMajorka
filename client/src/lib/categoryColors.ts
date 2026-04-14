@@ -5,13 +5,13 @@ export function getCategoryColor(category: string): string {
   if (cat.includes('fashion') || cat.includes('clothing') || cat.includes('apparel')) return 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
   if (cat.includes('electron') || cat.includes('tech') || cat.includes('phone')) return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
   if (cat.includes('beauty') || cat.includes('cosmetic')) return 'bg-pink-500/20 text-pink-300 border border-pink-500/30';
-  if (cat.includes('kids') || cat.includes('baby') || cat.includes('child')) return 'bg-violet-500/20 text-violet-300 border border-violet-500/30';
+  if (cat.includes('kids') || cat.includes('baby') || cat.includes('child')) return 'bg-[#3B82F6]/20 text-violet-300 border border-[#3B82F6]/30';
   if (cat.includes('outdoor') || cat.includes('garden') || cat.includes('camp')) return 'bg-green-500/20 text-green-300 border border-green-500/30';
   if (cat.includes('pet') || cat.includes('animal')) return 'bg-orange-500/20 text-orange-300 border border-orange-500/30';
   if (cat.includes('home') || cat.includes('decor') || cat.includes('furniture')) return 'bg-slate-500/20 text-slate-300 border border-slate-500/30';
   if (cat.includes('sport') || cat.includes('fitness') || cat.includes('gym')) return 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
   if (cat.includes('car') || cat.includes('auto') || cat.includes('vehicle')) return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
-  return 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
+  return 'bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/30';
 }
 
 export function getCategoryStyle(category: string): { background: string; color: string; border: string } {

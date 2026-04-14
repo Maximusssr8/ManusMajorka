@@ -53,7 +53,7 @@ export default function InsightsPage() {
               <h1
                 className="text-2xl font-extrabold"
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   color: '#F8FAFC',
                   letterSpacing: '-0.02em',
                 }}
@@ -82,7 +82,7 @@ export default function InsightsPage() {
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: section.color }} />
                 <h2
                   className="text-xs font-extrabold uppercase tracking-widest"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: section.color }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: section.color }}
                 >
                   {section.title}
                 </h2>
@@ -133,7 +133,7 @@ export default function InsightsPage() {
                           <div
                             className="text-sm font-bold mb-1"
                             style={{
-                              fontFamily: "'Bricolage Grotesque', sans-serif",
+                              fontFamily: "'Syne', sans-serif",
                               color: '#F8FAFC',
                             }}
                           >

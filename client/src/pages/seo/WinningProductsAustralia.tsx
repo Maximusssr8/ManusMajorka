@@ -21,7 +21,7 @@ const C = {
   goldBorder: 'rgba(99,102,241,0.2)',
 };
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dmSans = 'DM Sans, sans-serif';
 
 const TOP_10_PRODUCTS = [
@@ -123,7 +123,7 @@ export default function WinningProductsAustralia() {
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <img src="/majorka-logo.jpg" alt="Majorka" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain', display: 'block', borderRadius: 10, flexShrink: 0 }} draggable={false} />
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, color: 'white', letterSpacing: '-0.02em' }}>Majorka</span>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, color: 'white', letterSpacing: '-0.02em' }}>Majorka</span>
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/pricing" style={{ color: C.secondary, fontSize: 13, textDecoration: 'none', fontFamily: syne, fontWeight: 600 }}>Pricing</Link>

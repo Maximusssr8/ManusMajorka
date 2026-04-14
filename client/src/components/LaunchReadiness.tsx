@@ -9,7 +9,7 @@ import { ArrowRight, Lock, Rocket } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const LAUNCH_CSS = `

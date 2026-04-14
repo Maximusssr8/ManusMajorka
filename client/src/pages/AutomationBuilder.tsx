@@ -121,7 +121,7 @@ export default function AutomationBuilder() {
             <Zap size={15} style={{ color: '#ffb400' }} />
           </div>
           <div>
-            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Automation Builder
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -167,7 +167,7 @@ export default function AutomationBuilder() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               {label} {req && <span style={{ color: '#ffb400' }}>*</span>}
             </label>
@@ -213,7 +213,7 @@ export default function AutomationBuilder() {
               ? 'rgba(255,180,0,0.25)'
               : 'linear-gradient(135deg, #ffb400, #F59E0B)',
             color: '#FAFAFA',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(255,180,0,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -235,7 +235,7 @@ export default function AutomationBuilder() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Automation Plan
                 </h2>
                 <SaveToProduct
@@ -290,7 +290,7 @@ export default function AutomationBuilder() {
                   style={{ borderColor: 'rgba(255,255,255,0.08)' }}
                 >
                   <div>
-                    <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                       {auto.name}
                     </div>
                     <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
@@ -377,7 +377,7 @@ export default function AutomationBuilder() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#ffb400' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Building your automations…
                 </div>
               </div>
@@ -387,7 +387,7 @@ export default function AutomationBuilder() {
                 <div className="text-center">
                   <div
                     className="text-base font-extrabold mb-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Automation Builder
                   </div>

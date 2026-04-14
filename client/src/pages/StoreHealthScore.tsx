@@ -24,7 +24,7 @@ const C = {
   red: '#ef4444',
 };
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 interface HealthScoreResult {

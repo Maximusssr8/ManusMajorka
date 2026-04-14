@@ -201,7 +201,7 @@ export default function KeywordMiner() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Keyword Miner
           </div>
@@ -239,7 +239,7 @@ export default function KeywordMiner() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Seed Keyword *
               </label>
@@ -264,7 +264,7 @@ export default function KeywordMiner() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Platform
               </label>
@@ -288,7 +288,7 @@ export default function KeywordMiner() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Market
               </label>
@@ -318,7 +318,7 @@ export default function KeywordMiner() {
             style={{
               background: isLoading ? 'rgba(74,184,245,0.25)' : '#4ab8f5',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -360,7 +360,7 @@ export default function KeywordMiner() {
                 <Hash size={24} style={{ color: '#4ab8f5' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Mining keywords for "{seed}"…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -382,7 +382,7 @@ export default function KeywordMiner() {
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#4ab8f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#4ab8f5', fontFamily: "'Syne', sans-serif" }}
                   >
                     Keyword Landscape
                   </div>
@@ -407,7 +407,7 @@ export default function KeywordMiner() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     {result.keywords.length} Keywords
                   </div>
@@ -483,7 +483,7 @@ export default function KeywordMiner() {
                                 : kw.opportunity >= 50
                                   ? '#6366F1'
                                   : '#e05c7a',
-                            fontFamily: "'Bricolage Grotesque', sans-serif",
+                            fontFamily: "'Syne', sans-serif",
                             minWidth: '28px',
                             textAlign: 'right',
                           }}
@@ -507,7 +507,7 @@ export default function KeywordMiner() {
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Top Opportunity
                 </div>
@@ -527,7 +527,7 @@ export default function KeywordMiner() {
                   <div className="flex items-center justify-between mb-3">
                     <div
                       className="text-xs font-bold uppercase tracking-widest"
-                      style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                     >
                       Content Ideas
                     </div>
@@ -556,7 +556,7 @@ export default function KeywordMiner() {
                   <div className="flex items-center justify-between mb-3">
                     <div
                       className="text-xs font-bold uppercase tracking-widest"
-                      style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                     >
                       Ad Groups
                     </div>
@@ -585,7 +585,7 @@ export default function KeywordMiner() {
               <div className="text-center">
                 <div
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Uncover high-value keywords
                 </div>

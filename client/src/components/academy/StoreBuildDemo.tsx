@@ -95,7 +95,7 @@ export function StoreBuildDemo() {
                 <AnimatePresence mode="wait">
                   {isActive && (
                     <motion.div key="load" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
-                      <Loader2 size={14} className="text-indigo-400 animate-spin" />
+                      <Loader2 size={14} className="text-[#e5c158] animate-spin" />
                     </motion.div>
                   )}
                   {isDone && (

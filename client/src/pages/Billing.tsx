@@ -77,7 +77,7 @@ export default function Billing() {
           .billing-page { padding: 20px 16px !important; }
         }
       `}</style>
-      <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 4 }}>
+      <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: C.text, marginBottom: 4 }}>
         Billing & Plan
       </h1>
       <p style={{ fontSize: 13, color: C.muted, marginBottom: 32 }}>Manage your Majorka subscription</p>
@@ -96,11 +96,11 @@ export default function Billing() {
                 {planLabel === 'Free' ? <Zap size={18} style={{ color: C.muted }} /> : <Star size={18} style={{ color: C.gold }} />}
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>{planLabel} Plan</div>
+                <div style={{ fontSize: 16, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: C.text }}>{planLabel} Plan</div>
                 <div style={{ fontSize: 12, color: isActive ? C.green : C.muted }}>{isActive ? '● Active' : '● Inactive'}</div>
               </div>
               {isActive && (
-                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: 'rgba(99,102,241,0.12)', color: C.gold, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: 'rgba(99,102,241,0.12)', color: C.gold, fontFamily: "'Syne', sans-serif" }}>
                   SUBSCRIBED
                 </span>
               )}
@@ -129,7 +129,7 @@ export default function Billing() {
             {planLabel === 'Free' && (
               <a
                 href="/pricing"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: '#6366F1', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: '#6366F1', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
               >
                 <Star size={14} /> Upgrade Plan
               </a>
@@ -138,7 +138,7 @@ export default function Billing() {
             {planLabel === 'Builder' && (
               <a
                 href="/pricing"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: C.surface, border: '1px solid rgba(99,102,241,0.3)', color: C.gold, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: C.surface, border: '1px solid rgba(99,102,241,0.3)', color: C.gold, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
               >
                 <Zap size={14} /> Upgrade to Scale
               </a>
@@ -147,7 +147,7 @@ export default function Billing() {
 
           {/* Plan features summary */}
           <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, fontFamily: "'Syne', sans-serif" }}>
               Your Plan Includes
             </div>
             {planLabel === 'Free' ? (

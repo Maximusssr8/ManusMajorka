@@ -44,7 +44,7 @@ export function ActiveProductBanner({ onUseProduct, ctaLabel = 'Use this product
         <div className="flex items-center gap-2">
           <span
             className="text-xs font-extrabold truncate"
-            style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
           >
             {activeProduct.name}
           </span>

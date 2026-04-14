@@ -462,7 +462,7 @@ export default function KnowledgeBase() {
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', letterSpacing: '0.1em' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC', letterSpacing: '0.1em' }}
           >
             Knowledge Base
           </span>
@@ -474,7 +474,7 @@ export default function KnowledgeBase() {
             className="px-2 pb-2 text-xs uppercase font-bold tracking-widest"
             style={{
               color: '#3f3f46',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontSize: 9,
               letterSpacing: '0.12em',
             }}
@@ -563,14 +563,14 @@ export default function KnowledgeBase() {
               </div>
               <span
                 className="text-xs uppercase tracking-widest font-bold"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 10 }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif", fontSize: 10 }}
               >
                 Knowledge Base
               </span>
             </div>
             <h1
               className="text-2xl font-extrabold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', lineHeight: 1.2 }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC', lineHeight: 1.2 }}
             >
               {activeSection.title}
             </h1>
@@ -599,7 +599,7 @@ export default function KnowledgeBase() {
             <div>
               <p
                 className="text-sm font-bold mb-0.5"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
               >
                 Have questions about {activeSection.title.toLowerCase()}?
               </p>
@@ -615,7 +615,7 @@ export default function KnowledgeBase() {
                 color: '#FAFAFA',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
@@ -654,7 +654,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#F8FAFC', fontFamily: "'Syne', sans-serif" }}
                         >
                           {prev.title}
                         </span>
@@ -673,7 +673,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#F8FAFC', fontFamily: "'Syne', sans-serif" }}
                         >
                           {next.title}
                         </span>
@@ -708,7 +708,7 @@ function ArticleContent({ content }: { content: string }) {
         <h2
           key={i}
           className="text-xl font-extrabold mt-8 mb-3"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
         >
           {line.slice(3)}
         </h2>
@@ -723,7 +723,7 @@ function ArticleContent({ content }: { content: string }) {
         <h3
           key={i}
           className="text-base font-bold mt-5 mb-2"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#1E293B' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#1E293B' }}
         >
           {line.slice(4)}
         </h3>
@@ -825,7 +825,7 @@ function MarkdownTable({ lines }: { lines: string[] }) {
                   background: 'rgba(99,102,241,0.06)',
                   color: '#6366F1',
                   borderBottom: '1px solid rgba(99,102,241,0.15)',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 10,
                   letterSpacing: '0.1em',
                   whiteSpace: 'nowrap',

@@ -300,7 +300,7 @@ export default function SupplierIntelligence() {
             <div>
               <h1
                 className="text-lg font-bold leading-tight"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
               >
                 Supplier Intelligence
               </h1>
@@ -346,7 +346,7 @@ export default function SupplierIntelligence() {
               style={{
                 background: '#6366F1',
                 color: '#FAFAFA',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               {loading ? 'Searching...' : 'Search'}
@@ -397,7 +397,7 @@ export default function SupplierIntelligence() {
                 <TrendingUp className="w-4 h-4" style={{ color: '#6366F1' }} />
                 <span
                   className="text-sm font-semibold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
                 >
                   Profit Snapshot — {currentQuery}
                 </span>
@@ -430,7 +430,7 @@ export default function SupplierIntelligence() {
                     <div className="text-xs mb-1" style={{ color: '#9CA3AF' }}>
                       {item.label}
                     </div>
-                    <div className="text-sm font-semibold" style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <div className="text-sm font-semibold" style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}>
                       {item.value}
                     </div>
                   </div>
@@ -451,7 +451,7 @@ export default function SupplierIntelligence() {
               >
                 <span
                   className="text-xs font-semibold uppercase tracking-widest"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   {suppliers.length} Suppliers Found — Sorted by Margin
                 </span>
@@ -466,7 +466,7 @@ export default function SupplierIntelligence() {
                   color: '#9CA3AF',
                   background: '#05070F',
                   borderBottom: '1px solid #F9FAFB',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                 }}
               >
                 <span>#</span>
@@ -511,7 +511,7 @@ export default function SupplierIntelligence() {
                     <div className="min-w-0 pr-2">
                       <div
                         className="font-semibold truncate"
-                        style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13 }}
+                        style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif", fontSize: 13 }}
                       >
                         {s.supplier_name}
                       </div>
@@ -552,7 +552,7 @@ export default function SupplierIntelligence() {
                     {/* Margin */}
                     <span
                       className="font-bold text-sm"
-                      style={{ color: profitColor, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: profitColor, fontFamily: "'Syne', sans-serif" }}
                     >
                       {s.profit_margin_pct.toFixed(0)}%
                     </span>
@@ -644,7 +644,7 @@ export default function SupplierIntelligence() {
               <div className="mb-2">
                 <h2
                   className="text-sm font-semibold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                 >
                   Featured AU Supplier Platforms
                 </h2>
@@ -665,7 +665,7 @@ export default function SupplierIntelligence() {
                     <div className="flex items-center justify-between">
                       <span
                         className="font-bold text-sm"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: p.color }}
+                        style={{ fontFamily: "'Syne', sans-serif", color: p.color }}
                       >
                         {p.name}
                       </span>
@@ -714,7 +714,7 @@ export default function SupplierIntelligence() {
           <div className="flex items-center justify-between mb-2">
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Saved Suppliers
             </span>
@@ -737,7 +737,7 @@ export default function SupplierIntelligence() {
           <div className="mb-2">
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Recent Searches
             </span>
@@ -784,7 +784,7 @@ export default function SupplierIntelligence() {
         >
           <div
             className="text-xs font-semibold mb-2"
-            style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
           >
             💡 Pro Tips
           </div>

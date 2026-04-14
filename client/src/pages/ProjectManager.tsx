@@ -145,7 +145,7 @@ export default function ProjectManager() {
             <ClipboardList size={15} style={{ color: '#9c5fff' }} />
           </div>
           <div>
-            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Project Manager
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -157,7 +157,7 @@ export default function ProjectManager() {
         <div>
           <label
             className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-            style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
           >
             Project Goal <span style={{ color: '#9c5fff' }}>*</span>
           </label>
@@ -190,7 +190,7 @@ export default function ProjectManager() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               {label}
             </label>
@@ -219,7 +219,7 @@ export default function ProjectManager() {
               ? 'rgba(156,95,255,0.25)'
               : 'linear-gradient(135deg, #9c5fff, #7c6af5)',
             color: '#fff',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(156,95,255,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -241,7 +241,7 @@ export default function ProjectManager() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   {result.name}
                 </h2>
                 <SaveToProduct
@@ -278,7 +278,7 @@ export default function ProjectManager() {
               <div className="flex items-center justify-between mb-2">
                 <span
                   className="text-xs font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#9c5fff' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#9c5fff' }}
                 >
                   Progress
                 </span>
@@ -327,7 +327,7 @@ export default function ProjectManager() {
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"
-                    style={{ color: '#9c5fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9c5fff', fontFamily: "'Syne', sans-serif" }}
                   >
                     {phase.name}
                   </div>
@@ -392,7 +392,7 @@ export default function ProjectManager() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#9c5fff' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Building your project plan…
                 </div>
               </div>
@@ -402,7 +402,7 @@ export default function ProjectManager() {
                 <div className="text-center">
                   <div
                     className="text-base font-extrabold mb-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Project Manager
                   </div>

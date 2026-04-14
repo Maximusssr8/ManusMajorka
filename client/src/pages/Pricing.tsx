@@ -22,7 +22,7 @@ const C = {
   goldBorder: 'rgba(99,102,241,0.25)',
 };
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 // ── Locked tool overlay ─────────────────────────────────────────────────────
@@ -815,7 +815,7 @@ export default function Pricing() {
             ].map(m => (
               <div key={m.label} style={{ background: m.bg, border: `1px solid ${m.border}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' as const }}>
                 <div style={{ fontSize: 22, marginBottom: 6 }}>{m.icon}</div>
-                <div style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 900, fontSize: 28, color: m.color, lineHeight: 1, marginBottom: 6 }}>{m.stat}</div>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 28, color: m.color, lineHeight: 1, marginBottom: 6 }}>{m.stat}</div>
                 <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 500 }}>{m.label}</div>
               </div>
             ))}

@@ -11,6 +11,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import CookieBanner from './components/CookieBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { CommandPalette } from './components/CommandPalette';
 import { AuthProvider } from './contexts/AuthContext';
 import { MarketProvider } from './contexts/MarketContext';
 import { ProductProvider } from './contexts/ProductContext';
@@ -117,7 +118,7 @@ function ComingSoon({ page }: ComingSoonProps) {
       flexDirection: 'column',
       gap: 12,
     }}>
-      <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: '#ededed', letterSpacing: '-0.025em' }}>{page}</div>
+      <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 700, color: '#ededed', letterSpacing: '-0.025em' }}>{page}</div>
       <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: '#71717a' }}>Coming soon</div>
     </div>
   );
@@ -135,7 +136,7 @@ function LoadingFallback() {
           style={{
             background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
             color: '#FAFAFA',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
           }}
         >
           M
@@ -480,7 +481,7 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
     <div style={{ minHeight: '100vh', background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <a href="/" style={{ color: '#6366F1', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
-        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#F8FAFC' }}>{title}</h1>
+        <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#F8FAFC' }}>{title}</h1>
         <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 48 }}>Last updated: March 2026 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {paragraphs.map((p, i) => (
@@ -501,6 +502,8 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
 }
 
 function App() {
+  const [cmdkOpen, setCmdkOpen] = useState(false);
+
   useEffect(() => {
     capture('app_loaded');
     // Capture referral code from any page
@@ -523,6 +526,13 @@ function App() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
+
+  // Listen for the open-command-palette event dispatched by the ⌘K handler
+  useEffect(() => {
+    const open = (): void => setCmdkOpen(true);
+    document.addEventListener('open-command-palette', open);
+    return () => document.removeEventListener('open-command-palette', open);
+  }, []);
   return (
     <ErrorBoundary fallback={<div style={{minHeight:'100vh',background:'#05070F',color:'#f87171',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:32,fontFamily:'monospace'}}><h2 style={{margin:0,color:'#f87171'}}>App Error</h2><p id="app-err-msg" style={{margin:0,fontSize:13,color:'#fca5a5',textAlign:'center',maxWidth:600}}>Check browser console for details</p><button onClick={()=>window.location.reload()} style={{padding:'8px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>Reload</button></div>}>
       <div className="aurora-bg" aria-hidden="true"><div className="aurora-blob-3" /></div>
@@ -536,6 +546,7 @@ function App() {
                   <Toaster />
                   <OAuthErrorBanner />
                   <AlmostWonModal />
+                  <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
                   <Router />
                 </TooltipProvider>
               </MayaProvider>

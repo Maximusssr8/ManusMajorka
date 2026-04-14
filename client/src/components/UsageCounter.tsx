@@ -63,7 +63,7 @@ export default function UsageCounter({ feature }: UsageCounterProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 11,
             fontWeight: 800,
             color: atLimit ? '#ef4444' : '#374151',

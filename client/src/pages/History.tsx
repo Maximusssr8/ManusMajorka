@@ -114,7 +114,7 @@ export default function History() {
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
               >
                 History
               </h1>
@@ -206,7 +206,7 @@ export default function History() {
             </div>
             <h2
               className="text-base font-bold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
             >
               No history yet
             </h2>
@@ -221,7 +221,7 @@ export default function History() {
                 color: '#FAFAFA',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               Start Exploring <ArrowUpRight size={12} />
@@ -239,7 +239,7 @@ export default function History() {
               <div key={group.label}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2 px-1"
-                  style={{ color: '#3f3f46', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#3f3f46', fontFamily: "'Syne', sans-serif" }}
                 >
                   {group.label}
                 </div>

@@ -36,7 +36,7 @@ export default function StoreProducts() {
         <Store className="w-12 h-12 mx-auto mb-4" style={{ color: '#9CA3AF' }} />
         <h2
           className="text-xl font-bold text-slate-100 mb-2"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          style={{ fontFamily: "'Syne', sans-serif" }}
         >
           No store yet
         </h2>
@@ -76,7 +76,7 @@ export default function StoreProducts() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <h1 className="text-2xl font-bold text-slate-100" style={{ fontFamily: "'Syne', sans-serif" }}>
             Storefront
           </h1>
           {store.data && (
@@ -125,7 +125,7 @@ export default function StoreProducts() {
       ) : !myProducts.data?.length ? (
         <div className="text-center py-16">
           <Package className="w-12 h-12 mx-auto mb-4" style={{ color: '#D1D5DB' }} />
-          <p className="font-semibold text-slate-100 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <p className="font-semibold text-slate-100 mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
             No products yet
           </p>
           <p className="text-sm mb-4" style={{ color: '#94A3B8' }}>
@@ -167,7 +167,7 @@ export default function StoreProducts() {
                     <div>
                       <p
                         className="text-slate-100 font-medium"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {product.name}
                       </p>

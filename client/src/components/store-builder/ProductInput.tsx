@@ -29,7 +29,7 @@ const NICHES = [
   'General / Mixed Niche',
 ];
 const gold = '#6366F1';
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '12px 14px', borderRadius: 8,
   border: '1px solid #F0F0F0', background: 'rgba(255,255,255,0.03)',

@@ -2,7 +2,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState, useRef } from 'react';
 import React from 'react';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 
 // ── AI caller ──────────────────────────────────────────────────────────────
 async function callAI(tool: string, params: Record<string, string | undefined>): Promise<string> {

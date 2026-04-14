@@ -102,14 +102,14 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
       >
         <div
           className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-extrabold flex-shrink-0"
-          style={{ background: c.accent, color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          style={{ background: c.accent, color: '#FAFAFA', fontFamily: "'Syne', sans-serif" }}
         >
           {index + 1}
         </div>
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
           >
             {angle.angle}
           </div>
@@ -123,7 +123,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
             style={{
               background: 'rgba(255,255,255,0.03)',
               color: '#94A3B8',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}
           >
             {angle.objective}
@@ -143,7 +143,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
             <div className="flex items-center justify-between mb-2">
               <div
                 className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: c.accent, fontFamily: "'Syne', sans-serif" }}
               >
                 🎣 Hook
               </div>
@@ -163,7 +163,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2.5"
-              style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: c.accent, fontFamily: "'Syne', sans-serif" }}
             >
               📝 Primary Texts
             </div>
@@ -173,7 +173,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   <div className="flex items-center justify-between mb-1.5">
                     <span
                       className="text-xs font-semibold"
-                      style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                     >
                       {i === 0 ? 'Long-form (150–300 words)' : 'Short-form (50–80 words)'}
                     </span>
@@ -198,7 +198,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
             <div className="flex items-center justify-between mb-2">
               <div
                 className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: c.accent, fontFamily: "'Syne', sans-serif" }}
               >
                 💥 Headlines
               </div>
@@ -216,7 +216,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                 >
                   <span
                     className="text-xs font-extrabold w-4 flex-shrink-0"
-                    style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: c.accent, fontFamily: "'Syne', sans-serif" }}
                   >
                     {i + 1}
                   </span>
@@ -232,7 +232,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: c.accent, fontFamily: "'Syne', sans-serif" }}
               >
                 🎬 Creative Brief
               </div>
@@ -250,7 +250,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-2"
-                style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: c.accent, fontFamily: "'Syne', sans-serif" }}
               >
                 🎯 Target Audience
               </div>
@@ -446,7 +446,7 @@ export default function MetaAdsPack() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Meta Ads Pack
           </div>
@@ -463,7 +463,7 @@ export default function MetaAdsPack() {
                 background: 'rgba(99,102,241,0.1)',
                 border: '1px solid rgba(99,102,241,0.25)',
                 color: 'rgba(99,102,241,0.9)',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 cursor: 'pointer',
               }}
             >
@@ -490,7 +490,7 @@ export default function MetaAdsPack() {
           >
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Import from URL
             </div>
@@ -527,7 +527,7 @@ export default function MetaAdsPack() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Product Details
             </div>
@@ -535,7 +535,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                 >
                   Product Name *
                 </label>
@@ -560,7 +560,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                 >
                   Sell Price (AUD)
                 </label>
@@ -579,7 +579,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                 >
                   Product Description
                 </label>
@@ -602,7 +602,7 @@ export default function MetaAdsPack() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Campaign Settings
             </div>
@@ -610,7 +610,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                 >
                   Target Audience
                 </label>
@@ -629,7 +629,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                 >
                   Daily Budget (AUD)
                 </label>
@@ -655,7 +655,7 @@ export default function MetaAdsPack() {
             style={{
               background: isLoading ? 'rgba(99,102,241,0.3)' : '#6366F1',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -700,7 +700,7 @@ export default function MetaAdsPack() {
               <div className="text-center">
                 <div
                   className="text-base font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Generating your Meta Ads Pack…
                 </div>
@@ -734,7 +734,7 @@ export default function MetaAdsPack() {
               <div className="text-center max-w-sm">
                 <div
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Your Meta Ads Pack will appear here
                 </div>
@@ -764,7 +764,7 @@ export default function MetaAdsPack() {
                         style={{
                           background: 'rgba(99,102,241,0.15)',
                           color: '#6366F1',
-                          fontFamily: "'Bricolage Grotesque', sans-serif",
+                          fontFamily: "'Syne', sans-serif",
                         }}
                       >
                         {i + 1}
@@ -790,7 +790,7 @@ export default function MetaAdsPack() {
                 <div className="flex items-center justify-between mb-1">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Product Summary
                   </div>
@@ -806,7 +806,7 @@ export default function MetaAdsPack() {
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     Creative Angles
                   </div>
@@ -844,7 +844,7 @@ export default function MetaAdsPack() {
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     ⏱ 48-Hour Launch Plan
                   </div>
@@ -890,7 +890,7 @@ export default function MetaAdsPack() {
                           <span
                             style={{
                               color: '#6366F1',
-                              fontFamily: "'Bricolage Grotesque', sans-serif",
+                              fontFamily: "'Syne', sans-serif",
                               fontSize: '10px',
                               fontWeight: 800,
                             }}
@@ -925,7 +925,7 @@ export default function MetaAdsPack() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     💰 Budget Split
                   </div>
@@ -945,7 +945,7 @@ export default function MetaAdsPack() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     📊 KPIs to Track
                   </div>

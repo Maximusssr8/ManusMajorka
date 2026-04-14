@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 export default function PublicProfitShare() {

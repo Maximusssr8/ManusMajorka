@@ -31,13 +31,23 @@ const COMMANDS: Command[] = [
 ];
 
 interface CommandPaletteProps {
-  onClose: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
 }
 
-export function CommandPalette({ onClose }: CommandPaletteProps) {
+export function CommandPalette({ open, onOpenChange, onClose }: CommandPaletteProps) {
   const [, setLocation] = useLocation();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const close = (): void => {
+    if (onOpenChange) onOpenChange(false);
+    if (onClose) onClose();
+  };
+
+  // Controlled-mode: hide when `open` is explicitly false
+  if (open === false) return null;
 
   // Group and filter commands
   const { groups, flatList } = useMemo(() => {
@@ -66,15 +76,19 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
     return { groups: grouped, flatList: flat };
   }, [query]);
 
-  const handleExecute = (cmd: Command) => {
+  const handleExecute = (cmd: Command): void => {
     if (cmd.path) {
-      setLocation(cmd.path);
+      // Use wouter for in-app routes; hard-nav for anything outside /app/*
+      if (cmd.path.startsWith('/app')) {
+        setLocation(cmd.path);
+      } else {
+        window.location.assign(cmd.path);
+      }
     } else if (cmd.action) {
-      // Handle action here (export-csv, refresh-data, etc.)
-      // No-op stub — replace with action dispatcher when implementing.
-      void cmd.action;
+      // Dispatch a window event so listeners (Products, etc.) can react.
+      window.dispatchEvent(new CustomEvent(`cmdk:${cmd.action}`));
     }
-    onClose();
+    close();
   };
 
   // Keyboard navigation
@@ -91,16 +105,16 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
         handleExecute(flatList[selectedIndex]);
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        onClose();
+        close();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [flatList, selectedIndex, onClose]);
+  }, [flatList, selectedIndex]);
 
   return (
-    <div className="mkr-cmdk-overlay" onClick={onClose}>
+    <div className="mkr-cmdk-overlay" onClick={close}>
       <div className="mkr-cmdk-container" onClick={e => e.stopPropagation()}>
         {/* Search input */}
         <input

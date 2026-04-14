@@ -241,7 +241,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           color: url.trim() ? '#FFFFFF' : 'rgba(99,102,241,0.4)',
           border: 'none',
           cursor: url.trim() ? 'pointer' : 'not-allowed',
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
         }}
       >
         Import
@@ -291,7 +291,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       {/* Shimmer skeleton */}
       <p
         className="text-xs font-semibold mb-3"
-        style={{ color: 'rgba(99,102,241,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        style={{ color: 'rgba(99,102,241,0.7)', fontFamily: "'Syne', sans-serif" }}
       >
         Analysing product...
       </p>
@@ -323,7 +323,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             border: '1px solid rgba(239,68,68,0.25)',
             color: '#ef4444',
             cursor: 'pointer',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
           }}
         >
           <RefreshCw size={11} /> Retry
@@ -366,7 +366,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         <div className="flex items-start gap-2 flex-wrap">
           <h3
             className="text-sm font-extrabold flex-1 min-w-0"
-            style={{ color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
+            style={{ color: '#F8FAFC', fontFamily: "'Syne', sans-serif", lineHeight: 1.35 }}
           >
             {result.cleanTitle || result.productTitle}
           </h3>
@@ -377,7 +377,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 background: 'rgba(99,102,241,0.12)',
                 color: '#6366F1',
                 border: '1px solid rgba(99,102,241,0.25)',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               {result.price}
@@ -483,7 +483,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
               color: '#FFFFFF',
               border: 'none',
               cursor: 'pointer',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}
           >
             <Check size={14} />
@@ -531,7 +531,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
         }}
       >
         Open in tools <ArrowRight size={11} />
@@ -571,7 +571,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       <div>
         <h3
           className="text-sm font-extrabold mb-0.5"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
         >
           Import Product
         </h3>

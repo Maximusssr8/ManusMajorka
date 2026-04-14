@@ -622,7 +622,7 @@ export default function MajorkaAppShell({ children }: Props) {
           title={tooltip}
           className={`flex items-center gap-2 text-sm transition-all relative w-full rounded-lg px-3 py-2 ${
             active 
-              ? 'bg-indigo-500/10 text-white border-l-2 border-indigo-500 pl-[10px]' 
+              ? 'bg-[#d4af37]/10 text-white border-l-2 border-[#d4af37] pl-[10px]' 
               : 'text-white/60 hover:bg-white/5 hover:text-white/90'
           }`}
           style={{
@@ -724,7 +724,7 @@ export default function MajorkaAppShell({ children }: Props) {
           {!sidebarCollapsed && (
             <span
               className="font-bold text-sm"
-              style={{ fontFamily: "'Bricolage Grotesque', system-ui, sans-serif", color: 'var(--sidebar-text, #ededed)', letterSpacing: '-0.02em', fontSize: 16, fontWeight: 700 }}
+              style={{ fontFamily: "'Syne', system-ui, sans-serif", color: 'var(--sidebar-text, #ededed)', letterSpacing: '-0.02em', fontSize: 16, fontWeight: 700 }}
             >
               Majorka
             </span>
@@ -1268,7 +1268,7 @@ export default function MajorkaAppShell({ children }: Props) {
           className="hidden lg:flex items-center justify-between px-6 flex-shrink-0"
           style={{ height: 56, background: 'rgba(10,10,10,0.9)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-color, rgba(255,255,255,0.08))' }}
         >
-          <span style={{ fontFamily: "'Bricolage Grotesque', system-ui, sans-serif", fontSize: 22, fontWeight: 600, color: '#ededed', letterSpacing: '-0.015em' }}>
+          <span style={{ fontFamily: "'Syne', system-ui, sans-serif", fontSize: 22, fontWeight: 600, color: '#ededed', letterSpacing: '-0.015em' }}>
             {(() => {
               const allItems = NAV_SECTIONS.flatMap(s => s.items);
               const current = allItems.find(item => isActive(item.path, item.exact));

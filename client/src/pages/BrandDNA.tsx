@@ -102,7 +102,7 @@ function SectionCard({
       >
         <span
           className="text-xs font-extrabold uppercase tracking-widest"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: accent }}
+          style={{ fontFamily: "'Syne', sans-serif", color: accent }}
         >
           {title}
         </span>
@@ -324,14 +324,14 @@ Generate a comprehensive brand identity document as JSON.`;
               />
               <span
                 className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: 'rgba(99,102,241,0.6)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: 'rgba(99,102,241,0.6)', fontFamily: "'Syne', sans-serif" }}
               >
                 Brand Strategy
               </span>
             </div>
             <h1
               className="text-lg font-extrabold"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC', letterSpacing: '-0.02em' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC', letterSpacing: '-0.02em' }}
             >
               Brand DNA Analyzer
             </h1>
@@ -461,7 +461,7 @@ Generate a comprehensive brand identity document as JSON.`;
               disabled={isGenerating || !brandName.trim() || !productType.trim()}
               className="w-full py-3 rounded-xl text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 background: isGenerating
                   ? 'rgba(99,102,241,0.15)'
                   : 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
@@ -517,7 +517,7 @@ Generate a comprehensive brand identity document as JSON.`;
               </div>
               <h2
                 className="text-xl font-extrabold mb-2"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
               >
                 Discover Your Brand DNA
               </h2>
@@ -592,14 +592,14 @@ Generate a comprehensive brand identity document as JSON.`;
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#6366F1' }} />
                   <span
                     className="text-xs font-semibold uppercase tracking-widest"
-                    style={{ color: 'rgba(99,102,241,0.6)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: 'rgba(99,102,241,0.6)', fontFamily: "'Syne', sans-serif" }}
                   >
                     Brand DNA Report
                   </span>
                 </div>
                 <h2
                   className="text-3xl font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   {result.brandName}
                 </h2>

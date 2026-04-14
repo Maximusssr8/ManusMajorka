@@ -34,7 +34,7 @@ function BlurredName() {
         filter: 'blur(6px)',
         fontSize: 18,
         fontWeight: 700,
-        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontFamily: "'Syne', sans-serif",
         letterSpacing: '0.04em',
         border: '1px solid rgba(99,102,241,0.25)',
       }}
@@ -130,7 +130,7 @@ export default function AlmostWonModal() {
           {/* Headline */}
           <h2
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontSize: 26,
               fontWeight: 800,
               color: '#F8FAFC',
@@ -216,7 +216,7 @@ export default function AlmostWonModal() {
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               border: 'none',
               color: '#FFFFFF',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontSize: 15,
               fontWeight: 800,
               cursor: 'pointer',

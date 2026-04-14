@@ -26,7 +26,7 @@ export default function StageLanding({ stage }: Props) {
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: stage.color }} />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: `${stage.color}90`, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: `${stage.color}90`, fontFamily: "'Syne', sans-serif" }}
             >
               Stage
             </span>
@@ -34,7 +34,7 @@ export default function StageLanding({ stage }: Props) {
           <h1
             className="text-2xl font-extrabold mb-2"
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               color: '#CBD5E1',
               letterSpacing: '-0.02em',
             }}
@@ -84,7 +84,7 @@ export default function StageLanding({ stage }: Props) {
                   <div
                     className="text-sm font-bold mb-1"
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       color: '#CBD5E1',
                     }}
                   >

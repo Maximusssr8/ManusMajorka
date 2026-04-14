@@ -28,7 +28,7 @@ const SURFACE = '#13151c';
 const TEXT_PRIMARY = '#f0f4ff';
 const TEXT_BODY = '#a1a1aa';
 const TEXT_MUTED = '#52525b';
-const FONT_DISPLAY = "'Nohemi', 'Bricolage Grotesque', sans-serif";
+const FONT_DISPLAY = "'Syne', 'Syne', sans-serif";
 const FONT_BODY = "'DM Sans', sans-serif";
 
 type Mode = 'select' | 'ai' | 'shopify' | 'marketplace';
@@ -134,7 +134,7 @@ function Chip({ label, selected, onClick }: { label: string; selected: boolean; 
       className={[
         'px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150',
         selected
-          ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/60 shadow-[0_0_0_3px_rgba(99,102,241,0.12)]'
+          ? 'bg-[#d4af37]/15 text-[#e5c158] border border-[#d4af37]/60 shadow-[0_0_0_3px_rgba(99,102,241,0.12)]'
           : 'bg-white/[0.03] text-white/60 border border-white/[0.08] hover:border-white/20 hover:text-white/80',
       ].join(' ')}
       style={{ fontFamily: FONT_BODY }}

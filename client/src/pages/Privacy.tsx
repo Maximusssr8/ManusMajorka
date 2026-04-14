@@ -10,7 +10,7 @@ const C = {
   gold: '#6366F1',
 };
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const SECTIONS = [

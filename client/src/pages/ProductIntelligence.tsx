@@ -16,7 +16,7 @@ const C = {
   muted: '#6B7280',
 };
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 
 interface TrendProduct {
   id?: string;

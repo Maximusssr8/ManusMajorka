@@ -324,7 +324,7 @@ export default function SettingsProfile() {
           style={{
             background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
             color: '#FAFAFA',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
           }}
         >
           M
@@ -350,7 +350,7 @@ export default function SettingsProfile() {
   }
 
   const inputClass =
-    'w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
+    'w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] transition-colors';
   const sectionCard = 'rounded-xl p-5' as const;
   const sectionCardStyle = { background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' };
 
@@ -417,7 +417,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-semibold mb-4"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   Account
                 </div>
@@ -458,7 +458,7 @@ export default function SettingsProfile() {
                 <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '14px 16px', marginBottom: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 20, flexShrink: 0 }}>✏️</span>
                   <div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#818CF8', marginBottom: 3 }}>Complete your business profile</div>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 13, color: '#818CF8', marginBottom: 3 }}>Complete your business profile</div>
                     <div style={{ fontSize: 12, color: '#A5B4FC', lineHeight: 1.5 }}>Maya AI and Market Intel use your niche &amp; business details to personalise results. Fill in the fields below to get better recommendations.</div>
                   </div>
                 </div>
@@ -467,7 +467,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-semibold mb-4"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   Business Profile
                 </div>
@@ -543,7 +543,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-semibold mb-4"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   Preferences
                 </div>
@@ -617,7 +617,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-semibold mb-3"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   Onboarding
                 </div>
@@ -656,7 +656,7 @@ export default function SettingsProfile() {
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#fff',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
                 }}
@@ -666,20 +666,20 @@ export default function SettingsProfile() {
 
               {/* ── Change Password ── */}
               <div style={{ marginTop: 16, background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20 }}>
-                <div className="text-xs font-semibold mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Change Password</div>
+                <div className="text-xs font-semibold mb-2" style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}>Change Password</div>
                 <div className="text-xs mb-4" style={{ color: '#9CA3AF' }}>Must be at least 8 characters.</div>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12, maxWidth: 420 }}>
                   <div>
                     <label className="block text-xs font-medium tracking-normal mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>New Password</label>
-                    <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                    <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] transition-colors" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium tracking-normal mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Confirm New Password</label>
-                    <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                    <input type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-[#0d0d10]/[0.05] border border-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] transition-colors" />
                   </div>
                   <button onClick={handlePasswordChange} disabled={changingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
                     className="rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
-                    style={{ padding: '10px 24px', background: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'rgba(99,102,241,0.2)', color: '#FAFAFA', border: 'none', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' as const }}>
+                    style={{ padding: '10px 24px', background: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'rgba(99,102,241,0.2)', color: '#FAFAFA', border: 'none', fontFamily: "'Syne', sans-serif", cursor: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' as const }}>
                     {changingPassword ? 'Updating...' : 'Update Password'}
                   </button>
                   {newPassword && confirmPassword && newPassword !== confirmPassword && (
@@ -698,7 +698,7 @@ export default function SettingsProfile() {
             <div className={sectionCard} style={sectionCardStyle}>
               <div
                 className="text-xs font-semibold mb-4"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Email Preferences
               </div>
@@ -765,7 +765,7 @@ export default function SettingsProfile() {
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#fff',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   border: 'none',
                   cursor: 'pointer',
                 }}
@@ -786,7 +786,7 @@ export default function SettingsProfile() {
                 ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 22, color: '#F1F5F9' }}>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: '#F1F5F9' }}>
                       {subInfo.plan === 'scale' ? 'Scale' : subInfo.plan === 'builder' ? 'Builder' : subInfo.plan === 'pro' ? 'Pro' : 'Free'}
                     </div>
                     <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>
@@ -796,7 +796,7 @@ export default function SettingsProfile() {
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' as const }}>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: '#6366F1', fontFamily: "'Syne', sans-serif" }}>
                       {subInfo.plan === 'scale' ? '$199' : subInfo.plan === 'builder' ? '$99' : subInfo.plan === 'pro' ? '$99' : '$0'}
                     </div>
                     <div style={{ fontSize: 12, color: '#9CA3AF' }}>AUD/month</div>
@@ -834,7 +834,7 @@ export default function SettingsProfile() {
           {activeTab === 'integrations' && (
             <div className="space-y-4">
               <div className={sectionCard} style={sectionCardStyle}>
-                <div className="text-xs font-semibold mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-xs font-semibold mb-4" style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}>
                   Connected Services
                 </div>
                 <div className="space-y-0">
@@ -879,7 +879,7 @@ export default function SettingsProfile() {
               </div>
               {/* Service Status */}
               <div className={sectionCard} style={sectionCardStyle}>
-                <div className="text-xs font-semibold mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-xs font-semibold mb-4" style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}>
                   Service Status
                 </div>
                 <div className="space-y-2">
@@ -903,7 +903,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-semibold mb-4"
-                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                 >
                   Your Data
                 </div>
@@ -930,7 +930,7 @@ export default function SettingsProfile() {
               >
                 <div
                   className="text-xs font-semibold mb-4"
-                  style={{ color: '#ef4444', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#ef4444', fontFamily: "'Syne', sans-serif" }}
                 >
                   Danger Zone
                 </div>

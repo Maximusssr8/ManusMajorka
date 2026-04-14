@@ -45,7 +45,7 @@ export default function AdminSubscribers() {
       <div className="h-full flex items-center justify-center" style={{ background: '#05070F' }}>
         <div className="text-center">
           <div className="text-4xl mb-3">🔒</div>
-          <h2 className="text-lg font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}>
+          <h2 className="text-lg font-bold" style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}>
             Admin Only
           </h2>
           <p className="text-sm" style={{ color: '#9CA3AF' }}>
@@ -91,7 +91,7 @@ export default function AdminSubscribers() {
       <div className="mb-8">
         <h1
           className="text-2xl font-bold mb-1"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
         >
           Subscribers
         </h1>
@@ -119,7 +119,7 @@ export default function AdminSubscribers() {
               <Icon size={16} style={{ color: '#6366F1' }} />
             </div>
             <div>
-              <div className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-xl font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 {value.toLocaleString()}
               </div>
               <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -181,7 +181,7 @@ export default function AdminSubscribers() {
                   <th
                     key={h}
                     className="text-left px-4 py-3 font-medium"
-                    style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                    style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                   >
                     {h}
                   </th>

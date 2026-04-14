@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'wouter';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 
 export default function SharedReport() {
   const params = useParams<{ slug: string }>();

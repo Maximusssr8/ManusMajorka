@@ -155,7 +155,7 @@ export default function StreakWidget() {
             <div style={{ fontSize: 56, marginBottom: 12 }}>{popup.emoji}</div>
             <div
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 fontSize: 22,
                 fontWeight: 800,
                 color: C.gold,
@@ -178,7 +178,7 @@ export default function StreakWidget() {
                 border: 'none',
                 borderRadius: 10,
                 padding: '10px 28px',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 fontWeight: 700,
                 fontSize: 14,
                 cursor: 'pointer',
@@ -213,7 +213,7 @@ export default function StreakWidget() {
             <div>
               <div
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontWeight: 700,
                   fontSize: 14,
                   color: C.text,
@@ -234,7 +234,7 @@ export default function StreakWidget() {
               fontSize: 11,
               fontWeight: 700,
               color: C.gold,
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}
           >
             {streak}🔥

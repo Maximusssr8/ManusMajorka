@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const dm = 'DM Sans, sans-serif';
 // Always dark — the app is dark-mode only
 const C = { bg: '#0a0a0a', card: '#111114', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', indigo: '#6366F1', indigoBg: 'rgba(99,102,241,0.1)', indigoBorder: 'rgba(99,102,241,0.25)' };

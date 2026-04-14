@@ -97,14 +97,14 @@ export default function UpgradeModalA({
             <Zap size={12} style={{ color: '#6366F1' }} />
             <span
               className="text-xs font-bold"
-              style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
             >
               Unlock Full Power
             </span>
           </div>
           <h2
             className="text-xl font-extrabold mb-2"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
           >
             You've hit a limit
           </h2>
@@ -129,7 +129,7 @@ export default function UpgradeModalA({
                   style={{
                     background: '#6366F1',
                     color: '#FAFAFA',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 9,
                   }}
                 >
@@ -139,7 +139,7 @@ export default function UpgradeModalA({
               <div className="mb-3">
                 <div
                   className="text-xs font-bold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   {plan.name}
                 </div>
@@ -147,7 +147,7 @@ export default function UpgradeModalA({
                   <span
                     className="text-2xl font-extrabold"
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       color: plan.popular ? '#6366F1' : '#0A0A0A',
                     }}
                   >
@@ -181,7 +181,7 @@ export default function UpgradeModalA({
                     : '#F9FAFB',
                   color: plan.popular ? '#FAFAFA' : '#0A0A0A',
                   border: plan.popular ? 'none' : '1px solid #F0F0F0',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   cursor: 'pointer',
                 }}
               >

@@ -40,7 +40,7 @@ function md(text: string): string {
       // ### H3
       .replace(
         /^### (.+)$/gm,
-        `<h3 style="font-family: 'Bricolage Grotesque', sans-serif;font-size:16px;font-weight:600;color:#6366F1;margin:16px 0 8px">$1</h3>`
+        `<h3 style="font-family: 'Syne', sans-serif;font-size:16px;font-weight:600;color:#6366F1;margin:16px 0 8px">$1</h3>`
       )
       // Paragraphs (non-empty lines that aren't already HTML)
       .replace(/^(?!<)((?!<).+)$/gm, '<p style="margin:6px 0;line-height:1.7">$1</p>')
@@ -210,7 +210,7 @@ export default function StoreSpy() {
         <div style={{ marginBottom: 40, textAlign: 'center' }}>
           <h1
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontSize: 36,
               fontWeight: 700,
               color: '#F8FAFC',
@@ -387,7 +387,7 @@ export default function StoreSpy() {
               <div key={section.title} style={cardStyle}>
                 <h2
                   style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 20,
                     fontWeight: 600,
                     color: '#6366F1',
@@ -421,7 +421,7 @@ export default function StoreSpy() {
                 <div key={f.title} style={cardStyle}>
                   <h3
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       fontSize: 16,
                       fontWeight: 600,
                       color: '#F8FAFC',

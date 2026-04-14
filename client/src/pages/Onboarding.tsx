@@ -372,14 +372,14 @@ export default function Onboarding() {
           >
             <span
               className="text-slate-100 font-bold text-xs"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               M
             </span>
           </div>
           <span
             className="text-slate-100 font-semibold text-sm"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Majorka
           </span>
@@ -450,7 +450,7 @@ export default function Onboarding() {
                   </div>
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     Welcome to Majorka{name ? `, ${name.split(' ')[0]}` : ''}
                   </h1>
@@ -493,7 +493,7 @@ export default function Onboarding() {
                       ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                       : '#F9FAFB',
                     color: name.trim() ? '#FAFAFA' : '#9CA3AF',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     cursor: name.trim() ? 'pointer' : 'not-allowed',
                     border: 'none',
                   }}
@@ -518,7 +518,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     What do you sell?
                   </h1>
@@ -560,7 +560,7 @@ export default function Onboarding() {
                           className="text-xs font-semibold leading-tight"
                           style={{
                             color: active ? GOLD : '#0A0A0A',
-                            fontFamily: "'Bricolage Grotesque', sans-serif",
+                            fontFamily: "'Syne', sans-serif",
                           }}
                         >
                           {label}
@@ -621,7 +621,7 @@ export default function Onboarding() {
                           ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                           : '#F9FAFB',
                       color: niche || customNiche.trim() ? '#FAFAFA' : '#9CA3AF',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: niche || customNiche.trim() ? 'pointer' : 'not-allowed',
                       border: 'none',
                     }}
@@ -647,7 +647,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     How experienced are you?
                   </h1>
@@ -688,7 +688,7 @@ export default function Onboarding() {
                           <div
                             className="text-sm font-bold"
                             style={{
-                              fontFamily: "'Bricolage Grotesque', sans-serif",
+                              fontFamily: "'Syne', sans-serif",
                               color: active ? GOLD : '#0A0A0A',
                             }}
                           >
@@ -729,7 +729,7 @@ export default function Onboarding() {
                         ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                         : '#F9FAFB',
                       color: experience ? '#FAFAFA' : '#9CA3AF',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: experience ? 'pointer' : 'not-allowed',
                       border: 'none',
                     }}
@@ -755,7 +755,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     What's your #1 goal?
                   </h1>
@@ -795,7 +795,7 @@ export default function Onboarding() {
                         <span
                           className="text-sm font-semibold"
                           style={{
-                            fontFamily: "'Bricolage Grotesque', sans-serif",
+                            fontFamily: "'Syne', sans-serif",
                             color: active ? GOLD : '#0A0A0A',
                           }}
                         >
@@ -829,7 +829,7 @@ export default function Onboarding() {
                         ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                         : '#F9FAFB',
                       color: goal ? '#FAFAFA' : '#9CA3AF',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: goal ? 'pointer' : 'not-allowed',
                       border: 'none',
                     }}
@@ -855,7 +855,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     How do you sell?
                   </h1>
@@ -904,7 +904,7 @@ export default function Onboarding() {
                             <div
                               className="text-sm font-semibold"
                               style={{
-                                fontFamily: "'Bricolage Grotesque', sans-serif",
+                                fontFamily: "'Syne', sans-serif",
                                 color: active ? GOLD : '#0A0A0A',
                               }}
                             >
@@ -978,7 +978,7 @@ export default function Onboarding() {
                         ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                         : '#F9FAFB',
                       color: storeType ? '#FAFAFA' : '#9CA3AF',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: storeType ? 'pointer' : 'not-allowed',
                       border: 'none',
                       boxShadow: storeType ? '0 8px 24px rgba(99,102,241,0.2)' : 'none',
@@ -1015,7 +1015,7 @@ export default function Onboarding() {
                 <div className="space-y-2">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     You're all set, {firstName}!
                   </h1>
@@ -1043,7 +1043,7 @@ export default function Onboarding() {
                     <Sparkles size={14} style={{ color: GOLD }} />
                     <span
                       className="text-xs font-semibold uppercase tracking-widest"
-                      style={{ color: GOLD, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ color: GOLD, fontFamily: "'Syne', sans-serif" }}
                     >
                       Your First Task
                     </span>
@@ -1096,7 +1096,7 @@ export default function Onboarding() {
                     style={{
                       background: `linear-gradient(135deg, ${GOLD}, #4F46E5)`,
                       color: '#FAFAFA',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: 'pointer',
                       border: 'none',
                       boxShadow: '0 8px 32px rgba(99,102,241,0.25)',
@@ -1111,7 +1111,7 @@ export default function Onboarding() {
                       background: 'transparent',
                       border: '1.5px solid #F0F0F0',
                       color: '#CBD5E1',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: 'pointer',
                     }}
                     onMouseEnter={(e) =>

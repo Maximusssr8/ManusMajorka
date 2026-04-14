@@ -178,7 +178,7 @@ function ConfirmDialog({
       >
         <h3
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             color: '#F8FAFC',
             fontSize: 18,
             marginBottom: 12,
@@ -447,7 +447,7 @@ export default function AdminPanel() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontWeight: 800,
               fontSize: 13,
               color: '#FAFAFA',
@@ -457,7 +457,7 @@ export default function AdminPanel() {
           </div>
           <span
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontWeight: 700,
               fontSize: 15,
               color: '#F8FAFC',
@@ -572,7 +572,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -906,7 +906,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1035,7 +1035,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1113,7 +1113,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1322,7 +1322,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1475,7 +1475,7 @@ export default function AdminPanel() {
               >
                 <h3
                   style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 18,
                     fontWeight: 700,
                     color: '#F8FAFC',

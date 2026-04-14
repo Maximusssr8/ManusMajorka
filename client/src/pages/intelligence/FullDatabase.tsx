@@ -2528,14 +2528,14 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   }));
                   setLocation('/app/ads-manager');
                 }}
-                style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque',sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8 }}
+                style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne',sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8 }}
               >
                 🚀 Launch Ad Campaign →
               </button>
             ) : (
               <button
                 onClick={() => setShowUpgradeDrawer(true)}
-                style={{ width: '100%', padding: '14px', background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque',sans-serif", marginTop: 8 }}
+                style={{ width: '100%', padding: '14px', background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne',sans-serif", marginTop: 8 }}
               >
                 🔒 Launch Ad Campaign (Scale)
               </button>

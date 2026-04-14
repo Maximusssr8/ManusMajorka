@@ -31,7 +31,7 @@ const T = {
   amber: '#f59e0b',
 } as const;
 
-const display = "'Bricolage Grotesque', system-ui, sans-serif";
+const display = "'Syne', system-ui, sans-serif";
 const sans = "'DM Sans', system-ui, sans-serif";
 const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
 

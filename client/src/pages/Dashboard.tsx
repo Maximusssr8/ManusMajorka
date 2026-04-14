@@ -169,7 +169,7 @@ function StatCard({
           >
             <Icon
               size={10}
-              className="group-hover:text-[#6366F1] transition-colors"
+              className="group-hover:text-[#d4af37] transition-colors"
               style={{ color: iconColor }}
             />
           </div>
@@ -182,7 +182,7 @@ function StatCard({
 
       <div
         className="font-bold mb-1"
-        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
+        style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
       >
         {displayValue ??
           (numericValue !== null && inView ? (
@@ -268,7 +268,7 @@ function PersonalisedFeed() {
       borderRadius: 16, padding: 20, marginBottom: 24,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+        <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
           {userNiche ? `🔥 Top Products in ${userNiche}` : '🔥 Today\'s Top Revenue Products'}
         </h3>
         <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>View all →</a>
@@ -433,7 +433,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}>
           Sales Overview
         </span>
         <div style={{ display: 'flex', gap: 3, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: 3 }}>
@@ -474,7 +474,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Revenue area chart */}
       <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginBottom: 12, fontFamily: "'Syne', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
             <defs>
@@ -495,7 +495,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* Top Products */}
       <div className="mkr-table-wrap" style={{ marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 0' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'var(--text-muted)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'var(--text-muted)', fontFamily: "'Syne', sans-serif" }}>Top Products</span>
           <a href="/app/winning-products" style={{ fontSize: 12, color: '#818CF8', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -545,7 +545,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* Recent Orders */}
       <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '18px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}>Recent Orders</span>
           <span style={{ fontSize: 11, color: '#94A3B8' }}>Updated just now</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -649,7 +649,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366F1', display: 'inline-block', marginRight: 8 }} />
-          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: '#FFFFFF' }}>This Week&apos;s Leaders</span>
+          <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 17, fontWeight: 700, color: '#FFFFFF' }}>This Week&apos;s Leaders</span>
         </div>
         <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all →</button>
       </div>
@@ -1021,7 +1021,7 @@ function DashboardHome() {
         <div>
           <div style={{ marginBottom: 4 }}>
             <span style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 24, fontWeight: 500, color: '#a1a1aa' }}>{getGreeting()}, </span>
-            <span style={{ fontFamily: "'Bricolage Grotesque', system-ui, sans-serif", fontSize: 24, fontWeight: 700, color: '#6366F1', letterSpacing: '-0.02em' }}>{firstName}</span>
+            <span style={{ fontFamily: "'Syne', system-ui, sans-serif", fontSize: 24, fontWeight: 700, color: '#6366F1', letterSpacing: '-0.02em' }}>{firstName}</span>
           </div>
           <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#52525b' }}>{formatDate()}{planLabel ? ` · ${planLabel}` : ''}</div>
         </div>

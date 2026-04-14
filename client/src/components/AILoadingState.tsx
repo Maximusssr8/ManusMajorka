@@ -108,7 +108,7 @@ export function AILoadingState({
         className="text-xs font-semibold transition-opacity duration-300"
         style={{
           color: 'rgba(99,102,241,0.7)',
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
         }}
       >
         {messages[msgIndex]}

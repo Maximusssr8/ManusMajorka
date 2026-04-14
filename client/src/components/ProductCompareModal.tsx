@@ -61,7 +61,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
       render: (p) => (
         <span
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 22,
             fontWeight: 800,
             color: C.gold,
@@ -207,7 +207,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
           <div>
             <h2
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 fontSize: 18,
                 fontWeight: 800,
                 color: C.text,
@@ -275,7 +275,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
                     padding: '2px 12px',
                     fontSize: 10,
                     fontWeight: 800,
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -321,7 +321,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
 
               <div
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 13,
                   fontWeight: 700,
                   color: C.text,

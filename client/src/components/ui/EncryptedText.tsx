@@ -44,7 +44,7 @@ export function EncryptedText({ text, duration = 500 }: { text: string; duration
   }, [text, duration]);
 
   return (
-    <span className={done ? '' : 'font-mono text-indigo-300'}>
+    <span className={done ? '' : 'font-mono text-[#e5c158]'}>
       {display}
     </span>
   );

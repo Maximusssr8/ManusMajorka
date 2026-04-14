@@ -187,7 +187,7 @@ function AdCard({
         {/* Hook */}
         <p
           className="text-sm font-extrabold leading-snug"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+          style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
         >
           {ad.hook}
         </p>
@@ -454,7 +454,7 @@ function AdSpyContent() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Ad Brief Generator
           </div>
@@ -545,7 +545,7 @@ function AdSpyContent() {
                 ? 'rgba(99,102,241,0.3)'
                 : '#6366F1',
               color: (isLoading || cooldown > 0) ? '#94A3B8' : '#fff',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: (isLoading || cooldown > 0) ? 'not-allowed' : 'pointer',
               border: 'none',
               whiteSpace: 'nowrap',
@@ -655,7 +655,7 @@ function AdSpyContent() {
             <div className="flex items-center justify-between mb-4">
               <div
                 className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 {result.ads.length} Ad Briefs Generated — "{lastSearchInput}"
               </div>
@@ -689,7 +689,7 @@ function AdSpyContent() {
               <Megaphone size={28} style={{ color: '#f59e0b', opacity: 0.6 }} />
             </div>
             <div className="text-center">
-              <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Ad Brief Generator
               </div>
               <div

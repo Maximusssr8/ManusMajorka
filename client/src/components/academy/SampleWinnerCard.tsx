@@ -133,7 +133,7 @@ export function SampleWinnerCard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-indigo-300/80 bg-indigo-500/[0.08] border border-indigo-500/20 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 text-[11px] text-[#e5c158]/80 bg-[#d4af37]/[0.08] border border-[#d4af37]/20 rounded-lg px-3 py-2">
           <Sparkles size={12} />
           <span>This is what the Products tab shows you, 24/7.</span>
         </div>

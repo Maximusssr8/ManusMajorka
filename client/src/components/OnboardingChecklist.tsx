@@ -123,7 +123,7 @@ export default function OnboardingChecklist() {
           </span>
           <span
             className="text-sm font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#6366F1' }}
           >
             You're a power user!
           </span>
@@ -138,7 +138,7 @@ export default function OnboardingChecklist() {
         <div className="flex items-center gap-3">
           <h3
             className="text-sm font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
           >
             Getting Started
           </h3>

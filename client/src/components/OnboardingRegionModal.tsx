@@ -10,7 +10,7 @@ interface OnboardingRegionModalProps {
 export function OnboardingRegionModal({ onComplete }: OnboardingRegionModalProps) {
   const { setRegionCode } = useRegion();
   const [selected, setSelected] = useState<RegionCode>('US');
-  const brico = "'Bricolage Grotesque', sans-serif";
+  const brico = "'Syne', sans-serif";
 
   const handleConfirm = () => {
     setRegionCode(selected);

@@ -7,7 +7,7 @@ import { ChevronRight, Lock, Megaphone, Search, TrendingUp } from 'lucide-react'
 import { useRef, useState } from 'react';
 import { Link } from 'wouter';
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 const mono = "'DM Mono', 'Fira Code', monospace";
 

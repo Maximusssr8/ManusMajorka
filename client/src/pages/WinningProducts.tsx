@@ -307,7 +307,7 @@ function ScoreBadge({ score }: { score: number }) {
         background: `${color}15`,
         border: `1px solid ${color}35`,
         whiteSpace: 'nowrap',
-        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontFamily: "'Syne', sans-serif",
       }}
     >
       Score {score}
@@ -471,7 +471,7 @@ function HeroStatsBar({
           </div>
           <div
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontSize: 26,
               fontWeight: 800,
               color: s.highlight ? C.gold : C.text,
@@ -504,7 +504,7 @@ function Top5Rankings({
         <Crown size={14} style={{ color: C.gold }} />
         <span
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontSize: 13,
             fontWeight: 700,
             color: C.gold,
@@ -548,7 +548,7 @@ function Top5Rankings({
             {/* Rank */}
             <span
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 fontSize: 13,
                 fontWeight: 800,
                 color: i === 0 ? C.gold : C.muted,
@@ -584,7 +584,7 @@ function Top5Rankings({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 14,
                   fontWeight: 700,
                   color: C.text,
@@ -606,7 +606,7 @@ function Top5Rankings({
                 fontSize: 18,
                 fontWeight: 800,
                 color: C.gold,
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
               }}
@@ -904,7 +904,7 @@ Be specific, opinionated, use AUD figures.`;
             </div>
             <h2
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 fontSize: 22,
                 fontWeight: 800,
                 color: C.text,
@@ -949,7 +949,7 @@ Be specific, opinionated, use AUD figures.`;
                 </div>
                 <div
                   style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 13,
                     fontWeight: 700,
                     color: C.text,
@@ -997,7 +997,7 @@ Be specific, opinionated, use AUD figures.`;
               </div>
               <div
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 18,
                   fontWeight: 800,
                   color: C.green,
@@ -1028,7 +1028,7 @@ Be specific, opinionated, use AUD figures.`;
               </div>
               <div
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 18,
                   fontWeight: 800,
                   color: C.gold,
@@ -1264,7 +1264,7 @@ Be specific, opinionated, use AUD figures.`;
                 <Sparkles size={14} style={{ color: C.gold }} />
                 <span
                   style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 13,
                     fontWeight: 700,
                   }}
@@ -1517,7 +1517,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
-              <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>
                 🔍 Spy Ads
               </div>
               <div style={{ fontSize: 12, color: C.sub }}>{product.product_title}</div>
@@ -1539,7 +1539,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
               >
                 <span style={{ fontSize: 22 }}>🎵</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13, fontWeight: 700, color: '#ff0050', marginBottom: 2 }}>TikTok Creative Center</div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, color: '#ff0050', marginBottom: 2 }}>TikTok Creative Center</div>
                   <div style={{ fontSize: 11, color: C.sub }}>See top-performing TikTok ads for this product</div>
                 </div>
                 <ExternalLink size={13} style={{ color: '#ff0050', flexShrink: 0 }} />
@@ -1552,7 +1552,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
               >
                 <span style={{ fontSize: 22 }}>📘</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13, fontWeight: 700, color: '#60a5fa', marginBottom: 2 }}>Meta Ad Library (AU)</div>
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, color: '#60a5fa', marginBottom: 2 }}>Meta Ad Library (AU)</div>
                   <div style={{ fontSize: 11, color: C.sub }}>Active Facebook & Instagram ads in Australia</div>
                 </div>
                 <ExternalLink size={13} style={{ color: '#60a5fa', flexShrink: 0 }} />
@@ -1656,7 +1656,7 @@ function FullReportModal({
               <TrendBadge trend={product.trend} />
               <CompetitionDot level={product.competition_level} />
             </div>
-            <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 26, fontWeight: 800, color: C.text, margin: 0, lineHeight: 1.2 }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 26, fontWeight: 800, color: C.text, margin: 0, lineHeight: 1.2 }}>
               {product.product_title}
             </h2>
             <div style={{ marginTop: 8, fontSize: 14, color: C.sub }}>
@@ -1676,7 +1676,7 @@ function FullReportModal({
             ].map(({ label, value, highlight, color }) => (
               <div key={label} style={{ background: highlight ? C.goldBg : C.glass, border: `1px solid ${highlight ? C.goldBorder : C.border}`, borderRadius: 14, padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontSize: 11, color: C.sub, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</div>
-                <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 20, fontWeight: 800, color: color ?? (highlight ? C.gold : C.text) }}>{value}</div>
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: color ?? (highlight ? C.gold : C.text) }}>{value}</div>
               </div>
             ))}
           </div>
@@ -1736,7 +1736,7 @@ function FullReportModal({
                 ].map(({ label, value }) => (
                   <div key={label} style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: C.text }}>{value}</div>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 700, color: C.text }}>{value}</div>
                   </div>
                 ))}
               </div>
@@ -1770,7 +1770,7 @@ function FullReportModal({
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.product_title}</div>
                     </div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 14, fontWeight: 700, color: C.gold, flexShrink: 0 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</div>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, color: C.gold, flexShrink: 0 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</div>
                   </div>
                 ))}
               </div>
@@ -1781,7 +1781,7 @@ function FullReportModal({
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a
               href={`/app/store-builder?${new URLSearchParams({ productName: product.product_title || '', niche: product.category || '', price: String(product.price_aud || 49), imageUrl: product.image_url || '', fromDatabase: 'true' })}`}
-              style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 20px', borderRadius: 14, background: C.gold, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, textDecoration: 'none', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 20px', borderRadius: 14, background: C.gold, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, textDecoration: 'none', fontFamily: "'Syne', sans-serif" }}
             >
               🚀 Build Store →
             </a>
@@ -1939,7 +1939,7 @@ function ProductCard({
               color: rankMeta.color,
               background: `${rankMeta.color}22`,
               border: `1px solid ${rankMeta.color}50`,
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               letterSpacing: '0.04em',
             }}
           >
@@ -1967,7 +1967,7 @@ function ProductCard({
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
             <div
               style={{
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 fontSize: 15,
                 fontWeight: 800,
                 color: C.text,
@@ -1977,10 +1977,10 @@ function ProductCard({
               {product.product_title}
             </div>
             {product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 86400000 && (
-              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#10b981', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>NEW</span>
+              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#10b981', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>NEW</span>
             )}
             {product.winning_score > 85 && (
-              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>TRENDING</span>
+              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>TRENDING</span>
             )}
           </div>
           {product.price_aud != null && (
@@ -2003,7 +2003,7 @@ function ProductCard({
           <div style={{ fontSize: 10, color: C.muted, marginBottom: 3 }}>Est. Daily Revenue</div>
           <div
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontSize: 18,
               fontWeight: 800,
               color: C.gold,
@@ -2213,7 +2213,7 @@ function FilterSidebar({
       }}
       className="sidebar-filters"
     >
-      <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13, fontWeight: 700, color: C.gold, padding: '10px 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, color: C.gold, padding: '10px 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
         <Filter size={13} /> Filters
         {activeFilters > 0 && (
           <span style={{ fontSize: 10, fontWeight: 800, background: C.gold, color: '#000', padding: '1px 6px', borderRadius: 20 }}>{activeFilters}</span>
@@ -2324,7 +2324,7 @@ function TrendingNowBar({ products, onSelect }: { products: WinningProduct[]; on
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <Flame size={13} style={{ color: C.gold }} />
-        <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 11, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Trending Now</span>
+        <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 11, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Trending Now</span>
       </div>
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
         {top5.map((p) => (
@@ -2456,9 +2456,9 @@ function CategoryIntelligenceTable({ products }: { products: WinningProduct[] })
         <tbody>
           {catData.map((row) => (
             <tr key={row.cat} style={{ borderBottom: `1px solid ${C.border}` }}>
-              <td style={{ padding: '12px', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13, fontWeight: 700, color: C.text }}>{row.cat}</td>
+              <td style={{ padding: '12px', fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, color: C.text }}>{row.cat}</td>
               <td style={{ padding: '12px', fontSize: 12, color: C.sub, fontWeight: 600 }}>{row.count}</td>
-              <td style={{ padding: '12px', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 14, fontWeight: 800, color: C.gold }}>{fmtAUD(row.marketSize)}/mo</td>
+              <td style={{ padding: '12px', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 800, color: C.gold }}>{fmtAUD(row.marketSize)}/mo</td>
               <td style={{ padding: '12px', fontSize: 12, color: C.text, maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.topProduct}</td>
               <td style={{ padding: '12px' }}>
                 <span style={{ fontSize: 11, fontWeight: 600, color: compColor(row.avgComp) }}>{compLabel(row.avgComp)}</span>
@@ -2626,14 +2626,14 @@ function TableView({
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 180, maxWidth: 280 }}>
                           <ProductImage src={p.image_url} alt={p.product_title} size={40} />
                           <div>
-                            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{p.product_title}</div>
+                            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{p.product_title}</div>
                             <div style={{ fontSize: 11, color: C.sub }}>{p.category}</div>
                           </div>
                         </div>
                       </td>
                       {/* Est. Revenue/month — gold, large */}
                       <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                        <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 800, color: C.gold }}>
+                        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 15, fontWeight: 800, color: C.gold }}>
                           {monthly != null ? `$${(monthly / 1000).toFixed(0)}k/mo` : '—'}
                         </div>
                         {p.est_daily_revenue_aud != null && (
@@ -2806,7 +2806,7 @@ function CardGrid({
               fontSize: 15,
               fontWeight: 700,
               marginBottom: 8,
-              fontFamily: "'Bricolage Grotesque', sans-serif"
+              fontFamily: "'Syne', sans-serif"
             }}>No products found</p>
             <p style={{ color: '#9CA3AF', fontSize: 13, marginBottom: 20 }}>
               Adjust your filters or check back tomorrow for fresh data
@@ -3427,7 +3427,7 @@ function WinningProducts() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                 <h1
                   style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 30,
                     fontWeight: 800,
                     color: C.text,
@@ -3741,7 +3741,7 @@ function WinningProducts() {
             {searchResults !== null && !nicheSearching && (
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 14, fontWeight: 700, color: C.text }}>
+                  <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 700, color: C.text }}>
                     Search Results
                   </span>
                   <span style={{ fontSize: 11, color: C.sub, background: C.glass, border: `1px solid ${C.border}`, padding: '2px 8px', borderRadius: 20 }}>
@@ -3761,9 +3761,9 @@ function WinningProducts() {
                 {searchResults.length === 0 ? (
                   <div style={{ padding: '40px 24px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 14, textAlign: 'center' }}>
                     <Search size={32} style={{ color: C.muted, marginBottom: 12, opacity: 0.5 }} />
-                    <p style={{ color: C.text, fontSize: 14, fontWeight: 600, marginBottom: 6, fontFamily: "'Bricolage Grotesque', sans-serif" }}>No products found</p>
+                    <p style={{ color: C.text, fontSize: 14, fontWeight: 600, marginBottom: 6, fontFamily: "'Syne', sans-serif" }}>No products found</p>
                     <p style={{ color: C.sub, fontSize: 13, marginBottom: 16 }}>Try a different category or search term</p>
-                    <button onClick={() => setSearchResults(null)} style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', color: '#6366F1', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <button onClick={() => setSearchResults(null)} style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', color: '#6366F1', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne', sans-serif" }}>
                       ← Clear Search
                     </button>
                   </div>
@@ -3790,12 +3790,12 @@ function WinningProducts() {
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 180 }}>
                                     <ProductImage src={p.image_url} alt={p.product_title} size={36} />
                                     <div>
-                                      <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13, fontWeight: 700, color: C.text }}>{p.product_title}</div>
+                                      <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 700, color: C.text }}>{p.product_title}</div>
                                       <div style={{ fontSize: 11, color: C.sub }}>{p.category}</div>
                                     </div>
                                   </div>
                                 </td>
-                                <td style={{ padding: '12px', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 14, fontWeight: 800, color: C.gold, whiteSpace: 'nowrap' }}>
+                                <td style={{ padding: '12px', fontFamily: "'Syne', sans-serif", fontSize: 14, fontWeight: 800, color: C.gold, whiteSpace: 'nowrap' }}>
                                   {monthly != null ? `$${(monthly / 1000).toFixed(0)}k/mo` : '—'}
                                 </td>
                                 <td style={{ padding: '12px' }}>
@@ -4210,7 +4210,7 @@ function WinningProducts() {
               <div style={{ fontSize: 40, marginBottom: 16 }}>❤️</div>
               <h3
                 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 18,
                   fontWeight: 700,
                   color: C.text,
@@ -4326,7 +4326,7 @@ function WinningProducts() {
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
             }}
           >
             Compare Selected →
@@ -4396,7 +4396,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
             padding: 40,
             textAlign: 'center',
             color: '#6366F1',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             minHeight: '100vh',
             background: '#05070F',
             display: 'flex',
@@ -4424,7 +4424,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
               borderRadius: 8,
               padding: '10px 24px',
               cursor: 'pointer',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               fontWeight: 700,
               fontSize: 14,
             }}

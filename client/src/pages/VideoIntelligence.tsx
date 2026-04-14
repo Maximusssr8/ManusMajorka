@@ -10,7 +10,7 @@ import UsageMeter from '@/components/UsageMeter';
 import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 
 const FORMAT_META: Record<string, { emoji: string; color: string; bg: string; desc: string }> = {
   POV:       { emoji: '👁️', color: '#7C3AED', bg: '#F3E8FF', desc: 'First-person story' },

@@ -53,7 +53,7 @@ export default function StoreOrders() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <h1 className="text-2xl font-bold text-slate-100" style={{ fontFamily: "'Syne', sans-serif" }}>
             Orders
           </h1>
           <p className="text-sm mt-1" style={{ color: '#94A3B8' }}>
@@ -75,7 +75,7 @@ export default function StoreOrders() {
       ) : orderList.length === 0 ? (
         <div className="text-center py-20">
           <Package className="w-12 h-12 mx-auto mb-4" style={{ color: '#D1D5DB' }} />
-          <p className="font-semibold text-slate-100 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <p className="font-semibold text-slate-100 mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
             No orders yet
           </p>
           <p className="text-sm" style={{ color: '#94A3B8' }}>
@@ -141,7 +141,7 @@ export default function StoreOrders() {
                     })}
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-slate-100 text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <p className="text-slate-100 text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
                       {order.customerName}
                     </p>
                     <p className="text-xs" style={{ color: '#9CA3AF' }}>

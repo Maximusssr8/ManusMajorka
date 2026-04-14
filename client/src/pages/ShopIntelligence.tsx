@@ -162,7 +162,7 @@ export default function ShopIntelligence() {
         <Helmet><title>Shop Intelligence — Majorka</title></Helmet>
         <div style={{ filter: 'blur(8px)', pointerEvents: 'none', opacity: 0.4, padding: isMobile ? '20px 16px' : '40px 32px' }}>
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>Shop Intelligence</div>
+            <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: C.text }}>Shop Intelligence</div>
             <div style={{ fontSize: 14, color: C.muted, marginTop: 4 }}>Discover top performing Shopify stores in your niche</div>
           </div>
           {[1,2,3,4,5].map(i => (
@@ -172,7 +172,7 @@ export default function ShopIntelligence() {
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: '#0d0d10', border: `1.5px solid ${C.border}`, borderRadius: 16, padding: '40px 48px', maxWidth: 420, width: '90%', textAlign: 'center' }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>🔒</div>
-            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 8 }}>Pro Feature</div>
+            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: C.text, marginBottom: 8 }}>Pro Feature</div>
             <div style={{ fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 1.6 }}>
               Unlock Shop Intelligence to:
             </div>
@@ -185,7 +185,7 @@ export default function ShopIntelligence() {
             </ul>
             <button
               onClick={() => navigate('/app/billing')}
-              style={{ width: '100%', padding: '14px', borderRadius: 10, background: C.gold, border: 'none', color: '#ffffff', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}
+              style={{ width: '100%', padding: '14px', borderRadius: 10, background: C.gold, border: 'none', color: '#ffffff', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Syne', sans-serif", marginBottom: 8 }}
             >
               Upgrade to Pro →
             </button>
@@ -202,7 +202,7 @@ export default function ShopIntelligence() {
 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 4 }}>
+        <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: C.text, marginBottom: 4 }}>
           Shop Intelligence
         </div>
         <div style={{ fontSize: 14, color: C.muted }}>
@@ -254,14 +254,14 @@ export default function ShopIntelligence() {
             return (
               <div style={{ padding: 24 }}>
                 <div style={{ marginBottom: 16 }}>
-                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>🇦🇺 Australian Market Intelligence — Live Data</h3>
+                  <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>🇦🇺 Australian Market Intelligence — Live Data</h3>
                   <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>Based on AU Google Trends, AliExpress AU, and TikTok AU search data</p>
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${C.border}` }}>
                       {['Niche', '30d Searches', '7d Trend', 'Competition', 'Opportunity'].map(h => (
-                        <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.muted, textAlign: 'left', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{h}</th>
+                        <th key={h} style={{ padding: '10px 14px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.muted, textAlign: 'left', fontFamily: "'Syne', sans-serif" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -298,7 +298,7 @@ export default function ShopIntelligence() {
           {/* Tab 2 — Search Trends */}
           {shopTab === 'trends' && (
             <div style={{ padding: 24 }}>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>📈 7-Day Search Trends — Top 5 Niches</h3>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>📈 7-Day Search Trends — Top 5 Niches</h3>
               <p style={{ fontSize: 13, color: C.muted, margin: '0 0 20px' }}>AU Google Trends data, updated daily</p>
               {(() => {
                 const trendData = [
@@ -349,7 +349,7 @@ export default function ShopIntelligence() {
           {/* Tab 3 — Seasonal */}
           {shopTab === 'seasonal' && (
             <div style={{ padding: 24 }}>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>🗓️ AU Seasonal Peak Calendar</h3>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>🗓️ AU Seasonal Peak Calendar</h3>
               <p style={{ fontSize: 13, color: C.muted, margin: '0 0 20px' }}>Plan your inventory around Australian seasonal demand peaks</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
                 {[
@@ -373,7 +373,7 @@ export default function ShopIntelligence() {
                     </div>
                     <button
                       onClick={() => navigate(`/app/products?niche=${encodeURIComponent(s.categories[0])}`)}
-                      style={{ width: '100%', padding: '8px', borderRadius: 8, background: `${s.color}15`, border: `1px solid ${s.color}30`, color: s.color, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ width: '100%', padding: '8px', borderRadius: 8, background: `${s.color}15`, border: `1px solid ${s.color}30`, color: s.color, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne', sans-serif" }}
                     >
                       View Products →
                     </button>
@@ -386,7 +386,7 @@ export default function ShopIntelligence() {
           {/* Tab 4 — Market Size */}
           {shopTab === 'market' && (
             <div style={{ padding: 24 }}>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>📊 Australian Ecommerce Market</h3>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>📊 Australian Ecommerce Market</h3>
               <p style={{ fontSize: 13, color: C.muted, margin: '0 0 20px' }}>Key market metrics for AU dropshipping entrepreneurs</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
                 {[
@@ -400,7 +400,7 @@ export default function ShopIntelligence() {
                       <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: C.muted }}>{stat.label}</span>
                       <span style={{ fontSize: 20 }}>{stat.icon}</span>
                     </div>
-                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 32, color: C.text, lineHeight: 1, marginBottom: 4 }}>
+                    <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 32, color: C.text, lineHeight: 1, marginBottom: 4 }}>
                       {stat.value} <span style={{ fontSize: 14, color: C.muted, fontWeight: 400 }}>{stat.sub}</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>↑ {stat.trend}</div>
@@ -455,7 +455,7 @@ export default function ShopIntelligence() {
         />
 
         <button onClick={() => fetchShops(1)}
-          style={{ padding: '8px 20px', borderRadius: 7, background: C.gold, border: 'none', color: '#ffffff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          style={{ padding: '8px 20px', borderRadius: 7, background: C.gold, border: 'none', color: '#ffffff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne', sans-serif" }}>
           Apply Filters
         </button>
       </div>
@@ -465,7 +465,7 @@ export default function ShopIntelligence() {
         {/* Table header */}
         <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 130px 110px 80px 90px 90px 100px 90px', padding: '12px 16px', borderBottom: `1px solid ${C.border}`, gap: 12 }}>
           {['#', 'Shop', 'Revenue', 'Products', 'Trend', 'Growth', 'Sold', 'Avg Price', ''].map((h, i) => (
-            <div key={i} style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: C.muted, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{h}</div>
+            <div key={i} style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: C.muted, fontFamily: "'Syne', sans-serif" }}>{h}</div>
           ))}
         </div>
 
@@ -500,7 +500,7 @@ export default function ShopIntelligence() {
               </div>
             </div>
 
-            <div style={{ fontSize: 15, fontWeight: 800, color: C.gold, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: C.gold, fontFamily: "'Syne', sans-serif" }}>
               {fmtRevenue(shop.est_revenue_aud)}
               <div style={{ fontSize: 10, color: C.muted, fontWeight: 400, marginTop: 1 }}>AUD/mo</div>
             </div>
@@ -525,7 +525,7 @@ export default function ShopIntelligence() {
 
             <button
               onClick={e => { e.stopPropagation(); navigate(`/app/shops/${shop.id}`); }}
-              style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap' }}
+              style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne', sans-serif", whiteSpace: 'nowrap' }}
             >
               Analyse →
             </button>

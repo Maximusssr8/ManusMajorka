@@ -28,7 +28,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
           background: '#EEF2FF',
           border: '1px solid #C7D2FE',
           color: '#6366F1',
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
         }}
       >
         <div
@@ -46,7 +46,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
           background: 'rgba(255,165,0,0.1)',
           border: '1px solid rgba(255,165,0,0.25)',
           color: '#ffa500',
-          fontFamily: "'Bricolage Grotesque', sans-serif",
+          fontFamily: "'Syne', sans-serif",
         }}
       >
         Cancelled
@@ -59,7 +59,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
         background: 'rgba(255,80,80,0.1)',
         border: '1px solid rgba(255,80,80,0.25)',
         color: '#ff5050',
-        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontFamily: "'Syne', sans-serif",
       }}
     >
       Expired
@@ -172,12 +172,12 @@ export default function Account() {
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 color: '#FAFAFA',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               M
             </div>
-            <span className="font-extrabold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <span className="font-extrabold text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
               Majorka
             </span>
           </div>
@@ -198,7 +198,7 @@ export default function Account() {
 
       {/* ── CONTENT ── */}
       <main className="relative z-10 container py-12 max-w-2xl">
-        <h1 className="text-3xl font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <h1 className="text-3xl font-extrabold mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
           Account
         </h1>
         <p className="text-muted-foreground mb-10">Manage your Majorka membership and billing.</p>
@@ -214,13 +214,13 @@ export default function Account() {
               style={{
                 background: 'rgba(99,102,241,0.15)',
                 color: '#6366F1',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               {user?.name?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <div>
-              <div className="font-bold text-base" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="font-bold text-base" style={{ fontFamily: "'Syne', sans-serif" }}>
                 {user?.name}
               </div>
               <div className="text-sm text-muted-foreground">
@@ -245,7 +245,7 @@ export default function Account() {
           >
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4" style={{ color: '#6366F1' }} />
-              <span className="font-bold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <span className="font-bold text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Subscription
               </span>
             </div>
@@ -260,7 +260,7 @@ export default function Account() {
                   <div>
                     <p
                       className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ fontFamily: "'Syne', sans-serif" }}
                     >
                       Plan
                     </p>
@@ -269,7 +269,7 @@ export default function Account() {
                   <div>
                     <p
                       className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ fontFamily: "'Syne', sans-serif" }}
                     >
                       Price
                     </p>
@@ -280,7 +280,7 @@ export default function Account() {
                   <div>
                     <p
                       className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      style={{ fontFamily: "'Syne', sans-serif" }}
                     >
                       Started
                     </p>
@@ -292,7 +292,7 @@ export default function Account() {
                     <div>
                       <p
                         className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {subscription.status === 'cancelled' ? 'Access until' : 'Renews'}
                       </p>
@@ -303,7 +303,7 @@ export default function Account() {
                     <div>
                       <p
                         className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         Renews
                       </p>
@@ -364,7 +364,7 @@ export default function Account() {
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#FAFAFA',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontWeight: 800,
                   boxShadow: '0 4px 18px rgba(99,102,241,0.3)',
                 }}

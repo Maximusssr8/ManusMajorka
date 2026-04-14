@@ -110,7 +110,7 @@ function SectionCard({
       >
         <span
           className="text-xs font-extrabold uppercase tracking-widest"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: accent }}
+          style={{ fontFamily: "'Syne', sans-serif", color: accent }}
         >
           {title}
         </span>
@@ -314,14 +314,14 @@ Generate a full competitive intelligence report as JSON.`;
             />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(139,92,246,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: 'rgba(139,92,246,0.7)', fontFamily: "'Syne', sans-serif" }}
             >
               Competitive Intel
             </span>
           </div>
           <h1
             className="text-lg font-extrabold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F1F5F9', letterSpacing: '-0.02em' }}
           >
             Market Intelligence
           </h1>
@@ -451,7 +451,7 @@ Generate a full competitive intelligence report as JSON.`;
             disabled={isGenerating || !niche.trim()}
             className="w-full py-3 rounded-xl text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
             style={{
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               background: isGenerating
                 ? 'rgba(139,92,246,0.15)'
                 : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
@@ -507,7 +507,7 @@ Generate a full competitive intelligence report as JSON.`;
             </div>
             <h2
               className="text-xl font-extrabold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#F1F5F9' }}
             >
               Decode Your Market
             </h2>
@@ -576,7 +576,7 @@ Generate a full competitive intelligence report as JSON.`;
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#8b5cf6' }} />
                 <span
                   className="text-xs font-semibold uppercase tracking-widest"
-                  style={{ color: 'rgba(139,92,246,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: 'rgba(139,92,246,0.7)', fontFamily: "'Syne', sans-serif" }}
                 >
                   Market Intelligence Report
                 </span>
@@ -584,7 +584,7 @@ Generate a full competitive intelligence report as JSON.`;
               <div className="flex items-center gap-3 mb-3">
                 <h2
                   className="text-2xl font-extrabold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F1F5F9' }}
                 >
                   {niche}
                 </h2>
@@ -689,7 +689,7 @@ Generate a full competitive intelligence report as JSON.`;
                         <div className="flex items-center gap-2">
                           <span
                             className="text-sm font-extrabold"
-                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9' }}
+                            style={{ fontFamily: "'Syne', sans-serif", color: '#F1F5F9' }}
                           >
                             {comp.name}
                           </span>

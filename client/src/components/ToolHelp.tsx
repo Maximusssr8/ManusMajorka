@@ -66,7 +66,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 What it does
               </div>
@@ -77,7 +77,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 Best for
               </div>
@@ -88,7 +88,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 Example input
               </div>
@@ -107,7 +107,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 You get
               </div>

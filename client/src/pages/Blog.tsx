@@ -1,7 +1,7 @@
 import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const POSTS = [

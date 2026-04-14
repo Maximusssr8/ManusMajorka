@@ -5,7 +5,7 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
 import { useLocation } from 'wouter';
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 interface Message {
@@ -155,7 +155,7 @@ function TypingDots() {
       </div>
       <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px 18px 18px 4px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
         {[0, 1, 2].map(i => (
-          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#818CF8", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
+          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#d4af37", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
         ))}
       </div>
     </div>
@@ -246,17 +246,42 @@ export default function AIChat() {
     });
   }, []);
 
-  // FIX 5: Load chat history from localStorage on mount
+  // Load chat history — prefer server-backed, fall back to localStorage for unauth
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('maya_chat_history');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed.map((m: Message) => ({ ...m, content: stripActionBlocks(m.content), ts: new Date(m.ts) })));
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          const res = await fetch('/api/chat/history?tool=ai-chat', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (res.ok) {
+            const json = await res.json() as { messages?: Array<{ id: string; role: 'user' | 'assistant'; content: string; created_at: string }> };
+            if (!cancelled && Array.isArray(json.messages) && json.messages.length > 0) {
+              setMessages(json.messages.slice(-50).map(m => ({
+                id: m.id,
+                role: m.role,
+                content: stripActionBlocks(m.content),
+                ts: new Date(m.created_at),
+              })));
+              return;
+            }
+          }
         }
-      }
-    } catch { /* ignore */ }
+      } catch { /* fall through to localStorage */ }
+
+      try {
+        const saved = localStorage.getItem('maya_chat_history');
+        if (saved && !cancelled) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMessages(parsed.map((m: Message) => ({ ...m, content: stripActionBlocks(m.content), ts: new Date(m.ts) })));
+          }
+        }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   // FIX 5: Save to localStorage when messages change (debounced)
@@ -271,20 +296,14 @@ export default function AIChat() {
     return () => clearTimeout(timeout);
   }, [messages]);
 
-  // FIX 4: Dynamic prompt chips based on user niche
-  const suggestedPrompts = userNiche
-    ? [
-        `What ${userNiche} products should I test this week?`,
-        `Write me a TikTok hook for a ${userNiche} product`,
-        "How do I improve my store conversion rate?",
-        `Find me a winning ${userNiche} product under $20 cost`,
-      ]
-    : [
-        "What products should I test this week?",
-        "Write me a TikTok hook for my product",
-        "How do I improve my store conversion rate?",
-        "Find me a winning product under $20 cost",
-      ];
+  // Fixed suggested prompts (Maya upgrade spec)
+  const suggestedPrompts = [
+    "Find me a winning pet product for AU market",
+    "What's the best-margin electronics product right now?",
+    "Show me 3 products with 90+ winning score",
+    "Give me ad copy ideas for my last saved product",
+  ];
+  void userNiche; // retained for future personalisation
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -485,15 +504,15 @@ export default function AIChat() {
               )}
               <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: msg.role === "user" ? "70%" : "75%" }}>
                 <div
-                  className={msg.role === "user" ? "rounded-xl px-4 py-3" : "bg-[#0d0d10]/[0.04] rounded-xl px-4 py-3"}
+                  className={msg.role === "user" ? "rounded-xl px-4 py-3 border-r-2 border-[#3B82F6]" : "rounded-xl px-4 py-3 border-l-2 border-[#d4af37]"}
                   style={msg.role === "user" ? {
-                    background: 'rgba(99,102,241,0.2)',
-                    border: '1px solid rgba(99,102,241,0.2)',
+                    background: 'rgba(59,130,246,0.10)',
                     color: "white",
                     fontFamily: dm,
                     fontSize: 14,
                     lineHeight: 1.6,
                   } : {
+                    background: 'rgba(212,175,55,0.05)',
                     color: "white",
                     fontFamily: dm,
                     fontSize: 14,
@@ -505,7 +524,7 @@ export default function AIChat() {
                 {msg.role === "assistant" && msg.content && (
                   <CopyMsgButton text={msg.content} />
                 )}
-                <span style={{ fontFamily: dm, fontSize: 11, color: "#64748B", marginTop: 4 }}>{fmtTime(msg.ts)}</span>
+                <span style={{ fontFamily: dm, fontSize: 11, color: "#64748B", marginTop: 4, fontVariantNumeric: "tabular-nums" }}>{fmtTime(msg.ts)}</span>
               </div>
             </div>
           ))}
@@ -519,7 +538,7 @@ export default function AIChat() {
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
             <textarea
               ref={textareaRef}
-              className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-indigo-500/50 resize-none transition-all maya-textarea"
+              className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-[#d4af37]/50 resize-none transition-all maya-textarea"
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}

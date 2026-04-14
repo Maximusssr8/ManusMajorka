@@ -217,7 +217,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
 
   const labelStyle = {
     color: '#94A3B8',
-    fontFamily: "'Bricolage Grotesque', sans-serif",
+    fontFamily: "'Syne', sans-serif",
     fontSize: 11,
     fontWeight: 700 as const,
     textTransform: 'uppercase' as const,
@@ -237,7 +237,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
           <div>
             <h1
               className="text-lg font-extrabold flex items-center gap-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
             >
               <Smartphone size={18} style={{ color: '#6366F1' }} />
               TikTok Slides
@@ -348,7 +348,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
             style={{
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: generating ? 'wait' : 'pointer',
               border: 'none',
             }}
@@ -377,7 +377,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                   border: '1px solid rgba(99,102,241,0.2)',
                   color: '#6366F1',
                   cursor: 'pointer',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                 }}
               >
                 <Copy size={11} /> Copy All Slides
@@ -391,7 +391,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                   border: '1px solid rgba(156,95,255,0.2)',
                   color: '#9c5fff',
                   cursor: 'pointer',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                 }}
               >
                 {remixing ? (
@@ -417,7 +417,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                   border: '1px solid rgba(59,130,246,0.2)',
                   color: '#3b82f6',
                   cursor: 'pointer',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                 }}
               >
                 {loadingPhotos ? (
@@ -437,7 +437,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 <div className="space-y-1.5">
                   <span
                     className="text-xs font-bold"
-                    style={{ color: '#94A3B8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#94A3B8', fontFamily: "'Syne', sans-serif" }}
                   >
                     STOCK BACKGROUNDS
                   </span>
@@ -529,7 +529,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                               ? '#6366F1'
                               : '#6B7280',
                         fontSize: 9,
-                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                       }}
                     >
                       {result.slides[currentSlide]?.type?.toUpperCase()}
@@ -538,7 +538,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     <p
                       className="text-center font-extrabold leading-tight"
                       style={{
-                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                         color: '#ffffff',
                         fontSize: previewMode ? 20 : 24,
                         maxWidth: '90%',
@@ -630,7 +630,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                   <div>
                     <h3
                       className="text-xs font-bold mb-2"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                      style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                     >
                       CAPTIONS
                     </h3>
@@ -672,7 +672,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     <div>
                       <h3
                         className="text-xs font-bold mb-1"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                        style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                       >
                         AUDIO STYLE
                       </h3>
@@ -683,7 +683,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     <div>
                       <h3
                         className="text-xs font-bold mb-1"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                        style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                       >
                         POSTING TIMES (AEST)
                       </h3>
@@ -694,7 +694,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     <div>
                       <h3
                         className="text-xs font-bold mb-1"
-                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                        style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                       >
                         COLOR SCHEMES
                       </h3>
@@ -729,7 +729,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 </div>
                 <h2
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   No slideshow yet
                 </h2>

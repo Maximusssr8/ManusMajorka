@@ -72,7 +72,7 @@ export default function ProductHub() {
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
-          <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
             Sign in to view product hub
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function ProductHub() {
       >
         <div className="text-center">
           <div className="text-4xl mb-4">📦</div>
-          <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
             Product not found
           </div>
           <button
@@ -144,7 +144,7 @@ export default function ProductHub() {
           <div>
             <div className="flex items-center gap-2">
               <Package size={16} style={{ color: stageColors[product.status] || '#6366F1' }} />
-              <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 {product.name}
               </h1>
             </div>
@@ -177,7 +177,7 @@ export default function ProductHub() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                    <span className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <span className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                       {stageLabels[stage]}
                     </span>
                     <span

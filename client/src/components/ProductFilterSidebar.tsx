@@ -27,7 +27,7 @@ interface Props {
 
 export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChange }: Props) {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
-  const brico = "'Bricolage Grotesque', sans-serif";
+  const brico = "'Syne', sans-serif";
 
   const update = (partial: Partial<FilterState>) => {
     const next = { ...filters, ...partial };

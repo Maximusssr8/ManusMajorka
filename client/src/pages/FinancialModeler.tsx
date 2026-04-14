@@ -179,7 +179,7 @@ export default function FinancialModeler() {
               <DollarSign size={15} style={{ color: '#6366F1' }} />
             </div>
             <div>
-              <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Financial Modeler
               </div>
               <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -246,7 +246,7 @@ export default function FinancialModeler() {
             <div key={label}>
               <label
                 className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 {label} {required && <span style={{ color: '#6366F1' }}>*</span>}
               </label>
@@ -276,7 +276,7 @@ export default function FinancialModeler() {
                 ? '#C7D2FE'
                 : 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#fff',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               boxShadow: generating ? 'none' : '0 4px 20px #C7D2FE',
               cursor: generating ? 'not-allowed' : 'pointer',
             }}
@@ -299,7 +299,7 @@ export default function FinancialModeler() {
             <div className="max-w-3xl mx-auto space-y-6">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Financial Model
                 </h2>
                 <SaveToProduct
@@ -357,7 +357,7 @@ export default function FinancialModeler() {
                     <Icon size={16} style={{ color, marginBottom: 8 }} />
                     <div
                       className="text-lg font-extrabold"
-                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color }}
+                      style={{ fontFamily: "'Syne', sans-serif", color }}
                     >
                       {value}
                     </div>
@@ -382,7 +382,7 @@ export default function FinancialModeler() {
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Monthly P&L Statement
                   </div>
@@ -404,7 +404,7 @@ export default function FinancialModeler() {
                       <span
                         className={`text-xs flex-1 ${isTotal ? 'font-bold' : ''}`}
                         style={{
-                          fontFamily: isTotal ? "'Bricolage Grotesque', sans-serif" : undefined,
+                          fontFamily: isTotal ? "'Syne', sans-serif" : undefined,
                           color: '#CBD5E1',
                         }}
                       >
@@ -448,7 +448,7 @@ export default function FinancialModeler() {
                 >
                   <div
                     className="text-xs font-extrabold uppercase tracking-widest"
-                    style={{ color: '#7c6af5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#7c6af5', fontFamily: "'Syne', sans-serif" }}
                   >
                     6-Month Revenue Forecast
                   </div>
@@ -459,7 +459,7 @@ export default function FinancialModeler() {
                       <div className="flex items-center justify-between mb-1">
                         <span
                           className="text-xs font-semibold"
-                          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                          style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                         >
                           {f.month}
                         </span>
@@ -496,7 +496,7 @@ export default function FinancialModeler() {
               <div className="text-center">
                 <div
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Financial Model
                 </div>

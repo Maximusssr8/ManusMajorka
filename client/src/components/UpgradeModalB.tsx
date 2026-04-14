@@ -61,7 +61,7 @@ export default function UpgradeModalB({
           </div>
           <h2
             className="text-xl font-extrabold mb-2"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
           >
             Less than your morning coffee
           </h2>
@@ -106,13 +106,13 @@ export default function UpgradeModalB({
             <div className="flex items-center justify-between">
               <span
                 className="text-xs font-bold"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 Majorka Builder
               </span>
               <span
                 className="text-lg font-extrabold"
-                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
               >
                 $1.63/day
               </span>
@@ -136,7 +136,7 @@ export default function UpgradeModalB({
             style={{
               background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: 'pointer',
               border: 'none',
               boxShadow: '0 4px 24px rgba(99,102,241,0.3)',
@@ -152,7 +152,7 @@ export default function UpgradeModalB({
               background: 'rgba(255,255,255,0.03)',
               color: '#CBD5E1',
               border: '1px solid #F5F5F5',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: 'pointer',
             }}
           >

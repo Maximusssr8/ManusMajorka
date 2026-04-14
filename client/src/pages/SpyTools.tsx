@@ -68,7 +68,7 @@ const STORES = [
 ];
 
 const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', accent: '#6366F1', text: '#0A0A0A', muted: '#6B7280' };
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 
 function CompetitorSpy() {
   const isMobile = useIsMobile();
@@ -350,7 +350,7 @@ export default function SpyTools() {
                   onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 8px #F5F5F5'; }}
                 >
                   <div style={{ height: 180, background: ad.bg || '#F9FAFB', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: 16, flexDirection: 'column', gap: 8 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: ad.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.4, maxWidth: '100%' }}>{ad.hook || ad.product}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: ad.accent || '#374151', fontFamily: '"Syne", sans-serif', lineHeight: 1.4, maxWidth: '100%' }}>{ad.hook || ad.product}</div>
                     <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.5 }}>{ad.body ? ad.body.slice(0,80) + '…' : ''}</div>
                     <div style={{ marginTop: 'auto', display: 'inline-block', background: ad.accent || '#6366F1', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 99 }}>{ad.cta || 'Shop Now'}</div>
                     <span style={{ display: 'none' }}>📦</span>
@@ -453,7 +453,7 @@ export default function SpyTools() {
             boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
           }} onClick={e => e.stopPropagation()}>
             <div style={{ height: 300, background: viewAd.bg || '#F9FAFB', position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, padding: 24, justifyContent: 'center' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: viewAd.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.5 }}>{viewAd.hook || viewAd.product}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: viewAd.accent || '#374151', fontFamily: '"Syne", sans-serif', lineHeight: 1.5 }}>{viewAd.hook || viewAd.product}</div>
               <div style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.6 }}>{viewAd.body || ''}</div>
               <div style={{ display: 'inline-block', background: viewAd.accent || '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 99, alignSelf: 'flex-start' }}>{viewAd.cta || 'Shop Now'}</div>
               <div style={{

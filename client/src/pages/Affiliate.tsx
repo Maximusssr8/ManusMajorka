@@ -21,7 +21,7 @@ const C = {
   purple: '#a855f7',
 };
 
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const LEADERBOARD = [

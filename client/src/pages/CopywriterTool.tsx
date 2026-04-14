@@ -93,7 +93,7 @@ function CopySection({
       >
         <span
           className="text-xs font-bold uppercase tracking-widest"
-          style={{ color: accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          style={{ color: accent, fontFamily: "'Syne', sans-serif" }}
         >
           {title}
         </span>
@@ -118,7 +118,7 @@ function CopyItem({ label, text }: { label?: string; text: string }) {
         {label && (
           <div
             className="text-xs mb-0.5"
-            style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
           >
             {label}
           </div>
@@ -237,7 +237,7 @@ export default function CopywriterTool() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Copywriter
           </div>
@@ -278,7 +278,7 @@ export default function CopywriterTool() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Product / Offer *
               </label>
@@ -298,7 +298,7 @@ export default function CopywriterTool() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Target Audience
               </label>
@@ -317,7 +317,7 @@ export default function CopywriterTool() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Tone
               </label>
@@ -342,7 +342,7 @@ export default function CopywriterTool() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Framework
               </label>
@@ -366,7 +366,7 @@ export default function CopywriterTool() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Price Point (AUD)
               </label>
@@ -391,7 +391,7 @@ export default function CopywriterTool() {
             style={{
               background: isLoading ? 'rgba(224,92,122,0.25)' : '#e05c7a',
               color: '#fff',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -433,7 +433,7 @@ export default function CopywriterTool() {
                 <PenTool size={24} style={{ color: '#e05c7a' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Writing your copy pack…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -456,7 +456,7 @@ export default function CopywriterTool() {
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div
                     className="text-xl font-extrabold leading-tight"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                    style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                   >
                     {result.headline}
                   </div>
@@ -467,7 +467,7 @@ export default function CopywriterTool() {
                 </div>
                 <div
                   className="text-xs px-3 py-1.5 rounded-lg inline-block font-extrabold"
-                  style={{ background: '#e05c7a', color: '#fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ background: '#e05c7a', color: '#fff', fontFamily: "'Syne', sans-serif" }}
                 >
                   {result.cta}
                 </div>
@@ -481,7 +481,7 @@ export default function CopywriterTool() {
                 <div className="mt-3">
                   <div
                     className="text-xs font-bold uppercase tracking-wider mb-2"
-                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                   >
                     Bullet Points
                   </div>
@@ -544,7 +544,7 @@ export default function CopywriterTool() {
               <div className="text-center">
                 <div
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Generate a full copy pack in seconds
                 </div>

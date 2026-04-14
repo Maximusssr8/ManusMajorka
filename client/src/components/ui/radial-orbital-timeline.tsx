@@ -217,7 +217,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                   className={`absolute top-12 whitespace-nowrap text-xs font-bold tracking-wider transition-all duration-300 ${isExpanded ? 'scale-125' : ''}`}
                   style={{
                     color: isExpanded ? '#6366F1' : '#374151',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     left: '50%',
                     transform: `translateX(-50%) ${isExpanded ? 'scale(1.25)' : ''}`,
                   }}
@@ -258,7 +258,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                       </div>
                       <CardTitle
                         className="text-sm mt-2"
-                        style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ color: '#0A0A0A', fontFamily: "'Syne', sans-serif" }}
                       >
                         {item.title}
                       </CardTitle>

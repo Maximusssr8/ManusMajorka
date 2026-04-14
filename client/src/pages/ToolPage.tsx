@@ -85,7 +85,7 @@ function ToolLoadingFallback() {
           style={{
             background: 'rgba(99,102,241,0.15)',
             color: '#6366F1',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
           }}
         >
           M
@@ -243,7 +243,7 @@ export default function ToolPage() {
           <div className="text-4xl mb-4">🔧</div>
           <h2
             className="text-lg font-bold mb-2"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+            style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
           >
             Tool not found
           </h2>

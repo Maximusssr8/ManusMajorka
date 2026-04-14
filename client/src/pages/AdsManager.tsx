@@ -37,7 +37,7 @@ const C = {
   amber: '#F59E0B',
 } as const;
 
-const FONT_HEADING = "'Bricolage Grotesque', sans-serif";
+const FONT_HEADING = "'Syne', sans-serif";
 const FONT_BODY = "'DM Sans', sans-serif";
 
 // ── Types ────────────────────────────────────────────────────────────────────

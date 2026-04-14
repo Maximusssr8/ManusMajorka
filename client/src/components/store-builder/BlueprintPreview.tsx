@@ -1,5 +1,5 @@
 const gold = '#6366F1';
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const card: React.CSSProperties = {
   background: '#05070F',
   border: '1px solid #F9FAFB',

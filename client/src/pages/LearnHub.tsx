@@ -10,7 +10,7 @@ import { ChevronDown, ChevronRight, CheckCircle2, Lock, Share2 } from 'lucide-re
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
 
-const display = "'Bricolage Grotesque', sans-serif";
+const display = "'Syne', sans-serif";
 const sans = "'DM Sans', sans-serif";
 const mono = "'JetBrains Mono', monospace";
 

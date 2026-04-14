@@ -7,7 +7,7 @@ interface StatCardsProps {
 export function ProductStatCards({ products }: StatCardsProps) {
   if (!products.length) return null;
 
-  const brico = "'Bricolage Grotesque', sans-serif";
+  const brico = "'Syne', sans-serif";
 
   const totalRevenue = products.reduce((sum: number, p: any) => sum + (p.est_monthly_revenue_aud || 0), 0);
   const avgScore = Math.round(products.reduce((sum: number, p: any) => sum + (p.winning_score || 0), 0) / products.length);

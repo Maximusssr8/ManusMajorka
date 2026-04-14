@@ -109,7 +109,7 @@ export default function WelcomeModal({ userName }: Props) {
             </div>
             <h1
               className="text-xl font-bold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f4f4f5' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#f4f4f5' }}
             >
               Welcome to Majorka
             </h1>
@@ -132,7 +132,7 @@ export default function WelcomeModal({ userName }: Props) {
               >
                 <div
                   className="text-lg font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#818cf8' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#818cf8' }}
                 >
                   {stat.value}
                 </div>
@@ -147,7 +147,7 @@ export default function WelcomeModal({ userName }: Props) {
           <div className="mb-6">
             <p
               className="text-sm font-bold mb-3"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#e4e4e7' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#e4e4e7' }}
             >
               What do you want to do first?
             </p>
@@ -212,7 +212,7 @@ export default function WelcomeModal({ userName }: Props) {
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#a1a1aa',
                 cursor: 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               Take the Tour
@@ -225,7 +225,7 @@ export default function WelcomeModal({ userName }: Props) {
                 border: 'none',
                 color: '#FAFAFA',
                 cursor: 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
                 boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
               }}
             >

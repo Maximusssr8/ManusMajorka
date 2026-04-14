@@ -88,7 +88,7 @@ export default function MajorkaLogo({
       {!iconOnly && (
         <span
           style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             fontWeight: 800,
             fontSize: wordmarkSize,
             color: wordmarkColor,

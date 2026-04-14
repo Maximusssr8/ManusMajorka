@@ -55,7 +55,7 @@ export function Pagination({ currentPage, totalPages, total, limit, onPageChange
         <input type="number" value={jumpInput} onChange={e => setJumpInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleJump()} min={1} max={totalPages} placeholder="—"
           className="w-12 rounded-lg px-2 py-1.5 text-[12px] text-center text-slate-100 outline-none tabular-nums"
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
-        <button onClick={handleJump} className="text-[12px] text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Go</button>
+        <button onClick={handleJump} className="text-[12px] text-[#e5c158] hover:text-[#e5c158] font-medium transition-colors">Go</button>
       </div>
     </div>
   );

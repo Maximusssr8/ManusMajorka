@@ -110,7 +110,7 @@ export default function MarketIntel() {
             I
           </div>
           <div>
-            <h1 className="font-extrabold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="font-extrabold text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
               Market Intelligence
             </h1>
             <p className="text-xs text-muted-foreground">

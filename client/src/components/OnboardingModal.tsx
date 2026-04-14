@@ -245,7 +245,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">👋</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   Welcome{userName ? `, ${userName}` : ''}!
                 </h2>
@@ -274,7 +274,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       <div
                         className="text-xs font-bold"
                         style={{
-                          fontFamily: "'Bricolage Grotesque', sans-serif",
+                          fontFamily: "'Syne', sans-serif",
                           color: selectedLevel === level.id ? '#6366F1' : '#0A0A0A',
                         }}
                       >
@@ -305,7 +305,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     ? 'linear-gradient(135deg, #6366F1, #8B5CF6)'
                     : '#F9FAFB',
                   color: selectedLevel ? '#FAFAFA' : '#9CA3AF',
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   cursor: selectedLevel ? 'pointer' : 'not-allowed',
                   border: 'none',
                 }}
@@ -321,7 +321,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">🎯</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   What's your priority?
                 </h2>
@@ -355,7 +355,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         <div
                           className="text-xs font-bold"
                           style={{
-                            fontFamily: "'Bricolage Grotesque', sans-serif",
+                            fontFamily: "'Syne', sans-serif",
                             color: selectedGoal === goal.id ? goal.color : '#0A0A0A',
                           }}
                         >
@@ -379,7 +379,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     border: '1px solid #F0F0F0',
                     color: '#94A3B8',
                     cursor: 'pointer',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                   }}
                 >
                   <ChevronLeft size={14} />
@@ -398,7 +398,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       ? 'linear-gradient(135deg, #6366F1, #8B5CF6)'
                       : '#F9FAFB',
                     color: selectedGoal ? '#FAFAFA' : '#9CA3AF',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     cursor: selectedGoal ? 'pointer' : 'not-allowed',
                     border: 'none',
                   }}
@@ -415,7 +415,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">💰</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   Starting budget?
                 </h2>
@@ -444,7 +444,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       <div
                         className="text-xs font-bold"
                         style={{
-                          fontFamily: "'Bricolage Grotesque', sans-serif",
+                          fontFamily: "'Syne', sans-serif",
                           color: selectedBudget === budget.id ? '#6366F1' : '#0A0A0A',
                         }}
                       >
@@ -467,7 +467,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     border: '1px solid #F0F0F0',
                     color: '#94A3B8',
                     cursor: 'pointer',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                   }}
                 >
                   <ChevronLeft size={14} />
@@ -481,7 +481,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       ? 'linear-gradient(135deg, #6366F1, #4F46E5)'
                       : '#F9FAFB',
                     color: selectedBudget ? '#fff' : '#9CA3AF',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     cursor: selectedBudget ? 'pointer' : 'not-allowed',
                     border: 'none',
                     boxShadow: selectedBudget ? '0 4px 20px #C7D2FE' : 'none',
@@ -499,7 +499,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">📦</div>
                 <h2
                   className="text-lg font-extrabold mb-1"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F8FAFC' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
                 >
                   Import your first product to get started
                 </h2>
@@ -539,7 +539,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     style={{
                       background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                       color: '#FAFAFA',
-                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      fontFamily: "'Syne', sans-serif",
                       cursor: importing || !importUrl.trim() ? 'not-allowed' : 'pointer',
                       border: 'none',
                       whiteSpace: 'nowrap',
@@ -592,7 +592,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     border: '1px solid #F0F0F0',
                     color: '#94A3B8',
                     cursor: 'pointer',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                   }}
                 >
                   <ChevronLeft size={14} />
@@ -603,7 +603,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   style={{
                     background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     color: '#fff',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
+                    fontFamily: "'Syne', sans-serif",
                     cursor: 'pointer',
                     border: 'none',
                     boxShadow: '0 4px 20px #C7D2FE',

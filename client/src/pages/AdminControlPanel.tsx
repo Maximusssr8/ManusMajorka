@@ -389,7 +389,7 @@ function HealthTab() {
         {counts.map(c => (
           <div key={c.label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16 }}>
             <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{c.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{c.value}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: "'Syne', sans-serif" }}>{c.value}</div>
           </div>
         ))}
       </div>
@@ -570,7 +570,7 @@ export default function AdminControlPanel() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
-            <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4 }}>
+            <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4 }}>
               Admin Control Panel
             </h1>
             <div style={{ fontSize: 13, color: C.muted }}>Majorka internal tools · {session?.user?.email}</div>
@@ -584,7 +584,7 @@ export default function AdminControlPanel() {
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#05070F', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, width: 'fit-content' }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
-              padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: "'Bricolage Grotesque', sans-serif",
+              padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: "'Syne', sans-serif",
               background: tab === t.id ? C.gold : 'transparent',
               color: tab === t.id ? '#FAFAFA' : C.sub,
               transition: 'all 0.15s',

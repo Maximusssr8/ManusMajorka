@@ -252,7 +252,7 @@ export default function TrendSignals() {
         textAlign: 'left',
         fontSize: 11,
         fontWeight: 700,
-        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontFamily: "'Syne', sans-serif",
         textTransform: 'uppercase' as const,
         letterSpacing: '0.06em',
         color: field === sortField ? C.primary : '#9CA3AF',
@@ -280,7 +280,7 @@ export default function TrendSignals() {
       {/* ── Page header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: C.text, marginBottom: 4 }}>
             Trend Signals
           </h1>
           <p style={{ fontSize: 12, color: C.muted }}>
@@ -300,7 +300,7 @@ export default function TrendSignals() {
                 padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
                 background: 'rgba(99,102,241,0.08)', border: `1px solid rgba(99,102,241,0.25)`,
                 color: C.primary, cursor: refreshing ? 'not-allowed' : 'pointer', opacity: refreshing ? 0.7 : 1,
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               <RefreshCw size={12} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
@@ -315,7 +315,7 @@ export default function TrendSignals() {
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366F1', boxShadow: '0 0 8px #6366F1' }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
               Top 10 Today
             </span>
             <span style={{ fontSize: 11, color: '#9CA3AF' }}>· Refreshed every 6h</span>
@@ -509,19 +509,19 @@ export default function TrendSignals() {
                             <span
                               title={p.trend_reason || ''}
                               style={{
-                                fontSize: 13, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text,
+                                fontSize: 13, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: C.text,
                                 cursor: 'help', textDecoration: p.trend_reason ? 'underline dotted rgba(99,102,241,0.3)' : 'none',
                               }}
                             >
                               {p.name}
                             </span>
                             {isTrending && (
-                              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#ef4444', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em', whiteSpace: 'nowrap' as const }}>
+                              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#ef4444', fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em', whiteSpace: 'nowrap' as const }}>
                                 🔥 Trending
                               </span>
                             )}
                             {isNew && (
-                              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4, background: 'rgba(16,185,129,0.12)', color: C.green, fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em', whiteSpace: 'nowrap' as const }}>
+                              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4, background: 'rgba(16,185,129,0.12)', color: C.green, fontFamily: "'Syne', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em', whiteSpace: 'nowrap' as const }}>
                                 New
                               </span>
                             )}
@@ -537,7 +537,7 @@ export default function TrendSignals() {
 
                     {/* Revenue */}
                     <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#6366F1', fontFamily: "'Syne', sans-serif" }}>
                         ${Math.round(p.est_monthly_revenue_aud || 0).toLocaleString()}/mo
                       </div>
                     </td>
@@ -575,7 +575,7 @@ export default function TrendSignals() {
                         const score = p.winning_score || p.trend_score || 0;
                         const scoreColor = score > 70 ? '#059669' : score > 40 ? '#D97706' : '#EF4444';
                         return (
-                          <span style={{ fontWeight: 800, fontSize: 16, color: scoreColor, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                          <span style={{ fontWeight: 800, fontSize: 16, color: scoreColor, fontFamily: "'Syne', sans-serif" }}>
                             {score}
                           </span>
                         );
@@ -629,7 +629,7 @@ export default function TrendSignals() {
                     <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                       {(p as any).aliexpress_url && (p as any).aliexpress_url !== 'not_found' ? (
                         <a href={(p as any).aliexpress_url} target="_blank" rel="noopener noreferrer"
-                          style={{ color: C.primary, fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap' }}
+                          style={{ color: C.primary, fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: "'Syne', sans-serif", whiteSpace: 'nowrap' }}
                           onClick={e => e.stopPropagation()}>
                           View Source →
                         </a>
@@ -697,7 +697,7 @@ export default function TrendSignals() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <ProductImage src={p.image_url} alt={p.name || ''} size={48} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 3 }}>{p.name}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: C.text, marginBottom: 3 }}>{p.name}</div>
                   <span style={{ fontSize: 10, color: C.muted, background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>{p.niche}</span>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -723,7 +723,7 @@ export default function TrendSignals() {
                     });
                     navigate(`/app/store-builder?${params.toString()}`);
                   }}
-                  style={{ flex: 1, padding: '9px', background: C.primary, color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  style={{ flex: 1, padding: '9px', background: C.primary, color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: "'Syne', sans-serif" }}>
                   Build Store →
                 </button>
                 <button onClick={() => {

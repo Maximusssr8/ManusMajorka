@@ -163,7 +163,7 @@ export default function ScalingPlaybook() {
             <Rocket size={15} style={{ color: '#7c6af5' }} />
           </div>
           <div>
-            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Scaling Playbook
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -210,7 +210,7 @@ export default function ScalingPlaybook() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               {label} {required && <span style={{ color: '#7c6af5' }}>*</span>}
             </label>
@@ -239,7 +239,7 @@ export default function ScalingPlaybook() {
               ? 'rgba(124,106,245,0.25)'
               : 'linear-gradient(135deg, #7c6af5, #9c5fff)',
             color: '#fff',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(124,106,245,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -260,7 +260,7 @@ export default function ScalingPlaybook() {
           <div className="pt-2 space-y-2">
             <div
               className="text-xs font-bold uppercase tracking-wider"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Email Your Playbook
             </div>
@@ -287,7 +287,7 @@ export default function ScalingPlaybook() {
                 border: '1px solid rgba(99,102,241,0.3)',
                 color: '#6366F1',
                 cursor: emailSending ? 'not-allowed' : 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               {emailSending ? (
@@ -309,7 +309,7 @@ export default function ScalingPlaybook() {
         {milestones.length > 0 ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Your Scaling Roadmap
               </h2>
               <button
@@ -354,7 +354,7 @@ export default function ScalingPlaybook() {
                           background: `${color}15`,
                           border: `2px solid ${color}`,
                           color,
-                          fontFamily: "'Bricolage Grotesque', sans-serif",
+                          fontFamily: "'Syne', sans-serif",
                         }}
                       >
                         {i + 1}
@@ -376,13 +376,13 @@ export default function ScalingPlaybook() {
                         <div>
                           <span
                             className="text-xs font-bold uppercase tracking-wider"
-                            style={{ color, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                            style={{ color, fontFamily: "'Syne', sans-serif" }}
                           >
                             {m.phase}
                           </span>
                           <h3
                             className="text-sm font-bold mt-0.5"
-                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                            style={{ fontFamily: "'Syne', sans-serif" }}
                           >
                             {m.title}
                           </h3>
@@ -392,7 +392,7 @@ export default function ScalingPlaybook() {
                           style={{
                             background: `${color}12`,
                             color,
-                            fontFamily: "'Bricolage Grotesque', sans-serif",
+                            fontFamily: "'Syne', sans-serif",
                             fontWeight: 700,
                           }}
                         >
@@ -440,7 +440,7 @@ export default function ScalingPlaybook() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#7c6af5' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Building your scaling roadmap…
                 </div>
                 <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -453,7 +453,7 @@ export default function ScalingPlaybook() {
                 <div className="text-center">
                   <div
                     className="text-base font-extrabold mb-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Scaling Playbook
                   </div>

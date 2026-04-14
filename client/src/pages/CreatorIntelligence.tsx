@@ -36,7 +36,7 @@ const FALLBACK_CREATORS = [
   { handle: '@shopwithme.au', display_name: 'Shop With Me AU', profile_url: 'https://www.tiktok.com/@shopwithme.au', niche: 'fashion', region_code: 'AU', est_followers: '460K', promoting_products: ['fashion', 'ootd', 'australianshopping'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shopwithme.au', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Shop With Me AU')}&background=6366F1&color=fff&size=80` },
 ];
 
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const dmSans = "'DM Sans', sans-serif";
 const NICHES = ['beauty','fitness','home decor','pet care','tech accessories','fashion','health','kitchen','outdoor','baby'];
 const NICHE_PILLS = ['ALL', 'Beauty', 'Tech', 'Fitness', 'Home', 'Fashion', 'Pet', 'Kitchen', 'Health', 'Outdoor'];
@@ -454,7 +454,7 @@ export default function CreatorIntelligence() {
           We&apos;re having trouble loading creator intelligence data. This is usually temporary.
         </p>
       </div>
-      <button onClick={() => window.location.reload()} className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors">
+      <button onClick={() => window.location.reload()} className="bg-[#d4af37] hover:bg-[#d4af37] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors">
         Try again
       </button>
     </div>

@@ -93,7 +93,7 @@ export default function MayaProactiveBar() {
               fontSize: 10,
               fontWeight: 800,
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               flexShrink: 0,
             }}
           >
@@ -104,7 +104,7 @@ export default function MayaProactiveBar() {
               fontSize: 11,
               color: 'rgba(99,102,241,0.7)',
               fontWeight: 700,
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               whiteSpace: 'nowrap',
             }}
           >

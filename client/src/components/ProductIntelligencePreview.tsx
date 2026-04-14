@@ -270,7 +270,7 @@ const PIP_CSS = `
   color: #FAFAFA;
   border-radius: 10px;
   padding: 14px 36px;
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 15px;
   text-decoration: none;
@@ -485,7 +485,7 @@ export default function ProductIntelligencePreview() {
                 </div>
                 {/* H2 */}
                 <h2 style={{
-                  fontFamily: "'Bricolage Grotesque', sans-serif",
+                  fontFamily: "'Syne', sans-serif",
                   fontSize: 'clamp(36px, 5vw, 52px)',
                   fontWeight: 800,
                   color: '#fff',
@@ -665,7 +665,7 @@ export default function ProductIntelligencePreview() {
 
                       {/* Revenue */}
                       <span style={{
-                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                         fontSize: 15,
                         fontWeight: 700,
                         color: '#6366F1',
@@ -838,11 +838,11 @@ export default function ProductIntelligencePreview() {
                   }}>
                     {first.trend}
                   </span>
-                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18, color: '#374151', margin: '8px 0 4px', lineHeight: 1.3 }}>
+                  <h3 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: 18, color: '#374151', margin: '8px 0 4px', lineHeight: 1.3 }}>
                     {first.name}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                    <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: '#6366F1' }}>
+                    <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: '#6366F1' }}>
                       {first.revenue}
                     </span>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#4ade80' }}>

@@ -266,7 +266,7 @@ export default function AIToolChat({
             {toolIcon}
           </div>
           <div className="flex-1">
-            <h1 className="font-extrabold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="font-extrabold text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
               {toolName}
             </h1>
             <p className="text-xs text-muted-foreground hidden sm:block">{toolDescription}</p>
@@ -312,7 +312,7 @@ export default function AIToolChat({
                     <div className="flex flex-col gap-2 w-full max-w-md">
                       <p
                         className="text-xs font-bold uppercase tracking-widest mb-1"
-                        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                       >
                         Try an example
                       </p>
@@ -430,7 +430,7 @@ export default function AIToolChat({
                     <div className="flex-1">
                       <div
                         className="text-xs font-bold uppercase tracking-widest mb-2"
-                        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                        style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
                       >
                         What's next?
                       </div>
@@ -481,7 +481,7 @@ export default function AIToolChat({
                             : verdict === 'NO-GO'
                               ? '#e05c7a'
                               : '#6366F1',
-                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                         border: `1px solid ${verdict === 'GO' ? '#C7D2FE' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(99,102,241,0.25)'}`,
                       }}
                     >
@@ -594,7 +594,7 @@ export default function AIToolChat({
                 className="p-3 border-b flex items-center justify-between"
                 style={{ borderColor: '#F5F5F5' }}
               >
-                <span className="text-xs font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <span className="text-xs font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Generated HTML
                 </span>
                 <button

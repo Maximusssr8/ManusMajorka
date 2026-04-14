@@ -127,7 +127,7 @@ export default function AnalyticsDecoder() {
             <BarChart3 size={15} style={{ color: '#f472b6' }} />
           </div>
           <div>
-            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Analytics Decoder
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -184,7 +184,7 @@ export default function AnalyticsDecoder() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               {label}
             </label>
@@ -214,7 +214,7 @@ export default function AnalyticsDecoder() {
               ? 'rgba(244,114,182,0.25)'
               : 'linear-gradient(135deg, #f472b6, #ec4899)',
             color: '#fff',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(244,114,182,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -236,7 +236,7 @@ export default function AnalyticsDecoder() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
                 Analytics Report
               </h2>
               <SaveToProduct
@@ -306,7 +306,7 @@ export default function AnalyticsDecoder() {
                   </div>
                   <div
                     className="text-lg font-extrabold mb-1"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     {kpi.value}
                   </div>
@@ -328,7 +328,7 @@ export default function AnalyticsDecoder() {
               <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <div
                   className="text-xs font-extrabold uppercase tracking-widest"
-                  style={{ color: '#f472b6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#f472b6', fontFamily: "'Syne', sans-serif" }}
                 >
                   Key Insights
                 </div>
@@ -366,7 +366,7 @@ export default function AnalyticsDecoder() {
               <div className="px-4 py-3 border-b" style={{ borderColor: '#EEF2FF' }}>
                 <div
                   className="text-xs font-extrabold uppercase tracking-widest"
-                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Recommended Actions
                 </div>
@@ -404,7 +404,7 @@ export default function AnalyticsDecoder() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#f472b6' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Decoding your analytics…
                 </div>
                 <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -417,7 +417,7 @@ export default function AnalyticsDecoder() {
                 <div className="text-center">
                   <div
                     className="text-base font-extrabold mb-2"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Analytics Decoder
                   </div>

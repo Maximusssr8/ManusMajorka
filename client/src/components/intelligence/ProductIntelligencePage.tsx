@@ -54,7 +54,7 @@ export function ProductIntelligencePage() {
       <div className="px-6 pt-6 pb-0">
         <div className="flex items-start justify-between mb-5">
           <div>
-            <h1 className="text-[20px] font-semibold text-slate-100 tracking-tight" style={{ fontFamily: "'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif", fontWeight: 700 }}>
+            <h1 className="text-[20px] font-semibold text-slate-100 tracking-tight" style={{ fontFamily: "'Syne', 'DM Sans', system-ui, sans-serif", fontWeight: 700 }}>
               Product Intelligence
             </h1>
             <p className="text-[13px] mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
@@ -113,7 +113,7 @@ export function ProductIntelligencePage() {
             onClick={() => tab.id !== 'scout' && setActiveTab(tab.id)}
             className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
-                ? 'text-white border-indigo-500'
+                ? 'text-white border-[#d4af37]'
                 : 'border-transparent hover:border-white/10'
             } ${tab.id === 'scout' ? 'cursor-default' : 'cursor-pointer'}`}
             style={{ color: activeTab === tab.id ? '#f1f5f9' : 'rgba(255,255,255,0.4)' }}
@@ -121,7 +121,7 @@ export function ProductIntelligencePage() {
             {tab.label}
             {tab.badge && (
               <span
-                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-indigo-400"
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-[#e5c158]"
                 style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}
               >
                 {tab.badge}

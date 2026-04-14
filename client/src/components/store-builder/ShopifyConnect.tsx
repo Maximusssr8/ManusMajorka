@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { markOnboardingStep } from '@/lib/onboarding';
 
 const gold = '#6366F1';
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 
 export default function ShopifyConnect({
   blueprint,

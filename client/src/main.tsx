@@ -111,7 +111,7 @@ class ErrorBoundary extends React.Component<
             minHeight: '100vh',
             background: '#05070F',
             color: '#6366F1',
-            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontFamily: "'Syne', sans-serif",
             gap: 16,
           }}
         >

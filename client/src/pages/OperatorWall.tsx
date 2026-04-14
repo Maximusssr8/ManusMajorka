@@ -50,7 +50,7 @@ const OPERATORS: Operator[] = [
   },
 ];
 
-const display = "'Bricolage Grotesque', sans-serif";
+const display = "'Syne', sans-serif";
 const sans = "'DM Sans', sans-serif";
 const mono = 'monospace';
 

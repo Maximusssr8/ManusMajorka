@@ -18,7 +18,7 @@ const G  = '#22C55E';
 const I  = '#6366F1';
 const V  = '#8B5CF6';
 const A  = '#F59E0B';
-const brico = "'Bricolage Grotesque', sans-serif";
+const brico = "'Syne', sans-serif";
 const geist  = "'DM Sans', sans-serif";
 
 // ── Chart data ────────────────────────────────────────────────────────────────
@@ -366,7 +366,7 @@ export default function RevenuePage() {
       {!isMarketing && (
         <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 24, textAlign: 'center' as const, padding: '40px 24px' }}>
           <div style={{ fontSize: 56 }}>📊</div>
-          <div style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 900, fontSize: 32, color: 'white', maxWidth: 400, lineHeight: 1.2 }}>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 32, color: 'white', maxWidth: 400, lineHeight: 1.2 }}>
             Your revenue dashboard is ready
           </div>
           <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', maxWidth: 360, lineHeight: 1.6 }}>
@@ -374,7 +374,7 @@ export default function RevenuePage() {
           </div>
           <button
             onClick={() => nav('/app/store-builder')}
-            style={{ padding: '14px 32px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' as const, fontFamily: "'Bricolage Grotesque',sans-serif" }}
+            style={{ padding: '14px 32px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' as const, fontFamily: "'Syne',sans-serif" }}
           >
             Connect Shopify Store →
           </button>

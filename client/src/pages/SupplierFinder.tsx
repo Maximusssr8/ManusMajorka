@@ -106,7 +106,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
           <div>
             <div
               className="text-sm font-extrabold"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+              style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
             >
               {supplier.name}
             </div>
@@ -143,13 +143,13 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             >
               <div
                 className="text-xs mb-0.5"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 {label}
               </div>
               <div
                 className="text-xs font-extrabold"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 {value}
               </div>
@@ -167,7 +167,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 background: tab === t ? pc : 'transparent',
                 color: tab === t ? '#FAFAFA' : '#9CA3AF',
                 cursor: 'pointer',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
+                fontFamily: "'Syne', sans-serif",
               }}
             >
               {t}
@@ -180,7 +180,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Pros
               </div>
@@ -198,7 +198,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
               >
                 Cons
               </div>
@@ -220,7 +220,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
           <div className="space-y-2">
             <div
               className="text-xs font-bold uppercase tracking-wider mb-2"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Search Terms to Use
             </div>
@@ -254,7 +254,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
           <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
             <div
               className="text-xs font-bold uppercase tracking-wider mb-2"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Contact Approach
             </div>
@@ -388,7 +388,7 @@ export default function SupplierFinder() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-extrabold leading-tight"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Supplier Finder
           </div>
@@ -429,7 +429,7 @@ export default function SupplierFinder() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
               >
                 Product to Source *
               </label>
@@ -450,7 +450,7 @@ export default function SupplierFinder() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Target Retail ($AUD)
                 </label>
@@ -469,7 +469,7 @@ export default function SupplierFinder() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: '#CBD5E1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}
                 >
                   Order Qty
                 </label>
@@ -491,7 +491,7 @@ export default function SupplierFinder() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
             >
               Quick Categories
             </div>
@@ -521,7 +521,7 @@ export default function SupplierFinder() {
             style={{
               background: isLoading ? '#C7D2FE' : '#6366F1',
               color: '#FAFAFA',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontFamily: "'Syne', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -563,7 +563,7 @@ export default function SupplierFinder() {
                 <Truck size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Finding suppliers…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -585,7 +585,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Recommended Platforms
                   </div>
@@ -609,7 +609,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#e05c7a', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#e05c7a', fontFamily: "'Syne', sans-serif" }}
                   >
                     Red Flags to Watch
                   </div>
@@ -642,7 +642,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#6366F1', fontFamily: "'Syne', sans-serif" }}
                   >
                     Negotiation Tips
                   </div>
@@ -666,7 +666,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#4ab8f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    style={{ color: '#4ab8f5', fontFamily: "'Syne', sans-serif" }}
                   >
                     Sample Order Advice
                   </div>
@@ -687,7 +687,7 @@ export default function SupplierFinder() {
               <div className="text-center">
                 <div
                   className="text-base font-extrabold mb-2"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Find the right supplier fast
                 </div>

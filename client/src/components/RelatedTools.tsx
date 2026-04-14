@@ -83,7 +83,7 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
     >
       <div
         className="text-xs font-bold uppercase tracking-widest mb-3"
-        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
       >
         Related Tools
       </div>
@@ -120,7 +120,7 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
                 </div>
                 <div
                   className="text-xs font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#CBD5E1' }}
+                  style={{ fontFamily: "'Syne', sans-serif", color: '#CBD5E1' }}
                 >
                   {tool.label}
                 </div>

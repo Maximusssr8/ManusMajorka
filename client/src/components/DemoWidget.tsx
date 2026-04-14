@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
 
 const dm = "'DM Sans', sans-serif";
-const syne = "'Bricolage Grotesque', sans-serif";
+const syne = "'Syne', sans-serif";
 const mono = "'DM Mono', 'Fira Code', 'Courier New', monospace";
 
 const DEMO_STYLES = `

@@ -49,7 +49,7 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
             <Zap size={20} color="white" />
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#F8FAFC', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#F8FAFC', fontFamily: "'Syne', sans-serif" }}>
               {scaleOnly ? 'Scale Plan Required' : 'Limit Reached'}
             </div>
             <div style={{ fontSize: 13, color: '#94A3B8' }}>
