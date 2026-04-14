@@ -199,4 +199,43 @@ router.get('/admin/test-apify', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /api/admin/db-info
+ *
+ * Diagnostic endpoint — returns row counts for every table the pipeline
+ * touches, plus the 3 most recent pipeline_logs rows. Admin-token gated.
+ * Lets operators verify the pipeline is actually inserting without having
+ * to open the Supabase dashboard.
+ */
+router.get('/admin/db-info', async (req: Request, res: Response) => {
+  if (!verifyAdminToken(req)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  try {
+    const { getSupabaseAdmin } = await import('../_core/supabase');
+    const sb = getSupabaseAdmin();
+    const tables = ['winning_products', 'trend_signals', 'raw_scrape_results', 'product_history', 'alerts', 'academy_progress', 'revenue_entries'];
+    const counts: Record<string, number | string> = {};
+    for (const t of tables) {
+      const { count, error } = await sb.from(t).select('*', { count: 'exact', head: true });
+      counts[t] = error ? `ERROR: ${error.message}` : (count ?? 0);
+    }
+    const { data: recentLogs, error: logsErr } = await sb
+      .from('pipeline_logs')
+      .select('id,pipeline_type,status,started_at,finished_at,duration_ms,products_added,products_updated,products_rejected,inserted,updated,raw_collected,source_breakdown,error_message')
+      .order('started_at', { ascending: false })
+      .limit(5);
+    res.json({
+      ok: true,
+      canonical_products_table: 'winning_products',
+      counts,
+      recent_pipeline_runs: logsErr ? `ERROR: ${logsErr.message}` : (recentLogs ?? []),
+    });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'unknown';
+    res.status(500).json({ error: msg });
+  }
+});
+
 export default router;
