@@ -495,8 +495,9 @@ router.post('/publish', requireAuth, async (req, res) => {
       .eq('user_id', userId);
     const storeCount = storeRows?.length ?? 0;
 
-    // Default to builder plan limit
-    const plan = ((req as unknown as Record<string, unknown>).subscription as { plan?: string })?.plan || 'builder';
+    // Default to free plan limit — never grant paid entitlements server-side
+    // without a verified subscription. Paywall enforcement lives here.
+    const plan = ((req as unknown as Record<string, unknown>).subscription as { plan?: string })?.plan || 'free';
     const limit = getPlanLimit(plan as Plan, 'store_builder');
     if (storeCount >= limit) {
       return res.status(429).json({
