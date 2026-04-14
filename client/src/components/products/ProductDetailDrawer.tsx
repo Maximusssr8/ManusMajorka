@@ -141,6 +141,39 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
     };
   }, [open]);
 
+  // Track view — fire-and-forget POST to /api/user/view so the "since
+  // you last logged in" deltas stay accurate. Silent on 401/500 so an
+  // anonymous operator browsing the drawer never sees a loading spinner
+  // or an error toast for telemetry.
+  useEffect(() => {
+    if (!product) return;
+    const id = String(product.id);
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess?.session?.access_token;
+        if (!token) return; // anonymous — skip silently
+        await fetch('/api/user/view', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: id }),
+          signal: controller.signal,
+        }).catch(() => {
+          /* fire-and-forget */
+        });
+      } catch {
+        /* silent */
+      }
+    })();
+    return () => {
+      controller.abort();
+    };
+  }, [product, productId]);
+
   // Load AI Brief — cache-first, then fetch
   useEffect(() => {
     if (!product) return;
