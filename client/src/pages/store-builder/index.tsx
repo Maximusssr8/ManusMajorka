@@ -108,7 +108,7 @@ interface CustomProduct {
   price_aud: number | null;
   winning_score: null;
   trend: null;
-  category: null;
+  category: string | null;
   isCustom: true;
 }
 type ProductItem = WinningProduct | CustomProduct;
@@ -385,6 +385,10 @@ export default function StoreBuilder() {
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [customPrice, setCustomPrice] = useState('');
   const [customDesc, setCustomDesc] = useState('');
+  const [customSourceUrl, setCustomSourceUrl] = useState('');
+  const [customCategory, setCustomCategory] = useState<string | null>(null);
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState('');
 
   // Generation
   const [generatedCopy, setGeneratedCopy] = useState<GeneratedCopy | null>(null);
@@ -487,6 +491,56 @@ export default function StoreBuilder() {
       setNicheProducts(data.products || []);
     } catch { /* silent */ }
     setLoadingProducts(false);
+  };
+
+  // ── Extract product from AliExpress URL ───────────────────────
+  const extractProduct = async (): Promise<void> => {
+    const url = customSourceUrl.trim();
+    if (!url) {
+      setExtractError('Paste an AliExpress product URL first.');
+      return;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+      setExtractError('URL must start with http:// or https://');
+      return;
+    }
+    setExtractError('');
+    setExtracting(true);
+    try {
+      const res = await fetch('/api/ai/extract-product', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ aliexpressUrl: url }),
+      });
+      const data = (await res.json()) as {
+        ok: boolean;
+        title?: string | null;
+        priceAud?: number | null;
+        image?: string | null;
+        soldCount?: number | null;
+        category?: string | null;
+        productUrl?: string;
+        message?: string;
+        reason?: string;
+      };
+      if (!res.ok || !data.ok) {
+        const msg = data.message ?? `Extract failed (${data.reason ?? res.status})`;
+        setExtractError(msg);
+        toast.error(msg);
+        return;
+      }
+      if (data.title) setCustomTitle(data.title);
+      if (data.image) setCustomImageUrl(data.image);
+      if (data.priceAud != null) setCustomPrice(String(data.priceAud.toFixed(2)));
+      if (data.category) setCustomCategory(data.category);
+      toast.success('Product extracted — review and add.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error';
+      setExtractError(msg);
+      toast.error(msg);
+    } finally {
+      setExtracting(false);
+    }
   };
 
   // ── Generate copy (kicked off on entering Branding step) ──────
@@ -1495,6 +1549,36 @@ export default function StoreBuilder() {
               <h3 style={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 700 }}>Add custom product</h3>
               <button onClick={() => setCustomProductModal(false)} className="p-1 rounded hover:bg-white/5" style={{ color: TEXT_MUTED }}><X size={18} /></button>
             </div>
+
+            {/* Extract from AliExpress */}
+            <div className="mb-4 p-3" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 10 }}>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Sparkles size={13} color={ACCENT} />
+                <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ACCENT, letterSpacing: '0.12em' }}>Extract from AliExpress</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  value={customSourceUrl}
+                  onChange={e => setCustomSourceUrl(e.target.value)}
+                  placeholder="https://www.aliexpress.com/item/..."
+                  className="sb-input flex-1"
+                />
+                <button
+                  onClick={extractProduct}
+                  disabled={extracting || !customSourceUrl.trim()}
+                  className="px-3 rounded-lg text-xs font-bold"
+                  style={{ background: ACCENT, color: '#0d0f14', border: 'none', opacity: extracting || !customSourceUrl.trim() ? 0.5 : 1, cursor: extracting ? 'wait' : 'pointer', minWidth: 110 }}
+                >
+                  {extracting ? (<span className="inline-flex items-center gap-1"><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Extracting</span>) : 'Extract Product'}
+                </button>
+              </div>
+              {extractError && (
+                <div className="mt-2 px-2.5 py-1.5 rounded text-[11px]" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
+                  {extractError}
+                </div>
+              )}
+            </div>
+
             <div className="flex flex-col gap-3">
               <input value={customTitle}    onChange={e => setCustomTitle(e.target.value)}    placeholder="Product title *"          className="sb-input" />
               <input value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)} placeholder="Image URL (optional)"      className="sb-input" />
@@ -1509,10 +1593,11 @@ export default function StoreBuilder() {
                   product_title: customTitle,
                   image_url: customImageUrl || null,
                   price_aud: parseFloat(customPrice) || null,
-                  winning_score: null, trend: null, category: null, isCustom: true,
+                  winning_score: null, trend: null, category: customCategory, isCustom: true,
                 };
                 setSelectedProducts(prev => [...prev, product]);
                 setCustomTitle(''); setCustomImageUrl(''); setCustomPrice(''); setCustomDesc('');
+                setCustomSourceUrl(''); setCustomCategory(null); setExtractError('');
                 setCustomProductModal(false);
               }}
               disabled={!customTitle}
