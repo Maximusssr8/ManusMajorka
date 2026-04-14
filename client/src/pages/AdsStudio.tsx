@@ -188,12 +188,24 @@ export default function AdsStudio() {
         const prod = JSON.parse(stored) as {
           id?: string | number;
           title?: string;
+          // Legacy keys (pre-fix): `image` + `price`. New keys: `image_url`,
+          // `productUrl`, `price_aud`. Reader tolerates both shapes but
+          // NEVER uses an image URL as the destination Product URL.
           image?: string;
+          image_url?: string;
+          productUrl?: string | null;
           price?: number | string;
+          price_aud?: number | string | null;
         };
         if (prod.title) setProductName(String(prod.title));
-        if (prod.price != null) setPricePoint(`$${Number(prod.price).toFixed(2)} AUD`);
-        if (typeof prod.image === 'string') setProductUrl(prod.image);
+        const priceValue = prod.price_aud ?? prod.price;
+        if (priceValue != null && priceValue !== '') {
+          const n = Number(priceValue);
+          if (Number.isFinite(n)) setPricePoint(`$${n.toFixed(2)} AUD`);
+        }
+        if (typeof prod.productUrl === 'string' && prod.productUrl.length > 0) {
+          setProductUrl(prod.productUrl);
+        }
         sessionStorage.removeItem('majorka_ad_product');
       }
     } catch {
