@@ -10,25 +10,54 @@ function getClient() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 }
 
-router.post('/generate-ads', requireAuth, async (req, res) => {
-
+// POST /api/ai/chat — Majorka product-research chat (Maya AI).
+// Uses claude-sonnet-4-6 for quality answers on niche/product/strategy questions.
 router.post('/chat', async (req, res) => {
   try {
-    const { message, demo } = req.body;
-    if (!message) return res.status(400).json({ error: 'Message is required' });
-
+    const { message, history, demo } = req.body as {
+      message?: string;
+      history?: { role: 'user' | 'assistant'; content: string }[];
+      demo?: boolean;
+    };
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ error: 'message is required' });
+    }
     if (demo) {
-      return res.json({ response: "Demo: top niches to dropship are Pet Accessories, Home & Garden." });
+      return res.json({
+        response:
+          'Demo mode: top AU dropshipping niches right now are Pet Accessories, Home Organisation, and Kitchen Gadgets. Sign in to get real-time intelligence.',
+      });
     }
 
-    // Add real AI logic here
-    return res.json({ response: "This is live AI chat response placeholder." });
+    const systemPrompt = `You are Maya, Majorka's AI research analyst for Australian dropshipping operators.
+You help operators pick winning products, read AliExpress signals, understand margin/shipping, and run profitable Meta/TikTok ads.
+Always use AU English. Be specific, data-driven, and concise — 3 short paragraphs max unless asked for depth.
+Never invent product statistics. When unsure, say so and suggest the next research step inside Majorka (Products tab, Ads Studio, Revenue tracker).`;
+
+    const client = getClient();
+    const priorMessages = Array.isArray(history)
+      ? history
+          .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+          .slice(-10)
+          .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }))
+      : [];
+
+    const resp = await client.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [...priorMessages, { role: 'user', content: message.slice(0, 4000) }],
+    });
+
+    const text = resp.content[0]?.type === 'text' ? resp.content[0].text : '';
+    return res.json({ response: text || 'No response generated — try rephrasing your question.' });
   } catch (err) {
     console.error('[/api/ai/chat]', err);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Chat failed. Try again in a moment.' });
   }
-
 });
+
+router.post('/generate-ads', requireAuth, async (req, res) => {
   const { productName, price, audience } = req.body;
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
