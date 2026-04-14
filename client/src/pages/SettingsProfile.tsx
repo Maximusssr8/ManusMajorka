@@ -364,9 +364,36 @@ export default function SettingsProfile() {
 
   return (
     <>
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0c12' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .mj-settings-root { flex-direction: column !important; }
+          .mj-settings-nav {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+            padding: 12px 12px !important;
+            display: flex !important;
+            overflow-x: auto !important;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            flex-wrap: nowrap !important;
+            gap: 6px;
+          }
+          .mj-settings-nav::-webkit-scrollbar { display: none; }
+          .mj-settings-nav > div { display: none !important; }
+          .mj-settings-nav button {
+            flex-shrink: 0 !important;
+            width: auto !important;
+            padding: 0 14px !important;
+            min-height: 44px !important;
+            white-space: nowrap;
+          }
+          .mj-settings-content { padding: 24px 16px !important; max-width: 100% !important; }
+        }
+      `}</style>
+      <div className="mj-settings-root" style={{ display: 'flex', minHeight: '100vh', background: '#0a0c12' }}>
         {/* LEFT PANEL — section nav */}
-        <div style={{
+        <div className="mj-settings-nav" style={{
           width: 220, flexShrink: 0,
           borderRight: '1px solid rgba(255,255,255,0.06)',
           padding: '32px 12px',
@@ -409,7 +436,7 @@ export default function SettingsProfile() {
         </div>
 
         {/* RIGHT PANEL — content */}
-        <div style={{ flex: 1, padding: '40px 48px', maxWidth: 680, overflowY: 'auto' }}>
+        <div className="mj-settings-content" style={{ flex: 1, padding: '40px 48px', maxWidth: 680, width: '100%', overflowY: 'auto' }}>
 
           {/* ── Profile Tab ─────────────────────────────────────────────── */}
           {activeTab === 'profile' && (
