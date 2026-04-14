@@ -8,6 +8,7 @@ import { Nav } from './Nav';
 import { GradientM } from '@/components/MajorkaLogo';
 import { useTracking } from '@/hooks/useTracking';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { TrialCountdown } from '@/components/funnel/TrialCountdown';
 
 interface AppShellProps { children: ReactNode }
 
@@ -105,6 +106,7 @@ export function AppShell({ children }: AppShellProps) {
                 Majorka<span className="mj-wordmark-dot" aria-hidden="true" />
               </span>
             </Link>
+            <TrialCountdown />
             <Link
               href="/app/alerts"
               aria-label="Alerts"
@@ -121,6 +123,20 @@ export function AppShell({ children }: AppShellProps) {
                 </span>
               )}
             </Link>
+          </div>
+
+          {/* Desktop-only top-right trial pill */}
+          <div
+            className="hidden md:flex"
+            style={{
+              position: 'absolute',
+              top: 14,
+              right: 18,
+              zIndex: 30,
+              pointerEvents: 'auto',
+            }}
+          >
+            <TrialCountdown />
           </div>
 
           <motion.main
