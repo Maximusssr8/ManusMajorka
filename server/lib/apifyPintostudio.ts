@@ -398,48 +398,73 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   let updated = 0;
   let rejected = 0;
 
-  // Trending across 3 markets (×5 keywords each = 15 calls × 100 items)
+  // Build a flat list of every call we need to make, then run them all in
+  // parallel. Each pintostudio actor call takes ~30-60s serially — running
+  // them concurrently keeps the whole pipeline under the 300s Vercel budget.
+  // Apify handles concurrent runs natively.
+  type Call = {
+    input: PintostudioInput;
+    source: string;
+    bucket: keyof SourceBreakdown;
+    minOrders?: number;
+  };
+  const calls: Call[] = [];
+
+  // Trending (condensed to 2 keywords × 3 markets = 6 calls — was 15)
   for (const m of TRENDING_KEYWORDS_PER_MARKET) {
-    for (const kw of m.keywords) {
-      const items = await runPintostudio({ mode: 'trending', keyword: kw, country: m.market, limit: 100 });
-      if (items.length === 0) errors.push(`trending:${m.market}:${kw}:empty`);
-      const u = await upsertProducts(items, `trending:${m.market}`);
-      breakdown.trending += u.added + u.updated;
-      added += u.added; updated += u.updated; rejected += u.rejected;
+    for (const kw of m.keywords.slice(0, 2)) {
+      calls.push({
+        input: { mode: 'trending', keyword: kw, country: m.market, limit: 100 },
+        source: `trending:${m.market}`,
+        bucket: 'trending',
+      });
     }
   }
-
-  // Bestsellers — 20 categories × 100 items
+  // Bestsellers — 20 categories
   for (const cat of BESTSELLER_CATEGORIES) {
-    const items = await runPintostudio({
-      mode: 'bestsellers',
-      categoryUrl: cat.url,
-      country: 'AU',
-      limit: 100,
+    calls.push({
+      input: { mode: 'bestsellers', categoryUrl: cat.url, country: 'AU', limit: 100 },
+      source: `bestsellers:${cat.id}`,
+      bucket: 'bestsellers',
     });
-    if (items.length === 0) errors.push(`bestsellers:${cat.name}:empty`);
-    const u = await upsertProducts(items, `bestsellers:${cat.id}`);
-    breakdown.bestsellers += u.added + u.updated;
-    added += u.added; updated += u.updated; rejected += u.rejected;
   }
-
-  // Hot products — single deep call
+  // Hot products
   for (const kw of HOT_PRODUCT_KEYWORDS) {
-    const items = await runPintostudio({ mode: 'hot_products', keyword: kw, country: 'AU', limit: 200 });
-    if (items.length === 0) errors.push(`hot_products:${kw}:empty`);
-    const u = await upsertProducts(items, 'hot_products');
-    breakdown.hot += u.added + u.updated;
-    added += u.added; updated += u.updated; rejected += u.rejected;
+    calls.push({
+      input: { mode: 'hot_products', keyword: kw, country: 'AU', limit: 200 },
+      source: 'hot_products',
+      bucket: 'hot',
+    });
+  }
+  // New arrivals
+  for (const kw of NEW_ARRIVAL_KEYWORDS) {
+    calls.push({
+      input: { mode: 'new_arrivals', keyword: kw, country: 'AU', limit: 300 },
+      source: 'new_arrivals',
+      bucket: 'new_arrivals',
+      minOrders: DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR,
+    });
   }
 
-  // New arrivals — filter to orders >= 1000
-  for (const kw of NEW_ARRIVAL_KEYWORDS) {
-    const items = await runPintostudio({ mode: 'new_arrivals', keyword: kw, country: 'AU', limit: 300 });
-    const filtered = items.filter((i) => i.orders >= DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR);
-    if (filtered.length === 0) errors.push(`new_arrivals:${kw}:empty`);
-    const u = await upsertProducts(filtered, 'new_arrivals');
-    breakdown.new_arrivals += u.added + u.updated;
-    added += u.added; updated += u.updated; rejected += u.rejected;
+  logErr('pintostudio', `pipeline firing ${calls.length} parallel actor calls`);
+  const results = await Promise.allSettled(calls.map(async (c) => {
+    const items = await runPintostudio(c.input);
+    const filtered = c.minOrders != null ? items.filter((i) => i.orders >= c.minOrders!) : items;
+    const u = await upsertProducts(filtered, c.source);
+    return { call: c, items: filtered, upserted: u };
+  }));
+
+  for (const r of results) {
+    if (r.status !== 'fulfilled') {
+      errors.push(`fatal:${(r.reason as Error)?.message ?? 'unknown'}`);
+      continue;
+    }
+    const { call, items, upserted } = r.value;
+    if (items.length === 0) errors.push(`${call.source}:empty`);
+    breakdown[call.bucket] += upserted.added + upserted.updated;
+    added += upserted.added;
+    updated += upserted.updated;
+    rejected += upserted.rejected;
   }
 
   const total = added + updated;
