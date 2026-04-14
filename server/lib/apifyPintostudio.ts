@@ -331,10 +331,11 @@ function mapItem(item: Record<string, unknown>, audRate: number): PintostudioIte
   if (priceAud < QUALITY_MIN_PRICE_AUD) return null;
 
   // Orders — prefer nested trade.realTradeCount, fall back to flat.
-  // Global quality gate: require orders >= 1000 (demand-signal-only spec).
+  // Global quality gate: reject zero-order items; per-call minOrders enforces
+  // stricter floors (1000 for trending/bestsellers, 100 for new arrivals).
   const ordersRaw = numOrNull(pick<number>(item, 'trade.realTradeCount'));
   const orders = ordersRaw != null && ordersRaw > 0 ? Math.round(ordersRaw) : ordersFromAny(item);
-  if (orders < 1000) return null;
+  if (orders <= 0) return null;
 
   // Rating — nested evaluation.starRating, fall back to flat.
   const rating = numOrNull(pick<number>(item, 'evaluation.starRating'))
@@ -406,6 +407,7 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
       input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
       source: `trending:${q}`,
       bucket: 'trending',
+      minOrders: 1000,
     });
   }
   for (const q of BESTSELLER_QUERIES) {
@@ -413,6 +415,7 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
       input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
       source: `bestsellers:${q}`,
       bucket: 'bestsellers',
+      minOrders: 1000,
     });
   }
   for (const q of HOT_QUERIES) {
@@ -420,6 +423,7 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
       input: { mode: 'hot_products', keyword: q, country: 'AU', limit: 100 },
       source: `hot:${q}`,
       bucket: 'hot',
+      minOrders: 500,
     });
   }
   for (const q of NEW_HIGH_VOLUME_QUERIES) {
