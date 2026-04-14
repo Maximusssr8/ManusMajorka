@@ -92,18 +92,34 @@ export default function AppHome() {
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Velocity Leaders: ranked by 7-day sold_count delta (recent momentum).
-  // Server-computed on every cron tick — see server/routes/cron.ts.
-  const { products: velocityProducts } = useProducts({ limit: 10, orderBy: 'velocity_7d' });
-  const velocityIds = velocityProducts.map((p) => p.id);
-  // Top Products: highest cumulative sold_count, DEDUPED against Velocity Leaders
-  // so the two sections never show the same SKU.
-  const { products, loading: prodLoading, total } = useProducts({
-    limit: 10,
+  // Top Products: highest cumulative sold_count (all-time leaders).
+  // Fetched FIRST so its IDs can exclude every other section below.
+  // Request 20 ids so we can render the top 10 AND dedupe the carousel.
+  const { products: topProductsRaw, loading: prodLoading, total } = useProducts({
+    limit: 20,
     orderBy: 'sold_count',
-    excludeIds: velocityIds.length > 0 ? velocityIds : undefined,
   });
-  const { products: hotTodayProducts } = useProducts({ limit: 4, tab: 'hot-now' });
+  const products = topProductsRaw.slice(0, 10);
+  const topIds = topProductsRaw.map((p) => p.id);
+
+  // Velocity Leaders carousel: genuinely different query from the table.
+  // Newest products with strong orders (>10k) that are NOT in the Top 20.
+  // This works even when velocity_7d column is NULL across the dataset.
+  const { products: velocityProducts } = useProducts({
+    limit: 10,
+    orderBy: 'created_at',
+    minOrders: 10000,
+    excludeIds: topIds.length > 0 ? topIds : undefined,
+  });
+
+  // Hot Today: new arrivals via the hot-now tab, further deduped against
+  // BOTH Top Products and Velocity Leaders.
+  const hotExcludeIds = [...topIds, ...velocityProducts.map((p) => p.id)];
+  const { products: hotTodayProducts } = useProducts({
+    limit: 4,
+    tab: 'hot-now',
+    excludeIds: hotExcludeIds.length > 0 ? hotExcludeIds : undefined,
+  });
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
 
@@ -115,15 +131,13 @@ export default function AppHome() {
   const bestMargin    = bestMarginProducts[0] ?? null;
   const newestProduct = newestProducts[0] ?? null;
 
-  /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
-     created within 30d). Falls back to velocity leaders (then top-volume)
-     if the strict filter returns nothing so this card always shows real
-     products AND never mirrors the Top Products table. */
+  /* Trending Now carousel: genuinely distinct from Top Products table.
+     Priority: hot-now tab (new+high-score+high-orders, dedup'd) → velocity
+     leaders (newest w/ strong orders, dedup'd). NEVER falls through to the
+     Top Products array — that would clone the table. Empty state instead. */
   const trendingNow = hotTodayProducts.length > 0
     ? hotTodayProducts
-    : velocityProducts.length > 0
-      ? velocityProducts.slice(0, 4)
-      : products.slice(0, 4);
+    : velocityProducts.slice(0, 4);
 
   /* Trending Today — products with sold_count > 100,000 in the loaded set */
   const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;

@@ -872,3 +872,74 @@ FORMAT: Meta ${format}`;
     return res.status(500).json({ ok: false, error: message });
   }
 });
+
+// ── POST /api/ai/generate-blueprint ─────────────────────────────────────────
+// 7-day launch blueprint for a single product. Returns a strongly-typed
+// array of { day, task, rationale } items. Uses Haiku for speed & cost.
+const blueprintInputSchema = z.object({
+  product_id: z.union([z.string(), z.number()]),
+  product_title: z.string().min(1).max(500),
+  category: z.string().max(200).optional().nullable(),
+  price_aud: z.number().nullable().optional(),
+  sold_count: z.number().nullable().optional(),
+});
+
+router.post('/generate-blueprint', aiLimiter, async (req, res) => {
+  try {
+    const parsed = blueprintInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'invalid_input', details: parsed.error.flatten() });
+    }
+    const { product_title, category, price_aud, sold_count } = parsed.data;
+
+    const system = `You are Maya, a Majorka dropshipping launch strategist. Output ONLY valid JSON, no prose. Shape: {"days":[{"day":1,"task":"...","rationale":"..."}, ... 7 items]}. Each task is one crisp operator action (max 14 words). Each rationale explains the why (max 24 words). Plain AU English. No emojis. No markdown. No extra keys.`;
+
+    const userPrompt =
+      `Product: ${product_title}\n` +
+      `Category: ${category ?? 'uncategorised'}\n` +
+      `Landed cost: A$${Number(price_aud ?? 0).toFixed(2)}\n` +
+      `Lifetime orders: ${Number(sold_count ?? 0)}\n\n` +
+      `Produce a 7-day launch plan for an Australian solo operator. Days should progress: validation, supplier, store, creative, ads, scale, review.`;
+
+    const client = getClient();
+    const completion = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1200,
+      system,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    const textBlock = completion.content.find((c) => c.type === 'text');
+    const raw = textBlock && textBlock.type === 'text' ? textBlock.text : '';
+    const jsonStart = raw.indexOf('{');
+    const jsonEnd = raw.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+      return res.status(502).json({ ok: false, error: 'parse_error', message: 'Model did not return JSON.' });
+    }
+
+    let payload: unknown;
+    try {
+      payload = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+    } catch (parseErr: unknown) {
+      const msg = parseErr instanceof Error ? parseErr.message : 'parse_error';
+      return res.status(502).json({ ok: false, error: 'parse_error', message: msg });
+    }
+
+    const blueprintSchema = z.object({
+      days: z.array(z.object({
+        day: z.number().int().min(1).max(7),
+        task: z.string().min(1).max(200),
+        rationale: z.string().min(1).max(400),
+      })).length(7),
+    });
+    const check = blueprintSchema.safeParse(payload);
+    if (!check.success) {
+      return res.status(502).json({ ok: false, error: 'schema_error', issues: check.error.flatten() });
+    }
+
+    return res.json({ ok: true, days: check.data.days });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, error: message });
+  }
+});

@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'wouter';
 import {
-  X, Sparkles, Store, Megaphone, ExternalLink, Loader2, AlertTriangle,
+  X, Sparkles, Store, Megaphone, ExternalLink, Loader2, AlertTriangle, CalendarDays,
 } from 'lucide-react';
 import type { Product } from '@/hooks/useProducts';
 import { proxyImage } from '@/lib/imageProxy';
@@ -33,6 +33,44 @@ interface BriefCacheEntry {
 
 const BRIEF_CACHE_PREFIX = 'majorka_brief_v1:';
 const BRIEF_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+const BLUEPRINT_CACHE_PREFIX = 'majorka_blueprint_v1:';
+const BLUEPRINT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+interface BlueprintDay {
+  day: number;
+  task: string;
+  rationale: string;
+}
+
+interface BlueprintCacheEntry {
+  days: BlueprintDay[];
+  ts: number;
+}
+
+function readBlueprintCache(productId: string): BlueprintDay[] | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(`${BLUEPRINT_CACHE_PREFIX}${productId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as BlueprintCacheEntry;
+    if (!parsed || !Array.isArray(parsed.days) || typeof parsed.ts !== 'number') return null;
+    if (Date.now() - parsed.ts > BLUEPRINT_CACHE_TTL_MS) return null;
+    return parsed.days;
+  } catch {
+    return null;
+  }
+}
+
+function writeBlueprintCache(productId: string, days: BlueprintDay[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const entry: BlueprintCacheEntry = { days, ts: Date.now() };
+    window.localStorage.setItem(`${BLUEPRINT_CACHE_PREFIX}${productId}`, JSON.stringify(entry));
+  } catch {
+    /* quota — ignore */
+  }
+}
 
 function readBriefCache(productId: string): string | null {
   if (typeof window === 'undefined') return null;
@@ -117,6 +155,12 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
   const [brief, setBrief] = useState<string>('');
   const [briefLoading, setBriefLoading] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
+
+  // 7-day Blueprint — lazy loaded on button click, cached 24h per product id
+  const [blueprint, setBlueprint] = useState<BlueprintDay[] | null>(null);
+  const [blueprintLoading, setBlueprintLoading] = useState(false);
+  const [blueprintError, setBlueprintError] = useState<string | null>(null);
+  const [blueprintExpanded, setBlueprintExpanded] = useState(false);
 
   const open = product !== null;
   const productId = product ? String(product.id) : '';
@@ -232,6 +276,51 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
       }
     })();
     return () => { cancelled = true; };
+  }, [product, productId]);
+
+  // Hydrate blueprint from cache on product change (no auto-fetch)
+  useEffect(() => {
+    if (!product) return;
+    const cached = readBlueprintCache(productId);
+    setBlueprint(cached);
+    setBlueprintError(null);
+    setBlueprintLoading(false);
+    setBlueprintExpanded(cached !== null);
+  }, [product, productId]);
+
+  const onGenerateBlueprint = useCallback(async () => {
+    if (!product) return;
+    setBlueprintError(null);
+    setBlueprintLoading(true);
+    setBlueprintExpanded(true);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess?.session?.access_token ?? '';
+      const res = await fetch('/api/ai/generate-blueprint', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+          product_title: product.product_title,
+          category: product.category,
+          price_aud: Number(product.price_aud ?? 0),
+          sold_count: Number(product.sold_count ?? 0),
+        }),
+      });
+      const data = (await res.json()) as { ok?: boolean; days?: BlueprintDay[]; error?: string; message?: string };
+      if (!res.ok || !data.ok || !Array.isArray(data.days)) {
+        throw new Error(data.message || data.error || 'Blueprint endpoint returned no content');
+      }
+      setBlueprint(data.days);
+      writeBlueprintCache(productId, data.days);
+    } catch (e: unknown) {
+      setBlueprintError(e instanceof Error ? e.message : 'Failed to generate blueprint');
+    } finally {
+      setBlueprintLoading(false);
+    }
   }, [product, productId]);
 
   const onAddToStore = useCallback(() => {

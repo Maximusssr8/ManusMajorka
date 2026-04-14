@@ -1177,6 +1177,21 @@ export function registerChatRoutes(app: Application) {
         }
       }
 
+      // PERF: flush SSE headers + "thinking" heartbeat NOW so the client
+      // renders the typing indicator within ~200ms, before the expensive
+      // Tavily / Maya context / memory enrichment fires below. The body.stream
+      // flag is the only client signal we need — the lower streaming branches
+      // detect res.headersSent and skip re-flushing.
+      const sseEarlyStream = req.body.stream !== false && req.body.aiSdk !== true;
+      if (sseEarlyStream && !res.headersSent) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.setHeader('X-Accel-Buffering', 'no');
+        res.flushHeaders();
+        res.write(`data: ${JSON.stringify({ thinking: true })}\n\n`);
+      }
+
       // ── Web search context ──────────────────────────────────────────────
       let webContext = '';
       if (searchQuery && typeof searchQuery === 'string' && searchQuery.trim()) {
@@ -1344,11 +1359,15 @@ export function registerChatRoutes(app: Application) {
           res.end();
         } else {
           // ── Custom SSE streaming response (AIChat, AIToolChat) ──────
-          res.setHeader('Content-Type', 'text/event-stream');
-          res.setHeader('Cache-Control', 'no-cache');
-          res.setHeader('Connection', 'keep-alive');
-          res.setHeader('X-Accel-Buffering', 'no');
-          res.flushHeaders();
+          // Headers + "thinking" heartbeat were flushed at top of handler
+          // (see PERF block) so we don't re-set them here.
+          if (!res.headersSent) {
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+            res.setHeader('X-Accel-Buffering', 'no');
+            res.flushHeaders();
+          }
 
           // ── Agentic tool loop for ai-chat (Maya) ────────────────────
           const useTools = toolName === 'ai-chat' && process.env.TAVILY_API_KEY;
