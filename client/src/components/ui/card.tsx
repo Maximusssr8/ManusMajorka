@@ -29,9 +29,9 @@ function Card({
       role={isInteractive ? (role ?? 'button') : role}
       tabIndex={isInteractive ? (tabIndex ?? 0) : tabIndex}
       className={cn(
-        'bg-card text-card-foreground flex flex-col gap-6 rounded-2xl border py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.35)] transition-all duration-200 hover:border-[rgba(99,102,241,0.28)] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_40px_-12px_rgba(0,0,0,0.5),0_0_48px_-18px_rgba(99,102,241,0.4)]',
+        'bg-[#111111] text-[#e5e5e5] flex flex-col gap-6 rounded-2xl border border-[#1a1a1a] py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_1px_2px_rgba(0,0,0,0.45)] transition-all duration-200 hover:border-[rgba(212,175,55,0.22)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(212,175,55,0.08),0_8px_40px_-10px_rgba(212,175,55,0.18)]',
         isInteractive &&
-          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0f14] focus-visible:ring-[#6366f1]',
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080808] focus-visible:ring-[#d4af37]',
         className
       )}
       {...props}

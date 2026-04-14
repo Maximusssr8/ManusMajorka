@@ -5,16 +5,34 @@ import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow,background] duration-200 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+  'inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow,background] duration-200 overflow-hidden',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90',
+        // Default — gold (brand)
+        default:
+          'border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.10)] text-[#d4af37]',
+        // Gold alias
+        gold:
+          'border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.10)] text-[#d4af37]',
+        // Blue CTA badge
+        blue:
+          'border-[rgba(59,130,246,0.3)] bg-[rgba(59,130,246,0.10)] text-[#3B82F6]',
+        // Muted
+        muted:
+          'border-[#1a1a1a] bg-[#141414] text-[#a3a3a3]',
+        // Success emerald
+        success:
+          'border-[rgba(16,185,129,0.3)] bg-[rgba(16,185,129,0.10)] text-[#10b981]',
+        // Secondary — legacy
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90',
+          'border-[#1a1a1a] bg-[#141414] text-[#a3a3a3]',
+        // Destructive
         destructive:
-          'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
-        outline: 'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+          'border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.10)] text-[#ef4444]',
+        // Outline
+        outline:
+          'border-[#1a1a1a] bg-transparent text-[#e5e5e5]',
       },
     },
     defaultVariants: {

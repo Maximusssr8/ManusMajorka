@@ -1,99 +1,63 @@
 /**
- * EmptyState — Shopify-inspired centred placeholder for empty list pages.
- *
- * Used on: Saved products tab, Alerts (no alerts), Revenue (no entries),
- * Store Builder (no stores), Search results (no matches).
+ * EmptyState (ui/) — Lucide-icon variant used by tool pages.
+ * Matches the v2 gold design system. For general pages, prefer the
+ * canonical component exported from `@/components/EmptyState`.
  */
+import type { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
-  emoji: string;
+  icon: LucideIcon;
   title: string;
   description: string;
-  action?: { label: string; onClick: () => void };
-  secondaryAction?: { label: string; onClick: () => void };
+  ctaLabel?: string;
+  onCta?: () => void;
 }
 
-export function EmptyState({ emoji, title, description, action, secondaryAction }: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: EmptyStateProps) {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      padding: '80px 24px',
-      gap: 16,
-    }}>
-      <div style={{ fontSize: 48, marginBottom: 8 }}>{emoji}</div>
-      <h3 style={{
-        fontSize: 18,
-        fontWeight: 700,
-        color: 'var(--text-primary, #f0f4ff)',
-        margin: 0,
-        letterSpacing: '-0.01em',
-      }}>
-        {title}
-      </h3>
-      <p style={{
-        fontSize: 14,
-        color: 'var(--text-muted, rgba(255,255,255,0.35))',
-        maxWidth: 380,
-        lineHeight: 1.6,
-        margin: 0,
-      }}>
-        {description}
-      </p>
-      {(action || secondaryAction) && (
-        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-          {action && (
-            <button
-              onClick={action.onClick}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                height: 40,
-                padding: '0 18px',
-                background: 'var(--accent, #6366f1)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 600,
-                border: 'none',
-                borderRadius: 'var(--radius-lg, 12px)',
-                cursor: 'pointer',
-                boxShadow: 'var(--shadow-accent, 0 4px 20px rgba(99,102,241,0.25))',
-                transition: 'all 150ms ease',
-              }}
-            >
-              {action.label}
-            </button>
-          )}
-          {secondaryAction && (
-            <button
-              onClick={secondaryAction.onClick}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                height: 40,
-                padding: '0 18px',
-                background: 'var(--bg-card, #1a2035)',
-                color: 'var(--text-secondary, rgba(255,255,255,0.65))',
-                fontSize: 13,
-                fontWeight: 600,
-                border: '1px solid var(--border-normal, rgba(255,255,255,0.10))',
-                borderRadius: 'var(--radius-lg, 12px)',
-                cursor: 'pointer',
-                transition: 'all 150ms ease',
-              }}
-            >
-              {secondaryAction.label}
-            </button>
-          )}
+    <div className="flex-1 flex items-center justify-center p-8">
+      <div className="text-center max-w-sm flex flex-col items-center gap-4">
+        <div
+          className="flex items-center justify-center rounded-2xl relative"
+          style={{
+            width: 72,
+            height: 72,
+            background: 'rgba(212,175,55,0.06)',
+            border: '1px solid rgba(212,175,55,0.14)',
+            boxShadow: '0 0 40px -10px rgba(212,175,55,0.18)',
+          }}
+        >
+          <Icon size={48} strokeWidth={1.5} style={{ color: '#d4af37' }} />
         </div>
-      )}
+        <h3
+          style={{
+            fontFamily: "'Syne', system-ui, sans-serif",
+            fontWeight: 700,
+            fontSize: 20,
+            letterSpacing: '-0.01em',
+            color: '#e5e5e5',
+            margin: 0,
+          }}
+        >
+          {title}
+        </h3>
+        <p
+          style={{
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontSize: 14,
+            color: '#737373',
+            lineHeight: 1.6,
+            margin: 0,
+          }}
+        >
+          {description}
+        </p>
+        {ctaLabel && onCta && (
+          <button type="button" onClick={onCta} className="mj-btn-gold">
+            {ctaLabel}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
