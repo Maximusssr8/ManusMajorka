@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -71,6 +71,27 @@ interface SavedAd {
 
 const SAVED_KEY = 'majorka_saved_ads';
 
+type ImageStyle = 'lifestyle' | 'product' | 'ugc' | 'flatlay';
+type ImageAspect = '1:1' | '9:16' | '4:5';
+interface ImageHealth {
+  ok: boolean;
+  provider: string;
+  reason?: 'no_provider';
+}
+
+const IMAGE_STYLES: { id: ImageStyle; label: string; sub: string }[] = [
+  { id: 'lifestyle', label: 'Lifestyle', sub: 'Real-home feel' },
+  { id: 'product',   label: 'Product',   sub: 'Clean white bg' },
+  { id: 'ugc',       label: 'UGC',       sub: 'iPhone mockup' },
+  { id: 'flatlay',   label: 'Flat Lay',  sub: 'Top-down editorial' },
+];
+
+const IMAGE_ASPECTS: { id: ImageAspect; label: string; sub: string }[] = [
+  { id: '1:1',  label: '1:1',  sub: 'Feed' },
+  { id: '9:16', label: '9:16', sub: 'Story / Reel' },
+  { id: '4:5',  label: '4:5',  sub: 'Feed Tall' },
+];
+
 function loadSavedAds(): SavedAd[] {
   if (typeof window === 'undefined') return [];
   try { return JSON.parse(localStorage.getItem(SAVED_KEY) ?? '[]') as SavedAd[]; }
@@ -136,6 +157,16 @@ export default function AdsStudio() {
   const [saved, setSaved] = useState<SavedAd[]>([]);
   const [expandedSaved, setExpandedSaved] = useState<number | null>(null);
 
+  // Visual Creative (image generation)
+  const [imageStyle, setImageStyle] = useState<ImageStyle>('lifestyle');
+  const [imageAspect, setImageAspect] = useState<ImageAspect>('1:1');
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState<string>('');
+  const [imageProvider, setImageProvider] = useState<string>('');
+  const [imageHealth, setImageHealth] = useState<ImageHealth>({ ok: false, provider: 'unknown' });
+  const [imageUrlCopied, setImageUrlCopied] = useState(false);
+
   const outputRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -165,6 +196,85 @@ export default function AdsStudio() {
       // ignore malformed payload
     }
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/health/image')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('image_health_http'))))
+      .then((h: ImageHealth) => {
+        if (!cancelled) setImageHealth(h);
+      })
+      .catch(() => {
+        if (!cancelled) setImageHealth({ ok: false, provider: 'unknown', reason: 'no_provider' });
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function generateImage() {
+    if (!imageHealth.ok) return;
+    if (!productName.trim()) {
+      setImageError('Add a product name first — top of the form.');
+      return;
+    }
+    setImageError('');
+    setImageLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const freshToken = sessionData.session?.access_token ?? token;
+      if (!freshToken) {
+        setImageError('Please sign in to generate images.');
+        setImageLoading(false);
+        return;
+      }
+      const adCopy = parsed
+        ? [parsed.primaryHook, parsed.headline, parsed.primaryText, parsed.fullBody].filter(Boolean).join(' — ')
+        : benefit;
+      const r = await fetch('/api/ai/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${freshToken}` },
+        body: JSON.stringify({
+          productTitle: productName,
+          adCopy,
+          style: imageStyle,
+          aspect: imageAspect,
+        }),
+      });
+      const d = (await r.json()) as {
+        ok: boolean;
+        imageUrl?: string;
+        provider?: string;
+        reason?: string;
+        message?: string;
+      };
+      if (!d.ok || !d.imageUrl) {
+        const msg =
+          d.reason === 'no_provider'
+            ? 'Image provider not configured — add FAL_KEY or OPENAI_API_KEY.'
+            : d.reason === 'usage_limit'
+            ? 'Monthly image limit reached on your plan.'
+            : d.message || 'Generation failed — try again.';
+        setImageError(msg);
+        setImageLoading(false);
+        return;
+      }
+      setImageUrl(d.imageUrl);
+      setImageProvider(d.provider ?? '');
+    } catch {
+      setImageError('Connection error — check your internet and try again.');
+    }
+    setImageLoading(false);
+  }
+
+  async function copyImageUrl() {
+    if (!imageUrl) return;
+    try {
+      await navigator.clipboard.writeText(imageUrl);
+      setImageUrlCopied(true);
+      setTimeout(() => setImageUrlCopied(false), 1200);
+    } catch {
+      // ignore clipboard errors
+    }
+  }
 
   async function openPicker() {
     setShowPicker(true);
@@ -669,7 +779,23 @@ OBJECTION KILLER:
               <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800 }}>Writing your ad package…</div>
             </div>
           ) : parsed ? (
-            <OutputDisplay parsed={parsed} copied={copied} copyText={copyText} />
+            <>
+              <OutputDisplay parsed={parsed} copied={copied} copyText={copyText} />
+              <VisualCreativeCard
+                style={imageStyle}
+                aspect={imageAspect}
+                setStyle={setImageStyle}
+                setAspect={setImageAspect}
+                onGenerate={generateImage}
+                onCopyUrl={copyImageUrl}
+                imageUrl={imageUrl}
+                loading={imageLoading}
+                error={imageError}
+                provider={imageProvider}
+                health={imageHealth}
+                urlCopied={imageUrlCopied}
+              />
+            </>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60%' }}>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', fontFamily: dm }}>
@@ -859,6 +985,262 @@ function SectionCard({ key: _k, label, value, limit, copied, copyText }: { key: 
         fontSize: 14, fontFamily: dm, color: '#f1f1f3',
         lineHeight: 1.6, whiteSpace: 'pre-wrap',
       }}>{value || <span style={{ color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>—</span>}</div>
+    </div>
+  );
+}
+
+// ── Visual Creative card — real ad image generation (fal.ai / OpenAI) ─────
+interface VisualCreativeCardProps {
+  style: ImageStyle;
+  aspect: ImageAspect;
+  setStyle: (s: ImageStyle) => void;
+  setAspect: (a: ImageAspect) => void;
+  onGenerate: () => void;
+  onCopyUrl: () => void;
+  imageUrl: string;
+  loading: boolean;
+  error: string;
+  provider: string;
+  health: ImageHealth;
+  urlCopied: boolean;
+}
+
+function VisualCreativeCard({
+  style, aspect, setStyle, setAspect,
+  onGenerate, onCopyUrl, imageUrl, loading, error, provider, health, urlCopied,
+}: VisualCreativeCardProps) {
+  const disabled = !health.ok || loading;
+  const disabledTooltip = !health.ok
+    ? 'Add FAL_KEY or OPENAI_API_KEY in Vercel env to enable image generation.'
+    : '';
+
+  const aspectBoxStyle: Record<ImageAspect, CSSProperties> = {
+    '1:1':  { aspectRatio: '1 / 1'  },
+    '9:16': { aspectRatio: '9 / 16' },
+    '4:5':  { aspectRatio: '4 / 5'  },
+  };
+
+  return (
+    <div style={{
+      marginTop: 16, maxWidth: 820,
+      background: '#1c1c1c',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 12,
+      padding: '16px 18px',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12, gap: 10 }}>
+        <div>
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: '#f1f1f3', letterSpacing: '-0.01em' }}>
+            Visual Creative
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>
+            Generate a thumb-stopping ad image with {health.ok ? (health.provider === 'fal' ? 'fal.ai Flux' : 'OpenAI') : 'real AI'}
+          </div>
+        </div>
+        {provider && (
+          <span style={{
+            fontFamily: mono, fontSize: 9, fontWeight: 700,
+            padding: '3px 8px', borderRadius: 999,
+            background: 'rgba(124,106,255,0.12)', color: '#a78bfa',
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+          }}>{provider}</span>
+        )}
+      </div>
+
+      {!health.ok && (
+        <div style={{
+          marginBottom: 12, padding: '10px 12px',
+          borderRadius: 8,
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.25)',
+          color: '#fbbf24',
+          fontSize: 12, lineHeight: 1.5, fontFamily: dm,
+        }}>
+          Image generation is disabled. Add <span style={{ fontFamily: mono }}>FAL_KEY</span> or <span style={{ fontFamily: mono }}>OPENAI_API_KEY</span> in Vercel env to enable.
+        </div>
+      )}
+
+      {/* Style chips */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Style</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {IMAGE_STYLES.map((s) => {
+            const active = style === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setStyle(s.id)}
+                disabled={loading}
+                style={{
+                  padding: '6px 12px', borderRadius: 8,
+                  background: active ? 'rgba(124,106,255,0.18)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(124,106,255,0.45)' : 'rgba(255,255,255,0.08)'}`,
+                  color: active ? '#c4b5fd' : 'rgba(255,255,255,0.7)',
+                  fontSize: 12, fontWeight: 600, fontFamily: dm,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1,
+                }}
+              >
+                <span>{s.label}</span>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>{s.sub}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Aspect chips */}
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Aspect</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {IMAGE_ASPECTS.map((a) => {
+            const active = aspect === a.id;
+            return (
+              <button
+                key={a.id}
+                onClick={() => setAspect(a.id)}
+                disabled={loading}
+                style={{
+                  padding: '6px 12px', borderRadius: 8,
+                  background: active ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  color: active ? '#34d399' : 'rgba(255,255,255,0.7)',
+                  fontSize: 12, fontWeight: 600, fontFamily: mono,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1,
+                }}
+              >
+                <span>{a.label}</span>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 500, fontFamily: dm }}>{a.sub}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Primary CTA */}
+      <button
+        onClick={onGenerate}
+        disabled={disabled}
+        title={disabledTooltip || undefined}
+        style={{
+          width: '100%', padding: '11px 14px', borderRadius: 10,
+          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7c6aff, #6366f1)',
+          border: 'none',
+          color: disabled ? 'rgba(255,255,255,0.35)' : '#ffffff',
+          fontSize: 13, fontWeight: 700, fontFamily: brico, letterSpacing: '-0.01em',
+          cursor: disabled ? 'not-allowed' : 'pointer',
+        }}
+      >
+        {loading ? '⟳ Generating image…' : imageUrl ? 'Regenerate Image' : 'Generate Image →'}
+      </button>
+
+      {/* Error state */}
+      {error && (
+        <div style={{
+          marginTop: 10, padding: '10px 12px',
+          borderRadius: 8,
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          color: '#f87171',
+          fontSize: 12, lineHeight: 1.5, fontFamily: dm,
+          display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center',
+        }}>
+          <span>{error}</span>
+          <button
+            onClick={onGenerate}
+            disabled={disabled}
+            style={{
+              background: 'rgba(239,68,68,0.15)',
+              border: '1px solid rgba(239,68,68,0.35)',
+              color: '#fca5a5',
+              fontSize: 11, fontWeight: 600, fontFamily: dm,
+              padding: '4px 10px', borderRadius: 6,
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              flexShrink: 0,
+            }}
+          >Retry</button>
+        </div>
+      )}
+
+      {/* Preview */}
+      <div style={{ marginTop: 14 }}>
+        <div style={{
+          width: '100%', maxWidth: 480,
+          background: '#0a0a0c',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 10,
+          overflow: 'hidden',
+          ...aspectBoxStyle[aspect],
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {loading ? (
+            <div style={{
+              width: '100%', height: '100%',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'majorka-shimmer 1.4s linear infinite',
+            }} />
+          ) : imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="Generated ad creative"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          ) : (
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', padding: 16, textAlign: 'center', fontFamily: dm }}>
+              {health.ok
+                ? 'Pick a style + aspect, then generate.'
+                : 'Provider not configured.'}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        {imageUrl && !loading && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+            <a
+              href={imageUrl}
+              download={`majorka-ad-${Date.now()}.png`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#f1f1f3',
+                fontSize: 11, fontWeight: 600, fontFamily: dm,
+                padding: '6px 12px', borderRadius: 6,
+                textDecoration: 'none',
+              }}
+            >Download</a>
+            <button
+              onClick={onCopyUrl}
+              style={{
+                background: urlCopied ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
+                border: `1px solid ${urlCopied ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                color: urlCopied ? '#10b981' : '#f1f1f3',
+                fontSize: 11, fontWeight: 600, fontFamily: dm,
+                padding: '6px 12px', borderRadius: 6,
+                cursor: 'pointer',
+              }}
+            >{urlCopied ? 'Copied ✓' : 'Copy URL'}</button>
+            <button
+              onClick={onGenerate}
+              disabled={disabled}
+              style={{
+                background: 'rgba(124,106,255,0.12)',
+                border: '1px solid rgba(124,106,255,0.28)',
+                color: '#a78bfa',
+                fontSize: 11, fontWeight: 600, fontFamily: dm,
+                padding: '6px 12px', borderRadius: 6,
+                cursor: disabled ? 'not-allowed' : 'pointer',
+              }}
+            >Regenerate</button>
+          </div>
+        )}
+      </div>
+
+      <style>{`@keyframes majorka-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
     </div>
   );
 }
