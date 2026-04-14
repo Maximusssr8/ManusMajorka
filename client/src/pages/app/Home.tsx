@@ -123,6 +123,23 @@ export default function AppHome() {
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
 
+  // Top Opportunities: high-score "hidden gems" — score >= 90 but with
+  // low-to-moderate order counts (< 50K). Deduped against every other
+  // section on the page so the sidebar never echoes products already
+  // visible in the Top table, Velocity carousel, or Hot Today list.
+  const opportunityExcludeIds = [
+    ...topIds,
+    ...velocityProducts.map((p) => p.id),
+    ...hotTodayProducts.map((p) => p.id),
+  ];
+  const { products: opportunityProducts, loading: opportunityLoading } = useProducts({
+    limit: 3,
+    minScore: 90,
+    maxOrders: 50000,
+    orderBy: 'winning_score',
+    excludeIds: opportunityExcludeIds.length > 0 ? opportunityExcludeIds : undefined,
+  });
+
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
   const tod = timeOfDay();
@@ -203,30 +220,28 @@ export default function AppHome() {
 
   // Animation variants now driven by CSS .animate-in / .stagger-N classes
 
-  /* Top Opportunities — pulled from live data */
-  const opportunities: {
-    label: string; chipBg: string; chipFg: string; href: string;
-    product: Product | null;
-  }[] = [
-    {
-      label: 'Top Trending',
-      chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b',
-      href: '/app/products?tab=hot-now',
-      product: topProduct ?? null,
-    },
-    {
-      label: 'Best Margin',
-      chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981',
-      href: '/app/products?tab=high-profit',
-      product: bestMargin,
-    },
-    {
-      label: 'Newest',
-      chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158',
-      href: '/app/products?tab=new',
-      product: newestProduct,
-    },
+  /* Top Opportunities — real Supabase query (minScore 90, maxOrders 50K,
+     deduped). Each slot carries a stable chip style + deep-link to the
+     corresponding Products-page tab. When the query yields fewer than 3
+     rows we fall back to the curated trio (top / best-margin / newest)
+     so the slot is never empty. */
+  const opportunityChipStyles: { chipBg: string; chipFg: string; href: string; label: string }[] = [
+    { label: 'Hidden Gem',     chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158', href: '/app/products?tab=top' },
+    { label: 'High Potential', chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981', href: '/app/products?tab=top' },
+    { label: 'Underrated',     chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b', href: '/app/products?tab=top' },
   ];
+  const fallbackOpportunities: { label: string; chipBg: string; chipFg: string; href: string; product: Product | null }[] = [
+    { label: 'Top Trending', chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b', href: '/app/products?tab=hot-now',     product: topProduct ?? null },
+    { label: 'Best Margin',  chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981', href: '/app/products?tab=high-profit', product: bestMargin },
+    { label: 'Newest',       chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158', href: '/app/products?tab=new',         product: newestProduct },
+  ];
+  const opportunities: { label: string; chipBg: string; chipFg: string; href: string; product: Product | null }[] =
+    opportunityProducts.length > 0
+      ? opportunityProducts.slice(0, 3).map((p, i) => ({
+          ...opportunityChipStyles[i % opportunityChipStyles.length],
+          product: p,
+        }))
+      : fallbackOpportunities;
 
   const liveLabel = stats?.updatedAt
     ? `Live · AliExpress feed · updated ${formatRelative(stats.updatedAt)}`
@@ -391,8 +406,11 @@ export default function AppHome() {
 
       {/* Top products table — full-width hero content, Shopify-style */}
       <div className="relative z-10 mx-4 md:mx-8 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
+            <p className="text-xs text-muted mt-0.5">All-time highest order count</p>
+          </div>
           <a
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
@@ -512,11 +530,14 @@ export default function AppHome() {
 
         {/* LEFT — Trending Now */}
         <div className="w-full flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-              Hot Today
-            </h2>
+          <div className="flex items-end justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                Hot Today
+              </h2>
+              <p className="text-xs text-muted mt-0.5">Added in the last 48 hours</p>
+            </div>
             <Link
               href="/app/products?tab=trending"
               className="text-xs text-accent hover:text-accent-hover transition-colors no-underline"
@@ -609,7 +630,17 @@ export default function AppHome() {
 
           {/* Top Opportunities */}
           <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
-            <h3 className="text-sm font-semibold text-text mb-4">Top Opportunities</h3>
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-text">Top Opportunities</h3>
+              <p className="text-xs text-muted mt-0.5">High score, under 50K orders — hidden gems</p>
+            </div>
+            {opportunityLoading && opportunities.every((o) => o.product === null) ? (
+              <div className="py-6 text-center text-xs text-muted">Loading opportunities…</div>
+            ) : opportunities.every((o) => o.product === null) ? (
+              <div className="py-6 text-center text-xs text-muted">
+                No hidden gems right now — check back after the next feed refresh.
+              </div>
+            ) : null}
             {opportunities.map((o, i) => {
               const p = o.product;
               const score = Math.round(p?.winning_score ?? 0);
