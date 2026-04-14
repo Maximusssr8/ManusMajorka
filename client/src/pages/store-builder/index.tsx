@@ -7,7 +7,7 @@ import StepIndicator from '@/components/store-builder/StepIndicator';
 import {
   Check, X, Plus, Loader2, ExternalLink, RefreshCw, Eye, Smartphone,
   Monitor, Copy, ShoppingCart, Sparkles, Store as StoreIcon, Globe, ArrowLeft, ArrowRight,
-  Lock, Info,
+  Lock, Info, Megaphone, Bell, DollarSign, CircleDashed,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
@@ -1082,46 +1082,13 @@ export default function StoreBuilder() {
                       </div>
                     )}
 
-                    {/* PUBLISH SUCCESS */}
+                    {/* PUBLISH SUCCESS — next-steps panel (post-publish) */}
                     {stepId === 'publish' && publishResult && publishResult.success && (
-                      <div className="text-center py-6">
-                        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 100 }}>
-                          {Array.from({ length: 30 }).map((_, i) => (
-                            <div key={i} style={{
-                              position: 'absolute',
-                              left: `${(i * 37) % 100}%`,
-                              top: '-10px',
-                              width: 8, height: 8,
-                              borderRadius: i % 2 === 0 ? '50%' : '0',
-                              background: [ACCENT, VIOLET, '#f43f5e', '#10b981', '#f59e0b', '#06b6d4'][i % 6],
-                              animation: `confetti-fall ${2 + (i % 3)}s ease-in ${(i * 0.1)}s forwards`,
-                            }} />
-                          ))}
-                        </div>
-                        <div className="text-5xl mb-4">🚀</div>
-                        <h2 className="mb-3" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700 }}>Your store is live!</h2>
-                        {publishResult.liveUrl && (
-                          <a href={publishResult.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mb-6" style={{ color: ACCENT, fontSize: 14, textDecoration: 'none' }}>
-                            {publishResult.liveUrl} <ExternalLink size={14} />
-                          </a>
-                          )}
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
-                          <button
-                            onClick={() => { if (publishResult.liveUrl) { navigator.clipboard.writeText(publishResult.liveUrl); toast.success('Link copied'); } }}
-                            className="inline-flex items-center gap-1.5 justify-center px-5 py-3 rounded-lg text-sm font-semibold"
-                            style={{ background: 'rgba(255,255,255,0.04)', color: TEXT_BODY, border: '1px solid rgba(255,255,255,0.08)' }}
-                          >
-                            <Copy size={14} /> Share
-                          </button>
-                          <button
-                            onClick={() => setLocation('/app/ads-studio')}
-                            className="px-5 py-3 rounded-lg text-sm font-bold sb-glow-cta"
-                            style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none' }}
-                          >
-                            Launch ad campaign →
-                          </button>
-                        </div>
-                      </div>
+                      <PostPublishNextSteps
+                        liveUrl={publishResult.liveUrl}
+                        firstProduct={selectedProducts[0]}
+                        setLocation={setLocation}
+                      />
                     )}
 
                     {/* Wizard nav (only on config steps, not success screen) */}
@@ -1512,5 +1479,302 @@ export default function StoreBuilder() {
         </div>
       )}
     </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * Post-publish "What's next" panel.
+ * Renders after publishStore() succeeds. Provides live store URL,
+ * three CTAs into the next logical surfaces (Ads Studio / Alerts /
+ * Revenue), and a persistent first-sale checklist in localStorage.
+ * ──────────────────────────────────────────────────────────────── */
+
+const FIRST_SALE_KEY = 'majorka_first_sale_checklist';
+
+type FirstSaleChecklist = {
+  pickedProduct: boolean;
+  publishedStore: boolean;
+  launchedFirstAd: boolean;
+  madeFirstSale: boolean;
+};
+
+const DEFAULT_CHECKLIST: FirstSaleChecklist = {
+  pickedProduct: false,
+  publishedStore: false,
+  launchedFirstAd: false,
+  madeFirstSale: false,
+};
+
+function loadChecklist(): FirstSaleChecklist {
+  try {
+    const raw = localStorage.getItem(FIRST_SALE_KEY);
+    if (!raw) return DEFAULT_CHECKLIST;
+    const parsed = JSON.parse(raw) as unknown;
+    if (typeof parsed !== 'object' || parsed === null) return DEFAULT_CHECKLIST;
+    const p = parsed as Partial<FirstSaleChecklist>;
+    return {
+      pickedProduct: p.pickedProduct === true,
+      publishedStore: p.publishedStore === true,
+      launchedFirstAd: p.launchedFirstAd === true,
+      madeFirstSale: p.madeFirstSale === true,
+    };
+  } catch {
+    return DEFAULT_CHECKLIST;
+  }
+}
+
+function saveChecklist(c: FirstSaleChecklist): void {
+  try {
+    localStorage.setItem(FIRST_SALE_KEY, JSON.stringify(c));
+  } catch {
+    /* storage disabled — silently fail */
+  }
+}
+
+interface PostPublishNextStepsProps {
+  liveUrl?: string;
+  firstProduct: ProductItem | undefined;
+  setLocation: (path: string) => void;
+}
+
+function PostPublishNextSteps({ liveUrl, firstProduct, setLocation }: PostPublishNextStepsProps): JSX.Element {
+  const [checklist, setChecklist] = useState<FirstSaleChecklist>(() => {
+    const loaded = loadChecklist();
+    // Picking a product and publishing the store both happened to reach
+    // this panel — mark them done immediately.
+    return { ...loaded, pickedProduct: true, publishedStore: true };
+  });
+
+  useEffect(() => {
+    saveChecklist(checklist);
+  }, [checklist]);
+
+  const copyLink = (): void => {
+    if (!liveUrl) return;
+    try {
+      void navigator.clipboard.writeText(liveUrl);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
+
+  const goToAds = (): void => {
+    if (firstProduct) {
+      try {
+        sessionStorage.setItem('majorka_ad_product', JSON.stringify({
+          id: firstProduct.id,
+          product_title: firstProduct.product_title,
+          image_url: firstProduct.image_url,
+          price_aud: firstProduct.price_aud,
+        }));
+      } catch {
+        /* storage full — navigate anyway */
+      }
+    }
+    setChecklist((c) => ({ ...c, launchedFirstAd: true }));
+    setLocation('/app/ads-studio');
+  };
+
+  const goToAlerts = (): void => {
+    if (firstProduct) {
+      try {
+        sessionStorage.setItem('majorka_track_product_id', firstProduct.id);
+      } catch {
+        /* ignore */
+      }
+    }
+    setLocation('/app/alerts');
+  };
+
+  const goToRevenue = (): void => {
+    setChecklist((c) => ({ ...c, madeFirstSale: true }));
+    setLocation('/app/revenue');
+  };
+
+  const checklistItems: Array<{ key: keyof FirstSaleChecklist; label: string }> = [
+    { key: 'pickedProduct',   label: 'Picked a product' },
+    { key: 'publishedStore',  label: 'Published store' },
+    { key: 'launchedFirstAd', label: 'Launched first ad' },
+    { key: 'madeFirstSale',   label: 'Made first sale' },
+  ];
+
+  return (
+    <div className="py-6">
+      {/* Confetti (kept — small celebration) */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 100 }}>
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${(i * 37) % 100}%`,
+            top: '-10px',
+            width: 8, height: 8,
+            borderRadius: i % 2 === 0 ? '50%' : '0',
+            background: [ACCENT, VIOLET, '#f43f5e', '#10b981', '#f59e0b', '#06b6d4'][i % 6],
+            animation: `confetti-fall ${2 + (i % 3)}s ease-in ${(i * 0.1)}s forwards`,
+          }} />
+        ))}
+      </div>
+
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="text-5xl mb-3">🚀</div>
+        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, color: TEXT_PRIMARY }}>
+          Your store is live
+        </h2>
+        <p style={{ color: TEXT_BODY, fontSize: 14 }}>
+          One product published. Now get your first visitor — then your first sale.
+        </p>
+      </div>
+
+      {/* Live URL bar */}
+      {liveUrl && (
+        <div
+          className="flex items-center gap-2 p-3 rounded-xl mb-6"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <Globe size={16} style={{ color: ACCENT, flexShrink: 0 }} />
+          <code
+            className="flex-1 truncate"
+            style={{ color: TEXT_PRIMARY, fontSize: 13, fontFamily: 'monospace' }}
+            title={liveUrl}
+          >
+            {liveUrl}
+          </code>
+          <button
+            onClick={copyLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style={{ background: 'rgba(255,255,255,0.06)', color: TEXT_BODY, border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <Copy size={12} /> Copy
+          </button>
+          <a
+            href={liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+            style={{ background: ACCENT, color: '#fff' }}
+          >
+            Open store <ExternalLink size={12} />
+          </a>
+        </div>
+      )}
+
+      {/* What's next — 3 card grid */}
+      <div className="mb-6">
+        <div className="text-[11px] font-mono uppercase tracking-widest mb-3" style={{ color: TEXT_MUTED }}>
+          What's next
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <NextStepCard
+            icon={<Megaphone size={18} />}
+            accent={ACCENT}
+            title="Create your first ad"
+            body="Generate Meta + TikTok ad copy tuned to your product."
+            cta="Open Ads Studio"
+            onClick={goToAds}
+          />
+          <NextStepCard
+            icon={<Bell size={18} />}
+            accent="#f59e0b"
+            title="Set an alert"
+            body="Track velocity spikes and price drops on this SKU."
+            cta="Go to Alerts"
+            onClick={goToAlerts}
+          />
+          <NextStepCard
+            icon={<DollarSign size={18} />}
+            accent="#10b981"
+            title="Log your first sale"
+            body="Record ROAS, margin and ad spend to see what's working."
+            cta="Open Revenue"
+            onClick={goToRevenue}
+          />
+        </div>
+      </div>
+
+      {/* First-sale checklist */}
+      <div
+        className="p-4 rounded-xl"
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        <div className="text-[11px] font-mono uppercase tracking-widest mb-3" style={{ color: TEXT_MUTED }}>
+          First-sale checklist
+        </div>
+        <ul className="space-y-2">
+          {checklistItems.map((item) => {
+            const done = checklist[item.key];
+            return (
+              <li key={item.key} className="flex items-center gap-2.5">
+                {done ? (
+                  <div
+                    className="flex items-center justify-center rounded-full"
+                    style={{ width: 18, height: 18, background: '#10b981' }}
+                  >
+                    <Check size={11} style={{ color: '#fff' }} strokeWidth={3} />
+                  </div>
+                ) : (
+                  <CircleDashed size={18} style={{ color: TEXT_MUTED }} />
+                )}
+                <span
+                  style={{
+                    color: done ? TEXT_BODY : TEXT_MUTED,
+                    textDecoration: done ? 'line-through' : 'none',
+                    fontSize: 14,
+                  }}
+                >
+                  {item.label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+interface NextStepCardProps {
+  icon: React.ReactNode;
+  accent: string;
+  title: string;
+  body: string;
+  cta: string;
+  onClick: () => void;
+}
+
+function NextStepCard({ icon, accent, title, body, cta, onClick }: NextStepCardProps): JSX.Element {
+  return (
+    <button
+      onClick={onClick}
+      className="text-left p-4 rounded-xl transition-all hover:scale-[1.02]"
+      style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        cursor: 'pointer',
+      }}
+    >
+      <div
+        className="inline-flex items-center justify-center rounded-lg mb-3"
+        style={{
+          width: 36,
+          height: 36,
+          background: `${accent}1a`,
+          color: accent,
+          border: `1px solid ${accent}33`,
+        }}
+      >
+        {icon}
+      </div>
+      <div style={{ fontFamily: FONT_DISPLAY, fontSize: 15, fontWeight: 600, color: TEXT_PRIMARY, marginBottom: 4 }}>
+        {title}
+      </div>
+      <div style={{ color: TEXT_BODY, fontSize: 12, lineHeight: 1.5, marginBottom: 10 }}>
+        {body}
+      </div>
+      <div className="inline-flex items-center gap-1" style={{ color: accent, fontSize: 12, fontWeight: 600 }}>
+        {cta} <ArrowRight size={12} />
+      </div>
+    </button>
   );
 }
