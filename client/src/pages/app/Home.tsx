@@ -6,6 +6,12 @@ import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { GradientM } from '@/components/MajorkaLogo';
 import { useProducts, type Product } from '@/hooks/useProducts';
+import {
+  useTopProducts,
+  useVelocityLeaders,
+  useHotToday,
+  useOpportunities,
+} from '@/hooks/useDashboard';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { useFavourites } from '@/hooks/useFavourites';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
@@ -92,53 +98,53 @@ export default function AppHome() {
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Top Products: highest cumulative sold_count (all-time leaders).
-  // Fetched FIRST so its IDs can exclude every other section below.
-  // Request 20 ids so we can render the top 10 AND dedupe the carousel.
-  const { products: topProductsRaw, loading: prodLoading, total } = useProducts({
-    limit: 20,
-    orderBy: 'sold_count',
-  });
+  // Per-section dashboard dedup — exclusion chain is resolved on the client
+  // but each query is served by its own /api/dashboard/* endpoint with its
+  // own cache window (15m / 30m / 1h).
+  //
+  // Step 1: Top Products fetched FIRST so its IDs seed every other section.
+  const topQuery = useTopProducts();
+  const topProductsRaw = topQuery.data?.products ?? [];
+  const prodLoading = topQuery.isLoading;
   const products = topProductsRaw.slice(0, 10);
   const topIds = topProductsRaw.map((p) => p.id);
+  const topIdsReady = topQuery.isSuccess;
 
-  // Velocity Leaders carousel: genuinely different query from the table.
-  // Newest products with strong orders (>5k) that are NOT in the Top 20.
-  // Threshold 5k per spec — works even when velocity_7d column is NULL.
-  const { products: velocityProducts } = useProducts({
-    limit: 10,
-    orderBy: 'created_at',
-    minOrders: 5000,
-    excludeIds: topIds.length > 0 ? topIds : undefined,
-  });
+  // Step 2a: Velocity Leaders — server slice is already disjoint from Top
+  // (velocity filter is `sold_count > 10000`, ordered by created_at), so we
+  // let it fire in parallel.
+  const velocityQuery = useVelocityLeaders(true);
+  const velocityProducts = velocityQuery.data?.products ?? [];
 
-  // Hot Today: new arrivals via the hot-now tab, further deduped against
-  // BOTH Top Products and Velocity Leaders.
-  const hotExcludeIds = [...topIds, ...velocityProducts.map((p) => p.id)];
-  const { products: hotTodayProducts } = useProducts({
-    limit: 4,
-    tab: 'hot-now',
-    excludeIds: hotExcludeIds.length > 0 ? hotExcludeIds : undefined,
-  });
-  const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
-  const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
+  // Step 2b: Hot Today — excludes topIds. Waits for topQuery to complete.
+  const hotTodayQuery = useHotToday(topIds, topIdsReady);
+  const hotTodayProducts = hotTodayQuery.data?.products ?? [];
 
-  // Top Opportunities: high-score "hidden gems" — score >= 90 but with
-  // low-to-moderate order counts (< 50K). Deduped against every other
-  // section on the page so the sidebar never echoes products already
-  // visible in the Top table, Velocity carousel, or Hot Today list.
+  // Step 3: Opportunities — excludes topIds ∪ velocityIds ∪ hotIds.
+  // Waits for all three upstream queries so the exclusion chain is complete.
+  const velocityReady = velocityQuery.isSuccess;
+  const hotReady = hotTodayQuery.isSuccess;
   const opportunityExcludeIds = [
     ...topIds,
     ...velocityProducts.map((p) => p.id),
     ...hotTodayProducts.map((p) => p.id),
   ];
-  const { products: opportunityProducts, loading: opportunityLoading } = useProducts({
-    limit: 3,
-    minScore: 90,
-    maxOrders: 50000,
-    orderBy: 'winning_score',
-    excludeIds: opportunityExcludeIds.length > 0 ? opportunityExcludeIds : undefined,
-  });
+  const opportunityQuery = useOpportunities(
+    opportunityExcludeIds,
+    topIdsReady && velocityReady && hotReady,
+  );
+  const opportunityProducts = opportunityQuery.data?.products ?? [];
+  const opportunityLoading = opportunityQuery.isLoading || opportunityQuery.isPending;
+
+  // Fallback singles for the Opportunities slot — kept on useProducts because
+  // they're one-off curated picks, not section feeds.
+  const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
+  const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
+
+  // Total for the "View all N →" link. Not returned by the dashboard endpoints
+  // (they're aggregate reads, not paginated); falls back to length of the Top
+  // slice so the link always renders a sensible number.
+  const total = topProductsRaw.length;
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -539,7 +545,7 @@ export default function AppHome() {
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                 Hot Today
               </h2>
-              <p className="text-xs text-muted mt-0.5">Added in the last 48 hours</p>
+              <p className="text-xs text-muted mt-0.5">Added to Majorka in last 48 hours</p>
             </div>
             <Link
               href="/app/products?tab=trending"
@@ -548,7 +554,7 @@ export default function AppHome() {
               View all →
             </Link>
           </div>
-          {prodLoading ? (
+          {(hotTodayQuery.isLoading || hotTodayQuery.isPending) && trendingNow.length === 0 ? (
             <div className="flex flex-col gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 py-2">
@@ -635,7 +641,7 @@ export default function AppHome() {
           <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
             <div className="mb-4">
               <h3 className="text-sm font-semibold text-text">Top Opportunities</h3>
-              <p className="text-xs text-muted mt-0.5">High score, under 50K orders — hidden gems</p>
+              <p className="text-xs text-muted mt-0.5">High score, lower competition</p>
             </div>
             {opportunityLoading && opportunities.every((o) => o.product === null) ? (
               <div className="py-6 text-center text-xs text-muted">Loading opportunities…</div>
