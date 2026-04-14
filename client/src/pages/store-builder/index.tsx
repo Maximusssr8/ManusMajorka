@@ -7,6 +7,7 @@ import StepIndicator from '@/components/store-builder/StepIndicator';
 import {
   Check, X, Plus, Loader2, ExternalLink, RefreshCw, Eye, Smartphone,
   Monitor, Copy, ShoppingCart, Sparkles, Store as StoreIcon, Globe, ArrowLeft, ArrowRight,
+  Lock,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
@@ -453,9 +454,7 @@ export default function StoreBuilder() {
     }
   }, [authToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!isPaid) {
-    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Store Builder" reason="Build and launch your dropshipping store" />;
-  }
+  // Free-tier users can preview the full wizard; publish is gated below on the Publish step.
 
   // ── Fetch niche products ──────────────────────────────────────
   const fetchNicheProducts = async (selectedNiche: string) => {
@@ -545,12 +544,14 @@ export default function StoreBuilder() {
 
   useEffect(() => {
     if (!subdomain) return;
+    if (!isPaid) return; // Paywall: skip availability check for free-tier
     const t = setTimeout(() => checkSubdomain(subdomain), 500);
     return () => clearTimeout(t);
-  }, [subdomain]);
+  }, [subdomain, isPaid]);
 
   // ── Publish ───────────────────────────────────────────────────
   const publishStore = async () => {
+    if (!isPaid) { setLocation('/pricing'); return; }
     if (!subdomain || subdomain.length < 3) { toast.error('Enter a store URL slug (at least 3 characters)'); return; }
     setPublishing(true);
     try {
@@ -1020,6 +1021,34 @@ export default function StoreBuilder() {
                         <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Go live</h2>
                         <p className="mb-6" style={{ color: TEXT_BODY, fontSize: 14 }}>Pick your URL. Your store will be live on the internet in seconds.</p>
 
+                        {!isPaid && (
+                          <div
+                            className="mb-6 p-5"
+                            style={{
+                              background: `linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))`,
+                              border: '1px solid rgba(99,102,241,0.35)',
+                              borderRadius: 16,
+                            }}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)' }}>
+                                <Lock size={14} color={ACCENT} />
+                              </div>
+                              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700, color: TEXT_PRIMARY }}>Upgrade to publish your store</div>
+                            </div>
+                            <p className="mb-4" style={{ color: TEXT_BODY, fontSize: 13, lineHeight: 1.55 }}>
+                              You can preview every step of the Store Builder for free. Upgrade to <strong style={{ color: TEXT_PRIMARY }}>Builder ($99/mo)</strong> or <strong style={{ color: TEXT_PRIMARY }}>Scale ($199/mo)</strong> to publish your store to a live URL.
+                            </p>
+                            <button
+                              onClick={() => setLocation('/pricing')}
+                              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold sb-glow-cta"
+                              style={{ background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`, color: '#fff', border: 'none' }}
+                            >
+                              See plans <ArrowRight size={14} />
+                            </button>
+                          </div>
+                        )}
+
                         <div className="mb-5">
                           <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Store URL</label>
                           <div className="flex items-stretch">
@@ -1123,6 +1152,19 @@ export default function StoreBuilder() {
                             }}
                           >
                             Continue <ArrowRight size={14} />
+                          </button>
+                        ) : !isPaid ? (
+                          <button
+                            onClick={() => setLocation('/pricing')}
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all sb-glow-cta"
+                            style={{
+                              background: `linear-gradient(135deg, ${ACCENT}, ${VIOLET})`,
+                              color: '#fff',
+                              border: 'none',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <Lock size={14} /> Upgrade to publish
                           </button>
                         ) : (
                           <button
