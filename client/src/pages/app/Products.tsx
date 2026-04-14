@@ -1,2533 +1,579 @@
-import { useMemo, useState, useEffect, useRef } from 'react';
+/**
+ * Products — Wave 3 rebuild.
+ *
+ * The single most important page in Majorka. A dropshipper lives here.
+ * The goal: in under 5s, surface (1) what's exploding in orders right now,
+ * (2) new 48h discoveries, (3) evergreen all-time winners — each tab
+ * backed by genuinely distinct SQL so no two tabs ever show the same row.
+ *
+ * Architecture:
+ *   - 3 tabs (Trending / Hot / High Volume) → 3 server endpoints.
+ *   - Search + filter bar persisted to localStorage 'majorka_product_filters_v3'.
+ *   - Live AliExpress search kicks in once query length ≥ 3.
+ *   - Clicking a card opens a lazy-loaded slide-in drawer (no page reload).
+ *   - Stale-while-revalidate cache in useProductsTab — 60s TTL.
+ *
+ * Design tokens: new gold palette (see designTokens.ts + index.css).
+ */
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Search, Sparkles, RefreshCw, X, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import {
-  Search, List, LayoutGrid, ChevronDown, Heart,
-  ExternalLink, Zap, Flame, ShoppingBag, Store, Calculator, ChevronRight,
-  Clock, TrendingUp, DollarSign, Award, Bookmark, Bell, X, Download,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { toast } from 'sonner';
-import * as Dialog from '@radix-ui/react-dialog';
-import * as Tooltip from '@radix-ui/react-tooltip';
-import * as Popover from '@radix-ui/react-popover';
-import { useProducts, type OrderByColumn, type Product, type UseProductsOptions } from '@/hooks/useProducts';
-import { ProductFilters, type ProductFilterState, loadPersistedFilters } from '@/components/products/ProductFilters';
-import { useFavourites } from '@/hooks/useFavourites';
-import { useTracking } from '@/hooks/useTracking';
-import { useLists } from '@/hooks/useLists';
+  useProductsTab,
+  type Product,
+  type ProductsTab,
+  type ProductsTabFilters,
+} from '@/hooks/useProducts';
+import {
+  ProductFilters,
+  type ProductFilterState,
+  DEFAULT_FILTERS,
+} from '@/components/products/ProductFilters';
+import { ProductCard } from '@/components/products/ProductCard';
+import { TabHeader, type ProductsTabKey } from '@/components/products/TabHeader';
+import { EmptyState } from '@/components/EmptyState';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
-import { shortenCategory, fmtK } from '@/lib/categoryColor';
-import { proxyImage } from '@/lib/imageProxy';
 
-/* ══════════════════════════════════════════════════════════════
-   Types + constants
-   ══════════════════════════════════════════════════════════════ */
+const ProductDetailDrawer = lazy(() => import('@/components/products/ProductDetailDrawer'));
 
-type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10' | 'saved';
+// ── Local storage keys ──────────────────────────────────────────────────────
+const V3_FILTER_KEY = 'majorka_product_filters_v3';
+const V3_ACTIVE_TAB_KEY = 'majorka_products_active_tab_v3';
 
-const SMART_TABS: { key: SmartTabKey; label: string; Icon: LucideIcon; iconClass?: string }[] = [
-  { key: 'all',         label: 'All products',  Icon: LayoutGrid },
-  { key: 'hot-now',     label: 'Hot Now',       Icon: Flame,      iconClass: 'text-orange-400' },
-  { key: 'trending',    label: 'Trending',      Icon: TrendingUp, iconClass: 'text-amber' },
-  { key: 'high-volume', label: 'High Volume',   Icon: ShoppingBag, iconClass: 'text-accent-hover' },
-  { key: 'highmargin',  label: 'High Profit',   Icon: DollarSign, iconClass: 'text-green' },
-  { key: 'under-10',    label: 'Under $10',     Icon: DollarSign, iconClass: 'text-cyan-400' },
-  { key: 'top',         label: 'Score 90+',     Icon: Award,      iconClass: 'text-[#eab308]' },
-  { key: 'new',         label: 'New',           Icon: Clock },
-  { key: 'saved',       label: 'Saved',         Icon: Bookmark },
-];
-
-type SortKey = OrderByColumn | 'velocity';
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: 'sold_count',            label: 'Most orders' },
-  { key: 'velocity',              label: 'Fastest growing' },
-  { key: 'winning_score',         label: 'Highest score' },
-  { key: 'est_daily_revenue_aud', label: 'Highest revenue' },
-  { key: 'price_asc',             label: 'Price: low to high' },
-  { key: 'price_desc',            label: 'Price: high to low' },
-  { key: 'created_at',            label: 'Newest first' },
-  { key: 'orders_asc',            label: 'Orders: low to high' },
-];
-
-/**
- * Velocity = estimated daily order rate over the product's lifetime.
- * Simple proxy: sold_count / days_since_created.
- */
-function dailyVelocity(p: Product): number {
-  const orders = p.sold_count ?? 0;
-  if (!orders) return 0;
-  const days = Math.max(1, Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000));
-  return orders / days;
-}
-
-function velocityBadge(p: Product): { label: string; color: string; icon: string } | null {
-  const rate = Math.round(dailyVelocity(p));
-  if (rate <= 0) return null;
-  const label = rate >= 1000 ? `${Math.round(rate / 1000)}k/day` : `${rate}/day`;
-  if (rate > 500) return { label: `~${label}`, color: 'text-green', icon: '↑' };
-  if (rate > 100) return { label: `~${label}`, color: 'text-amber', icon: '↗' };
-  return { label: `~${label}`, color: 'text-muted', icon: '→' };
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Helpers
-   ══════════════════════════════════════════════════════════════ */
-
-function daysSince(iso: string | null): number {
-  if (!iso) return 9999;
-  const ts = Date.parse(iso);
-  if (!Number.isFinite(ts)) return 9999;
-  return Math.floor((Date.now() - ts) / 86400000);
-}
-
-/**
- * Threshold for the NEW badge + Recently Added tab. 30-day window
- * per the latest audit spec.
- */
-const NEW_DAYS_THRESHOLD = 30;
-
-/**
- * Live AliExpress search toggle. Enabled now that the AE Affiliate API
- * endpoint (/api/products/ae-live-search) is confirmed working with the
- * new Apify STARTER plan token. Searches the full AliExpress catalogue
- * in real time — not limited to what's in our local DB.
- */
-const LIVE_SEARCH_ENABLED = true;
-
-/**
- * Monthly revenue estimator.
- * Prefers est_daily_revenue_aud × 30 when the scoring pipeline has
- * populated it. Otherwise computes from lifetime orders × price:
- *   (sold_count / 365) × price × 30  ≈  monthly revenue proxy
- * This matches the spec formula and gives every row a meaningful
- * value instead of "—".
- */
-function monthlyRevenue(p: Product): number | null {
-  const daily = p.est_daily_revenue_aud;
-  if (daily != null && daily > 0) return daily * 30;
-  const orders = p.sold_count ?? 0;
-  const price = p.price_aud != null ? Number(p.price_aud) : 0;
-  if (orders > 0 && price > 0) {
-    return Math.round((orders / 365) * price * 30);
+// ── Filter persistence (separate from v2 ProductFilters internal key) ──────
+function loadV3Filters(): ProductFilterState {
+  if (typeof window === 'undefined') return { ...DEFAULT_FILTERS };
+  try {
+    const raw = window.localStorage.getItem(V3_FILTER_KEY);
+    if (!raw) return { ...DEFAULT_FILTERS };
+    const parsed = JSON.parse(raw) as Partial<ProductFilterState>;
+    return { ...DEFAULT_FILTERS, ...parsed };
+  } catch {
+    return { ...DEFAULT_FILTERS };
   }
-  return null;
 }
 
-/**
- * Market Revenue estimate — approximates the TOTAL monthly market across
- * all sellers for this product. Majorka's retail price in the DB is
- * typically the landed cost; multiply by 3 to approximate retail, then
- * by monthly order velocity.
- *
- *   (sold_count / 365) × (price_aud × 3) × 30
- *
- * This is the "size of the prize" metric. Always shown with a ~ prefix
- * because it's an approximation.
- */
-function marketRevenue(p: Product): number | null {
-  const orders = p.sold_count ?? 0;
-  const price = p.price_aud != null ? Number(p.price_aud) : 0;
-  if (orders <= 0 || price <= 0) return null;
-  const retailPrice = price * 3;
-  return Math.round((orders / 365) * retailPrice * 30);
-}
-
-/**
- * Returns 2-3 "why this product wins" bullet points based purely on
- * real DB fields — no AI calls, no hallucinated reasons. Each reason
- * maps to a concrete threshold crossing, so operators can trust them.
- */
-/**
- * Launch Readiness Score — synthesises 4 signals into a single 0-100
- * number. The "should I sell this?" answer in one glance.
- *   Demand (orders):    30 pts
- *   AI score:           30 pts
- *   Margin potential:   20 pts (low landed cost = high)
- *   Freshness:          20 pts (newer = early-mover advantage)
- */
-interface LaunchReadiness {
-  score: number;
-  tier: 'launch' | 'strong' | 'test' | 'research';
-  label: string;
-  color: string;
-  bg: string;
-  border: string;
-}
-function launchReadiness(p: Product): LaunchReadiness {
-  const orders = Number(p.sold_count ?? 0);
-  const score = Number(p.winning_score ?? 0);
-  const price = Number(p.price_aud ?? 999);
-  const days = p.created_at ? daysSince(p.created_at) : 9999;
-
-  const demandPts = orders > 200000 ? 30 : orders > 100000 ? 22 : orders > 50000 ? 15 : orders > 10000 ? 8 : 3;
-  const scorePts = Math.round((score / 100) * 30);
-  const marginPts = price < 8 ? 20 : price < 15 ? 16 : price < 25 ? 12 : 6;
-  const freshPts = days < 7 ? 20 : days < 30 ? 15 : days < 90 ? 10 : 5;
-  const total = Math.min(100, demandPts + scorePts + marginPts + freshPts);
-
-  if (total >= 80) return { score: total, tier: 'launch', label: 'Launch now', color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.28)' };
-  if (total >= 60) return { score: total, tier: 'strong', label: 'Strong bet',  color: '#818cf8', bg: 'rgba(99,102,241,0.10)', border: 'rgba(99,102,241,0.25)' };
-  if (total >= 40) return { score: total, tier: 'test',   label: 'Test first',  color: '#f59e0b', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.25)' };
-  return { score: total, tier: 'research', label: 'Research more', color: '#71717a', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.10)' };
-}
-
-function getWinReasons(p: Product): string[] {
-  const reasons: string[] = [];
-  const orders = Number(p.sold_count ?? 0);
-  const price = Number(p.price_aud ?? 0);
-  const score = Number(p.winning_score ?? 0);
-  const days = p.created_at ? daysSince(p.created_at) : 9999;
-
-  if (orders > 100000) {
-    reasons.push(`${fmtK(orders)} total orders — proven mass-market demand`);
-  } else if (orders > 10000) {
-    reasons.push(`${fmtK(orders)} orders — strong mid-market traction`);
+function saveV3Filters(state: ProductFilterState): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(V3_FILTER_KEY, JSON.stringify(state));
+  } catch {
+    /* ignore quota */
   }
-  if (price > 0 && price < 10) {
-    reasons.push(`Under $${Math.ceil(price)} landed cost — excellent margin potential at 3× markup`);
-  } else if (price > 0 && price < 20) {
-    reasons.push(`$${price.toFixed(2)} landed — healthy margin potential at 3× markup`);
-  }
-  if (score >= 90) {
-    reasons.push(`AI score ${Math.round(score)}/100 — top-tier combined signal`);
-  } else if (score >= 75) {
-    reasons.push(`AI score ${Math.round(score)}/100 — strong combined signal`);
-  }
-  if (days < 30 && orders > 5000) {
-    reasons.push(`Added ${days}d ago with ${fmtK(orders)} orders — early-mover edge still available`);
-  }
-  if (orders > 50000 && price > 0 && price < 15) {
-    reasons.push(`High volume + low cost — strong profit per unit at scale`);
-  }
-  return reasons.slice(0, 3);
 }
 
-/**
- * Rough competition-level heuristic from order volume. Low order counts
- * = fewer competing stores (first-mover territory). High counts = more
- * stores selling it. Heuristic only — not based on active seller scans.
- */
-function competitionLevel(orders: number): { label: string; color: string; bg: string; tip: string } {
-  if (orders < 10000) return { label: 'Low',      color: 'text-green',  bg: 'bg-green/10',     tip: 'Few stores — first-mover opportunity' };
-  if (orders < 100000) return { label: 'Moderate', color: 'text-amber',  bg: 'bg-amber/10',     tip: 'Growing market — viable with strong ads' };
-  return { label: 'High', color: 'text-orange-400', bg: 'bg-orange-500/10', tip: 'Mature market — differentiate on creative and pricing' };
+function loadActiveTab(): ProductsTabKey {
+  if (typeof window === 'undefined') return 'trending';
+  try {
+    const v = window.localStorage.getItem(V3_ACTIVE_TAB_KEY);
+    if (v === 'trending' || v === 'hot' || v === 'high-volume') return v;
+  } catch {
+    /* ignore */
+  }
+  return 'trending';
 }
 
-/**
- * Strips common AliExpress SEO garbage from a raw product title so the
- * result reads like a real DTC product name. Removes multi-variant
- * "1/2/3pcs" prefixes, "For iPhone 15/14/13" device lists, collapses
- * whitespace, and caps at 60 chars.
- */
-function cleanProductTitle(raw: string | null | undefined): string {
-  if (!raw) return '';
-  return raw
-    .replace(/\d+(?:\/\d+)+\s*(?:pcs|pc|pack|sets?)?/gi, '')
-    .replace(/for\s+(?:iphone|samsung|xiaomi|huawei|pixel|oneplus)\s+[\d\s\/a-z]*?pro/gi, '')
-    .replace(/for\s+(?:iphone|samsung|xiaomi|huawei|pixel|oneplus)\s+[\d\/\s]+/gi, '')
-    .replace(/[-–—]\s*new\s+2024|-\s*2023/gi, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 60);
+function saveActiveTab(tab: ProductsTabKey): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(V3_ACTIVE_TAB_KEY, tab);
+  } catch {
+    /* ignore */
+  }
 }
 
-/**
- * Exports a product list to CSV and triggers a browser download.
- * Columns: Title, Category, Score, Orders, Price (AUD), Est Rev/mo, Added.
- */
-function exportToCSV(products: Product[]): void {
-  const headers = ['Title', 'Category', 'Score', 'Orders', 'Price (AUD)', 'Est Revenue/mo', 'Added'];
-  const escape = (v: string | number | null | undefined): string => {
-    if (v == null) return '';
-    const s = String(v).replace(/"/g, '""');
-    return /[",\n]/.test(s) ? `"${s}"` : s;
+// ── Client-side filter (runs on the loaded rows of the active tab) ─────────
+function applyClientSearch(rows: ReadonlyArray<Product>, query: string): Product[] {
+  const q = query.trim().toLowerCase();
+  if (q.length === 0) return [...rows];
+  return rows.filter((p) => {
+    const t = (p.product_title ?? '').toLowerCase();
+    const c = (p.category ?? '').toLowerCase();
+    return t.includes(q) || c.includes(q);
+  });
+}
+
+// ── useDebounce ─────────────────────────────────────────────────────────────
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState<T>(value);
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebounced(value), delay);
+    return () => window.clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
+
+// ── Tab filters helper ──────────────────────────────────────────────────────
+function toTabFilters(state: ProductFilterState): ProductsTabFilters {
+  return {
+    market: state.market,
+    category: state.category,
+    minOrders: state.minOrders,
+    minScore: state.minScore,
   };
-  const rows = products.map((p) => [
-    escape(p.product_title ?? ''),
-    escape(p.category ?? ''),
-    Math.round(p.winning_score ?? 0),
-    p.sold_count ?? 0,
-    p.price_aud ?? '',
-    p.est_daily_revenue_aud != null ? Math.round(Number(p.est_daily_revenue_aud) * 30) : '',
-    p.created_at ? new Date(p.created_at).toLocaleDateString() : '',
-  ]);
-  const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `majorka-products-${new Date().toISOString().split('T')[0]}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast.success(`Exported ${products.length} products to CSV`);
 }
 
-function timeAgoShort(iso: string | null): string {
-  if (!iso) return '';
-  const ts = Date.parse(iso);
-  if (!Number.isFinite(ts)) return '';
-  const days = Math.round((Date.now() - ts) / 86400000);
-  if (days < 1) return 'today';
-  if (days === 1) return 'yesterday';
-  if (days < 7) return `${days} days ago`;
-  if (days < 14) return '1 week ago';
-  if (days < 30) return `${Math.round(days / 7)} weeks ago`;
-  if (days < 60) return '1 month ago';
-  return `${Math.round(days / 30)} months ago`;
+// ── Live AE result → Product shape so we can reuse ProductCard ─────────────
+function liveToProduct(r: AELiveProduct): Product {
+  return {
+    id: r.id,
+    product_title: r.product_title,
+    category: r.category ?? null,
+    platform: r.platform ?? 'aliexpress',
+    price_aud: r.price_aud ?? null,
+    sold_count: r.sold_count ?? null,
+    winning_score: r.winning_score ?? null,
+    trend: null,
+    est_daily_revenue_aud: null,
+    image_url: r.image_url ?? null,
+    product_url: r.product_url ?? null,
+    created_at: new Date().toISOString(),
+    updated_at: null,
+    velocity_7d: null,
+    sold_count_7d_ago: null,
+  };
 }
 
-function readInitialParams(): { tab: SmartTabKey; search: string } {
-  if (typeof window === 'undefined') return { tab: 'all', search: '' };
-  const params = new URLSearchParams(window.location.search);
-  const t = params.get('tab');
-  const validTabs: SmartTabKey[] = ['all', 'new', 'trending', 'highmargin', 'top', 'hot-now', 'high-volume', 'under-10', 'saved'];
-  const tab = validTabs.includes(t as SmartTabKey) ? (t as SmartTabKey) : 'all';
-  return { tab, search: params.get('search') ?? '' };
-}
-
-function scoreTierStyle(score: number): { backgroundColor: string; color: string } {
-  if (score >= 90) return { backgroundColor: 'rgba(16,185,129,0.15)', color: '#10b981' };
-  if (score >= 75) return { backgroundColor: 'rgba(245,158,11,0.15)', color: '#f59e0b' };
-  if (score >= 50) return { backgroundColor: 'rgba(249,115,22,0.15)', color: '#f97316' };
-  return               { backgroundColor: 'rgba(239,68,68,0.15)',  color: '#ef4444' };
-}
-
-function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
-  const c = (cat ?? '').toLowerCase();
-  if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
-  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(99,102,241,0.12)', color: '#818cf8' };
-  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10b981' };
-  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { backgroundColor: 'rgba(236,72,153,0.12)', color: '#f472b6' };
-  if (c.includes('hardware') || c.includes('tool'))                           return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#f59e0b' };
-  return { backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' };
-}
-
-/* ══════════════════════════════════════════════════════════════
-   ScoreBadge — 32x32 square, Math.round, 4-tier colour
-   ══════════════════════════════════════════════════════════════ */
-
-function ScoreBadge({ score, size = 32 }: { score: number; size?: number }) {
-  const rounded = Math.round(score);
-  if (!rounded) return <span className="text-xs text-muted">—</span>;
-  return (
-    <span
-      className="inline-flex items-center justify-center rounded font-bold tabular-nums"
-      style={{
-        width: size,
-        height: size,
-        fontSize: size >= 32 ? 13 : 11,
-        ...scoreTierStyle(rounded),
-      }}
-    >
-      {rounded}
-    </span>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   ListPickerButton — heart icon that opens a Radix Popover listing
-   all of the user's saved lists. Clicking a list toggles this
-   product in/out of that list. "+ New list" opens a prompt().
-   ══════════════════════════════════════════════════════════════ */
-
-interface ListPickerButtonProps {
-  product: Product;
-  lists: ReturnType<typeof useLists>;
-  size?: number;
-  className?: string;
-}
-
-function ListPickerButton({ product, lists, size = 15, className = '' }: ListPickerButtonProps) {
-  const inAnyList = lists.isInAnyList(product.id);
-  return (
-    <Popover.Root>
-      <Popover.Trigger asChild>
-        <button
-          onClick={(e) => { e.stopPropagation(); }}
-          aria-label="Save to list"
-          className={`inline-flex items-center justify-center p-1.5 rounded-md transition-colors cursor-pointer ${
-            inAnyList ? 'text-accent' : 'text-muted hover:text-text hover:bg-white/[0.08]'
-          } ${className}`}
-        >
-          <Heart size={size} strokeWidth={1.75} fill={inAnyList ? 'currentColor' : 'none'} />
-        </button>
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          onClick={(e) => e.stopPropagation()}
-          sideOffset={6}
-          align="end"
-          className="z-[120] bg-raised border border-white/10 rounded-xl p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)] min-w-[220px] font-body"
-        >
-          <p className="text-[11px] text-muted uppercase tracking-wider mb-2 px-1">Save to list</p>
-          <div className="flex flex-col gap-0.5 max-h-[240px] overflow-y-auto">
-            {lists.lists.map((list) => {
-              const inList = list.productIds.includes(String(product.id));
-              return (
-                <button
-                  key={list.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (inList) {
-                      lists.removeFromList(list.id, String(product.id));
-                      toast(`Removed from "${list.name}"`);
-                    } else {
-                      lists.addToList(list.id, product);
-                      toast.success(`Saved to "${list.name}"`);
-                    }
-                  }}
-                  className="flex items-center gap-2 w-full px-2 py-1.5 text-sm text-body hover:text-text hover:bg-white/[0.05] rounded-lg transition-colors text-left"
-                >
-                  <span className={`text-[11px] shrink-0 w-3 ${inList ? 'text-accent' : 'text-muted'}`}>
-                    {inList ? '✓' : '○'}
-                  </span>
-                  <span className="truncate flex-1">{list.name}</span>
-                  <span className="text-[10px] text-muted tabular-nums shrink-0">
-                    {list.productIds.length}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="border-t border-white/[0.06] mt-2 pt-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const name = window.prompt('List name:');
-                if (name && name.trim()) {
-                  const created = lists.createList(name.trim());
-                  lists.addToList(created.id, product);
-                  toast.success(`Saved to "${created.name}"`);
-                }
-              }}
-              className="flex items-center gap-1.5 w-full px-2 py-1.5 text-xs text-accent hover:bg-accent/10 rounded-lg transition-colors"
-            >
-              + New list
-            </button>
-          </div>
-          <Popover.Arrow className="fill-raised" />
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   FilterPill with dropdown popover
-   ══════════════════════════════════════════════════════════════ */
-
-interface FilterPillProps {
-  label: string;
-  active: boolean;
-  open: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-  onClear?: () => void;
-  children?: React.ReactNode;
-}
-
-function FilterPill({ label, active, open, onToggle, onClose, onClear, children }: FilterPillProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    function onDoc(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    }
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open, onClose]);
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={onToggle}
-        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border whitespace-nowrap ${
-          active
-            ? 'bg-accent/15 border-accent text-accent-hover'
-            : 'bg-card border-white/10 text-body hover:border-white/20'
-        }`}
-      >
-        {active && <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block" />}
-        <span>{label}</span>
-        {active && onClear ? (
-          <span
-            role="button"
-            aria-label="Clear filter"
-            onClick={(e) => { e.stopPropagation(); onClear(); }}
-            className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/10 text-accent-hover text-xs font-semibold cursor-pointer ml-0.5"
-          >
-            ×
-          </span>
-        ) : (
-          <ChevronDown size={12} className="text-muted" strokeWidth={2} />
-        )}
-      </button>
-      {open && (
-        <div className="absolute top-[calc(100%+6px)] left-0 z-50 bg-raised border border-white/[0.12] rounded-xl p-4 min-w-[220px] shadow-hover">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Product detail sheet — Radix Dialog-as-right-Sheet
-   ══════════════════════════════════════════════════════════════ */
-
-function ProductSheet({
-  product,
-  open,
-  onOpenChange,
-  navigate,
-  onToggleFav,
-  isFav,
-}: {
-  product: Product | null;
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  navigate: (path: string) => void;
-  onToggleFav: (p: Product) => Promise<void> | void;
-  isFav: boolean;
-}) {
-  const { isTracked, track, untrack } = useTracking();
-  const isTrackedNow = product ? isTracked(product.id) : false;
-  const [calcOpen, setCalcOpen] = useState(false);
-  const [sellPrice,  setSellPrice]  = useState<number>(0);
-  const [landedCost, setLandedCost] = useState<number>(0);
-  const [shipping,   setShipping]   = useState<number>(5);
-  const [feePct,     setFeePct]     = useState<number>(5);
-
-  // Reset calc inputs whenever a new product opens
-  useEffect(() => {
-    if (!product) return;
-    const base = product.price_aud != null ? Number(product.price_aud) : 0;
-    setSellPrice(Math.round(base * 3 * 100) / 100);
-    setLandedCost(base);
-    setShipping(5);
-    setFeePct(5);
-  }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!product) return null;
-  const score = Math.round(product.winning_score ?? 0);
-  const orders = product.sold_count ?? 0;
-  const price = product.price_aud != null ? Number(product.price_aud) : null;
-  const estMonthly = monthlyRevenue(product);
-  const marketRev = marketRevenue(product);
-  const aliHref = (product as Product & { aliexpress_url?: string }).aliexpress_url ?? product.product_url ?? null;
-
-  function handleToggleTrack() {
-    if (!product) return;
-    if (isTrackedNow) {
-      untrack(product.id);
-      toast('Stopped tracking');
-      return;
-    }
-    const result = track(product);
-    if (result.ok) {
-      toast.success('Tracking this product');
-    } else if (result.reason === 'already') {
-      toast('Already tracked');
-    } else {
-      toast.error('Tracking limit reached (20). Upgrade to Scale for unlimited.');
-    }
-  }
-
-  const grossProfit = sellPrice - landedCost - shipping;
-  const netAfterFees = grossProfit - (sellPrice * (feePct / 100));
-  const marginPct = sellPrice > 0 ? (netAfterFees / sellPrice) * 100 : 0;
-  const breakEvenRoas = grossProfit > 0 ? sellPrice / grossProfit : null;
-  const maxCpa = grossProfit > 0 ? grossProfit - (sellPrice * (feePct / 100)) : null;
-  const profitColor = grossProfit >= 0 ? 'text-green' : 'text-red-400';
-  const marginTier = marginPct >= 30 ? 'text-green' : marginPct >= 15 ? 'text-amber' : 'text-red-400';
-
-  function handleCreateAd() {
-    if (!product) return;
-    sessionStorage.setItem('majorka_ad_product', JSON.stringify({
-      id: product.id,
-      title: product.product_title,
-      image: product.image_url,
-      price: product.price_aud,
-    }));
-    onOpenChange(false);
-    navigate('/app/ads-studio');
-    toast.success('Product loaded into Ads Studio');
-  }
-
-  function handleImportToStore() {
-    if (!product) return;
-    const landedCost = Number(product.price_aud ?? 0);
-    const suggestedSell = Math.round(landedCost * 3 * 100) / 100;
-    const orders = product.sold_count ?? 0;
-    const ordersBand = orders >= 1000 ? `${Math.round(orders / 1000)}K+` : `${orders}`;
-    const category = product.category || 'product';
-    const description =
-      `Premium ${category.toLowerCase()} trusted by ${ordersBand} customers worldwide. ` +
-      `High-quality materials, fast shipping, and exceptional value — perfect for everyday use.`;
-    sessionStorage.setItem('majorka_import_product', JSON.stringify({
-      id: product.id,
-      title: cleanProductTitle(product.product_title),
-      rawTitle: product.product_title,
-      image: product.image_url,
-      price: suggestedSell,            // retail (3× markup)
-      cost: landedCost,                // landed / AliExpress price
-      description,
-      category: product.category,
-      score: product.winning_score,
-      orders: product.sold_count,
-      aliexpress_url: product.product_url,
-    }));
-    onOpenChange(false);
-    navigate('/app/store-builder');
-    toast.success(`Building store from "${cleanProductTitle(product.product_title).slice(0, 40)}"…`);
-  }
-
-  async function handleToggleSave() {
-    if (!product) return;
-    const wasFav = isFav;
-    await onToggleFav(product);
-    if (wasFav) toast('Removed from saved');
-    else toast.success('Product saved');
-  }
-
-  return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[99] bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
-        <Dialog.Content
-          aria-describedby={undefined}
-          style={{ overscrollBehavior: 'contain' }}
-          className="fixed right-0 top-0 z-[100] h-screen w-full md:w-[420px] bg-surface border-l border-white/[0.08] overflow-y-auto flex flex-col font-body text-text shadow-[-20px_0_60px_rgba(0,0,0,0.5)] data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:duration-300 data-[state=closed]:duration-200"
-        >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3 p-5 pb-0">
-            <Dialog.Title className="font-display text-base font-semibold text-text line-clamp-2 leading-snug flex-1 min-w-0">
-              {product.product_title}
-            </Dialog.Title>
-            <Dialog.Close asChild>
-              <button
-                aria-label="Close"
-                className="w-11 h-11 flex items-center justify-center text-muted hover:text-text hover:bg-white/[0.08] transition-colors cursor-pointer rounded-xl shrink-0"
-              >
-                <X size={18} strokeWidth={2} />
-              </button>
-            </Dialog.Close>
-          </div>
-
-          {/* Image */}
-          <div className="m-4">
-            <div className="w-full h-[220px] rounded-md overflow-hidden bg-card border border-white/[0.08]">
-              {product.image_url && (
-                <img
-                  src={proxyImage(product.image_url) ?? product.image_url}
-                  alt={product.product_title}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Stats grid */}
-          {(() => {
-            // EST REV display: exact value (green) if DB has est_daily_revenue_aud,
-            // otherwise a computed estimate (amber, marked ~ and "est") so the user
-            // knows it's derived from sold_count × price, not a real value.
-            const hasRealRev = product.est_daily_revenue_aud != null && product.est_daily_revenue_aud > 0;
-            const estRevLabel = hasRealRev ? 'Est Rev' : 'Est Rev (est.)';
-            const estRevValue = estMonthly != null
-              ? (hasRealRev
-                  ? `$${Math.round(estMonthly).toLocaleString()}`
-                  : `~$${Math.round(estMonthly).toLocaleString()}`)
-              : '—';
-            const estRevClass = estMonthly == null
-              ? 'text-muted'
-              : hasRealRev ? 'text-green' : 'text-amber';
-            return (
-          <div className="px-4 grid grid-cols-2 gap-2.5">
-            {[
-              { label: 'Sell Price', value: price != null ? `$${price.toFixed(2)}` : '—', className: 'text-text' },
-              { label: 'Orders/Mo',  value: orders ? orders.toLocaleString() : '—', className: orders ? 'text-green' : 'text-muted' },
-              { label: 'AI Score',   value: score ? `${score}/100` : '—', className: 'text-accent-hover' },
-              { label: estRevLabel,  value: estRevValue, className: estRevClass },
-            ].map((cell) => (
-              <div key={cell.label} className="bg-card border border-white/[0.06] rounded-md p-3.5">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-1.5">
-                  {cell.label}
-                </div>
-                <div className={`text-base font-bold tabular-nums ${cell.className}`}>
-                  {cell.value}
-                </div>
-              </div>
-            ))}
-          </div>
-            );
-          })()}
-
-          {/* Market Revenue — total market size estimate */}
-          {marketRev != null && (
-            <div className="mx-4 mt-3 p-4 bg-cyan-500/[0.05] border border-cyan-500/20 rounded-xl">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-1">
-                    Market Revenue / mo
-                  </div>
-                  <div className="text-2xl font-display font-bold text-cyan-300 tabular-nums">
-                    ~${marketRev.toLocaleString()}
-                  </div>
-                </div>
-                <span
-                  className="text-[10px] text-cyan-400/70 max-w-[140px] text-right leading-snug"
-                  title="Estimated total market revenue across all sellers for this product. Computed as (orders / 365) × (landed price × 3) × 30."
-                >
-                  Total across all sellers (~3x markup assumed)
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Track button */}
-          <button
-            onClick={handleToggleTrack}
-            className={`mx-4 mt-3 mb-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-colors border ${
-              isTrackedNow
-                ? 'bg-amber/15 border-amber/40 text-amber hover:bg-amber/20'
-                : 'bg-amber/10 border-amber/20 text-amber hover:bg-amber/15'
-            }`}
-          >
-            <Bell size={14} strokeWidth={2} fill={isTrackedNow ? 'currentColor' : 'none'} />
-            {isTrackedNow ? 'Tracking — click to stop' : 'Track this product'}
-          </button>
-
-          {/* 30-day trend placeholder */}
-          <ProductHistoryChart productId={product.id} />
-
-          {/* Similar products in the same category — visual only */}
-          {product.category && (
-            <SimilarProducts
-              category={product.category}
-              excludeId={String(product.id)}
-            />
-          )}
-
-          <div className="p-4">
-            {product.category && (
-              <div className="text-xs text-body mb-2">
-                <span className="text-muted">Category: </span>
-                {product.category}
-              </div>
-            )}
-            {product.created_at && (
-              <div className="text-xs text-body mb-2">
-                <span className="text-muted">Added: </span>
-                {timeAgoShort(product.created_at)}
-              </div>
-            )}
-            {(() => {
-              const v = velocityBadge(product);
-              if (!v) return null;
-              return (
-                <div className={`text-xs ${v.color} font-medium`}>
-                  <span className="text-muted">Daily velocity: </span>
-                  <span>{v.icon} {v.label.replace('~', '')} orders/day</span>
-                </div>
-              );
-            })()}
-          </div>
-
-          {/* Launch Readiness Score — single number that answers "should I sell this?" */}
-          {(() => {
-            const lr = launchReadiness(product);
-            return (
-              <div
-                className="mx-4 mb-4 rounded-2xl p-4"
-                style={{ background: lr.bg, border: `1px solid ${lr.border}` }}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: lr.color }}>
-                    Launch Readiness
-                  </span>
-                  <span className="text-[10px] text-white/30">What Majorka recommends</span>
-                </div>
-                <div className="flex items-end gap-3">
-                  <div className="text-4xl font-display font-black tabular-nums" style={{ color: lr.color }}>
-                    {lr.score}
-                  </div>
-                  <div className="pb-1">
-                    <div className="text-sm font-bold" style={{ color: lr.color }}>{lr.label}</div>
-                    <div className="text-[10px] text-white/30">out of 100 · demand · margin · trend</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* First Sale Blueprint — collapsible 7-day plan from Claude */}
-          <FirstSaleBlueprint productId={String(product.id)} />
-
-          {/* Why This Product Wins — computed reasons from real data */}
-          {(() => {
-            const reasons = getWinReasons(product);
-            if (reasons.length === 0) return null;
-            return (
-              <div className="mx-4 mb-4 bg-green/[0.05] border border-green/20 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap size={13} className="text-green" strokeWidth={2.5} />
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-green">Why this wins</span>
-                </div>
-                <ul className="space-y-2">
-                  {reasons.map((r, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-body leading-relaxed">
-                      <span className="text-green mt-0.5 shrink-0">✓</span>
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })()}
-
-          {/* Competition Level indicator */}
-          {(() => {
-            const comp = competitionLevel(product.sold_count ?? 0);
-            return (
-              <div className="mx-4 mb-4 flex items-center justify-between gap-3 bg-card border border-white/[0.06] rounded-xl p-3.5">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">Competition</span>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${comp.color} ${comp.bg}`}>
-                    {comp.label}
-                  </span>
-                </div>
-                <span className="text-[10px] text-muted leading-snug text-right flex-1 min-w-0">
-                  {comp.tip}
-                </span>
-              </div>
-            );
-          })()}
-
-          {aliHref && (
-            <a
-              href={aliHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mx-4 mb-3 bg-white/[0.06] border border-white/[0.07] rounded-lg py-3 text-sm text-text font-medium flex items-center justify-center gap-2 no-underline hover:bg-white/10 transition-colors"
-            >
-              View on AliExpress
-              <ExternalLink size={14} strokeWidth={1.75} />
-            </a>
-          )}
-
-          {/* Build Store for this product — one-click flow */}
-          <button
-            onClick={handleImportToStore}
-            className="mx-4 mb-4 bg-accent hover:bg-accent-hover text-white rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(99,102,241,0.4),0_8px_24px_rgba(99,102,241,0.2)]"
-          >
-            <Store size={16} strokeWidth={2} />
-            Build Store for This Product →
-          </button>
-
-          {/* Profit calculator — collapsible */}
-          <div className="mx-4 mb-4 bg-raised rounded-xl overflow-hidden border border-white/[0.07]">
-            <button
-              onClick={() => setCalcOpen((o) => !o)}
-              className="w-full flex items-center justify-between p-4 text-left cursor-pointer hover:bg-white/[0.03] transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Calculator size={14} strokeWidth={1.75} className="text-accent-hover" />
-                <span className="text-sm font-semibold text-text">Calculate profit</span>
-              </div>
-              <ChevronRight
-                size={14}
-                strokeWidth={2}
-                className={`text-muted transition-transform ${calcOpen ? 'rotate-90' : ''}`}
-              />
-            </button>
-            {calcOpen && (
-              <div className="px-4 pb-4 pt-1 space-y-3">
-                {[
-                  { label: 'Sell price',     value: sellPrice,  set: setSellPrice,  prefix: '$' },
-                  { label: 'Landed cost',    value: landedCost, set: setLandedCost, prefix: '$' },
-                  { label: 'Shipping',       value: shipping,   set: setShipping,   prefix: '$' },
-                  { label: 'Platform fee %', value: feePct,     set: setFeePct,     prefix: '' },
-                ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between gap-3">
-                    <label className="text-xs text-muted flex-1">{row.label}</label>
-                    <div className="flex items-center gap-1 w-[110px]">
-                      {row.prefix && <span className="text-xs text-muted">{row.prefix}</span>}
-                      <input
-                        type="number"
-                        value={row.value}
-                        onChange={(e) => row.set(Number(e.target.value) || 0)}
-                        className="flex-1 bg-bg border border-white/[0.08] rounded-md px-2.5 py-1.5 text-sm text-text tabular-nums outline-none focus:border-accent"
-                      />
-                    </div>
-                  </div>
-                ))}
-                <div className="mt-4 bg-raised rounded-xl p-4 space-y-2.5 border border-white/[0.06]">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted">Net profit per unit</span>
-                    <span className={`font-bold tabular-nums ${profitColor}`}>
-                      ${netAfterFees.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted">Margin</span>
-                    <span className={`font-bold tabular-nums ${marginTier}`}>
-                      {marginPct.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted">Break-even ROAS</span>
-                    <span className="font-bold tabular-nums text-accent-hover">
-                      {breakEvenRoas != null ? `${breakEvenRoas.toFixed(2)}x` : '—'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted">Max CPA</span>
-                    <span className="font-bold tabular-nums text-accent-hover">
-                      {maxCpa != null ? `$${maxCpa.toFixed(2)}` : '—'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1" />
-
-          {/* Sticky bottom — Create Ad + Save wired */}
-          <div className="sticky bottom-0 bg-surface border-t border-white/[0.07] p-4 flex gap-2.5">
-            <button
-              onClick={handleCreateAd}
-              className="flex-1 bg-accent hover:bg-accent-hover text-white rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
-            >
-              <Zap size={14} strokeWidth={2} />
-              Create Ad
-            </button>
-            <button
-              onClick={handleToggleSave}
-              className={`flex-1 bg-white/[0.06] hover:bg-white/10 border border-white/[0.07] rounded-md py-3 text-sm font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${isFav ? 'text-accent' : 'text-text'}`}
-            >
-              <Heart size={14} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
-              {isFav ? 'Saved' : 'Save'}
-            </button>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
-}
-
-/* Small Tooltip wrapper that uses Majorka's dark styling. */
-function TT({ content, children, side = 'top' }: { content: React.ReactNode; children: React.ReactNode; side?: 'top' | 'right' | 'bottom' | 'left' }) {
-  return (
-    <Tooltip.Root>
-      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Content
-          side={side}
-          sideOffset={6}
-          className="z-[200] max-w-xs bg-raised border border-white/[0.12] text-text text-xs font-body rounded-md px-3 py-2 shadow-hover data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0"
-        >
-          {content}
-          <Tooltip.Arrow className="fill-raised" />
-        </Tooltip.Content>
-      </Tooltip.Portal>
-    </Tooltip.Root>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Main component
-   ══════════════════════════════════════════════════════════════ */
-
-export default function AppProducts() {
-  useEffect(() => { document.title = 'Products — Majorka'; }, []);
-  const initial = readInitialParams();
+// ═══════════════════════════════════════════════════════════════════════════
+// Main page
+// ═══════════════════════════════════════════════════════════════════════════
+export default function Products() {
   const [, navigate] = useLocation();
-  const [orderBy, setOrderBy] = useState<SortKey>('sold_count');
-  const [view, setView] = useState<'table' | 'grid'>('table');
-  const [perPage, setPerPage] = useState<number>(25);
-  const [page, setPage] = useState<number>(1);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [activeTab, setActiveTab] = useState<SmartTabKey>(initial.tab);
-  const [searchMode, setSearchMode] = useState<'db' | 'live'>(initial.search ? 'live' : 'db');
-  const [liveQuery, setLiveQuery] = useState(initial.search);
-  const [searchInput, setSearchInput] = useState(initial.search);
 
-  const [priceMin, setPriceMin] = useState<number | null>(null);
-  const [priceMax, setPriceMax] = useState<number | null>(null);
-  const [minOrders, setMinOrders] = useState<number | null>(null);
-  const [maxOrders, setMaxOrders] = useState<number | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>('');
-  const [scoreMin, setScoreMin] = useState<number>(0);
-  const [scoreMax, setScoreMax] = useState<number>(100);
-
-  const [openPill, setOpenPill] = useState<string | null>(null);
-  const closePill = () => setOpenPill(null);
-
-  // ── Flagship 100K+ products + v2 filter bar ─────────────────────────────
-  // Uses the new /api/products/list endpoint which returns flagship and
-  // list buckets. The v2 filter state is persisted to localStorage under
-  // `majorka_product_filters_v2` by the ProductFilters component itself.
-  const [v2Filters, setV2Filters] = useState<ProductFilterState>(() => loadPersistedFilters());
-  const [flagship, setFlagship] = useState<Product[]>([]);
   useEffect(() => {
-    let cancelled = false;
-    const params = new URLSearchParams();
-    params.set('market', v2Filters.market);
-    if (v2Filters.category) params.set('category', v2Filters.category);
-    if (v2Filters.minScore > 0) params.set('minScore', String(v2Filters.minScore));
-    if (v2Filters.minOrders > 0) params.set('minOrders', String(v2Filters.minOrders));
-    params.set('sort', v2Filters.sort);
-    params.set('limit', '50');
-    fetch(`/api/products/list?${params.toString()}`, { credentials: 'include' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((data: { flagship?: Product[] }) => {
-        if (!cancelled && Array.isArray(data.flagship)) setFlagship(data.flagship);
-      })
-      .catch(() => { if (!cancelled) setFlagship([]); });
-    return () => { cancelled = true; };
-  }, [v2Filters]);
-
-  const aeSearch = useAESearch();
-  const fav = useFavourites();
-  const lists = useLists();
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
-
-  /* Pre-fetched exact tab counts from /api/products/tab-counts so
-     badges show real totals, not per-page slices. */
-  const [serverTabCounts, setServerTabCounts] = useState<{
-    all: number; recentlyAdded: number; trending: number; highMargin: number; score90: number;
-    hotNow?: number; highVolume?: number; under10?: number;
-  } | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/products/tab-counts', { credentials: 'include' })
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then((data) => { if (!cancelled) setServerTabCounts(data); })
-      .catch(() => { /* fall back to client-computed counts */ });
-    return () => { cancelled = true; };
+    document.title = 'Products — Majorka';
   }, []);
 
+  // Active tab
+  const [activeTab, setActiveTab] = useState<ProductsTabKey>(() => loadActiveTab());
+  useEffect(() => { saveActiveTab(activeTab); }, [activeTab]);
+
+  // Filter state (persisted under majorka_product_filters_v3)
+  const [filters, setFilters] = useState<ProductFilterState>(() => loadV3Filters());
+  useEffect(() => { saveV3Filters(filters); }, [filters]);
+
+  // Search input + debounce
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 300);
+  const liveQuery = debouncedSearch.trim().length >= 3 ? debouncedSearch.trim() : '';
+
+  // Tab filter object stable per filter state
+  const tabFilters = useMemo<ProductsTabFilters>(() => toTabFilters(filters), [filters]);
+
+  // Each tab fetches independently — stale-while-revalidate cache keeps
+  // things snappy when the user toggles between them.
+  const trending = useProductsTab('trending', tabFilters);
+  const hot = useProductsTab('hot', tabFilters);
+  const highVolume = useProductsTab('high-volume', tabFilters);
+
+  const active = activeTab === 'trending' ? trending : activeTab === 'hot' ? hot : highVolume;
+
+  // Live AE search — runs only when query length ≥ 3
+  const aeLive = useAESearch();
   useEffect(() => {
-    if (initial.search && initial.search.trim().length >= 2) {
-      aeSearch.search({ q: initial.search.trim(), reset: true });
+    if (liveQuery.length >= 3) {
+      aeLive.search({ q: liveQuery, reset: true });
+    } else {
+      aeLive.reset();
     }
+    // Intentionally omit aeLive fn refs — they are stable across renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveQuery]);
+
+  const counts = useMemo<Record<ProductsTabKey, number>>(
+    () => ({
+      trending: trending.products.length,
+      hot: hot.products.length,
+      'high-volume': highVolume.products.length,
+    }),
+    [trending.products.length, hot.products.length, highVolume.products.length],
+  );
+  const loadingMap = useMemo<Partial<Record<ProductsTabKey, boolean>>>(
+    () => ({ trending: trending.loading, hot: hot.loading, 'high-volume': highVolume.loading }),
+    [trending.loading, hot.loading, highVolume.loading],
+  );
+
+  // Filtered rows displayed in the grid — combines DB tab + live AE rows
+  // when a search is active. Live rows are appended below the DB matches.
+  const displayRows = useMemo<Product[]>(() => {
+    const base = applyClientSearch(active.products, searchInput);
+    if (liveQuery.length > 0 && Array.isArray(aeLive.products) && aeLive.products.length > 0) {
+      const seen = new Set(base.map((p) => String(p.id)));
+      const live = aeLive.products
+        .filter((r: AELiveProduct) => !seen.has(String(r.id)))
+        .map(liveToProduct);
+      return [...base, ...live];
+    }
+    return base;
+  }, [active.products, searchInput, liveQuery, aeLive.products]);
+
+  // Selected product for drawer
+  const [selected, setSelected] = useState<Product | null>(null);
+  const handleOpen = useCallback((p: Product) => setSelected(p), []);
+  const handleClose = useCallback(() => setSelected(null), []);
+
+  const handleResetFilters = useCallback(() => {
+    setFilters({ ...DEFAULT_FILTERS });
+    setSearchInput('');
   }, []);
 
-  /* Cmd+K / Ctrl+K focuses the search input */
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      // Don't trigger shortcuts when user is typing in an input/textarea
-      const t = e.target as HTMLElement | null;
-      const inField = t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || (t && t.isContentEditable);
-
-      // ⌘K / Ctrl+K or / → focus search
-      if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || (!inField && e.key === '/')) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        return;
+  // ── Empty-state copy per tab ──────────────────────────────────────────────
+  const emptyCopy = useMemo(() => {
+    if (activeTab === 'trending') {
+      if (active.insufficientData) {
+        return {
+          title: 'More data collecting',
+          description:
+            'Trending needs 7-day velocity snapshots. Once enough products have baseline + current counts, this view will light up with real-time breakouts.',
+        };
       }
-      if (inField) return;
-
-      // Esc → close detail panel
-      if (e.key === 'Escape') {
-        setSelectedProduct(null);
-        return;
-      }
-      // G / L → switch view mode
-      if (e.key === 'g' || e.key === 'G') setView('grid');
-      else if (e.key === 'l' || e.key === 'L') setView('table');
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
-  /* Filter persistence — restore on mount */
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('majorka_filters_v1');
-      if (!stored) return;
-      const f = JSON.parse(stored) as Partial<{
-        priceMin: number | null;
-        priceMax: number | null;
-        minOrders: number | null;
-        categoryFilter: string;
-        scoreMin: number;
-        scoreMax: number;
-        orderBy: SortKey;
-      }>;
-      if (f.priceMin != null) setPriceMin(f.priceMin);
-      if (f.priceMax != null) setPriceMax(f.priceMax);
-      if (f.minOrders != null) setMinOrders(f.minOrders);
-      if (typeof f.categoryFilter === 'string') setCategoryFilter(f.categoryFilter);
-      if (typeof f.scoreMin === 'number') setScoreMin(f.scoreMin);
-      if (typeof f.scoreMax === 'number') setScoreMax(f.scoreMax);
-      if (typeof f.orderBy === 'string') setOrderBy(f.orderBy as SortKey);
-    } catch { /* ignore */ }
-  }, []);
-
-  /* Filter persistence — save on change */
-  useEffect(() => {
-    try {
-      const filters = { priceMin, priceMax, minOrders, categoryFilter, scoreMin, scoreMax, orderBy };
-      localStorage.setItem('majorka_filters_v1', JSON.stringify(filters));
-    } catch { /* ignore */ }
-  }, [priceMin, priceMax, minOrders, categoryFilter, scoreMin, scoreMax, orderBy]);
-
-  const fetchLimit = perPage * page;
-  // When sorting by velocity we still fetch by sold_count and re-sort
-  // client-side using dailyVelocity().
-  const serverOrderBy: OrderByColumn = orderBy === 'velocity' ? 'sold_count' : orderBy;
-
-  // Tab independence rule:
-  //   - 'all' tab → user filter bar drives the query (legacy behaviour)
-  //   - any other tab → that tab's hardcoded server-side criteria runs
-  //     standalone, user filter state is intentionally ignored. The
-  //     filter bar is hidden in this mode (see render below).
-  // Saved tab is special — it's purely localStorage-driven and skips
-  // the server query entirely, so we route it as 'all' here and the
-  // filtered useMemo below substitutes the saved-products list.
-  const isFilterableTab = activeTab === 'all' || activeTab === 'saved';
-
-  const useProductsParams = isFilterableTab
-    ? {
-        limit: Math.min(fetchLimit, 200),
-        orderBy: serverOrderBy,
-        tab: ('all' as SmartTabKey),
-        category: categoryFilter || undefined,
-        minPrice: priceMin ?? undefined,
-        maxPrice: priceMax ?? undefined,
-        minOrders: minOrders ?? undefined,
-        maxOrders: maxOrders ?? undefined,
-        minScore: scoreMin > 0 ? scoreMin : undefined,
-        searchQuery: searchMode === 'db' && searchInput.trim().length >= 2
-          ? searchInput.trim()
-          : undefined,
-      }
-    : {
-        // Curated tab — only the tab key + a fetch limit. The hook's
-        // built-in tab branch applies the criteria server-side. NO
-        // category, NO price range, NO orders gate, NO user search —
-        // those are deliberately stripped so curated tabs are stable.
-        limit: Math.min(fetchLimit, 200),
-        orderBy: serverOrderBy,
-        tab: activeTab,
-      };
-
-  const { products: allFetchedRaw, loading, total } = useProducts(useProductsParams as UseProductsOptions);
-
-  // Client-side velocity re-sort when 'velocity' is selected
-  const allFetched = useMemo<Product[]>(() => {
-    if (orderBy !== 'velocity') return allFetchedRaw;
-    return [...allFetchedRaw].sort((a, b) => dailyVelocity(b) - dailyVelocity(a));
-  }, [allFetchedRaw, orderBy]);
-
-  // Auto-open the product detail panel when navigated here with
-  // ?product=ID in the URL (e.g. from Today's Top 5 cards on Home).
-  // Strips the param after opening so the user can close + reopen
-  // freely without re-triggering on subsequent renders.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const wantId = params.get('product');
-    if (!wantId || allFetched.length === 0) return;
-    const found = allFetched.find((p) => String(p.id) === wantId);
-    if (found) {
-      setSelectedProduct(found);
-      const next = window.location.pathname + (params.toString().replace(`product=${wantId}`, '').replace(/^&/, '?').replace(/^\?$/, '') || '');
-      window.history.replaceState({}, '', next);
-    }
-  }, [allFetched]);
-
-  const filtered = useMemo<Product[]>(() => {
-    if (activeTab === 'saved') {
-      // Pull from useLists — either the selected list's products, or
-      // the union across all lists if none is selected.
-      const source = selectedListId
-        ? (lists.lists.find((l) => l.id === selectedListId)?.products ?? [])
-        : lists.allSavedProducts;
-      return source.map((f) => ({
-        id: f.id,
-        product_title: f.product_title ?? '',
-        category: f.category,
-        platform: 'aliexpress',
-        price_aud: f.price_aud,
-        sold_count: f.sold_count,
-        winning_score: f.winning_score,
-        trend: null,
-        est_daily_revenue_aud: null,
-        image_url: f.image_url,
-        product_url: f.product_url,
-        created_at: f.saved_at,
-        updated_at: null,
-      } satisfies Product));
-    }
-    if (scoreMax < 100) {
-      return allFetched.filter((p) => (p.winning_score ?? 0) <= scoreMax);
-    }
-    return allFetched;
-  }, [activeTab, scoreMax, allFetched, lists.lists, lists.allSavedProducts, selectedListId]);
-
-  const filteredTotal = activeTab === 'saved'
-    ? (selectedListId
-        ? (lists.lists.find((l) => l.id === selectedListId)?.productIds.length ?? 0)
-        : lists.totalSaved)
-    : total;
-  const offset = (page - 1) * perPage;
-  const pageSlice = filtered.slice(offset, offset + perPage);
-  const totalPages = Math.max(1, Math.ceil(filteredTotal / perPage));
-
-  const tabCounts = useMemo((): Record<SmartTabKey, number> => {
-    if (serverTabCounts) {
       return {
-        'all':         serverTabCounts.all,
-        'new':         serverTabCounts.recentlyAdded,
-        'trending':    serverTabCounts.trending,
-        'highmargin':  serverTabCounts.highMargin,
-        'top':         serverTabCounts.score90,
-        'hot-now':     serverTabCounts.hotNow ?? 0,
-        'high-volume': serverTabCounts.highVolume ?? 0,
-        'under-10':    serverTabCounts.under10 ?? 0,
-        'saved':       lists.totalSaved,
+        title: 'No trending products match',
+        description: 'Try widening your filters — lower the score or orders threshold, or switch market.',
+      };
+    }
+    if (activeTab === 'hot') {
+      return {
+        title: 'Nothing new in the last 48 hours',
+        description: 'Check back soon — the pipeline discovers fresh winners every few hours.',
       };
     }
     return {
-      'all':         total,
-      'new':         allFetched.filter((p) => daysSince(p.created_at) <= 7).length,
-      'trending':    allFetched.filter((p) => (p.sold_count ?? 0) > 50000 && (p.winning_score ?? 0) >= 80).length,
-      'highmargin':  allFetched.filter((p) => {
-        const price = Number(p.price_aud ?? 999);
-        return price < 15 && (p.winning_score ?? 0) >= 75 && (p.sold_count ?? 0) > 500;
-      }).length,
-      'top':         allFetched.filter((p) => (p.winning_score ?? 0) >= 90).length,
-      'hot-now':     allFetched.filter((p) => (p.winning_score ?? 0) >= 90 && (p.sold_count ?? 0) > 100000 && daysSince(p.created_at) <= 30).length,
-      'high-volume': allFetched.filter((p) => (p.sold_count ?? 0) > 100000).length,
-      'under-10':    allFetched.filter((p) => Number(p.price_aud ?? 999) <= 10 && (p.winning_score ?? 0) >= 70 && (p.sold_count ?? 0) > 5000).length,
-      'saved':       lists.totalSaved,
+      title: 'No high-volume matches',
+      description: 'Your filters are too tight for our evergreen catalogue. Reset and try again.',
     };
-  }, [total, allFetched, lists.totalSaved, serverTabCounts]);
-
-  // Fetch the complete category list from the server on mount. Falls back
-  // to whatever categories are present in the currently-loaded page if the
-  // endpoint fails.
-  const [serverCategories, setServerCategories] = useState<string[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/products/categories')
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled && Array.isArray(d?.categories)) {
-          setServerCategories(d.categories);
-        }
-      })
-      .catch(() => { /* ignore — fallback below */ });
-    return () => { cancelled = true; };
-  }, []);
-
-  const availableCategories = useMemo(() => {
-    if (serverCategories.length > 0) return serverCategories;
-    const set = new Set<string>();
-    allFetched.forEach((p) => {
-      if (p.category && p.category.trim().length > 0) set.add(p.category.trim());
-    });
-    return Array.from(set).sort();
-  }, [serverCategories, allFetched]);
-
-  const anyFilterActive =
-    priceMin !== null || priceMax !== null || minOrders !== null || maxOrders !== null ||
-    categoryFilter !== '' || scoreMin > 0 || scoreMax < 100;
-
-  function clearFilters(): void {
-    setPriceMin(null);
-    setPriceMax(null);
-    setMinOrders(null);
-    setMaxOrders(null);
-    setCategoryFilter('');
-    setScoreMin(0);
-    setScoreMax(100);
-  }
-
-  function runSearch(): void {
-    const v = searchInput.trim();
-    if (v.length >= 2) {
-      setLiveQuery(v);
-      setSearchMode('live');
-      const toastId = toast.loading(`Searching AliExpress for "${v}"…`);
-      aeSearch.search({ q: v, reset: true });
-      // Dismiss the loading toast once the hook flips loading off or surfaces data.
-      setTimeout(() => toast.dismiss(toastId), 2500);
-    }
-  }
-
-  function backToDb(): void {
-    setSearchMode('db');
-    aeSearch.reset();
-    setLiveQuery('');
-    setSearchInput('');
-  }
-
-  const activeSortLabel = SORT_OPTIONS.find((o) => o.key === orderBy)?.label ?? 'Sort';
-
-  const numberInputClass = 'bg-bg border border-white/[0.07] rounded-md px-2.5 py-2 text-text w-[90px] outline-none text-sm tabular-nums box-border';
+  }, [activeTab, active.insufficientData]);
 
   return (
-    <div className="min-h-screen bg-bg font-body text-text">
-      {/* Breadcrumb */}
-      <div className="px-4 md:px-8 pt-6 pb-2 text-xs text-muted">
-        Home <span className="mx-1.5 text-white/20">/</span> Products
-      </div>
-
-      {/* Search bar */}
-      <div className="px-4 md:px-8 pb-4 flex items-center gap-3">
-        <div className="flex-1 relative flex items-center bg-card border border-white/10 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 rounded-xl h-[52px] px-4 gap-3 transition-all shadow-lg">
-          <Search size={16} strokeWidth={2} className="text-accent/60 shrink-0" />
-          <input
-            ref={searchInputRef}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                // Enter in DB mode searches the database (already wired via
-                // searchQuery prop to useProducts). Only live mode triggers a
-                // fresh Apify search on Enter.
-                if (searchMode === 'live') runSearch();
-              }
-            }}
-            placeholder={`Search ${total != null && total > 0 ? total.toLocaleString() : '…'} products`}
-            className="flex-1 search-input bg-transparent text-sm md:text-base text-text placeholder-muted outline-none min-w-0"
-          />
-          <kbd className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono text-muted border border-white/10 rounded shrink-0">
-            ⌘K
-          </kbd>
-        </div>
-        {LIVE_SEARCH_ENABLED && (
-          <div className="flex items-center gap-1 bg-card border border-white/10 rounded-lg p-1">
-            {(['db', 'live'] as const).map((mode) => {
-              const active = searchMode === mode;
-              return (
-                <button
-                  key={mode}
-                  onClick={() => { if (mode === 'db') backToDb(); else runSearch(); }}
-                  className={`text-sm font-medium rounded-md px-3 py-1.5 transition-colors whitespace-nowrap ${
-                    active
-                      ? 'bg-accent/15 text-accent-hover border border-accent/30'
-                      : 'text-muted border border-transparent hover:text-text'
-                  }`}
-                >
-                  {mode === 'db' ? 'Database' : 'Live AliExpress'}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {searchMode === 'live' && (
-        <div className="px-4 md:px-8 pb-3 text-sm text-muted">
-          Showing {aeSearch.total.toLocaleString()} live results for <span className="text-text">"{liveQuery}"</span>
-        </div>
-      )}
-
-      {/* Curated-tab notice — replaces the filter bar when on a curated tab */}
-      {searchMode === 'db' && !isFilterableTab && (
+    <div style={{ minHeight: '100vh', background: '#080808', color: '#e5e5e5' }}>
+      {/* Header */}
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 20,
+          padding: '16px 20px',
+          background: 'rgba(8,8,8,0.85)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #1a1a1a',
+        }}
+      >
         <div
-          className="mx-4 md:mx-8 mb-4 px-4 py-3 flex items-center gap-3 flex-wrap rounded-xl"
-          style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)' }}
+          style={{
+            maxWidth: 1400,
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 16,
+            flexWrap: 'wrap',
+          }}
         >
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-accent-hover">
-            Curated view
-          </span>
-          <span className="text-xs text-body">
-            Showing {SMART_TABS.find((t) => t.key === activeTab)?.label ?? activeTab} — filters don&apos;t apply in this view.
-          </span>
-          <button
-            onClick={() => setActiveTab('all')}
-            className="ml-auto text-xs text-accent hover:text-accent-hover transition-colors font-medium"
-          >
-            ← Back to All Products with filters
-          </button>
-        </div>
-      )}
-
-      {/* v2 Filter bar — market/category/score/min-orders/sort with 300ms
-          debounce + majorka_product_filters_v2 localStorage persistence.
-          Rendered only on filterable tabs so curated tabs stay pristine. */}
-      {searchMode === 'db' && isFilterableTab && (
-        <ProductFilters
-          onChange={setV2Filters}
-          categories={availableCategories}
-        />
-      )}
-
-      {/* Flagship strip — products with 100K+ orders ALWAYS appear here
-          regardless of the user's sort. Gold-bordered per spec. Hidden
-          when empty so it never takes space on a cold DB. */}
-      {searchMode === 'db' && isFilterableTab && flagship.length > 0 && (
-        <div className="mx-4 md:mx-8 my-3 p-3 rounded-2xl border"
-             style={{ borderColor: 'rgba(234,179,8,0.35)', background: 'linear-gradient(90deg, rgba(234,179,8,0.06), rgba(234,179,8,0.02))' }}>
-          <div className="flex items-center gap-2 mb-2 px-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#eab308' }}>
-              Flagship winners — 100K+ orders
-            </span>
-            <span className="text-[11px] text-white/40 tabular-nums">
-              {flagship.length} products
-            </span>
-          </div>
-          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-            {flagship.slice(0, 20).map((p) => (
-              <button
-                key={String(p.id)}
-                type="button"
-                onClick={() => setSelectedProduct(p)}
-                className="shrink-0 w-[180px] text-left bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.08] rounded-xl p-2.5 transition-colors cursor-pointer"
-              >
-                {p.image_url && (
-                  <img
-                    src={proxyImage(p.image_url)}
-                    alt=""
-                    loading="lazy"
-                    className="w-full aspect-square rounded-lg object-cover mb-2 bg-white/[0.03]"
-                  />
-                )}
-                <div className="text-[11px] text-white line-clamp-2 leading-tight mb-1">
-                  {p.product_title}
-                </div>
-                <div className="text-[10px] text-white/50 tabular-nums flex items-center justify-between">
-                  <span>${Number(p.price_aud ?? 0).toFixed(2)}</span>
-                  <span style={{ color: '#eab308' }}>{fmtK(Number(p.sold_count ?? 0))} orders</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Filter bar — only rendered on the All Products tab */}
-      {searchMode === 'db' && isFilterableTab && (
-        <div className="px-4 md:px-8 pb-4 flex gap-2 flex-wrap items-center">
-          <FilterPill
-            label={priceMin !== null || priceMax !== null
-              ? `Price: $${priceMin ?? 0}–$${priceMax ?? '∞'}`
-              : 'Price'}
-            active={priceMin !== null || priceMax !== null}
-            open={openPill === 'price'}
-            onToggle={() => setOpenPill(openPill === 'price' ? null : 'price')}
-            onClose={closePill}
-            onClear={() => { setPriceMin(null); setPriceMax(null); }}
-          >
-            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
-              Price range
-            </div>
-            <div className="flex gap-2.5 items-center">
-              <input type="number" placeholder="Min" value={priceMin ?? ''}
-                onChange={(e) => setPriceMin(e.target.value ? Number(e.target.value) : null)}
-                className={numberInputClass} />
-              <span className="text-muted text-xs">to</span>
-              <input type="number" placeholder="Max" value={priceMax ?? ''}
-                onChange={(e) => setPriceMax(e.target.value ? Number(e.target.value) : null)}
-                className={numberInputClass} />
-            </div>
-          </FilterPill>
-
-          <FilterPill
-            label={(() => {
-              if (minOrders == null && maxOrders == null) return 'Orders';
-              const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(0)}K` : String(n);
-              if (minOrders != null && maxOrders != null) return `Orders: ${fmt(minOrders)}–${fmt(maxOrders)}`;
-              if (minOrders != null) return `Orders: ≥ ${fmt(minOrders)}`;
-              return `Orders: ≤ ${fmt(maxOrders!)}`;
-            })()}
-            active={minOrders !== null || maxOrders !== null}
-            open={openPill === 'minOrders'}
-            onToggle={() => setOpenPill(openPill === 'minOrders' ? null : 'minOrders')}
-            onClose={closePill}
-            onClear={() => { setMinOrders(null); setMaxOrders(null); }}
-          >
-            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
-              Order volume range
-            </div>
-            <div className="flex gap-2.5 items-center">
-              <input type="number" placeholder="Min" value={minOrders ?? ''}
-                onChange={(e) => setMinOrders(e.target.value ? Number(e.target.value) : null)}
-                className={numberInputClass} />
-              <span className="text-muted text-xs">to</span>
-              <input type="number" placeholder="Max" value={maxOrders ?? ''}
-                onChange={(e) => setMaxOrders(e.target.value ? Number(e.target.value) : null)}
-                className={numberInputClass} />
-            </div>
-          </FilterPill>
-
-          <FilterPill
-            label={categoryFilter ? `Category: ${shortenCategory(categoryFilter)}` : 'Category'}
-            active={categoryFilter !== ''}
-            open={openPill === 'category'}
-            onToggle={() => setOpenPill(openPill === 'category' ? null : 'category')}
-            onClose={closePill}
-            onClear={() => setCategoryFilter('')}
-          >
-            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
-              Category
-            </div>
-            {availableCategories.length > 0 ? (
-              <div className="max-h-[220px] overflow-y-auto flex flex-col gap-0.5">
-                {['', ...availableCategories].map((opt) => {
-                  const sel = categoryFilter === opt;
-                  return (
-                    <div
-                      key={opt || '__all__'}
-                      onClick={() => { setCategoryFilter(opt); closePill(); }}
-                      className={`px-3 py-2 cursor-pointer rounded-md text-sm transition-colors ${
-                        sel ? 'bg-accent/15 text-text' : 'text-body hover:bg-white/[0.05]'
-                      }`}
-                    >
-                      {opt ? shortenCategory(opt) : 'All categories'}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-muted text-xs">No categories loaded yet.</div>
-            )}
-          </FilterPill>
-
-          <FilterPill
-            label={scoreMin > 0 || scoreMax < 100 ? `Score: ${scoreMin}–${scoreMax}` : 'Score'}
-            active={scoreMin > 0 || scoreMax < 100}
-            open={openPill === 'score'}
-            onToggle={() => setOpenPill(openPill === 'score' ? null : 'score')}
-            onClose={closePill}
-            onClear={() => { setScoreMin(0); setScoreMax(100); }}
-          >
-            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
-              Score range
-            </div>
-            <div className="flex gap-2.5 items-center">
-              <input type="number" min={0} max={100} placeholder="Min" value={scoreMin || ''}
-                onChange={(e) => setScoreMin(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 0)}
-                className={numberInputClass} />
-              <span className="text-muted text-xs">to</span>
-              <input type="number" min={0} max={100} placeholder="Max" value={scoreMax !== 100 ? scoreMax : ''}
-                onChange={(e) => setScoreMax(e.target.value ? Math.max(0, Math.min(100, Number(e.target.value))) : 100)}
-                className={numberInputClass} />
-            </div>
-          </FilterPill>
-
-          <div className="flex-1" />
-
-          <FilterPill
-            label={`Sort: ${activeSortLabel}`}
-            active={false}
-            open={openPill === 'sort'}
-            onToggle={() => setOpenPill(openPill === 'sort' ? null : 'sort')}
-            onClose={closePill}
-          >
-            <div className="text-[10px] font-medium uppercase tracking-wider text-muted mb-2.5">
-              Sort by
-            </div>
-            <div className="max-h-[220px] overflow-y-auto flex flex-col gap-0.5">
-              {SORT_OPTIONS.map((opt) => {
-                const sel = orderBy === opt.key;
-                return (
-                  <div
-                    key={opt.key}
-                    onClick={() => { setOrderBy(opt.key); closePill(); }}
-                    className={`px-3 py-2 cursor-pointer rounded-md text-sm transition-colors ${
-                      sel ? 'bg-accent/15 text-text' : 'text-body hover:bg-white/[0.05]'
-                    }`}
-                  >
-                    {opt.label}
-                  </div>
-                );
-              })}
-            </div>
-          </FilterPill>
-
-          {anyFilterActive && (
-            <button
-              onClick={clearFilters}
-              className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium rounded-lg px-3.5 py-2 cursor-pointer hover:bg-red-500/20 transition-colors"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Tab bar */}
-      {searchMode === 'db' && (
-        <div className="px-4 md:px-8 flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none bg-surface/50 backdrop-blur-sm border-b border-white/[0.06] py-2">
-          {SMART_TABS.map((tab) => {
-            const active = activeTab === tab.key;
-            const count = tabCounts[tab.key];
-            const Icon = tab.Icon;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => { setActiveTab(tab.key); setPage(1); }}
-                className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg cursor-pointer whitespace-nowrap transition-colors border ${
-                  active
-                    ? 'bg-accent/15 border-accent/30 text-accent-hover'
-                    : 'bg-transparent border-transparent text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
-                }`}
-              >
-                <Icon
-                  size={14}
-                  strokeWidth={1.75}
-                  className={active ? 'text-accent-hover' : tab.iconClass ?? ''}
-                />
-                <span>{tab.label}</span>
-                <span className="bg-white/[0.08] rounded-full px-1.5 py-0 text-[11px] tabular-nums ml-0.5">
-                  {count >= 1000 ? `${Math.round(count / 1000)}k` : count}
-                </span>
-              </button>
-            );
-          })}
-          <div className="flex-1" />
-          <div className="flex gap-1 shrink-0">
-            {(['table', 'grid'] as const).map((mode) => {
-              const active = view === mode;
-              const Icon = mode === 'table' ? List : LayoutGrid;
-              return (
-                <button
-                  key={mode}
-                  onClick={() => setView(mode)}
-                  aria-label={mode}
-                  className={`w-8 h-8 rounded-md flex items-center justify-center cursor-pointer transition-colors ${
-                    active ? 'bg-raised text-text' : 'text-muted hover:text-body'
-                  }`}
-                >
-                  <Icon size={14} strokeWidth={1.75} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Results header — results count + CSV export + kbd hints */}
-      {searchMode === 'db' && (
-        <div className="px-4 md:px-8 py-3 flex items-center justify-between gap-3 flex-wrap">
-          <div className="text-sm text-muted">
-            {loading ? 'Loading products…' : `${filteredTotal.toLocaleString()} products`}
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 text-[10px] text-white/30">
-              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">G</kbd> grid
-              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">L</kbd> list
-              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">/</kbd> search
-              <kbd className="px-1.5 py-0.5 border border-white/10 rounded text-white/50">Esc</kbd> close
-            </div>
-            <button
-              onClick={() => exportToCSV(filtered)}
-              disabled={filtered.length === 0}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted hover:text-text border border-white/[0.08] rounded-lg hover:bg-white/[0.04] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Download size={13} />
-              Export CSV
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Saved tab — list picker chips */}
-      {searchMode === 'db' && activeTab === 'saved' && (
-        <div className="px-4 md:px-8 pb-3 flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setSelectedListId(null)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
-              selectedListId == null
-                ? 'bg-accent/15 border-accent text-accent-hover'
-                : 'bg-card border-white/10 text-body hover:border-white/20'
-            }`}
-          >
-            All saved
-            <span className="text-[10px] text-muted tabular-nums">
-              {lists.totalSaved}
-            </span>
-          </button>
-          {lists.lists.map((list) => {
-            const active = selectedListId === list.id;
-            return (
-              <button
-                key={list.id}
-                onClick={() => setSelectedListId(list.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
-                  active
-                    ? 'bg-accent/15 border-accent text-accent-hover'
-                    : 'bg-card border-white/10 text-body hover:border-white/20'
-                }`}
-              >
-                {list.name}
-                <span className="text-[10px] text-muted tabular-nums">
-                  {list.productIds.length}
-                </span>
-              </button>
-            );
-          })}
-          <button
-            onClick={() => {
-              const name = window.prompt('List name:');
-              if (name && name.trim()) {
-                const created = lists.createList(name.trim());
-                setSelectedListId(created.id);
-                toast.success(`List "${created.name}" created`);
-              }
-            }}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-accent hover:bg-accent/10 transition-colors"
-          >
-            + New list
-          </button>
-          {selectedListId != null && lists.lists.length > 1 && (
-            <button
-              onClick={() => {
-                const list = lists.lists.find((l) => l.id === selectedListId);
-                if (!list) return;
-                if (window.confirm(`Delete list "${list.name}"?`)) {
-                  lists.deleteList(selectedListId);
-                  setSelectedListId(null);
-                  toast('List deleted');
-                }
+          <div>
+            <h1
+              style={{
+                fontFamily: "'Syne', system-ui, sans-serif",
+                fontSize: 28,
+                fontWeight: 700,
+                margin: 0,
+                color: '#f5f5f5',
+                letterSpacing: '-0.02em',
               }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors"
             >
-              Delete
-            </button>
-          )}
+              Products
+            </h1>
+            <p style={{ fontSize: 13, color: '#737373', margin: '4px 0 0' }}>
+              Winners ranked by real order velocity, all-time volume and 48h freshness.
+            </p>
+          </div>
+
+          {/* Search */}
+          <div style={{ position: 'relative', flex: 1, minWidth: 280, maxWidth: 420 }}>
+            <Search
+              size={16}
+              style={{
+                position: 'absolute',
+                left: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#737373',
+                pointerEvents: 'none',
+              }}
+            />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search 50k+ products and live AliExpress…"
+              aria-label="Search products"
+              style={{
+                width: '100%',
+                height: 44,
+                padding: '0 40px 0 38px',
+                background: '#111111',
+                border: '1px solid #1a1a1a',
+                borderRadius: 10,
+                color: '#f5f5f5',
+                fontSize: 14,
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+                outline: 'none',
+                transition: 'border 160ms ease, box-shadow 160ms ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(212,175,55,0.08)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#1a1a1a';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            />
+            {searchInput ? (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => setSearchInput('')}
+                style={{
+                  position: 'absolute',
+                  right: 6,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 32,
+                  height: 32,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#737373',
+                  cursor: 'pointer',
+                  borderRadius: 6,
+                }}
+              >
+                <X size={14} />
+              </button>
+            ) : liveQuery && aeLive.loading ? (
+              <Loader2
+                size={14}
+                className="animate-spin"
+                style={{
+                  position: 'absolute',
+                  right: 12,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#d4af37',
+                }}
+              />
+            ) : null}
+          </div>
         </div>
-      )}
+
+        {/* Tabs */}
+        <div style={{ maxWidth: 1400, margin: '12px auto 0' }}>
+          <TabHeader
+            active={activeTab}
+            counts={counts}
+            loading={loadingMap}
+            onChange={setActiveTab}
+          />
+        </div>
+      </header>
+
+      {/* Filters (v2 component handles persistence under its own key) */}
+      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+        <ProductFilters
+          initial={filters}
+          onChange={setFilters}
+        />
+      </div>
 
       {/* Body */}
-      {searchMode === 'live' ? (
-        <LiveSearchView aeSearch={aeSearch} onSelect={setSelectedProduct} />
-      ) : view === 'table' ? (
-        <ListTable
-          products={pageSlice}
-          loading={loading}
-          onSelect={setSelectedProduct}
-          lists={lists}
-          navigate={navigate}
-        />
-      ) : (
-        <GridCards
-          products={pageSlice}
-          loading={loading}
-          onSelect={setSelectedProduct}
-          lists={lists}
-          navigate={navigate}
-        />
-      )}
-
-      {/* Pagination */}
-      {searchMode === 'db' && filteredTotal > 0 && (
-        <div className="mx-4 md:mx-8 mt-4 mb-12 flex items-center gap-3 flex-wrap">
-          <div className="text-sm text-muted tabular-nums">
-            Showing {(offset + 1).toLocaleString()}–{Math.min(offset + perPage, filteredTotal).toLocaleString()} of {filteredTotal.toLocaleString()}
-          </div>
-          <div className="flex-1" />
-          <div className="flex items-center gap-1.5">
-            <PageBtn disabled={page === 1} onClick={() => setPage(page - 1)}>‹</PageBtn>
-            {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-              const start = Math.max(1, page - 2);
-              const p = start + i;
-              if (p > totalPages) return null;
-              return (
-                <PageBtn key={p} active={p === page} onClick={() => setPage(p)}>
-                  {p}
-                </PageBtn>
-              );
-            })}
-            <PageBtn disabled={page >= totalPages} onClick={() => setPage(page + 1)}>›</PageBtn>
-            <select
-              value={perPage}
-              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-              className="bg-raised border border-white/[0.07] rounded-md px-2.5 py-1 text-sm text-body outline-none ml-2"
-            >
-              <option value={25}>25 / page</option>
-              <option value={50}>50 / page</option>
-              <option value={100}>100 / page</option>
-            </select>
-          </div>
-        </div>
-      )}
-
-      <ProductSheet
-        product={selectedProduct}
-        open={selectedProduct !== null}
-        onOpenChange={(v) => { if (!v) setSelectedProduct(null); }}
-        navigate={navigate}
-        onToggleFav={fav.toggleFavourite}
-        isFav={selectedProduct ? fav.isFavourite(selectedProduct.id) : false}
-      />
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Pagination button
-   ══════════════════════════════════════════════════════════════ */
-
-function PageBtn({ children, active, disabled, onClick }: {
-  children: React.ReactNode; active?: boolean; disabled?: boolean; onClick?: () => void;
-}) {
-  return (
-    <button
-      disabled={disabled}
-      onClick={onClick}
-      className={`w-8 h-8 rounded-md text-sm flex items-center justify-center transition-colors border ${
-        active
-          ? 'bg-accent border-accent text-white'
-          : disabled
-            ? 'bg-raised border-white/[0.07] text-muted opacity-50 cursor-not-allowed'
-            : 'bg-raised border-white/[0.07] text-body hover:text-text cursor-pointer'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   List view
-   ══════════════════════════════════════════════════════════════ */
-
-interface ListTableProps {
-  products: Product[];
-  loading: boolean;
-  onSelect: (p: Product) => void;
-  lists: ReturnType<typeof useLists>;
-  navigate: (path: string) => void;
-}
-
-/* Hover-quick-action handlers for the last column of each row. */
-function createAdForProduct(p: Product, navigate: (path: string) => void) {
-  sessionStorage.setItem('majorka_ad_product', JSON.stringify({
-    id: p.id,
-    title: p.product_title,
-    image: p.image_url,
-    price: p.price_aud,
-  }));
-  navigate('/app/ads-studio');
-  toast.success('Product loaded into Ads Studio');
-}
-
-function importToStore(p: Product, navigate: (path: string) => void) {
-  sessionStorage.setItem('majorka_import_product', JSON.stringify({
-    id: p.id,
-    title: p.product_title,
-    image: p.image_url,
-    price: p.price_aud,
-    description: p.product_title,
-    aliexpress_url: p.product_url,
-  }));
-  navigate('/app/store-builder');
-  toast.success('Product imported to Store Builder');
-}
-
-function ListTable({ products, loading, onSelect, lists, navigate }: ListTableProps) {
-  if (loading && products.length === 0) {
-    return (
-      <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
-        {/* Realistic skeleton that matches row layout so the transition to
-           real data doesn't shift the layout. 8 rows at 80px each. */}
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-20 px-4 md:px-6 flex items-center gap-4 ${i === 7 ? '' : 'border-b border-white/[0.04]'}`}
-          >
-            <span className="hidden md:inline-block w-5 h-3 bg-white/[0.04] rounded animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
-            <span className="w-14 h-14 bg-white/[0.04] rounded-lg animate-pulse shrink-0" style={{ animationDelay: `${i * 60}ms` }} />
-            <div className="flex-1 min-w-0 flex flex-col gap-2">
-              <span className="block w-[70%] h-3.5 bg-white/[0.06] rounded animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
-              <span className="block w-[40%] h-2.5 bg-white/[0.04] rounded animate-pulse" style={{ animationDelay: `${i * 60 + 30}ms` }} />
-            </div>
-            <span className="hidden md:inline-block w-16 h-6 bg-white/[0.04] rounded animate-pulse" />
-            <span className="hidden md:inline-block w-12 h-6 bg-white/[0.04] rounded animate-pulse" />
-            <span className="hidden md:inline-block w-20 h-6 bg-white/[0.04] rounded animate-pulse" />
-            <span className="hidden md:inline-block w-24 h-7 bg-white/[0.04] rounded animate-pulse" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-  if (products.length === 0) return <EmptyState />;
-  return (
-    <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto">
-          <thead className="sticky top-0 z-10">
-            <tr className="bg-[#0f1629] border-b border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.04)]">
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
-              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Score</th>
-              <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Orders</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Price</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Revenue</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Actions</th>
-            </tr>
-          </thead>
-        <tbody>
-          {products.map((p, i) => {
-            const score = Math.round(p.winning_score ?? 0);
-            const orders = p.sold_count ?? 0;
-            const estMonthly = monthlyRevenue(p);
-            const isLast = i === products.length - 1;
-            return (
-              <motion.tr
-                key={p.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
-                onClick={() => onSelect(p)}
-                className={`group h-20 ${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-gradient-to-r hover:from-accent/[0.03] hover:to-transparent border-l-2 border-l-transparent hover:border-l-accent cursor-pointer transition-colors`}
-              >
-                <td className="hidden md:table-cell px-4 text-xs text-white/20 tabular-nums whitespace-nowrap">
-                  {String(i + 1).padStart(2, '0')}
-                </td>
-                <td className="px-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    {p.image_url ? (
-                      <img
-                        src={proxyImage(p.image_url) ?? p.image_url}
-                        alt={p.product_title}
-                        loading="lazy"
-                        className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card object-cover shrink-0"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 rounded-lg border border-white/[0.08] bg-card flex items-center justify-center text-muted shrink-0">—</div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <TT content={p.product_title}>
-                        <p className="text-sm font-semibold text-white/90 truncate max-w-[240px] cursor-default">
-                          {p.product_title}
-                        </p>
-                      </TT>
-                      {/* Mobile-only inline metrics + heart under the title */}
-                      <div className="md:hidden mt-1 flex items-center gap-2 text-[11px]">
-                        {p.category && (
-                          <span
-                            className="inline-block font-semibold px-2 py-0.5 rounded truncate max-w-[120px]"
-                            style={categoryColor(p.category)}
-                          >
-                            {shortenCategory(p.category)}
-                          </span>
-                        )}
-                        <span className="text-muted tabular-nums">
-                          {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
-                        </span>
-                        <span className="text-muted">
-                          {daysSince(p.created_at)}d
-                        </span>
-                      </div>
-                    </div>
-                    <div className="md:hidden shrink-0">
-                      <ListPickerButton product={p} lists={lists} />
-                    </div>
-                  </div>
-                </td>
-                <td className="hidden md:table-cell px-4 whitespace-nowrap">
-                  {p.category ? (
-                    <span
-                      className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-[124px]"
-                      style={categoryColor(p.category)}
-                    >
-                      {shortenCategory(p.category)}
-                    </span>
-                  ) : (
-                    <span className="text-muted text-xs">—</span>
-                  )}
-                </td>
-                <td className="hidden md:table-cell px-4 text-right whitespace-nowrap">
-                  {score ? (
-                    <TT
-                      content={
-                        <div className="space-y-0.5">
-                          <div className="font-semibold">Score breakdown</div>
-                          <div className="text-muted">
-                            Demand {Math.min(100, Math.round(score * 0.95))} ·
-                            {' '}Trend {Math.min(100, Math.round(score * 0.98))} ·
-                            {' '}Margin {Math.min(100, Math.round(score * 0.86))}
-                          </div>
-                        </div>
-                      }
-                    >
-                      <span className="inline-block"><ScoreBadge score={score} /></span>
-                    </TT>
-                  ) : (
-                    <span className="text-muted text-xs">—</span>
-                  )}
-                </td>
-                <td className={`px-4 text-right whitespace-nowrap ${orders > 0 ? 'text-text' : 'text-muted'}`}>
-                  {orders > 0 ? (
-                    <div className="flex flex-col items-end gap-0.5">
-                      <TT content={`${orders.toLocaleString()} total orders tracked`}>
-                        <span className="inline-block cursor-default text-base font-bold tabular-nums">
-                          {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
-                          {fmtK(orders)}
-                        </span>
-                      </TT>
-                      {(() => {
-                        const v = velocityBadge(p);
-                        if (!v) return null;
-                        return (
-                          <span className={`text-[10px] ${v.color} tabular-nums font-medium`}>
-                            {v.icon} {v.label}
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    '—'
-                  )}
-                </td>
-                <td className="hidden md:table-cell px-4 text-right text-base font-bold text-text tabular-nums whitespace-nowrap">
-                  {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
-                </td>
-                <td className={`hidden md:table-cell px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
-                  {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
-                </td>
-                <td className="hidden md:table-cell px-4 text-right whitespace-nowrap">
-                  {/* Always-visible operator CTAs: Add to Store + Create Ad.
-                     Heart list picker stays to the left as a secondary action. */}
-                  <div className="flex items-center justify-end gap-1.5">
-                    <ListPickerButton product={p} lists={lists} />
-                    <button
-                      onClick={(e) => { e.stopPropagation(); importToStore(p, navigate); }}
-                      aria-label="Add to store"
-                      title="Add to store"
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-body bg-white/[0.04] border border-white/[0.08] hover:border-accent/40 hover:text-accent-hover hover:bg-accent/[0.06] transition-colors cursor-pointer"
-                    >
-                      <Store size={12} strokeWidth={2} />
-                      Store
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); createAdForProduct(p, navigate); }}
-                      aria-label="Create ad"
-                      title="Create ad"
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-white bg-accent hover:bg-accent-hover transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(99,102,241,0.4)]"
-                    >
-                      <Zap size={12} strokeWidth={2.5} />
-                      Ad
-                    </button>
-                  </div>
-                </td>
-              </motion.tr>
-            );
-          })}
-        </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Grid view — 3 columns, large product images
-   ══════════════════════════════════════════════════════════════ */
-
-interface GridCardsProps {
-  products: Product[];
-  loading: boolean;
-  onSelect: (p: Product) => void;
-  lists: ReturnType<typeof useLists>;
-  navigate: (path: string) => void;
-}
-
-function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
-  if (loading && products.length === 0) {
-    return (
-      <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
-            <div className="w-full h-48 bg-white/[0.04] animate-pulse" />
-            <div className="p-3.5">
-              <span className="inline-block w-[90%] h-4 bg-white/[0.04] rounded mb-2 animate-pulse" />
-              <span className="inline-block w-[60%] h-3 bg-white/[0.04] rounded animate-pulse" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  if (products.length === 0) return <EmptyState />;
-  return (
-    <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {products.map((p, idx) => {
-        const score = Math.round(p.winning_score ?? 0);
-        const orders = p.sold_count ?? 0;
-        const estMonthly = monthlyRevenue(p);
-        const isNew = daysSince(p.created_at) <= NEW_DAYS_THRESHOLD;
-        return (
-          <motion.div
-            key={p.id}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.4), ease: [0.22, 1, 0.36, 1] }}
-            onClick={() => onSelect(p)}
-            className="group bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-all duration-200 cursor-pointer flex flex-col"
-          >
-            <div className="relative h-48 md:h-56 overflow-hidden">
-              {p.image_url ? (
-                <img
-                  src={proxyImage(p.image_url) ?? p.image_url}
-                  alt={p.product_title}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-5xl font-display font-bold text-muted bg-raised">
-                  {(p.product_title?.[0] ?? '?').toUpperCase()}
-                </div>
-              )}
-              {/* Bottom gradient overlay — stronger for category chip legibility */}
-              <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-              {/* Category chip on the image bottom-left */}
-              {p.category && (
-                <span
-                  className="absolute bottom-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded backdrop-blur-sm"
-                  style={categoryColor(p.category)}
-                >
-                  {shortenCategory(p.category)}
-                </span>
-              )}
-              {/* Days-active badge bottom-right on image */}
-              <span className="absolute bottom-2 right-2 text-[9px] font-semibold text-white/70 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded tabular-nums">
-                {daysSince(p.created_at)}d
-              </span>
-              {/* Score top-right */}
-              {score > 0 && (
-                <div className="absolute top-2 right-2">
-                  <span
-                    className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
-                    style={scoreTierStyle(score)}
-                  >
-                    {score}
-                  </span>
-                </div>
-              )}
-              {isNew && (
-                <span className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 bg-green/20 text-green rounded">
-                  NEW
-                </span>
-              )}
-            </div>
-            <div className="p-3.5 flex-1 flex flex-col">
-              <p className="text-sm font-semibold text-text leading-tight line-clamp-2 mb-3 min-h-[36px]">
-                {p.product_title}
-              </p>
-              <div className="grid grid-cols-3 gap-2 mb-3 mt-auto">
-                <div>
-                  <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Orders</p>
-                  <p className="text-sm font-bold text-text tabular-nums">
-                    {orders > 0 ? fmtK(orders) : '—'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Price</p>
-                  <p className="text-sm font-medium text-body tabular-nums">
-                    {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-muted uppercase tracking-wide mb-0.5">Rev</p>
-                  <p className="text-sm font-medium text-green tabular-nums">
-                    {estMonthly != null ? `$${Math.round(estMonthly / 1000)}k` : '—'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2 items-center">
-                <div className="flex-1 flex items-center justify-center bg-white/[0.06] rounded-lg hover:bg-white/10 transition-colors">
-                  <ListPickerButton product={p} lists={lists} size={14} className="w-full py-1.5" />
-                </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); onSelect(p); }}
-                  className="flex-1 py-1.5 text-xs font-medium text-white bg-accent rounded-lg hover:bg-accent-hover transition-colors cursor-pointer"
-                >
-                  View →
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Empty state
-   ══════════════════════════════════════════════════════════════ */
-
-function EmptyState() {
-  return (
-    <div className="mx-4 md:mx-8 my-10 p-10 md:p-14 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-center">
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/[0.08] border border-accent/15 mb-5">
-        <Search size={26} className="text-accent-hover" strokeWidth={1.75} />
-      </div>
-      <div className="font-display text-xl font-semibold text-text mb-2">
-        No products match your filters
-      </div>
-      <div className="text-sm text-body max-w-md mx-auto leading-relaxed mb-6">
-        Try widening the score, price or order range — or pull fresh winners directly from the AliExpress marketplace.
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        <button
-          onClick={() => {
-            try { localStorage.removeItem('majorka_filters_v1'); } catch { /* ignore */ }
-            window.location.href = '/app/products';
-          }}
-          className="px-4 py-2 rounded-lg text-sm font-semibold text-body bg-white/[0.04] border border-white/[0.08] hover:border-white/20 hover:text-text transition-colors cursor-pointer"
-        >
-          Clear all filters
-        </button>
-        <button
-          onClick={() => { searchInputFocus(); }}
-          className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-accent hover:bg-accent-hover transition-colors cursor-pointer inline-flex items-center gap-1.5"
-        >
-          <Search size={13} strokeWidth={2.25} />
-          Search AliExpress live
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** Focus the page-level search input — used by empty state CTAs. */
-function searchInputFocus(): void {
-  const el = document.querySelector<HTMLInputElement>('input.search-input');
-  el?.focus();
-}
-
-/* ══════════════════════════════════════════════════════════════
-   Live AE search grid
-   ══════════════════════════════════════════════════════════════ */
-
-function LiveSearchView({ aeSearch, onSelect }: {
-  aeSearch: ReturnType<typeof useAESearch>;
-  onSelect: (p: Product) => void;
-}) {
-  if (aeSearch.loading && aeSearch.products.length === 0) {
-    return (
-      <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] h-[360px] animate-pulse" />
-        ))}
-      </div>
-    );
-  }
-  if (aeSearch.products.length === 0) return <EmptyState />;
-  return (
-    <div className="px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {aeSearch.products.map((p: AELiveProduct, i) => (
+      <main style={{ maxWidth: 1400, margin: '0 auto', padding: '20px' }}>
+        {/* Meta row */}
         <div
-          key={`${p.id}-${i}`}
-          onClick={() => {
-            const asProduct: Product = {
-              id: p.id,
-              product_title: p.product_title,
-              category: p.category,
-              platform: 'aliexpress',
-              price_aud: p.price_aud,
-              sold_count: p.sold_count,
-              winning_score: p.winning_score,
-              trend: null,
-              est_daily_revenue_aud: null,
-              image_url: p.image_url,
-              product_url: p.product_url,
-              created_at: new Date().toISOString(),
-              updated_at: null,
-            };
-            onSelect(asProduct);
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 14,
+            gap: 12,
+            flexWrap: 'wrap',
           }}
-          className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-hover transition-all duration-150 cursor-pointer"
         >
-          <div className="h-48 bg-raised">
-            {p.image_url && (
-              <img
-                src={proxyImage(p.image_url) ?? p.image_url}
-                alt={p.product_title}
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
-          <div className="p-3.5">
-            <p className="text-sm text-text line-clamp-2 mb-2">{p.product_title}</p>
-            <div className="flex items-center justify-between tabular-nums">
-              <span className="text-xs text-body">
-                {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span
+              className="mj-num"
+              style={{ fontSize: 12, color: '#a3a3a3' }}
+              aria-live="polite"
+            >
+              {active.loading && active.products.length === 0
+                ? 'Loading…'
+                : `${displayRows.length} shown`}
+            </span>
+            {active.cached ? (
+              <span style={{ fontSize: 10, color: '#737373', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                cached
               </span>
-              {p.sold_count > 0 ? (
-                <span className="text-xs font-semibold text-emerald-400">
-                  {fmtK(p.sold_count)} orders
-                </span>
-              ) : (
-                <span className="text-[11px] text-muted">No order data</span>
-              )}
+            ) : null}
+            {liveQuery ? (
+              <span
+                style={{
+                  fontSize: 11,
+                  color: '#d4af37',
+                  padding: '3px 8px',
+                  background: 'rgba(212,175,55,0.08)',
+                  border: '1px solid rgba(212,175,55,0.25)',
+                  borderRadius: 6,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                <Sparkles size={11} />
+                Live AliExpress
+              </span>
+            ) : null}
+          </div>
+          {(filters.category || filters.minScore > 0 || filters.minOrders > 0 || searchInput) ? (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              style={{
+                minHeight: 32,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '0 12px',
+                background: 'transparent',
+                border: '1px solid #1a1a1a',
+                borderRadius: 8,
+                color: '#a3a3a3',
+                fontSize: 12,
+                cursor: 'pointer',
+                fontFamily: "'DM Sans', system-ui, sans-serif",
+              }}
+            >
+              <RefreshCw size={12} />
+              Clear all
+            </button>
+          ) : null}
+        </div>
+
+        {/* Error */}
+        {active.error ? (
+          <div
+            style={{
+              padding: 14,
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: 10,
+              color: '#fca5a5',
+              fontSize: 13,
+              marginBottom: 14,
+            }}
+          >
+            Could not load this tab: {active.error}
+          </div>
+        ) : null}
+
+        {/* Grid / empty / skeleton */}
+        {active.loading && active.products.length === 0 ? (
+          <SkeletonGrid />
+        ) : displayRows.length === 0 ? (
+          <div
+            style={{
+              padding: '48px 16px',
+              background: '#111111',
+              border: '1px solid #1a1a1a',
+              borderRadius: 16,
+            }}
+          >
+            <EmptyState
+              icon={Search}
+              title={emptyCopy.title}
+              description={emptyCopy.description}
+              action={{
+                label: 'Reset filters',
+                onClick: handleResetFilters,
+              }}
+            />
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+              gap: 14,
+            }}
+          >
+            {displayRows.map((p) => (
+              <ProductCard key={String(p.id)} product={p} onOpen={handleOpen} />
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Drawer (lazy) */}
+      <Suspense fallback={null}>
+        {selected ? (
+          <ProductDetailDrawer product={selected} onClose={handleClose} />
+        ) : null}
+      </Suspense>
+
+      {/* Unused navigate reference kept so lint is happy on future nav additions */}
+      <span hidden>{typeof navigate === 'function' ? '' : ''}</span>
+    </div>
+  );
+}
+
+// ── Skeleton grid (matches card dimensions to avoid layout shift) ──────────
+function SkeletonGrid() {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+        gap: 14,
+      }}
+    >
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            minHeight: 280,
+            background: '#111111',
+            border: '1px solid #1a1a1a',
+            borderRadius: 14,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              aspectRatio: '1 / 1',
+              background: 'linear-gradient(90deg, #0e0e0e 0%, #161616 50%, #0e0e0e 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'mj-skeleton 1400ms ease-in-out infinite',
+            }}
+          />
+          <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ height: 14, borderRadius: 4, background: '#161616' }} />
+            <div style={{ height: 14, width: '70%', borderRadius: 4, background: '#161616' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+              <div style={{ height: 16, width: 60, borderRadius: 4, background: '#161616' }} />
+              <div style={{ height: 16, width: 50, borderRadius: 4, background: '#161616' }} />
             </div>
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────────────────────────
-   ProductHistoryChart — 30-day snapshot trend
-   Shows a placeholder if snapshots haven't started yet, or a
-   tiny sparkline if data exists. Fetches from /api/products/:id/history
-   which gracefully returns { history: [], tableReady: false } when the
-   product_daily_snapshots table hasn't been created yet.
-   ────────────────────────────────────────────────────────────── */
-interface HistoryPoint { captured_at: string; sold_count: number | null; winning_score: number | null }
-
-function ProductHistoryChart({ productId }: { productId: string | number }) {
-  const [history, setHistory] = useState<HistoryPoint[]>([]);
-  const [tableReady, setTableReady] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetch(`/api/products/${encodeURIComponent(String(productId))}/history`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setHistory(Array.isArray(data?.history) ? data.history : []);
-        setTableReady(data?.tableReady !== false);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (!cancelled) { setLoading(false); setTableReady(false); }
-      });
-    return () => { cancelled = true; };
-  }, [productId]);
-
-  // Skeleton state — looks designed, not broken. No "Placeholder" text.
-  if (loading || !tableReady || history.length < 2) {
-    // Pre-computed bar heights so the skeleton looks intentional, not random
-    const heights = [40, 65, 45, 80, 55, 70, 90, 60, 75, 85, 50, 95, 62, 78, 48, 88, 58, 72, 82, 55, 68, 92, 50, 76, 64, 84, 58, 70, 80, 65];
-    return (
-      <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
-          <div className="text-[10px] text-white/25">Collecting data…</div>
-        </div>
-        <div className="relative h-12 flex items-end gap-1">
-          {heights.map((h, i) => (
-            <div
-              key={i}
-              className="flex-1 rounded-sm animate-pulse"
-              style={{
-                height: `${h}%`,
-                background: 'rgba(99,102,241,0.12)',
-                animationDelay: `${i * 60}ms`,
-              }}
-            />
-          ))}
-        </div>
-        <p className="text-[10px] text-white/25 text-center mt-2">Historical data builds automatically over time</p>
-      </div>
-    );
-  }
-
-  // Real sparkline from data
-  const vals = history.map((h) => h.sold_count ?? 0);
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const range = Math.max(1, max - min);
-  return (
-    <div className="mx-4 mt-3 p-4 bg-raised border border-white/[0.07] rounded-xl">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-white/40">30-day trend</div>
-        <div className="text-[10px] text-accent-hover tabular-nums">
-          {vals[vals.length - 1].toLocaleString()} orders
-        </div>
-      </div>
-      <div className="relative h-16 flex items-end gap-0.5">
-        {vals.map((v, i) => {
-          const h = 20 + ((v - min) / range) * 80;
-          return (
-            <div
-              key={i}
-              className="flex-1 bg-accent/40 hover:bg-accent/70 transition-colors rounded-sm"
-              style={{ height: `${h}%` }}
-              title={`${new Date(history[i].captured_at).toLocaleDateString()}: ${v.toLocaleString()}`}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────────────────────────
-   SimilarProducts — small horizontal row of 3 products from
-   the same category with similar score range. Pure visual,
-   read-only — clicking opens AliExpress directly.
-   ────────────────────────────────────────────────────────────── */
-/* ──────────────────────────────────────────────────────────────
-   FirstSaleBlueprint — on-demand 7-day action plan from Claude.
-   Collapsed by default. Operator clicks "Generate" to fire one
-   POST /api/products/blueprint call. Result stays mounted while
-   the panel is open. Falls back to a deterministic plan if Claude
-   isn't configured server-side.
-   ────────────────────────────────────────────────────────────── */
-interface BlueprintStep { day: number; title: string; action: string; budget?: string | null }
-
-function FirstSaleBlueprint({ productId }: { productId: string }) {
-  const [steps, setSteps] = useState<BlueprintStep[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
-
-  async function generate() {
-    setLoading(true);
-    setError(null);
-    try {
-      const r = await fetch('/api/products/blueprint', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, market: 'AU' }),
-      });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data = await r.json();
-      const out = Array.isArray(data?.steps) ? (data.steps as BlueprintStep[]) : [];
-      if (out.length === 0) throw new Error('Empty blueprint');
-      setSteps(out);
-      setOpen(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to generate');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (!steps) {
-    return (
-      <div className="mx-4 mb-4">
-        <button
-          onClick={generate}
-          disabled={loading}
-          className="w-full py-3 rounded-xl text-sm font-semibold text-white border transition-all flex items-center justify-center gap-2"
-          style={{
-            background: loading ? 'rgba(99,102,241,0.4)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            borderColor: 'rgba(99,102,241,0.4)',
-            opacity: loading ? 0.7 : 1,
-          }}
-        >
-          <Zap size={14} strokeWidth={2.5} />
-          {loading ? 'Generating your blueprint…' : 'Generate 7-day Blueprint'}
-        </button>
-        {error && <div className="text-[11px] text-red-400 mt-2 text-center">{error}</div>}
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-4 mb-4 bg-accent/[0.04] border border-accent/20 rounded-xl p-4">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between mb-3"
-      >
-        <div className="flex items-center gap-2">
-          <Zap size={13} className="text-accent-hover" strokeWidth={2.5} />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-accent-hover">
-            7-Day First Sale Blueprint
-          </span>
-        </div>
-        <ChevronRight size={14} className={`text-muted transition-transform ${open ? 'rotate-90' : ''}`} />
-      </button>
-      {open && (
-        <div className="space-y-2.5">
-          {steps.map((s) => (
-            <div key={s.day} className="rounded-lg p-3 bg-card border border-white/[0.06]">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[9px] font-black text-accent uppercase tracking-wider">Day {s.day}</span>
-                <span className="text-xs font-semibold text-text">{s.title}</span>
-              </div>
-              <p className="text-[11px] text-body leading-relaxed">{s.action}</p>
-              {s.budget && (
-                <div className="mt-1.5 text-[10px] font-semibold text-amber">Budget: {s.budget}</div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SimilarProducts({ category, excludeId }: { category: string; excludeId: string }) {
-  const { products, loading } = useProducts({
-    category,
-    limit: 4,
-    minScore: 70,
-    orderBy: 'sold_count',
-  });
-  const filtered = products.filter((p) => String(p.id) !== excludeId).slice(0, 3);
-  if (loading) {
-    return (
-      <div className="mx-4 mt-3 mb-2">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
-          Similar in {shortenCategory(category)}
-        </div>
-        <div className="flex gap-2">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="flex-1 h-20 bg-card border border-white/[0.06] rounded-lg animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-  if (filtered.length === 0) return null;
-  return (
-    <div className="mx-4 mt-3 mb-2">
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2">
-        Similar in {shortenCategory(category)}
-      </div>
-      <div className="flex gap-2">
-        {filtered.map((p) => {
-          const score = Math.round(p.winning_score ?? 0);
-          const orders = p.sold_count ?? 0;
-          return (
-            <a
-              key={p.id}
-              href={p.product_url ?? '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 group bg-card border border-white/[0.06] hover:border-accent/30 rounded-lg overflow-hidden transition-colors no-underline"
-            >
-              <div className="aspect-square bg-bg overflow-hidden">
-                {p.image_url ? (
-                  <img
-                    src={proxyImage(p.image_url) ?? p.image_url}
-                    alt=""
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted text-xs">—</div>
-                )}
-              </div>
-              <div className="p-2">
-                <p className="text-[10px] text-text font-medium truncate" title={p.product_title ?? ''}>
-                  {p.product_title ?? 'Untitled'}
-                </p>
-                <div className="flex items-center justify-between mt-1 text-[9px] text-muted tabular-nums">
-                  <span>{score > 0 ? `${score}` : '—'}</span>
-                  <span>{orders > 0 ? fmtK(orders) : '—'}</span>
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
+      <style>{`
+        @keyframes mj-skeleton {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
     </div>
   );
 }
