@@ -1007,3 +1007,225 @@ router.post('/extract-product', requireAuth, aiLimiter, async (req, res) => {
     return res.status(500).json({ ok: false, reason: 'server_error', message });
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ads Studio rebuild — real, usable ad-copy generation.
+// Exported as `adsRouter` and mounted at /api/ads in server/_core/index.ts.
+// POST /api/ads/generate  → Claude Haiku JSON-enforced copy for a product + format
+// POST /api/ads/save      → persist generation to ad_generations
+// GET  /api/ads/history   → last 10 generations for the user
+// ─────────────────────────────────────────────────────────────────────────────
+export const adsRouter = Router();
+
+const adFormatSchema = z.enum(['meta_feed', 'meta_story', 'tiktok_feed', 'tiktok_story']);
+type AdFormat = z.infer<typeof adFormatSchema>;
+
+const adGenerateInputSchema = z.object({
+  productId: z.string().min(1).max(200),
+  format: adFormatSchema,
+  market: z.string().min(2).max(4).default('AU'),
+});
+
+const adOutputSchema = z.object({
+  headlines:  z.array(z.string().min(1).max(200)).length(3),
+  bodies:     z.array(z.string().min(1).max(1000)).length(3),
+  ctas:       z.array(z.string().min(1).max(60)).length(3),
+  hook:       z.string().min(1).max(500),
+  audience:   z.string().min(1).max(500),
+  interests:  z.array(z.string().min(1).max(80)).length(5),
+});
+type AdOutput = z.infer<typeof adOutputSchema>;
+
+const AD_FORMAT_BRIEFS: Record<AdFormat, string> = {
+  meta_feed:
+    'Meta Feed (1:1). Headlines ≤125 characters. Bodies ≤500 characters. Direct-response, benefit-led, scroll-stopping first line. Emojis sparingly.',
+  meta_story:
+    'Meta Story (9:16). Short, punchy hook-first. Headlines ≤60 chars. Bodies ≤150 chars. Vertical mindset — single thought per line.',
+  tiktok_feed:
+    'TikTok Feed (9:16, casual). Hook-first, sounds-like-a-real-person. Headlines ≤80 chars. Bodies ≤300 chars. Hashtags baked into the body.',
+  tiktok_story:
+    'TikTok Story (9:16, ultra-short, 3-second readable). Headlines ≤40 chars. Bodies ≤100 chars. One idea, maximum urgency.',
+};
+
+async function fetchProductForAds(productId: string): Promise<{
+  id: string;
+  title: string;
+  price_aud: number | null;
+  category: string | null;
+  aliexpress_url: string | null;
+  image_url: string | null;
+  sold_count: number | null;
+} | null> {
+  const sb = getSupabaseAdmin();
+  const { data } = await sb
+    .from('winning_products')
+    .select('id, product_title, price_aud, category, aliexpress_url, image_url, sold_count')
+    .eq('id', productId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    id: String(data.id),
+    title: String(data.product_title ?? ''),
+    price_aud: data.price_aud != null ? Number(data.price_aud) : null,
+    category: data.category ?? null,
+    aliexpress_url: data.aliexpress_url ?? null,
+    image_url: data.image_url ?? null,
+    sold_count: data.sold_count != null ? Number(data.sold_count) : null,
+  };
+}
+
+function buildAdsPrompt(
+  product: { title: string; price_aud: number | null; category: string | null; sold_count: number | null },
+  format: AdFormat,
+  market: string,
+): string {
+  const brief = AD_FORMAT_BRIEFS[format];
+  const priceLine = product.price_aud != null ? `$${product.price_aud.toFixed(2)} ${market}D` : 'unknown';
+  const soldLine = product.sold_count != null ? `${product.sold_count.toLocaleString()} orders on AliExpress` : 'proven seller';
+  return `You are an elite direct-response copywriter for Australian dropshipping. Write ad copy for this product.
+
+PRODUCT: ${product.title}
+CATEGORY: ${product.category ?? 'general'}
+RETAIL PRICE: ${priceLine}
+SOCIAL PROOF: ${soldLine}
+MARKET: ${market}
+FORMAT BRIEF: ${brief}
+
+You must respond with ONLY a valid JSON object in this exact shape — no markdown, no prose, no code fences:
+{
+  "headlines": ["h1", "h2", "h3"],
+  "bodies":    ["b1", "b2", "b3"],
+  "ctas":      ["c1", "c2", "c3"],
+  "hook":      "single best hook line",
+  "audience":  "one-paragraph ideal customer description",
+  "interests": ["i1", "i2", "i3", "i4", "i5"]
+}
+
+Rules:
+- Always exactly 3 headlines, 3 bodies, 3 CTAs, 5 interests.
+- No words like "amazing", "game-changing", "life-changing", "revolutionary".
+- Use AU English spelling when ${market} is AU.
+- Interests = Meta/TikTok ad-manager targetable interests (real brands, adjacent hobbies, demographics).
+- Hooks must grab attention in the first 3 seconds.
+- Do not wrap JSON in code fences. JSON only.`;
+}
+
+function extractJson(text: string): unknown {
+  const trimmed = text.trim();
+  // Strip optional ```json fences
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const candidate = fenced ? fenced[1] : trimmed;
+  // Find first { ... last }
+  const first = candidate.indexOf('{');
+  const last = candidate.lastIndexOf('}');
+  if (first === -1 || last === -1 || last <= first) {
+    throw new Error('No JSON object found in model response');
+  }
+  return JSON.parse(candidate.slice(first, last + 1));
+}
+
+adsRouter.post('/generate', requireAuth, aiLimiter, async (req, res) => {
+  try {
+    const parsed = adGenerateInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'invalid_input', details: parsed.error.flatten() });
+    }
+    const { productId, format, market } = parsed.data;
+
+    const product = await fetchProductForAds(productId);
+    if (!product) {
+      return res.status(404).json({ ok: false, error: 'product_not_found' });
+    }
+
+    const prompt = buildAdsPrompt(product, format, market);
+
+    const client = getClient();
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      system: 'You are an elite direct-response copywriter. Output ONLY valid JSON per the user schema. No prose, no markdown.',
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const text = msg.content[0]?.type === 'text' ? msg.content[0].text : '';
+    let jsonUnknown: unknown;
+    try {
+      jsonUnknown = extractJson(text);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'parse_failed';
+      return res.status(502).json({ ok: false, error: 'parse_failed', message });
+    }
+
+    const validated = adOutputSchema.safeParse(jsonUnknown);
+    if (!validated.success) {
+      return res.status(502).json({ ok: false, error: 'schema_invalid', details: validated.error.flatten() });
+    }
+
+    return res.json({ ok: true, output: validated.data, product: { id: product.id, title: product.title, image_url: product.image_url } });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, error: 'server_error', message });
+  }
+});
+
+const adSaveInputSchema = z.object({
+  productId: z.string().min(1).max(200),
+  format:    adFormatSchema,
+  market:    z.string().min(2).max(4).default('AU'),
+  output:    adOutputSchema,
+});
+
+adsRouter.post('/save', requireAuth, async (req, res) => {
+  try {
+    const parsed = adSaveInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, error: 'invalid_input', details: parsed.error.flatten() });
+    }
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ ok: false, error: 'auth_required' });
+
+    const sb = getSupabaseAdmin();
+    const { data, error } = await sb
+      .from('ad_generations')
+      .insert({
+        user_id:     userId,
+        product_id:  parsed.data.productId,
+        format:      parsed.data.format,
+        market:      parsed.data.market,
+        output_json: parsed.data.output as unknown as Record<string, unknown>,
+      })
+      .select('id, created_at')
+      .single();
+
+    if (error) {
+      return res.status(500).json({ ok: false, error: 'db_error', message: error.message });
+    }
+    return res.json({ ok: true, id: data?.id, createdAt: data?.created_at });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, error: 'server_error', message });
+  }
+});
+
+adsRouter.get('/history', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ ok: false, error: 'auth_required' });
+
+    const sb = getSupabaseAdmin();
+    const { data, error } = await sb
+      .from('ad_generations')
+      .select('id, product_id, format, market, output_json, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      return res.status(500).json({ ok: false, error: 'db_error', message: error.message });
+    }
+    return res.json({ ok: true, items: data ?? [] });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, error: 'server_error', message });
+  }
+});
