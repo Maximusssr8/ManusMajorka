@@ -6,6 +6,7 @@
 import type { Express } from 'express';
 import express from 'express';
 import Stripe from 'stripe';
+import { z } from 'zod';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { sendTransactional } from './email';
 
@@ -434,6 +435,82 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
   return true;
 }
 
+// ── Resolve or create a Stripe customer for a given user ─────────────────────
+
+/**
+ * Ensures a Stripe customer exists for the given user. Returns the Stripe
+ * customer ID. Strategy:
+ * 1. Read stripe_customer_id from user_subscriptions.
+ * 2. If missing, try stripe.customers.list by email.
+ * 3. If still missing, stripe.customers.create and upsert into
+ *    user_subscriptions so future lookups are O(1).
+ */
+export async function resolveOrCreateStripeCustomer(
+  userId: string,
+  userEmail: string | undefined
+): Promise<string | null> {
+  const stripe = getStripe();
+  if (!stripe) return null;
+
+  const sb = getSupabaseAdmin();
+
+  // 1) Existing row in user_subscriptions
+  const { data: existing } = await sb
+    .from('user_subscriptions')
+    .select('stripe_customer_id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (existing?.stripe_customer_id) return existing.stripe_customer_id as string;
+
+  if (!userEmail) return null;
+
+  // 2) Check Stripe by email to avoid duplicates
+  let customerId: string | null = null;
+  try {
+    const list = await stripe.customers.list({ email: userEmail, limit: 1 });
+    if (list.data.length > 0) customerId = list.data[0].id;
+  } catch (err) {
+    console.warn('[Stripe] customer lookup by email failed:', err);
+  }
+
+  // 3) Create if still missing
+  if (!customerId) {
+    const created = await stripe.customers.create({
+      email: userEmail,
+      metadata: { userId },
+    });
+    customerId = created.id;
+  }
+
+  // 4) Persist mapping for future calls
+  const upsertRow: Record<string, unknown> = {
+    user_id: userId,
+    stripe_customer_id: customerId,
+    updated_at: new Date().toISOString(),
+  };
+  if (!existing) {
+    upsertRow.plan = null;
+    upsertRow.status = 'inactive';
+  }
+  await sb.from('user_subscriptions').upsert(upsertRow, { onConflict: 'user_id' });
+
+  return customerId;
+}
+
+// ── Zod schemas for request validation ───────────────────────────────────────
+
+const checkoutBodySchema = z.object({
+  priceId: z.string().optional(),
+  plan: z.string().optional(),
+  successUrl: z.string().url().optional(),
+  cancelUrl: z.string().url().optional(),
+});
+
+const portalBodySchema = z.object({
+  returnUrl: z.string().url().optional(),
+});
+
 // ── Express route registration ───────────────────────────────────────────────
 
 export function registerStripeRoutes(app: Express) {
@@ -451,7 +528,12 @@ export function registerStripeRoutes(app: Express) {
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
       if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-      const { priceId, plan, successUrl, cancelUrl } = req.body ?? {};
+      const parsed = checkoutBodySchema.safeParse(req.body ?? {});
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const { priceId, plan, successUrl, cancelUrl } = parsed.data;
+
       const result = await createCheckoutSession({
         userId: user.id,
         userEmail: user.email,
@@ -462,13 +544,17 @@ export function registerStripeRoutes(app: Express) {
       });
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Stripe error';
       console.error('[stripe] checkout error:', err);
-      res.status(500).json({ error: err.message ?? 'Stripe error' });
+      res.status(500).json({ error: message });
     }
   });
 
   // POST /api/stripe/customer-portal
+  // Resolves or creates a Stripe customer on-the-fly so users without a
+  // persisted subscription row can still access the portal (e.g. legacy
+  // Checkout Links, imported accounts, or manual refunds).
   app.post('/api/stripe/customer-portal', async (req, res) => {
     if (!isStripeConfigured()) {
       return res.status(503).json({ configured: false, error: 'Payment processing launching soon' });
@@ -480,31 +566,54 @@ export function registerStripeRoutes(app: Express) {
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
       if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-      const subStatus = await getSubscriptionStatus(user.id);
-      if (!subStatus.stripeCustomerId) {
-        return res.status(400).json({ error: 'No active subscription found' });
+      const parsed = portalBodySchema.safeParse(req.body ?? {});
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const returnUrl = parsed.data.returnUrl ?? 'https://majorka.io/app/settings/profile';
+
+      const customerId = await resolveOrCreateStripeCustomer(user.id, user.email);
+      if (!customerId) {
+        return res.status(400).json({ error: 'Unable to resolve Stripe customer — missing email on account' });
       }
 
-      const result = await createCustomerPortal(
-        subStatus.stripeCustomerId,
-        req.body?.returnUrl ?? 'https://majorka.io/app/billing'
-      );
+      const result = await createCustomerPortal(customerId, returnUrl);
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Stripe error';
       console.error('[stripe] portal error:', err);
-      res.status(500).json({ error: err.message ?? 'Stripe error' });
+      res.status(500).json({ error: message });
     }
   });
 
   // GET /api/stripe/subscription-status
+  // Unauthenticated callers receive only { stripeConfigured } so the public
+  // Pricing page can probe readiness without requiring a session.
   app.get('/api/stripe/subscription-status', async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
-      if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
-      const token = authHeader.slice(7);
+      const hasToken = authHeader?.startsWith('Bearer ') && authHeader.slice(7) !== 'anonymous';
+
+      if (!hasToken) {
+        return res.json({
+          plan: '',
+          status: 'anonymous',
+          periodEnd: null,
+          stripeConfigured: isStripeConfigured(),
+        });
+      }
+
+      const token = authHeader!.slice(7);
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
-      if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
+      if (error || !user) {
+        return res.json({
+          plan: '',
+          status: 'anonymous',
+          periodEnd: null,
+          stripeConfigured: isStripeConfigured(),
+        });
+      }
 
       const status = await getSubscriptionStatus(user.id);
       res.json({
@@ -513,9 +622,10 @@ export function registerStripeRoutes(app: Express) {
         periodEnd: status.periodEnd,
         stripeConfigured: isStripeConfigured(),
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error';
       console.error('[stripe] status error:', err);
-      res.status(500).json({ error: err.message ?? 'Error' });
+      res.status(500).json({ error: message });
     }
   });
 
