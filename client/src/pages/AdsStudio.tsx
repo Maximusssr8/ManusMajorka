@@ -462,8 +462,18 @@ OBJECTION KILLER:
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0c', fontFamily: dm, color: '#e8e8f0' }}>
+      <style>{`
+        @media (max-width: 1024px) {
+          .mj-ads-3col { grid-template-columns: 1fr !important; height: auto !important; overflow: visible !important; }
+          .mj-ads-3col > * { height: auto !important; min-height: 0 !important; border-right: none !important; }
+        }
+        @media (max-width: 640px) {
+          .mj-ads-header { padding: 14px 16px !important; }
+          .mj-ads-2col { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {/* Header */}
-      <div style={{ background: '#151515', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="mj-ads-header" style={{ background: '#151515', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#f1f1f3', margin: 0, letterSpacing: '-0.02em' }}>Ads Studio</h1>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '3px 0 0' }}>Expert direct-response ad copy, crafted for AU dropshipping operators</p>
@@ -480,7 +490,7 @@ OBJECTION KILLER:
       </div>
 
       {/* 3-col */}
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 280px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
+      <div className="mj-ads-3col" style={{ display: 'grid', gridTemplateColumns: '320px 1fr 280px', height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
         {/* ── LEFT: Form — flex column so generate button can pin to bottom without sticky quirks ── */}
         <div style={{
           position: 'relative',
@@ -705,7 +715,7 @@ OBJECTION KILLER:
           {/* Platforms */}
           <div style={{ marginBottom: 10 }}>
             <label style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Platforms</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+            <div className="mj-ads-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
               {PLATFORMS.map((p) => {
                 const active = platforms.includes(p.id);
                 return (
