@@ -33,6 +33,9 @@ const MIGRATIONS: ReadonlyArray<{ name: string; file: string }> = [
   { name: "apify-ae-fields", file: "apify-ae-fields-migration.sql" },
   { name: "alerts", file: "alerts-migration.sql" },
   { name: "ships-to-au", file: "ships-to-au-migration.sql" },
+  { name: "ships-to-columns", file: "ships-to-columns-migration.sql" },
+  { name: "product-history", file: "product-history-migration.sql" },
+  { name: "pipeline-logs", file: "pipeline-logs-migration.sql" },
 ];
 
 function getConnectionString(): string {
