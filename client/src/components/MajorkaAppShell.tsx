@@ -56,8 +56,11 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
-import { FREE_LESSON_IDS, TOTAL_FREE } from '@/pages/LearnHub';
 import { CommandPalette } from '@/components/CommandPalette';
+
+// FREE_LESSON_IDS and TOTAL_FREE are no longer exported from LearnHub — stub locally
+const FREE_LESSON_IDS: string[] = [];
+const TOTAL_FREE = 0;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
