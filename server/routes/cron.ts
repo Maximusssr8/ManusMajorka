@@ -815,7 +815,14 @@ router.post('/ae-hot-products', async (req: Request, res: Response) => {
         cost_price_aud: costAud,
         supplier_cost_aud: costAud,
         profit_margin: priceAud > 0 ? Math.round((priceAud - costAud) / priceAud * 100) : 60,
-        winning_score: 75,
+        // Score derived from volume + margin. Velocity isn't available here
+        // (this handler doesn't snapshot) — refresh-hotproducts overwrites
+        // with the full velocity-weighted formula on the next 6h tick.
+        winning_score: Math.min(95, Math.round(
+          Math.min(40, Math.log10(Math.max(1, orders)) * 8) +
+          Math.min(30, Math.max(0, (priceAud > 0 ? ((priceAud - costAud) / priceAud) * 100 : 40) - 30) * 1.0) +
+          20,
+        )),
         trend: orders > 5000 ? 'Exploding' : orders > 1000 ? 'Rising' : 'Steady',
         orders_count: orders,
         real_orders_count: orders,
@@ -831,6 +838,8 @@ router.post('/ae-hot-products', async (req: Request, res: Response) => {
         is_active: true,
         scraped_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        last_seen_at: new Date().toISOString(),
+        last_seen_in_scrape_at: new Date().toISOString(),
       };
     }).filter((r: Record<string, unknown>) => r.image_url && String(r.image_url).startsWith('http') && (r.price_aud as number) > 0);
 
@@ -881,7 +890,17 @@ async function runRefreshHotProducts(req: Request, res: Response) {
 
     type Row = Record<string, unknown>;
     const seen = new Set<string>();
-    const rows: Row[] = [];
+    const stagedInputs: Array<{
+      market: string;
+      product_id: string;
+      product_title: string;
+      image_url: string;
+      priceAud: number;
+      costAud: number;
+      orders: number;
+      category: string | null;
+      product_detail_url: string;
+    }> = [];
     let totalFetched = 0;
 
     for (const { market, products } of buckets) {
@@ -898,35 +917,123 @@ async function runRefreshHotProducts(req: Request, res: Response) {
         const costAud = Math.round(priceAud * 0.4 * 100) / 100;
         const orders = p.lastest_volume || 0;
 
-        rows.push({
+        stagedInputs.push({
+          market,
+          product_id: p.product_id,
           product_title: p.product_title,
           image_url: p.product_main_image_url,
-          price_aud: priceAud,
-          real_price_aud: priceAud,
-          cost_price_aud: costAud,
-          supplier_cost_aud: costAud,
-          profit_margin: priceAud > 0 ? Math.round(((priceAud - costAud) / priceAud) * 100) : 60,
-          winning_score: orders >= 5000 ? 88 : orders >= 1000 ? 78 : 68,
-          trend: orders >= 5000 ? 'Exploding' : orders >= 1000 ? 'Rising' : 'Steady',
-          orders_count: orders,
-          real_orders_count: orders,
-          sold_count: orders,
-          source_url: p.product_detail_url,
-          aliexpress_url: p.product_detail_url,
-          aliexpress_id: p.product_id,
+          priceAud,
+          costAud,
+          orders,
           category: p.second_level_category_name ?? null,
-          platform: 'aliexpress',
-          data_source: 'aliexpress_hotproduct_api',
-          link_status: 'verified',
-          link_verified_at: new Date().toISOString(),
-          tiktok_signal: orders >= 5000,
-          tags: ['ae-hot', 'affiliate', `market-${market.toLowerCase()}`],
-          is_active: true,
-          scraped_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          product_detail_url: p.product_detail_url,
         });
       }
     }
+
+    // ── Velocity snapshots: fetch existing rows so we can compute 7d delta ──
+    // We shift the snapshot forward only when it's >=7 days old so each row
+    // carries a true weekly delta rather than whatever noise arrived between
+    // cron ticks. First-seen rows have no prior snapshot → velocity_7d = 0
+    // until we roll one in ~7 days.
+    const existingByAeId = new Map<string, {
+      sold_count: number | null;
+      sold_count_7d_ago: number | null;
+      sold_count_snapshot_at: string | null;
+      first_seen_at: string | null;
+      times_seen_in_scrapes: number | null;
+      created_at: string | null;
+    }>();
+    const ids = stagedInputs.map((s) => s.product_id);
+    if (ids.length > 0) {
+      // Supabase .in() caps at ~1000 values — we have at most 350 (7*50) so one call is fine.
+      const { data: existing } = await sb
+        .from('winning_products')
+        .select('aliexpress_id, sold_count, sold_count_7d_ago, sold_count_snapshot_at, first_seen_at, times_seen_in_scrapes, created_at')
+        .in('aliexpress_id', ids);
+      for (const e of (existing ?? []) as Array<Record<string, unknown>>) {
+        existingByAeId.set(String(e.aliexpress_id), {
+          sold_count: (e.sold_count as number | null) ?? null,
+          sold_count_7d_ago: (e.sold_count_7d_ago as number | null) ?? null,
+          sold_count_snapshot_at: (e.sold_count_snapshot_at as string | null) ?? null,
+          first_seen_at: (e.first_seen_at as string | null) ?? null,
+          times_seen_in_scrapes: (e.times_seen_in_scrapes as number | null) ?? null,
+          created_at: (e.created_at as string | null) ?? null,
+        });
+      }
+    }
+
+    const nowIso = new Date().toISOString();
+    const nowMs = Date.now();
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+    const rows: Row[] = stagedInputs.map((s) => {
+      const prior = existingByAeId.get(s.product_id);
+      const priorSnapshotMs = prior?.sold_count_snapshot_at ? Date.parse(prior.sold_count_snapshot_at) : NaN;
+      const snapshotAgeMs = Number.isFinite(priorSnapshotMs) ? (nowMs - priorSnapshotMs) : Infinity;
+
+      // Roll the snapshot forward only if it's 7+ days old. Otherwise hold the
+      // old baseline so velocity_7d stays a true weekly delta.
+      let soldCount7dAgo: number;
+      let snapshotAtIso: string;
+      if (!prior || prior.sold_count_7d_ago == null || !Number.isFinite(priorSnapshotMs)) {
+        soldCount7dAgo = s.orders;
+        snapshotAtIso = nowIso;
+      } else if (snapshotAgeMs >= SEVEN_DAYS_MS) {
+        soldCount7dAgo = prior.sold_count ?? s.orders;
+        snapshotAtIso = nowIso;
+      } else {
+        soldCount7dAgo = prior.sold_count_7d_ago;
+        snapshotAtIso = prior.sold_count_snapshot_at ?? nowIso;
+      }
+      const velocity7d = Math.max(0, s.orders - soldCount7dAgo);
+
+      // Composite winning_score (0-100). Velocity dominates — a product that
+      // sold 5k units in 7 days is a stronger signal than a 6-month-old listing
+      // with high cumulative orders but no movement. Margin tiebreaks.
+      const marginPct = s.priceAud > 0 ? ((s.priceAud - s.costAud) / s.priceAud) * 100 : 40;
+      const velocityScore = Math.min(60, Math.log10(Math.max(1, velocity7d)) * 15); // 0→60
+      const volumeScore = Math.min(25, Math.log10(Math.max(1, s.orders)) * 5);        // 0→25
+      const marginScore = Math.min(15, Math.max(0, (marginPct - 30) * 0.5));          // 0→15
+      const winningScore = Math.round(Math.max(5, velocityScore + volumeScore + marginScore));
+
+      const timesSeen = (prior?.times_seen_in_scrapes ?? 0) + 1;
+
+      return {
+        product_title: s.product_title,
+        image_url: s.image_url,
+        price_aud: s.priceAud,
+        real_price_aud: s.priceAud,
+        cost_price_aud: s.costAud,
+        supplier_cost_aud: s.costAud,
+        profit_margin: s.priceAud > 0 ? Math.round(marginPct) : 60,
+        winning_score: winningScore,
+        trend: velocity7d >= 2000 ? 'Exploding' : velocity7d >= 500 ? 'Rising' : s.orders >= 5000 ? 'Steady' : 'New',
+        orders_count: s.orders,
+        real_orders_count: s.orders,
+        sold_count: s.orders,
+        sold_count_7d_ago: soldCount7dAgo,
+        velocity_7d: velocity7d,
+        sold_count_snapshot_at: snapshotAtIso,
+        source_url: s.product_detail_url,
+        aliexpress_url: s.product_detail_url,
+        aliexpress_id: s.product_id,
+        category: s.category,
+        platform: 'aliexpress',
+        data_source: 'aliexpress_hotproduct_api',
+        link_status: 'verified',
+        link_verified_at: nowIso,
+        tiktok_signal: velocity7d >= 1000 || s.orders >= 5000,
+        tags: ['ae-hot', 'affiliate', `market-${s.market.toLowerCase()}`],
+        is_active: true,
+        scraped_at: nowIso,
+        updated_at: nowIso,
+        // Do NOT set created_at — preserves original insertion date on re-upsert.
+        // last_seen_at tracks freshness; created_at stays immutable.
+        last_seen_at: nowIso,
+        last_seen_in_scrape_at: nowIso,
+        times_seen_in_scrapes: timesSeen,
+      };
+    });
 
     let upserted = 0;
     if (rows.length > 0) {

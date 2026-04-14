@@ -91,7 +91,17 @@ export default function AppHome() {
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { products, loading: prodLoading, total } = useProducts({ limit: 10, orderBy: 'sold_count' });
+  // Velocity Leaders: ranked by 7-day sold_count delta (recent momentum).
+  // Server-computed on every cron tick — see server/routes/cron.ts.
+  const { products: velocityProducts } = useProducts({ limit: 10, orderBy: 'velocity_7d' });
+  const velocityIds = velocityProducts.map((p) => p.id);
+  // Top Products: highest cumulative sold_count, DEDUPED against Velocity Leaders
+  // so the two sections never show the same SKU.
+  const { products, loading: prodLoading, total } = useProducts({
+    limit: 10,
+    orderBy: 'sold_count',
+    excludeIds: velocityIds.length > 0 ? velocityIds : undefined,
+  });
   const { products: hotTodayProducts } = useProducts({ limit: 4, tab: 'hot-now' });
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
@@ -105,9 +115,14 @@ export default function AppHome() {
   const newestProduct = newestProducts[0] ?? null;
 
   /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
-     created within 30d). Falls back to the top-volume slice if the strict
-     filter returns nothing so this card always shows real products. */
-  const trendingNow = hotTodayProducts.length > 0 ? hotTodayProducts : products.slice(0, 4);
+     created within 30d). Falls back to velocity leaders (then top-volume)
+     if the strict filter returns nothing so this card always shows real
+     products AND never mirrors the Top Products table. */
+  const trendingNow = hotTodayProducts.length > 0
+    ? hotTodayProducts
+    : velocityProducts.length > 0
+      ? velocityProducts.slice(0, 4)
+      : products.slice(0, 4);
 
   /* Trending Today — products with sold_count > 100,000 in the loaded set */
   const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;

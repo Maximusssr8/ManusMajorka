@@ -50,6 +50,9 @@ export interface Product {
   product_url: string | null;
   created_at: string;
   updated_at: string | null;
+  velocity_7d?: number | null;
+  sold_count_7d_ago?: number | null;
+  last_seen_at?: string | null;
 }
 
 export type OrderByColumn =
@@ -60,7 +63,8 @@ export type OrderByColumn =
   | 'price_asc'
   | 'price_desc'
   | 'orders_asc'
-  | 'velocity';
+  | 'velocity'
+  | 'velocity_7d';
 
 export type SmartTabKey = 'all' | 'new' | 'trending' | 'highmargin' | 'top' | 'hot-now' | 'high-volume' | 'under-10';
 
@@ -76,6 +80,8 @@ export interface UseProductsOptions {
   tab?: SmartTabKey;
   /** Case-insensitive keyword search on product_title. */
   searchQuery?: string;
+  /** Exclude these product IDs — used on Home to dedup between sections. */
+  excludeIds?: Array<number | string>;
 }
 
 export interface UseProductsResult {
@@ -103,13 +109,20 @@ function applyOrder(query: any, orderBy: OrderByColumn): any {
     case 'winning_score':
       return query.order('winning_score', { ascending: false, nullsFirst: false })
                   .order('sold_count', { ascending: false, nullsFirst: false });
+    case 'velocity_7d':
+      return query.order('velocity_7d', { ascending: false, nullsFirst: false })
+                  .order('sold_count', { ascending: false, nullsFirst: false });
     default:
       return query.order('sold_count', { ascending: false, nullsFirst: false });
   }
 }
 
 export function useProducts(options: UseProductsOptions = {}): UseProductsResult {
-  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab = 'all', searchQuery } = options;
+  const { limit = 20, orderBy = 'sold_count', minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab = 'all', searchQuery, excludeIds } = options;
+  // Stable cache key for excludeIds — sort so [1,2] and [2,1] share a cache slot.
+  const excludeKey = excludeIds && excludeIds.length > 0
+    ? excludeIds.map(String).sort().join(',')
+    : '';
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +132,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${maxOrders ?? ''}:${searchQuery ?? ''}`;
+      const cacheKey = `products:${tab}:${orderBy}:${limit}:${minScore ?? ''}:${category ?? ''}:${minPrice ?? ''}:${maxPrice ?? ''}:${minOrders ?? ''}:${maxOrders ?? ''}:${searchQuery ?? ''}:${excludeKey}`;
       const hit = cacheGet<{ products: Product[]; total: number }>(cacheKey);
       if (hit) {
         setProducts(hit.products);
@@ -192,6 +205,13 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
         if (typeof maxOrders === 'number') query = query.lte('sold_count', maxOrders);
         if (searchQuery && searchQuery.trim().length > 0) {
           query = query.ilike('product_title', `%${searchQuery.trim()}%`);
+        }
+        // Dedup support — Home uses this to keep Velocity Leaders and Top
+        // Products from colliding. Supabase PostgREST `.not('id','in',...)`
+        // expects a parenthesised comma-separated tuple.
+        if (excludeIds && excludeIds.length > 0) {
+          const tuple = `(${excludeIds.map((v) => String(v)).join(',')})`;
+          query = query.not('id', 'in', tuple);
         }
 
         query = query.limit(limit);
@@ -267,7 +287,7 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
     }
     load();
     return () => { cancelled = true; };
-  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab, searchQuery]);
+  }, [limit, orderBy, minScore, category, minPrice, maxPrice, minOrders, maxOrders, tab, searchQuery, excludeKey]);
 
   return { products, loading, error, total, cached };
 }
