@@ -5,7 +5,7 @@
  *
  * Lazy-loaded — only imported when the user opens a product.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'wouter';
 import {
@@ -17,7 +17,6 @@ import { ProductImage } from '@/components/ProductImage';
 import { MarketFlags } from './MarketFlags';
 import { TrendBadge } from './TrendBadge';
 import { Sparkline } from './Sparkline';
-import { Markdown } from '@/components/Markdown';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -26,12 +25,18 @@ interface ProductDetailDrawerProps {
   onClose: () => void;
 }
 
+interface StructuredBrief {
+  marketingAngle: string;
+  targetAudience: string;
+  hookIdeas: string[];
+}
+
 interface BriefCacheEntry {
-  text: string;
+  data: StructuredBrief;
   ts: number;
 }
 
-const BRIEF_CACHE_PREFIX = 'majorka_brief_v1:';
+const BRIEF_CACHE_PREFIX = 'majorka_brief_v2:';
 const BRIEF_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const BLUEPRINT_CACHE_PREFIX = 'majorka_blueprint_v1:';
@@ -72,24 +77,26 @@ function writeBlueprintCache(productId: string, days: BlueprintDay[]): void {
   }
 }
 
-function readBriefCache(productId: string): string | null {
+function readBriefCache(productId: string): StructuredBrief | null {
   if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem(`${BRIEF_CACHE_PREFIX}${productId}`);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as BriefCacheEntry;
-    if (!parsed || typeof parsed.text !== 'string' || typeof parsed.ts !== 'number') return null;
+    if (!parsed || typeof parsed.ts !== 'number') return null;
     if (Date.now() - parsed.ts > BRIEF_CACHE_TTL_MS) return null;
-    return parsed.text;
+    const d = parsed.data;
+    if (!d || typeof d.marketingAngle !== 'string' || typeof d.targetAudience !== 'string' || !Array.isArray(d.hookIdeas)) return null;
+    return d;
   } catch {
     return null;
   }
 }
 
-function writeBriefCache(productId: string, text: string): void {
+function writeBriefCache(productId: string, data: StructuredBrief): void {
   if (typeof window === 'undefined') return;
   try {
-    const entry: BriefCacheEntry = { text, ts: Date.now() };
+    const entry: BriefCacheEntry = { data, ts: Date.now() };
     window.localStorage.setItem(`${BRIEF_CACHE_PREFIX}${productId}`, JSON.stringify(entry));
   } catch {
     /* quota — ignore */
@@ -152,7 +159,7 @@ function estMonthlyRevenue(p: Product): number {
 
 export default function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerProps) {
   const [, setLocation] = useLocation();
-  const [brief, setBrief] = useState<string>('');
+  const [brief, setBrief] = useState<StructuredBrief | null>(null);
   const [briefLoading, setBriefLoading] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
 
@@ -218,7 +225,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
     };
   }, [product, productId]);
 
-  // Load AI Brief — cache-first, then fetch
+  // Load structured AI Brief — cache-first (24h localStorage), then fetch
   useEffect(() => {
     if (!product) return;
     const cached = readBriefCache(productId);
@@ -229,45 +236,32 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
       return;
     }
     let cancelled = false;
-    setBrief('');
+    setBrief(null);
     setBriefError(null);
     setBriefLoading(true);
     (async () => {
       try {
         const { data: sess } = await supabase.auth.getSession();
         const token = sess?.session?.access_token ?? '';
-        const price = Number(product.price_aud ?? 0);
-        const orders = Number(product.sold_count ?? 0);
-        const score = Number(product.winning_score ?? 0);
-        const system =
-          'You are Maya, a dropshipping analyst. Output a concise product brief in markdown with these sections: **Why it wins**, **Target audience**, **Ad angle**, **Risks**. Max 180 words total. Use plain language, no marketing fluff.';
-        const prompt =
-          `Product: ${product.product_title}\n` +
-          `Category: ${product.category ?? 'uncategorised'}\n` +
-          `Landed cost: A$${price.toFixed(2)}\n` +
-          `Lifetime orders: ${orders}\n` +
-          `AI winning score: ${Math.round(score)}/100`;
-        const res = await fetch('/api/ai/generate', {
+        const res = await fetch(`/api/products/${encodeURIComponent(productId)}/brief`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: token ? `Bearer ${token}` : '',
           },
-          body: JSON.stringify({
-            system,
-            prompt,
-            model: 'claude-haiku-4-5',
-            max_tokens: 700,
-          }),
         });
-        const data = await res.json();
-        const text: string = data?.text ?? data?.output ?? data?.content ?? '';
-        if (!res.ok || !text) {
-          throw new Error(data?.error || 'AI endpoint returned no content');
+        const data = (await res.json()) as Partial<StructuredBrief> & { error?: string };
+        if (!res.ok || !data.marketingAngle || !data.targetAudience || !Array.isArray(data.hookIdeas)) {
+          throw new Error(data?.error || 'Brief endpoint returned invalid shape');
         }
         if (cancelled) return;
-        setBrief(text);
-        writeBriefCache(productId, text);
+        const structured: StructuredBrief = {
+          marketingAngle: data.marketingAngle,
+          targetAudience: data.targetAudience,
+          hookIdeas: data.hookIdeas,
+        };
+        setBrief(structured);
+        writeBriefCache(productId, structured);
       } catch (e: unknown) {
         if (cancelled) return;
         setBriefError(e instanceof Error ? e.message : 'Failed to generate brief');
@@ -774,9 +768,25 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               <span style={{ marginLeft: 'auto', fontSize: 10, color: '#737373' }}>Cached 24h</span>
             </div>
             {briefLoading ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#a3a3a3', fontSize: 13 }}>
-                <Loader2 size={14} className="animate-spin" />
-                Generating brief…
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      height: 64,
+                      borderRadius: 10,
+                      background: 'linear-gradient(90deg, #0e0e0e 0%, #161616 50%, #0e0e0e 100%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'mj-skeleton 1400ms ease-in-out infinite',
+                    }}
+                  />
+                ))}
+                <style>{`
+                  @keyframes mj-skeleton {
+                    0% { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                  }
+                `}</style>
               </div>
             ) : briefError ? (
               <div
@@ -796,8 +806,22 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
                 <span>{briefError}</span>
               </div>
             ) : brief ? (
-              <div style={{ fontSize: 13, lineHeight: 1.65, color: '#d4d4d4' }}>
-                <Markdown>{brief}</Markdown>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <BriefCard title="Marketing Angle" body={brief.marketingAngle} />
+                <BriefCard title="Target Audience" body={brief.targetAudience} />
+                <BriefCard
+                  title="Hook Ideas"
+                  body={
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {brief.hookIdeas.map((h, i) => (
+                        <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                          <span className="mj-num" style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, marginTop: 1, minWidth: 16 }}>0{i + 1}</span>
+                          <span style={{ fontSize: 13, color: '#d4d4d4', lineHeight: 1.5 }}>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  }
+                />
               </div>
             ) : (
               <div style={{ fontSize: 13, color: '#737373' }}>No brief yet.</div>
@@ -886,6 +910,45 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
 
   if (typeof document === 'undefined') return drawer;
   return createPortal(drawer, document.body);
+}
+
+interface BriefCardProps {
+  title: string;
+  body: ReactNode;
+}
+
+function BriefCard({ title, body }: BriefCardProps) {
+  return (
+    <div
+      style={{
+        padding: '12px 14px',
+        background: '#0b0b0b',
+        border: '1px solid #1a1a1a',
+        borderRadius: 10,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+      }}
+    >
+      <span
+        style={{
+          fontSize: 10,
+          color: '#737373',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          fontFamily: "'DM Sans', system-ui, sans-serif",
+          fontWeight: 600,
+        }}
+      >
+        {title}
+      </span>
+      {typeof body === 'string' ? (
+        <span style={{ fontSize: 13, color: '#d4d4d4', lineHeight: 1.55 }}>{body}</span>
+      ) : (
+        body
+      )}
+    </div>
+  );
 }
 
 interface StatCardProps {
