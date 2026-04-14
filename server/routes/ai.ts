@@ -43,7 +43,7 @@ Never invent product statistics. When unsure, say so and suggest the next resear
       : [];
 
     const resp = await client.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       system: systemPrompt,
       messages: [...priorMessages, { role: 'user', content: message.slice(0, 4000) }],
