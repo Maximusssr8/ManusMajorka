@@ -327,6 +327,108 @@ export function useProducts(options: UseProductsOptions = {}): UseProductsResult
   return { products, loading, error, total, cached };
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Wave 3 — tab-specific fetchers for the 3-tab Products page
+// (trending / hot / high-volume). Each hook hits a dedicated endpoint
+// backed by distinct SQL and shares the module-level stale-while-revalidate
+// cache (60s TTL for fresher tab data than the generic 5min cache).
+// ═══════════════════════════════════════════════════════════════════════════
+const TAB_CACHE_TTL_MS = 60 * 1000;
+
+export type ProductsTab = 'trending' | 'hot' | 'high-volume';
+
+export interface ProductsTabFilters {
+  market?: 'AU' | 'US' | 'UK' | 'all';
+  category?: string;
+  minOrders?: number;
+  minScore?: number;
+}
+
+export interface UseProductsTabResult {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+  insufficientData: boolean;
+  excludedIds: Array<number | string>;
+  cached: boolean;
+}
+
+function buildTabQS(filters: ProductsTabFilters): string {
+  const params = new URLSearchParams();
+  if (filters.market && filters.market !== 'all') params.set('market', filters.market);
+  if (filters.category && filters.category.trim().length > 0) params.set('category', filters.category.trim());
+  if (typeof filters.minOrders === 'number' && filters.minOrders > 0) params.set('minOrders', String(filters.minOrders));
+  if (typeof filters.minScore === 'number' && filters.minScore > 0) params.set('minScore', String(filters.minScore));
+  const s = params.toString();
+  return s.length > 0 ? `?${s}` : '';
+}
+
+interface TabApiResponse {
+  products: Product[];
+  count: number;
+  tab: string;
+  insufficientData?: boolean;
+  excludedIds?: Array<number | string>;
+}
+
+export function useProductsTab(tab: ProductsTab, filters: ProductsTabFilters = {}): UseProductsTabResult {
+  const qs = buildTabQS(filters);
+  const cacheKey = `tab:${tab}${qs}`;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [excludedIds, setExcludedIds] = useState<Array<number | string>>([]);
+  const [insufficientData, setInsufficientData] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [cached, setCached] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // Stale-while-revalidate: if we have cached data, render it immediately
+    // (cached=true), then refetch in the background and update on success.
+    const hit = QUERY_CACHE.get(cacheKey);
+    const isFresh = hit && (Date.now() - hit.timestamp) < TAB_CACHE_TTL_MS;
+    if (hit) {
+      const cachedResp = hit.data as TabApiResponse;
+      setProducts(cachedResp.products);
+      setExcludedIds(cachedResp.excludedIds ?? []);
+      setInsufficientData(Boolean(cachedResp.insufficientData));
+      setCached(true);
+      setLoading(false);
+      if (isFresh) return;
+    } else {
+      setLoading(true);
+    }
+
+    async function load() {
+      setError(null);
+      try {
+        const res = await fetch(`/api/products/${tab}${qs}`, {
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as TabApiResponse;
+        if (cancelled) return;
+        cacheSet(cacheKey, data);
+        setProducts(data.products ?? []);
+        setExcludedIds(data.excludedIds ?? []);
+        setInsufficientData(Boolean(data.insufficientData));
+        setCached(false);
+      } catch (e: unknown) {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : 'Failed to load tab');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [cacheKey, qs, tab]);
+
+  return { products, loading, error, insufficientData, excludedIds, cached };
+}
+
 export interface ProductStats {
   total: number;
   maxOrders: number;

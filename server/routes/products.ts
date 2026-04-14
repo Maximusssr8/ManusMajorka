@@ -2005,43 +2005,182 @@ router.get('/analytics-categories', async (_req: Request, res: Response) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Wave 3 — Products page 3-tab split (Trending / Hot / High Volume)
+// Each endpoint uses distinct SQL and supports filters: market, category,
+// minOrders, minScore. Results capped at 50. Trending ids are returned with
+// Hot/High-Volume responses so the client can dedup.
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface ProductsTabFilters {
+  market: string;        // 'AU' | 'US' | 'UK' | 'all'
+  category: string;      // empty = no filter
+  minOrders: number;     // 0 = no filter
+  minScore: number;      // 0 = no filter
+}
+
+function parseTabFilters(req: Request): ProductsTabFilters {
+  return {
+    market: String(req.query.market || 'all').toUpperCase(),
+    category: typeof req.query.category === 'string' ? req.query.category.trim() : '',
+    minOrders: Number(req.query.minOrders) || 0,
+    minScore: Number(req.query.minScore) || 0,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyTabFilters(q: any, f: ProductsTabFilters): any {
+  let out = q.not('image_url', 'is', null).gt('price_aud', 0);
+  if (f.minOrders > 0) out = out.gte('sold_count', f.minOrders);
+  if (f.minScore > 0) out = out.gte('winning_score', f.minScore);
+  if (f.category) out = out.ilike('category', `%${f.category}%`);
+  // Market filter is a soft no-op unless ships_to_* columns exist. Left
+  // here as a sentinel so we can wire it up once the columns are live.
+  void f.market;
+  return out;
+}
+
+const TAB_LIMIT = 50;
+const TAB_CACHE_TTL_SEC = 120; // 2min SWR cache
+
+// ── GET /api/products/trending — 24h/7d velocity leaders ────────────────────
+// Ordered by velocity_7d DESC. Falls back to empty with meta.insufficientData
+// when the velocity_7d column has no rows above 0 across the filtered set.
+router.get('/trending', async (req: Request, res: Response) => {
+  try {
+    const filters = parseTabFilters(req);
+    const sb = getSupabase();
+
+    const base = applyTabFilters(
+      sb.from('winning_products').select('*').gt('velocity_7d', 0),
+      filters,
+    )
+      .order('velocity_7d', { ascending: false, nullsFirst: false })
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(TAB_LIMIT);
+
+    const { data, error } = await base;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const products = data ?? [];
+    res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
+    return res.json({
+      products,
+      count: products.length,
+      tab: 'trending',
+      insufficientData: products.length === 0,
+    });
+  } catch (err: unknown) {
+    console.error('[products/trending]', err);
+    return res.status(500).json({
+      error: err instanceof Error ? err.message : 'Unknown error',
+    });
+  }
+});
+
+// ── GET /api/products/hot — new 48h discoveries ─────────────────────────────
+// WHERE created_at >= NOW() - 48h ORDER BY sold_count DESC. We also exclude
+// any id in the current Trending slice so the tabs never overlap.
+router.get('/hot', async (req: Request, res: Response) => {
+  try {
+    const filters = parseTabFilters(req);
+    const sb = getSupabase();
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+
+    // Compute trending ids with the same filter envelope to dedup.
+    const trendingQ = applyTabFilters(
+      sb.from('winning_products').select('id').gt('velocity_7d', 0),
+      filters,
+    )
+      .order('velocity_7d', { ascending: false, nullsFirst: false })
+      .limit(TAB_LIMIT);
+
+    const { data: trendingRows } = await trendingQ;
+    const trendingIds = (trendingRows ?? []).map((r: { id: number | string }) => r.id);
+
+    let hotQ = applyTabFilters(
+      sb.from('winning_products').select('*').gte('created_at', cutoff),
+      filters,
+    );
+    if (trendingIds.length > 0) {
+      hotQ = hotQ.not('id', 'in', `(${trendingIds.map(String).join(',')})`);
+    }
+    hotQ = hotQ
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(TAB_LIMIT);
+
+    const { data, error } = await hotQ;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const products = data ?? [];
+    res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
+    return res.json({
+      products,
+      count: products.length,
+      tab: 'hot',
+      excludedIds: trendingIds,
+      windowHours: 48,
+    });
+  } catch (err: unknown) {
+    console.error('[products/hot]', err);
+    return res.status(500).json({
+      error: err instanceof Error ? err.message : 'Unknown error',
+    });
+  }
+});
+
+// ── GET /api/products/high-volume — evergreen all-time ──────────────────────
+// Ordered by sold_count DESC, EXCLUDING ids already in Trending.
+router.get('/high-volume', async (req: Request, res: Response) => {
+  try {
+    const filters = parseTabFilters(req);
+    const sb = getSupabase();
+
+    const trendingQ = applyTabFilters(
+      sb.from('winning_products').select('id').gt('velocity_7d', 0),
+      filters,
+    )
+      .order('velocity_7d', { ascending: false, nullsFirst: false })
+      .limit(TAB_LIMIT);
+
+    const { data: trendingRows } = await trendingQ;
+    const trendingIds = (trendingRows ?? []).map((r: { id: number | string }) => r.id);
+
+    let hvQ = applyTabFilters(
+      sb.from('winning_products').select('*').gt('sold_count', 0),
+      filters,
+    );
+    if (trendingIds.length > 0) {
+      hvQ = hvQ.not('id', 'in', `(${trendingIds.map(String).join(',')})`);
+    }
+    hvQ = hvQ
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(TAB_LIMIT);
+
+    const { data, error } = await hvQ;
+    if (error) return res.status(500).json({ error: error.message });
+
+    const products = data ?? [];
+    res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
+    return res.json({
+      products,
+      count: products.length,
+      tab: 'high-volume',
+      excludedIds: trendingIds,
+    });
+  } catch (err: unknown) {
+    console.error('[products/high-volume]', err);
+    return res.status(500).json({
+      error: err instanceof Error ? err.message : 'Unknown error',
+    });
+  }
+});
+
 export default router;
 
-// ── GET /api/products/cj — CJ Dropshipping top products (cached 12hr) ────────
+// Legacy /api/products/cj endpoint — CJ pipeline purged. Returns empty list
+// so existing clients don't crash during rollout.
 router.get('/cj', async (_req: Request, res: Response) => {
-  try {
-    const { fetchCJProducts } = await import('../lib/cjProducts');
-    const { getSupabaseAdmin } = await import('../_core/supabase');
-    const sb = getSupabaseAdmin();
-    const CACHE_KEY = 'cj_products_au';
-
-    // Check cache first
-    try {
-      const { data: cached } = await sb
-        .from('apify_cache')
-        .select('data, expires_at')
-        .eq('cache_key', CACHE_KEY)
-        .single();
-      if (cached && new Date(cached.expires_at) > new Date() && Array.isArray(cached.data) && cached.data.length > 0) {
-        res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
-        return res.json({ products: cached.data, count: cached.data.length, source: 'cache' });
-      }
-    } catch {}
-
-    // Fetch live from CJ
-    const products = await fetchCJProducts();
-    if (products.length > 0) {
-      const expiresAt = new Date(Date.now() + 12 * 3600 * 1000).toISOString();
-      await sb.from('apify_cache').upsert(
-        { cache_key: CACHE_KEY, data: products, fetched_at: new Date().toISOString(), expires_at: expiresAt },
-        { onConflict: 'cache_key' }
-      ).then(null, () => {});
-    }
-
-    res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
-    res.json({ products, count: products.length, source: 'live' });
-  } catch (err: any) {
-    console.error('[products/cj]', err.message);
-    res.status(500).json({ error: err.message });
-  }
+  res.set('Cache-Control', 'public, s-maxage=3600');
+  res.json({ products: [], count: 0, source: 'removed' });
 });
