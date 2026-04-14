@@ -1,96 +1,171 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Revenue.tsx — personal profit log for the operator.
+ * Revenue.tsx — Revenue Diary, now server-backed.
  *
- * Pure localStorage-backed (key: majorka_revenue_v1). No server, no
- * Supabase — operator's data stays on their device. Each entry tracks
- * a product they're running with daily revenue, daily ad spend, and
- * days running. The page aggregates totals + ROAS across all entries.
+ * Primary storage: /api/revenue (Supabase revenue_entries with RLS).
+ * Fallback: localStorage when unauthenticated or the server errors —
+ * with a banner inviting the user to sign in to sync across devices.
  *
- * The point of this page is retention: it turns Majorka from a research
- * tool into a business management tool — the operator's daily check-in
- * spot for "am I making money?".
+ * Each entry is a single-day log: date, revenue, ad spend, orders, note.
+ * Totals aggregate across every entry.
  */
 
 interface RevenueEntry {
   id: string;
-  productTitle: string;
-  startDate: string;
-  dailyRevenue: number;
-  dailyAdSpend: number;
-  daysRunning: number;
-  notes?: string;
+  date: string;        // YYYY-MM-DD
+  revenue_aud: number;
+  ad_spend_aud: number;
+  orders: number;
+  note: string | null;
 }
 
-const STORAGE_KEY = 'majorka_revenue_v1';
+const STORAGE_KEY = 'majorka_revenue_entries_v2';
 
-function loadEntries(): RevenueEntry[] {
+function loadLocal(): RevenueEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw);
+    const parsed: unknown = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as RevenueEntry[]) : [];
   } catch {
     return [];
   }
 }
 
-function saveEntries(entries: RevenueEntry[]): void {
+function saveLocal(entries: RevenueEntry[]): void {
   if (typeof window === 'undefined') return;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch { /* quota */ }
 }
 
+async function authHeaders(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+function todayISO(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
 export default function Revenue() {
-  const [entries, setEntries] = useState<RevenueEntry[]>(() => loadEntries());
+  const { user } = useAuth();
+  const [entries, setEntries] = useState<RevenueEntry[]>(() => loadLocal());
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
+  const [form, setForm] = useState({ date: todayISO(), revenue_aud: '', ad_spend_aud: '', orders: '', note: '' });
+  const [mode, setMode] = useState<'server' | 'local'>('local');
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   useEffect(() => { document.title = 'Revenue Diary — Majorka'; }, []);
 
-  function persist(updated: RevenueEntry[]) {
-    setEntries(updated);
-    saveEntries(updated);
-  }
+  // Load entries from server on mount (falls back to local cache on failure).
+  const load = useCallback(async (): Promise<void> => {
+    if (!user) {
+      setMode('local');
+      setEntries(loadLocal());
+      return;
+    }
+    try {
+      const res = await fetch('/api/revenue', { headers: await authHeaders() });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json: { success: boolean; entries: RevenueEntry[] } = await res.json();
+      setMode('server');
+      setSyncError(null);
+      setEntries(json.entries ?? []);
+    } catch (err: unknown) {
+      setMode('local');
+      setSyncError(err instanceof Error ? err.message : 'sync failed');
+      setEntries(loadLocal());
+    }
+  }, [user]);
 
-  function addEntry() {
-    if (!form.productTitle.trim() || !form.dailyRevenue) return;
-    const entry: RevenueEntry = {
+  useEffect(() => { void load(); }, [load]);
+
+  async function addEntry(): Promise<void> {
+    const revenue = Number(form.revenue_aud) || 0;
+    const ad = Number(form.ad_spend_aud) || 0;
+    const orders = Number(form.orders) || 0;
+    if (!form.date || revenue <= 0) return;
+
+    const optimistic: RevenueEntry = {
       id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `rev_${Date.now()}`,
-      productTitle: form.productTitle.trim(),
-      startDate: new Date().toISOString().split('T')[0],
-      dailyRevenue: Number(form.dailyRevenue) || 0,
-      dailyAdSpend: Number(form.dailyAdSpend) || 0,
-      daysRunning: Number(form.daysRunning) || 1,
+      date: form.date,
+      revenue_aud: revenue,
+      ad_spend_aud: ad,
+      orders,
+      note: form.note.trim() || null,
     };
-    persist([entry, ...entries]);
-    setForm({ productTitle: '', dailyRevenue: '', dailyAdSpend: '', daysRunning: '' });
+
+    const next = [optimistic, ...entries];
+    setEntries(next);
+    saveLocal(next);
+    setForm({ date: todayISO(), revenue_aud: '', ad_spend_aud: '', orders: '', note: '' });
     setShowAdd(false);
+
+    if (mode === 'server' && user) {
+      try {
+        const res = await fetch('/api/revenue', {
+          method: 'POST',
+          headers: await authHeaders(),
+          body: JSON.stringify({
+            date: optimistic.date,
+            revenue_aud: optimistic.revenue_aud,
+            ad_spend_aud: optimistic.ad_spend_aud,
+            orders: optimistic.orders,
+            note: optimistic.note,
+          }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json: { success: boolean; entry: RevenueEntry } = await res.json();
+        setEntries((prev) => prev.map((e) => (e.id === optimistic.id ? json.entry : e)));
+      } catch (err: unknown) {
+        setSyncError(err instanceof Error ? err.message : 'save failed');
+      }
+    }
   }
 
-  function deleteEntry(id: string) {
-    persist(entries.filter((e) => e.id !== id));
+  async function deleteEntry(id: string): Promise<void> {
+    const next = entries.filter((e) => e.id !== id);
+    setEntries(next);
+    saveLocal(next);
+
+    if (mode === 'server' && user) {
+      try {
+        const res = await fetch(`/api/revenue/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: await authHeaders(),
+        });
+        if (!res.ok && res.status !== 404) throw new Error(`HTTP ${res.status}`);
+      } catch (err: unknown) {
+        setSyncError(err instanceof Error ? err.message : 'delete failed');
+      }
+    }
   }
 
-  // Aggregate stats
-  const totalRevenue = entries.reduce((s, e) => s + e.dailyRevenue * e.daysRunning, 0);
-  const totalAdSpend = entries.reduce((s, e) => s + e.dailyAdSpend * e.daysRunning, 0);
+  const totalRevenue = entries.reduce((s, e) => s + Number(e.revenue_aud || 0), 0);
+  const totalAdSpend = entries.reduce((s, e) => s + Number(e.ad_spend_aud || 0), 0);
+  const totalOrders = entries.reduce((s, e) => s + Number(e.orders || 0), 0);
   const totalProfit = totalRevenue - totalAdSpend;
   const avgROAS = totalAdSpend > 0 ? (totalRevenue / totalAdSpend).toFixed(2) : '—';
+
+  const showSignInBanner = !user || mode === 'local';
 
   return (
     <div className="min-h-full bg-bg font-body text-text">
       <div className="px-4 md:px-8 pt-8 pb-6 max-w-5xl">
-        {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
           <div>
             <h1 className="text-3xl md:text-4xl font-display font-bold text-text tracking-tight leading-tight">
               Revenue Diary
             </h1>
             <p className="text-sm text-muted mt-2 max-w-md">
-              Log your sales locally. This lives on this device only — we&apos;ll add store sync in a future release.
+              Log each day of sales. Manual for now — Shopify and Meta sync land shortly.
             </p>
           </div>
           <button
@@ -99,11 +174,21 @@ export default function Revenue() {
             style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
           >
             <Plus size={15} strokeWidth={2.5} />
-            Add product
+            Add entry
           </button>
         </div>
 
-        {/* KPI row */}
+        {showSignInBanner && (
+          <div
+            className="mb-6 rounded-xl px-4 py-3 text-sm"
+            style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#c7d2fe' }}
+          >
+            {user
+              ? `Server sync unavailable${syncError ? ` (${syncError})` : ''} — this diary is saved to this device only.`
+              : 'Signing in lets you sync this diary across devices. Until then, entries stay on this device.'}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
             { label: 'Total Revenue', value: `A$${totalRevenue.toLocaleString()}`, Icon: DollarSign, color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
@@ -131,7 +216,6 @@ export default function Revenue() {
           ))}
         </div>
 
-        {/* Empty state OR table */}
         {entries.length === 0 ? (
           <div className="glass-card rounded-2xl p-12 text-center">
             <div
@@ -140,16 +224,16 @@ export default function Revenue() {
             >
               <TrendingUp size={20} className="text-accent" />
             </div>
-            <p className="text-text font-semibold mb-1">No products tracked yet</p>
+            <p className="text-text font-semibold mb-1">No entries yet</p>
             <p className="text-sm text-muted mb-5 max-w-sm mx-auto">
-              Log your first product to start tracking your real profit from Majorka. Takes 30 seconds.
+              Log today&apos;s revenue to start tracking your profit journey. Takes 30 seconds.
             </p>
             <button
               onClick={() => setShowAdd(true)}
               className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
               style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)' }}
             >
-              Add your first product
+              Add your first entry
             </button>
           </div>
         ) : (
@@ -157,7 +241,7 @@ export default function Revenue() {
             <table className="w-full">
               <thead>
                 <tr className="bg-white/[0.03] border-b border-white/[0.06]">
-                  {['Product', 'Days', 'Rev/day', 'Ad/day', 'Net Profit', 'ROAS', ''].map((h) => (
+                  {['Date', 'Orders', 'Revenue', 'Ad Spend', 'Net Profit', 'ROAS', 'Note', ''].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-[9px] font-semibold uppercase tracking-[0.1em] text-white/30">
                       {h}
                     </th>
@@ -166,19 +250,16 @@ export default function Revenue() {
               </thead>
               <tbody>
                 {entries.map((e) => {
-                  const totalRev = e.dailyRevenue * e.daysRunning;
-                  const totalSpend = e.dailyAdSpend * e.daysRunning;
-                  const profit = totalRev - totalSpend;
-                  const roas = totalSpend > 0 ? (totalRev / totalSpend).toFixed(2) : '—';
+                  const rev = Number(e.revenue_aud || 0);
+                  const spend = Number(e.ad_spend_aud || 0);
+                  const profit = rev - spend;
+                  const roas = spend > 0 ? (rev / spend).toFixed(2) : '—';
                   return (
                     <tr key={e.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-                      <td className="px-4 py-4">
-                        <div className="text-sm font-medium text-text">{e.productTitle}</div>
-                        <div className="text-[10px] text-white/30 mt-0.5">Started {e.startDate}</div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-body tabular-nums">{e.daysRunning}d</td>
-                      <td className="px-4 py-4 text-sm font-semibold text-text tabular-nums">A${e.dailyRevenue}</td>
-                      <td className="px-4 py-4 text-sm text-body tabular-nums">A${e.dailyAdSpend}</td>
+                      <td className="px-4 py-4 text-sm font-medium text-text tabular-nums">{e.date}</td>
+                      <td className="px-4 py-4 text-sm text-body tabular-nums">{e.orders}</td>
+                      <td className="px-4 py-4 text-sm font-semibold text-text tabular-nums">A${rev.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-sm text-body tabular-nums">A${spend.toLocaleString()}</td>
                       <td
                         className="px-4 py-4 text-sm font-bold tabular-nums"
                         style={{ color: profit >= 0 ? '#10b981' : '#ef4444' }}
@@ -186,9 +267,10 @@ export default function Revenue() {
                         A${profit.toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-sm font-semibold text-accent-hover tabular-nums">{roas}x</td>
+                      <td className="px-4 py-4 text-xs text-muted max-w-[200px] truncate">{e.note ?? ''}</td>
                       <td className="px-4 py-4">
                         <button
-                          onClick={() => deleteEntry(e.id)}
+                          onClick={() => void deleteEntry(e.id)}
                           aria-label="Delete entry"
                           className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/20 hover:text-red-400 transition-colors"
                         >
@@ -204,7 +286,6 @@ export default function Revenue() {
         )}
       </div>
 
-      {/* Add product modal */}
       {showAdd && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -215,13 +296,14 @@ export default function Revenue() {
             className="w-full max-w-md rounded-2xl p-6 glass-card glass-card--elevated"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-display font-bold text-text mb-4">Add product</h3>
+            <h3 className="text-lg font-display font-bold text-text mb-4">Add entry</h3>
             <div className="space-y-3">
               {[
-                { key: 'productTitle' as const, label: 'Product name', placeholder: 'e.g. Nano Tape Strong', type: 'text' },
-                { key: 'dailyRevenue' as const, label: 'Daily revenue (A$)', placeholder: '0', type: 'number' },
-                { key: 'dailyAdSpend' as const, label: 'Daily ad spend (A$)', placeholder: '0', type: 'number' },
-                { key: 'daysRunning' as const, label: 'Days running', placeholder: '1', type: 'number' },
+                { key: 'date' as const, label: 'Date', placeholder: 'YYYY-MM-DD', type: 'date' },
+                { key: 'revenue_aud' as const, label: 'Revenue (A$)', placeholder: '0', type: 'number' },
+                { key: 'ad_spend_aud' as const, label: 'Ad spend (A$)', placeholder: '0', type: 'number' },
+                { key: 'orders' as const, label: 'Orders', placeholder: '0', type: 'number' },
+                { key: 'note' as const, label: 'Note (optional)', placeholder: 'Product or campaign', type: 'text' },
               ].map((field) => (
                 <div key={field.key}>
                   <label className="block text-[10px] text-white/40 uppercase tracking-wider mb-1">{field.label}</label>
@@ -243,14 +325,17 @@ export default function Revenue() {
                 Cancel
               </button>
               <button
-                onClick={addEntry}
-                disabled={!form.productTitle.trim() || !form.dailyRevenue}
+                onClick={() => void addEntry()}
+                disabled={!form.date || !form.revenue_aud}
                 className="flex-1 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40"
                 style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
               >
                 Add
               </button>
             </div>
+            {totalOrders > 0 && entries.length > 0 && (
+              <p className="text-[10px] text-white/30 mt-3 text-center">Lifetime orders logged: {totalOrders.toLocaleString()}</p>
+            )}
           </div>
         </div>
       )}
