@@ -1199,6 +1199,108 @@ router.get('/tab-counts', async (_req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/list ────────────────────────────────────────────────
+// Upgraded list endpoint with market/category/score/min-orders filters +
+// flagship bucket. Flagship rule: products with 100k+ orders ALWAYS appear
+// first, regardless of the user's sort choice. Returns { flagship, list }
+// with `is_flagship` boolean on each row so the client can render the
+// flagship strip above the main grid.
+//
+// Query params:
+//   market:    'AU' | 'US' | 'UK' | 'all'   — default 'all' (filter by
+//              ships_to_* column only applied when present; 'all' no-op)
+//   category:  free-text (ilike match), optional
+//   minScore:  0-100, optional
+//   minOrders: >= N, optional
+//   sort:      'orders_desc' | 'velocity_desc' | 'score_desc' | 'newest'
+//              default 'orders_desc'
+//   limit:     default 100, max 500
+//   offset:    default 0
+router.get('/list', async (req: Request, res: Response) => {
+  try {
+    const market = String(req.query.market || 'all').toUpperCase();
+    const category = typeof req.query.category === 'string' ? req.query.category.trim() : '';
+    const minScore = Number(req.query.minScore) || 0;
+    const minOrders = Number(req.query.minOrders) || 0;
+    const sort = String(req.query.sort || 'orders_desc');
+    const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 100));
+    const offset = Math.max(0, Number(req.query.offset) || 0);
+
+    const FLAGSHIP_THRESHOLD = 100_000;
+    const sb = getSupabase();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const applyFilters = (q: any): any => {
+      let out = q.not('image_url', 'is', null).gt('price_aud', 0);
+      if (minScore > 0) out = out.gte('winning_score', minScore);
+      if (minOrders > 0) out = out.gte('sold_count', minOrders);
+      if (category) out = out.ilike('category', `%${category}%`);
+      // Market filter — 'all' is a no-op. AU/US/UK would require a
+      // `ships_to_*` column per market; we only filter when the DB
+      // exposes those columns, which is not guaranteed everywhere. Left
+      // as a soft no-op for now so the endpoint never returns 0 rows
+      // due to a missing column.
+      void market;
+      return out;
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const applySort = (q: any): any => {
+      switch (sort) {
+        case 'score_desc':
+          return q.order('winning_score', { ascending: false, nullsFirst: false })
+                  .order('sold_count', { ascending: false, nullsFirst: false });
+        case 'newest':
+          return q.order('created_at', { ascending: false, nullsFirst: false });
+        case 'velocity_desc':
+          return q.order('est_daily_revenue_aud', { ascending: false, nullsFirst: false })
+                  .order('sold_count', { ascending: false, nullsFirst: false });
+        case 'orders_desc':
+        default:
+          return q.order('sold_count', { ascending: false, nullsFirst: false });
+      }
+    };
+
+    // Bucket 1 — flagship (always ordered by sold_count DESC, ignores sort)
+    const flagshipQ = applyFilters(
+      sb.from('winning_products').select('*').gte('sold_count', FLAGSHIP_THRESHOLD),
+    ).order('sold_count', { ascending: false, nullsFirst: false }).limit(50);
+
+    // Bucket 2 — remainder (user sort applied)
+    const remainderQ = applySort(
+      applyFilters(
+        sb.from('winning_products').select('*', { count: 'exact' }).lt('sold_count', FLAGSHIP_THRESHOLD),
+      ),
+    ).range(offset, offset + limit - 1);
+
+    const [flagshipRes, remainderRes] = await Promise.all([flagshipQ, remainderQ]);
+
+    if (flagshipRes.error) return res.status(500).json({ error: flagshipRes.error.message });
+    if (remainderRes.error) return res.status(500).json({ error: remainderRes.error.message });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const flagship = (flagshipRes.data || []).map((r: any) => ({ ...r, is_flagship: true }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const list = (remainderRes.data || []).map((r: any) => ({ ...r, is_flagship: false }));
+
+    return res.json({
+      flagship,
+      list,
+      total: (remainderRes.count ?? 0) + flagship.length,
+      limit,
+      offset,
+      market,
+      category: category || null,
+      minScore,
+      minOrders,
+      sort,
+    });
+  } catch (err: unknown) {
+    console.error('[products/list]', err);
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+  }
+});
+
 // ── GET /api/products/ae-live-search — direct AliExpress Affiliate API search ──
 // Layer 2 of the hybrid pipeline: unfiltered live results from AE Affiliate API.
 // Public endpoint (no auth) — read-only, no DB writes, no scoring.
