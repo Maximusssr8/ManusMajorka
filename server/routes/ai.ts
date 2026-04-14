@@ -13,6 +13,7 @@ import {
   type ImageAspect,
 } from '../lib/imageGen';
 import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
+import { scrapeAliExpressWithApify } from '../lib/apifyAliExpress';
 
 const router = Router();
 
@@ -941,5 +942,68 @@ router.post('/generate-blueprint', aiLimiter, async (req, res) => {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'unknown';
     return res.status(500).json({ ok: false, error: message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/ai/extract-product
+// Extracts a product's core fields from an AliExpress URL using Apify.
+// Used by the Store Builder "Add custom product" flow so operators can paste
+// an AliExpress link and auto-populate title, price, image, and category.
+// Returns { ok, title, priceAud, image, soldCount, category, productUrl } OR
+// { ok: false, reason, message } on failure.
+// ─────────────────────────────────────────────────────────────────────────────
+const extractProductInputSchema = z.object({
+  aliexpressUrl: z.string().url().min(10).max(2000),
+});
+
+function inferCategory(title: string | null): string | null {
+  if (!title) return null;
+  const t = title.toLowerCase();
+  const rules: Array<[RegExp, string]> = [
+    [/\b(dog|cat|pet|puppy|kitten|paw|leash|collar)\b/, 'Pet Products'],
+    [/\b(lipstick|skincare|cream|serum|mask|beauty|foundation|lash)\b/, 'Beauty & Skincare'],
+    [/\b(kitchen|cookware|blender|pan|chopper|utensil|mixer)\b/, 'Home & Garden'],
+    [/\b(dress|shirt|jacket|hoodie|jean|sneaker|fashion|clothing|top|pants)\b/, 'Fashion'],
+    [/\b(phone|earbud|headphone|charger|cable|led|gadget|speaker|camera)\b/, 'Electronics'],
+    [/\b(yoga|fitness|gym|dumbbell|resistance|workout|running)\b/, 'Fitness'],
+    [/\b(baby|infant|toddler|stroller|diaper|kids)\b/, 'Baby & Kids'],
+  ];
+  for (const [rx, cat] of rules) if (rx.test(t)) return cat;
+  return 'General';
+}
+
+router.post('/extract-product', requireAuth, aiLimiter, async (req, res) => {
+  try {
+    const parsed = extractProductInputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ ok: false, reason: 'invalid_input', message: 'A valid AliExpress URL is required.' });
+    }
+    const { aliexpressUrl } = parsed.data;
+    if (!/aliexpress\./i.test(aliexpressUrl)) {
+      return res.status(400).json({ ok: false, reason: 'not_aliexpress', message: 'URL must be an AliExpress product link.' });
+    }
+
+    const data = await scrapeAliExpressWithApify(aliexpressUrl);
+    if (!data) {
+      return res.status(502).json({ ok: false, reason: 'scrape_failed', message: 'Could not extract product. Try again in a moment.' });
+    }
+
+    const image = data.hiResImage ?? (data.images[0] ?? null);
+    const priceAud = data.priceAud ?? null;
+    const title = data.title ?? null;
+
+    return res.json({
+      ok: true,
+      title,
+      priceAud,
+      image,
+      soldCount: data.orders ?? null,
+      category: inferCategory(title),
+      productUrl: aliexpressUrl,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'unknown';
+    return res.status(500).json({ ok: false, reason: 'server_error', message });
   }
 });
