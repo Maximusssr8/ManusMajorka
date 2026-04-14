@@ -32,7 +32,7 @@ Table: winning_products
 Columns: id, product_title, category, price_aud, sold_count, winning_score, image_url, product_url, est_daily_revenue_aud, created_at
 RLS: ENABLED — server always uses SERVICE_ROLE key, never anon key
 Quality rules: sold_count > 0, image_url NOT NULL, price_aud > 0, title length >= 5
-Current count: [UPDATE THIS AFTER EVERY SESSION]
+Current count: 3715 (verified 2026-04-14 — all quality rules hold: 0 NULL image_url, 0 sold_count<=0, 0 price_aud<=0)
 
 ## Supabase RLS Pattern
 Server uses SERVICE_ROLE key. Client uses ANON key.
