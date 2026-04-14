@@ -1,5 +1,4 @@
 import './styles/components.css';
-import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { Toaster } from '@/components/ui/sonner';
@@ -9,6 +8,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
+import { PageSkeleton } from './components/skeletons';
 import CookieBanner from './components/CookieBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { CommandPalette } from './components/CommandPalette';
@@ -124,41 +124,6 @@ function ComingSoon({ page }: ComingSoonProps) {
   );
 }
 
-function LoadingFallback() {
-  return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-      style={{ background: '#0a0a0a' }}
-    >
-      <div className="flex flex-col items-center gap-4">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-lg animate-pulse"
-          style={{
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-            color: '#FAFAFA',
-            fontFamily: "'Syne', sans-serif",
-          }}
-        >
-          M
-        </div>
-        <div className="flex gap-1">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-1.5 h-1.5 rounded-full animate-bounce"
-              style={{
-                background: '#6366F1',
-                opacity: 0.6,
-                animationDelay: `${i * 0.15}s`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 
 // Loading bar on route change
 const LOADING_BAR_CSS = `
@@ -203,7 +168,7 @@ function Router() {
       <style>{LOADING_BAR_CSS}</style>
       {showBar && <div className="page-loading-bar" key={location + '-bar'} />}
     <RouteErrorBoundary>
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<PageSkeleton />}>
       <div className="mkr-page-content" key={location} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Switch>
             <Route path="/" component={Home} />
@@ -335,7 +300,7 @@ function Router() {
             <Route path="/app/shops/:id">
               {() => (
                 <ProtectedRoute>
-                  <Suspense fallback={<LoadingFallback />}>
+                  <Suspense fallback={<PageSkeleton />}>
                     <ShopDetail />
                   </Suspense>
                 </ProtectedRoute>
