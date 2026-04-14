@@ -507,9 +507,28 @@ export default function AdminPanel() {
       </div>
 
       {/* Body */}
-      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .mj-admin-body { flex-direction: column !important; }
+          .mj-admin-nav {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid #F9FAFB !important;
+            flex-direction: row !important;
+            overflow-x: auto;
+            padding: 8px !important;
+          }
+          .mj-admin-nav button {
+            flex-shrink: 0 !important;
+            white-space: nowrap;
+            min-height: 44px !important;
+          }
+        }
+      `}</style>
+      <div className="mj-admin-body" style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         {/* Left sidebar */}
         <div
+          className="mj-admin-nav"
           style={{
             width: 200,
             flexShrink: 0,
@@ -656,8 +675,8 @@ export default function AdminPanel() {
 
                   {/* Table */}
                   <GlassCard>
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                      <table style={{ width: '100%', minWidth: 720, borderCollapse: 'collapse' }}>
                         <thead>
                           <tr
                             style={{
