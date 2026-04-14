@@ -15,13 +15,13 @@
  *
  * Design tokens: new gold palette (see designTokens.ts + index.css).
  */
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Sparkles, RefreshCw, X, Loader2 } from 'lucide-react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Search, Sparkles, RefreshCw, X, Loader2, Filter } from 'lucide-react';
 import { useLocation } from 'wouter';
 import {
   useProductsTab,
+  useProductStats,
   type Product,
-  type ProductsTab,
   type ProductsTabFilters,
 } from '@/hooks/useProducts';
 import {
@@ -37,8 +37,42 @@ import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 const ProductDetailDrawer = lazy(() => import('@/components/products/ProductDetailDrawer'));
 
 // ── Local storage keys ──────────────────────────────────────────────────────
-const V3_FILTER_KEY = 'majorka_product_filters_v3';
-const V3_ACTIVE_TAB_KEY = 'majorka_products_active_tab_v3';
+const V3_FILTER_KEY = 'majorka_product_filters_v4';
+const V3_ACTIVE_TAB_KEY = 'majorka_products_active_tab_v4';
+
+// ── URL ↔ filter sync ──────────────────────────────────────────────────────
+// Keeps the browser URL in lock-step with the active filter/tab/search so
+// deep-links share state across operators.
+function urlParam(k: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return new URLSearchParams(window.location.search).get(k);
+  } catch {
+    return null;
+  }
+}
+function writeUrl(updates: Record<string, string | null>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const url = new URL(window.location.href);
+    for (const [k, v] of Object.entries(updates)) {
+      if (v === null || v === '') url.searchParams.delete(k);
+      else url.searchParams.set(k, v);
+    }
+    window.history.replaceState({}, '', url.toString());
+  } catch {
+    /* ignore */
+  }
+}
+function fmtUpdatedAgo(ts: number | null): string {
+  if (!ts) return 'just now';
+  const secs = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (secs < 60) return 'just now';
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  return `${hrs}h ago`;
+}
 
 // ── Filter persistence (separate from v2 ProductFilters internal key) ──────
 function loadV3Filters(): ProductFilterState {
@@ -141,19 +175,49 @@ export default function Products() {
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    document.title = 'Products — Majorka';
+    document.title = 'Product Intelligence — Majorka';
   }, []);
 
-  // Active tab
-  const [activeTab, setActiveTab] = useState<ProductsTabKey>(() => loadActiveTab());
-  useEffect(() => { saveActiveTab(activeTab); }, [activeTab]);
+  // Active tab (URL takes precedence over persisted)
+  const [activeTab, setActiveTab] = useState<ProductsTabKey>(() => {
+    const urlTab = urlParam('tab');
+    if (urlTab === 'trending' || urlTab === 'hot' || urlTab === 'high-volume') return urlTab;
+    return loadActiveTab();
+  });
+  useEffect(() => {
+    saveActiveTab(activeTab);
+    writeUrl({ tab: activeTab === 'trending' ? null : activeTab });
+  }, [activeTab]);
 
-  // Filter state (persisted under majorka_product_filters_v3)
-  const [filters, setFilters] = useState<ProductFilterState>(() => loadV3Filters());
-  useEffect(() => { saveV3Filters(filters); }, [filters]);
+  // Filter state (persisted under majorka_product_filters_v4 + URL synced)
+  const [filters, setFilters] = useState<ProductFilterState>(() => {
+    const loaded = loadV3Filters();
+    const urlMarket = urlParam('market');
+    const urlCategory = urlParam('category');
+    return {
+      ...loaded,
+      market: urlMarket === 'AU' || urlMarket === 'US' || urlMarket === 'UK' || urlMarket === 'all'
+        ? urlMarket
+        : loaded.market,
+      category: urlCategory ?? loaded.category,
+    };
+  });
+  useEffect(() => {
+    saveV3Filters(filters);
+    writeUrl({
+      market: filters.market === 'AU' ? null : filters.market,
+      category: filters.category || null,
+    });
+  }, [filters]);
 
-  // Search input + debounce
-  const [searchInput, setSearchInput] = useState('');
+  // Mobile filter sheet
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Search input + debounce (URL synced)
+  const [searchInput, setSearchInput] = useState<string>(() => urlParam('q') ?? '');
+  useEffect(() => {
+    writeUrl({ q: searchInput.trim() || null });
+  }, [searchInput]);
   const debouncedSearch = useDebounce(searchInput, 300);
   const liveQuery = debouncedSearch.trim().length >= 3 ? debouncedSearch.trim() : '';
 
@@ -167,6 +231,14 @@ export default function Products() {
   const highVolume = useProductsTab('high-volume', tabFilters);
 
   const active = activeTab === 'trending' ? trending : activeTab === 'hot' ? hot : highVolume;
+  const stats = useProductStats();
+  const trackedTotal = stats.total;
+
+  const handleRefreshAll = useCallback(() => {
+    trending.refresh();
+    hot.refresh();
+    highVolume.refresh();
+  }, [trending, hot, highVolume]);
 
   // Live AE search — runs only when query length ≥ 3
   const aeLive = useAESearch();
@@ -280,13 +352,81 @@ export default function Products() {
                 letterSpacing: '-0.02em',
               }}
             >
-              Products
+              Product Intelligence
             </h1>
-            <p className="text-[13px] sm:text-[13px]" style={{ fontSize: 13, color: '#737373', margin: '4px 0 0' }}>
-              Winners ranked by real order velocity, all-time volume and 48h freshness.
+            <p
+              className="text-[13px] sm:text-[13px]"
+              style={{ fontSize: 13, color: '#737373', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
+            >
+              <span className="mj-num" style={{ color: '#a3a3a3' }}>
+                {trackedTotal > 0 ? trackedTotal.toLocaleString() : '—'}
+              </span>
+              <span>products tracked</span>
+              <span style={{ color: '#3f3f46' }}>·</span>
+              <span>Updated</span>
+              <span className="mj-num" style={{ color: '#a3a3a3' }}>{fmtUpdatedAgo(active.lastUpdatedAt)}</span>
             </p>
           </div>
 
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1, minWidth: 0, maxWidth: 560, justifyContent: 'flex-end' }}>
+          {/* Mobile filter trigger */}
+          <button
+            type="button"
+            aria-label="Open filters"
+            onClick={() => setMobileFiltersOpen(true)}
+            className="md:hidden"
+            style={{
+              width: 44,
+              height: 44,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#111111',
+              border: '1px solid #1a1a1a',
+              borderRadius: 10,
+              color: '#e5e5e5',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <Filter size={16} />
+          </button>
+          {/* Manual refresh */}
+          <button
+            type="button"
+            aria-label="Refresh products"
+            onClick={handleRefreshAll}
+            style={{
+              minWidth: 44,
+              height: 44,
+              padding: '0 12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              background: '#111111',
+              border: '1px solid #1a1a1a',
+              borderRadius: 10,
+              color: '#e5e5e5',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontFamily: "'DM Sans', system-ui, sans-serif",
+              transition: 'border 160ms ease, color 160ms ease',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(212,175,55,0.45)';
+              e.currentTarget.style.color = '#d4af37';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#1a1a1a';
+              e.currentTarget.style.color = '#e5e5e5';
+            }}
+          >
+            <RefreshCw size={14} className={active.loading ? 'animate-spin' : ''} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
           {/* Search */}
           <div className="w-full" style={{ position: 'relative', flex: 1, minWidth: 0, maxWidth: 420 }}>
             <Search
@@ -366,6 +506,7 @@ export default function Products() {
               />
             ) : null}
           </div>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -379,13 +520,76 @@ export default function Products() {
         </div>
       </header>
 
-      {/* Filters (v2 component handles persistence under its own key) */}
-      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+      {/* Filters — desktop inline; mobile lives in bottom sheet */}
+      <div className="hidden md:block" style={{ maxWidth: 1400, margin: '0 auto' }}>
         <ProductFilters
           initial={filters}
           onChange={setFilters}
         />
       </div>
+
+      {/* Mobile filter bottom-sheet */}
+      {mobileFiltersOpen ? (
+        <div
+          role="dialog"
+          aria-label="Filters"
+          onClick={() => setMobileFiltersOpen(false)}
+          className="md:hidden"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'flex-end',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              background: '#0b0b0b',
+              borderTop: '1px solid #1a1a1a',
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              paddingBottom: 'env(safe-area-inset-bottom)',
+              animation: 'mj-sheet-in 220ms cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #1a1a1a' }}>
+              <span style={{ fontFamily: "'Syne', system-ui, sans-serif", fontWeight: 700, fontSize: 16, color: '#f5f5f5' }}>Filters</span>
+              <button
+                type="button"
+                aria-label="Close filters"
+                onClick={() => setMobileFiltersOpen(false)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#a3a3a3',
+                  cursor: 'pointer',
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <ProductFilters initial={filters} onChange={setFilters} />
+          </div>
+          <style>{`
+            @keyframes mj-sheet-in {
+              from { transform: translateY(12%); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
+        </div>
+      ) : null}
 
       {/* Body */}
       <main className="px-3 py-4 sm:px-5 sm:py-5" style={{ maxWidth: 1400, margin: '0 auto' }}>
@@ -499,17 +703,59 @@ export default function Products() {
             />
           </div>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))',
-              gap: 14,
-            }}
-          >
+          <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ gap: 14 }}>
             {displayRows.map((p) => (
               <ProductCard key={String(p.id)} product={p} onOpen={handleOpen} />
             ))}
           </div>
+          {/* Load more — only visible when server reports hasMore and we're
+              not in a live-search context (live search is client-side). */}
+          {active.hasMore && !liveQuery ? (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+              <button
+                type="button"
+                onClick={active.loadMore}
+                disabled={active.loadingMore}
+                style={{
+                  minHeight: 44,
+                  padding: '0 22px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  background: active.loadingMore ? '#0f0f0f' : '#111111',
+                  border: '1px solid #1a1a1a',
+                  borderRadius: 10,
+                  color: '#e5e5e5',
+                  cursor: active.loadingMore ? 'default' : 'pointer',
+                  fontSize: 14,
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                  transition: 'border 160ms ease, color 160ms ease, background 160ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active.loadingMore) {
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.45)';
+                    e.currentTarget.style.color = '#d4af37';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#1a1a1a';
+                  e.currentTarget.style.color = '#e5e5e5';
+                }}
+              >
+                {active.loadingMore ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    Loading more…
+                  </>
+                ) : (
+                  <>Load more</>
+                )}
+              </button>
+            </div>
+          ) : null}
+          </>
         )}
       </main>
 
