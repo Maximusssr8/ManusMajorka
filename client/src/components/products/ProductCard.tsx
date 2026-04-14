@@ -5,7 +5,10 @@
  * and a trend badge. Clicking opens the detail drawer via `onOpen`.
  * Memoised — re-renders only when the row data reference changes.
  */
-import { memo, useState } from 'react';
+import { memo, useCallback, useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
+import { useLocation } from 'wouter';
+import { Bookmark, Megaphone, Store } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Product } from '@/hooks/useProducts';
 import { ProductImage } from '@/components/ProductImage';
 import { MarketFlags } from './MarketFlags';
@@ -115,8 +118,10 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
         </div>
         {/* Market flags top-right */}
         <div style={{ position: 'absolute', top: 8, right: 8 }}>
-          <MarketFlags />
+          <MarketFlags product={product} />
         </div>
+        {/* Hover quick actions bottom-right */}
+        <QuickActions product={product} hover={hover} />
       </div>
 
       {/* Body */}
@@ -179,6 +184,195 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
           ) : null}
         </div>
       </div>
+    </button>
+  );
+}
+
+// ── QuickActions ────────────────────────────────────────────────────────
+// Three icon-only buttons (Save / Create Ad / Add to Store) overlaid on
+// the card image corner. Desktop: reveal on hover. Touch devices: always
+// visible so the gestures still work without a hover state. 44px tap
+// targets, aria-labels, Escape dismisses the hover state.
+
+const TRACKED_KEY = 'majorka_tracked_v1';
+
+function readTrackedSet(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = window.localStorage.getItem(TRACKED_KEY);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.map((v) => String(v)));
+  } catch {
+    return new Set();
+  }
+}
+
+function writeTrackedSet(set: Set<string>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(TRACKED_KEY, JSON.stringify(Array.from(set)));
+  } catch {
+    /* quota — ignore */
+  }
+}
+
+function isTouchDevice(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(hover: none)').matches;
+}
+
+interface QuickActionsProps {
+  product: Product;
+  hover: boolean;
+}
+
+function QuickActions({ product, hover }: QuickActionsProps) {
+  const [, setLocation] = useLocation();
+  const [touch, setTouch] = useState<boolean>(false);
+  const [tracked, setTracked] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTouch(isTouchDevice());
+    setTracked(readTrackedSet().has(String(product.id)));
+  }, [product.id]);
+
+  const visible = hover || touch;
+
+  const stop = useCallback((e: ReactMouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const onSave = useCallback((e: ReactMouseEvent) => {
+    e.stopPropagation();
+    const id = String(product.id);
+    const set = readTrackedSet();
+    const next = new Set(set);
+    if (next.has(id)) {
+      next.delete(id);
+      writeTrackedSet(next);
+      setTracked(false);
+      toast('Removed from tracked');
+    } else {
+      next.add(id);
+      writeTrackedSet(next);
+      setTracked(true);
+      toast.success('Saved to tracked');
+    }
+  }, [product.id]);
+
+  const onCreateAd = useCallback((e: ReactMouseEvent) => {
+    e.stopPropagation();
+    try {
+      const payload = {
+        id: product.id,
+        title: product.product_title,
+        price_aud: product.price_aud,
+        image_url: product.image_url,
+        category: product.category,
+      };
+      sessionStorage.setItem('majorka_ad_product', JSON.stringify(payload));
+      toast.success('Opening Ads Studio');
+      setLocation('/app/ads-studio');
+    } catch {
+      toast.error('Could not hand off product');
+    }
+  }, [product, setLocation]);
+
+  const onAddToStore = useCallback((e: ReactMouseEvent) => {
+    e.stopPropagation();
+    try {
+      const payload = {
+        id: product.id,
+        title: product.product_title,
+        price_aud: product.price_aud,
+        image_url: product.image_url,
+        category: product.category,
+        product_url: product.product_url,
+      };
+      sessionStorage.setItem('majorka_import_product', JSON.stringify(payload));
+      toast.success('Added to Store Builder');
+      setLocation('/app/store-builder');
+    } catch {
+      toast.error('Could not hand off product');
+    }
+  }, [product, setLocation]);
+
+  return (
+    <div
+      role="group"
+      aria-label="Quick actions"
+      onClick={stop}
+      style={{
+        position: 'absolute',
+        right: 8,
+        bottom: 8,
+        display: 'flex',
+        gap: 6,
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(4px)',
+        pointerEvents: visible ? 'auto' : 'none',
+        transition: 'opacity 160ms ease, transform 160ms ease',
+      }}
+    >
+      <QuickButton
+        ariaLabel={tracked ? 'Unsave product' : 'Save product'}
+        onClick={onSave}
+        active={tracked}
+      >
+        <Bookmark size={16} fill={tracked ? '#d4af37' : 'none'} />
+      </QuickButton>
+      <QuickButton ariaLabel="Create ad for this product" onClick={onCreateAd}>
+        <Megaphone size={16} />
+      </QuickButton>
+      <QuickButton ariaLabel="Add product to store" onClick={onAddToStore}>
+        <Store size={16} />
+      </QuickButton>
+    </div>
+  );
+}
+
+interface QuickButtonProps {
+  ariaLabel: string;
+  onClick: (e: ReactMouseEvent) => void;
+  active?: boolean;
+  children: ReactNode;
+}
+
+function QuickButton({ ariaLabel, onClick, active, children }: QuickButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') (e.currentTarget as HTMLButtonElement).blur();
+      }}
+      style={{
+        width: 44,
+        height: 44,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: active ? 'rgba(212,175,55,0.18)' : 'rgba(0,0,0,0.72)',
+        border: `1px solid ${active ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.12)'}`,
+        borderRadius: 10,
+        color: active ? '#d4af37' : '#f5f5f5',
+        cursor: 'pointer',
+        backdropFilter: 'blur(8px)',
+        transition: 'background 140ms ease, border 140ms ease, color 140ms ease, transform 120ms ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = active ? 'rgba(212,175,55,0.26)' : 'rgba(0,0,0,0.88)';
+        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.45)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = active ? 'rgba(212,175,55,0.18)' : 'rgba(0,0,0,0.72)';
+        e.currentTarget.style.borderColor = active ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.12)';
+      }}
+    >
+      {children}
     </button>
   );
 }
