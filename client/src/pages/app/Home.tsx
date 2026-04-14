@@ -160,7 +160,12 @@ export default function AppHome() {
   const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
 
   /* KPI cards */
-  const totalDelta = stats?.totalDelta ?? 0;
+  // Neutralise negative weekly deltas — clamp to 0 so we never render alarming
+  // "-871 this week" copy. Churn is not a signal we surface on the dashboard;
+  // that lives in Analytics. When we do have positive movement we render it
+  // as a gold pill (upward signal in the Majorka palette).
+  const rawTotalDelta = stats?.totalDelta ?? 0;
+  const totalDelta = Math.max(0, rawTotalDelta);
   const hotDelta = stats?.hotDelta ?? null;
   const kpiCards: {
     label: string; numeric: number | null; sub: string;
@@ -174,11 +179,9 @@ export default function AppHome() {
       Icon: Package,
       accent: '#d4af37',
       href: '/app/products',
-      // Only show a trend pill when we actually have movement — empty
-      // weeks shouldn't render a "No change" pill that ages badly
-      trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week`
-                 : totalDelta < 0 ? `${totalDelta.toLocaleString()} this week`
-                 : null,
+      // Delta is clamped to >=0 above — we only surface growth on the
+      // dashboard. Positive → gold pill; zero → hide pill entirely.
+      trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week` : null,
       trendPositive: totalDelta > 0,
     },
     {
@@ -389,9 +392,9 @@ export default function AppHome() {
                   <span
                     className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold"
                     style={{
-                      background: card.trendPositive ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
-                      color: card.trendPositive ? '#10b981' : 'rgba(255,255,255,0.45)',
-                      border: `1px solid ${card.trendPositive ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`,
+                      background: card.trendPositive ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.06)',
+                      color: card.trendPositive ? '#d4af37' : 'rgba(255,255,255,0.45)',
+                      border: `1px solid ${card.trendPositive ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.08)'}`,
                     }}
                   >
                     {card.trendPositive && <ArrowUp size={10} strokeWidth={2.5} />}
