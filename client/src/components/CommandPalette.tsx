@@ -20,7 +20,7 @@ const COMMANDS: Command[] = [
   { id: 'trend', label: 'Trend Radar', icon: '📡', category: 'Navigate', path: '/app/trend-radar' },
   { id: 'maya', label: 'Maya AI Chat', icon: '🤖', category: 'Navigate', path: '/app/ai-chat' },
   { id: 'ads', label: 'Ads Studio', icon: '🎯', category: 'Navigate', path: '/app/ads-studio' },
-  { id: 'revenue', label: 'Revenue Tracker', icon: '📈', category: 'Navigate', path: '/app/revenue' },
+  { id: 'revenue', label: 'Revenue Diary', icon: '📈', category: 'Navigate', path: '/app/revenue' },
   { id: 'settings', label: 'Settings', icon: '⚙️', category: 'Navigate', path: '/app/settings' },
   // Actions
   { id: 'export', label: 'Export Products CSV', icon: '⬇️', category: 'Action', action: 'export-csv' },
