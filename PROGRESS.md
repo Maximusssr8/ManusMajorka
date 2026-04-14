@@ -89,3 +89,6 @@ Next steps to complete the success criteria:
 2. `pnpm db:migrate` to apply `pipeline-logs-migration.sql`.
 3. `pnpm pipeline:trigger` and verify ≥ 500 rows delta + pipeline_logs row with status='success'.
 
+
+## Academy rebuild — 2026-04-14
+Academy page rebuilt end-to-end into a Bloomberg-grade free acquisition funnel: 8 modules / 48 lessons data model (`curriculum.ts`), Hero with animated gold grid + live Trend Velocity card, SocialProofBar, 3-up ValueProps, CurriculumSection with difficulty filter + expandable ModuleAccordion + per-lesson LessonRow (free/locked, type badges, live-demo marker), InteractiveDemo rendering a real `/api/products?trending=true&limit=1` product with animated winning/opportunity scores + market split + sparkline, ProgressPreview (ProgressRing, FlameStreak, CertificatePreview), FOMOSection with animated stats, FAQSection accordion, FinalCTA with gold gradient border, and per-module completion FOMO toasts for modules 2/3/5/7. New public `/academy` route (no auth, localStorage progress) and authenticated `/app/learn` (server-backed via existing `/api/academy/progress`) share one `AcademyPage` component. All 11 legacy academy files deleted, `weeklyDigest.ts` migrated to new curriculum. `pnpm check` and `pnpm build` both pass with 0 TypeScript errors.
