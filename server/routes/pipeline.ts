@@ -239,4 +239,71 @@ router.get('/admin/db-info', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /api/admin/test-supabase — isolates Supabase writes from Apify.
+ * Inserts a single fake product, reads it back, deletes it, returns the full
+ * round-trip. Catches schema mismatches, RLS blocks, and service-role issues.
+ */
+router.get('/admin/test-supabase', async (req: Request, res: Response) => {
+  if (!verifyAdminToken(req)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  const report: Record<string, unknown> = {};
+  try {
+    const { getSupabaseAdmin } = await import('../_core/supabase');
+    const sb = getSupabaseAdmin();
+
+    // 1) Schema: grab column names from information_schema
+    const { data: cols, error: colsErr } = await sb
+      .rpc('pg_catalog_columns', { tbl: 'winning_products' })
+      .select('*')
+      .limit(200);
+    if (colsErr) {
+      // Fallback — select one row and list its keys
+      const { data: one } = await sb.from('winning_products').select('*').limit(1).single();
+      report.schema = one ? { columns: Object.keys(one), via: 'sample-row' } : { error: 'no rows', via: 'sample-row' };
+    } else {
+      report.schema = { columns: cols, via: 'rpc' };
+    }
+
+    // 2) Direct insert test — minimum viable product row
+    const fakeAid = `__TEST__${Date.now()}`;
+    const fake = {
+      product_title: 'Majorka Test Product (self-deleting)',
+      image_url: 'https://via.placeholder.com/350',
+      category: 'test',
+      price_aud: 9.99,
+      sold_count: 1234,
+      winning_score: 77,
+      est_daily_revenue_aud: 99.99,
+      aliexpress_url: `https://www.aliexpress.com/item/${fakeAid}.html`,
+      aliexpress_id: fakeAid,
+    };
+    const { data: inserted, error: insErr } = await sb
+      .from('winning_products')
+      .insert(fake)
+      .select('id, aliexpress_id')
+      .single();
+    report.insert = insErr
+      ? { ok: false, message: insErr.message, details: insErr.details, hint: insErr.hint }
+      : { ok: true, id: (inserted as { id?: string } | null)?.id, aid: fakeAid };
+
+    // 3) Clean up
+    if (!insErr) {
+      const { error: delErr } = await sb.from('winning_products').delete().eq('aliexpress_id', fakeAid);
+      report.delete = delErr ? { ok: false, message: delErr.message } : { ok: true };
+    }
+
+    // 4) Row count after
+    const { count } = await sb.from('winning_products').select('*', { count: 'exact', head: true });
+    report.total_rows = count ?? 'unknown';
+
+    res.json(report);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'unknown';
+    res.status(500).json({ ...report, fatal: msg });
+  }
+});
+
 export default router;

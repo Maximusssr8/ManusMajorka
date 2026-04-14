@@ -415,7 +415,7 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
     });
   }
 
-  logErr('pintostudio', `pipeline firing ${calls.length} parallel actor calls`);
+  logErr('pintostudio', `[PIPELINE START] firing ${calls.length} parallel actor calls (10 trending + 10 bestsellers + 5 new-high-volume)`);
   const results = await Promise.allSettled(calls.map(async (c) => {
     const items = await runPintostudio(c.input);
     const filtered = c.minOrders != null ? items.filter((i) => i.orders >= c.minOrders!) : items;
@@ -506,42 +506,64 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
   let updated = 0;
   let rejected = 0;
 
-  // The live winning_products table has NO unique constraint on aliexpress_id
-  // so ON CONFLICT fails with "no unique or exclusion constraint". Work around
-  // by diffing: SELECT existing aliexpress_ids, filter to NEW only, then INSERT.
-  // Updates are skipped for now — sold_count / winning_score refresh can land
-  // in a follow-up once we add a unique index (ALTER TABLE winning_products
-  // ADD CONSTRAINT winning_products_aliexpress_id_key UNIQUE (aliexpress_id)).
+  // No unique constraint on aliexpress_id so ON CONFLICT fails. Two-pass:
+  //   1. SELECT existing aliexpress_ids → INSERT only truly-new rows
+  //   2. For existing rows, bulk UPDATE sold_count / winning_score / scraped_at
+  //      so the dashboard sees fresh demand numbers even when no new SKUs arrive.
   const ids = rows.map((r) => r.aliexpress_id).filter(Boolean);
   const existingIds = new Set<string>();
   if (ids.length > 0) {
-    const { data } = await supabase
+    const { data, error: selErr } = await supabase
       .from('winning_products')
       .select('aliexpress_id')
       .in('aliexpress_id', ids);
+    if (selErr) {
+      logErr('upsert', `select existing ${source}: ${selErr.message}`);
+    }
     for (const row of data ?? []) {
       const v = (row as { aliexpress_id?: string }).aliexpress_id;
       if (v) existingIds.add(v);
     }
   }
   const newRows = rows.filter((r) => !existingIds.has(r.aliexpress_id));
-  updated = rows.length - newRows.length;
+  const existingRows = rows.filter((r) => existingIds.has(r.aliexpress_id));
 
-  if (newRows.length === 0) {
-    return { added: 0, updated, rejected: 0 };
+  logErr('upsert', `${source}: items=${items.length} rows=${rows.length} new=${newRows.length} existing=${existingRows.length}`);
+
+  // Insert new rows
+  if (newRows.length > 0) {
+    const { error: insErr } = await supabase
+      .from('winning_products')
+      .insert(newRows);
+    if (insErr) {
+      const msg = `insert ${source} n=${newRows.length}: ${insErr.message}${insErr.details ? ` | ${insErr.details}` : ''}${insErr.hint ? ` | hint: ${insErr.hint}` : ''}`;
+      logErr('upsert', msg);
+      throw new Error(msg);
+    }
+    added = newRows.length;
   }
 
-  const { error } = await supabase
-    .from('winning_products')
-    .insert(newRows);
-
-  if (error) {
-    const msg = `insert ${source} n=${newRows.length}: ${error.message}${error.details ? ` | ${error.details}` : ''}${error.hint ? ` | hint: ${error.hint}` : ''}`;
-    logErr('upsert', msg);
-    throw new Error(msg);
+  // Refresh existing rows — UPDATE demand signals per aliexpress_id
+  for (const r of existingRows) {
+    const { error: updErr } = await supabase
+      .from('winning_products')
+      .update({
+        sold_count: r.sold_count,
+        winning_score: r.winning_score,
+        est_daily_revenue_aud: r.est_daily_revenue_aud,
+        price_aud: r.price_aud,
+        image_url: r.image_url,
+      })
+      .eq('aliexpress_id', r.aliexpress_id);
+    if (updErr) {
+      // Don't throw — log and count as rejected so the rest of the batch lands.
+      logErr('upsert', `update ${source} aid=${r.aliexpress_id}: ${updErr.message}`);
+      rejected++;
+      continue;
+    }
+    updated++;
   }
 
-  added = newRows.length;
   return { added, updated, rejected };
 }
 
