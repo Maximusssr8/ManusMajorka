@@ -980,27 +980,46 @@ router.post('/snapshot', async (_req: Request, res: Response) => {
   }
 });
 
-// ── GET /api/products/:id/history ─────────────────────────────────────────
-// Returns the 30-day snapshot history for a single product, or an empty
-// array if the table doesn't exist yet.
+// ── GET /api/products/:id/history?range=7|30|90 ──────────────────────────
+// Returns the daily snapshot series for the Products detail drawer
+// sparkline. Reads from product_history, populated by the
+// /api/cron/snapshot-history cron. Empty array (not error) when no rows
+// exist yet so the client can fall back to its interpolated series.
 router.get('/:id/history', async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
+    const rawRange = String(req.query.range ?? '30');
+    const range: 7 | 30 | 90 =
+      rawRange === '7' ? 7 : rawRange === '90' ? 90 : 30;
     const sb = getSupabase();
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+    const cutoff = new Date(Date.now() - range * 86400000).toISOString();
     const { data, error } = await sb
-      .from('product_daily_snapshots')
-      .select('sold_count,winning_score,captured_at')
+      .from('product_history')
+      .select('snapshot_at,sold_count,winning_score,velocity_7d')
       .eq('product_id', id)
-      .gte('captured_at', thirtyDaysAgo)
-      .order('captured_at', { ascending: true });
+      .gte('snapshot_at', cutoff)
+      .order('snapshot_at', { ascending: true });
     if (error) {
       if (/does not exist|relation .* does not exist/i.test(error.message)) {
-        return res.json({ history: [], tableReady: false });
+        return res.json({ series: [], range, tableReady: false });
       }
       return res.status(500).json({ error: error.message });
     }
-    return res.json({ history: data ?? [], tableReady: true });
+    const series = (data ?? []).map((r) => {
+      const row = r as {
+        snapshot_at: string;
+        sold_count: number | null;
+        winning_score: number | null;
+        velocity_7d: number | null;
+      };
+      return {
+        ts: row.snapshot_at,
+        sold_count: row.sold_count ?? 0,
+        score: row.winning_score ?? 0,
+        velocity_7d: row.velocity_7d ?? 0,
+      };
+    });
+    return res.json({ series, range, tableReady: true });
   } catch (err: unknown) {
     console.error('[product-history]', err);
     return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
