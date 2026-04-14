@@ -190,12 +190,29 @@ export async function runPintostudio(input: PintostudioInput): Promise<Pintostud
     const fx = await getFxRates();
     const audRate = fx.AUD || FALLBACK_RATES.AUD;
     const out: PintostudioItem[] = [];
+    // pintostudio wraps the real product list inside `{ data: { content: [...] } }`
+    // — flatten before mapping. Items that are already flat (legacy shape) still work.
+    const flattened: Record<string, unknown>[] = [];
     for (const r of raw) {
       if (!r || typeof r !== 'object') continue;
-      const mapped = mapItem(r as Record<string, unknown>, audRate);
+      const maybeWrapped = r as Record<string, unknown>;
+      const dataVal = maybeWrapped.data;
+      if (dataVal && typeof dataVal === 'object') {
+        const content = (dataVal as Record<string, unknown>).content;
+        if (Array.isArray(content)) {
+          for (const c of content) {
+            if (c && typeof c === 'object') flattened.push(c as Record<string, unknown>);
+          }
+          continue;
+        }
+      }
+      flattened.push(maybeWrapped);
+    }
+    for (const f of flattened) {
+      const mapped = mapItem(f, audRate);
       if (mapped) out.push(mapped);
     }
-    log('pintostudio', `mode=${input.mode} got=${out.length} from dataset=${datasetId}`);
+    logErr('pintostudio', `mode=${input.mode} raw=${raw.length} flat=${flattened.length} mapped=${out.length} dataset=${datasetId}`);
     return out;
   } catch (e: unknown) {
     logErr('pintostudio', e instanceof Error ? e.message : 'unknown error');
@@ -257,30 +274,80 @@ function queryForMode(input: PintostudioInput): string {
   }
 }
 
+// ──────────────────────────────────────────────────────────────────────────
+// pintostudio actor result shape (verified 2026-04-14 via /api/admin/test-apify):
+// {
+//   productId: "3256810280552947",
+//   title: { displayTitle: "...", seoTitle: "..." },
+//   image: { imgUrl: "//ae-pic-a1.aliexpress-media.com/kf/...jpg" },
+//   images: [{ imgUrl }, ...],
+//   prices: {
+//     salePrice:     { minPrice: 8.54,  formattedPrice: "US $8.54", discount: 74 },
+//     originalPrice: { minPrice: 34.11, formattedPrice: "US $34.11" }
+//   },
+//   trade: { realTradeCount: 436, tradeDesc: "436 sold" },
+//   evaluation: { starRating: 4.2 },
+//   lunchTime: "2025-11-30 00:00:00"
+// }
+// ──────────────────────────────────────────────────────────────────────────
+function pick<T = unknown>(obj: Record<string, unknown>, path: string): T | undefined {
+  let cur: unknown = obj;
+  for (const part of path.split('.')) {
+    if (!cur || typeof cur !== 'object') return undefined;
+    cur = (cur as Record<string, unknown>)[part];
+  }
+  return cur as T | undefined;
+}
+
+function normalizeUrl(u: string | undefined): string {
+  if (!u) return '';
+  if (u.startsWith('//')) return `https:${u}`;
+  if (u.startsWith('http')) return u;
+  return u;
+}
+
 function mapItem(item: Record<string, unknown>, audRate: number): PintostudioItem | null {
-  const title = str(item.title ?? item.name ?? item.productTitle).trim();
+  // Title — prefer nested displayTitle, fall back to flat shape (legacy/alt actors).
+  const titleDisplay = str(pick<string>(item, 'title.displayTitle') ?? pick<string>(item, 'title.seoTitle'));
+  const title = (titleDisplay || str(item.title ?? item.name ?? item.productTitle)).trim();
   if (title.length < QUALITY_MIN_TITLE_LEN) return null;
 
-  const imageUrl = str(
-    item.image ?? item.imageUrl ?? item.mainImage ?? item.thumbnail ?? item.imgUrl,
+  // Image — nested `image.imgUrl` (protocol-relative) with flat fallbacks.
+  const imgNested = pick<string>(item, 'image.imgUrl')
+    ?? pick<string>(item, 'images.0.imgUrl');
+  const imageUrl = normalizeUrl(
+    imgNested
+      ?? str(item.imageUrl ?? item.mainImage ?? item.thumbnail ?? item.imgUrl)
+      ?? (typeof item.image === 'string' ? (item.image as string) : ''),
   );
   if (!imageUrl) return null;
 
-  const productUrl = str(item.url ?? item.link ?? item.productUrl);
-  const rawCurrency = str(item.currency ?? item.currencyCode ?? 'USD').toUpperCase().slice(0, 3) || 'USD';
-  const priceRaw = numOrNull(item.price ?? item.priceMin ?? item.salePrice ?? item.discountPrice);
+  // Product URL — actor omits it; synthesise from productId.
+  const productIdRaw = str(item.productId ?? item.id ?? item.itemId ?? '');
+  const productUrl = str(item.url ?? item.link ?? item.productUrl)
+    || (productIdRaw ? `https://www.aliexpress.com/item/${productIdRaw}.html` : '');
+
+  // Price — prefer nested salePrice, then originalPrice, then flat fallbacks.
+  const priceRaw =
+    numOrNull(pick<number>(item, 'prices.salePrice.minPrice'))
+    ?? numOrNull(pick<number>(item, 'prices.originalPrice.minPrice'))
+    ?? numOrNull(item.price ?? item.priceMin ?? item.salePrice ?? item.discountPrice);
   if (priceRaw == null || priceRaw <= 0) return null;
 
-  const priceUsd = rawCurrency === 'USD' ? priceRaw : priceRaw; // pintostudio normalises to USD
+  const priceUsd = priceRaw;
   const priceAud = Math.round(priceUsd * audRate * 100) / 100;
   if (priceAud < QUALITY_MIN_PRICE_AUD) return null;
 
-  const orders = ordersFromAny(item);
+  // Orders — prefer nested trade.realTradeCount, fall back to flat.
+  const ordersRaw = numOrNull(pick<number>(item, 'trade.realTradeCount'));
+  const orders = ordersRaw != null && ordersRaw > 0 ? Math.round(ordersRaw) : ordersFromAny(item);
   if (orders <= 0) return null;
 
-  const rating = numOrNull(item.rating ?? item.starRating ?? item.score);
-  const reviewCount = ordersFromAny({ sold: item.reviews ?? item.reviewCount ?? item.commentCount ?? 0 });
-  const sourceProductId = str(item.id ?? item.productId ?? item.itemId ?? productUrl).slice(0, 120);
+  // Rating — nested evaluation.starRating, fall back to flat.
+  const rating = numOrNull(pick<number>(item, 'evaluation.starRating'))
+    ?? numOrNull(item.rating ?? item.starRating ?? item.score);
+  const reviewCount = ordersFromAny({ sold: pick<number>(item, 'evaluation.reviewCount') ?? item.reviews ?? item.reviewCount ?? item.commentCount ?? 0 });
+  const sourceProductId = productIdRaw.slice(0, 120) || str(productUrl).slice(0, 120);
   if (!sourceProductId) return null;
 
   return {
@@ -295,7 +362,7 @@ function mapItem(item: Record<string, unknown>, audRate: number): PintostudioIte
     reviewCount,
     category: str(item.category ?? item.categoryName) || null,
     sellerName: str(item.storeName ?? item.seller ?? item.shopName) || null,
-    currency: rawCurrency,
+    currency: 'USD',
   };
 }
 
