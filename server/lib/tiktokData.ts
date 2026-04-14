@@ -433,9 +433,28 @@ export async function fetchRealVideos(): Promise<Video[]> {
   }
 
   logRejections(Object.entries(rejections).map(([reason, count]) => ({ reason, count })));
-  const videos = Array.from(byId.values()).sort((a, b) => b.playCount - a.playCount);
-  console.log(`[tiktokData] Leaderboard: ${videos.length} real videos (from ${raw.length} raw, ${videos.filter(v => v.hasProductLink).length} with product link)`);
+  const sorted = Array.from(byId.values()).sort((a, b) => b.playCount - a.playCount);
+  const videos = capPerCreator(sorted, MAX_VIDEOS_PER_CREATOR);
+  console.log(`[tiktokData] Leaderboard: ${videos.length} real videos (from ${raw.length} raw, ${videos.filter(v => v.hasProductLink).length} with product link, cap=${MAX_VIDEOS_PER_CREATOR}/creator)`);
   return videos;
+}
+
+// ── Diversity: cap per creator ─────────────────────────────────────────────
+// Prevents a single creator (e.g. Stone's Store at 63/100) from dominating
+// the leaderboard. Assumes input is already sorted by playCount DESC.
+const MAX_VIDEOS_PER_CREATOR = 3;
+
+function capPerCreator(videos: Video[], cap: number): Video[] {
+  const perCreator = new Map<string, number>();
+  const out: Video[] = [];
+  for (const v of videos) {
+    const key = (v.creatorHandle || '').toLowerCase();
+    const count = perCreator.get(key) ?? 0;
+    if (count >= cap) continue;
+    perCreator.set(key, count + 1);
+    out.push(v);
+  }
+  return out;
 }
 
 // ── Cache status ───────────────────────────────────────────────────────────
@@ -483,7 +502,8 @@ export async function searchVideos(query: string): Promise<Video[]> {
     }
 
     logRejections(Object.entries(rejections).map(([reason, count]) => ({ reason, count })));
-    return Array.from(byId.values()).sort((a, b) => b.playCount - a.playCount);
+    const sorted = Array.from(byId.values()).sort((a, b) => b.playCount - a.playCount);
+    return capPerCreator(sorted, MAX_VIDEOS_PER_CREATOR);
   } catch (err: any) {
     console.error('[tiktokData] searchVideos error:', err?.message || err);
     return [];
