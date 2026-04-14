@@ -26,7 +26,16 @@ export function AppShell({ children }: AppShellProps) {
   useKeyboardShortcuts();
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
-    try { return localStorage.getItem('majorka_onboarded') !== '1'; } catch { return false; }
+    try {
+      // One-time backfill: older versions wrote 'true'/'yes'. Normalise to '1'
+      // so existing users don't see the wizard again after upgrade.
+      const raw = localStorage.getItem('majorka_onboarded');
+      if (raw === 'true' || raw === 'yes') {
+        localStorage.setItem('majorka_onboarded', '1');
+        return false;
+      }
+      return raw !== '1';
+    } catch { return false; }
   });
 
   return (

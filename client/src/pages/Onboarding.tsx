@@ -292,7 +292,7 @@ export default function Onboarding() {
   }
 
   function handleSkip() {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
+    localStorage.setItem(ONBOARDING_KEY, '1');
     updateProfile.mutate({ onboardingCompleted: false });
     navigate('/app');
   }
@@ -302,7 +302,7 @@ export default function Onboarding() {
     const storeInfo = [storeType, platform].filter(Boolean).join(' / ');
 
     // Save to localStorage
-    localStorage.setItem(ONBOARDING_KEY, 'true');
+    localStorage.setItem(ONBOARDING_KEY, '1');
     localStorage.setItem(
       'majorka_user_profile',
       JSON.stringify({
