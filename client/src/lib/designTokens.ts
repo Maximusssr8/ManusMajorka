@@ -60,6 +60,44 @@ export const C = {
   ease: 'cubic-bezier(0.16,1,0.3,1)',
 } as const;
 
+/* ── Elevation ramp — subtle, premium. Use via style={{ boxShadow: elevation.e2 }} ── */
+export const elevation = {
+  e1: '0 1px 2px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03)',
+  e2: '0 2px 8px -2px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04)',
+  e3: '0 12px 32px -12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)',
+  e4: '0 30px 80px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)',
+  glow:      '0 0 40px -10px rgba(99,102,241,0.6)',
+  glowSoft:  '0 0 60px -20px rgba(99,102,241,0.35)',
+  glowHover: '0 0 60px -10px rgba(99,102,241,0.75), 0 8px 32px -8px rgba(0,0,0,0.6)',
+  ringAccent:'0 0 0 1px rgba(99,102,241,0.35), 0 0 24px -8px rgba(99,102,241,0.5)',
+} as const;
+
+/* ── Gradient presets — backgrounds, text fills, mesh ── */
+export const gradients = {
+  accentGlow:   'radial-gradient(ellipse at center, rgba(99,102,241,0.35) 0%, transparent 70%)',
+  surfaceFade:  'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%)',
+  textPrimary:  'linear-gradient(135deg, #f0f4ff 0%, #a5b4fc 100%)',
+  textAccent:   'linear-gradient(135deg, #f0f4ff 0%, #818cf8 40%, #6366f1 100%)',
+  meshBg:       'conic-gradient(from 220deg at 50% 50%, rgba(99,102,241,0.12), rgba(34,211,238,0.06), rgba(139,92,246,0.1), rgba(99,102,241,0.12))',
+  ctaShine:     'linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #6366f1 100%)',
+  border:       'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08))',
+} as const;
+
+/* ── Motion presets — use with CSS transition/duration utilities ── */
+export const motion = {
+  dur: {
+    fast:   '120ms',
+    base:   '180ms',
+    slow:   '280ms',
+    slower: '420ms',
+  },
+  ease: {
+    out:    'cubic-bezier(0.16, 1, 0.3, 1)',
+    inOut:  'cubic-bezier(0.65, 0, 0.35, 1)',
+    spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+} as const;
+
 /* ── Legacy compat aliases for existing call sites ──
    Keep Products.tsx and any other page building without a touch. */
 export const t = {

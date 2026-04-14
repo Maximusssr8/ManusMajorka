@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { Database, Globe, ShieldCheck, Zap } from 'lucide-react';
+import { Database, Globe, ShieldCheck, Zap, Check } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
@@ -664,13 +664,32 @@ function Hero() {
               fontFamily: display,
               fontSize: 'clamp(44px, 6vw, 72px)',
               fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: '-0.04em',
+              lineHeight: 1.03,
+              letterSpacing: '-0.045em',
               color: '#f0f0f0',
               margin: '0 0 24px',
             }}>
-              Find your next winning product<br />
-              <span style={{ color: '#6366F1' }}>before anyone else does.</span>
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #f0f4ff 0%, #c7d2fe 55%, #a5b4fc 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Find your next winning product
+              </span>
+              <br />
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #818cf8 0%, #6366F1 45%, #4f46e5 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                before anyone else does.
+              </span>
             </h1>
 
             <p style={{
@@ -685,23 +704,21 @@ function Hero() {
 
             {/* CTAs */}
             <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
-              <Link href="/sign-up" style={{
+              <Link href="/sign-up" className="mj-cta-glow" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
                 height: 52,
                 padding: '0 28px',
-                background: '#6366F1',
+                background: 'linear-gradient(135deg, #6366F1 0%, #818cf8 50%, #6366F1 100%)',
+                backgroundSize: '200% 100%',
                 color: '#fff',
                 fontFamily: sans,
                 fontWeight: 600,
                 fontSize: 15,
                 borderRadius: 999,
                 textDecoration: 'none',
-                transition: 'background 150ms, transform 150ms',
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#7c83f4'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >Find my first winning product →</Link>
               <a href="#features" style={{
                 display: 'inline-flex',
@@ -730,10 +747,13 @@ function Hero() {
               margin: '-16px 0 28px',
               fontFamily: sans,
               fontWeight: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
             }}>
-              <span style={{ color: '#22c55e', marginRight: 6 }}>✓</span>
+              <Check size={14} strokeWidth={2.5} style={{ color: '#22c55e' }} />
               No credit card required
-              <span style={{ color: '#4b5563', margin: '0 8px' }}>·</span>
+              <span style={{ color: '#4b5563', margin: '0 4px' }}>·</span>
               30-day money-back guarantee
             </p>
 
