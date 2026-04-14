@@ -584,7 +584,7 @@ export default function Pricing() {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ plan: plan ?? 'builder' }),
+        body: JSON.stringify({ plan: plan ?? 'builder', billing: annual ? 'annual' : 'monthly' }),
       });
       const data = (await res.json()) as { url?: string; error?: string; configured?: boolean };
       if (data.url) {
