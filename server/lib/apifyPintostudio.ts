@@ -483,15 +483,11 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
       rating: i.rating,
       reviewCount: i.reviewCount,
     });
-    // Bare-minimum column set — ONLY columns documented in CLAUDE.md schema
-    // + aliexpress_id as the conflict key (legacy refresh-hotproducts uses it
-    // so it's guaranteed to exist with a unique index). Any additional columns
-    // like `last_seen_at` require their migration to be applied in Supabase
-    // first — see scripts/velocity-migration.sql.
     return {
       product_title: i.title,
       image_url: i.imageUrl,
       category: i.category ?? 'general',
+      platform: 'aliexpress', // REQUIRED — composite unique is (product_title, platform)
       price_aud: i.priceAud,
       sold_count: i.orders,
       winning_score: winningScore,
@@ -530,17 +526,23 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
 
   logErr('upsert', `${source}: items=${items.length} rows=${rows.length} new=${newRows.length} existing=${existingRows.length}`);
 
-  // Insert new rows
+  // Insert new rows — use upsert with onConflict on (product_title, platform)
+  // so title-collisions with existing rows silently no-op instead of throwing.
   if (newRows.length > 0) {
     const { error: insErr } = await supabase
       .from('winning_products')
-      .insert(newRows);
+      .upsert(newRows, {
+        onConflict: 'product_title,platform',
+        ignoreDuplicates: true,
+      });
     if (insErr) {
       const msg = `insert ${source} n=${newRows.length}: ${insErr.message}${insErr.details ? ` | ${insErr.details}` : ''}${insErr.hint ? ` | hint: ${insErr.hint}` : ''}`;
       logErr('upsert', msg);
-      throw new Error(msg);
+      // Don't throw — partial batch success is better than losing all 25 calls.
+      rejected += newRows.length;
+    } else {
+      added = newRows.length;
     }
-    added = newRows.length;
   }
 
   // Refresh existing rows — UPDATE demand signals per aliexpress_id
