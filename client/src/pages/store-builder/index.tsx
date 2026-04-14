@@ -702,7 +702,7 @@ export default function StoreBuilder() {
 
       {/* ══════ MODE SELECT ══════ */}
       {mode === 'select' && (
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
           {/* Hero */}
           <div className="text-center mb-14 sb-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
@@ -1242,7 +1242,7 @@ export default function StoreBuilder() {
 
       {/* ══════ SHOPIFY ══════ */}
       {mode === 'shopify' && (
-        <div className="max-w-3xl mx-auto px-6 py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
           <button onClick={() => setMode('select')} className="flex items-center gap-1.5 mb-6 px-3 py-2 rounded-lg text-sm font-medium hover:bg-white/5" style={{ color: TEXT_BODY }}>
             <ArrowLeft size={15} /> Back
           </button>
@@ -1371,7 +1371,7 @@ export default function StoreBuilder() {
 
       {/* ══════ MARKETPLACE ══════ */}
       {mode === 'marketplace' && (
-        <div className="max-w-3xl mx-auto px-6 py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
           <button onClick={() => setMode('select')} className="flex items-center gap-1.5 mb-6 px-3 py-2 rounded-lg text-sm font-medium hover:bg-white/5" style={{ color: TEXT_BODY }}>
             <ArrowLeft size={15} /> Back
           </button>
@@ -1428,7 +1428,7 @@ export default function StoreBuilder() {
           {mpStep === 'dashboard' && (
             <div>
               {mpEarnings && (
-                <div className="grid grid-cols-4 gap-3 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   {[
                     { label: 'Products', value: String(mpListings.length) },
                     { label: 'Total Sales', value: String(mpEarnings.total_sales) },

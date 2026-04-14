@@ -387,8 +387,8 @@ export default function AppHome() {
             View all {total > 0 ? total.toLocaleString() : '…'} →
           </a>
         </div>
-        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
-          <table className="w-full">
+        <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-x-auto">
+          <table className="w-full min-w-[480px]">
             <thead>
               <tr className="bg-raised border-b border-white/[0.07]">
                 <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left w-10">#</th>

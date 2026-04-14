@@ -170,7 +170,7 @@ export default function Revenue() {
           </div>
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02] min-h-[44px]"
             style={{ background: 'linear-gradient(135deg, #d4af37, #d4af37)', boxShadow: '0 4px 16px rgba(212,175,55,0.3)' }}
           >
             <Plus size={15} strokeWidth={2.5} />
@@ -237,8 +237,8 @@ export default function Revenue() {
             </button>
           </div>
         ) : (
-          <div className="glass-card rounded-2xl overflow-hidden">
-            <table className="w-full">
+          <div className="glass-card rounded-2xl overflow-x-auto">
+            <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="bg-white/[0.03] border-b border-white/[0.06]">
                   {['Date', 'Orders', 'Revenue', 'Ad Spend', 'Net Profit', 'ROAS', 'Note', ''].map((h) => (
