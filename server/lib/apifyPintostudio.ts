@@ -482,26 +482,24 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
       rating: i.rating,
       reviewCount: i.reviewCount,
     });
-    // Minimal column set — every field here MUST exist in winning_products.
-    // Originally we set 30+ columns and every upsert errored because at least
-    // one wasn't in the table. Keep to schema basics + aliexpress_id conflict key.
+    // Bare-minimum column set — ONLY columns documented in CLAUDE.md schema
+    // + aliexpress_id as the conflict key (legacy refresh-hotproducts uses it
+    // so it's guaranteed to exist with a unique index). Any additional columns
+    // like `last_seen_at` require their migration to be applied in Supabase
+    // first — see scripts/velocity-migration.sql.
     return {
       product_title: i.title,
       image_url: i.imageUrl,
       category: i.category ?? 'general',
       price_aud: i.priceAud,
       sold_count: i.orders,
-      rating: i.rating,
-      review_count: i.reviewCount,
       winning_score: winningScore,
       est_daily_revenue_aud: estDailyRevenueAud,
       aliexpress_url: i.productUrl || null,
       aliexpress_id: i.sourceProductId,
-      data_source: `apify-pintostudio:${source}`.slice(0, 60),
-      scraped_at: nowIso,
-      last_seen_at: nowIso,
     };
   });
+  void nowIso; // kept for future use when snapshot migrations land
 
   let added = 0;
   let updated = 0;
