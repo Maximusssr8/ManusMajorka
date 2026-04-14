@@ -144,6 +144,10 @@
     {
       "path": "/api/cron/check-alerts",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/check-trials",
+      "schedule": "0 9 * * *"
     }
   ]
 }

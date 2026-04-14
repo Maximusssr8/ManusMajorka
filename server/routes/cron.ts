@@ -1370,6 +1370,148 @@ async function runCheckAlerts(req: Request, res: Response): Promise<void> {
 router.get('/check-alerts', runCheckAlerts);
 router.post('/check-alerts', runCheckAlerts);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GET/POST /api/cron/check-trials — runs daily 09:00 UTC via vercel cron.
+// Sends day-5 trial reminder and day-7 trial expired emails.
+// Dedup via email_sends (UNIQUE user_id, template). Rate-limited to 100/run
+// to stay under Resend free tier.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface TrialRow {
+  user_id: string;
+  trial_ends_at: string;
+}
+
+async function runCheckTrials(req: Request, res: Response): Promise<void> {
+  if (!verifyCronSecret(req)) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
+  const MAX_SENDS = 100;
+  const supabase = getSupabaseAdmin();
+
+  try {
+    // Import lazily to keep cron.ts cold-start light.
+    const { sendTransactional } = await import('../lib/email');
+
+    const now = Date.now();
+    // Day-5 reminder window: trial ends 1.5 – 2.5 days from now (2-day warning).
+    const reminderLo = new Date(now + 1.5 * 24 * 3600 * 1000).toISOString();
+    const reminderHi = new Date(now + 2.5 * 24 * 3600 * 1000).toISOString();
+    // Expired window: trial ended within last 24h.
+    const expiredLo = new Date(now - 24 * 3600 * 1000).toISOString();
+    const expiredHi = new Date(now).toISOString();
+
+    const { data: reminderRows, error: remErr } = await supabase
+      .from('user_subscriptions')
+      .select('user_id, trial_ends_at')
+      .gte('trial_ends_at', reminderLo)
+      .lte('trial_ends_at', reminderHi)
+      .limit(MAX_SENDS);
+
+    const { data: expiredRows, error: expErr } = await supabase
+      .from('user_subscriptions')
+      .select('user_id, trial_ends_at')
+      .gte('trial_ends_at', expiredLo)
+      .lte('trial_ends_at', expiredHi)
+      .limit(MAX_SENDS);
+
+    if (remErr) console.warn('[cron/check-trials] reminder query error:', remErr.message);
+    if (expErr) console.warn('[cron/check-trials] expired query error:', expErr.message);
+
+    const reminderCandidates: TrialRow[] = (reminderRows ?? []) as TrialRow[];
+    const expiredCandidates: TrialRow[] = (expiredRows ?? []) as TrialRow[];
+
+    let sent = 0;
+    let skipped = 0;
+    let failed = 0;
+
+    async function alreadySent(userId: string, template: string): Promise<boolean> {
+      const { data } = await supabase
+        .from('email_sends')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('template', template)
+        .maybeSingle();
+      return !!data;
+    }
+
+    async function recordSend(
+      userId: string,
+      email: string,
+      template: string,
+      provider: string,
+      providerId: string | undefined,
+    ): Promise<void> {
+      await supabase.from('email_sends').insert({
+        user_id: userId,
+        email,
+        template,
+        provider,
+        provider_id: providerId ?? null,
+      });
+    }
+
+    async function resolveUser(userId: string): Promise<{ email: string; firstName?: string } | null> {
+      try {
+        const { data } = await supabase.auth.admin.getUserById(userId);
+        const email = data?.user?.email;
+        if (!email) return null;
+        const meta = (data.user?.user_metadata ?? {}) as Record<string, unknown>;
+        const rawName = (meta.full_name ?? meta.name ?? meta.first_name ?? '') as string;
+        const firstName = typeof rawName === 'string' ? rawName.trim().split(' ')[0] : undefined;
+        return { email, firstName };
+      } catch {
+        return null;
+      }
+    }
+
+    type Job = { row: TrialRow; template: 'trial_reminder' | 'trial_expired' };
+    const jobs: Job[] = [
+      ...reminderCandidates.map((r): Job => ({ row: r, template: 'trial_reminder' })),
+      ...expiredCandidates.map((r): Job => ({ row: r, template: 'trial_expired' })),
+    ].slice(0, MAX_SENDS);
+
+    for (const { row, template } of jobs) {
+      if (sent >= MAX_SENDS) break;
+      if (await alreadySent(row.user_id, template)) { skipped++; continue; }
+
+      const user = await resolveUser(row.user_id);
+      if (!user) { skipped++; continue; }
+
+      const spec = template === 'trial_reminder'
+        ? { template: 'trial_reminder' as const, data: { firstName: user.firstName } }
+        : { template: 'trial_expired' as const, data: { firstName: user.firstName } };
+
+      const result = await sendTransactional(user.email, spec);
+      if (result.ok) {
+        await recordSend(row.user_id, user.email, template, result.provider, result.id);
+        sent++;
+      } else {
+        failed++;
+        console.warn(`[cron/check-trials] send failed user=${row.user_id} template=${template}: ${result.error ?? result.reason}`);
+      }
+    }
+
+    res.json({
+      ok: true,
+      candidates: {
+        reminder: reminderCandidates.length,
+        expired: expiredCandidates.length,
+      },
+      sent,
+      skipped,
+      failed,
+    });
+  } catch (err: unknown) {
+    res.status(500).json({
+      error: 'internal',
+      message: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+router.get('/check-trials', runCheckTrials);
+router.post('/check-trials', runCheckTrials);
+
 export default router;
 
 // POST /api/cron/ae-bestsellers — runs every 6h via Vercel cron (0 */6 * * *)
