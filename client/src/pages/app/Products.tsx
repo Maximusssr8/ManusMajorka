@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
-import { useProducts, type OrderByColumn, type Product } from '@/hooks/useProducts';
+import { useProducts, type OrderByColumn, type Product, type UseProductsOptions } from '@/hooks/useProducts';
 import { useFavourites } from '@/hooks/useFavourites';
 import { useTracking } from '@/hooks/useTracking';
 import { useLists } from '@/hooks/useLists';
@@ -371,7 +371,7 @@ function ListPickerButton({ product, lists, size = 15, className = '' }: ListPic
                   onClick={(e) => {
                     e.stopPropagation();
                     if (inList) {
-                      lists.removeFromList(list.id, product.id);
+                      lists.removeFromList(list.id, String(product.id));
                       toast(`Removed from "${list.name}"`);
                     } else {
                       lists.addToList(list.id, product);
@@ -543,6 +543,7 @@ function ProductSheet({
   const marginTier = marginPct >= 30 ? 'text-green' : marginPct >= 15 ? 'text-amber' : 'text-red-400';
 
   function handleCreateAd() {
+    if (!product) return;
     sessionStorage.setItem('majorka_ad_product', JSON.stringify({
       id: product.id,
       title: product.product_title,
@@ -555,6 +556,7 @@ function ProductSheet({
   }
 
   function handleImportToStore() {
+    if (!product) return;
     const landedCost = Number(product.price_aud ?? 0);
     const suggestedSell = Math.round(landedCost * 3 * 100) / 100;
     const orders = product.sold_count ?? 0;
@@ -582,6 +584,7 @@ function ProductSheet({
   }
 
   async function handleToggleSave() {
+    if (!product) return;
     const wasFav = isFav;
     await onToggleFav(product);
     if (wasFav) toast('Removed from saved');
@@ -1091,7 +1094,7 @@ export default function AppProducts() {
         tab: activeTab,
       };
 
-  const { products: allFetchedRaw, loading, total } = useProducts(useProductsParams);
+  const { products: allFetchedRaw, loading, total } = useProducts(useProductsParams as UseProductsOptions);
 
   // Client-side velocity re-sort when 'velocity' is selected
   const allFetched = useMemo<Product[]>(() => {
