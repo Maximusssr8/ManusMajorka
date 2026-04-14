@@ -5,7 +5,7 @@ import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "mj-tap inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive will-change-transform",
+  "mj-tap inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0f14] focus-visible:ring-[#6366f1] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive will-change-transform",
   {
     variants: {
       variant: {
@@ -37,25 +37,53 @@ const buttonVariants = cva(
   }
 );
 
+type ButtonProps = React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    loading?: boolean;
+    loadingLabel?: string;
+  };
+
 function Button({
   className,
   variant,
   size,
   asChild = false,
+  type,
+  disabled,
+  loading = false,
+  loadingLabel = 'Loading',
+  children,
   ...props
-}: React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot : 'button';
+  const isDisabled = disabled || loading;
+
+  // Default type="button" on native buttons to avoid accidental form submits.
+  // Slot composition forwards props onto the child element as-is.
+  const resolvedType = asChild ? type : (type ?? 'button');
 
   return (
     <Comp
       data-slot="button"
+      type={resolvedType}
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={isDisabled}
+      aria-disabled={isDisabled || undefined}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading ? (
+        <>
+          <span className="sr-only">{loadingLabel}</span>
+          <span aria-hidden="true">{children}</span>
+        </>
+      ) : (
+        children
+      )}
+    </Comp>
   );
 }
 
 export { Button, buttonVariants };
+export type { ButtonProps };

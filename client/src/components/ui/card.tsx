@@ -2,12 +2,36 @@ import type * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-function Card({ className, ...props }: React.ComponentProps<'div'>) {
+function Card({
+  className,
+  onClick,
+  onKeyDown,
+  role,
+  tabIndex,
+  ...props
+}: React.ComponentProps<'div'>) {
+  const isInteractive = typeof onClick === 'function';
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isInteractive && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      // Synthesize a click so keyboard activation matches pointer activation.
+      (event.currentTarget as HTMLDivElement).click();
+    }
+    onKeyDown?.(event);
+  };
+
   return (
     <div
       data-slot="card"
+      onClick={onClick}
+      onKeyDown={isInteractive ? handleKeyDown : onKeyDown}
+      role={isInteractive ? (role ?? 'button') : role}
+      tabIndex={isInteractive ? (tabIndex ?? 0) : tabIndex}
       className={cn(
         'bg-card text-card-foreground flex flex-col gap-6 rounded-2xl border py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.35)] transition-all duration-200 hover:border-[rgba(99,102,241,0.28)] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_40px_-12px_rgba(0,0,0,0.5),0_0_48px_-18px_rgba(99,102,241,0.4)]',
+        isInteractive &&
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0f14] focus-visible:ring-[#6366f1]',
         className
       )}
       {...props}
