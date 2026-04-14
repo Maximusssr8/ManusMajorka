@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import type { JSX } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavourites } from '@/hooks/useFavourites';
