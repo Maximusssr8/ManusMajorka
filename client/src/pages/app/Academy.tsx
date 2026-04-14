@@ -165,7 +165,7 @@ export default function Academy() {
             className="mt-6 text-lg md:text-xl text-white/60 max-w-2xl leading-relaxed"
           >
             The no-fluff dropshipping playbook, written for Australian operators.
-            Eight modules. Real examples. Zero guru nonsense. Completely free.
+            Twelve modules. Real examples. Zero guru nonsense. Completely free.
           </motion.p>
 
           <motion.div
@@ -257,7 +257,7 @@ export default function Academy() {
               {
                 icon: <Timer size={18} />,
                 title: 'Fast on purpose',
-                body: 'The whole curriculum is under 90 minutes. If you can\'t learn dropshipping in 90 minutes, no one can teach you.',
+                body: 'The whole curriculum is under two hours. If you can\'t learn dropshipping in that long, no one can teach you.',
               },
             ].map((c, i) => (
               <motion.div
@@ -294,7 +294,7 @@ export default function Academy() {
             className="mb-10 md:mb-14"
           >
             <div className="text-[10px] font-mono uppercase tracking-widest text-indigo-300/70 mb-3">
-              The Learning Path · 8 modules · ~90 min total
+              The Learning Path · 12 modules · ~2 hrs total
             </div>
             <h2
               className="text-3xl md:text-5xl font-semibold leading-tight tracking-tight"
@@ -491,7 +491,7 @@ export default function Academy() {
                 <span className="text-sm text-white/40">forever</span>
               </div>
               <ul className="space-y-3 text-sm text-white/70 flex-1 mb-6">
-                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-emerald-400 flex-shrink-0" /> 8 full modules, 21 lessons</li>
+                <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-emerald-400 flex-shrink-0" /> 12 full modules, 30+ lessons</li>
                 <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-emerald-400 flex-shrink-0" /> Live demos from real DB</li>
                 <li className="flex items-start gap-2.5"><Check size={14} className="mt-0.5 text-emerald-400 flex-shrink-0" /> First-sale checklist</li>
                 <li className="flex items-start gap-2.5 text-white/30"><Lock size={14} className="mt-0.5 flex-shrink-0" /> No product database access</li>
