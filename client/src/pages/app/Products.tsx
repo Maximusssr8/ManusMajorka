@@ -1751,14 +1751,23 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
   if (loading && products.length === 0) {
     return (
       <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl overflow-hidden">
+        {/* Realistic skeleton that matches row layout so the transition to
+           real data doesn't shift the layout. 8 rows at 80px each. */}
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className={`h-[72px] px-6 flex items-center gap-3.5 ${i === 7 ? '' : 'border-b border-white/[0.04]'}`}
+            className={`h-20 px-4 md:px-6 flex items-center gap-4 ${i === 7 ? '' : 'border-b border-white/[0.04]'}`}
           >
-            <span className="w-5 h-3 bg-white/[0.04] rounded animate-pulse" />
-            <span className="w-14 h-14 bg-white/[0.04] rounded-xl animate-pulse" />
-            <span className="flex-1 h-3.5 bg-white/[0.04] rounded animate-pulse" />
+            <span className="hidden md:inline-block w-5 h-3 bg-white/[0.04] rounded animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
+            <span className="w-14 h-14 bg-white/[0.04] rounded-lg animate-pulse shrink-0" style={{ animationDelay: `${i * 60}ms` }} />
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
+              <span className="block w-[70%] h-3.5 bg-white/[0.06] rounded animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
+              <span className="block w-[40%] h-2.5 bg-white/[0.04] rounded animate-pulse" style={{ animationDelay: `${i * 60 + 30}ms` }} />
+            </div>
+            <span className="hidden md:inline-block w-16 h-6 bg-white/[0.04] rounded animate-pulse" />
+            <span className="hidden md:inline-block w-12 h-6 bg-white/[0.04] rounded animate-pulse" />
+            <span className="hidden md:inline-block w-20 h-6 bg-white/[0.04] rounded animate-pulse" />
+            <span className="hidden md:inline-block w-24 h-7 bg-white/[0.04] rounded animate-pulse" />
           </div>
         ))}
       </div>
@@ -1769,8 +1778,8 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
     <div className="mx-4 md:mx-8 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full table-auto">
-          <thead>
-            <tr className="bg-[#0f1629] border-b border-white/[0.06]">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-[#0f1629] border-b border-white/[0.08] shadow-[0_1px_0_rgba(255,255,255,0.04)]">
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">#</th>
               <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Product</th>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-left">Category</th>
@@ -1778,7 +1787,7 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
               <th className="text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Orders</th>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Price</th>
               <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Revenue</th>
-              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-center">♡</th>
+              <th className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-widest text-white/45 px-4 py-3.5 whitespace-nowrap text-right">Actions</th>
             </tr>
           </thead>
         <tbody>
@@ -1901,25 +1910,28 @@ function ListTable({ products, loading, onSelect, lists, navigate }: ListTablePr
                 <td className={`hidden md:table-cell px-4 text-right text-base font-bold tabular-nums whitespace-nowrap ${estMonthly != null ? 'text-green' : 'text-muted'}`}>
                   {estMonthly != null ? `$${Math.round(estMonthly).toLocaleString()}/mo` : '—'}
                 </td>
-                <td className="hidden md:table-cell px-4 text-center whitespace-nowrap">
-                  {/* Heart opens list picker popover. Hover: Zap + ShoppingBag reveal. */}
-                  <div className="flex items-center justify-end gap-1">
+                <td className="hidden md:table-cell px-4 text-right whitespace-nowrap">
+                  {/* Always-visible operator CTAs: Add to Store + Create Ad.
+                     Heart list picker stays to the left as a secondary action. */}
+                  <div className="flex items-center justify-end gap-1.5">
                     <ListPickerButton product={p} lists={lists} />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); importToStore(p, navigate); }}
+                      aria-label="Add to store"
+                      title="Add to store"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-body bg-white/[0.04] border border-white/[0.08] hover:border-accent/40 hover:text-accent-hover hover:bg-accent/[0.06] transition-colors cursor-pointer"
+                    >
+                      <Store size={12} strokeWidth={2} />
+                      Store
+                    </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); createAdForProduct(p, navigate); }}
                       aria-label="Create ad"
                       title="Create ad"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center p-1.5 rounded-md text-muted hover:text-accent-hover hover:bg-white/[0.08] cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-white bg-accent hover:bg-accent-hover transition-colors cursor-pointer shadow-[0_0_0_1px_rgba(99,102,241,0.4)]"
                     >
-                      <Zap size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); importToStore(p, navigate); }}
-                      aria-label="Import to store"
-                      title="Import to store"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center p-1.5 rounded-md text-muted hover:text-accent-hover hover:bg-white/[0.08] cursor-pointer"
-                    >
-                      <ShoppingBag size={15} strokeWidth={1.75} />
+                      <Zap size={12} strokeWidth={2.5} />
+                      Ad
                     </button>
                   </div>
                 </td>
@@ -2072,18 +2084,42 @@ function GridCards({ products, loading, onSelect, lists }: GridCardsProps) {
 
 function EmptyState() {
   return (
-    <div className="mx-4 md:mx-8 my-10 p-16 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-center">
-      <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-raised mb-4">
-        <Search size={24} className="text-muted" strokeWidth={1.75} />
+    <div className="mx-4 md:mx-8 my-10 p-10 md:p-14 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] text-center">
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/[0.08] border border-accent/15 mb-5">
+        <Search size={26} className="text-accent-hover" strokeWidth={1.75} />
       </div>
       <div className="font-display text-xl font-semibold text-text mb-2">
-        No products match
+        No products match your filters
       </div>
-      <div className="text-sm text-body max-w-sm mx-auto leading-relaxed">
-        Try clearing your filters or switching to Live AliExpress search to pull fresh results from the marketplace.
+      <div className="text-sm text-body max-w-md mx-auto leading-relaxed mb-6">
+        Try widening the score, price or order range — or pull fresh winners directly from the AliExpress marketplace.
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <button
+          onClick={() => {
+            try { localStorage.removeItem('majorka_filters_v1'); } catch { /* ignore */ }
+            window.location.href = '/app/products';
+          }}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-body bg-white/[0.04] border border-white/[0.08] hover:border-white/20 hover:text-text transition-colors cursor-pointer"
+        >
+          Clear all filters
+        </button>
+        <button
+          onClick={() => { searchInputFocus(); }}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-accent hover:bg-accent-hover transition-colors cursor-pointer inline-flex items-center gap-1.5"
+        >
+          <Search size={13} strokeWidth={2.25} />
+          Search AliExpress live
+        </button>
       </div>
     </div>
   );
+}
+
+/** Focus the page-level search input — used by empty state CTAs. */
+function searchInputFocus(): void {
+  const el = document.querySelector<HTMLInputElement>('input.search-input');
+  el?.focus();
 }
 
 /* ══════════════════════════════════════════════════════════════
