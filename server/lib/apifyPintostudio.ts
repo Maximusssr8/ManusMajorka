@@ -33,39 +33,25 @@ const QUALITY_MIN_PRICE_AUD = 0.5;
 const DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR = 1000;
 const TARGET_SUCCESS_ROWS = 500;
 
-/** 20 bestseller category URLs — tuned for AU dropship demand. */
-const BESTSELLER_CATEGORIES: ReadonlyArray<{ id: string; name: string; url: string }> = [
-  { id: '200003655', name: 'Beauty & Health', url: 'https://www.aliexpress.com/category/200003655/beauty-health.html?SortType=total_tranpro_desc' },
-  { id: '200000343', name: 'Pet Products', url: 'https://www.aliexpress.com/category/200000343/pet-products.html?SortType=total_tranpro_desc' },
-  { id: '200000783', name: 'Home & Garden', url: 'https://www.aliexpress.com/category/200000783/home-garden.html?SortType=total_tranpro_desc' },
-  { id: '200000506', name: 'Sports & Fitness', url: 'https://www.aliexpress.com/category/200000506/sports-entertainment.html?SortType=total_tranpro_desc' },
-  { id: '200000340', name: 'Consumer Electronics', url: 'https://www.aliexpress.com/category/200000340/consumer-electronics.html?SortType=total_tranpro_desc' },
-  { id: '200000345', name: 'Mother & Kids', url: 'https://www.aliexpress.com/category/200000345/mother-kids.html?SortType=total_tranpro_desc' },
-  { id: '200000344', name: 'Apparel Accessories', url: 'https://www.aliexpress.com/category/200000344/apparel-accessories.html?SortType=total_tranpro_desc' },
-  { id: '1501',      name: 'Phone Accessories', url: 'https://www.aliexpress.com/category/1501/phone-accessories.html?SortType=total_tranpro_desc' },
-  { id: '200000828', name: 'Automotive', url: 'https://www.aliexpress.com/category/200000828/automotive.html?SortType=total_tranpro_desc' },
-  { id: '44',        name: 'Tools', url: 'https://www.aliexpress.com/category/44/tools.html?SortType=total_tranpro_desc' },
-  { id: '200000532', name: 'Jewelry', url: 'https://www.aliexpress.com/category/200000532/jewelry.html?SortType=total_tranpro_desc' },
-  { id: '200001996', name: 'Watches', url: 'https://www.aliexpress.com/category/200001996/watches.html?SortType=total_tranpro_desc' },
-  { id: '15',        name: 'Office & School', url: 'https://www.aliexpress.com/category/15/office-school-supplies.html?SortType=total_tranpro_desc' },
-  { id: '1503',      name: 'Computer & Office', url: 'https://www.aliexpress.com/category/1503/computer-office.html?SortType=total_tranpro_desc' },
-  { id: '200003498', name: 'Lights & Lighting', url: 'https://www.aliexpress.com/category/200003498/lights-lighting.html?SortType=total_tranpro_desc' },
-  { id: '200000297', name: 'Bags & Luggage', url: 'https://www.aliexpress.com/category/200000297/luggage-bags.html?SortType=total_tranpro_desc' },
-  { id: '200000298', name: 'Shoes', url: 'https://www.aliexpress.com/category/200000298/shoes.html?SortType=total_tranpro_desc' },
-  { id: '509',       name: 'Toys & Hobbies', url: 'https://www.aliexpress.com/category/509/toys-hobbies.html?SortType=total_tranpro_desc' },
-  { id: '6',         name: 'Security & Protection', url: 'https://www.aliexpress.com/category/6/security-protection.html?SortType=total_tranpro_desc' },
-  { id: '200001075', name: 'Furniture', url: 'https://www.aliexpress.com/category/200001075/furniture.html?SortType=total_tranpro_desc' },
+/**
+ * Demand-signal queries — NO category searches, pure order-volume signals.
+ * Each query triggers one pintostudio actor call, sorted by ORDERS desc.
+ */
+const TRENDING_QUERIES: ReadonlyArray<string> = [
+  'best selling', 'trending now', 'top selling', 'most ordered', 'viral product',
+  'hot selling', 'popular items', 'fast selling', 'top rated sellers', 'most bought',
 ];
 
-/** Trending keyword seeds per market. */
-const TRENDING_KEYWORDS_PER_MARKET: ReadonlyArray<{ market: 'AU' | 'US' | 'UK'; keywords: string[] }> = [
-  { market: 'AU', keywords: ['viral gadget', 'tiktok made me buy', 'trending home', 'cooling', 'led'] },
-  { market: 'US', keywords: ['viral gadget', 'tiktok made me buy', 'aesthetic', 'skincare', 'gaming'] },
-  { market: 'UK', keywords: ['viral gadget', 'tiktok made me buy', 'kitchen', 'pet', 'fitness'] },
+const BESTSELLER_QUERIES: ReadonlyArray<string> = [
+  'bestseller 2025', '100000 sold', 'top seller global', 'most orders', 'over 50000 sold',
+  'high volume seller', 'mass market product', 'bulk orders', 'wholesale popular', 'commercial bestseller',
 ];
 
-const HOT_PRODUCT_KEYWORDS = ['hot product', 'bestseller', 'new trending'];
-const NEW_ARRIVAL_KEYWORDS = ['new arrival', 'just launched', 'latest'];
+/** New-arrival queries — filter post-hoc to orders >= 1000. */
+const NEW_HIGH_VOLUME_QUERIES: ReadonlyArray<string> = [
+  'new arrival hot', 'just launched bestseller', 'new popular product',
+  'new trending item', 'newly listed top seller',
+];
 
 function log(tag: string, msg: string): void {
   if (process.env.NODE_ENV !== 'production') {
@@ -258,19 +244,16 @@ function buildInput(input: PintostudioInput): Record<string, unknown> {
  */
 function queryForMode(input: PintostudioInput): string {
   if (input.keyword && input.keyword.trim().length > 0) return input.keyword;
+  // Every mode is now query-based. No category URL synthesis.
   switch (input.mode) {
     case 'trending':
-      return 'trending';
+      return 'best selling';
     case 'hot_products':
-      return 'hot product';
+      return 'hot selling';
     case 'new_arrivals':
-      return 'new arrival';
-    case 'bestsellers': {
-      if (!input.categoryUrl) return 'bestseller';
-      // https://www.aliexpress.com/category/200000343/pet-products.html?... → "pet products"
-      const slug = input.categoryUrl.split('/category/')[1]?.split('.html')[0]?.split('/')[1];
-      return slug ? slug.replace(/-/g, ' ') : 'bestseller';
-    }
+      return 'new arrival hot';
+    case 'bestsellers':
+      return 'bestseller';
   }
 }
 
@@ -398,10 +381,8 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   let updated = 0;
   let rejected = 0;
 
-  // Build a flat list of every call we need to make, then run them all in
-  // parallel. Each pintostudio actor call takes ~30-60s serially — running
-  // them concurrently keeps the whole pipeline under the 300s Vercel budget.
-  // Apify handles concurrent runs natively.
+  // 25 parallel calls: 10 trending + 10 bestsellers + 5 new-high-volume.
+  // Zero category-based searches. Every query is a pure demand signal.
   type Call = {
     input: PintostudioInput;
     source: string;
@@ -410,37 +391,24 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   };
   const calls: Call[] = [];
 
-  // Trending (condensed to 2 keywords × 3 markets = 6 calls — was 15)
-  for (const m of TRENDING_KEYWORDS_PER_MARKET) {
-    for (const kw of m.keywords.slice(0, 2)) {
-      calls.push({
-        input: { mode: 'trending', keyword: kw, country: m.market, limit: 100 },
-        source: `trending:${m.market}`,
-        bucket: 'trending',
-      });
-    }
-  }
-  // Bestsellers — 20 categories
-  for (const cat of BESTSELLER_CATEGORIES) {
+  for (const q of TRENDING_QUERIES) {
     calls.push({
-      input: { mode: 'bestsellers', categoryUrl: cat.url, country: 'AU', limit: 100 },
-      source: `bestsellers:${cat.id}`,
+      input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
+      source: `trending:${q}`,
+      bucket: 'trending',
+    });
+  }
+  for (const q of BESTSELLER_QUERIES) {
+    calls.push({
+      input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
+      source: `bestsellers:${q}`,
       bucket: 'bestsellers',
     });
   }
-  // Hot products
-  for (const kw of HOT_PRODUCT_KEYWORDS) {
+  for (const q of NEW_HIGH_VOLUME_QUERIES) {
     calls.push({
-      input: { mode: 'hot_products', keyword: kw, country: 'AU', limit: 200 },
-      source: 'hot_products',
-      bucket: 'hot',
-    });
-  }
-  // New arrivals
-  for (const kw of NEW_ARRIVAL_KEYWORDS) {
-    calls.push({
-      input: { mode: 'new_arrivals', keyword: kw, country: 'AU', limit: 300 },
-      source: 'new_arrivals',
+      input: { mode: 'new_arrivals', keyword: q, country: 'AU', limit: 100 },
+      source: `new_high_volume:${q}`,
       bucket: 'new_arrivals',
       minOrders: DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR,
     });
@@ -514,73 +482,58 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
       rating: i.rating,
       reviewCount: i.reviewCount,
     });
+    // Minimal column set — every field here MUST exist in winning_products.
+    // Originally we set 30+ columns and every upsert errored because at least
+    // one wasn't in the table. Keep to schema basics + aliexpress_id conflict key.
     return {
       product_title: i.title,
       image_url: i.imageUrl,
-      hi_res_image_url: i.imageUrl,
       category: i.category ?? 'general',
-      platform: 'aliexpress' as const,
       price_aud: i.priceAud,
-      cost_price_aud: Math.round(i.priceAud * 0.4 * 100) / 100,
-      supplier_cost_aud: Math.round(i.priceAud * 0.4 * 100) / 100,
       sold_count: i.orders,
-      orders_count: i.orders,
       rating: i.rating,
       review_count: i.reviewCount,
-      shop_name: i.sellerName ?? 'AliExpress',
       winning_score: winningScore,
-      au_relevance: 'High',
-      units_per_day: unitsPerDay,
       est_daily_revenue_aud: estDailyRevenueAud,
-      est_monthly_revenue_aud: Math.round(estDailyRevenueAud * 30 * 100) / 100,
-      profit_margin: 60,
       aliexpress_url: i.productUrl || null,
       aliexpress_id: i.sourceProductId,
-      source_product_id: i.sourceProductId,
-      source_url: i.productUrl,
-      data_source: `apify-pintostudio:${source}`,
-      source_currency: i.currency,
-      is_active: true,
+      data_source: `apify-pintostudio:${source}`.slice(0, 60),
       scraped_at: nowIso,
-      last_refreshed: nowIso,
       last_seen_at: nowIso,
-      last_seen_in_scrape_at: nowIso,
     };
   });
-
-  // Quality gate already enforced in mapItem (title>=5, image, price, orders>0).
-  // Anything missing fails on the NOT NULL columns and is counted as rejected.
 
   let added = 0;
   let updated = 0;
   let rejected = 0;
 
-  // Check existing by source_product_id in one round-trip.
-  const ids = rows.map((r) => r.source_product_id).filter(Boolean);
+  // Check existing by aliexpress_id — that's the conflict key and it's
+  // guaranteed to have a unique index (used by the legacy refresh-hotproducts
+  // pipeline already).
+  const ids = rows.map((r) => r.aliexpress_id).filter(Boolean);
   const existingIds = new Set<string>();
   if (ids.length > 0) {
     const { data } = await supabase
       .from('winning_products')
-      .select('source_product_id')
-      .in('source_product_id', ids);
+      .select('aliexpress_id')
+      .in('aliexpress_id', ids);
     for (const row of data ?? []) {
-      const v = (row as { source_product_id?: string }).source_product_id;
+      const v = (row as { aliexpress_id?: string }).aliexpress_id;
       if (v) existingIds.add(v);
     }
   }
 
-  // Upsert in a single call — Supabase will INSERT or UPDATE per row.
   const { error } = await supabase
     .from('winning_products')
-    .upsert(rows, { onConflict: 'source_product_id', ignoreDuplicates: false });
+    .upsert(rows, { onConflict: 'aliexpress_id', ignoreDuplicates: false });
 
   if (error) {
-    logErr('upsert', `${source}: ${error.message}`);
+    logErr('upsert', `${source} n=${rows.length}: ${error.message}`);
     return { added: 0, updated: 0, rejected: rows.length };
   }
 
   for (const r of rows) {
-    if (existingIds.has(r.source_product_id)) updated++;
+    if (existingIds.has(r.aliexpress_id)) updated++;
     else added++;
   }
 
