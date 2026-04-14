@@ -57,6 +57,7 @@ const PublicProfitShare = lazy(() => import('./pages/PublicProfitShare'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const Academy = lazy(() => import('./pages/app/Academy'));
+const PublicAcademy = lazy(() => import('./pages/Academy'));
 const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
 const CompetitorSpy = lazyWithRetry(() => import('./pages/CompetitorSpy'));
 const AdsStudio = lazyWithRetry(() => import('./pages/AdsStudio'));
@@ -175,6 +176,7 @@ function Router() {
             <Route path="/blog" component={Blog} />
             <Route path="/about" component={About} />
             <Route path="/pricing" component={Pricing} />
+            <Route path="/academy" component={PublicAcademy} />
             <Route path="/store-builder" component={StoreBuilder} />
             <Route path="/login" component={SignIn} />
             <Route path="/sign-in" component={SignIn} />

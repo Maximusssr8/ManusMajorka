@@ -13,7 +13,7 @@
 import { Router, type Request, type Response } from 'express';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { sendTransactional } from '../lib/email';
-import { ACADEMY_TRACKS } from '../../client/src/components/academy/tracks';
+import { ACADEMY_CURRICULUM } from '../../client/src/components/academy/curriculum';
 import type { DigestProduct, DigestLessonRec } from '../lib/emailTemplates/weeklyDigest';
 
 const router = Router();
@@ -103,14 +103,15 @@ async function nextLessonFor(userId: string): Promise<DigestLessonRec | null> {
     .select('lesson_id')
     .eq('user_id', userId);
   const done = new Set((Array.isArray(data) ? data : []).map((r) => String(r.lesson_id)));
-  for (const t of ACADEMY_TRACKS) {
-    for (const l of t.lessons) {
+  for (const mod of ACADEMY_CURRICULUM) {
+    for (let i = 0; i < mod.lessons.length; i += 1) {
+      const l = mod.lessons[i];
       if (!done.has(l.id)) {
         return {
-          trackTitle: t.title,
-          lessonNum: l.num,
+          trackTitle: mod.title,
+          lessonNum: String(i + 1).padStart(2, '0'),
           lessonTitle: l.title,
-          url: `https://majorka.io/app/academy#${l.id}`,
+          url: `https://majorka.io/app/learn#${l.id}`,
         };
       }
     }
