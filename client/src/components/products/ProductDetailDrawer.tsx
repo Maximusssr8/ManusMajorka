@@ -350,6 +350,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
         title: product.product_title,
         price_aud: product.price_aud,
         image_url: product.image_url,
+        productUrl: product.product_url,
         category: product.category,
       };
       sessionStorage.setItem('majorka_ad_product', JSON.stringify(payload));
@@ -592,6 +593,157 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               width={500}
               height={72}
             />
+          </section>
+
+          {/* 7-day Launch Blueprint */}
+          <section
+            style={{
+              padding: 14,
+              background: '#111111',
+              border: '1px solid #1a1a1a',
+              borderRadius: 12,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <CalendarDays size={16} style={{ color: '#d4af37' }} />
+              <span
+                style={{
+                  fontFamily: "'Syne', system-ui, sans-serif",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#f5f5f5',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                7-day Launch Blueprint
+              </span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: '#737373' }}>Cached 24h</span>
+            </div>
+            {blueprint === null && !blueprintLoading && !blueprintError ? (
+              <button
+                type="button"
+                onClick={onGenerateBlueprint}
+                style={{
+                  alignSelf: 'flex-start',
+                  minHeight: 36,
+                  padding: '0 14px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'rgba(212,175,55,0.14)',
+                  border: '1px solid rgba(212,175,55,0.35)',
+                  borderRadius: 8,
+                  color: '#d4af37',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: "'DM Sans', system-ui, sans-serif",
+                }}
+              >
+                <Sparkles size={13} />
+                Generate 7-day Blueprint
+              </button>
+            ) : null}
+            {blueprintLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#a3a3a3', fontSize: 13 }}>
+                <Loader2 size={14} className="animate-spin" />
+                Building your 7-day plan…
+              </div>
+            ) : null}
+            {blueprintError ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 8,
+                  color: '#fca5a5',
+                  fontSize: 13,
+                  padding: 10,
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  background: 'rgba(239,68,68,0.06)',
+                  borderRadius: 8,
+                }}
+              >
+                <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <span>{blueprintError}</span>
+                  <button
+                    type="button"
+                    onClick={onGenerateBlueprint}
+                    style={{
+                      alignSelf: 'flex-start',
+                      padding: '4px 10px',
+                      background: 'rgba(239,68,68,0.1)',
+                      border: '1px solid rgba(239,68,68,0.25)',
+                      borderRadius: 6,
+                      color: '#fca5a5',
+                      fontSize: 11,
+                      cursor: 'pointer',
+                      fontFamily: "'DM Sans', system-ui, sans-serif",
+                    }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {blueprintExpanded && blueprint && blueprint.length > 0 ? (
+              <ol
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  margin: 0,
+                  padding: 0,
+                  listStyle: 'none',
+                }}
+              >
+                {blueprint.map((d) => (
+                  <li
+                    key={d.day}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '32px 1fr',
+                      gap: 10,
+                      padding: 10,
+                      background: '#0b0b0b',
+                      border: '1px solid #1a1a1a',
+                      borderRadius: 10,
+                    }}
+                  >
+                    <div
+                      className="mj-num"
+                      style={{
+                        width: 32,
+                        height: 32,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#d4af37',
+                        background: 'rgba(212,175,55,0.10)',
+                        border: '1px solid rgba(212,175,55,0.25)',
+                        borderRadius: 8,
+                      }}
+                    >
+                      {d.day}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#f5f5f5', lineHeight: 1.4 }}>
+                        {d.task}
+                      </span>
+                      <span style={{ fontSize: 12, color: '#a3a3a3', lineHeight: 1.5 }}>
+                        {d.rationale}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
           </section>
 
           {/* AI Brief */}
