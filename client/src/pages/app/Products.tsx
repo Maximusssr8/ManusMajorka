@@ -248,11 +248,11 @@ export default function Products() {
     <div style={{ minHeight: '100vh', background: '#080808', color: '#e5e5e5' }}>
       {/* Header */}
       <header
+        className="px-3 py-3 sm:px-5 sm:py-4"
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 20,
-          padding: '16px 20px',
           background: 'rgba(8,8,8,0.85)',
           backdropFilter: 'blur(12px)',
           borderBottom: '1px solid #1a1a1a',
@@ -271,9 +271,9 @@ export default function Products() {
         >
           <div>
             <h1
+              className="text-[22px] sm:text-[28px]"
               style={{
                 fontFamily: "'Syne', system-ui, sans-serif",
-                fontSize: 28,
                 fontWeight: 700,
                 margin: 0,
                 color: '#f5f5f5',
@@ -282,13 +282,13 @@ export default function Products() {
             >
               Products
             </h1>
-            <p style={{ fontSize: 13, color: '#737373', margin: '4px 0 0' }}>
+            <p className="text-[13px] sm:text-[13px]" style={{ fontSize: 13, color: '#737373', margin: '4px 0 0' }}>
               Winners ranked by real order velocity, all-time volume and 48h freshness.
             </p>
           </div>
 
           {/* Search */}
-          <div style={{ position: 'relative', flex: 1, minWidth: 280, maxWidth: 420 }}>
+          <div className="w-full" style={{ position: 'relative', flex: 1, minWidth: 0, maxWidth: 420 }}>
             <Search
               size={16}
               style={{
@@ -388,7 +388,7 @@ export default function Products() {
       </div>
 
       {/* Body */}
-      <main style={{ maxWidth: 1400, margin: '0 auto', padding: '20px' }}>
+      <main className="px-3 py-4 sm:px-5 sm:py-5" style={{ maxWidth: 1400, margin: '0 auto' }}>
         {/* Meta row */}
         <div
           style={{
@@ -502,7 +502,7 @@ export default function Products() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))',
               gap: 14,
             }}
           >

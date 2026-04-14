@@ -572,6 +572,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             display: 'flex',
             gap: 8,
             padding: 12,
+            paddingBottom: `calc(12px + env(safe-area-inset-bottom))`,
             borderTop: '1px solid #1a1a1a',
             background: '#0b0b0b',
           }}
