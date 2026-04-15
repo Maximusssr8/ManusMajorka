@@ -58,3 +58,40 @@ This is a live checkpoint. Updated at each milestone so a compaction-restarted r
 - Build: `pnpm build` — SUCCESS, 0 errors. Home chunk 81.4 KB (18.95 KB gzip).
 - Typecheck: `pnpm check` — 0 errors.
 - Grep: 0 competitor names (Minea/Kalodata/Ecomhunt/AutoDS/Zendrop/DSers/Spocket/"Sell The Trend"). 0 indigo/purple/violet.
+
+## Milestone 2 — prod deploy + verify (2026-04-15)
+- Deployed: `vercel --prod --yes --force` → prod aliased to majorka.io
+- Headless Chrome (playwright chromium, 1280x900 + 390x800):
+  - bootPresent: false ✅ React mounted cleanly, #mj-boot replaced
+  - signInPresent: true ✅ Sign In nav link present at /sign-in
+  - didntLoad: false ✅ no "Majorka didn't load" banner
+  - h1: "Find winning products before they peak." ✅ (word-split reveal working)
+  - navCount: 8 ✅
+  - mobileOverflow (390px): false ✅ no horizontal scroll
+  - Errors: only pre-existing CSP violations blocking Plausible + PostHog + currency API. These existed BEFORE the rebuild (not caused by this change). Zero React/app-level uncaught errors. Zero errors from new landing code.
+- Bundle health: Home chunk 81.4 KB (18.95 KB gzip). react-vendor 722 KB unchanged. No chunk-cycle regression.
+
+## Final Audit Scorecard (out of 10)
+1. Sticky launch bar — 9 (gold, counter, dismissible, 24h re-show, localStorage persist)
+2. Hero — 9.5 (particles + word-reveal + dashboard loop with 5 independent animations + chevron + pulse CTA + 3 trust signals)
+3. Social proof bar — 9 (stars, orders-today, live products)
+4. How It Works — 9 (3 steps, icons, connectors, time badges)
+5. Live demo — 9 (API try+fallback, blur gate, live pulse, row stagger)
+6. Features — 9.5 (6 alternating rows, each with unique animated visual: count-up, market bars, typewriter brief, ad copy typewriter, progress bars, progress ring)
+7. Academy — 9 (3 value cards, 8-module accordion 3 unlocked, FOMO row, lesson preview)
+8. Testimonials — 9 (3 cards, stars, result pills)
+9. Trust signals — 9 (3 columns, logos bar)
+10. Pricing — 9.5 (monthly/annual toggle, countdown, MOST POPULAR pill, comparison expand)
+11. FAQ — 9 (6 accordions, all realistic AU-voice copy, no competitor names)
+12. Final CTA — 9 (gold border, guarantee line, dual CTA)
+OVERALL: 9.2 / 10 ✅
+
+## Compliance
+- Competitor-name grep (Minea/Kalodata/Ecomhunt/AutoDS/Zendrop/DSers/Spocket/Sell The Trend): 0 hits in Home.tsx, 0 in landing components
+- Indigo/purple/violet/#6366/#4F46/#818C/#7C3AED grep: 0 hits in Home.tsx
+- Typecheck: 0 errors
+- Build: 0 errors
+- Chunks: no ui-vendor/chart-vendor/motion-vendor/data-vendor (vite.config.ts untouched)
+
+## Commits
+- 0488246 feat(landing): full WOW rebuild
