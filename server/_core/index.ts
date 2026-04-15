@@ -40,6 +40,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getUsageSummary } from '../lib/usageLimits';
 import type { Plan } from '../../shared/plans';
 import { requireAuth } from '../middleware/requireAuth';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -355,7 +356,7 @@ async function startServer() {
   const adSpySearchCache = new Map<string, { ts: number; result: any }>();
   const adSpyUserCooldown = new Map<string, number>();
 
-  app.post('/api/ad-spy/search', async (req, res) => {
+  app.post('/api/ad-spy/search', claudeRateLimit, async (req, res) => {
     try {
       const { query } = req.body;
       if (!query || typeof query !== 'string' || query.trim().length < 2) {

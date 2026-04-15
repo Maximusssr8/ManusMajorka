@@ -9,6 +9,7 @@
 import type { Application } from 'express';
 import { getAnthropicClient, CLAUDE_MODEL } from './anthropic';
 import { callClaude } from './claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
@@ -2065,7 +2066,7 @@ export function registerWebsiteRoutes(app: Application): void {
   });
 
   // POST /api/website/enhance-description — AI product description enhancer
-  app.post('/api/website/enhance-description', async (req, res) => {
+  app.post('/api/website/enhance-description', claudeRateLimit, async (req, res) => {
     try {
       const user = await authenticateRequest(req);
       if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -2096,7 +2097,7 @@ Output ONLY JSON:
   });
 
   // POST /api/website/headline-variants — generate 3 hero headline variants
-  app.post('/api/website/headline-variants', async (req, res) => {
+  app.post('/api/website/headline-variants', claudeRateLimit, async (req, res) => {
     try {
       const user = await authenticateRequest(req);
       if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -2126,7 +2127,7 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
   });
 
   // POST /api/website/improve-text — AI rewrite for inline editor (used from new tab)
-  app.post('/api/website/improve-text', requireSubscription, async (req, res) => {
+  app.post('/api/website/improve-text', requireSubscription, claudeRateLimit, async (req, res) => {
     try {
       const { text, instruction } = req.body as { text?: string; instruction?: string };
       if (!text || text.length < 2) return res.status(400).json({ error: 'No text provided' });
