@@ -1,12 +1,41 @@
 import { useState, useEffect } from 'react';
-import { BarChart2, TrendingUp, Package, Star } from 'lucide-react';
+import { BarChart2, TrendingUp, Package, Star, Sparkles, FileText, Megaphone, Bookmark } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const CATEGORY_COLOURS = ['#d4af37','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#d4af37','#ef4444','#84cc16','#06b6d4','#d4af37','#78716c','#0ea5e9','#d946ef'];
 
+interface MyActivity {
+  briefs: number;
+  ads: number;
+  saves: number;
+  topCategory?: string | null;
+}
+
+// Fix 6 — display "Uncategorised" instead of "general" and sort it to the bottom.
+function normaliseAndSortCategories(raw: { category: string; count: number }[]): { category: string; count: number; isUncategorised: boolean }[] {
+  const items = raw.map(c => {
+    const isUnc = (c.category || '').trim().toLowerCase() === 'general';
+    return {
+      category: isUnc ? 'Uncategorised' : c.category,
+      count: c.count,
+      isUncategorised: isUnc,
+    };
+  });
+  // Sort: real categories first (by count desc), then uncategorised at the bottom.
+  return items.sort((a, b) => {
+    if (a.isUncategorised && !b.isUncategorised) return 1;
+    if (!a.isUncategorised && b.isUncategorised) return -1;
+    return b.count - a.count;
+  });
+}
+
 export default function Analytics() {
   const [overview, setOverview] = useState<{ total: number; score90: number; newThisWeek: number } | null>(null);
-  const [categories, setCategories] = useState<{ category: string; count: number }[]>([]);
+  const [categories, setCategories] = useState<{ category: string; count: number; isUncategorised: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activity, setActivity] = useState<MyActivity | null>(null);
+  const [recategorising, setRecategorising] = useState(false);
+  const [recategoriseMsg, setRecategoriseMsg] = useState('');
 
   useEffect(() => {
     document.title = 'Analytics — Majorka';
@@ -15,10 +44,63 @@ export default function Analytics() {
       fetch('/api/products/analytics-categories').then(r => r.json()),
     ]).then(([ov, cats]) => {
       setOverview(ov);
-      setCategories(cats.categories || []);
+      setCategories(normaliseAndSortCategories(cats.categories || []));
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  // Fix 7 — Your Activity (current month). Degrade gracefully on errors.
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+        const res = await fetch('/api/analytics/my-activity', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setActivity({
+            briefs: Number(data.briefs ?? 0),
+            ads: Number(data.ads ?? 0),
+            saves: Number(data.saves ?? 0),
+            topCategory: data.topCategory ?? null,
+          });
+        } else {
+          setActivity({ briefs: 0, ads: 0, saves: 0, topCategory: null });
+        }
+      } catch {
+        setActivity({ briefs: 0, ads: 0, saves: 0, topCategory: null });
+      }
+    })();
+  }, []);
+
+  const triggerRecategorise = async () => {
+    setRecategorising(true);
+    setRecategoriseMsg('');
+    try {
+      const adminToken = window.prompt('Admin token (X-Admin-Token):') || '';
+      if (!adminToken) { setRecategorising(false); return; }
+      const res = await fetch('/api/admin/recategorise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken },
+      });
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setRecategoriseMsg(`Re-categorised ${data.updated ?? 0} of ${data.attempted ?? 0} products.`);
+        // Refresh categories list
+        const cats = await fetch('/api/products/analytics-categories').then(r => r.json()).catch(() => ({ categories: [] }));
+        setCategories(normaliseAndSortCategories(cats.categories || []));
+      } else {
+        const err = await res.json().catch(() => ({ error: 'failed' }));
+        setRecategoriseMsg(`Error: ${err.error || res.status}`);
+      }
+    } catch {
+      setRecategoriseMsg('Network error — try again.');
+    } finally {
+      setRecategorising(false);
+    }
+  };
 
   const maxCatCount = Math.max(...categories.map(c => c.count), 1);
   const elitePct = overview ? Math.round((overview.score90 / Math.max(overview.total, 1)) * 100) : 0;
@@ -51,8 +133,44 @@ export default function Analytics() {
         ))}
       </div>
 
+      {/* Fix 7 — Your Activity (current month). 4 small tiles, gold mono numbers. */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.55)', marginBottom: 10, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Your Activity (this month)</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+          {[
+            { label: 'AI Briefs', value: activity?.briefs ?? 0, icon: FileText },
+            { label: 'Ads Generated', value: activity?.ads ?? 0, icon: Megaphone },
+            { label: 'Products Saved', value: activity?.saves ?? 0, icon: Bookmark },
+            ...(activity?.topCategory ? [{ label: 'Top Category', value: activity.topCategory, icon: Sparkles }] : []),
+          ].map(t => (
+            <div key={t.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <t.icon size={13} color="#d4af37" />
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.label}</span>
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#d4af37', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '-0.01em' }}>{t.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff', marginBottom: 20 }}>Products by category</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff' }}>Products by category</div>
+          {/* Fix 6 — Re-categorise button (admin token gated). */}
+          <button
+            onClick={triggerRecategorise}
+            disabled={recategorising}
+            style={{
+              padding: '6px 12px', borderRadius: 8,
+              background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)',
+              color: '#d4af37', fontSize: 11, fontWeight: 600, cursor: recategorising ? 'wait' : 'pointer',
+            }}
+          >{recategorising ? 'Re-categorising…' : 'Re-categorise'}</button>
+        </div>
+        {recategoriseMsg && (
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>{recategoriseMsg}</div>
+        )}
         {loading ? (
           <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Loading…</div>
         ) : (

@@ -1702,6 +1702,64 @@ router.get('/cron-health', async (_req: Request, res: Response) => {
   }
 });
 
+// POST /api/admin/recategorise — picks 100 'general'/null winning_products rows,
+// asks Claude Haiku to derive a category from title+desc, updates the row.
+// Idempotent and capped at 100 per call to keep cost bounded.
+// Already gated by adminAuth (X-Admin-Token) at router-level.
+router.post('/recategorise', async (_req: Request, res: Response) => {
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    const sb = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+
+    const { data: rows, error } = await sb
+      .from('winning_products')
+      .select('id, product_title, category, why_trending')
+      .or('category.is.null,category.eq.general,category.eq.General,category.eq.Uncategorised')
+      .limit(100);
+
+    if (error) return res.status(500).json({ error: error.message });
+    if (!rows || rows.length === 0) {
+      return res.json({ attempted: 0, updated: 0, message: 'no rows to recategorise' });
+    }
+
+    const { callClaude } = await import('../lib/claudeWrap');
+    let updated = 0;
+    for (const row of rows as Array<{ id: string; product_title: string | null; why_trending?: string | null }>) {
+      try {
+        const title = (row.product_title || '').slice(0, 200);
+        const desc = (row.why_trending || '').slice(0, 200);
+        if (!title) continue;
+        const prompt = `Classify this dropshipping product into ONE category from: Beauty, Fashion, Electronics, Home, Kitchen, Pet, Fitness, Wellness, Toys, Outdoor, Auto, Office, Other.
+
+Title: ${title}
+${desc ? `Notes: ${desc}` : ''}
+
+Return ONLY a JSON object: {"category": "<one of the above>"}`;
+        const msg = await callClaude({
+          model: 'claude-haiku-4-5-20251001',
+          maxTokens: 64,
+          feature: 'recategorise_admin',
+          messages: [{ role: 'user', content: prompt }],
+        });
+        const text = (msg.content?.[0] as { text?: string })?.text || '';
+        const match = text.match(/"category"\s*:\s*"([^"]+)"/);
+        const cat = match?.[1]?.trim();
+        if (!cat) continue;
+        const { error: upErr } = await sb
+          .from('winning_products')
+          .update({ category: cat })
+          .eq('id', row.id);
+        if (!upErr) updated += 1;
+      } catch { /* per-row failure does not abort batch */ }
+    }
+    return res.json({ attempted: rows.length, updated });
+  } catch (err) {
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'unknown' });
+  }
+});
+
 // POST /api/admin/run-trend-pipeline
 router.post('/run-trend-pipeline', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
   res.json({ ok: true, message: 'Trend-first pipeline started. CJ runs synchronously; AE fire-and-forget.' });
