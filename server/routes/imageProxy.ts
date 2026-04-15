@@ -12,7 +12,22 @@ const ALLOWED_HOSTS = [
   'alicdn.com',
 ];
 
-router.get('/image-proxy', async (req: Request, res: Response) => {
+// Tiny dark SVG placeholder with subtle gold dot — served on upstream
+// failure so <img onError> handlers stay quiet and layout doesn't jump.
+const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" fill="#111111"/><circle cx="32" cy="32" r="6" fill="#d4af37" fill-opacity="0.55"/></svg>`;
+
+function sendPlaceholder(res: Response): void {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.status(200).send(PLACEHOLDER_SVG);
+}
+
+function isAllowedHost(hostname: string): boolean {
+  return ALLOWED_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+}
+
+async function handleImageProxy(req: Request, res: Response): Promise<void> {
   const url = (req.query.url as string | undefined) ?? '';
   if (!url) {
     res.status(400).json({ error: 'Missing url param' });
@@ -27,9 +42,13 @@ router.get('/image-proxy', async (req: Request, res: Response) => {
     return;
   }
 
-  const allowed = ALLOWED_HOSTS.some((host) => parsed.hostname === host || parsed.hostname.endsWith(`.${host}`));
-  if (!allowed) {
-    res.status(403).json({ error: 'Domain not allowed' });
+  if (parsed.protocol !== 'https:') {
+    res.status(400).json({ error: 'Only https URLs are allowed' });
+    return;
+  }
+
+  if (!isAllowedHost(parsed.hostname)) {
+    res.status(400).json({ error: 'Domain not allowed' });
     return;
   }
 
@@ -44,23 +63,31 @@ router.get('/image-proxy', async (req: Request, res: Response) => {
         'sec-fetch-mode': 'no-cors',
         'sec-fetch-site': 'cross-site',
       },
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!upstream.ok) {
-      res.status(upstream.status).json({ error: `Upstream ${upstream.status}` });
+      sendPlaceholder(res);
       return;
     }
 
     const contentType = upstream.headers.get('content-type') ?? 'image/jpeg';
+    const upstreamEtag = upstream.headers.get('etag');
     const buffer = await upstream.arrayBuffer();
 
-    res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
     res.setHeader('Content-Type', contentType);
     res.setHeader('Access-Control-Allow-Origin', '*');
+    if (upstreamEtag) res.setHeader('ETag', upstreamEtag);
     res.send(Buffer.from(buffer));
-  } catch (err: unknown) {
-    res.status(500).json({ error: err instanceof Error ? err.message : 'Proxy error' });
+  } catch {
+    sendPlaceholder(res);
   }
-});
+}
+
+// Canonical endpoint requested by the products page rebuild.
+router.get('/proxy/image', handleImageProxy);
+// Back-compat alias — existing client helpers and bookmarks still call /api/image-proxy.
+router.get('/image-proxy', handleImageProxy);
 
 export default router;

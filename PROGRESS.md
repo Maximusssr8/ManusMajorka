@@ -577,3 +577,18 @@ preview-only deploy; rebase-and-merge coordination deferred to user.
 - Headless Chrome verify: zero uncaught errors, mj-boot replaced, all 7 WOW components present (FilmGrain, mj-chapter-sticky, mj-cmdk-chip, ticker, kinetic H1, particle field, quick-score hero), `/guarantee` link intact.
 - API gates: `GET /api/public/quick-score?url=…` returns sampled scoring payload (200), `GET /api/products/todays-picks?limit=3` serves real data.
 - All 4 directors (Revenue, Engagement, AU Moat, Landing Innovator) shipped this session. Manual actions list current — see entries above.
+
+---
+
+# Products Page Director — fix-products-page (2026-04-15)
+
+## Plan
+1. Fix 1: Add canonical `/api/proxy/image` endpoint with hardened allowlist + SVG placeholder fallback. Keep `/api/image-proxy` as alias. Update `client/src/lib/imageProxy.ts` to point at canonical path.
+2. Fix 2: Verified — `ProductCard` already opens drawer via `onOpen`, QuickActions buttons already `stopPropagation` and route via sessionStorage. No-op required.
+3. Fix 3: `/api/ai/generate` returned `Unknown tool: undefined` for the drawer's `{system, prompt}` payload (no `tool` field). Added a freeform-prompt branch with try/catch + tool-error retry, returning `{ ok: false, retryable: true }` on failure. Drawer client now handles `ok:false`, shows compact retry button, and clears 24h brief cache before retrying.
+4. Polish: hide `7d velocity` & `Est daily rev` stat cards when source data is null/zero; hide entire `Order momentum` sparkline section when interpolated series has < 7 points (avoids "Insufficient historical data" beside 231k orders).
+
+## Status
+- pnpm check: 0 errors
+- pnpm build: 0 errors
+- vercel preview: pending push

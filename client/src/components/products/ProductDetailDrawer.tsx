@@ -124,6 +124,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
   const [brief, setBrief] = useState<string>('');
   const [briefLoading, setBriefLoading] = useState(false);
   const [briefError, setBriefError] = useState<string | null>(null);
+  const [briefAttempt, setBriefAttempt] = useState(0);
 
   const open = product !== null;
   const productId = product ? String(product.id) : '';
@@ -224,7 +225,15 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
           }),
         });
         const data = await res.json();
-        const text: string = data?.text ?? data?.output ?? data?.content ?? '';
+        // Server now returns { ok: false, error, message } for soft failures
+        // instead of leaking raw Anthropic API errors. Treat that as a
+        // user-facing retryable state rather than a hard exception.
+        if (data && data.ok === false) {
+          if (cancelled) return;
+          setBriefError(typeof data.message === 'string' ? data.message : 'Brief generation failed. Try again.');
+          return;
+        }
+        const text: string = data?.text ?? data?.output ?? data?.content ?? data?.result ?? '';
         if (!res.ok || !text) {
           throw new Error(data?.error || 'AI endpoint returned no content');
         }
@@ -239,7 +248,19 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
       }
     })();
     return () => { cancelled = true; };
-  }, [product, productId]);
+  }, [product, productId, briefAttempt]);
+
+  const retryBrief = useCallback(() => {
+    if (!productId) return;
+    try {
+      window.localStorage.removeItem(`${BRIEF_CACHE_PREFIX}${productId}`);
+    } catch {
+      /* ignore */
+    }
+    setBrief('');
+    setBriefError(null);
+    setBriefAttempt((n) => n + 1);
+  }, [productId]);
 
   const onAddToStore = useCallback(() => {
     if (!product) return;
@@ -466,61 +487,74 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
           {/* AU Warehouse badge — visible only when stocked in AU. */}
           <AuWarehouseBadge product={product} />
 
-          {/* Stat grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            <StatCard label="Winning score" value={`${Math.round(Number(product.winning_score ?? 0)) || 0}`} suffix="/100" />
-            <StatCard label="Lifetime orders" value={fmtCompact(product.sold_count)} />
-            <StatCard
-              label="7d velocity"
-              value={
-                Number(product.velocity_7d ?? 0) > 0
-                  ? `+${fmtCompact(product.velocity_7d)}`
-                  : pct !== null
-                    ? `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`
-                    : '—'
-              }
-            />
-            <StatCard label="Est monthly rev." value={monthly > 0 ? fmtAUD(monthly, 0) : '—'} />
-            <StatCard label="Landed cost" value={fmtAUD(product.price_aud)} />
-            <StatCard label="Est daily rev." value={fmtAUD(product.est_daily_revenue_aud)} />
-          </div>
+          {/* Stat grid — stat rows hide when their underlying source data is
+              null/zero rather than rendering "—" (cleaner than empty cells). */}
+          {(() => {
+            const hasVelocity = Number(product.velocity_7d ?? 0) > 0 || pct !== null;
+            const hasDailyRev = Number(product.est_daily_revenue_aud ?? 0) > 0;
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                <StatCard label="Winning score" value={`${Math.round(Number(product.winning_score ?? 0)) || 0}`} suffix="/100" />
+                <StatCard label="Lifetime orders" value={fmtCompact(product.sold_count)} />
+                {hasVelocity ? (
+                  <StatCard
+                    label="7d velocity"
+                    value={
+                      Number(product.velocity_7d ?? 0) > 0
+                        ? `+${fmtCompact(product.velocity_7d)}`
+                        : `${pct! > 0 ? '+' : ''}${pct!.toFixed(1)}%`
+                    }
+                  />
+                ) : null}
+                <StatCard label="Est monthly rev." value={monthly > 0 ? fmtAUD(monthly, 0) : '—'} />
+                <StatCard label="Landed cost" value={fmtAUD(product.price_aud)} />
+                {hasDailyRev ? (
+                  <StatCard label="Est daily rev." value={fmtAUD(product.est_daily_revenue_aud)} />
+                ) : null}
+              </div>
+            );
+          })()}
 
-          {/* Sparkline */}
-          <section
-            style={{
-              padding: 14,
-              background: '#111111',
-              border: '1px solid #1a1a1a',
-              borderRadius: 12,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <span
-                style={{
-                  fontFamily: "'Syne', system-ui, sans-serif",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#f5f5f5',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                Order momentum
-              </span>
-              <span style={{ fontSize: 10, color: '#737373', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                Last 7 days
-              </span>
-            </div>
-            <Sparkline
-              data={sparkSeries}
-              productId={product.id}
-              range={30}
-              width={500}
-              height={72}
-            />
-          </section>
+          {/* Sparkline — hide entire section when we have fewer than 7 data
+              points to avoid "Insufficient historical data" appearing next to
+              a product showing huge lifetime orders. */}
+          {sparkSeries.length >= 7 ? (
+            <section
+              style={{
+                padding: 14,
+                background: '#111111',
+                border: '1px solid #1a1a1a',
+                borderRadius: 12,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                <span
+                  style={{
+                    fontFamily: "'Syne', system-ui, sans-serif",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#f5f5f5',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  Order momentum
+                </span>
+                <span style={{ fontSize: 10, color: '#737373', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Last 7 days
+                </span>
+              </div>
+              <Sparkline
+                data={sparkSeries}
+                productId={product.id}
+                range={30}
+                width={500}
+                height={72}
+              />
+            </section>
+          ) : null}
 
           {/* AI Brief */}
           <section
@@ -558,18 +592,36 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 8,
+                  alignItems: 'center',
+                  gap: 10,
                   color: '#fca5a5',
                   fontSize: 13,
                   padding: 10,
                   border: '1px solid rgba(239,68,68,0.2)',
                   background: 'rgba(239,68,68,0.06)',
                   borderRadius: 8,
+                  flexWrap: 'wrap',
                 }}
               >
-                <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: 2 }} />
-                <span>{briefError}</span>
+                <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1, minWidth: 160 }}>{briefError}</span>
+                <button
+                  type="button"
+                  onClick={retryBrief}
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: '#fca5a5',
+                    background: 'transparent',
+                    border: '1px solid rgba(252,165,165,0.4)',
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontFamily: "'DM Sans', system-ui, sans-serif",
+                  }}
+                >
+                  Retry
+                </button>
               </div>
             ) : brief ? (
               <div style={{ fontSize: 13, lineHeight: 1.65, color: '#d4d4d4' }}>
