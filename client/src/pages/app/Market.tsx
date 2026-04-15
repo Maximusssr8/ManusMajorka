@@ -26,7 +26,7 @@ function tierFor(count: number): Tier {
   return { key: 'saturated', label: 'Saturated', color: C.red, bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.28)' };
 }
 
-// ── Bar colour gradient: violet (1–3), teal (4–6), amber (7–10) ────────────
+// ── Bar colour gradient: accent gold (1–3), teal (4–6), amber (7–10) ──────
 function barColour(rank: number): string {
   if (rank < 3) return C.accent;
   if (rank < 6) return '#14b8a6';

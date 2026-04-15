@@ -1081,7 +1081,7 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
                 <p className="text-xs" style={{ color: '#94A3B8' }}>Required to accept payments on your store.</p>
               </div>
               <div className="space-y-3">
-                {[{ label: 'Publishable Key', value: stripePublishable, setter: setStripePublishable, placeholder: 'pk_live_...', type: 'text' }, { label: 'Secret Key', value: stripeSecret, setter: setStripeSecret, placeholder: 'sk_live_...', type: 'password' }].map(({ label, value, setter, placeholder, type }) => (
+                {[{ label: 'Publishable Key', value: stripePublishable, setter: setStripePublishable, placeholder: 'pk_…', type: 'text' }, { label: 'Secret Key', value: stripeSecret, setter: setStripeSecret, placeholder: 'sk_…', type: 'password' }].map(({ label, value, setter, placeholder, type }) => (
                   <div key={label} className="space-y-1.5">
                     <label className="text-xs font-medium" style={{ color: '#CBD5E1', fontFamily: "'Syne', sans-serif" }}>{label}</label>
                     <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #F0F0F0', color: '#F8FAFC', fontFamily: 'monospace' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(212,175,55,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />

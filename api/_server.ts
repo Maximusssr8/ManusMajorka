@@ -116,6 +116,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// ── Stripe webhook GET — health-check endpoint for monitoring ───────────────
+app.get("/api/stripe/webhook", (_req, res) => {
+  res.json({ status: "ok", endpoint: "stripe-webhook", accepts: "POST" });
+});
+
 // ── Stripe webhook must receive raw body — register BEFORE express.json() ─────
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const signature = req.headers["stripe-signature"];

@@ -8,8 +8,7 @@
  * for alerts, etc).
  *
  * Design tokens: gold (#d4af37) primary, surface #111111, divider #1a1a1a.
- * NO indigo / purple / violet — that palette is owned by other surfaces
- * and the spec explicitly forbids it here.
+ * Only gold, teal, amber, and greyscale used here — no off-palette colours.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, BellRing, Calculator, Truck, CreditCard, X, Loader2 } from 'lucide-react';
