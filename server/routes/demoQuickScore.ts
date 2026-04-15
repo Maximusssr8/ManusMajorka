@@ -18,12 +18,14 @@ const router = Router();
 // ── Category → Supabase ILIKE patterns ──────────────────────────────────────
 type CategoryKey = 'Pet' | 'Kitchen' | 'Home' | 'Beauty' | 'Fitness';
 
+// Supabase JS `.or()` uses `*` as the wildcard token inside ilike patterns —
+// `%` gets URL-escaped and doesn't behave as a wildcard in that context.
 const CATEGORY_FILTER: Record<CategoryKey, string[]> = {
-  Pet: ['%pet%', '%pets%', '%pet accessories%'],
-  Kitchen: ['%kitchen%', '%bar%', '%cookware%'],
-  Home: ['%home storage%', '%home%', '%organiser%', '%organizer%'],
-  Beauty: ['%beauty%', '%skincare%', '%cosmetics%'],
-  Fitness: ['%fitness%', '%wellness%', '%gym%'],
+  Pet: ['*pet*', '*pets*', '*pet accessories*'],
+  Kitchen: ['*kitchen*', '*bar*', '*cookware*'],
+  Home: ['*home storage*', '*home*', '*organiser*', '*organizer*'],
+  Beauty: ['*beauty*', '*skincare*', '*cosmetics*'],
+  Fitness: ['*fitness*', '*wellness*', '*gym*'],
 };
 
 const ALLOWED_KEYS = Object.keys(CATEGORY_FILTER) as CategoryKey[];
