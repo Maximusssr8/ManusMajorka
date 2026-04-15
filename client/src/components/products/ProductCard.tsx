@@ -116,6 +116,28 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
         >
           {score > 0 ? score : '—'}
         </div>
+        {/* AU Warehouse pill — sits just below the score chip */}
+        {product.au_warehouse_available ? (
+          <div
+            aria-label="Stocked in an Australian warehouse"
+            style={{
+              position: 'absolute',
+              top: 36,
+              left: 8,
+              padding: '3px 8px',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              color: '#0a0a0a',
+              background: '#d4af37',
+              border: '1px solid #b8941f',
+              borderRadius: 6,
+              boxShadow: '0 2px 8px rgba(212,175,55,0.35)',
+            }}
+          >
+            AU WAREHOUSE
+          </div>
+        ) : null}
         {/* Market flags top-right */}
         <div style={{ position: 'absolute', top: 8, right: 8 }}>
           <MarketFlags product={product} />

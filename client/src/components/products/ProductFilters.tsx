@@ -23,6 +23,8 @@ export interface ProductFilterState {
   minScore: number;      // 0 means "no threshold"
   minOrders: number;     // 0 means "no threshold"
   sort: SortKey;
+  /** AU Moat — show only products held in an Australian warehouse. */
+  auWarehouseOnly?: boolean;
 }
 
 export const DEFAULT_FILTERS: ProductFilterState = {
@@ -31,6 +33,7 @@ export const DEFAULT_FILTERS: ProductFilterState = {
   minScore: 0,
   minOrders: 0,
   sort: 'orders_desc',
+  auWarehouseOnly: false,
 };
 
 const STORAGE_KEY = 'majorka_product_filters_v2';
@@ -78,6 +81,7 @@ export function loadPersistedFilters(): ProductFilterState {
       minScore: typeof parsed.minScore === 'number' ? parsed.minScore : DEFAULT_FILTERS.minScore,
       minOrders: typeof parsed.minOrders === 'number' ? parsed.minOrders : DEFAULT_FILTERS.minOrders,
       sort: SORT_OPTIONS.some((o) => o.key === parsed.sort) ? (parsed.sort as SortKey) : DEFAULT_FILTERS.sort,
+      auWarehouseOnly: typeof parsed.auWarehouseOnly === 'boolean' ? parsed.auWarehouseOnly : false,
     };
   } catch {
     return { ...DEFAULT_FILTERS };
@@ -192,6 +196,25 @@ export function ProductFilters({ onChange, categories, initial }: ProductFilters
           </button>
         ))}
       </div>
+
+      {/* AU Warehouse — gold pill toggle */}
+      <label
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors"
+        style={{
+          background: state.auWarehouseOnly ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
+          borderColor: state.auWarehouseOnly ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.08)',
+          color: state.auWarehouseOnly ? '#d4af37' : 'rgba(255,255,255,0.6)',
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={!!state.auWarehouseOnly}
+          onChange={(e) => setState((s) => ({ ...s, auWarehouseOnly: e.target.checked }))}
+          className="accent-amber-500"
+          style={{ width: 14, height: 14 }}
+        />
+        <span className="text-xs font-medium">AU Warehouse only</span>
+      </label>
 
       <div className="flex-1 min-w-[8px]" />
 

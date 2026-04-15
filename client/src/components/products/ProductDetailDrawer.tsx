@@ -20,6 +20,13 @@ import { Sparkline } from './Sparkline';
 import { Markdown } from '@/components/Markdown';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import {
+  AlertBell,
+  AuWarehouseBadge,
+  AuShippingEstimate,
+  MarginCalculator,
+  BNPLScore,
+} from './AuMoatPanels';
 
 interface ProductDetailDrawerProps {
   product: Product | null;
@@ -344,34 +351,41 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             </span>
             <MarketFlags size="md" product={product} />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            style={{
-              minWidth: 44,
-              minHeight: 44,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'transparent',
-              border: '1px solid transparent',
-              borderRadius: 10,
-              color: '#a3a3a3',
-              cursor: 'pointer',
-              transition: 'background 160ms ease, border 160ms ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-              e.currentTarget.style.borderColor = '#1a1a1a';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.borderColor = 'transparent';
-            }}
-          >
-            <X size={18} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* AU Moat: alert bell sits next to the (Engagement-owned) save
+                button. When the save button doesn't exist yet, the bell
+                stands alone. Either way it stays put — additive, not
+                restructured. */}
+            <AlertBell product={product} />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              style={{
+                minWidth: 44,
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'transparent',
+                border: '1px solid transparent',
+                borderRadius: 10,
+                color: '#a3a3a3',
+                cursor: 'pointer',
+                transition: 'background 160ms ease, border 160ms ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                e.currentTarget.style.borderColor = '#1a1a1a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Scroll body */}
@@ -448,6 +462,9 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               </a>
             ) : null}
           </div>
+
+          {/* AU Warehouse badge — visible only when stocked in AU. */}
+          <AuWarehouseBadge product={product} />
 
           {/* Stat grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
@@ -562,6 +579,11 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               <div style={{ fontSize: 13, color: '#737373' }}>No brief yet.</div>
             )}
           </section>
+
+          {/* AU Moat — Margin / Shipping / BNPL */}
+          <MarginCalculator product={product} />
+          <AuShippingEstimate product={product} />
+          <BNPLScore product={product} />
 
           <div style={{ height: 16 }} />
         </div>

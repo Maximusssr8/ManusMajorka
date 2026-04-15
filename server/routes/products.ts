@@ -239,6 +239,11 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       query = query.gte('real_orders_count', minOrders);
     }
 
+    // AU Moat: only show SKUs in an Australian warehouse.
+    if (req.query.auWarehouseOnly === 'true') {
+      query = query.eq('au_warehouse_available', true);
+    }
+
     const offset = Math.max(0, Number(req.query.offset) || 0);
     query = query.range(offset, offset + limit - 1);
 
@@ -247,9 +252,13 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     const computeOpportunityScore = (row: Record<string, unknown>): number => {
       const o = Number(row.real_orders_count || 0);
-      return o >= 100000 ? 95 : o >= 50000 ? 90 : o >= 10000 ? 80 :
-             o >= 5000 ? 70 : o >= 1000 ? 60 : o >= 500 ? 50 :
-             o >= 100 ? 40 : 30;
+      const base = o >= 100000 ? 95 : o >= 50000 ? 90 : o >= 10000 ? 80 :
+                   o >= 5000 ? 70 : o >= 1000 ? 60 : o >= 500 ? 50 :
+                   o >= 100 ? 40 : 30;
+      // AU Moat: +10 bonus when the SKU is held in an Australian warehouse.
+      // Caps at 100 to keep downstream colour bands stable.
+      const bonus = row.au_warehouse_available === true ? 10 : 0;
+      return Math.min(100, base + bonus);
     };
 
     const computeTrendVelocity = (row: Record<string, unknown>): string => {
@@ -2036,6 +2045,7 @@ interface ProductsTabFilters {
   category: string;      // empty = no filter
   minOrders: number;     // 0 = no filter
   minScore: number;      // 0 = no filter
+  auWarehouseOnly: boolean;
 }
 
 function parseTabFilters(req: Request): ProductsTabFilters {
@@ -2044,6 +2054,7 @@ function parseTabFilters(req: Request): ProductsTabFilters {
     category: typeof req.query.category === 'string' ? req.query.category.trim() : '',
     minOrders: Number(req.query.minOrders) || 0,
     minScore: Number(req.query.minScore) || 0,
+    auWarehouseOnly: req.query.auWarehouseOnly === 'true',
   };
 }
 
@@ -2053,6 +2064,7 @@ function applyTabFilters(q: any, f: ProductsTabFilters): any {
   if (f.minOrders > 0) out = out.gte('sold_count', f.minOrders);
   if (f.minScore > 0) out = out.gte('winning_score', f.minScore);
   if (f.category) out = out.ilike('category', `%${f.category}%`);
+  if (f.auWarehouseOnly) out = out.eq('au_warehouse_available', true);
   // Market filter is a soft no-op unless ships_to_* columns exist. Left
   // here as a sentinel so we can wire it up once the columns are live.
   void f.market;

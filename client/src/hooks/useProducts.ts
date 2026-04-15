@@ -56,6 +56,14 @@ export interface Product {
   ships_to_au?: boolean | null;
   ships_to_us?: boolean | null;
   ships_to_uk?: boolean | null;
+  /** AU Moat — true when the SKU is held in an Australian warehouse. */
+  au_warehouse_available?: boolean | null;
+  /** Optional supplier/dim fields used by the shipping estimate. */
+  weight_kg?: number | null;
+  length_cm?: number | null;
+  width_cm?: number | null;
+  height_cm?: number | null;
+  rating?: number | null;
 }
 
 export type OrderByColumn =
@@ -364,6 +372,8 @@ export interface ProductsTabFilters {
   category?: string;
   minOrders?: number;
   minScore?: number;
+  /** AU Moat — restrict to SKUs in an Australian warehouse. */
+  auWarehouseOnly?: boolean;
 }
 
 export interface UseProductsTabResult {
@@ -381,6 +391,7 @@ function buildTabQS(filters: ProductsTabFilters): string {
   if (filters.category && filters.category.trim().length > 0) params.set('category', filters.category.trim());
   if (typeof filters.minOrders === 'number' && filters.minOrders > 0) params.set('minOrders', String(filters.minOrders));
   if (typeof filters.minScore === 'number' && filters.minScore > 0) params.set('minScore', String(filters.minScore));
+  if (filters.auWarehouseOnly === true) params.set('auWarehouseOnly', 'true');
   const s = params.toString();
   return s.length > 0 ? `?${s}` : '';
 }

@@ -125,6 +125,7 @@ export interface PintostudioItem {
   category: string | null;
   sellerName: string | null;
   currency: string;
+  auWarehouseAvailable: boolean;
 }
 
 /**
@@ -274,7 +275,38 @@ function mapItem(item: Record<string, unknown>, audRate: number): PintostudioIte
     category: str(item.category ?? item.categoryName) || null,
     sellerName: str(item.storeName ?? item.seller ?? item.shopName) || null,
     currency: rawCurrency,
+    auWarehouseAvailable: detectAuWarehouse(item),
   };
+}
+
+/**
+ * AU warehouse detection — pintostudio responses are noisy; we look in
+ * the obvious shipsFrom / warehouse fields plus any free-text "Ships
+ * from: Australia" / "AU warehouse" occurrence in the listing payload.
+ */
+function detectAuWarehouse(item: Record<string, unknown>): boolean {
+  const candidates = [
+    item.shipsFrom, item.shipFrom, item.warehouse, item.warehouseLocation,
+    item.shipFromCountry, item.country, item.location, item.deliveryCountry,
+  ];
+  for (const c of candidates) {
+    const v = String(c ?? '').toLowerCase();
+    if (!v) continue;
+    if (v === 'au' || v === 'aus' || v === 'australia') return true;
+    if (v.includes('australia') && (v.includes('ship') || v.includes('warehouse'))) return true;
+  }
+  // Free-text fallback — flatten the whole item to a single string and
+  // grep for the marketing strings the AliExpress listing uses.
+  try {
+    const blob = JSON.stringify(item).toLowerCase();
+    if (blob.includes('ships from: australia')) return true;
+    if (blob.includes('ships from australia')) return true;
+    if (blob.includes('au warehouse')) return true;
+    if (blob.includes('australian warehouse')) return true;
+  } catch {
+    /* item is not serialisable — give up */
+  }
+  return false;
 }
 
 // ─── Pipeline orchestration ────────────────────────────────────────────────
@@ -434,6 +466,7 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
       source_url: i.productUrl,
       data_source: `apify-pintostudio:${source}`,
       source_currency: i.currency,
+      au_warehouse_available: i.auWarehouseAvailable,
       is_active: true,
       scraped_at: nowIso,
       last_refreshed: nowIso,

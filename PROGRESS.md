@@ -363,3 +363,118 @@ existing `SettingsProfile.tsx` is shared with Revenue director's in-flight
 work, and the backend defaults to opted-in so email delivery behaves
 correctly without the toggle. Follow-up ticket.
 
+
+## Session — AU Moat Director (2026-04-15)
+
+Three AU-defining moats shipped end-to-end:
+
+### 1. Price drop alerts
+- `scripts/price-alerts-migration.sql` — `price_alerts` table with RLS
+  policy + active index. Registered in `scripts/apply-migrations.ts`.
+- `server/routes/alerts.ts` — added `GET/POST /api/alerts/price` and
+  `DELETE /api/alerts/price/:id` (status='cancelled'). Lives in the
+  same router so existing `alertsRateLimit` (30/min) covers it.
+- `server/routes/priceCheck.ts` (new) → `GET/POST /api/cron/price-check`.
+  Compares each active alert to live `winning_products.price_aud`,
+  fires `any_drop` / `percentage` / `target_price`, sends Resend/
+  Postmark email, then resets `original_price = current` so future
+  drops re-notify (per spec). CRON_SECRET / vercel-cron UA auth.
+- `vercel.json` — added `0 */6 * * *` cron entry (synced with
+  apify-pipeline cadence).
+- UI: bell button in product detail drawer header; modal with
+  `any_drop | percentage | target_price` selector; current price
+  shown in gold mono; gold "Save Alert" CTA. Active alerts surface a
+  filled gold bell. New "Price Drop Alerts" table at the top of
+  `/app/alerts` (thumbnail / name / type / original / current /
+  status badge / cancel) — additive, no removed content.
+
+### 2. Australia Post shipping calculator
+- `server/services/auspost.ts` (new) — `calculateDomesticShipping`
+  + `calculateInternationalShipping`. Header `AUTH-KEY:
+  AUSPOST_API_KEY`. Base `https://digitalapi.auspost.com.au`. 10s
+  timeout. Returns `null` on any failure (panel never 500s). 24h
+  cache via `server/lib/cache.ts` prefix `auspost:`.
+- `server/routes/auMoat.ts` (new) → `GET /api/shipping/estimate?
+  productId=...&postcode=...`. Reads `weight_kg` / dim columns from
+  `winning_products`, falls back to category averages. Returns
+  `{ standard, express, parcel_locker, eta_standard, eta_express }`
+  or `{ error: 'auspost_not_configured' }` when env var is missing.
+- UI: collapsed "AU Shipping Estimate" section in product detail
+  drawer with debounced postcode input (default 2000 Sydney) +
+  three-cell quote grid + plain-English ETA line.
+
+### 3. GST + margin + AU warehouse + BNPL
+- `server/services/gstCalculator.ts` (new) — pure
+  `calculateAUMargins({...})` returning `grossProfit`, `netProfit`,
+  `netMarginPercent`, `breakEvenROAS`, `gstOnImport`, `netGSTPay`,
+  `processingFee`, `gstRequired`, `customsDutyFlag`. Implements 10%
+  GST (both ways), 2.9% + $0.30 AUD processing fee, $75K GST
+  threshold, $1K customs duty threshold. Plus pure `calculateBNPLScore`
+  (price-band 45% + category 25% + popularity 30%, capped 0–100).
+- `POST /api/margin/calculate` — zod-validated, shares the existing
+  `claudeRateLimit` (30 req/60min per user).
+- `GET /api/bnpl/score?productId=` — reads price/category/orders/rating
+  from DB and returns the score live (not stored).
+- `scripts/au-warehouse-column-migration.sql` — adds
+  `au_warehouse_available boolean DEFAULT false` + partial index.
+  Registered in apply-migrations.ts.
+- `server/lib/apifyPintostudio.ts` — `detectAuWarehouse(item)` checks
+  shipsFrom / warehouse fields plus a "Ships from: Australia" /
+  "AU warehouse" free-text scan; sets `au_warehouse_available` on
+  every upsert.
+- `server/routes/products.ts` — `applyTabFilters` honours new
+  `?auWarehouseOnly=true` param (also wired into the legacy products
+  list endpoint). `computeOpportunityScore` adds +10 bonus, capped 100.
+- UI: gold "AU WAREHOUSE" pill on product card top-left (under the
+  score chip — Engagement still owns top-right corner per coordination
+  note); gold "AU Warehouse only" checkbox in `ProductFilters`;
+  `AuWarehouseBadge`, `MarginCalculator`, `AuShippingEstimate`,
+  `BNPLScore` rendered inside `ProductDetailDrawer` from new
+  `client/src/components/products/AuMoatPanels.tsx`. Margin section
+  shows live net profit (gold mono large), net margin (green ≥30 /
+  yellow 20–30 / red <20), break-even ROAS, GST on import, net GST
+  payable. Customs / GST registration warnings surface as gold
+  inline cards. Debounced 150ms.
+
+### Quality gates
+- `pnpm check`: 0 errors.
+- `pnpm build`: success.
+- No purple/violet/indigo introduced (gold + emerald + amber + neutral).
+- All routes degrade gracefully when env is missing — `/api/shipping/
+  estimate` returns `auspost_not_configured`, the calculator works
+  fully offline, alert cron returns `{ ok:false, reason:'no_provider' }`
+  when Resend/Postmark aren't set.
+
+### Migrations to apply
+Both are idempotent and tracked via `schema_migrations` — running
+`pnpm db:migrate` from a machine with `DATABASE_URL` set will pick them
+up. Listed for the Supabase SQL Editor as a fallback:
+- `scripts/price-alerts-migration.sql`
+- `scripts/au-warehouse-column-migration.sql`
+
+### Env vars required in Vercel
+- `AUSPOST_API_KEY` — register free at
+  https://developers.auspost.com.au, then add the env var to the
+  Production scope. Until set, `/api/shipping/estimate` returns
+  `auspost_not_configured` (no 500). All other features work
+  without it.
+
+### Vercel dashboard steps
+1. Settings → Environment Variables → add `AUSPOST_API_KEY`.
+2. Confirm `CRON_SECRET` exists (already used by other crons).
+3. Deployments → Redeploy with cleared cache, or rely on the
+   commit-triggered build.
+4. After deploy, Crons tab — confirm
+   `/api/cron/price-check` shows under the cron list with
+   `0 */6 * * *` schedule.
+5. Manual smoke once live:
+   - `curl https://www.majorka.io/api/shipping/estimate?productId=<id>&postcode=2000`
+     → expect `{success:true,...}` once AUSPOST_API_KEY is set, or
+     `{error:'auspost_not_configured'}` until then.
+   - `curl -X POST https://www.majorka.io/api/margin/calculate \
+        -H "Content-Type: application/json" \
+        -d '{"productCostAUD":12,"shippingCostAUD":2,"sellingPriceAUD":40,"adSpendPercent":25,"returnsPercent":8}'`
+     → expect a JSON envelope with `netProfit`, `netMarginPercent`,
+     etc.
+   - Visit `/app/alerts` → "Price Drop Alerts" section renders the
+     empty state.

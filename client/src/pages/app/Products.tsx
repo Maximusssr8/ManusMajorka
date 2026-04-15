@@ -110,6 +110,7 @@ function toTabFilters(state: ProductFilterState): ProductsTabFilters {
     category: state.category,
     minOrders: state.minOrders,
     minScore: state.minScore,
+    auWarehouseOnly: state.auWarehouseOnly === true,
   };
 }
 

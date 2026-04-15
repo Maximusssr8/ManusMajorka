@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'wouter';
-import { Bell, Plus, Package, X } from 'lucide-react';
+import { Bell, Plus, Package, X, Tag } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
@@ -76,11 +76,77 @@ export default function Alerts() {
 
   const emailConfigured = emailHealth?.ok === true;
 
+  // ── Price drop alerts (AU Moat) — declared here so showToast is hoisted ──
+  interface PriceAlertRow {
+    id: string;
+    product_id: string;
+    product_name: string;
+    product_image: string | null;
+    original_price: number;
+    target_price: number | null;
+    alert_type: 'any_drop' | 'percentage' | 'target_price';
+    threshold_percent: number | null;
+    status: 'active' | 'triggered' | 'cancelled';
+    triggered_at: string | null;
+    created_at: string;
+  }
+  const [priceAlerts, setPriceAlerts] = useState<PriceAlertRow[]>([]);
+  const [livePrices, setLivePrices] = useState<Record<string, number>>({});
+  const [priceAlertsLoading, setPriceAlertsLoading] = useState(true);
+
   const showToast = useCallback((msg: string, kind: 'ok' | 'err' = 'ok') => {
     setToast(msg);
     setToastKind(kind);
     setTimeout(() => setToast(null), 3500);
   }, []);
+
+  // ── Load price alerts + hydrate live prices ──────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const headers = await authHeaders();
+        if (!('Authorization' in headers)) { setPriceAlertsLoading(false); return; }
+        const res = await fetch('/api/alerts/price', { headers });
+        if (!res.ok) { setPriceAlertsLoading(false); return; }
+        const json = (await res.json()) as { alerts?: PriceAlertRow[] };
+        if (cancelled) return;
+        const list = json.alerts ?? [];
+        setPriceAlerts(list);
+        const ids = Array.from(new Set(list.map((a) => a.product_id))).slice(0, 50);
+        const priceMap: Record<string, number> = {};
+        await Promise.all(ids.map(async (id) => {
+          try {
+            const r = await fetch(`/api/products/${encodeURIComponent(id)}`);
+            if (!r.ok) return;
+            const p = await r.json() as { price_aud?: number; product?: { price_aud?: number } };
+            const cur = Number(p?.price_aud ?? p?.product?.price_aud ?? 0);
+            if (cur > 0) priceMap[id] = cur;
+          } catch { /* skip */ }
+        }));
+        if (!cancelled) setLivePrices(priceMap);
+      } finally {
+        if (!cancelled) setPriceAlertsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const cancelPriceAlert = async (id: string) => {
+    const prev = priceAlerts;
+    setPriceAlerts(prev.map((a) => a.id === id ? { ...a, status: 'cancelled' as const } : a));
+    try {
+      const headers = await authHeaders();
+      const res = await fetch(`/api/alerts/price/${id}`, { method: 'DELETE', headers });
+      if (!res.ok) {
+        setPriceAlerts(prev);
+        showToast('Could not cancel alert.', 'err');
+      }
+    } catch {
+      setPriceAlerts(prev);
+      showToast('Network error.', 'err');
+    }
+  };
 
   // ── Load alerts + email health ────────────────────────────────────────────
   useEffect(() => {
@@ -256,6 +322,136 @@ export default function Alerts() {
           fontSize: 13,
         }}>{toast}</div>
       )}
+
+      {/* Section A — Price Drop Alerts (AU Moat) */}
+      <section style={{ marginBottom: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div>
+            <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: 0, color: '#f5f5f5' }}>Price Drop Alerts</h2>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>
+              Tracked SKUs — emailed when price drops vs your snapshot. Cron runs every 6h.
+            </p>
+          </div>
+          <Link href="/app/products" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none', fontWeight: 600 }}>
+            Browse products →
+          </Link>
+        </div>
+        {priceAlertsLoading ? (
+          <div style={{
+            background: '#111', border: '1px solid #1a1a1a', borderRadius: 12,
+            padding: '24px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: 13,
+          }}>Loading price alerts…</div>
+        ) : priceAlerts.length === 0 ? (
+          <div style={{
+            background: '#111', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 12,
+            padding: '32px 24px', textAlign: 'center',
+          }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%',
+              background: 'rgba(212,175,55,0.10)',
+              border: '1px solid rgba(212,175,55,0.30)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 12px', color: '#d4af37',
+            }}>
+              <Tag size={20} />
+            </div>
+            <div style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: '#f5f5f5', marginBottom: 4 }}>
+              No price alerts yet
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+              Open any product and tap the bell to track its price.
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            background: '#111', border: '1px solid #1a1a1a', borderRadius: 12,
+            overflow: 'hidden',
+          }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+                <thead>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid #1a1a1a' }}>
+                    {['', 'Product', 'Type', 'Original', 'Current', 'Status', ''].map((h, i) => (
+                      <th key={i} style={{
+                        padding: '10px 12px', textAlign: 'left',
+                        fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+                        color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase',
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {priceAlerts.map((a) => {
+                    const current = livePrices[a.product_id] ?? null;
+                    const dropped = current != null && current < a.original_price;
+                    const badge =
+                      a.status === 'triggered' || dropped
+                        ? { c: '#10b981', bg: 'rgba(16,185,129,0.12)', label: 'TRIGGERED' }
+                        : a.status === 'cancelled'
+                          ? { c: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.04)', label: 'CANCELLED' }
+                          : { c: '#d4af37', bg: 'rgba(212,175,55,0.12)', label: 'ACTIVE' };
+                    const typeLabel = a.alert_type === 'any_drop'
+                      ? 'Any drop'
+                      : a.alert_type === 'percentage'
+                        ? `≥ ${a.threshold_percent ?? '?'}%`
+                        : `≤ $${a.target_price?.toFixed(2) ?? '?'}`;
+                    return (
+                      <tr key={a.id} style={{ borderBottom: '1px solid #1a1a1a' }}>
+                        <td style={{ padding: '10px 12px', width: 60 }}>
+                          {a.product_image ? (
+                            <img
+                              src={proxyImage(a.product_image) ?? a.product_image}
+                              alt=""
+                              loading="lazy"
+                              style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', border: '1px solid #1a1a1a' }}
+                            />
+                          ) : (
+                            <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255,255,255,0.04)' }} />
+                          )}
+                        </td>
+                        <td style={{ padding: '10px 12px', fontSize: 13, color: '#f5f5f5', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {a.product_name}
+                        </td>
+                        <td style={{ padding: '10px 12px', fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
+                          {typeLabel}
+                        </td>
+                        <td style={{ padding: '10px 12px', fontFamily: mono, fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+                          ${a.original_price.toFixed(2)}
+                        </td>
+                        <td style={{ padding: '10px 12px', fontFamily: mono, fontSize: 13, color: dropped ? '#10b981' : '#f5f5f5', fontWeight: dropped ? 700 : 500 }}>
+                          {current != null ? `$${current.toFixed(2)}` : '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{
+                            display: 'inline-block', padding: '3px 8px', borderRadius: 6,
+                            fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+                            color: badge.c, background: badge.bg, border: `1px solid ${badge.c}55`,
+                          }}>{badge.label}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                          {a.status !== 'cancelled' ? (
+                            <button
+                              type="button"
+                              onClick={() => cancelPriceAlert(a.id)}
+                              aria-label="Cancel alert"
+                              style={{
+                                background: 'rgba(255,255,255,0.04)',
+                                border: '1px solid rgba(255,255,255,0.10)',
+                                color: 'rgba(255,255,255,0.6)',
+                                borderRadius: 8, padding: '6px 10px', fontSize: 11, cursor: 'pointer',
+                              }}
+                            >Cancel</button>
+                          ) : null}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* Section 0 — Tracked Products */}
       <section style={{ marginBottom: 36 }}>
