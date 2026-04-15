@@ -18,14 +18,17 @@ const router = Router();
 // ── Category → Supabase ILIKE patterns ──────────────────────────────────────
 type CategoryKey = 'Pet' | 'Kitchen' | 'Home' | 'Beauty' | 'Fitness';
 
-// Supabase JS `.or()` uses `*` as the wildcard token inside ilike patterns —
-// `%` gets URL-escaped and doesn't behave as a wildcard in that context.
-const CATEGORY_FILTER: Record<CategoryKey, string[]> = {
-  Pet: ['*pet*', '*pets*', '*pet accessories*'],
-  Kitchen: ['*kitchen*', '*bar*', '*cookware*'],
-  Home: ['*home storage*', '*home*', '*organiser*', '*organizer*'],
-  Beauty: ['*beauty*', '*skincare*', '*cosmetics*'],
-  Fitness: ['*fitness*', '*wellness*', '*gym*'],
+// Single inclusive ILIKE pattern per category. `.ilike()` is a first-class
+// Supabase-JS filter and encodes cleanly — multi-pattern `.or()` was dropping
+// results because the URL encoding of `,` / spaces inside the OR expression
+// didn't round-trip correctly. One pattern is enough: `*pet*` already matches
+// "pet", "pets", "pet accessories", etc.
+const CATEGORY_FILTER: Record<CategoryKey, string> = {
+  Pet: '%pet%',
+  Kitchen: '%kitchen%',
+  Home: '%home%',
+  Beauty: '%beauty%',
+  Fitness: '%fitness%',
 };
 
 const ALLOWED_KEYS = Object.keys(CATEGORY_FILTER) as CategoryKey[];
@@ -169,16 +172,14 @@ router.get('/quick-score', rateLimit, async (req: Request, res: Response) => {
     }
     const sb = getSupabase();
 
-    const patterns = CATEGORY_FILTER[category];
-    // Build an OR expression for all ILIKE patterns.
-    const orExpr = patterns.map((p) => `category.ilike.${p}`).join(',');
+    const pattern = CATEGORY_FILTER[category];
 
     const { data, error } = await sb
       .from('winning_products')
       .select(
         'id,product_title,category,image_url,real_price_aud,price_aud,real_orders_count,sold_count,sold_count_7d_ago,winning_score,why_winning,aliexpress_url',
       )
-      .or(orExpr)
+      .ilike('category', pattern)
       .not('image_url', 'is', null)
       .order('real_orders_count', { ascending: false, nullsFirst: false })
       .limit(1);
