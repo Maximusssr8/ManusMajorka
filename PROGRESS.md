@@ -568,3 +568,12 @@ preview-only deploy; rebase-and-merge coordination deferred to user.
 - After revenue/engagement/AU-moat directors merge to main:
   `git fetch origin main && git rebase origin/main && git push origin landing-innovator --force-with-lease`
 
+
+## 2026-04-15 — Final merge: Landing Innovator into main + prod deployed
+- Merged `landing-innovator` into `main` via `--no-ff`. Merge commit `0c77bbc`.
+- Pushed to origin/main.
+- `pnpm build` 0 errors.
+- `vercel --prod --yes --force` → live on www.majorka.io. Bundle hash `index-D8EKWboI.js`.
+- Headless Chrome verify: zero uncaught errors, mj-boot replaced, all 7 WOW components present (FilmGrain, mj-chapter-sticky, mj-cmdk-chip, ticker, kinetic H1, particle field, quick-score hero), `/guarantee` link intact.
+- API gates: `GET /api/public/quick-score?url=…` returns sampled scoring payload (200), `GET /api/products/todays-picks?limit=3` serves real data.
+- All 4 directors (Revenue, Engagement, AU Moat, Landing Innovator) shipped this session. Manual actions list current — see entries above.
