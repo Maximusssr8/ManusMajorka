@@ -1469,6 +1469,99 @@ function AcademySection() {
   );
 }
 
+// ── City Marquee (Delta 5) ──────────────────────────────────────────────────
+// Subtle single-line scroll of city names. Two copies rendered side-by-side
+// so the translateX -50% loop is seamless. Paused on hover and reduced motion.
+const MARQUEE_CITIES = [
+  'Sydney', 'Melbourne', 'Gold Coast', 'Brisbane',
+  'London', 'Manchester', 'New York', 'Auckland', 'Toronto',
+];
+
+function CityMarquee() {
+  const reduced = usePrefersReducedMotion();
+  const cities = MARQUEE_CITIES.join('  ·  ');
+  const prefix = 'Trusted by dropshippers in  ';
+
+  if (reduced) {
+    return (
+      <div style={{
+        borderTop: `1px solid ${LT.border}`,
+        borderBottom: `1px solid ${LT.border}`,
+        padding: '10px 20px',
+        overflow: 'hidden',
+        background: LT.bg,
+      }}>
+        <div style={{
+          fontFamily: F.body, fontSize: 13, color: LT.textDim,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          textAlign: 'center',
+        }}>
+          <span>{prefix}</span>
+          {MARQUEE_CITIES.map((c, i) => (
+            <span key={c}>
+              {i > 0 && <span style={{ color: LT.gold, margin: '0 10px' }}>·</span>}
+              <span>{c}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const Pill = () => (
+    <span
+      className="mj-marquee-pill"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        fontFamily: F.body,
+        fontSize: 13,
+        color: LT.textDim,
+        paddingRight: 32,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <span>{prefix}</span>
+      {MARQUEE_CITIES.map((c, i) => (
+        <span key={c} style={{ display: 'inline-flex', alignItems: 'center' }}>
+          {i > 0 && <span style={{ color: LT.gold, margin: '0 10px' }}>·</span>}
+          <span>{c}</span>
+        </span>
+      ))}
+    </span>
+  );
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        borderTop: `1px solid ${LT.border}`,
+        borderBottom: `1px solid ${LT.border}`,
+        padding: '10px 0',
+        overflow: 'hidden',
+        background: LT.bg,
+        maxWidth: '100vw',
+      }}
+    >
+      <div className="mj-marquee-track" style={{
+        display: 'inline-flex',
+        width: 'max-content',
+        animation: 'mjMarquee 30s linear infinite',
+      }}>
+        <Pill />
+        <Pill />
+      </div>
+      <style>{`
+        @keyframes mjMarquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .mj-marquee-track:hover { animation-play-state: paused; }
+      `}</style>
+    </div>
+  );
+}
+
 // ── Social Proof Bar (small testimonial row) ────────────────────────────────
 function SocialProofBar() {
   const { stats, products } = useLandingData();
@@ -2147,6 +2240,7 @@ export default function Home() {
       <div style={{ paddingTop: topOffset + 64 }} />
 
       <Hero tickerUrl={tickerUrl} />
+      <CityMarquee />
       <MicroOrderTicker />
       <SocialProofBar />
       <ChapterMorph />

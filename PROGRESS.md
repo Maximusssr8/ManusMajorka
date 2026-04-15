@@ -800,3 +800,19 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 - Height 40px, bg `linear-gradient(90deg, #b8962e, #d4af37, #b8962e)`, text #080808, DM Sans 13px 600.
 - Dismiss × button: 32×32 tap target on right edge.
 - Home.tsx topOffset now LAUNCH_BAR_HEIGHT (40) when visible (was 36); nav + main content padded accordingly (existing `paddingTop: topOffset + 64`).
+
+### Delta 5 — City marquee — done
+- New `<CityMarquee />` component inserted between `<Hero />` and `<MicroOrderTicker />` on the landing.
+- Content: "Trusted by dropshippers in  Sydney · Melbourne · Gold Coast · Brisbane · London · Manchester · New York · Auckland · Toronto".
+- Style: DM Sans 13px #6B7280, gold #d4af37 `·` separators, 32px padding between pill repeats.
+- Two identical <Pill /> spans rendered side-by-side; `@keyframes mjMarquee` translates 0 → -50% over 30s linear infinite for a seamless loop.
+- Hover pauses via `.mj-marquee-track:hover { animation-play-state: paused; }`.
+- `prefers-reduced-motion` → branch renders a single static centred line, no animation.
+- Container `overflow: hidden` + `maxWidth: 100vw` prevents any horizontal overflow leak at 390px.
+
+### Verification
+- `pnpm check` — 0 errors.
+- `pnpm build` — SUCCESS.
+- Competitor grep (landing tree): 0 matches.
+- Cliché grep (landing tree): 0 matches.
+- Banned palette grep (landing files + new server route): 0 matches.
