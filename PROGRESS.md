@@ -288,3 +288,78 @@ telling the user to switch to Monthly. No silent fallback.
 - [x] Landing hero has 🛡️ guarantee caption under CTA linking to /guarantee.
 - [x] No banned competitor names introduced.
 - [x] No new vendor chunks (ui/chart/motion/data-vendor) in build output.
+
+## Session — Engagement Director (2026-04-15)
+
+**Shipped three engagement features**:
+
+1. **Onboarding checklist** — `user_onboarding` table extended with
+   `profile_complete / first_search / first_save / first_brief / store_connected / completed_at`.
+   `OnboardingChecklist` already existed and is now mounted on `/app` (Home.tsx) above `TodaysFive`.
+   `GET /api/onboarding/me` + `POST /api/onboarding/dismiss` wired.
+   `server/middleware/trackOnboarding.ts` fire-and-forget flips booleans based on
+   POST `/products/search|save`, POST `/lists/:id/items`, GET `/products/:id/brief`,
+   POST `/daily-brief`, POST `/store-builder/*`. Mounted AFTER authed routes.
+
+2. **Product lists + saves** — `product_lists` + `product_list_items` tables
+   (RLS via `user_id::text = auth.uid()::text`; items inherit via list_id).
+   Routes: `GET/POST /api/lists`, `GET /api/lists/:id`, `POST /api/lists/:id/items`,
+   `DELETE /api/lists/:id/items/:productId`, `DELETE /api/lists/:id`.
+   Auto-creates "Saved Products" default list on first GET.
+   New page `/app/lists` (client/src/pages/app/Lists.tsx) with grid view,
+   emoji picker (📦🔥⭐💡🎯🏆💰🚀), list detail modal, delete confirm.
+   **Product card heart-button integration deferred**: the existing
+   `useFavourites` hook is localStorage-backed and used across several
+   pages; inserting the server-backed list picker into the shared product
+   card would collide with the AU Moat director's concurrent edits in
+   `ProductDetailDrawer`. Follow-up: graft the new `/api/lists` picker onto
+   existing heart button in a dedicated pass after AU Moat merges.
+
+3. **Daily trending email digest** — `email_logs` + `user_preferences`
+   tables (minimal — `email_digest` / `digest_frequency`).
+   `server/emails/daily-digest.tsx` is a plain-HTML render function (no
+   React Email dep; reuses existing `_layout.ts`). Dark #080808 + gold
+   #d4af37, five product cards with Trend Velocity Score badges, proxied
+   images, unsubscribe + gold CTA.
+   `api/cron/daily-digest.ts` router mounted at `/api/cron/daily-digest`.
+   Schedule `0 21 * * *` added to vercel.json.
+   Queries active+trialing subscribers, honours `user_preferences.email_digest`
+   (default true), dedupes via `email_logs` (unique user+type+date).
+   Sender `Majorka Daily <daily@majorka.io>` with fallback to the existing
+   verified `alerts@majorka.io` sender on domain-not-verified errors.
+   Admin test endpoint: `POST /api/cron/daily-digest/test?email=...` with
+   `X-Admin-Token` header.
+
+**Gates**:
+- `pnpm check` — 0 errors at commit time (unrelated AU director drift on
+  `apifyPintostudio.ts` appeared after merge; not in my file scope).
+- `pnpm build` — 0 errors, dist/index.js 1.0mb.
+- No indigo/purple/violet/#6366/#4F46/#818C/#7C3AED introduced.
+- No competitor names.
+- 390px mobile: new Lists page uses 44×44px tap targets, 16px input font
+  (avoids iOS zoom), grid collapses to single column.
+
+**Commit**: 618478f feat(engagement): onboarding checklist + product lists + daily digest
+
+**Manual actions required**:
+1. Run `pnpm db:migrate` (or apply the three SQL files manually in
+   Supabase SQL Editor):
+   - `scripts/user-onboarding-migration.sql`
+   - `scripts/product-lists-migration.sql`
+   - `scripts/email-logs-migration.sql`
+2. Confirm `daily@majorka.io` is verified in Resend — if not, the code
+   falls back to `alerts@majorka.io` automatically, but the spec sender
+   is the intent.
+3. Fire the manual test digest once env is populated:
+   `curl -X POST -H "X-Admin-Token: $ADMIN_TOKEN" \
+     "https://www.majorka.io/api/cron/daily-digest/test?email=maximusmajorka@gmail.com"`
+   (not runnable from this session because ADMIN_TOKEN + prod env are
+   required; record the send result when executed.)
+4. Graft the server-backed lists picker onto the product card heart
+   button after AU Moat director's ProductDetailDrawer edits land.
+
+**Settings page prefs UI** intentionally skipped in this pass — the
+existing `SettingsProfile.tsx` is shared with Revenue director's in-flight
+work, and the backend defaults to opted-in so email delivery behaves
+correctly without the toggle. Follow-up ticket.
+
