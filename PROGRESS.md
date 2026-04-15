@@ -172,3 +172,48 @@ Added `scripts/landing-audit.mjs` — headless Chromium audit run against prod h
 ### Prod deploy
 - https://www.majorka.io aliased to latest prod
 - Latest deploy: manus-majorka-nskcdedqv-idcboss123-6766s-projects.vercel.app
+
+## Session T+1 — Backend Telemetry Director — COMPLETE (2026-04-15)
+
+### Commits
+- cd2562f — feat(perf): in-memory API cache middleware + gzip compression
+- d8615b5 — feat(landing): landing polish + TS fixes (unrelated to this scope, rolled in by adjacent session work)
+- 8338d5c — feat(ai): centralised Claude wrapper with cost logging + migration
+- 4801716 — fix(landing): violet-token purge (unrelated, adjacent)
+- 0091346 — feat(limits): stopgap 30/60min Claude rate limit
+
+### Prod deploy
+- URL: https://manus-majorka-hxb4p33mc-idcboss123-6766s-projects.vercel.app → www.majorka.io
+- Build: 0 TS errors, 0 build errors
+- `/auth/callback` = 200 ✓
+- `x-cache: MISS` + `x-cache-ttl: 300` + `cache-control: public, max-age=300, stale-while-revalidate=60` on /api/products/top20 ✓
+- `content-encoding: gzip` present with `Accept-Encoding: gzip` ✓
+- Note: Vercel edge CDN sits in front of the Express in-memory cache; X-Cache stays MISS on first cold function per unique URL, then Vercel's `x-vercel-cache: HIT` takes over. Both cache layers active.
+
+### Migration status
+- `scripts/api-cost-log-migration.sql` registered in `apply-migrations.ts`.
+- `pnpm db:migrate` requires `DATABASE_URL` / `SUPABASE_DB_URL` in `.env` — NOT present locally so migration was NOT applied.
+- **ACTION ITEM**: user must set DATABASE_URL and run `pnpm db:migrate` (or apply the SQL directly in Supabase console) before `api_cost_log` inserts start succeeding. The wrapper's `.from('api_cost_log').insert()` failures are swallowed with `console.warn` — no cascading impact.
+
+### Claude call sites migrated (19 files, ~40 sites)
+- Kept on Sonnet via `allowSonnet: true` (flagged as future Haiku candidates):
+  `maya_chat`, `maya_chat_agent`, `maya_chat_final`, `product_intelligence`,
+  `scrape_product_extract`, `tools_product_research`, `tools_shopify_intel`,
+  `tools_saturation_analysis`, `demo_product_research`.
+- Defaulted to Haiku via `callClaude`: all others (ad_spy_search, ads_generation,
+  ai_brief, ae_enrich_product, cron_product_intel, generate_content,
+  opik_au_eval, pipeline_batch_enrich, pipeline_enrich_haiku, product_search,
+  scrape_product_niche_infer, shops_seed, shops_analyse, store_generation,
+  supplier_search, tools_store_score, website_brand_strategy,
+  website_color_palette, website_enhance_description, website_headline_variants,
+  website_improve_text, website_planning, website_scrape_extract,
+  why_trending_brief).
+
+### Grep proof
+`grep -rn "anthropic\.messages\.create\|client\.messages\.create\|claude\.messages\.create" server/ --include="*.ts" | grep -v claudeWrap.ts` → 0 hits.
+
+Only remaining SDK construction (`new Anthropic`) is in `server/lib/anthropic.ts`
+(used for streaming via `client.messages.stream` in `server/_core/chat.ts`).
+Streaming is intentionally out of scope for this slice — `callClaude` returns
+whole Messages, not streams. Future work: add `streamClaude` to claudeWrap.
+
