@@ -20,17 +20,18 @@ export default function AuthCallback() {
           return;
         }
 
-        // PKCE flow: Supabase OAuth returns `?code=...` which must be exchanged for a session.
+        // PKCE: exchange the full ?code=... (+ state) query string for a session.
+        // detectSessionInUrl may have already attempted this on mount; if so, the
+        // second call returns a benign "code already exchanged" — we then fall
+        // through to getSession() which returns the live session.
         if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) {
+          const { error } = await supabase.auth.exchangeCodeForSession(window.location.search);
+          if (error && !/already|used|invalid/i.test(error.message)) {
             if (!cancelled) setLocation(`/sign-in?error=${encodeURIComponent(error.message)}`, { replace: true });
             return;
           }
         }
 
-        // With detectSessionInUrl: true, implicit-flow tokens (in the hash) are already parsed by now.
-        // Either way, checking getSession tells us whether we're authenticated.
         const { data } = await supabase.auth.getSession();
         if (!cancelled) {
           if (data.session) {

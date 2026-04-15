@@ -134,18 +134,29 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
     e.stopPropagation();
     setLoading(true);
     setError(null);
+    // Force origin consistency: PKCE code_verifier is stored in localStorage
+    // per origin. If a user initiates OAuth from the apex domain and returns
+    // to www (or vice-versa), the verifier is unreadable → "state has expired".
+    // Normalise to www before the redirect.
+    if (typeof window !== 'undefined' && window.location.hostname === 'majorka.io') {
+      window.location.href = `https://www.majorka.io${window.location.pathname}${window.location.search}`;
+      return;
+    }
     const { data, error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://www.majorka.io/auth/callback`,
+        redirectTo: 'https://www.majorka.io/auth/callback',
         skipBrowserRedirect: true,
-        queryParams: { prompt: 'select_account' },
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       },
     });
     if (err) {
       setError(err.message);
     } else if (data?.url) {
-      window.open(data.url, '_self');
+      window.location.href = data.url;
     }
     setLoading(false);
   };
