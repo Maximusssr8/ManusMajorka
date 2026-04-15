@@ -177,18 +177,22 @@ router.get('/quick-score', rateLimit, async (req: Request, res: Response) => {
     const { data, error } = await sb
       .from('winning_products')
       .select(
-        'id,product_title,category,image_url,real_price_aud,price_aud,real_orders_count,sold_count,sold_count_7d_ago,winning_score,why_winning,aliexpress_url',
+        'id,product_title,category,image_url,price_aud,sold_count,winning_score,why_winning',
       )
       .ilike('category', pattern)
-      .not('image_url', 'is', null)
-      .order('real_orders_count', { ascending: false, nullsFirst: false })
-      .limit(1);
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(5);
 
-    if (error || !data || data.length === 0) {
-      return res.status(404).json({ ok: false, reason: 'no_match' });
+    if (error) {
+      console.error('[demo-quick-score] supabase error:', error);
+      return res.status(500).json({ ok: false, reason: 'db_error', message: error.message });
+    }
+    if (!data || data.length === 0) {
+      return res.status(404).json({ ok: false, reason: 'no_match', pattern });
     }
 
-    const row = data[0] as Record<string, unknown>;
+    // Pick first row that has a usable image; fallback to first row.
+    const row = (data.find((r) => r.image_url) ?? data[0]) as Record<string, unknown>;
     const id = String(row.id);
     const title = String(row.product_title || `${category} Product`);
     const image = (row.image_url as string) || null;
