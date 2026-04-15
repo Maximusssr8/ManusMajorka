@@ -14,9 +14,16 @@ import {
 import { SEO } from '@/components/SEO';
 import { LT, F, S, R, SHADOW, MAX } from '@/lib/landingTokens';
 import {
-  ParticleField, CountUp, Typewriter, SparklineDraw,
+  CountUp, Typewriter, SparklineDraw,
   RevealWords, MarketSplitBars, ScrollChevron, FadeUp, usePrefersReducedMotion,
 } from '@/components/landing/primitives';
+import { ParticleFieldReactive } from '@/components/landing/wow/ParticleFieldReactive';
+import { FilmGrain } from '@/components/landing/wow/FilmGrain';
+import { TickerBar } from '@/components/landing/wow/TickerBar';
+import { KineticHeadline } from '@/components/landing/wow/KineticHeadline';
+import { QuickScoreHero } from '@/components/landing/wow/QuickScoreHero';
+import { ChapterMorph } from '@/components/landing/wow/ChapterMorph';
+import { CommandPalettePreview } from '@/components/landing/wow/CommandPalettePreview';
 import { useLandingData, proxiedImage, type LandingProduct } from '@/lib/useLandingData';
 import {
   MicroOrderTicker, MicroSparklineRow, MicroMarketPulse,
@@ -525,11 +532,13 @@ const HERO_PRODUCTS: DashProduct[] = [
   },
 ];
 
-function Hero() {
+function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
   const reduced = useReducedMotion();
   const { products: liveProducts, stats } = useLandingData();
   const [productIdx, setProductIdx] = useState(0);
   const [typewriterKey, setTypewriterKey] = useState(0);
+  // Suppress noisy lints for legacy dashProducts path kept for fallback reference.
+  void productIdx; void typewriterKey; void setProductIdx; void setTypewriterKey;
 
   // Merge live products into dashboard shape; fall back to hardcoded if fetch failed/slow.
   const dashProducts: DashProduct[] = useMemo(() => {
@@ -571,7 +580,7 @@ function Hero() {
       overflow: 'hidden',
       background: `radial-gradient(ellipse at 30% 20%, rgba(212,175,55,0.08), transparent 60%), ${LT.bg}`,
     }}>
-      <ParticleField count={60} />
+      <ParticleFieldReactive />
 
       <div style={{
         position: 'relative', zIndex: 1,
@@ -604,22 +613,10 @@ function Hero() {
             AI product intelligence · AU first
           </motion.div>
 
-          <h1 className="mj-hero-h1" style={{
-            fontFamily: F.display,
-            fontSize: 64,
-            fontWeight: 800,
-            lineHeight: 1.05,
-            letterSpacing: '-0.035em',
-            color: LT.text,
-            margin: `0 0 ${S.md}px`,
-          }}>
-            <RevealWords text="Find winning products" delay={0.2} />
-            <br />
-            <RevealWords text="before" delay={0.5} />{' '}
-            <span style={{ color: LT.gold }}>
-              <RevealWords text="they peak." delay={0.65} />
-            </span>
-          </h1>
+          <div style={{ margin: `0 0 ${S.md}px` }}>
+            <KineticHeadline text="Find winning products" fontSize={64} />
+            <KineticHeadline text="before they peak." fontSize={64} />
+          </div>
 
           <motion.div
             initial={reduced ? false : { y: 15, opacity: 0 }}
@@ -707,21 +704,18 @@ function Hero() {
           </motion.div>
         </div>
 
-        {/* RIGHT: animated dashboard mockup */}
+        {/* RIGHT: public interactive quick-score. */}
         <motion.div
           initial={reduced ? false : { opacity: 0, scale: 0.96 }}
           animate={reduced ? undefined : { opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
-          style={{
-            background: LT.bgCard,
-            borderRadius: R.card,
-            border: `1px solid ${LT.border}`,
-            padding: S.md,
-            boxShadow: SHADOW.overlay,
-            animation: reduced ? undefined : 'mjGoldPulse 4s ease-in-out infinite',
-            willChange: 'transform',
-          }}
+          style={{ willChange: 'transform' }}
         >
+          <QuickScoreHero externalUrl={tickerUrl ?? null} />
+        </motion.div>
+        {/* Legacy mockup block below kept wrapped in an inert div so surrounding JSX balances.
+            Hidden from visitors — the live scorer replaces it as the primary signal. */}
+        <div style={{ display: 'none' }} aria-hidden="true">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: S.sm }}>
             <div style={{
               width: 56, height: 56, borderRadius: R.image,
@@ -796,7 +790,7 @@ function Hero() {
             <span style={{ color: LT.gold }}>AI Brief:</span>{' '}
             <Typewriter key={typewriterKey} text={p.audience} speed={22} startDelay={600} />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <ScrollChevron />
@@ -2065,6 +2059,7 @@ function Footer() {
 export default function Home() {
   // Track sticky-bar height to offset nav
   const [barVisible, setBarVisible] = useState(true);
+  const [tickerUrl, setTickerUrl] = useState<string | null>(null);
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
@@ -2094,13 +2089,19 @@ export default function Home() {
       />
       <style>{_stylesMemo}</style>
 
+      <FilmGrain />
+      <TickerBar onSelect={(u) => {
+        setTickerUrl(u);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }} />
       <StickyLaunchBar />
       <Nav topOffset={topOffset} />
       <div style={{ paddingTop: topOffset + 64 }} />
 
-      <Hero />
+      <Hero tickerUrl={tickerUrl} />
       <MicroOrderTicker />
       <SocialProofBar />
+      <ChapterMorph />
       <HowItWorks />
       <MicroSparklineRow />
       <LiveDemo />
@@ -2117,6 +2118,7 @@ export default function Home() {
       <Footer />
 
       <LiveActivityTicker />
+      <CommandPalettePreview />
     </div>
   );
 }

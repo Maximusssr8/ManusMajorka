@@ -478,3 +478,93 @@ up. Listed for the Supabase SQL Editor as a fallback:
      etc.
    - Visit `/app/alerts` → "Price Drop Alerts" section renders the
      empty state.
+
+## Session — Landing Innovator Director — 2026-04-15
+
+Branch: `landing-innovator` (worktree `.claude/worktrees/agent-abf89d3b`)
+
+Goal: ship the 7 locked-in design directives that turn the audited 100/100
+landing page into something category-defining. Built in an isolated worktree;
+preview-only deploy; rebase-and-merge coordination deferred to user.
+
+### Directive checklist
+
+1. Interactive public hero demo — DONE
+   - New `GET /api/public/quick-score` + `/api/public/quick-score/seeds`
+     in `server/routes/public.ts`, mounted in both `api/_server.ts` and
+     `server/_core/index.ts`. Protected by existing `claudeRateLimit` (30/hr/IP).
+   - Real data path: match AliExpress product id against `winning_products`.
+   - Sampled fallback: deterministic seeded pseudo-data with `sampled: true`
+     flag and explicit UI disclosure.
+   - UI in `client/src/components/landing/wow/QuickScoreHero.tsx` with URL
+     input, 6 category chips, typewriter AI brief, count-up score, draw-in
+     sparkline, market split bars, aria-live region.
+
+2. Scroll-linked chapter morph — DONE
+   - `client/src/components/landing/wow/ChapterMorph.tsx`
+   - 400vh sticky scroller, useScroll + 4 unconditional useTransform calls
+     cross-fade Discover/Score/Brief/Ads panels. Reduced motion: static stack.
+
+3. Cursor-reactive spring particle field — DONE
+   - `client/src/components/landing/wow/ParticleFieldReactive.tsx` replaces
+     the hero's `ParticleField`. 120 desktop / 40 mobile. 120px repulsion,
+     spring (stiff 0.1, damp 0.85). Reduced motion disables reactivity.
+     `document.hidden` pause retained.
+
+4. Live Bloomberg ticker bar — DONE
+   - `client/src/components/landing/wow/TickerBar.tsx`. Mounted top of page
+     above StickyLaunchBar. Pulls `/api/products/todays-picks?limit=20` every
+     15s, marquee CSS animation, hover pauses, clicks scroll-to-hero with
+     `tickerUrl` prop to auto-run scoring. Reduced motion: static 6-item row.
+
+5. `⌘K` command palette preview — DONE
+   - `client/src/components/landing/wow/CommandPalettePreview.tsx`
+   - `cmdk` library (already in package.json). Global Cmd/Ctrl+K, inline
+     chip bottom-right, 5 entries, 700ms preview flash before
+     `/sign-in?redirect=<route>` navigation. Mobile: full-screen sheet.
+
+6. Kinetic H1 with sparkline mask — DONE
+   - `client/src/components/landing/wow/KineticHeadline.tsx`
+   - SVG clipPath from a replica text glyph region; sparkline path draws
+     via stroke-dasharray 1.2s, then pulses opacity. Reduced motion: static.
+
+7. 3% gold film grain overlay — DONE
+   - `client/src/components/landing/wow/FilmGrain.tsx`
+   - 256x256 pre-rendered noise tile, translated at 30fps with `mixBlendMode:
+     overlay`. Reduced motion: component returns null.
+
+### Integration
+
+- `client/src/pages/Home.tsx` restructured:
+  - Hero: KineticHeadline replaces old `<RevealWords>` headline; right panel
+    is now `<QuickScoreHero externalUrl={tickerUrl} />`; old mockup tree
+    wrapped in `display:none` (dead-weight, to be deleted once directors merge).
+  - ParticleField → ParticleFieldReactive.
+  - Page-level: `<FilmGrain>`, `<TickerBar onSelect>`, `<ChapterMorph>` after
+    SocialProofBar, `<CommandPalettePreview>` at the bottom.
+
+### Quality gates
+
+- `tsc --noEmit`: 0 errors.
+- `pnpm build`: success. Home chunk 126 kB gzip 29 kB.
+- Cliché/competitor name grep in `client/src/components/landing/wow`: clean.
+- Design tokens reused (LT, F, R, SHADOW) — no new colors introduced.
+- `vite.config.ts` untouched (no new vendor chunks).
+- `/auth/callback` / `sign-in-flow.tsx` untouched.
+
+### Known/expected rebase conflicts with main (other directors)
+
+- `Pricing.tsx`, `Guarantee.tsx`, onboarding, alerts, AU warehouse badges —
+  resolve in favour of main; our changes don't touch those files.
+- `client/src/pages/Home.tsx` — likely conflict point if another director
+  edited Hero/FeaturesSection. Favour our Hero replacement + chapter insert;
+  preserve any main-side additions to sections we did not rewrite.
+
+### Deferred / manual next steps
+
+- Preview URL: to be generated via `vercel --yes` from worktree (non-prod).
+- Headless Chrome audit: hero-interactive <2.5s, scroll morph, ticker polling,
+  Cmd+K, reduced-motion, mobile 390×844.
+- After revenue/engagement/AU-moat directors merge to main:
+  `git fetch origin main && git rebase origin/main && git push origin landing-innovator --force-with-lease`
+
