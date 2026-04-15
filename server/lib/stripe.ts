@@ -36,6 +36,36 @@ export function planToPriceId(plan: string): string | null {
   return map[plan.toLowerCase()] ?? process.env.STRIPE_BUILDER_PRICE_ID ?? null;
 }
 
+export type Billing = 'monthly' | 'annual';
+
+/**
+ * Resolve a Stripe price ID for (plan, billing). Returns null if not configured
+ * so callers can surface a clear 400 rather than silently falling back.
+ */
+export function planBillingToPriceId(plan: string, billing: Billing): string | null {
+  const p = plan.toLowerCase();
+  if (billing === 'annual') {
+    // Accept either STRIPE_*_ANNUAL_PRICE_ID (canonical) or STRIPE_*_PRICE_ID_ANNUAL (legacy fallback).
+    if (p === 'builder' || p === 'pro') {
+      return (
+        process.env.STRIPE_BUILDER_ANNUAL_PRICE_ID ??
+        process.env.STRIPE_BUILDER_PRICE_ID_ANNUAL ??
+        null
+      );
+    }
+    if (p === 'scale') {
+      return (
+        process.env.STRIPE_SCALE_ANNUAL_PRICE_ID ??
+        process.env.STRIPE_SCALE_PRICE_ID_ANNUAL ??
+        null
+      );
+    }
+    return null;
+  }
+  // Monthly
+  return planToPriceId(plan);
+}
+
 // ── Checkout session ──────────────────────────────────────────────────────────
 
 export interface CreateCheckoutOptions {
@@ -44,8 +74,20 @@ export interface CreateCheckoutOptions {
   /** Either a Stripe price ID (price_...) or a plan name (pro/builder/scale) */
   priceId?: string;
   plan?: string;
+  billing?: Billing;
   successUrl?: string;
   cancelUrl?: string;
+}
+
+export class AnnualPriceNotConfiguredError extends Error {
+  code = 'annual_price_not_configured' as const;
+  constructor(plan: string) {
+    super(
+      `Annual price for plan "${plan}" is not configured. Ask Max to add ` +
+        `STRIPE_BUILDER_ANNUAL_PRICE_ID / STRIPE_SCALE_ANNUAL_PRICE_ID in Vercel env.`,
+    );
+    this.name = 'AnnualPriceNotConfiguredError';
+  }
 }
 
 export async function createCheckoutSession(opts: CreateCheckoutOptions): Promise<{ url: string } | null> {
@@ -54,13 +96,22 @@ export async function createCheckoutSession(opts: CreateCheckoutOptions): Promis
 
   // Resolve price ID: accept plan name or direct price ID; plan name takes priority
   let priceId: string | null = null;
+  const billing: Billing = opts.billing === 'annual' ? 'annual' : 'monthly';
   if (opts.plan) {
-    priceId = planToPriceId(opts.plan);
+    priceId = planBillingToPriceId(opts.plan, billing);
+    // If user explicitly asked for annual and we have no annual price, fail loudly
+    // rather than silently falling back to monthly — that hides the config gap.
+    if (billing === 'annual' && !priceId) {
+      throw new AnnualPriceNotConfiguredError(opts.plan);
+    }
   } else if (opts.priceId?.startsWith('price_')) {
     priceId = opts.priceId;
   } else if (opts.priceId) {
     // Treat non-price_ value as a plan name fallback
-    priceId = planToPriceId(opts.priceId) ?? opts.priceId;
+    priceId = planBillingToPriceId(opts.priceId, billing) ?? opts.priceId;
+    if (billing === 'annual' && !priceId) {
+      throw new AnnualPriceNotConfiguredError(opts.priceId);
+    }
   }
   priceId = priceId ?? process.env.STRIPE_PRO_PRICE_ID ?? null;
   if (!priceId) return null;
@@ -189,9 +240,13 @@ export function constructWebhookEvent(payload: Buffer, signature: string): Strip
 function priceIdToPlan(priceId: string | undefined | null): string {
   if (!priceId) return 'builder';
   const map: Record<string, string> = {
-    [process.env.STRIPE_PRO_PRICE_ID     ?? '']: 'builder', // legacy pro → builder
-    [process.env.STRIPE_BUILDER_PRICE_ID ?? '']: 'builder',
-    [process.env.STRIPE_SCALE_PRICE_ID   ?? '']: 'scale',
+    [process.env.STRIPE_PRO_PRICE_ID              ?? '']: 'builder', // legacy pro → builder
+    [process.env.STRIPE_BUILDER_PRICE_ID          ?? '']: 'builder',
+    [process.env.STRIPE_BUILDER_ANNUAL_PRICE_ID   ?? '']: 'builder',
+    [process.env.STRIPE_BUILDER_PRICE_ID_ANNUAL   ?? '']: 'builder',
+    [process.env.STRIPE_SCALE_PRICE_ID            ?? '']: 'scale',
+    [process.env.STRIPE_SCALE_ANNUAL_PRICE_ID     ?? '']: 'scale',
+    [process.env.STRIPE_SCALE_PRICE_ID_ANNUAL     ?? '']: 'scale',
   };
   // Remove empty-string key so unknown prices fall through cleanly
   delete map[''];
@@ -451,18 +506,28 @@ export function registerStripeRoutes(app: Express) {
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
       if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-      const { priceId, plan, successUrl, cancelUrl } = req.body ?? {};
+      const { priceId, plan, billing, successUrl, cancelUrl } = req.body ?? {};
+      const normalizedBilling: Billing | undefined =
+        billing === 'annual' ? 'annual' : billing === 'monthly' ? 'monthly' : undefined;
       const result = await createCheckoutSession({
         userId: user.id,
         userEmail: user.email,
         priceId,
         plan,  // plan name (builder/scale) takes priority over raw priceId
+        billing: normalizedBilling,
         successUrl: successUrl ?? 'https://majorka.io/dashboard?upgraded=true',
         cancelUrl: cancelUrl ?? 'https://majorka.io/pricing',
       });
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);
     } catch (err: any) {
+      if (err instanceof AnnualPriceNotConfiguredError) {
+        return res.status(400).json({
+          error: 'annual_price_not_configured',
+          message:
+            'Ask Max to add STRIPE_BUILDER_ANNUAL_PRICE_ID / STRIPE_SCALE_ANNUAL_PRICE_ID in Vercel env',
+        });
+      }
       console.error('[stripe] checkout error:', err);
       res.status(500).json({ error: err.message ?? 'Stripe error' });
     }

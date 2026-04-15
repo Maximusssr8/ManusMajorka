@@ -336,10 +336,33 @@ function EmotionalComparisonTable() {
 }
 
 // ── Plan data ───────────────────────────────────────────────────────────────
-const PLANS = [
+// Annual = 2 months free (16.7% off). Builder: $99 → $82/mo ($990/yr, save $198).
+// Scale: $199 → $166/mo ($1,990/yr, save $398).
+interface PlanDef {
+  name: string;
+  monthly: number;       // $/mo on monthly billing
+  annualPerMonth: number; // $/mo headline on annual billing
+  annualTotal: number;   // full $/yr on annual billing
+  annualSaving: number;  // $ saved/yr vs monthly × 12
+  period: string;
+  description: string;
+  features: string[];
+  notIncluded: string[];
+  cta: string;
+  ctaHref: string | null;
+  highlight: boolean;
+  badge: string | null;
+  afterpay: boolean;
+  plan: string;
+}
+
+const PLANS: PlanDef[] = [
   {
     name: 'Builder',
-    price: '$99',
+    monthly: 99,
+    annualPerMonth: 82,
+    annualTotal: 990,
+    annualSaving: 198,
     period: 'AUD/mo',
     description: 'Everything you need to run a winning ecommerce business.',
     features: [
@@ -354,7 +377,7 @@ const PLANS = [
     ],
     notIncluded: ['Niche Signal Tracking', 'API access', 'Priority support'],
     cta: 'Get Started',
-    ctaHref: null, // handled via Stripe
+    ctaHref: null,
     highlight: true,
     badge: 'Most Popular',
     afterpay: true,
@@ -362,7 +385,10 @@ const PLANS = [
   },
   {
     name: 'Scale',
-    price: '$199',
+    monthly: 199,
+    annualPerMonth: 166,
+    annualTotal: 1990,
+    annualSaving: 398,
     period: 'AUD/mo',
     description: 'For serious operators who need full control and unlimited access.',
     features: [
@@ -376,7 +402,7 @@ const PLANS = [
     ],
     notIncluded: [],
     cta: 'Subscribe',
-    ctaHref: null, // handled via Stripe
+    ctaHref: null,
     highlight: false,
     badge: null,
     afterpay: true,
@@ -515,7 +541,7 @@ const FAQS = [
 export default function Pricing() {
   const isMobile = useIsMobile();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [annual, setAnnual] = useState(false);
+  const [annual, setAnnual] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(true);
   const [currentPlan, setCurrentPlan] = useState<string>('');
@@ -546,19 +572,8 @@ export default function Pricing() {
   }, [session]);
 
   // Compute display price based on toggle
-  const getDisplayPrice = (plan: (typeof PLANS)[number]) => {
-    if (plan.price === '$0') return '$0';
-    const base = parseInt(plan.price.replace(/\$/g, ''));
-    if (annual) {
-      const monthlyEquiv = Math.round(base * 0.8); // Save 20%
-      return `$${monthlyEquiv}`;
-    }
-    return plan.price;
-  };
-  const getAnnualTotal = (plan: (typeof PLANS)[number]) => {
-    if (plan.price === '$0') return null;
-    const base = parseInt(plan.price.replace(/\$/g, ''));
-    return base * 10; // 2 months savings
+  const getDisplayPrice = (plan: PlanDef): string => {
+    return annual ? `$${plan.annualPerMonth}` : `$${plan.monthly}`;
   };
 
   const handleProCheckout = async (plan?: string) => {
@@ -583,13 +598,21 @@ export default function Pricing() {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ plan: plan ?? 'builder' }),
+        body: JSON.stringify({
+          plan: plan ?? 'builder',
+          billing: annual ? 'annual' : 'monthly',
+        }),
       });
-      const data = (await res.json()) as { url?: string; error?: string; configured?: boolean };
+      const data = (await res.json()) as { url?: string; error?: string; message?: string; configured?: boolean };
       if (data.url) {
         window.location.href = data.url;
       } else if (data.configured === false) {
         toast.info('Payment processing launching soon');
+      } else if (data.error === 'annual_price_not_configured') {
+        toast.error(
+          data.message ||
+            'Annual billing isn\u2019t configured yet. Switch to Monthly or contact support.',
+        );
       } else if (data.error) {
         toast.error(data.error);
       }
@@ -738,64 +761,72 @@ export default function Pricing() {
           Simple pricing. No hidden fees. 14-day money-back guarantee.
         </p>
 
-        {/* Monthly / Annual toggle */}
+        {/* Monthly / Annual toggle — gold underline, annual default */}
         <div
           className="pricing-toggle"
+          role="tablist"
+          aria-label="Billing period"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 12,
-            background: C.card,
-            border: `1px solid ${C.border}`,
-            borderRadius: 100,
-            padding: '6px 8px',
+            gap: 32,
+            padding: '4px 2px',
           }}
         >
           <button
+            role="tab"
+            aria-selected={!annual}
             onClick={() => setAnnual(false)}
             style={{
-              padding: '8px 20px',
-              borderRadius: 100,
-              fontSize: 14,
+              padding: '8px 4px',
+              fontSize: 15,
               fontWeight: 700,
               fontFamily: syne,
-              background: !annual ? `linear-gradient(135deg, ${C.gold}, #3B82F6)` : 'transparent',
-              color: !annual ? '#FAFAFA' : C.secondary,
+              background: 'transparent',
+              color: !annual ? C.gold : C.secondary,
               border: 'none',
+              borderBottom: `2px solid ${!annual ? C.gold : 'transparent'}`,
               cursor: 'pointer',
+              minHeight: 44,
+              letterSpacing: '0.02em',
             }}
           >
             Monthly
           </button>
           <button
+            role="tab"
+            aria-selected={annual}
             onClick={() => setAnnual(true)}
             style={{
-              padding: '8px 20px',
-              borderRadius: 100,
-              fontSize: 14,
+              padding: '8px 4px',
+              fontSize: 15,
               fontWeight: 700,
               fontFamily: syne,
-              background: annual ? `linear-gradient(135deg, ${C.gold}, #3B82F6)` : 'transparent',
-              color: annual ? '#FAFAFA' : C.secondary,
+              background: 'transparent',
+              color: annual ? C.gold : C.secondary,
               border: 'none',
+              borderBottom: `2px solid ${annual ? C.gold : 'transparent'}`,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: 6,
+              gap: 8,
+              minHeight: 44,
+              letterSpacing: '0.02em',
             }}
           >
             Annual
             <span
               style={{
                 background: 'rgba(212,175,55,0.15)',
-                color: '#d4af37',
+                color: C.gold,
                 fontSize: 10,
                 fontWeight: 800,
-                padding: '2px 8px',
+                padding: '3px 9px',
                 borderRadius: 100,
+                letterSpacing: '0.04em',
               }}
             >
-              Save 20%
+              2 MONTHS FREE
             </span>
           </button>
         </div>
@@ -894,21 +925,58 @@ export default function Pricing() {
                 <span style={{ fontFamily: syne, fontWeight: 800, fontSize: isMobile ? 30 : 48, color: C.text }}>
                   {getDisplayPrice(plan)}
                 </span>
-                <span style={{ color: C.muted, fontSize: 15 }}>
-                  {annual && plan.price !== '$0' ? 'AUD/mo' : plan.period}
-                </span>
+                <span style={{ color: C.muted, fontSize: 15 }}>{plan.period}</span>
               </div>
-              {annual && plan.price !== '$0' && (
-                <div style={{ fontSize: 12, color: C.secondary, marginBottom: 20 }}>
-                  <span style={{ textDecoration: 'line-through', color: C.muted }}>
-                    ${parseInt(plan.price.replace(/\$/g, '')) * 12}/yr
-                  </span>{' '}
-                  <span style={{ color: '#d4af37', fontWeight: 700 }}>
-                    ${getAnnualTotal(plan)}/yr — save ${Math.round(parseInt(plan.price.replace(/\$/g, '')) * 12 * 0.2)}
-                  </span>
-                </div>
+              {annual ? (
+                <>
+                  <div style={{ fontSize: 12, color: C.secondary, marginBottom: 6 }}>
+                    billed annually as ${plan.annualTotal.toLocaleString()} AUD
+                  </div>
+                  <div
+                    style={{
+                      display: 'inline-block',
+                      fontSize: 12,
+                      fontWeight: 800,
+                      fontFamily: syne,
+                      color: C.gold,
+                      background: 'rgba(212,175,55,0.10)',
+                      border: `1px solid ${C.goldBorder}`,
+                      padding: '4px 10px',
+                      borderRadius: 100,
+                      letterSpacing: '0.03em',
+                      marginBottom: 16,
+                    }}
+                  >
+                    Save ${plan.annualSaving}/year
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                      marginBottom: 16,
+                    }}
+                  >
+                    {['Priority support', 'Lock in launch pricing'].map((perk) => (
+                      <span
+                        key={perk}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: 12,
+                          color: C.gold,
+                          fontWeight: 600,
+                        }}
+                      >
+                        <span style={{ fontWeight: 800 }}>✓</span> {perk}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div style={{ marginBottom: 20 }} />
               )}
-              {(!annual || plan.price === '$0') && <div style={{ marginBottom: 20 }} />}
 
               {/* CTA button */}
               {plan.ctaHref !== null ? (
@@ -1063,6 +1131,63 @@ export default function Pricing() {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Lock-in note + guarantee link under both cards */}
+        <div
+          style={{
+            maxWidth: 740,
+            margin: '28px auto 0',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 18px',
+              background: 'rgba(212,175,55,0.08)',
+              border: `1px solid ${C.goldBorder}`,
+              borderRadius: 100,
+              fontSize: 13,
+              color: C.text,
+              fontWeight: 500,
+              maxWidth: '100%',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
+            <span aria-hidden>🔒</span>
+            <span>
+              Annual subscribers lock in current pricing — prices increase as we grow
+            </span>
+          </div>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              fontSize: 14,
+              color: C.secondary,
+            }}
+          >
+            <span aria-hidden style={{ fontSize: 16 }}>🛡️</span>
+            <span style={{ fontWeight: 600, color: C.text }}>30-day money-back guarantee</span>
+            <span aria-hidden style={{ color: C.muted }}>·</span>
+            <Link
+              href="/guarantee"
+              style={{ color: C.gold, fontWeight: 700, textDecoration: 'none' }}
+            >
+              Read our guarantee →
+            </Link>
+          </div>
         </div>
       </section>
 

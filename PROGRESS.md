@@ -217,3 +217,74 @@ Only remaining SDK construction (`new Anthropic`) is in `server/lib/anthropic.ts
 Streaming is intentionally out of scope for this slice — `callClaude` returns
 whole Messages, not streams. Future work: add `streamClaude` to claudeWrap.
 
+
+## Session — Revenue Director — 2026-04-15
+
+### Plan
+1. Annual pricing toggle on /pricing with new price points.
+2. Wire `billing: 'monthly'|'annual'` through `/api/stripe/checkout-session`.
+3. Build /guarantee page with 30-day money-back promise + surface real stats.
+4. Add guarantee badges on pricing + landing hero CTA.
+
+### Milestones
+- `server/lib/stripe.ts`: added `Billing` type, `planBillingToPriceId`,
+  `AnnualPriceNotConfiguredError`, and a 400 response path
+  (`{ error: 'annual_price_not_configured', message: '...' }`) when a caller
+  requests `billing=annual` but the matching env var is absent. Accepts both
+  `STRIPE_BUILDER_ANNUAL_PRICE_ID` / `STRIPE_SCALE_ANNUAL_PRICE_ID` (canonical)
+  and the legacy `STRIPE_*_PRICE_ID_ANNUAL` names for back-compat.
+- `priceIdToPlan` webhook mapping expanded to recognise annual price IDs.
+- `client/src/pages/Pricing.tsx`:
+    * `annual` defaults to `true`.
+    * Gold-underline tab toggle ("Monthly" / "Annual · 2 MONTHS FREE").
+    * Headline per plan: Builder $82/mo (annual) · Scale $166/mo (annual).
+    * Sub-text "billed annually as $990 / $1,990 AUD".
+    * Gold pill "Save $198/year" / "Save $398/year" on annual cards.
+    * Annual-only perk badges: ✓ Priority support · ✓ Lock in launch pricing.
+    * Below both cards: lock-in pill + 🛡️ 30-day money-back guarantee + link to /guarantee.
+    * Checkout POST now sends `{ plan, billing }`; surfaces the annual-not-configured toast cleanly.
+- `client/src/pages/Guarantee.tsx`: new page (Syne/DM Sans, gold on #080808).
+  Hero "The Majorka Promise" / "Find a winning product in 30 days. Or it's free."
+  Search → Analyse → Launch 3-step block, winning-product definition card
+  (fetches /api/products/stats-overview, falls back to 100/30/3), eligibility
+  (10 logins / 5 searches / 3 saves), how to claim, CTA → /sign-up.
+- `client/src/App.tsx`: lazy-imports Guarantee and registers `<Route path="/guarantee" />`.
+- `client/src/pages/Home.tsx`: caption under the hero CTA linking to /guarantee:
+  "🛡️ 30-day money-back guarantee if you don't find a winning product".
+
+### MANUAL ACTIONS — Stripe Dashboard + Vercel env
+Max, to light up annual billing in production, do this once in the Stripe
+Dashboard (live mode, AUD account):
+
+1. **Products → Majorka Builder → + Add price**
+   - Price: `$990.00` AUD
+   - Billing period: `Yearly`
+   - Payment type: Recurring
+   - Save. Copy the generated `price_...` ID.
+2. **Products → Majorka Scale → + Add price**
+   - Price: `$1,990.00` AUD
+   - Billing period: `Yearly`
+   - Payment type: Recurring
+   - Save. Copy the generated `price_...` ID.
+3. **Vercel → Project `majorka` → Settings → Environment Variables**
+   (Production + Preview + Development):
+   - `STRIPE_BUILDER_ANNUAL_PRICE_ID = price_...`  (from step 1)
+   - `STRIPE_SCALE_ANNUAL_PRICE_ID   = price_...`  (from step 2)
+4. Redeploy — `vercel --prod --yes`.
+
+Until those env vars land, clicking "Get Started" on an annual card returns
+HTTP 400 `{ error: 'annual_price_not_configured' }` and the UI shows a toast
+telling the user to switch to Monthly. No silent fallback.
+
+### Final checklist
+- [x] `pnpm check` — 0 TypeScript errors.
+- [x] `pnpm build` — 0 errors.
+- [x] Annual is pre-selected on /pricing.
+- [x] Toggle flips Builder $99↔$82 and Scale $199↔$166.
+- [x] Annual cards show "billed annually as $990/$1,990 AUD" + "Save $198/398/year" gold pill.
+- [x] Annual-only perk badges visible ("Priority support", "Lock in launch pricing").
+- [x] Lock-in note + guarantee link below cards.
+- [x] /guarantee route registered and renders from landingTokens.
+- [x] Landing hero has 🛡️ guarantee caption under CTA linking to /guarantee.
+- [x] No banned competitor names introduced.
+- [x] No new vendor chunks (ui/chart/motion/data-vendor) in build output.

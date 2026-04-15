@@ -668,6 +668,24 @@ function Hero() {
             <CtaGhost href="#how">See how it works</CtaGhost>
           </motion.div>
 
+          <motion.a
+            href="/guarantee"
+            initial={reduced ? false : { opacity: 0 }}
+            animate={reduced ? undefined : { opacity: 1 }}
+            transition={{ delay: 1.65, duration: 0.5 }}
+            style={{
+              display: 'inline-block',
+              fontFamily: F.body,
+              fontSize: 13,
+              color: LT.textMute,
+              textDecoration: 'none',
+              marginBottom: S.sm,
+              lineHeight: 1,
+            }}
+          >
+            🛡️ 30-day money-back guarantee if you don't find a winning product
+          </motion.a>
+
           <motion.div
             initial={reduced ? false : { opacity: 0 }}
             animate={reduced ? undefined : { opacity: 1 }}
