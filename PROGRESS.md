@@ -577,3 +577,17 @@ preview-only deploy; rebase-and-merge coordination deferred to user.
 - Headless Chrome verify: zero uncaught errors, mj-boot replaced, all 7 WOW components present (FilmGrain, mj-chapter-sticky, mj-cmdk-chip, ticker, kinetic H1, particle field, quick-score hero), `/guarantee` link intact.
 - API gates: `GET /api/public/quick-score?url=…` returns sampled scoring payload (200), `GET /api/products/todays-picks?limit=3` serves real data.
 - All 4 directors (Revenue, Engagement, AU Moat, Landing Innovator) shipped this session. Manual actions list current — see entries above.
+
+---
+
+# Ad Studio Director — fix-ad-studio branch (2026-04-15)
+
+Branch: `fix-ad-studio`
+
+## Fixes
+- [x] Fix 1 — Markdown rendering in Ad Briefs (react-markdown + remark-gfm + scoped .mj-brief-prose CSS)
+- [x] Fix 2 — Popular Templates: descriptions, example product on click, preview-line caption, scroll-to-input
+- [ ] Fix 3 — Ads Studio example preview with EXAMPLE badge
+- [ ] Fix 4 — Platform greying (TikTok/YouTube tooltips + Soon pill)
+- [ ] Fix 5 — Sticky Generate button bar
+- [ ] Fix 6 — Sidebar rename + tooltips
