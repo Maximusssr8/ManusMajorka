@@ -542,8 +542,12 @@ function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
           </motion.div>
 
           <div style={{ margin: `0 0 ${S.md}px` }}>
-            <KineticHeadline text="Find winning products" fontSize={64} />
-            <KineticHeadline text="before they peak." fontSize={64} />
+            <KineticHeadline
+              lines={['Find winning products', 'before anyone else.']}
+              fontSize={72}
+              fontSizeMobile={44}
+              lineHeight={1.0}
+            />
           </div>
 
           <motion.div

@@ -751,3 +751,17 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 - GET `/api/stripe/webhook` health handler (POST handler unchanged for actual Stripe events).
 - Stale comment references to "violet/purple/indigo" purged from `client/src/pages/app/Market.tsx` + `client/src/components/products/AuMoatPanels.tsx`.
 - Stripe key placeholders in `client/src/pages/WebsiteGenerator.tsx` genericised (`pk_…` / `sk_…`).
+
+## Landing Deltas 1-5 — session (2026-04-15)
+
+### Delta 1 — Hero H1 underline redesign — done
+- Rewrote client/src/components/landing/wow/KineticHeadline.tsx:
+  - Old: SVG clip-path drew a sparkline *inside* letter glyphs (gimmicky, hard to read).
+  - New: plain H1 with word-stagger fade-up (y:30→0, opacity 0→1, 120ms stagger, 200ms mount delay, 0.55s duration per word).
+  - Gold underline #d4af37 rendered as absolutely-positioned SVG under the FINAL line only, width measured via ref + getBoundingClientRect (also remeasures on resize + document.fonts.ready).
+  - Path is Q-curve (subtle arc) drawn via Framer Motion pathLength 0→1, 800ms, 500ms mount delay.
+  - After draw completes: mjUnderlinePulse keyframes loop opacity 0.6↔0.95 on 4.5s.
+  - prefers-reduced-motion → skip stagger + draw, render final state instantly.
+  - Old clipPath sparkline-in-glyphs logic entirely deleted.
+- Home.tsx hero now calls `<KineticHeadline lines={['Find winning products', 'before anyone else.']} fontSize={72} fontSizeMobile={44} lineHeight={1.0} />` instead of two separate headline components (fixes accessibility — single h1).
+- `pnpm check` — 0 errors.
