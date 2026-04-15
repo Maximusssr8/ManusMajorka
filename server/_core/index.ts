@@ -344,6 +344,8 @@ async function startServer() {
   app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
   const productsRouter = (await import('../routes/products')).default;
   app.use('/api/products', productsRouter);
+  const publicRouter = (await import('../routes/public')).default;
+  app.use('/api/public', publicRouter);
   const waitlistRouter = (await import('../routes/waitlist')).default;
   app.use('/api/waitlist', waitlistRouter);
   const { default: aliexpressRouter } = await import('../routes/aliexpress');
