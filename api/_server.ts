@@ -67,6 +67,7 @@ import onboardingRouter from "../server/routes/onboarding";
 import listsRouter from "../server/routes/lists";
 import dailyDigestRouter from "../server/cron/daily-digest";
 import { trackOnboarding } from "../server/middleware/trackOnboarding";
+import dashboardRouter from "../server/routes/dashboard";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -170,6 +171,10 @@ app.get("/api/proxy-img", async (req: Request, res: Response) => {
 
 app.use(express.urlencoded({ limit: "1mb", extended: true }));
 app.use(cookieParser());
+
+// Onboarding tracker — fire-and-forget. Mounted BEFORE routes so the
+// res.on('finish') hook is registered. Reads req.user populated downstream.
+app.use(trackOnboarding);
 
 // ── Per-tier rate limits — applied before route handlers. Fail-open when
 // Upstash is unreachable (see server/lib/ratelimit.ts). ─────────────────────
@@ -641,8 +646,8 @@ app.use('/api/revenue', revenueRouter);
 app.use('/api/onboarding', onboardingRouter);
 app.use('/api/lists', listsRouter);
 app.use('/api/cron', dailyDigestRouter);
-// Onboarding tracker — fire-and-forget, runs after authed request handlers.
-app.use(trackOnboarding);
+// Dashboard slices — server-side dedup of Hot Today vs Top Opportunities.
+app.use('/api/dashboard', dashboardRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {

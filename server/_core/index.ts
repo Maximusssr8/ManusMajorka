@@ -114,6 +114,11 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+  // Onboarding tracking — fire-and-forget, hooks res.on('finish') so it sees
+  // req.user populated by downstream requireAuth. No-op on unauth requests.
+  const { trackOnboarding } = await import('../middleware/trackOnboarding');
+  app.use(trackOnboarding);
+
   // ═══ Agent Log API ═══
   const agentLogOrigin = process.env.NODE_ENV === 'production'
     ? (process.env.VITE_APP_URL ?? 'https://www.majorka.io')
@@ -332,6 +337,13 @@ async function startServer() {
       res.json({ count: 0 });
     }
   });
+
+  // Onboarding (Engagement Director — checklist state + dismiss)
+  const onboardingRouter = (await import('../routes/onboarding')).default;
+  app.use('/api/onboarding', onboardingRouter);
+  // Dashboard slices (Hot Today + Top Opportunities — server-side dedup)
+  const dashboardRouter = (await import('../routes/dashboard')).default;
+  app.use('/api/dashboard', dashboardRouter);
 
   // Subscription + Admin
   const subscriptionRouter = (await import('../routes/subscription')).default;

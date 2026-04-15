@@ -112,10 +112,6 @@ export default function AppHome() {
   const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
   const tod = timeOfDay();
 
-  const topProduct    = products[0];
-  const bestMargin    = bestMarginProducts[0] ?? null;
-  const newestProduct = newestProducts[0] ?? null;
-
   /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
      created within 30d). Falls back to velocity leaders (then top-volume)
      if the strict filter returns nothing so this card always shows real
@@ -125,6 +121,19 @@ export default function AppHome() {
     : velocityProducts.length > 0
       ? velocityProducts.slice(0, 4)
       : products.slice(0, 4);
+
+  // Dedupe: any product showing in Hot Today must NOT also show in Top
+  // Opportunities. Build the exclusion set from trendingNow + bestMargin +
+  // newest, then pick the first eligible top-trending candidate from the
+  // sold_count-ranked `products` list.
+  const hotIds = new Set<string | number>(trendingNow.map((p) => p.id));
+  const bestMargin    = bestMarginProducts.find((p) => !hotIds.has(p.id)) ?? bestMarginProducts[0] ?? null;
+  const newestProduct = newestProducts.find((p) => !hotIds.has(p.id) && p.id !== bestMargin?.id) ?? newestProducts[0] ?? null;
+  // Top Trending opportunity = highest-volume product NOT in Hot Today and
+  // NOT already shown in another Opportunity slot.
+  const topProduct = products.find(
+    (p) => !hotIds.has(p.id) && p.id !== bestMargin?.id && p.id !== newestProduct?.id,
+  ) ?? products[0] ?? null;
 
   /* Trending Today — products with sold_count > 100,000 in the loaded set */
   const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
@@ -259,22 +268,28 @@ export default function AppHome() {
       <TodaysFive />
 
       {/* Hero — with a subtle mesh gradient backing the greeting block */}
-      <div className="relative z-10 px-4 md:px-8 pt-8 md:pt-10 pb-6">
+      <div className="relative z-10 px-4 md:px-8 pt-6 md:pt-8 pb-5">
         <div className="relative">
           {/* Hero mesh gradient */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,175,55,0.06)_0%,transparent_60%)] pointer-events-none" />
-          <div className="relative flex items-start justify-between gap-6 flex-wrap">
+          <div className="relative flex items-start justify-between gap-4 flex-wrap">
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <img src="/majorka-logo.jpg" alt="Majorka" style={{ height: 36, width: 36, borderRadius: 10, objectFit: 'cover' }} />
-                <p className="text-xs text-muted uppercase tracking-widest">
-                  {today} · Scale Plan
-                </p>
+              {/* Greeting + date in a single inline row — Syne 28px hero, smaller caption */}
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <h1
+                  className="font-display font-bold text-text tracking-tight leading-tight m-0"
+                  style={{ fontFamily: "'Syne', sans-serif", fontSize: 28 }}
+                >
+                  Good {tod}, <span className="text-accent">{firstName}</span>
+                </h1>
+                <span
+                  className="text-muted whitespace-nowrap"
+                  style={{ fontSize: 13, color: '#6B7280' }}
+                >
+                  {today}
+                </span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-display font-bold text-text tracking-tight leading-tight">
-                Good {tod}, <span className="text-accent">{firstName}</span>.
-              </h1>
-              <p className="mt-3 text-base text-body max-w-lg">
+              <p className="mt-2 text-sm text-body max-w-lg">
                 Your product intelligence is live across the Australian market.
               </p>
               {insight && (
@@ -393,6 +408,7 @@ export default function AppHome() {
             View all {total > 0 ? total.toLocaleString() : '…'} →
           </a>
         </div>
+        <TopProductsScrollWrap>
         <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-x-auto">
           <table className="w-full min-w-[480px]">
             <thead>
@@ -497,6 +513,7 @@ export default function AppHome() {
             </tbody>
           </table>
         </div>
+        </TopProductsScrollWrap>
       </div>
 
       {/* Bottom two-column — Trending Now + Top Opportunities. Stacks on mobile. */}
@@ -674,6 +691,46 @@ export default function AppHome() {
 
 // timeAgoShort retained for potential future use
 export { timeAgoShort };
+
+/* ──────────────────────────────────────────────────────────────
+   TopProductsScrollWrap — wraps the Top Products table with a
+   max-height scroll container, a bottom fade-out gradient, and a
+   "Scroll to see more" caption that fades out once the user starts
+   scrolling. Tab focus still reaches items below the fade because
+   they remain in normal DOM flow inside the scroll container.
+   ────────────────────────────────────────────────────────────── */
+function TopProductsScrollWrap({ children }: { children: React.ReactNode }) {
+  const [scrolled, setScrolled] = useState(false);
+  return (
+    <div className="relative">
+      <div
+        className="max-h-[560px] overflow-y-auto overflow-x-auto scrollbar-hide"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        onScroll={(e) => {
+          const top = (e.currentTarget as HTMLDivElement).scrollTop;
+          setScrolled(top > 0);
+        }}
+      >
+        {children}
+      </div>
+      {/* Fade-out gradient at the bottom edge */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-0 right-0 bottom-0 h-10 rounded-b-2xl"
+        style={{
+          background: 'linear-gradient(to bottom, rgba(8,8,8,0) 0%, rgba(8,8,8,0.85) 100%)',
+        }}
+      />
+      {/* "Scroll to see more" caption — fades out once user scrolls */}
+      <div
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 -bottom-5 text-[10px] uppercase tracking-widest text-muted transition-opacity duration-200"
+        style={{ opacity: scrolled ? 0 : 1 }}
+      >
+        Scroll to see more
+      </div>
+    </div>
+  );
+}
 
 /* ──────────────────────────────────────────────────────────────
    TodaysFive — daily-briefing horizontal scroll of 5 picks.
