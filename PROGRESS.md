@@ -816,3 +816,22 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 - Competitor grep (landing tree): 0 matches.
 - Cliché grep (landing tree): 0 matches.
 - Banned palette grep (landing files + new server route): 0 matches.
+
+### Gate verification (preview: https://agent-ab3c909b.vercel.app)
+- Headless Chrome 390x844: scrollWidth === clientWidth === 390 (zero overflow), h1 = "Find winning products\nbefore anyone else.", marquee present, launch counter hidden on mobile as spec'd.
+- Headless Chrome 1280x900: h1 correct, underline <svg><path> present under final line, launch counter shows "[ 287 / 500 ] spots" on first load (seed value), marquee present, all 5 chips present (Pet Products · Kitchen & Bar · Home Storage · Beauty · Fitness).
+- Console: only network resource failures (500/503) on unrelated pre-existing routes + our /api/demo/quick-score (preview env lacks SUPABASE_URL/SERVICE_ROLE_KEY — expected; the component's 2-strike fallback renders sampled data with a caption, no uncaught React errors).
+- `pnpm check`: 0 errors. `pnpm build`: SUCCESS.
+- Competitor / cliché / banned-palette greps across the landing tree + new server route: 0 matches.
+
+### Commits on landing-deltas-1-5
+- 69b0411  feat(landing-delta-1): hero H1 clean word-stagger + gold underline draw
+- 8f5323a  feat(landing-delta-2): Live Scorer — 5 category chips backed by real DB
+- 7092e3a  feat(landing-delta-4): launch bar — 287→489 counter, 500 cap, dismiss-forever
+- b9de8af  feat(landing-delta-5): city marquee between hero and social proof bar
+(Delta 3 = 6s auto-cycle cadence; landed inline with Delta 2 per spec.)
+
+### Deferred / notes for merge coordinator
+- /api/demo/quick-score returns 503 { ok:false, reason:"db_unavailable" } on the preview because SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set on this preview project. Both will be present on prod — endpoint returns real DB-backed JSON there.
+- Old localStorage key `majorka_spots_taken` is no longer read (replaced by `majorka_launch_spots_v2`). Intentional clean reset.
+- Old `majorka_launch_bar_dismissed_v3` semantics changed from "timestamp, 24h reshow" to "'1' = never show again". If a user already has a timestamp stored, the bar will re-show (since `!== '1'`). Acceptable for launch; if you'd rather respect a stale timestamp, add a wrapper.
