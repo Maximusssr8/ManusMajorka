@@ -12,6 +12,7 @@ import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
 import { SinceLastLogin } from '@/components/app/SinceLastLogin';
+import OnboardingChecklist from '@/components/OnboardingChecklist';
 
 /* ──────────────────────────────────────────────────────────────
    Helpers — all data from hooks, no hardcoded values
@@ -247,6 +248,11 @@ export default function AppHome() {
           <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
           <span>{liveLabel}</span>
         </div>
+      </div>
+
+      {/* Onboarding checklist — shown only for fresh accounts (hidden after dismiss/complete) */}
+      <div className="relative z-10 px-4 md:px-8 pt-6">
+        <OnboardingChecklist />
       </div>
 
       {/* Today's 5 — daily-briefing card. Top of page = first thing operators see */}

@@ -37,6 +37,8 @@ import weeklyDigestRouter from "../server/routes/weeklyDigest";
 import academyRouter from "../server/routes/academy";
 import pipelineRouter from "../server/routes/pipeline";
 import alertsRouter from "../server/routes/alerts";
+import auMoatRouter from "../server/routes/auMoat";
+import priceCheckRouter from "../server/routes/priceCheck";
 import { getEmailProvider as _getEmailProvider } from "../server/lib/email";
 import imageProxyRouter from "../server/routes/imageProxy";
 import subscriptionRouter from "../server/routes/subscription";
@@ -60,6 +62,10 @@ import waitlistRouter from "../server/routes/waitlist";
 import dailyBriefRouter from "../server/routes/daily-brief";
 import revenueRouter from "../server/routes/revenue";
 import authRouter from "../server/routes/auth";
+import onboardingRouter from "../server/routes/onboarding";
+import listsRouter from "../server/routes/lists";
+import dailyDigestRouter from "./cron/daily-digest";
+import { trackOnboarding } from "../server/middleware/trackOnboarding";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -599,6 +605,9 @@ app.use('/api/academy', academyRouter);
 // Mounted at /api so its internal paths are preserved.
 app.use('/api', pipelineRouter);
 app.use('/api/alerts', alertsRouter);
+// AU Moat Director — margin / shipping / BNPL endpoints + price-check cron.
+app.use('/api', auMoatRouter);
+app.use('/api/cron', priceCheckRouter);
 // Alerts health endpoint is mounted at /api/alerts/health/email by the alerts router,
 // but the UI polls /api/health/email — alias it for convenience.
 app.get('/api/health/email', (_req, res) => {
@@ -627,6 +636,11 @@ app.use('/api/marketplace', marketplaceRouter);
 app.use('/api/waitlist', waitlistRouter);
 app.use('/api/daily-brief', dailyBriefRouter);
 app.use('/api/revenue', revenueRouter);
+app.use('/api/onboarding', onboardingRouter);
+app.use('/api/lists', listsRouter);
+app.use('/api/cron', dailyDigestRouter);
+// Onboarding tracker — fire-and-forget, runs after authed request handlers.
+app.use(trackOnboarding);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {

@@ -150,8 +150,16 @@
       "schedule": "0 23 * * 6"
     },
     {
+      "path": "/api/cron/daily-digest",
+      "schedule": "0 21 * * *"
+    },
+    {
       "path": "/api/cron/snapshot-history",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/price-check",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

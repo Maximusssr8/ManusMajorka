@@ -105,6 +105,7 @@ const NewRevenue = lazyWithRetry(() => import('./pages/app/Revenue'));
 const NewAdBriefs = lazyWithRetry(() => import('./pages/app/AdBriefs'));
 const NewAnalytics = lazyWithRetry(() => import('./pages/app/Analytics'));
 const NewNiches = lazyWithRetry(() => import('./pages/app/Niches'));
+const NewLists = lazyWithRetry(() => import('./pages/app/Lists'));
 const ROASCalculator = lazy(() => import('./pages/tools/ROASCalculator'));
 const OperatorWall = lazy(() => import('./pages/OperatorWall'));
 const Affiliates = lazy(() => import('./pages/Affiliates'));
@@ -297,6 +298,7 @@ function Router() {
             {/* New consolidated routes */}
             <Route path="/app/intelligence">{() => { window.location.replace('/app/products'); return null; }}</Route>
             <Route path="/app/alerts">{() => <ProtectedRoute><NewAppShell><NewAlerts /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/lists">{() => <ProtectedRoute><NewAppShell><NewLists /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/alerts-legacy">{() => <ProtectedRoute><AppLayout><Alerts /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/spy">{() => <ProtectedRoute><NewAppShell><ComingSoon page="Competitor Spy" /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/spy-legacy">{() => <ProtectedRoute><AppLayout><SpyTools /></AppLayout></ProtectedRoute>}</Route>

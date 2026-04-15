@@ -43,6 +43,11 @@ const MIGRATIONS: ReadonlyArray<{ name: string; file: string }> = [
   { name: "product-views", file: "product-views-migration.sql" },
   { name: "stores", file: "stores-migration.sql" },
   { name: "api-cost-log", file: "api-cost-log-migration.sql" },
+  { name: "user-onboarding", file: "user-onboarding-migration.sql" },
+  { name: "product-lists", file: "product-lists-migration.sql" },
+  { name: "email-logs", file: "email-logs-migration.sql" },
+  { name: "price-alerts", file: "price-alerts-migration.sql" },
+  { name: "au-warehouse-column", file: "au-warehouse-column-migration.sql" },
 ];
 
 function getConnectionString(): string {
