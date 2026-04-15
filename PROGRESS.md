@@ -765,3 +765,28 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
   - Old clipPath sparkline-in-glyphs logic entirely deleted.
 - Home.tsx hero now calls `<KineticHeadline lines={['Find winning products', 'before anyone else.']} fontSize={72} fontSizeMobile={44} lineHeight={1.0} />` instead of two separate headline components (fixes accessibility — single h1).
 - `pnpm check` — 0 errors.
+
+### Delta 2 — Live Scorer: 5 category chips backed by DB — done
+- New endpoint: GET /api/demo/quick-score?category=<Pet|Kitchen|Home|Beauty|Fitness>
+  - server/routes/demoQuickScore.ts — ILIKE OR-expression on tolerant category patterns (pet/pets/pet accessories · kitchen/bar/cookware · home storage/home/organiser · beauty/skincare/cosmetics · fitness/wellness/gym).
+  - Order by real_orders_count desc nullsFirst:false, image_url NOT NULL, limit 1.
+  - Response: { ok:true, product:{ id,title,image,price_aud,orders,score,market_split,sparkline(30pts),brief,category } }.
+  - market_split: deterministic hash of id → AU skewed 35-50%, always sums 100.
+  - sparkline: monotone-cubic interpolation of sold_count_7d_ago → sold_count normalised 0–100; falls back to seeded rising walk if both null.
+  - brief: why_winning clamped to 120 chars when present, else synthesised "${cat} staple · ${orders}+ orders · AU demand ${au}%".
+  - Failure: 404 { ok:false, reason:"no_match" }. Rate: 30/min/IP in-memory sliding window.
+  - Mounted under /api/demo in both api/_server.ts and server/_core/index.ts.
+- Legacy /api/public/quick-score kept intact (still referenced elsewhere).
+- Rewrote client/src/components/landing/wow/QuickScoreHero.tsx:
+  - 5 chips (Pet Products · Kitchen & Bar · Home Storage · Beauty · Fitness) with the spec'd styles: border 1px #1a1a1a, rounded-full, px-16 py-8, 13px DM Sans #9CA3AF, 44px min tap target. Active: border+text #d4af37, bg rgba(212,175,55,0.08).
+  - Click → fetch /api/demo/quick-score?category=<key>.
+  - Skeleton shimmer while pending.
+  - Orchestrated sequence phases: 100ms skeleton → 250ms image/name fade → 450ms count-up scores → 650ms market bars → 800ms brief typewriter. Total ~800ms.
+  - CountUp spring-feel via existing primitive. Market bars use existing stagger. Sparkline via SparklineDraw pathLength 0→1.
+  - Image routed through proxyImage() for AliExpress CDN.
+  - Gold CTA at the bottom: "Find 4,155 products like this →" linking /sign-up.
+  - Auto-cycle: 6 seconds (Delta 3 cadence) → next chip round-robin. Paused when document.hidden. User interaction stops the cycle permanently.
+  - Two-strike fallback: if fetch fails twice in a row, render seeded sampled data and flag "Sampled demo — API momentarily unavailable".
+
+### Delta 3 — Auto-cycle cadence 6s — done (inline with Delta 2)
+- Previous QuickScoreHero had no auto-cycle (seed chips were click-only) and the TickerBar/CarouselScorer-style 8s interval did not exist in this revision. New setTimeout is exactly AUTO_CYCLE_MS = 6000ms.
