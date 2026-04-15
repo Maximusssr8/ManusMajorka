@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { requireAuth } from '../middleware/requireAuth';
 import { getEmailProvider } from '../lib/email';
+import { isMissingSchema } from '../lib/dbErrors';
 
 const router = Router();
 
@@ -68,11 +69,21 @@ router.get('/', requireAuth, async (req: Request, res: Response): Promise<void> 
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error) {
+      if (isMissingSchema(error)) {
+        console.warn('[alerts] missing schema — returning empty state:', error.message);
+        res.json({ success: true, alerts: [], meta: { pending_migration: true } });
+        return;
+      }
       res.status(500).json({ error: 'db_error', message: error.message });
       return;
     }
     res.json({ success: true, alerts: (data ?? []) as AlertRow[] });
   } catch (err: unknown) {
+    const pgErr = err as { code?: string; message?: string } | null;
+    if (isMissingSchema(pgErr)) {
+      res.json({ success: true, alerts: [], meta: { pending_migration: true } });
+      return;
+    }
     res.status(500).json({ error: 'internal', message: err instanceof Error ? err.message : String(err) });
   }
 });

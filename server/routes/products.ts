@@ -2091,7 +2091,15 @@ router.get('/trending', async (req: Request, res: Response) => {
       .limit(TAB_LIMIT);
 
     const { data, error } = await base;
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      const { isMissingSchema } = await import('../lib/dbErrors');
+      if (isMissingSchema(error)) {
+        console.warn('[products/trending] missing schema — empty fallback:', error.message);
+        res.set('Cache-Control', 'no-store');
+        return res.json({ products: [], count: 0, tab: 'trending', insufficientData: true, meta: { pending_migration: true } });
+      }
+      return res.status(500).json({ error: error.message });
+    }
 
     const products = data ?? [];
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
@@ -2103,6 +2111,10 @@ router.get('/trending', async (req: Request, res: Response) => {
     });
   } catch (err: unknown) {
     console.error('[products/trending]', err);
+    const { isMissingSchema } = await import('../lib/dbErrors');
+    if (isMissingSchema(err as { code?: string; message?: string })) {
+      return res.json({ products: [], count: 0, tab: 'trending', insufficientData: true, meta: { pending_migration: true } });
+    }
     return res.status(500).json({
       error: err instanceof Error ? err.message : 'Unknown error',
     });

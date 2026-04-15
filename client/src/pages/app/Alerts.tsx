@@ -623,12 +623,12 @@ export default function Alerts() {
               style={{
                 padding: '10px 18px',
                 borderRadius: 9,
-                background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
-                color: 'white',
+                background: '#d4af37',
+                color: '#080808',
                 border: 'none',
-                fontFamily: sans, fontSize: 13, fontWeight: 600,
+                fontFamily: sans, fontSize: 13, fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
+                boxShadow: '0 0 20px rgba(212,175,55,0.3)',
               }}
             >Create your first alert →</button>
           </div>

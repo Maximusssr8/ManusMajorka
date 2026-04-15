@@ -23,8 +23,36 @@ interface AppShellProps { children: ReactNode }
 export function AppShell({ children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const { trackedCount } = useTracking();
+  const [alertBadgeCount, setAlertBadgeCount] = useState<number>(0);
   useKeyboardShortcuts();
   const [location, navigate] = useLocation();
+
+  // Bell badge reflects real active alerts from the server, not locally-tracked products.
+  // Falls back to 0 silently if the API is unavailable / user unauth / table missing.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let cancelled = false;
+    const load = async (): Promise<void> => {
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) { if (!cancelled) setAlertBadgeCount(0); return; }
+        const res = await fetch('/api/alerts', { headers: { Authorization: `Bearer ${session.access_token}` } });
+        if (!res.ok) { if (!cancelled) setAlertBadgeCount(0); return; }
+        const body = await res.json();
+        const list = Array.isArray(body?.alerts) ? body.alerts : [];
+        const active = list.filter((a: { last_fired_at?: string | null; status?: string }) =>
+          a?.status !== 'cancelled' && a?.status !== 'triggered'
+        );
+        if (!cancelled) setAlertBadgeCount(active.length);
+      } catch {
+        if (!cancelled) setAlertBadgeCount(0);
+      }
+    };
+    load();
+    const iv = window.setInterval(load, 60_000);
+    return () => { cancelled = true; window.clearInterval(iv); };
+  }, []);
 
   // First-time users are routed to the full-page /onboarding flow.
   // The legacy modal wizard has been removed in favour of one canonical path.
@@ -114,12 +142,12 @@ export function AppShell({ children }: AppShellProps) {
               style={{ color: '#737373' }}
             >
               <Bell size={18} strokeWidth={2} />
-              {trackedCount > 0 && (
+              {alertBadgeCount > 0 && (
                 <span
                   className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
                   style={{ background: '#d4af37', color: '#080808' }}
                 >
-                  {trackedCount > 9 ? '9+' : trackedCount}
+                  {alertBadgeCount > 9 ? '9+' : alertBadgeCount}
                 </span>
               )}
             </Link>
