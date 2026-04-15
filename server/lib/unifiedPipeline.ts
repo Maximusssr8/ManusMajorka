@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from './claudeWrap';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { calculateSignalScore, getQualityTier, buildDataSourcesArray, passesQualityFilter } from './signalScoring';
 
@@ -35,8 +35,6 @@ export interface UnifiedPipelineResult {
 }
 
 async function enrichWithHaiku(product: UnifiedProduct, sources: string[]): Promise<Record<string, any>> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
   const prompt = `You are an ecommerce analyst. Analyse this product for AU/US/UK dropshipping potential.
 
 Title: ${product.title}
@@ -51,9 +49,9 @@ Return ONLY valid JSON (no markdown):
 {"niche":"pet|beauty|home|fashion|electronics|fitness|baby|general","opportunity_score":0-100,"trend_velocity":"exploding|rising|steady|declining","why_trending":"1 sentence","target_audience":"who buys this","best_ad_angle":"TikTok/Meta angle","estimated_sell_price_aud":0,"estimated_cost_aud":0,"estimated_margin_pct":0,"saturation_risk":"low|medium|high","seasonal":false,"season_peak":null}`;
 
   try {
-    const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 350,
+    const msg = await callClaude({
+      feature: 'pipeline_enrich_haiku',
+      maxTokens: 350,
       messages: [{ role: 'user', content: prompt }],
     });
     const text = (msg.content[0] as any).text || '';

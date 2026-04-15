@@ -1156,9 +1156,9 @@ function FeaturesSection() {
   const rows: FeatureRow[] = [
     {
       tag: 'Product Intelligence',
-      title: 'Track 4,000+ products with AI trend scoring',
-      copy: 'Live order counts, velocity, category, supplier — all updated every 6 hours from AliExpress and TikTok Shop feeds.',
-      stat: '4,054 products tracked right now',
+      title: 'Tens of millions sourced. Only the top 0.01% scored.',
+      copy: 'We search 60M+ AliExpress listings. You see the few thousand with real order velocity — live counts, category, supplier, refreshed every 6 hours. No scrolling through dead listings.',
+      stat: 'Top 0.01% of the AliExpress catalogue',
       visual: (
         <FeatureVisualBox>
           <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Trend Velocity</div>
@@ -1516,6 +1516,9 @@ function AcademySection() {
 
 // ── Social Proof Bar (small testimonial row) ────────────────────────────────
 function SocialProofBar() {
+  const { stats, products } = useLandingData();
+  const scored = stats?.total ?? 3715;
+  const topOrders = products.slice(0, 5).reduce((a, p) => a + p.orders, 0);
   return (
     <section style={{
       background: LT.bgElevated,
@@ -1535,12 +1538,20 @@ function SocialProofBar() {
         </div>
         <span style={{ fontFamily: F.mono, fontSize: 12, color: LT.textDim }}>·</span>
         <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
-          <span style={{ color: LT.text, fontWeight: 600 }}>231,847+</span> orders tracked today
+          <span style={{ color: LT.text, fontWeight: 600 }}>60M+</span> listings scanned
         </div>
         <span style={{ fontFamily: F.mono, fontSize: 12, color: LT.textDim }}>·</span>
         <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
-          <span style={{ color: LT.text, fontWeight: 600 }}>4,054</span> live products · 3 markets
+          <span style={{ color: LT.text, fontWeight: 600 }}>{scored.toLocaleString('en-AU')}+</span> scored · 3 markets
         </div>
+        {topOrders > 0 && (
+          <>
+            <span style={{ fontFamily: F.mono, fontSize: 12, color: LT.textDim }}>·</span>
+            <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
+              <span style={{ color: LT.text, fontWeight: 600 }}>{topOrders.toLocaleString('en-AU')}</span> orders in today's top 5
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
@@ -1951,10 +1962,10 @@ function FinalCTA() {
           boxShadow: SHADOW.cardHover,
           textAlign: 'center',
         }}>
-          <Overline style={{ textAlign: 'center' }}>Ready to find your first winner?</Overline>
-          <H2 style={{ textAlign: 'center' }}>Start free. Ship your first store this week.</H2>
+          <Overline style={{ textAlign: 'center' }}>One shortlist. One weekend.</Overline>
+          <H2 style={{ textAlign: 'center' }}>The next winner is already scored. Go find it.</H2>
           <Sub style={{ margin: `${S.sm}px auto ${S.lg}px`, textAlign: 'center' }}>
-            No credit card. Full Builder access for 7 days. Cancel in one click.
+            You&apos;re not going to beat the operator who started 30 days ago. You are going to beat the 10,000 people still looking at the same 200 products everyone else mentions. 7 days free. No card.
           </Sub>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <CtaPrimary href="/sign-up" pulse>Start 7-day free trial →</CtaPrimary>
@@ -2059,7 +2070,7 @@ export default function Home() {
     }}>
       <SEO
         title="Majorka — Find winning products before they peak"
-        description="AI product intelligence for AU/US/UK dropshippers. 4,000+ tracked products, AI briefs in 3 seconds, Shopify-ready stores. Start free."
+        description="We search tens of millions of AliExpress listings and surface the few thousand worth shipping. AU · US · UK. AI briefs in 3 seconds. Shopify-ready stores. Start free."
         path="/"
         ogImage="/og-image.svg"
       />
@@ -2070,11 +2081,16 @@ export default function Home() {
       <div style={{ paddingTop: topOffset + 64 }} />
 
       <Hero />
+      <MicroOrderTicker />
       <SocialProofBar />
       <HowItWorks />
+      <MicroSparklineRow />
       <LiveDemo />
+      <MicroMarketPulse />
       <FeaturesSection />
+      <MicroCategoryLeaders />
       <AcademySection />
+      <MicroSignalCard />
       <Testimonials />
       <TrustSignals />
       <Pricing />

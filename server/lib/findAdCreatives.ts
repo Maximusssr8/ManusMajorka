@@ -53,12 +53,11 @@ export async function generateAdCopy(productName: string, priceAud: number): Pro
   instagramCaption: string;
   emailSubject: string;
 }> {
-  const Anthropic = (await import("@anthropic-ai/sdk")).default;
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const { callClaude } = await import('./claudeWrap');
 
-  const msg = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 800,
+  const msg = await callClaude({
+    feature: 'ads_generation',
+    maxTokens: 800,
     messages: [{
       role: "user",
       content: `You are an expert dropshipping marketer for the Australian market.

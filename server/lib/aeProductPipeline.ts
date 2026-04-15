@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from './claudeWrap';
 import { getSupabaseAdmin } from '../_core/supabase';
 import type { AEBulkProduct, EnrichedProduct } from './apifyAliExpressBulk';
 
@@ -23,8 +23,6 @@ export function passesQualityFilter(p: AEBulkProduct): boolean {
 
 // Enrich a single product with Claude Haiku
 export async function enrichProduct(p: AEBulkProduct): Promise<EnrichedProduct> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
   const prompt = `You are an ecommerce intelligence analyst. Analyse this AliExpress product for dropshipping potential.
 
 Product: ${p.title}
@@ -40,9 +38,9 @@ Return ONLY valid JSON (no markdown, no explanation):
 Score 0-100 based on: demand (orders), margins, uniqueness, trend direction. AU market relevance matters most.`;
 
   try {
-    const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
+    const msg = await callClaude({
+      feature: 'ae_enrich_product',
+      maxTokens: 300,
       messages: [{ role: 'user', content: prompt }],
     });
 

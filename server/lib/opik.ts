@@ -9,7 +9,7 @@
  * Dashboard: https://app.comet.ml/opik
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from './claudeWrap';
 import { Opik } from 'opik';
 
 let _client: Opik | null = null;
@@ -101,8 +101,6 @@ export async function runAURelevanceEval(
   if (!client) return;
 
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
     const evalPrompt = `You are an expert AU ecommerce evaluator. Score this AI response on Australian market relevance.
 
 Tool: ${toolName}
@@ -116,9 +114,10 @@ Score from 1-10 on:
 
 Respond with ONLY valid JSON: {"score": <1-10>, "reason": "<one sentence>"}`;
 
-    const evalResponse = await anthropic.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 150,
+    const evalResponse = await callClaude({
+      feature: 'opik_au_eval',
+      userId,
+      maxTokens: 150,
       messages: [{ role: 'user', content: evalPrompt }],
     });
 

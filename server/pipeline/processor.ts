@@ -3,7 +3,7 @@
  * Runs every 30 minutes. Processes raw_scrape_results staging table →
  * enriches with Claude Haiku → upserts to winning_products.
  */
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from '../lib/claudeWrap';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { calculateSignalScore, getQualityTier, buildDataSourcesArray } from '../lib/signalScoring';
 
@@ -86,8 +86,6 @@ async function getCrossSourceBonus(title: string, source: string, supabase: any)
 }
 
 async function batchEnrich(products: RawProduct[]): Promise<any[]> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
   const prompt = `Analyse these products for AU/US/UK dropshipping. Return ONLY a JSON array, no other text.
 
 Products:
@@ -97,9 +95,9 @@ Return array of ${products.length} objects:
 [{"index":0,"niche":"pet|beauty|home|fashion|electronics|fitness|baby|kitchen|general","opportunity_score":0-100,"trend_velocity":"exploding|rising|steady|declining","why_trending":"max 12 words","best_ad_angle":"max 12 words","target_audience":"max 10 words","estimated_sell_price_aud":0,"estimated_cost_aud":0,"margin_pct":0,"saturation_risk":"low|medium|high","tiktok_potential":"low|medium|high|viral","skip":false}]`;
 
   try {
-    const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000, // reduced from 4000
+    const msg = await callClaude({
+      feature: 'pipeline_batch_enrich',
+      maxTokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     });
     const text = (msg.content[0] as any).text || '';

@@ -6,7 +6,7 @@
  * Falls back to realistic hardcoded data if Tavily/Claude returns poor results.
  */
 
-import { getAnthropicClient } from './anthropic';
+import { callClaude } from './claudeWrap';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,10 +128,9 @@ ${formatResults(tavilyResults.slice(3, 6), 'Alibaba')}
 ${formatResults(tavilyResults.slice(6, 9), 'CJ Dropshipping')}
 `.trim();
 
-  const claude = getAnthropicClient();
-  const response = await claude.messages.create({
-    model: 'claude-haiku-4-5',
-    max_tokens: 2048,
+  const response = await callClaude({
+    feature: 'supplier_search',
+    maxTokens: 2048,
     messages: [
       {
         role: 'user',

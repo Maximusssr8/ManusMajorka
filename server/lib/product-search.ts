@@ -12,7 +12,7 @@
  * 4. Cache results & upsert into winning_products
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from './claudeWrap';
 import { getSupabaseAdmin } from '../_core/supabase';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -77,11 +77,6 @@ async function extractProductsWithClaude(
   query: string,
   searchResults: { source: string; results: { url: string; title: string; content: string }[] }[],
 ): Promise<ScoredProduct[]> {
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (!anthropicKey) throw new Error('ANTHROPIC_API_KEY not configured');
-
-  const client = new Anthropic({ apiKey: anthropicKey });
-
   const combinedText = searchResults
     .map(({ source, results }) => {
       const items = results
@@ -115,9 +110,9 @@ For each product return JSON:
 }
 Only include products with est_monthly_revenue_aud > 30000. Return ONLY valid JSON array.`;
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5',
-    max_tokens: 4096,
+  const message = await callClaude({
+    feature: 'product_search',
+    maxTokens: 4096,
     system: systemPrompt,
     messages: [
       {

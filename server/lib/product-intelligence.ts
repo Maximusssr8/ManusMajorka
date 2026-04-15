@@ -2,9 +2,7 @@
  * AI Brain — Product Intelligence Engine
  * Analyzes a scraped product and returns deep intelligence used by every tool.
  */
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+import { callClaude } from './claudeWrap';
 
 export interface ProductIntelligence {
   category: string;
@@ -101,9 +99,11 @@ Return this exact JSON (all fields required, arrays must have 3+ items):
   "secondaryKeywords": ["", "", "", ""]
 }`;
 
-  const response = await anthropic.messages.create({
+  const response = await callClaude({
+    feature: 'product_intelligence',
+    allowSonnet: true,
     model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 4000,
+    maxTokens: 4000,
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
   });

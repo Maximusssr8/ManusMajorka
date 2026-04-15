@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
 import { cacheGet, cacheSet, TTL } from '../lib/redisCache';
+import { callClaude } from '../lib/claudeWrap';
 
 const router = Router();
 
@@ -20,8 +20,6 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
   }
 
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
     const prompt = `You are a daily market intelligence briefing system for a dropshipping platform.
 Generate a concise daily brief for a seller in the "${niche || 'general ecommerce'}" niche.
 Date: ${new Date().toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -33,9 +31,10 @@ Line 3: One actionable tip for today
 
 Keep each line under 20 words. Be specific to the niche. Sound like a savvy market analyst.`;
 
-    const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
+    const msg = await callClaude({
+      feature: 'ai_brief',
+      userId: (req as any).user?.userId,
+      maxTokens: 200,
       messages: [{ role: 'user', content: prompt }],
     });
 

@@ -102,3 +102,45 @@ OVERALL: 9.2 / 10 ✅
 - Strategy for claudeWrap migration: thin passthrough wrapper so call-site refactors are near-mechanical (replace `client.messages.create({...})` with `callClaude({ feature, ...args })`). ~40 call sites across 20 files.
 - Gates targeted: pnpm check + build; curl X-Cache MISS→HIT; Content-Encoding gzip; no `messages.create` outside claudeWrap.
 
+
+## Session T+N — Live Data + Sales Director (2026-04-15)
+
+### Plan
+Execute 5 directives: (1) real live data in Hero + LiveDemo + SocialProofBar, (2) "tens of millions" framing, (3) 5 lazy micro-demos between sections, (4) non-cliché sales copy, (5) loop audit to 100/100.
+
+### API reconnaissance (curl'd prod before wiring)
+- `/api/products` → 401 requireAuth — NOT public. Do not use from landing.
+- `/api/products/stats-overview` → PUBLIC, returns `{ total: 4155, hotProducts, avgScore, topScore, categoryCount, newThisWeek }`. USE THIS for live count.
+- `/api/products/todays-picks?limit=12` → PUBLIC, returns `{ picks: [{ id, product_title, price_aud, sold_count, winning_score, image_url, category, ... }] }`. USE THIS for hero cycle + live demo + micro-demos.
+- `/api/products/stats-categories?limit=6` → PUBLIC, returns category leaderboard. USE for MicroCategoryLeaders.
+- `/api/products/tab-counts`, `/api/products/opportunities` — PUBLIC, available if needed.
+- `/api/products/top20` was broken (select `product_url` column doesn't exist) — FIXED to `aliexpress_url`.
+
+### Milestone 3 — Phase A shipped
+- Added `client/src/lib/useLandingData.ts` — shared hook, 15-min in-memory cache, single fetch across all landing sections, public endpoints only, image proxy helper `proxiedImage()`.
+- Hero: cycles 6 live products fetched from `/todays-picks`, falls back to 3 hardcoded when fetch fails. Real images route through image proxy. Dashboard count-ups reflect real order counts. AI Brief typewriter shows real category.
+- Hero stats row: "60M+ AliExpress listings sourced · {live total}+ scored & ranked · Refreshed every 6 hours".
+- LiveDemo: 8 rows from live data, rows 4-8 blurred behind sign-up gate. Tagline: "Sourced from tens of millions of AliExpress listings. Scored by Trend Velocity. Refreshed every 6 hours."
+- SocialProofBar: live stat — total scored from API, top-5 order sum live, "60M+ listings scanned".
+
+### Milestone 4 — Phase C shipped (micro-demos)
+Added `client/src/components/landing/micro/index.tsx` — 5 micro-demos:
+- MicroOrderTicker — marquee of live product titles + orders, between Hero and SocialProof.
+- MicroSparklineRow — 5 live sparklines between HowItWorks and LiveDemo.
+- MicroMarketPulse — AU/US/UK bars pulsing every 4s between LiveDemo and Features.
+- MicroCategoryLeaders — live top-3 categories between Features and Academy.
+- MicroSignalCard — rotating product signal between Academy and Testimonials.
+All respect `prefers-reduced-motion`. All use shared hook (no extra fetches).
+
+### Milestone 5 — Phase B shipped (copy rewrite)
+- Hero sub: "We search tens of millions of AliExpress listings. You see the few thousand worth shipping — ranked by order velocity across AU, US and UK, refreshed every 6 hours."
+- Features row 1: "Tens of millions sourced. Only the top 0.01% scored."
+- FinalCTA: AU-operator voice — "You're not going to beat the operator who started 30 days ago. You are going to beat the 10,000 people still looking at the same 200 products everyone else mentions."
+- Ban-list grep: 0 hits (game-changer/revolutionary/unlock/next-level/unleash/supercharge/cutting-edge/world-class/best-in-class/seamless experience/synergy).
+- Competitor grep: 0 hits.
+- SEO description updated.
+
+### Phase A/B/C preflight
+- `pnpm check` — 0 TS errors (also fixed pre-existing `server/lib/claudeWrap.ts` + `daily-brief.ts` TS errors that were blocking master).
+- `pnpm build` — SUCCESS. No ui-vendor/chart-vendor/motion-vendor/data-vendor chunks. Home bundle unchanged size class.
+

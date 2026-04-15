@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from '../lib/claudeWrap';
 
 import { expandStoreBrief } from '../lib/website-api';
 import { requireSubscription } from '../middleware/requireSubscription';
@@ -379,10 +379,10 @@ Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
   ]
 }`;
 
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const msg = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
+    const msg = await callClaude({
+      feature: 'store_generation',
+      userId: (req as any).user?.userId,
+      maxTokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     });
 
