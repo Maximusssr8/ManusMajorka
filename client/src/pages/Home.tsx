@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
 import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
 import { StickyTrialBar } from '@/components/funnel/StickyTrialBar';
+import { HeroDemo } from '@/components/landing/HeroDemo';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -2646,56 +2647,20 @@ function TrustBar() {
   );
 }
 
-// ── Video placeholder ──────────────────────────────────────────────────────
+// ── Live animated walkthrough (HeroDemo — 5 panels, real API data) ─────────
 function VideoPreview() {
   return (
     <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px', background: '#0a0a0a' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
         <SectionHeader
-          eyebrow="Walkthrough"
+          eyebrow="Live walkthrough"
           line1="See Majorka"
           line2="in action."
-          description="A full product walkthrough is coming soon. Early-access members will be the first to see it."
+          description="Animated dashboard powered by real product data — watch the AI score, rank, and surface winners across 7 markets."
           align="center"
         />
-        <div style={{
-          maxWidth: 880,
-          margin: '0 auto',
-          background: T.bgSurface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 16,
-          aspectRatio: '16 / 9',
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          gap: 20,
-        }}>
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 60%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'relative',
-            width: 84, height: 84, borderRadius: '50%',
-            background: 'rgba(212,175,55,0.12)',
-            border: '2px solid rgba(212,175,55,0.4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{
-              width: 0, height: 0,
-              borderLeft: '22px solid #a5b4fc',
-              borderTop: '14px solid transparent',
-              borderBottom: '14px solid transparent',
-              marginLeft: 6,
-            }} />
-          </div>
-          <div style={{ position: 'relative', fontFamily: mono, fontSize: 13, color: T.textDim, letterSpacing: '0.03em' }}>
-            Product walkthrough coming soon — join to get early access
-          </div>
+        <div style={{ marginTop: 40 }}>
+          <HeroDemo />
         </div>
         <div style={{ marginTop: 28 }}>
           <Link href="/sign-up" style={{
@@ -2705,7 +2670,7 @@ function VideoPreview() {
             textDecoration: 'none',
             fontWeight: 500,
           }}>
-            Create a free account to explore the dashboard →
+            Create a free account to explore the live dashboard →
           </Link>
         </div>
       </div>
