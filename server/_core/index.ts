@@ -340,6 +340,8 @@ async function startServer() {
   app.use('/api/admin', adminApiRouter);
   const analyticsRouter = (await import('../routes/analytics')).default;
   app.use('/api/analytics', analyticsRouter);
+  const accountRouter = (await import('../routes/account')).default;
+  app.use('/api/account', accountRouter);
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
   const apifySearchRouter = (await import('../routes/apify-search')).default;
