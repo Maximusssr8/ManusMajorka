@@ -798,6 +798,32 @@ function useLiveProducts() {
   return { products, total: stats?.total ?? 3715 };
 }
 
+// Phase 3 F3 — live-demo velocity counter
+function ViewerCounter() {
+  const [n, setN] = useState(27);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const id = window.setInterval(() => {
+      setN(() => 15 + Math.floor(Math.random() * 26));
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      marginTop: 10,
+      fontFamily: F.body, fontSize: 13, color: LT.textMute,
+    }}>
+      <span style={{
+        width: 6, height: 6, borderRadius: '50%', background: LT.success,
+        animation: 'mjLivePulse 1.4s ease-in-out infinite',
+      }} />
+      <span style={{ fontFamily: F.mono, color: LT.text, fontWeight: 600 }}>{n}</span>
+      {' '}people viewed this shortlist today
+    </div>
+  );
+}
+
 function LiveDemo() {
   const { products, total } = useLiveProducts();
   const reduced = usePrefersReducedMotion();
@@ -819,6 +845,7 @@ function LiveDemo() {
           </span>
         </div>
         <Sub>Sourced from tens of millions of AliExpress listings. Scored by Trend Velocity. Refreshed every 6 hours.</Sub>
+        <ViewerCounter />
       </FadeUp>
 
       <div style={{
@@ -1383,6 +1410,20 @@ function AcademySection() {
           </div>
         </FadeUp>
       </div>
+
+      {/* Phase 4 — Academy → Pricing transition line */}
+      <FadeUp>
+        <div style={{
+          marginTop: S.xl, padding: `${S.md}px 0`,
+          borderTop: `1px solid ${LT.border}`,
+          fontFamily: F.display, fontSize: 22, fontWeight: 600,
+          color: LT.text, textAlign: 'center', lineHeight: 1.4,
+          maxWidth: '60ch', marginLeft: 'auto', marginRight: 'auto',
+        }}>
+          You now know the framework.{' '}
+          <span style={{ color: LT.gold }}>Here&apos;s the tool that executes it automatically.</span>
+        </div>
+      </FadeUp>
     </Section>
   );
 }
@@ -1531,6 +1572,46 @@ function TrustSignals() {
           <span key={l} style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, fontWeight: 500 }}>{l}</span>
         ))}
       </div>
+
+      {/* Phase 2 Layer 5 — comparison table */}
+      <FadeUp>
+        <div style={{
+          marginTop: S.xl,
+          padding: S.md,
+          background: LT.bgCard, border: `1px solid ${LT.border}`, borderRadius: R.card,
+        }}>
+          <div style={{
+            fontFamily: F.mono, fontSize: 11, color: LT.gold,
+            letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: S.sm,
+          }}>Manual research vs Majorka</div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: F.body, fontSize: 14, minWidth: 560 }}>
+              <thead>
+                <tr style={{ background: LT.bgElevated }}>
+                  <th style={{ textAlign: 'left', padding: 12, color: LT.textMute, borderBottom: `1px solid ${LT.border}` }}>Task</th>
+                  <th style={{ padding: 12, color: LT.textMute, borderBottom: `1px solid ${LT.border}`, textAlign: 'center' }}>Doing it manually</th>
+                  <th style={{ padding: 12, color: LT.gold, borderBottom: `1px solid ${LT.border}`, textAlign: 'center' }}>With Majorka</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Find a product with real velocity', '4–8 hours scrolling', '5 minutes, scored & ranked'],
+                  ['Validate AU / US / UK demand', 'Guess from TikTok views', 'Live split, 3 markets'],
+                  ['Write a brief (audience, angle, hook)', 'Half a day', '3 seconds'],
+                  ['Ad copy — 4 formats', 'Hire a copywriter', 'One click'],
+                  ['Ship a Shopify-ready store', '1–2 weekends', 'Under an hour'],
+                ].map((row) => (
+                  <tr key={row[0]} style={{ borderBottom: `1px solid ${LT.border}` }}>
+                    <td style={{ padding: 12, color: LT.text }}>{row[0]}</td>
+                    <td style={{ padding: 12, color: LT.textMute, textAlign: 'center' }}>{row[1]}</td>
+                    <td style={{ padding: 12, color: LT.text, textAlign: 'center', fontWeight: 600 }}>{row[2]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </FadeUp>
     </Section>
   );
 }
@@ -1558,10 +1639,10 @@ function Pricing() {
   const tiers = [
     {
       name: 'Builder',
-      tagline: 'For the first 3 winning products',
+      tagline: 'For dropshippers starting out',
       priceMonthly: 99, priceAnnual: 79,
       highlight: false,
-      ctaLabel: 'Start with Builder',
+      ctaLabel: 'Start Free Trial',
       features: [
         'Full product database (4,000+ tracked)',
         'Live AU / US / UK data',
@@ -1573,7 +1654,7 @@ function Pricing() {
     },
     {
       name: 'Scale',
-      tagline: 'For operators running multiple stores',
+      tagline: 'For dropshippers scaling to 6 figures',
       priceMonthly: 199, priceAnnual: 159,
       highlight: true,
       ctaLabel: 'Start 7-day free trial →',
@@ -1593,8 +1674,22 @@ function Pricing() {
     <Section id="pricing">
       <FadeUp>
         <Overline>Pricing</Overline>
-        <H2>Simple pricing. Cancel anytime.</H2>
-        <Sub style={{ marginTop: S.sm }}>Start with a 7-day free trial. No credit card required.</Sub>
+        <H2>One subscription. Everything you need.</H2>
+        <Sub style={{ marginTop: S.sm }}>Start with 7 days free. No card required. Cancel anytime.</Sub>
+
+        {/* Value-anchoring block — phase 3 psychological anchoring */}
+        <div style={{
+          marginTop: S.md, padding: S.md,
+          background: LT.bgCard, border: `1px solid ${LT.border}`, borderRadius: R.card,
+          display: 'grid', gap: 6,
+          fontFamily: F.body, fontSize: 14, color: LT.textMute, lineHeight: 1.6,
+          maxWidth: 640,
+        }}>
+          <div style={{ color: LT.text, fontWeight: 600 }}>The maths are simple:</div>
+          <div>Average successful product: <span style={{ fontFamily: F.mono, color: LT.text }}>$3,000–15,000 AUD/month</span> net profit.</div>
+          <div>Majorka Scale plan: <span style={{ fontFamily: F.mono, color: LT.text }}>$159/mo</span> (annual).</div>
+          <div>ROI from first winning product: <span style={{ fontFamily: F.mono, color: LT.success }}>10–100×</span> your subscription cost.</div>
+        </div>
 
         <div style={{
           marginTop: S.md,
@@ -1775,6 +1870,10 @@ function FAQ() {
     {
       q: 'Can I cancel anytime?',
       a: 'Yes. One click in settings, no questions, no retention calls. Prorated refunds for annual plans within 30 days of purchase, no questions asked.',
+    },
+    {
+      q: "What's the 30-day guarantee?",
+      a: 'If you use Majorka for 30 days and do not find at least one product worth launching, email support@majorka.io for a full refund. No fine print — we will issue it within 2 business days. Eligibility: first 30 days of your paid subscription, one refund per account.',
     },
   ];
   return (

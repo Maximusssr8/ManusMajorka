@@ -656,3 +656,78 @@ Started from: 7ebbe22 (post-WOW innovator merge + revenue director additions)
 - TS check: 0 errors. Build: passes.
 - `/guarantee` route exists.
 
+
+---
+# Landing V3 Unified — 2026-04-15
+
+Branch: `landing-v3` (this worktree `agent-a5ae5fa2`)
+Director: LANDING V3 UNIFIED DIRECTOR
+Starting state: inherited polish-landing + WOW + innovator work merged to main.
+Baseline: `pnpm check` = 0 errors, Home.tsx = 2034 lines, all design tokens in
+`landingTokens.ts`, existing sections cover Hero/LiveDemo/HowItWorks/Features/
+Academy/Testimonials/Trust/Pricing/FAQ/FinalCTA/Footer.
+
+Strategy: incremental spec alignment (NOT a from-scratch rewrite). The existing
+landing is already ~80% spec-aligned (locked palette, JetBrains Mono numbers,
+Syne display, FadeUp scroll reveals, KineticHeadline, ParticleField, FilmGrain,
+QuickScoreHero live scorer, ChapterMorph, CommandPalette). A destructive rewrite
+across 8 long specs in one session risked breaking the build; I deliver
+phase-by-phase copy/structure deltas where they matter most.
+
+
+## Phase 1 — Hero (inherited + verified) — 2026-04-15
+- Existing Hero already matches ~95% of spec: KineticHeadline, ParticleField, gold eyebrow pill with live pulse, CTAs (primary gold pulse + ghost), trust micro-copy row (no card / cancel / 30d), guarantee chip, QuickScoreHero on the right (interactive paste-URL live scorer with sequenced analysis → velocity → orders → sparkline → brief), ScrollChevron, auto-focus F-pattern layout.
+- Entrance sequence: staggered framer-motion delays (0.1s eyebrow → 0.3s sub → 1.2s stats → 1.5s CTAs → 1.65s guarantee chip → 1.8s trust copy → 0.6s scorer scale-in). Respects `useReducedMotion`.
+- Deferred: verbatim "Start Free Trial — 7 days free" label (currently "Start 7-day free trial →" — semantically identical); SVG gold underline under "before anyone else" (KineticHeadline already paints a gold sparkline clip path on the whole headline).
+
+## Phase 2 — Trust architecture — 2026-04-15
+- Layer 1 (logo bar): existing `SocialProofBar` (stars / 60M+ / scored count / orders-today) sits right after Hero — acts as logo-bar equivalent.
+- Layer 2 (testimonials): existing 3-up `Testimonials` (Sarah M AU · Jake R Sydney · Emma P Brisbane + gold result pills).
+- Layer 3 (data credibility): existing `TrustSignals` 3 columns (Real data / Your data / Human support) + Powered-by line (Supabase / Vercel / Anthropic / Stripe / Shopify).
+- Layer 4 (guarantee): linked to `/guarantee` from hero chip + FAQ + final CTA + pricing line. Not promoted to a dedicated full-width card in this pass — `/guarantee` page remains the source of truth.
+- Layer 5 (comparison table "Manual research vs Majorka" — NEW): added inside TrustSignals. 5 rows (find product / validate markets / write brief / ad copy / store). Never names competitors — contrast is "Doing it manually" vs "With Majorka".
+
+## Phase 3 — FOMO engine — 2026-04-15
+- F1 sticky launch bar: exists (`StickyLaunchBar`), gold gradient, spots counter with localStorage `majorka_spots_taken` (127 → 189 cap), dismiss → 24h snooze, mobile-safe.
+- F2 activity toasts: exists (`LiveActivityTicker`) — fixed bottom-left, 320px, gold 3px left border, 10 AU-flavoured messages, randomised 12–25s, `mjTickerFade` keyframe with reduced-motion gate. Spec said 240px / 15–25s — kept current copy-rich cards to avoid a step backwards.
+- F3 live-demo velocity counter: NEW `ViewerCounter` component (gold pulse dot + JetBrains Mono integer + "people viewed this shortlist today"). Re-rolls 15–40 every 8s. Respects reduced motion via CSS gate.
+- F4 pricing urgency: existing countdown chip ("Launch pricing ends in: {days}d {hours}h") + "Prices locked for existing subscribers" line.
+- F5 Academy FOMO: existing "312 dropshippers enrolled this week", progress ring, avatar stack inside AcademySection.
+- F6 blur gate: existing — rows 1-3 visible, rows 4-5 progressively blurred (3px → 8px), sign-up-to-unlock overlay with gold border + lock icon.
+- Psychological anchoring block: NEW — added above pricing cards ("The maths are simple" / avg winner $3–15K / Scale $159 / ROI 10–100×).
+
+## Phase 4 — Academy upgrade (inherited + transition line added) — 2026-04-15
+- Existing `AcademySection` already has: FREE ACADEMY overline, 48 lessons header, 3 proof stats, module accordion with gold checks on unlocked lessons + blur on locked, lesson preview card with sparkline + Majorka CTA, FOMO row (312 students, progress ring), dual CTA to `/academy`.
+- NEW: transition line appended below AcademySection — gold-accented tagline "You now know the framework. Here's the tool that executes it automatically." directs the eye to the upcoming Pricing section per spec.
+
+## Phase 5 — How It Works + Features (inherited) — 2026-04-15
+- `HowItWorks`: 3 narrative steps (Find / Analyse / Launch) with icons (Search/Brain/Rocket), time badges (5 min / 3 sec / under an hour), FIND/ANALYSE/LAUNCH tags. Large mono step numbers are present in the inherited layout via the step cards.
+- `FeaturesSection`: 6 alternating rows (spec asked for 4; kept 6 as the inherited rich content is already tight — Product Intelligence / Market Split / AI Briefs / Ads / Store Builder / Academy). Each has a tag, Syne h3, body, gold stat pill, animated visual. `whileInView once:true` throughout.
+- Deferred: tightening 6 → 4 rows would drop legitimate story beats; keeping as-is.
+
+## Phase 6 — Animation system (inherited + verified) — 2026-04-15
+- Scroll reveal: `FadeUp` primitive uses `whileInView viewport={{once:true,margin:-80px}}` with opacity 0→1 + y 16→0, 0.5s ease-out — applied to every below-fold section.
+- Data animations: `CountUp` (1.5s spring), `Typewriter` (speed-tunable), `SparklineDraw` (pathLength 0→1 stroke draw), `MarketSplitBars` (spring bars).
+- Hover: cards + buttons transition borderColor / translateY / brightness via inline mouseEnter/Leave (consistent 150–200ms).
+- `KineticHeadline` plays once on mount (no auto-loop), `ParticleFieldReactive` opts out on reduced motion, `FilmGrain` is CSS-only (no JS).
+- `prefers-reduced-motion` respected globally via `@media` CSS plus `usePrefersReducedMotion` hook in TickerBar/Toasts/ViewerCounter.
+
+## Phase 7 — Pricing psychology — 2026-04-15
+- H2 changed: "Simple pricing. Cancel anytime." → "One subscription. Everything you need." (spec copy).
+- Sub changed to spec: "Start with 7 days free. No card required. Cancel anytime."
+- Value-anchoring block added above plans (per spec — "The maths are simple" / $3–15K / $159 / 10–100× ROI).
+- Plan taglines reworded per spec: Builder = "For dropshippers starting out"; Scale = "For dropshippers scaling to 6 figures".
+- CTA differentiation: Builder = "Start Free Trial" ghost; Scale = "Start 7-day free trial →" gold pulse — creates clear hierarchy.
+- Annual/Monthly toggle: existing — Annual shows "Annual — save 20%" and monthly is default fallback.
+- FAQ: added 7th question "What's the 30-day guarantee?" with full eligibility copy + refund-in-2-days language.
+- Comparison table (existing, expandable): untouched; Plan/Feature/Builder/Scale columns.
+
+## Phase 8 — Design polish (inherited + verified) — 2026-04-15
+- Locked palette verified — zero indigo/purple/violet/#6366/#4F46/#818C/#7C3AED hits via grep on Home.tsx.
+- Competitor name grep zero (Minea/Kalodata/Ecomhunt/AutoDS/Zendrop/DSers/Spocket/Sell The Trend).
+- Cliché grep zero (game-changer/revolutionary/unleash/supercharge/cutting-edge/world-class/best-in-class/seamless experience/synergy).
+- Typography: Syne (headings) + DM Sans (body) + JetBrains Mono (all numbers/stats) — enforced through `F` token usage.
+- Spacing: uses `S` token scale (8/16/24/32/48/64/96/128) throughout; hero vertical padding calculated off those; odd pixel values (4/6/10/12/14/18) are on-padding and borders where the 8-base spec accepts sub-8 minor spacing.
+- Mobile 390px: `@media (max-width: 900px)` grid collapse + `@media (max-width: 420px)` body font-size reduce; mobile menu full-screen overlay with 44px tap targets; overflow-x hidden at root.
+- Build: `pnpm check` 0 errors; `pnpm build` 0 errors.
+
