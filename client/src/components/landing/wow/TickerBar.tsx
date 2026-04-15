@@ -41,9 +41,20 @@ function formatOrders(n: number): string {
   return String(n);
 }
 
+function formatAge(seconds: number): string {
+  if (seconds < 5) return 'just now';
+  if (seconds < 60) return `${seconds}s ago`;
+  const m = Math.floor(seconds / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  return `${h}h ago`;
+}
+
 export function TickerBar({ onSelect }: { onSelect?: (url: string) => void }) {
   const [items, setItems] = useState<TickerItem[]>([]);
   const [paused, setPaused] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
+  const [tick, setTick] = useState(0);
   const reduced = usePrefersReducedMotion();
   const trackRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,19 +62,79 @@ export function TickerBar({ onSelect }: { onSelect?: (url: string) => void }) {
     let alive = true;
     const run = async () => {
       const i = await fetchPicks();
-      if (alive) setItems(i);
+      if (alive) {
+        setItems(i);
+        if (i.length > 0) setLastUpdated(Date.now());
+      }
     };
     run();
     const id = window.setInterval(run, 15000);
     return () => { alive = false; window.clearInterval(id); };
   }, []);
 
+  // 1Hz tick to keep "updated Xs ago" fresh.
+  useEffect(() => {
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const ageLabel = lastUpdated
+    ? formatAge(Math.floor((Date.now() - lastUpdated) / 1000))
+    : null;
+  void tick; // tick triggers re-render so ageLabel recomputes
+
   const doubled = useMemo(() => [...items, ...items], [items]);
+
+  const liveBadge = (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '0 10px',
+        height: 22,
+        background: 'rgba(212,175,55,0.18)',
+        border: `1px solid ${LT.gold}`,
+        borderRadius: 4,
+        fontFamily: F.mono,
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: '0.12em',
+        color: LT.gold,
+        textTransform: 'uppercase',
+        flex: '0 0 auto',
+        marginRight: 12,
+      }}
+      title={ageLabel ? `Live ticker — updated ${ageLabel}` : 'Live ticker'}
+    >
+      <span style={{
+        width: 6, height: 6, borderRadius: 100, background: LT.gold,
+        animation: reduced ? undefined : 'mjTickerDot 1.4s ease-in-out infinite',
+      }} />
+      LIVE
+      {ageLabel && (
+        <span style={{
+          marginLeft: 4, color: LT.textMute, fontWeight: 500, letterSpacing: '0.04em',
+        }}>· {ageLabel}</span>
+      )}
+    </div>
+  );
 
   if (items.length === 0) {
     return (
       <div style={tickerWrap}>
-        <div style={{ ...inner, color: LT.textMute, fontFamily: F.mono, fontSize: 11 }}>Loading live product ticker…</div>
+        <div style={inner}>
+          {liveBadge}
+          <div style={{ color: LT.textMute, fontFamily: F.mono, fontSize: 11 }}>
+            Connecting to live product feed…
+          </div>
+        </div>
+        <style>{`
+          @keyframes mjTickerDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+          }
+        `}</style>
       </div>
     );
   }
@@ -71,7 +142,8 @@ export function TickerBar({ onSelect }: { onSelect?: (url: string) => void }) {
   if (reduced) {
     return (
       <div style={tickerWrap}>
-        <div style={{ ...inner, display: 'grid', gridAutoFlow: 'column', gap: 24, overflow: 'hidden' }}>
+        <div style={{ ...inner, display: 'flex', gap: 24, overflow: 'hidden' }}>
+          {liveBadge}
           {items.slice(0, 6).map((it) => (
             <Pill key={it.id} item={it} onSelect={onSelect} />
           ))}
@@ -85,23 +157,26 @@ export function TickerBar({ onSelect }: { onSelect?: (url: string) => void }) {
       style={tickerWrap}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      aria-label="Live product ticker"
+      aria-label={`Live product ticker, updated ${ageLabel ?? 'just now'}`}
     >
       <div style={inner}>
-        <div
-          ref={trackRef}
-          style={{
-            display: 'flex',
-            gap: 40,
-            whiteSpace: 'nowrap',
-            animation: `mjTickerMarquee 90s linear infinite`,
-            animationPlayState: paused ? 'paused' : 'running',
-            willChange: 'transform',
-          }}
-        >
-          {doubled.map((it, i) => (
-            <Pill key={`${it.id}-${i}`} item={it} onSelect={onSelect} />
-          ))}
+        {liveBadge}
+        <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+          <div
+            ref={trackRef}
+            style={{
+              display: 'flex',
+              gap: 40,
+              whiteSpace: 'nowrap',
+              animation: `mjTickerMarquee 90s linear infinite`,
+              animationPlayState: paused ? 'paused' : 'running',
+              willChange: 'transform',
+            }}
+          >
+            {doubled.map((it, i) => (
+              <Pill key={`${it.id}-${i}`} item={it} onSelect={onSelect} />
+            ))}
+          </div>
         </div>
       </div>
       <style>{`

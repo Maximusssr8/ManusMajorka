@@ -117,19 +117,20 @@ export function KineticHeadline({
             d={d}
             fill="none"
             stroke={gold ? LT.gold : LT.success}
-            strokeWidth={10}
+            strokeWidth={6}
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              animation: reduced ? undefined : 'mjKineticPulse 3.2s ease-in-out 1.4s infinite',
+              animation: reduced ? undefined : 'mjKineticPulse 4.5s ease-in-out 1.6s infinite',
+              opacity: 0.55,
             }}
           />
         </g>
       </svg>
       <style>{`
         @keyframes mjKineticPulse {
-          0%, 100% { opacity: 0.95; }
-          50% { opacity: 0.55; }
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 0.28; }
         }
       `}</style>
     </h1>
