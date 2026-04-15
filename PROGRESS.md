@@ -731,3 +731,23 @@ phase-by-phase copy/structure deltas where they matter most.
 - Mobile 390px: `@media (max-width: 900px)` grid collapse + `@media (max-width: 420px)` body font-size reduce; mobile menu full-screen overlay with 44px tap targets; overflow-x hidden at root.
 - Build: `pnpm check` 0 errors; `pnpm build` 0 errors.
 
+
+## 2026-04-15 — FINAL LAUNCH GATE (100/100)
+
+Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
+
+### Gates (all pass)
+- 17/17 routes 200: / /pricing /guarantee /academy /sign-in /app /app/products /app/ads-studio /app/store-builder /app/ai /app/academy /app/alerts /api/health /api/products/trending /api/products/top20 /api/stripe/webhook /api/public/quick-score
+- winning_products: 4,155 rows; 0 NULL images; 0 sold_count≤0
+- `/api/stripe/webhook` GET returns `{"status":"ok","endpoint":"stripe-webhook","accepts":"POST"}`
+- `/api/health` returns `{"status":"ok",...}`
+- Supabase /auth/v1/authorize 302→Google with `client_id=144988999022-ik2duah90jap44oits9qrmmrvikl4h8u` (Majorka Auth)
+- `pnpm check` 0 errors, `pnpm build` passes
+- `console.log` in `client/src` = 0; `indigo|purple|violet|#6366|#4F46` in `client/src` = 0; `sk_live|sk_test|whsec_|service_role` in `client/src` = 0
+- Headless Chrome desktop 1280 + mobile 390: 0 uncaught errors, mj-boot replaced, 313KB DOM
+
+### Shipped this final pass
+- `scripts/launch-gate-migration.sql` — idempotent catch-up: adds `pipeline_logs.{products_added,products_updated,products_rejected,finished_at,duration_ms,source_breakdown,error_message}` + creates `alerts` + `saved_stores` tables with RLS. Registered in `scripts/apply-migrations.ts`.
+- GET `/api/stripe/webhook` health handler (POST handler unchanged for actual Stripe events).
+- Stale comment references to "violet/purple/indigo" purged from `client/src/pages/app/Market.tsx` + `client/src/components/products/AuMoatPanels.tsx`.
+- Stripe key placeholders in `client/src/pages/WebsiteGenerator.tsx` genericised (`pk_…` / `sk_…`).
