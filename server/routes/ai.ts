@@ -296,6 +296,63 @@ Format: numbered list, one name per line, include a brief (3-word) tagline after
       });
       const result2 = message2.content[0].type === 'text' ? message2.content[0].text : '';
       return res.json({ result: result2 });
+    } else if (!tool && typeof req.body?.prompt === 'string' && req.body.prompt.trim().length > 0) {
+      // Generic brief / freeform path used by the Products drawer's AI Brief
+      // and other lightweight callers. Body shape: { system?, prompt, max_tokens? }.
+      // We never use tool_use here — just plain text completion.
+      const userPrompt: string = String(req.body.prompt);
+      const systemPrompt: string | undefined =
+        typeof req.body?.system === 'string' && req.body.system.trim().length > 0
+          ? String(req.body.system)
+          : undefined;
+      const requestedMax = Number(req.body?.max_tokens);
+      const maxTokens = Number.isFinite(requestedMax) && requestedMax > 0 && requestedMax <= 2000
+        ? Math.floor(requestedMax)
+        : 700;
+
+      try {
+        const message3 = await callClaude({
+          feature: 'ai_brief',
+          userId: (req as any).user?.userId,
+          maxTokens,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+        });
+        const text3 = message3.content[0]?.type === 'text' ? message3.content[0].text : '';
+        if (!text3) {
+          return res.status(200).json({
+            ok: false,
+            error: 'brief_generation_failed',
+            message: 'Brief generation failed. Try again.',
+            retryable: true,
+          });
+        }
+        return res.json({ ok: true, text: text3, result: text3 });
+      } catch (briefErr: unknown) {
+        const msg = briefErr instanceof Error ? briefErr.message : String(briefErr);
+        // Retry once with a stripped-down prompt and no system instruction
+        // when the failure smells like a tool-use schema problem.
+        if (/tool/i.test(msg)) {
+          try {
+            const retryMsg = await callClaude({
+              feature: 'ai_brief',
+              userId: (req as any).user?.userId,
+              maxTokens,
+              messages: [{ role: 'user', content: userPrompt }],
+            });
+            const retryText = retryMsg.content[0]?.type === 'text' ? retryMsg.content[0].text : '';
+            if (retryText) return res.json({ ok: true, text: retryText, result: retryText });
+          } catch {
+            /* fall through to friendly error */
+          }
+        }
+        return res.status(200).json({
+          ok: false,
+          error: 'brief_generation_failed',
+          message: 'Brief generation failed. Try again.',
+          retryable: true,
+        });
+      }
     } else {
       return res.status(400).json({ error: 'Unknown tool: ' + tool });
     }
