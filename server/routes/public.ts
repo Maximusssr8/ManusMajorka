@@ -150,16 +150,19 @@ router.get('/quick-score', claudeRateLimit, async (req: Request, res: Response) 
     }
 
     const aliId = extractAliId(rawUrl);
-    if (aliId) {
-      const sb = getSupabase();
-      // Match by either id column (text) or aliexpress_url containing the id.
-      const { data } = await sb
-        .from('winning_products')
-        .select('id,product_title,price_aud,sold_count,winning_score,image_url,aliexpress_url,category')
-        .or(`id.eq.${aliId},aliexpress_url.ilike.%${aliId}%`)
-        .limit(1);
-      if (data && data.length > 0) {
-        return res.json(realResult(data[0] as Record<string, unknown>, rawUrl));
+    if (aliId && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const sb = getSupabase();
+        const { data } = await sb
+          .from('winning_products')
+          .select('id,product_title,price_aud,sold_count,winning_score,image_url,aliexpress_url,category')
+          .or(`id.eq.${aliId},aliexpress_url.ilike.%${aliId}%`)
+          .limit(1);
+        if (data && data.length > 0) {
+          return res.json(realResult(data[0] as Record<string, unknown>, rawUrl));
+        }
+      } catch {
+        // Fall through to sampled path.
       }
     }
 
@@ -173,6 +176,9 @@ router.get('/quick-score', claudeRateLimit, async (req: Request, res: Response) 
 // Seed picks — 6 real scored products across the canonical demo categories.
 router.get('/quick-score/seeds', async (_req: Request, res: Response) => {
   try {
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return res.json({ picks: [] });
+    }
     const sb = getSupabase();
     const buckets = ['Pet', 'Kitchen', 'Home', 'Beauty', 'Fitness', 'Tech'];
     const picks: Array<{ id: string; title: string; image: string | null; category: string; url: string }> = [];
