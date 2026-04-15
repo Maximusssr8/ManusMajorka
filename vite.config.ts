@@ -58,10 +58,16 @@ export default defineConfig({
           // libraries keeps them naturally lazy-behind the Streamdown dynamic
           // import in Markdown.tsx.
 
-          // Recharts alone — dedicated chart chunk for pages that use it.
-          if (id.includes("/recharts/") || id.includes("/react-smooth/")) {
-            return "chart-vendor";
-          }
+          // NOTE: We intentionally do NOT group recharts/react-smooth into a
+          // "chart-vendor" chunk. Doing so caused Rollup to hoist the shared
+          // `_interopDefaultCompat` helper into chart-vendor, while
+          // react-vendor itself needs that helper to wrap React's CJS export
+          // (`const React = _interop(reactModule)`). Result: a chunk cycle
+          // react-vendor → chart-vendor → ui-vendor → react-vendor, which
+          // executed ui-vendor before react-vendor's exports were populated
+          // and crashed the boot with `undefined.forwardRef`. Letting Rollup
+          // auto-split recharts keeps the helper in react-vendor and breaks
+          // the cycle — recharts still ends up shared across pages that use it.
 
           // 3D / Three.js
           if (id.includes("three") || id.includes("@react-three")) {
