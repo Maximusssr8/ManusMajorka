@@ -624,3 +624,35 @@ Branch: `fix-ad-studio`
 ### Build
 - pnpm check: 0 errors
 - pnpm build: success
+# Landing Polish Pass — 2026-04-15 (post-WOW)
+
+Branch: `polish-landing` (worktree `agent-a68c7e2e`)
+Director: Landing Perfection
+Started from: 7ebbe22 (post-WOW innovator merge + revenue director additions)
+
+## Quality bar audit — issues found
+
+### Critical (must fix)
+1. **OG image broken** — `client/index.html` references `/og-image.png` (not present); only `og-image.svg` exists. Many social platforms (LinkedIn, Slack) reject SVG OG images → social previews show nothing.
+2. **JSON-LD invalid** — `SoftwareApplication` block has trailing comma after `description`, breaking the structured-data parser. Google sees zero rich result.
+3. **JSON-LD lies** — `FAQPage` cites "Pro plan $79", "10 searches/day", "5 AI credits per day", "TikTok Shop AU" — none match current product (Builder $99 / Scale $199 AUD, AU/US/UK markets). SEO trust hit + answer-engine misinformation.
+4. **Title says "7 Markets"** — body says AU/US/UK = 3 markets. Direct contradiction in the first 200 chars Google indexes.
+
+### High
+5. **Kinetic H1 sparkline misalignment** — SVG clip uses `font-size: H * 0.95 ≈ 133px` while the visible H1 is 64px. Clip glyphs cover a different region than the visible text, so the gold pulse appears outside the actual letterforms. Stroke 10 + 0.55–0.95 opacity competes with the headline. Tone + align.
+6. **Footer thin** — only 3 link cols, no Refund/Cookies, no contact email, no social. Doesn't read as a real company.
+7. **Pricing CTA hierarchy** — both tiers say "Start Free Trial" (identical) so Scale doesn't feel like the obvious choice.
+8. **Pricing fabricated claim** — "Most popular among 6-figure dropshippers" is invented. Replace with verifiable framing.
+9. **TickerBar lacks LIVE signaling** — empty state is "Loading…" with no pulse; no "updated Xs ago" timestamp.
+10. **Guarantee CTA orphan** — `🛡️ 30-day money-back...` is bare text under the CTA pair. Visually weak for a major trust anchor — make it a chip.
+
+### Medium
+11. **Hero legacy mockup** — ~80 lines of `display:none` dead code under the QuickScoreHero.
+12. **Footer copyright** — hardcoded 2026 — automate.
+
+### Cleared
+- No banned cliché phrases in `Home.tsx` (grep clean).
+- No competitor names in `Home.tsx` (grep clean).
+- TS check: 0 errors. Build: passes.
+- `/guarantee` route exists.
+

@@ -15,7 +15,7 @@ import { SEO } from '@/components/SEO';
 import { LT, F, S, R, SHADOW, MAX } from '@/lib/landingTokens';
 import {
   CountUp, Typewriter, SparklineDraw,
-  RevealWords, MarketSplitBars, ScrollChevron, FadeUp, usePrefersReducedMotion,
+  MarketSplitBars, ScrollChevron, FadeUp, usePrefersReducedMotion,
 } from '@/components/landing/primitives';
 import { ParticleFieldReactive } from '@/components/landing/wow/ParticleFieldReactive';
 import { FilmGrain } from '@/components/landing/wow/FilmGrain';
@@ -24,7 +24,7 @@ import { KineticHeadline } from '@/components/landing/wow/KineticHeadline';
 import { QuickScoreHero } from '@/components/landing/wow/QuickScoreHero';
 import { ChapterMorph } from '@/components/landing/wow/ChapterMorph';
 import { CommandPalettePreview } from '@/components/landing/wow/CommandPalettePreview';
-import { useLandingData, proxiedImage, type LandingProduct } from '@/lib/useLandingData';
+import { useLandingData, type LandingProduct } from '@/lib/useLandingData';
 import {
   MicroOrderTicker, MicroSparklineRow, MicroMarketPulse,
   MicroCategoryLeaders, MicroSignalCard,
@@ -492,84 +492,12 @@ function Nav({ topOffset }: { topOffset: number }) {
 }
 
 // ── Hero ────────────────────────────────────────────────────────────────────
-type DashProduct = {
-  title: string;
-  image: string;
-  orders: number;
-  velocity: number;
-  split: { label: string; pct: number }[];
-  sparkline: number[];
-  audience: string;
-};
-
-const HERO_PRODUCTS: DashProduct[] = [
-  {
-    title: 'LED Scalp Massager Pro',
-    image: 'https://ae01.alicdn.com/kf/Sed82b9aaacfb47cfa0e3b8f9d4c9e7e8c.jpg',
-    orders: 231847,
-    velocity: 94,
-    split: [{ label: 'AU', pct: 42 }, { label: 'US', pct: 35 }, { label: 'UK', pct: 23 }],
-    sparkline: [12, 18, 22, 30, 36, 44, 58, 72, 88, 94],
-    audience: '→ Target: Pet owners 25-44 in AU who impulse buy on TikTok',
-  },
-  {
-    title: 'Smart Jar Opener',
-    image: 'https://ae01.alicdn.com/kf/Sed82b9aa0cfb47cfa0e3b8f9d4c9e7e8d.jpg',
-    orders: 184203,
-    velocity: 87,
-    split: [{ label: 'AU', pct: 38 }, { label: 'US', pct: 44 }, { label: 'UK', pct: 18 }],
-    sparkline: [10, 14, 19, 24, 32, 40, 52, 66, 78, 87],
-    audience: '→ Target: Home cooks 35-64 across AU, US kitchen audiences',
-  },
-  {
-    title: 'Under-Bed Storage Modular',
-    image: 'https://ae01.alicdn.com/kf/Sef82b9aaacfb47cfa0e3b8f9d4c9e7e8e.jpg',
-    orders: 98462,
-    velocity: 81,
-    split: [{ label: 'AU', pct: 48 }, { label: 'US', pct: 30 }, { label: 'UK', pct: 22 }],
-    sparkline: [8, 12, 16, 22, 30, 38, 48, 58, 70, 81],
-    audience: '→ Target: Renters 22-38 in AU/UK who buy on Instagram Reels',
-  },
-];
-
+// Live interactive scorer (QuickScoreHero) is the primary signal.
+// Legacy hardcoded HERO_PRODUCTS dashboard mockup removed in polish pass —
+// see git history for the original cycling mock.
 function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
   const reduced = useReducedMotion();
-  const { products: liveProducts, stats } = useLandingData();
-  const [productIdx, setProductIdx] = useState(0);
-  const [typewriterKey, setTypewriterKey] = useState(0);
-  // Suppress noisy lints for legacy dashProducts path kept for fallback reference.
-  void productIdx; void typewriterKey; void setProductIdx; void setTypewriterKey;
-
-  // Merge live products into dashboard shape; fall back to hardcoded if fetch failed/slow.
-  const dashProducts: DashProduct[] = useMemo(() => {
-    if (liveProducts.length >= 3) {
-      return liveProducts.slice(0, 6).map((p, i) => {
-        const base = HERO_PRODUCTS[i % HERO_PRODUCTS.length];
-        const velocity = Math.max(60, Math.min(99, p.score || 90));
-        return {
-          title: p.title.length > 48 ? p.title.slice(0, 45) + '...' : p.title,
-          image: p.image,
-          orders: p.orders,
-          velocity,
-          split: base.split,
-          sparkline: base.sparkline.map((v) => Math.round(v * (velocity / 94))),
-          audience: `→ ${p.category || 'Multi-market'} · top 0.01% by order velocity`,
-        };
-      });
-    }
-    return HERO_PRODUCTS;
-  }, [liveProducts]);
-
-  useEffect(() => {
-    if (reduced) return;
-    const id = window.setInterval(() => {
-      setProductIdx((i) => (i + 1) % dashProducts.length);
-      setTypewriterKey((k) => k + 1);
-    }, 8000);
-    return () => window.clearInterval(id);
-  }, [reduced, dashProducts.length]);
-
-  const p = dashProducts[productIdx % dashProducts.length];
+  const { stats } = useLandingData();
   const trackedCount = stats?.total ?? 0;
 
   return (
@@ -671,16 +599,27 @@ function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
             animate={reduced ? undefined : { opacity: 1 }}
             transition={{ delay: 1.65, duration: 0.5 }}
             style={{
-              display: 'inline-block',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
               fontFamily: F.body,
               fontSize: 13,
-              color: LT.textMute,
+              fontWeight: 500,
+              color: LT.gold,
               textDecoration: 'none',
+              padding: '8px 14px',
+              background: LT.goldTint,
+              border: `1px solid ${LT.goldTint}`,
+              borderRadius: R.badge,
               marginBottom: S.sm,
               lineHeight: 1,
+              transition: 'border-color 150ms ease',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = LT.gold; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = LT.goldTint; }}
           >
-            🛡️ 30-day money-back guarantee if you don't find a winning product
+            <ShieldCheck size={14} />
+            30-day money-back guarantee — read the promise
           </motion.a>
 
           <motion.div
@@ -713,84 +652,6 @@ function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
         >
           <QuickScoreHero externalUrl={tickerUrl ?? null} />
         </motion.div>
-        {/* Legacy mockup block below kept wrapped in an inert div so surrounding JSX balances.
-            Hidden from visitors — the live scorer replaces it as the primary signal. */}
-        <div style={{ display: 'none' }} aria-hidden="true">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: S.sm }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: R.image,
-              background: LT.bgElevated, border: `1px solid ${LT.border}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
-            }}>
-              {p.image ? (
-                <img
-                  src={proxiedImage(p.image)}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  loading="lazy"
-                />
-              ) : (
-                <Flame size={24} color={LT.gold} />
-              )}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: F.display, fontSize: 16, fontWeight: 700, color: LT.text, marginBottom: 2 }}>
-                {p.title}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  fontFamily: F.body, fontSize: 11, padding: '2px 8px',
-                  background: 'rgba(34,197,94,0.12)', color: LT.success,
-                  borderRadius: R.badge, fontWeight: 600,
-                }}>
-                  <span style={{
-                    width: 6, height: 6, borderRadius: '50%', background: LT.success,
-                    animation: reduced ? undefined : 'mjLivePulse 1.4s ease-in-out infinite',
-                  }} />LIVE
-                </span>
-                <span style={{ fontFamily: F.mono, fontSize: 11, color: LT.textDim }}>Updated 4m ago</span>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: S.sm, marginBottom: S.sm }}>
-            <div>
-              <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Trend Velocity</div>
-              <div key={`v-${productIdx}`} style={{ fontFamily: F.mono, fontSize: 32, fontWeight: 700, color: LT.success }}>
-                <CountUp to={p.velocity} duration={1500} startOnView={false} />
-              </div>
-            </div>
-            <div>
-              <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Orders</div>
-              <div key={`o-${productIdx}`} style={{ fontFamily: F.mono, fontSize: 24, fontWeight: 700, color: LT.gold }}>
-                <CountUp to={p.orders} duration={2000} startOnView={false} />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: S.sm }}>
-            <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Market Split</div>
-            <MarketSplitBars key={`m-${productIdx}`} data={p.split} />
-          </div>
-
-          <div style={{ marginBottom: S.sm }}>
-            <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>30-day order trend</div>
-            <SparklineDraw key={`s-${productIdx}`} values={p.sparkline} width={340} height={54} color={LT.success} />
-          </div>
-
-          <div style={{
-            padding: 12,
-            background: LT.bgElevated,
-            border: `1px solid ${LT.border}`,
-            borderRadius: R.input,
-            fontFamily: F.mono, fontSize: 12, color: LT.textMute,
-            minHeight: 52,
-          }}>
-            <span style={{ color: LT.gold }}>AI Brief:</span>{' '}
-            <Typewriter key={typewriterKey} text={p.audience} speed={22} startDelay={600} />
-          </div>
-        </div>
       </div>
 
       <ScrollChevron />
@@ -1700,7 +1561,7 @@ function Pricing() {
       tagline: 'For the first 3 winning products',
       priceMonthly: 99, priceAnnual: 79,
       highlight: false,
-      ctaLabel: 'Start Free Trial',
+      ctaLabel: 'Start with Builder',
       features: [
         'Full product database (4,000+ tracked)',
         'Live AU / US / UK data',
@@ -1715,7 +1576,7 @@ function Pricing() {
       tagline: 'For operators running multiple stores',
       priceMonthly: 199, priceAnnual: 159,
       highlight: true,
-      ctaLabel: 'Start Free Trial',
+      ctaLabel: 'Start 7-day free trial →',
       features: [
         'Everything in Builder',
         'Unlimited AI briefs',
@@ -1812,13 +1673,13 @@ function Pricing() {
                   ))}
                 </ul>
                 {t.highlight ? (
-                  <CtaPrimary href="/sign-up" style={{ width: '100%' }}>{t.ctaLabel}</CtaPrimary>
+                  <CtaPrimary href="/sign-up" pulse style={{ width: '100%' }}>{t.ctaLabel}</CtaPrimary>
                 ) : (
                   <CtaGhost href="/sign-up" style={{ width: '100%' }}>{t.ctaLabel}</CtaGhost>
                 )}
                 {t.highlight && (
                   <div style={{ marginTop: 10, fontFamily: F.body, fontSize: 12, color: LT.textDim, textAlign: 'center' }}>
-                    Most popular among 6-figure dropshippers
+                    Unlimited briefs · 5 stores · launch price locked for life
                   </div>
                 )}
               </div>
@@ -1834,7 +1695,10 @@ function Pricing() {
           display: 'flex', flexWrap: 'wrap', gap: S.md, justifyContent: 'space-around',
           fontFamily: F.body, fontSize: 13, color: LT.textMute,
         }}>
-          <span>🔒 30-day money-back guarantee</span>
+          <a href="/guarantee" style={{ color: LT.textMute, textDecoration: 'none' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+          >🛡️ 30-day money-back guarantee →</a>
           <span>Cancel anytime from your settings</span>
           <span>Prices locked for existing subscribers</span>
         </div>
@@ -1988,7 +1852,10 @@ function FinalCTA() {
             display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap',
             fontFamily: F.body, fontSize: 12, color: LT.textDim,
           }}>
-            <span>🔒 30-day money-back guarantee</span>
+            <a href="/guarantee" style={{ color: LT.textDim, textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textDim)}
+            >🛡️ 30-day money-back guarantee →</a>
             <span>Prices locked for existing subscribers</span>
           </div>
         </div>
@@ -1999,10 +1866,30 @@ function FinalCTA() {
 
 // ── Footer ─────────────────────────────────────────────────────────────────
 function Footer() {
+  const year = new Date().getFullYear();
   const cols = [
-    { title: 'Product', links: [['Features', '#features'], ['Pricing', '#pricing'], ['Academy', '/academy'], ['Blog', '/blog']] },
-    { title: 'Company', links: [['About', '/about'], ['Contact', '/contact'], ['Privacy', '/privacy'], ['Terms', '/terms']] },
-    { title: 'Account', links: [['Sign In', '/sign-in'], ['Sign Up', '/sign-up']] },
+    { title: 'Product', links: [
+      ['Features', '#features'],
+      ['Pricing', '#pricing'],
+      ['Academy', '/academy'],
+      ['Blog', '/blog'],
+      ['Changelog', '/changelog'],
+    ] },
+    { title: 'Company', links: [
+      ['About', '/about'],
+      ['Contact', 'mailto:support@majorka.io'],
+      ['Guarantee', '/guarantee'],
+    ] },
+    { title: 'Legal', links: [
+      ['Privacy policy', '/privacy'],
+      ['Terms of service', '/terms'],
+      ['Refund policy', '/guarantee'],
+      ['Cookie policy', '/privacy#cookies'],
+    ] },
+    { title: 'Account', links: [
+      ['Sign in', '/sign-in'],
+      ['Start free trial', '/sign-up'],
+    ] },
   ];
   return (
     <footer style={{
@@ -2013,12 +1900,29 @@ function Footer() {
       <div style={{
         maxWidth: MAX, margin: '0 auto',
         display: 'grid', gap: S.lg,
-        gridTemplateColumns: '1.6fr repeat(3, 1fr)',
+        gridTemplateColumns: '1.6fr repeat(4, 1fr)',
       }} className="mj-grid-two">
         <div>
           <div style={{ fontFamily: F.display, fontWeight: 800, fontSize: 22, color: LT.text, letterSpacing: '-0.03em' }}>majorka</div>
-          <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute, marginTop: 8, maxWidth: 320 }}>
-            AI product intelligence for Australian dropshippers. Built in Melbourne.
+          <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute, marginTop: 8, maxWidth: 320, lineHeight: 1.55 }}>
+            AI product intelligence for AU, US and UK dropshippers. Built in Melbourne by operators who actually ship.
+          </div>
+          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <a href="https://twitter.com/majorkaio" target="_blank" rel="noopener noreferrer" aria-label="Majorka on X / Twitter"
+              style={{ color: LT.textMute, textDecoration: 'none', fontFamily: F.mono, fontSize: 12 }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+            >X / Twitter</a>
+            <a href="https://tiktok.com/@majorkaio" target="_blank" rel="noopener noreferrer" aria-label="Majorka on TikTok"
+              style={{ color: LT.textMute, textDecoration: 'none', fontFamily: F.mono, fontSize: 12 }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+            >TikTok</a>
+            <a href="mailto:support@majorka.io" aria-label="Email Majorka support"
+              style={{ color: LT.textMute, textDecoration: 'none', fontFamily: F.mono, fontSize: 12 }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+            >Email</a>
           </div>
         </div>
         {cols.map(c => (
@@ -2030,7 +1934,7 @@ function Footer() {
             <div style={{ display: 'grid', gap: 8 }}>
               {c.links.map(([label, href]) => (
                 <a key={label} href={href} style={{
-                  fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none',
+                  fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none', minHeight: 24,
                 }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
                   onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
@@ -2041,14 +1945,20 @@ function Footer() {
         ))}
       </div>
       <div style={{
-        maxWidth: MAX, margin: '24px auto 0', paddingTop: 16,
+        maxWidth: MAX, margin: '32px auto 0', paddingTop: 16,
         borderTop: `1px solid ${LT.border}`,
         display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
         fontFamily: F.body, fontSize: 12, color: LT.textDim,
       }}>
-        <span>© 2026 Majorka. All rights reserved.</span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Globe size={12} /> Made in Melbourne, AU
+        <span>© {year} Majorka Pty Ltd. All rights reserved.</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <a href="mailto:support@majorka.io" style={{ color: LT.textDim, textDecoration: 'none' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = LT.textDim)}
+          >support@majorka.io</a>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Globe size={12} /> Made in Melbourne, AU
+          </span>
         </span>
       </div>
     </footer>
