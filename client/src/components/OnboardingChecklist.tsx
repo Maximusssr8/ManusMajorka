@@ -1,111 +1,127 @@
 /**
- * OnboardingChecklist — Supabase-backed checklist for new users.
- * Falls back to localStorage when not authenticated.
- * Disappears after all items are completed or user dismisses it.
+ * OnboardingChecklist — v3 schema (Engagement Director).
+ *
+ * Backed by /api/onboarding/me which returns:
+ *   { profile_complete, first_search, first_save, first_brief,
+ *     store_connected, completed_at, created_at }
+ *
+ * Hidden when ANY of:
+ *   - user signed up >14 days ago
+ *   - 3 or more steps already completed
+ *   - completed_at is set (server-side dismiss)
+ *   - locally dismissed via X button
  */
 
-import { ArrowRight, CheckCircle2, Circle, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { CheckCircle2, Circle, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
-import { getOnboardingState, type OnboardingStep } from '@/lib/onboarding';
+import { supabase } from '@/lib/supabase';
 
-const DISMISSED_KEY = 'majorka_onboarding_v2_dismissed';
+const DISMISSED_KEY = 'majorka_onboarding_v3_dismissed';
+const MAX_AGE_DAYS = 14;
+
+type FlagKey =
+  | 'profile_complete'
+  | 'first_search'
+  | 'first_save'
+  | 'first_brief'
+  | 'store_connected';
+
+interface OnboardingRow {
+  profile_complete: boolean;
+  first_search: boolean;
+  first_save: boolean;
+  first_brief: boolean;
+  store_connected: boolean;
+  completed_at: string | null;
+  created_at: string | null;
+}
 
 interface ChecklistItem {
-  id: OnboardingStep;
+  id: FlagKey;
   label: string;
-  description: string;
   path: string;
 }
 
 const ITEMS: ChecklistItem[] = [
-  {
-    id: 'scouted_product',
-    label: 'Scout your first product',
-    description: 'Find a winning product to sell',
-    path: '/app/winning-products',
-  },
-  {
-    id: 'generated_store',
-    label: 'Generate a store',
-    description: 'Build your Shopify store in minutes',
-    path: '/app/website-generator',
-  },
-  {
-    id: 'connected_shopify',
-    label: 'Connect Shopify',
-    description: 'Link your Shopify account',
-    path: '/app/website-generator',
-  },
-  {
-    id: 'pushed_to_shopify',
-    label: 'Launch to Shopify',
-    description: 'Push your store live',
-    path: '/app/website-generator',
-  },
+  { id: 'profile_complete', label: 'Pick your niche',     path: '/app/settings' },
+  { id: 'first_search',     label: 'Search for products', path: '/app/products' },
+  { id: 'first_save',       label: 'Save a product',      path: '/app/products' },
+  { id: 'first_brief',      label: 'Read a brief',        path: '/app/products' },
+  { id: 'store_connected',  label: 'Connect Shopify',     path: '/app/store-builder' },
 ];
+
+async function fetchOnboarding(): Promise<OnboardingRow | null> {
+  try {
+    const token = (await supabase.auth.getSession()).data.session?.access_token;
+    if (!token) return null;
+    const r = await fetch('/api/onboarding/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!r.ok) return null;
+    const j = (await r.json()) as { success: boolean; data: OnboardingRow | null };
+    return j.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function daysBetween(value: string | Date | null | undefined): number {
+  if (!value) return 0;
+  const ts = value instanceof Date ? value.getTime() : Date.parse(String(value));
+  if (!Number.isFinite(ts)) return 0;
+  return Math.floor((Date.now() - ts) / 86_400_000);
+}
 
 export default function OnboardingChecklist() {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
-  const [dismissed, setDismissed] = useState(true);
-  const [completed, setCompleted] = useState<Set<string>>(new Set());
-  const [showConfetti, setShowConfetti] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const [row, setRow] = useState<OnboardingRow | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [locallyDismissed, setLocallyDismissed] = useState<boolean>(() => {
+    try { return localStorage.getItem(DISMISSED_KEY) === '1'; } catch { return false; }
+  });
 
   useEffect(() => {
-    if (localStorage.getItem(DISMISSED_KEY)) return;
-
-    getOnboardingState(user?.id).then((state) => {
-      const done = new Set<string>();
-      for (const [key, val] of Object.entries(state)) {
-        if (val) done.add(key);
+    if (!isAuthenticated || locallyDismissed) {
+      setLoaded(true);
+      return;
+    }
+    let cancelled = false;
+    fetchOnboarding().then((r) => {
+      if (!cancelled) {
+        setRow(r);
+        setLoaded(true);
       }
-
-      if (done.size >= ITEMS.length) {
-        localStorage.setItem(DISMISSED_KEY, 'true');
-        return;
-      }
-
-      setCompleted(done);
-      setDismissed(false);
     });
-  }, [user?.id]);
+    return () => { cancelled = true; };
+  }, [isAuthenticated, locallyDismissed]);
 
-  // Poll for changes
-  useEffect(() => {
-    if (dismissed) return;
-    const interval = setInterval(() => {
-      getOnboardingState(user?.id).then((state) => {
-        const done = new Set<string>();
-        for (const [key, val] of Object.entries(state)) {
-          if (val) done.add(key);
-        }
-        if (done.size > completed.size) {
-          setCompleted(done);
-          if (done.size >= ITEMS.length) {
-            setShowConfetti(true);
-            setTimeout(() => {
-              setDismissed(true);
-              localStorage.setItem(DISMISSED_KEY, 'true');
-            }, 3000);
-          }
-        }
-      });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [dismissed, completed.size, user?.id]);
+  const completedCount = useMemo(() => {
+    if (!row) return 0;
+    return ITEMS.reduce((n, item) => n + (row[item.id] ? 1 : 0), 0);
+  }, [row]);
 
-  const handleDismiss = () => {
-    setDismissed(true);
-    localStorage.setItem(DISMISSED_KEY, 'true');
-  };
+  // Hard gates — hide when any condition is met.
+  const accountAgeDays = daysBetween((user?.createdAt as string | Date | undefined) ?? row?.created_at ?? null);
+  const tooOld         = accountAgeDays > MAX_AGE_DAYS;
+  const enoughDone     = completedCount >= 3;
+  const serverComplete = !!row?.completed_at;
 
-  if (dismissed) return null;
+  if (!loaded) return null;
+  if (!isAuthenticated) return null;
+  if (locallyDismissed) return null;
+  if (tooOld || enoughDone || serverComplete) return null;
+  if (!row) return null;
 
-  const completedCount = completed.size;
   const totalCount = ITEMS.length;
   const progress = (completedCount / totalCount) * 100;
+
+  function handleDismiss() {
+    try { localStorage.setItem(DISMISSED_KEY, '1'); } catch { /* */ }
+    setLocallyDismissed(true);
+  }
 
   return (
     <div
@@ -115,25 +131,6 @@ export default function OnboardingChecklist() {
         border: '1px solid rgba(212,175,55,0.12)',
       }}
     >
-      {/* Confetti effect */}
-      {showConfetti && (
-        <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center gap-4">
-          <span className="text-3xl animate-bounce" style={{ animationDelay: '0ms' }}>
-            {'\u{1F389}'}
-          </span>
-          <span
-            className="text-sm font-bold"
-            style={{ fontFamily: "'Syne', sans-serif", color: '#d4af37' }}
-          >
-            You're a power user!
-          </span>
-          <span className="text-3xl animate-bounce" style={{ animationDelay: '150ms' }}>
-            {'\u{1F389}'}
-          </span>
-        </div>
-      )}
-
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <h3
@@ -151,14 +148,21 @@ export default function OnboardingChecklist() {
         </div>
         <button
           onClick={handleDismiss}
-          className="w-6 h-6 rounded flex items-center justify-center"
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+          aria-label="Dismiss onboarding"
+          className="rounded flex items-center justify-center"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#9CA3AF',
+            minWidth: 44,
+            minHeight: 44,
+          }}
         >
-          <X size={12} />
+          <X size={14} />
         </button>
       </div>
 
-      {/* Progress bar */}
       <div
         className="w-full h-1.5 rounded-full overflow-hidden mb-4"
         style={{ background: 'rgba(255,255,255,0.03)' }}
@@ -167,34 +171,24 @@ export default function OnboardingChecklist() {
           className="h-full rounded-full transition-all duration-700"
           style={{
             width: `${progress}%`,
-            background:
-              progress === 100
-                ? 'linear-gradient(90deg, #10b981, #d4af37)'
-                : 'linear-gradient(90deg, #d4af37, #e5c158)',
+            background: 'linear-gradient(90deg, #d4af37, #e5c158)',
           }}
         />
       </div>
 
-      {/* Checklist items */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
         {ITEMS.map((item) => {
-          const done = completed.has(item.id);
+          const done = !!row[item.id];
           return (
             <button
               key={item.id}
               onClick={() => !done && setLocation(item.path)}
               className="flex items-center gap-2 rounded-lg px-3 py-2.5 transition-all text-left"
               style={{
-                background: done ? 'rgba(16,185,129,0.06)' : '#FAFAFA',
-                border: `1px solid ${done ? 'rgba(16,185,129,0.15)' : '#F9FAFB'}`,
+                background: done ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)'}`,
                 cursor: done ? 'default' : 'pointer',
                 opacity: done ? 0.7 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (!done) e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)';
-              }}
-              onMouseLeave={(e) => {
-                if (!done) e.currentTarget.style.borderColor = '#F9FAFB';
               }}
             >
               {done ? (
@@ -206,7 +200,7 @@ export default function OnboardingChecklist() {
                 <div
                   className="text-xs font-medium truncate"
                   style={{
-                    color: done ? '#10b981' : '#0A0A0A',
+                    color: done ? '#10b981' : '#F8FAFC',
                     textDecoration: done ? 'line-through' : 'none',
                   }}
                 >

@@ -577,3 +577,38 @@ preview-only deploy; rebase-and-merge coordination deferred to user.
 - Headless Chrome verify: zero uncaught errors, mj-boot replaced, all 7 WOW components present (FilmGrain, mj-chapter-sticky, mj-cmdk-chip, ticker, kinetic H1, particle field, quick-score hero), `/guarantee` link intact.
 - API gates: `GET /api/public/quick-score?url=…` returns sampled scoring payload (200), `GET /api/products/todays-picks?limit=3` serves real data.
 - All 4 directors (Revenue, Engagement, AU Moat, Landing Innovator) shipped this session. Manual actions list current — see entries above.
+
+## fix-dashboard director (agent-a8a737da) — 2026-04-15
+
+### Fix 1 — onboarding tracking
+- Mounted /api/onboarding (was unmounted, returning 404)
+- Rewrote trackOnboarding middleware: hooks res.on('finish'), no auth dependency, mounted globally
+- Tracks: first_search, first_save (lists/items, lists/, user/favourites), first_brief (brief, why-trending, daily-brief), profile_complete (settings save with niche), store_connected (shopify/connect|callback|install, store-builder/deploy)
+- Rewrote OnboardingChecklist to v3 schema (profile_complete/first_search/first_save/first_brief/store_connected)
+- Hard gates added: hidden when account >14d old OR completedCount >=3 OR completed_at set OR locally dismissed
+
+### Fix 2 — Hot Today vs Top Opportunities dedup
+- Added /api/dashboard/{hot-today,opportunities,combined} via computeDashboardSlice() helper with single source of truth
+- Hot Today: created_at >= NOW()-48h sorted by real_orders_count DESC limit 20, fallback to 7d
+- Opportunities: real_orders_count BETWEEN 5k-50k sorted by winning_score DESC limit 20, EXCLUDING Hot Today IDs (PostgREST .not('id','in',...) + client-side belt-and-braces)
+- Combined cache TTL 600s so /hot-today and /opportunities never disagree
+- Home.tsx Top Opportunities also dedupes locally against trendingNow IDs (defence-in-depth for current client behaviour)
+
+### Fix 3 — "101 products you might have missed"
+- Verified — existing SinceLastLogin.tsx renders proper cards with values + sub-text + working links. No dangling arrow case found.
+
+### Fix 4 — Greeting size
+- Reduced from text-4xl/5xl to Syne 28px inline with date caption (single horizontal row)
+
+### Fix 5 — Top Products scroll fade
+- Wrapped table in TopProductsScrollWrap: max-h 560px, scrollbar-hide
+- Bottom 40px linear-gradient(transparent → #080808 0.85)
+- "Scroll to see more" caption — opacity 1 → 0 (200ms) once scrollTop > 0
+- Tab a11y preserved (items remain in DOM flow)
+
+### Fix 6 — Stat card ghost charts
+- Audit found NO sparkline SVGs in stat cards; only decorative oversized icons (acceptable design element). No ghost charts to remove.
+
+### Build
+- pnpm check: 0 errors
+- pnpm build: success
