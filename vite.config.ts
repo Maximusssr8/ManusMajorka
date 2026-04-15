@@ -79,42 +79,37 @@ export default defineConfig({
             return "gsap-vendor";
           }
 
-          // Core React
+          // Core React + ALL React-adjacent libs in ONE chunk.
+          // Splitting React-dependent code into separate vendor chunks
+          // (ui-vendor, motion-vendor, data-vendor) repeatedly caused
+          // Rollup to hoist shared interop helpers (`_interopDefaultCompat`,
+          // React's CJS unwrap) into one of those chunks. react-vendor then
+          // had to import that chunk back, creating a runtime cycle:
+          // react-vendor → data-vendor → react-vendor, executing the
+          // dependent chunk before React's exports were populated and
+          // crashing boot with `undefined.createContext` / `forwardRef`.
+          // Bundling them together eliminates the cycle by construction.
           if (
             id.includes("/react/") ||
             id.includes("/react-dom/") ||
             id.includes("/scheduler/") ||
             id.includes("react-helmet-async") ||
-            id.includes("wouter")
-          ) {
-            return "react-vendor";
-          }
-
-          // Radix UI + lucide icons + cmdk — UI primitives
-          if (
+            id.includes("wouter") ||
             id.includes("@radix-ui") ||
             id.includes("lucide-react") ||
             id.includes("cmdk") ||
             id.includes("class-variance-authority") ||
             id.includes("clsx") ||
-            id.includes("tailwind-merge")
-          ) {
-            return "ui-vendor";
-          }
-
-          // Animation
-          if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils")) {
-            return "motion-vendor";
-          }
-
-          // Data layer
-          if (
+            id.includes("tailwind-merge") ||
+            id.includes("framer-motion") ||
+            id.includes("motion-dom") ||
+            id.includes("motion-utils") ||
             id.includes("@tanstack/react-query") ||
             id.includes("@trpc") ||
             id.includes("superjson") ||
             id.includes("zod")
           ) {
-            return "data-vendor";
+            return "react-vendor";
           }
 
           // Supabase
