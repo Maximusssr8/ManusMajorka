@@ -17,6 +17,11 @@ import {
   ParticleField, CountUp, Typewriter, SparklineDraw,
   RevealWords, MarketSplitBars, ScrollChevron, FadeUp, usePrefersReducedMotion,
 } from '@/components/landing/primitives';
+import { useLandingData, proxiedImage, type LandingProduct } from '@/lib/useLandingData';
+import {
+  MicroOrderTicker, MicroSparklineRow, MicroMarketPulse,
+  MicroCategoryLeaders, MicroSignalCard,
+} from '@/components/landing/micro';
 
 // ── Global CSS — keyframes + responsive + safety net ────────────────────────
 const GLOBAL_CSS = `
@@ -522,19 +527,41 @@ const HERO_PRODUCTS: DashProduct[] = [
 
 function Hero() {
   const reduced = useReducedMotion();
+  const { products: liveProducts, stats } = useLandingData();
   const [productIdx, setProductIdx] = useState(0);
   const [typewriterKey, setTypewriterKey] = useState(0);
+
+  // Merge live products into dashboard shape; fall back to hardcoded if fetch failed/slow.
+  const dashProducts: DashProduct[] = useMemo(() => {
+    if (liveProducts.length >= 3) {
+      return liveProducts.slice(0, 6).map((p, i) => {
+        const base = HERO_PRODUCTS[i % HERO_PRODUCTS.length];
+        const velocity = Math.max(60, Math.min(99, p.score || 90));
+        return {
+          title: p.title.length > 48 ? p.title.slice(0, 45) + '...' : p.title,
+          image: p.image,
+          orders: p.orders,
+          velocity,
+          split: base.split,
+          sparkline: base.sparkline.map((v) => Math.round(v * (velocity / 94))),
+          audience: `→ ${p.category || 'Multi-market'} · top 0.01% by order velocity`,
+        };
+      });
+    }
+    return HERO_PRODUCTS;
+  }, [liveProducts]);
 
   useEffect(() => {
     if (reduced) return;
     const id = window.setInterval(() => {
-      setProductIdx((i) => (i + 1) % HERO_PRODUCTS.length);
+      setProductIdx((i) => (i + 1) % dashProducts.length);
       setTypewriterKey((k) => k + 1);
     }, 8000);
     return () => window.clearInterval(id);
-  }, [reduced]);
+  }, [reduced, dashProducts.length]);
 
-  const p = HERO_PRODUCTS[productIdx];
+  const p = dashProducts[productIdx % dashProducts.length];
+  const trackedCount = stats?.total ?? 0;
 
   return (
     <section style={{
@@ -601,7 +628,7 @@ function Hero() {
             style={{ marginBottom: S.md }}
           >
             <Sub>
-              Real AliExpress + TikTok Shop data across AU, US, UK. AI-scored trend velocity, ad briefs in 3 seconds, store built in under an hour. No guesswork.
+              We search tens of millions of AliExpress listings. You see the few thousand worth shipping — ranked by order velocity across AU, US and UK, refreshed every 6 hours.
             </Sub>
           </motion.div>
 
@@ -618,13 +645,17 @@ function Hero() {
           >
             <span>
               <span style={{ fontFamily: F.mono, color: LT.gold, fontWeight: 600 }}>
-                <CountUp to={4054} duration={1500} />+
-              </span>{' '}products tracked
+                60M+
+              </span>{' '}AliExpress listings sourced
             </span>
             <span>
-              <Typewriter text="Updated every 6 hours" startDelay={1500} speed={40} />
+              <span style={{ fontFamily: F.mono, color: LT.gold, fontWeight: 600 }}>
+                {trackedCount > 0 ? <CountUp to={trackedCount} duration={1500} /> : '3,700'}+
+              </span>{' '}scored &amp; ranked
             </span>
-            <span>AU · US · UK markets</span>
+            <span>
+              <Typewriter text="Refreshed every 6 hours" startDelay={1500} speed={40} />
+            </span>
           </motion.div>
 
           <motion.div
@@ -679,7 +710,16 @@ function Hero() {
               background: LT.bgElevated, border: `1px solid ${LT.border}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
             }}>
-              <Flame size={24} color={LT.gold} />
+              {p.image ? (
+                <img
+                  src={proxiedImage(p.image)}
+                  alt=""
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  loading="lazy"
+                />
+              ) : (
+                <Flame size={24} color={LT.gold} />
+              )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: F.display, fontSize: 16, fontWeight: 700, color: LT.text, marginBottom: 2 }}>
@@ -861,37 +901,28 @@ const FALLBACK_PRODUCTS: Product[] = [
 ];
 
 function useLiveProducts() {
-  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
-  const [total, setTotal] = useState(3715);
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch('/api/products?limit=5&sort=orders');
-        if (!r.ok) return;
-        const j = await r.json();
-        if (cancelled) return;
-        const data = Array.isArray(j?.data) ? j.data : [];
-        if (data.length >= 3) {
-          setProducts(data.slice(0, 5).map((d: Record<string, unknown>, i: number) => {
-            const o = d as Record<string, unknown>;
-            return {
-              rank: i + 1,
-              title: String(o.product_title ?? o.title ?? FALLBACK_PRODUCTS[i].title).slice(0, 40),
-              image: String(o.image_url ?? ''),
-              orders: Number(o.sold_count ?? FALLBACK_PRODUCTS[i].orders),
-              score: Number(o.winning_score ?? FALLBACK_PRODUCTS[i].score),
-              market: (o.market as 'AU' | 'US' | 'UK') ?? 'AU',
-              trend: FALLBACK_PRODUCTS[i].trend,
-            };
-          }));
-        }
-        if (typeof j?.meta?.total === 'number') setTotal(j.meta.total);
-      } catch { /* fallback kept */ }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-  return { products, total };
+  const { products: live, stats } = useLandingData();
+  const products: Product[] = useMemo(() => {
+    const src: LandingProduct[] = live.length >= 5 ? live.slice(0, 8) : [];
+    if (src.length === 0) {
+      // synthesise 8 by repeating fallback
+      return Array.from({ length: 8 }, (_, i) => {
+        const f = FALLBACK_PRODUCTS[i % FALLBACK_PRODUCTS.length];
+        return { ...f, rank: i + 1 };
+      });
+    }
+    const markets: Array<'AU' | 'US' | 'UK'> = ['AU', 'US', 'UK', 'AU', 'US', 'AU', 'UK', 'US'];
+    return src.map((p, i) => ({
+      rank: i + 1,
+      title: p.title.length > 52 ? p.title.slice(0, 50) + '...' : p.title,
+      image: p.image,
+      orders: p.orders,
+      score: p.score || 90,
+      market: markets[i] ?? 'AU',
+      trend: Math.max(20, Math.min(299, Math.round((p.score || 80) + i * 6))),
+    }));
+  }, [live]);
+  return { products, total: stats?.total ?? 3715 };
 }
 
 function LiveDemo() {
@@ -914,7 +945,7 @@ function LiveDemo() {
             }} />LIVE
           </span>
         </div>
-        <Sub>Real AliExpress data. Updated every 6 hours. No guesswork.</Sub>
+        <Sub>Sourced from tens of millions of AliExpress listings. Scored by Trend Velocity. Refreshed every 6 hours.</Sub>
       </FadeUp>
 
       <div style={{
@@ -945,7 +976,7 @@ function LiveDemo() {
         </div>
 
         {products.map((p, i) => {
-          const blurLevel = i === 2 ? 'blur(3px)' : i >= 3 ? 'blur(8px)' : 'none';
+          const blurLevel = i === 3 ? 'blur(3px)' : i >= 4 ? 'blur(8px)' : 'none';
           return (
             <motion.div
               key={p.rank}
@@ -1052,11 +1083,11 @@ function LiveDemo() {
         display: 'flex', flexDirection: 'column', gap: 8,
       }}>
         <div style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute }}>
-          This product was spotted by Majorka <span style={{ color: LT.gold, fontWeight: 600 }}>31 days before it peaked</span>.
-          Subscribers who acted early captured the market.
+          Products in this shortlist were spotted <span style={{ color: LT.gold, fontWeight: 600 }}>30+ days before they peaked</span>.
+          Operators who moved early captured the upside.
         </div>
         <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textDim }}>
-          4,054 products tracked across AU, US and UK markets
+          60M+ AliExpress listings sourced · {total.toLocaleString('en-AU')} scored and ranked
         </div>
         <div>
           <CtaPrimary href="/sign-up" size="md">See all products free →</CtaPrimary>

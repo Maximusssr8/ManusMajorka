@@ -14,6 +14,7 @@ if (process.env.SENTRY_DSN) {
 }
 
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
+import compression from 'compression';
 import express from 'express';
 import { createServer } from 'http';
 import net from 'net';
@@ -103,6 +104,10 @@ async function startServer() {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
   });
+
+  // Gzip compression — runs before routes so Content-Encoding wraps all responses.
+  // Per-route Cache-Control headers set downstream are preserved.
+  app.use(compression());
 
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: '50mb' }));

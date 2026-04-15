@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { searchAffiliateProducts } from '../lib/aliexpress-affiliate';
 import { aeSearchLimiter } from '../lib/ratelimit';
 import { cacheGet, cacheSet, cacheInvalidatePrefix, TTL } from '../lib/redisCache';
+import { cacheMiddleware } from '../lib/cache';
 import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
 import type { Plan } from '../../shared/plans';
 
@@ -460,12 +461,12 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
 // user data, returns the 20 products with the highest sold_count. Used by
 // the Ads Studio "Pick from your product database" dropdown so the client
 // never has to touch winning_products directly (avoids RLS policy drift).
-router.get('/top20', async (_req: Request, res: Response) => {
+router.get('/top20', cacheMiddleware(() => 'products:top20', 300), async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
       .from('winning_products')
-      .select('id, product_title, price_aud, sold_count, category, image_url, product_url')
+      .select('id, product_title, price_aud, sold_count, category, image_url, aliexpress_url, winning_score')
       .not('product_title', 'is', null)
       .not('sold_count', 'is', null)
       .order('sold_count', { ascending: false })
@@ -488,7 +489,7 @@ router.get('/top20', async (_req: Request, res: Response) => {
 // One-shot aggregate: total, hotCount, avgScore, topScore, plus real weekly
 // deltas computed from created_at. Replaces the hardcoded trend strings on
 // the Home page so every number on the dashboard is live.
-router.get('/stats-overview', async (_req: Request, res: Response) => {
+router.get('/stats-overview', cacheMiddleware(() => 'stats:overview', 3600), async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     // Paginate through the whole table — Supabase REST caps at 1000/page.
@@ -584,7 +585,7 @@ router.get('/stats-overview', async (_req: Request, res: Response) => {
 
 // ── GET /api/products/stats-categories ────────────────────────────────────
 // Top-N categories by total orders. Pure aggregate query, no auth needed.
-router.get('/stats-categories', async (req: Request, res: Response) => {
+router.get('/stats-categories', cacheMiddleware((req) => `stats:categories:${String(req.query.market || 'AU')}`, 3600), async (req: Request, res: Response) => {
   try {
     const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit ?? '8'), 10) || 8));
     const sb = getSupabase();
@@ -644,7 +645,7 @@ router.get('/stats-categories', async (req: Request, res: Response) => {
 //
 // This means every day the "Today's 5" are different, newer products
 // surface faster, and the list still skews toward genuine quality.
-router.get('/todays-picks', async (req: Request, res: Response) => {
+router.get('/todays-picks', cacheMiddleware((req) => `dashboard:todays-picks:${String(req.query.limit || '')}`, 600), async (req: Request, res: Response) => {
   try {
     const market = String(req.query.market ?? 'AU');
     const limit = Math.min(20, Math.max(1, parseInt(String(req.query.limit ?? '5'), 10) || 5));
@@ -812,7 +813,7 @@ router.post('/trigger-refresh', async (req: Request, res: Response) => {
 // ── GET /api/products/categories ──────────────────────────────────────────
 // Returns all unique, non-null category names sorted alphabetically.
 // Drives the Products page category dropdown.
-router.get('/categories', async (_req: Request, res: Response) => {
+router.get('/categories', cacheMiddleware(() => 'categories:all', 86400), async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     type Row = { category: string | null };
@@ -845,7 +846,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
 // Rich per-category aggregates for the Niches Intelligence page.
 // Returns product_count, avg_score, hot_count, total_orders, avg_price, and
 // a single top_product preview (by sold_count) per category.
-router.get('/niches-overview', async (_req: Request, res: Response) => {
+router.get('/niches-overview', cacheMiddleware(() => 'dashboard:niches-overview', 600), async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     type Row = {
@@ -1029,7 +1030,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
 // ── GET /api/products/opportunities ───────────────────────────────────────
 // Three picks: highest sold_count, lowest price with score > 80 and sold > 1000,
 // and newest by created_at. All from winning_products, no hardcoding.
-router.get('/opportunities', async (_req: Request, res: Response) => {
+router.get('/opportunities', cacheMiddleware(() => 'dashboard:opportunities', 600), async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const [topRes, marginRes, newRes] = await Promise.all([
@@ -1085,7 +1086,7 @@ router.get('/opportunities', async (_req: Request, res: Response) => {
 //   );
 // If the table doesn't exist yet the endpoint degrades gracefully —
 // every row is flagged isNew=true until the table is created.
-router.get('/radar', async (_req: Request, res: Response) => {
+router.get('/radar', cacheMiddleware(() => 'dashboard:radar', 600), async (_req: Request, res: Response) => {
   // Bulletproof: every sub-call gets its own try/catch so the endpoint
   // always returns 200 with a valid JSON body as long as Supabase is up.
   let current: Array<{
@@ -1173,7 +1174,7 @@ router.get('/radar', async (_req: Request, res: Response) => {
 // Returns exact server-side COUNT(*) totals for each Products-page tab so
 // the badge numbers on the UI match the real table size instead of
 // whatever slice the paginated useProducts() call happens to have loaded.
-router.get('/tab-counts', async (_req: Request, res: Response) => {
+router.get('/tab-counts', cacheMiddleware(() => 'dashboard:tab-counts', 600), async (_req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     // Tab criteria — must match the client-side useProducts tab branch

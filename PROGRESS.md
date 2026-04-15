@@ -95,3 +95,10 @@ OVERALL: 9.2 / 10 ✅
 
 ## Commits
 - 0488246 feat(landing): full WOW rebuild
+
+## Session T+1 (2026-04-15) — Backend Telemetry Director
+- Scope: Option B + stopgap rate limit. 3 commits: (1) cache+compression, (2) cost log + claudeWrap, (3) rate limit.
+- Existing cache.ts already has Map-based store; extending with delete/clear/size/clearPrefix and TTL seconds helpers (keeping back-compat API).
+- Strategy for claudeWrap migration: thin passthrough wrapper so call-site refactors are near-mechanical (replace `client.messages.create({...})` with `callClaude({ feature, ...args })`). ~40 call sites across 20 files.
+- Gates targeted: pnpm check + build; curl X-Cache MISS→HIT; Content-Encoding gzip; no `messages.create` outside claudeWrap.
+

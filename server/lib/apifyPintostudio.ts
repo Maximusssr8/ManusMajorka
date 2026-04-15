@@ -17,6 +17,7 @@
 import { getFxRates, FALLBACK_RATES } from './fx-rates';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { finishRun, startRun, type SourceBreakdown } from './pipelineLogs';
+import { cache } from './cache';
 
 const APIFY_BASE = 'https://api.apify.com/v2';
 /** Paid rental actor. If Apify ever changes the slug, update here. */
@@ -367,6 +368,14 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
     status,
     error_message: errors.length > 0 ? errors.slice(0, 10).join('; ') : null,
   });
+
+  // Invalidate cached dashboard / stats / products responses now that the
+  // underlying data changed. Scoped to the prefixes we actually cache.
+  try {
+    cache.clearPrefixes(['dashboard:', 'stats:', 'products:', 'categories:']);
+  } catch {
+    /* cache invalidation is best-effort */
+  }
 
   return {
     status,
