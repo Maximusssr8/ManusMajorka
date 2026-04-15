@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { createClient } from '@supabase/supabase-js';
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from '../lib/claudeWrap';
 
 const router = Router();
 
@@ -12,10 +12,8 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-function getAnthropicClient(): Anthropic | null {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return null;
-  return new Anthropic({ apiKey: key });
+function hasAnthropicKey(): boolean {
+  return !!process.env.ANTHROPIC_API_KEY;
 }
 
 function requireAdmin(req: Request, res: Response, next: Function) {
@@ -97,8 +95,7 @@ router.get('/:id', requireAuth, requireSubscription, async (req: Request, res: R
 router.post('/seed', requireAuth, requireSubscription, requireAdmin, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const anthropic = getAnthropicClient();
-    if (!anthropic) {
+    if (!hasAnthropicKey()) {
       res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
       return;
     }
@@ -140,9 +137,10 @@ Each object must have these exact fields:
 
 Spread across all ${niches.length} niches (2-3 per niche). Mix shop_types. Make data feel real.`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 8000,
+    const message = await callClaude({
+      feature: 'shops_seed',
+      userId: (req as any).user?.userId,
+      maxTokens: 8000,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -207,10 +205,9 @@ Spread across all ${niches.length} niches (2-3 per niche). Mix shop_types. Make 
 router.post('/analyse/:id', requireAuth, requireSubscription, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const anthropic = getAnthropicClient();
     const { data: shop } = await supabase.from('shop_intelligence').select('*').eq('id', req.params.id).single();
     if (!shop) { res.status(404).json({ error: 'Shop not found' }); return; }
-    if (!anthropic) { res.status(500).json({ error: 'AI not configured' }); return; }
+    if (!hasAnthropicKey()) { res.status(500).json({ error: 'AI not configured' }); return; }
 
     const prompt = `You are a dropshipping and ecommerce strategist. Analyse this Australian Shopify store:
 
@@ -236,9 +233,10 @@ Return JSON only (no markdown):
   "summary": "2 sentence summary of opportunity"
 }`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 600,
+    const message = await callClaude({
+      feature: 'shops_analyse',
+      userId: (req as any).user?.userId,
+      maxTokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });
 

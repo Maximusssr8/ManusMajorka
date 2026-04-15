@@ -13,6 +13,7 @@ import Firecrawl from '@mendable/firecrawl-js';
 import type { Application } from 'express';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
+import { callClaude } from './claudeWrap';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -237,10 +238,11 @@ export function registerToolsApi(app: Application): void {
         : '';
       const platformContext = platform ? `Preferred platform: ${platform}.` : '';
 
-      const claude = getAnthropicClient();
-      const response = await claude.messages.create({
+      const response = await callClaude({
+        feature: 'tools_product_research',
+        allowSonnet: true,
         model: CLAUDE_MODEL,
-        max_tokens: 2048,
+        maxTokens: 2048,
         messages: [
           {
             role: 'user',
@@ -333,10 +335,11 @@ Rules:
         fcData?.content ??
         JSON.stringify(fcData).slice(0, 5000);
 
-      const claude = getAnthropicClient();
-      const response = await claude.messages.create({
+      const response = await callClaude({
+        feature: 'tools_shopify_intel',
+        allowSonnet: true,
         model: CLAUDE_MODEL,
-        max_tokens: 4096,
+        maxTokens: 4096,
         messages: [
           {
             role: 'user',
@@ -428,10 +431,11 @@ Be specific, opinionated, and include estimated AUD figures wherever possible.`,
         ),
       ].join('\n');
 
-      const claude = getAnthropicClient();
-      const response = await claude.messages.create({
+      const response = await callClaude({
+        feature: 'tools_saturation_analysis',
+        allowSonnet: true,
         model: CLAUDE_MODEL,
-        max_tokens: 2048,
+        maxTokens: 2048,
         messages: [
           {
             role: 'user',
@@ -736,7 +740,6 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
         tavilySearch(`${storeUrl} competitors similar stores australia`, 3),
       ]);
 
-      const claude = getAnthropicClient();
       const prompt = `Analyse this Shopify dropshipping store: ${storeUrl}
 
 Search results: ${JSON.stringify((searchResults.results ?? []).slice(0, 3))}
@@ -761,9 +764,9 @@ Return ONLY valid JSON (no markdown, no code fences):
   "summary": "2-sentence encouraging but honest store assessment"
 }`;
 
-      const response = await claude.messages.create({
-        model: 'claude-haiku-4-5',
-        max_tokens: 1024,
+      const response = await callClaude({
+        feature: 'tools_store_score',
+        maxTokens: 1024,
         messages: [{ role: 'user', content: prompt }],
       });
 

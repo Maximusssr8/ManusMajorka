@@ -8,6 +8,7 @@
 
 import type { Application } from 'express';
 import { getAnthropicClient, CLAUDE_MODEL } from './anthropic';
+import { callClaude } from './claudeWrap';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
@@ -113,10 +114,9 @@ export async function analyzeProductUrl(url: string): Promise<Record<string, unk
   const pageContent: string = scrapeData.data?.markdown || scrapeData.markdown || '';
 
   // Use Claude Haiku to extract deep product intelligence
-  const client = getAnthropicClient();
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
+  const message = await callClaude({
+    feature: 'website_scrape_extract',
+    maxTokens: 2000,
     messages: [
       {
         role: 'user',
@@ -1082,14 +1082,13 @@ export async function expandStoreBrief(params: {
   designDirection?: string;
   productData?: Record<string, any>;
 }): Promise<Record<string, any>> {
-  const client = getAnthropicClient();
   const productSummary = params.productData
     ? `Title: ${params.productData.product_title || params.productData.title || 'N/A'}, Price: ${params.productData.price_aud || params.productData.price || 'N/A'}, Desc: ${String(params.productData.description || '').slice(0, 200)}`
     : 'none provided';
   try {
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
+    const msg = await callClaude({
+      feature: 'website_brand_strategy',
+      maxTokens: 600,
       temperature: 0.8,
       system: `You are a DTC brand strategist for Australian Shopify stores. Return valid JSON only — no markdown, no backticks.`,
       messages: [{ role: 'user', content: `Store: ${params.storeName}\nNiche: ${params.niche}\nAccent: ${params.accentColor}\nProduct: ${productSummary}\n\nReturn JSON:\n{"brandName":"...","tagline":"...(6-10 words)","uniqueValueProp":"...(1 sentence)","heroHeadline":"...(8-12 words, specific)","heroSubheadline":"...(15-20 words, benefit-focused)","fontPairing":{"heading":"Syne","body":"DM Sans"},"colourPalette":{"primary":"${params.accentColor}","secondary":"#1a1a2e","accent":"#ffffff"},"testimonials":[{"name":"...","location":"AU city","text":"...(2 sentences)"},{"name":"...","location":"AU city","text":"..."},{"name":"...","location":"AU city","text":"..."}],"faq":[{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."}],"stats":[{"value":"12,400+","label":"Happy Customers"},{"value":"4.8★","label":"Avg Rating"},{"value":"98%","label":"Would Recommend"}]}` }],
@@ -1229,10 +1228,9 @@ RULES:
 - Zero lorem ipsum
 - Do NOT include heroImageUrl or productImageUrl in your JSON — they are injected by the system after your response`;
 
-  const client = getAnthropicClient();
-  const response = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2500,
+  const response = await callClaude({
+    feature: 'website_planning',
+    maxTokens: 2500,
     temperature: 0.7,
     messages: [{ role: 'user', content: planningPrompt }],
   });
@@ -1897,7 +1895,6 @@ export async function generateColorPalette(params: {
   const { niche, brandColor, direction } = params;
   const dir = direction && direction !== 'default' ? DESIGN_DIRECTIONS[direction as keyof typeof DESIGN_DIRECTIONS] : null;
 
-  const client = getAnthropicClient();
   const prompt = `Generate a cohesive 6-colour palette for an Australian ecommerce store in the "${niche}" niche.
 Design direction: ${dir?.label || 'Modern dark DTC'}
 ${brandColor ? `Starting/accent colour: ${brandColor}` : ''}
@@ -1916,9 +1913,9 @@ Output ONLY valid JSON (no markdown):
   "rationale": "one sentence"
 }`;
 
-  const msg = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 300,
+  const msg = await callClaude({
+    feature: 'website_color_palette',
+    maxTokens: 300,
     messages: [{ role: 'user', content: prompt }],
   });
 
@@ -2076,10 +2073,9 @@ export function registerWebsiteRoutes(app: Application): void {
       const { description, niche } = req.body as { description?: string; niche?: string };
       if (!description) { res.status(400).json({ error: 'description required' }); return; }
 
-      const client = getAnthropicClient();
-      const msg = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
+      const msg = await callClaude({
+        feature: 'website_enhance_description',
+        maxTokens: 600,
         messages: [{ role: 'user', content: `Rewrite this product description for an Australian ecommerce store in 3 styles.
 Product/niche: ${niche || 'general'}
 Raw description: "${description}"
@@ -2105,10 +2101,9 @@ Output ONLY JSON:
       const user = await authenticateRequest(req);
       if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
       const { niche, storeName, productData } = req.body as { niche?: string; storeName?: string; productData?: Record<string, unknown> };
-      const client = getAnthropicClient();
-      const msg = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
+      const msg = await callClaude({
+        feature: 'website_headline_variants',
+        maxTokens: 300,
         messages: [{ role: 'user', content: `Generate 3 hero headline variants for an Australian ecommerce store.
 Niche: ${niche} | Store: ${storeName || niche}
 ${(productData as Record<string, unknown>)?.product_title ? 'Product: ' + (productData as Record<string, unknown>).product_title : ''}
@@ -2135,10 +2130,9 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
     try {
       const { text, instruction } = req.body as { text?: string; instruction?: string };
       if (!text || text.length < 2) return res.status(400).json({ error: 'No text provided' });
-      const client = getAnthropicClient();
-      const msg = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
+      const msg = await callClaude({
+        feature: 'website_improve_text',
+        maxTokens: 300,
         messages: [{ role: 'user', content: instruction || `Rewrite this ecommerce text to be more compelling for Australian shoppers. Return ONLY the rewritten text, nothing else: ${text}` }],
       });
       const result = ((msg.content[0] as { type: 'text'; text: string }).text).trim()

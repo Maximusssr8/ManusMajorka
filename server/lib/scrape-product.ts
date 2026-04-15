@@ -8,6 +8,7 @@ import Firecrawl from '@mendable/firecrawl-js';
 import type { Application } from 'express';
 import { tavilyExtract, tavilySearch } from '../tavily';
 import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
+import { callClaude } from './claudeWrap';
 
 const SCRAPE_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
@@ -136,7 +137,6 @@ async function cleanProductDataWithAI(rawData: {
   error?: string;
 }> {
   try {
-    const client = getAnthropicClient();
     const prompt = `Extract product data from this scraped ecommerce page content. Return ONLY valid JSON, no markdown, no explanation.
 
 URL: ${rawData.url}
@@ -171,9 +171,11 @@ Critical rules:
 - Use Australian English spelling in all output: colour (not color), organise (not organize), centre (not center), favourite (not favorite)
 - For health, beauty, supplement, or therapeutic products: ALWAYS flag potential TGA compliance requirements in au_compliance_flags`;
 
-    const response = await client.messages.create({
+    const response = await callClaude({
+      feature: 'scrape_product_extract',
+      allowSonnet: true,
       model: CLAUDE_MODEL,
-      max_tokens: 800,
+      maxTokens: 800,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -570,11 +572,10 @@ export function registerScrapeRoutes(app: Application) {
               let priceAUD = rawPrice ? Math.round(rawPrice * 1.55 * 10) / 10 : 49;
 
               try {
-                const anthropic = getAnthropicClient();
-                if (anthropic) {
-                  const haikuRes = await anthropic.messages.create({
-                    model: 'claude-haiku-4-5-20251001',
-                    max_tokens: 300,
+                if (process.env.ANTHROPIC_API_KEY) {
+                  const haikuRes = await callClaude({
+                    feature: 'scrape_product_niche_infer',
+                    maxTokens: 300,
                     messages: [{
                       role: 'user',
                       content: `Product: "${title}". Description: "${description || ''}".
@@ -657,11 +658,10 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
             let priceAUD = rawPrice2 ? Math.round(rawPrice2 * 1.55 * 10) / 10 : 49;
 
             try {
-              const anthropic = getAnthropicClient();
-              if (anthropic) {
-                const haikuRes = await anthropic.messages.create({
-                  model: 'claude-haiku-4-5-20251001',
-                  max_tokens: 300,
+              if (process.env.ANTHROPIC_API_KEY) {
+                const haikuRes = await callClaude({
+                  feature: 'scrape_product_niche_infer',
+                  maxTokens: 300,
                   messages: [{
                     role: 'user',
                     content: `Product: "${title}". Description: "${description || ''}".
@@ -835,11 +835,10 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
             let priceAUD = rawPrice ? Math.round(rawPrice * 1.55 * 10) / 10 : 49;
 
             try {
-              const anthropic = getAnthropicClient();
-              if (anthropic) {
-                const haikuRes = await anthropic.messages.create({
-                  model: 'claude-haiku-4-5-20251001',
-                  max_tokens: 300,
+              if (process.env.ANTHROPIC_API_KEY) {
+                const haikuRes = await callClaude({
+                  feature: 'scrape_product_niche_infer',
+                  maxTokens: 300,
                   messages: [{
                     role: 'user',
                     content: `Product: "${title}". Description: "${description || ''}".

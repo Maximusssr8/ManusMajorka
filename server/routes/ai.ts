@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
+import { callClaude } from '../lib/claudeWrap';
 
 import { checkRateLimit, aiLimiter, chatLimiter } from '../lib/ratelimit';
 import { requireAuth } from '../middleware/requireAuth';
@@ -16,9 +16,7 @@ import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
 
 const router = Router();
 
-function getClient() {
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-}
+// Anthropic access now flows through callClaude() (server/lib/claudeWrap.ts).
 
 // POST /api/ai/chat — Majorka product-research chat (Maya AI).
 // Uses claude-sonnet-4-6 for quality answers on niche/product/strategy questions.
@@ -78,16 +76,17 @@ ${renderTierLine(ctx.tier)}
 Always use AU English. Be specific, data-driven, and concise — 3 short paragraphs max unless asked for depth.
 ${renderMayaContext(ctx)}`;
 
-    const client = getClient();
     const priorMessages = Array.isArray(history)
       ? history
           .slice(-10)
           .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }))
       : [];
 
-    const resp = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
+    const resp = await callClaude({
+      feature: 'maya_chat',
+      userId: (req as any).user?.userId,
+      allowSonnet: true,
+      maxTokens: 1000,
       system: systemPrompt,
       messages: [...priorMessages, { role: 'user', content: message.slice(0, 4000) }],
     });
@@ -108,10 +107,10 @@ router.post('/generate-ads', requireAuth, async (req, res) => {
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
   try {
-    const client = getClient();
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 1200,
+    const msg = await callClaude({
+      feature: 'ads_generation',
+      userId: (req as any).user?.userId,
+      maxTokens: 1200,
       messages: [{
         role: 'user',
         content: `You are an expert Facebook/Meta ads copywriter for Australian ecommerce.
@@ -147,10 +146,10 @@ router.post('/generate-copy', requireAuth, aiLimiter, async (req, res) => {
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
   try {
-    const client = getClient();
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 2000,
+    const msg = await callClaude({
+      feature: 'ads_generation',
+      userId: (req as any).user?.userId,
+      maxTokens: 2000,
       messages: [{
         role: 'user',
         content: `You are an expert ecommerce copywriter for the Australian market.
@@ -203,8 +202,6 @@ router.post('/generate', requireAuth, async (req, res) => {
     }
     const { tool, platform, tone, features, audience, templateType, brandName, niche } = req.body;
     const productName = req.body.productName || req.body.product || req.body.name || "the product";
-
-    const client = getClient();
 
     let prompt = '';
 
@@ -283,9 +280,10 @@ Format: numbered list, one name per line, include a brief (3-word) tagline after
       // survives into the response.
       const { productName: pn, platforms: plats, creativeType: ct, prompt: userPrompt, system: clientSystem } = req.body;
       const FALLBACK_SYSTEM = `You are an elite direct-response copywriter who specialises in Australian dropshipping. You write copy that sounds human, specific, and urgent — never generic. Always output with the exact section labels requested in the user message.`;
-      const message2 = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1400,
+      const message2 = await callClaude({
+        feature: 'ads_generation',
+        userId: (req as any).user?.userId,
+        maxTokens: 1400,
         system: clientSystem || FALLBACK_SYSTEM,
         messages: [{
           role: 'user',
@@ -298,9 +296,10 @@ Format: numbered list, one name per line, include a brief (3-word) tagline after
       return res.status(400).json({ error: 'Unknown tool: ' + tool });
     }
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
+    const message = await callClaude({
+      feature: 'generate_content',
+      userId: (req as any).user?.userId,
+      maxTokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -329,8 +328,6 @@ router.post('/generate-content', requireAuth, aiLimiter, async (req, res) => {
     if (cached && (Date.now() - cached.ts) < 3600000) {
       return res.json({ result: cached.result });
     }
-
-    const client = getClient();
 
     let prompt = '';
 
@@ -426,9 +423,10 @@ STRATEGY TIP: [One sentence on the best hashtag mix for reach vs engagement]`;
       return res.status(400).json({ error: 'Unknown content tool' });
     }
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 800,
+    const message = await callClaude({
+      feature: 'generate_content',
+      userId: (req as any).user?.userId,
+      maxTokens: 800,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -686,7 +684,6 @@ router.post('/generate-store-concept', requireAuth, aiLimiter, async (req, res) 
       });
     }
 
-    const client = getClient();
     const productLines = chosen
       .map((p, i) => `${i + 1}. id=${p.id} · "${p.product_title}" · $${p.price_aud ?? '?'} AUD · category=${p.category ?? 'n/a'}`)
       .join('\n');
@@ -706,9 +703,10 @@ Market: ${market}
 Candidate products (use these exact IDs in productRationales):
 ${productLines}`;
 
-    const completion = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1400,
+    const completion = await callClaude({
+      feature: 'store_generation',
+      userId: (req as any).user?.userId,
+      maxTokens: 1400,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     });
@@ -807,7 +805,6 @@ router.post('/generate-meta-ad', requireAuth, aiLimiter, async (req, res) => {
     }
     const { productTitle, pricePoint, benefit, audience, format } = parsed.data;
 
-    const client = getClient();
     const systemPrompt = `You are a senior Meta Ads direct-response copywriter for the AU market.
 Return ONLY valid JSON matching this shape (no prose, no markdown):
 {
@@ -830,9 +827,10 @@ BENEFIT: ${benefit ?? 'not specified'}
 AUDIENCE HINT: ${audience ?? 'AU buyers 25-45'}
 FORMAT: Meta ${format}`;
 
-    const completion = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1000,
+    const completion = await callClaude({
+      feature: 'ads_generation',
+      userId: (req as any).user?.userId,
+      maxTokens: 1000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     });

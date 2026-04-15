@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from '../lib/claudeWrap';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
 import { searchAffiliateProducts } from '../lib/aliexpress-affiliate';
@@ -313,9 +313,7 @@ router.get('/trends', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-function getAnthropicClient() {
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-}
+// Anthropic access flows through callClaude() (server/lib/claudeWrap.ts).
 
 const whyTrendingCache = new Map<string, { brief: string; at: number }>();
 
@@ -1716,10 +1714,10 @@ router.post('/:id/why-trending', requireAuth, async (req: Request, res: Response
     .single();
   if (error || !product) { res.status(404).json({ error: 'Product not found' }); return; }
   try {
-    const client = getAnthropicClient();
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
+    const msg = await callClaude({
+      feature: 'why_trending_brief',
+      userId: (req as any).user?.userId,
+      maxTokens: 200,
       messages: [{
         role: 'user',
         content: `You are a TikTok ecommerce analyst. Write a 3-sentence brief explaining exactly why this product is trending right now. Be specific, data-driven, no fluff. Plain text only.\n\nProduct: ${product.product_title}\nCategory: ${product.category || 'General'}\nScore: ${product.winning_score}/100\nWhy Winning: ${product.why_winning || 'Strong market demand'}\nTrend: ${product.trend || 'Rising'}\nTags: ${JSON.stringify(product.tags || [])}`,

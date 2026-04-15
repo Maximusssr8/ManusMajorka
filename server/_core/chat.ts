@@ -11,6 +11,7 @@ import type { Application } from 'express';
 import { buildMarketContext, DEFAULT_MARKET, MARKETS, type MarketCode } from '../../shared/markets';
 import { ANTHROPIC_AI_TOOLS, executeTool, TOOL_STATUS_MESSAGES } from '../lib/ai-tools';
 import { CLAUDE_MODEL, getAnthropicClient } from '../lib/anthropic';
+import { callClaude } from '../lib/claudeWrap';
 import { addMemory, searchMemories } from '../lib/memory';
 import { logTrace, runAURelevanceEval } from '../lib/opik';
 import { rateLimit } from '../lib/rate-limit';
@@ -1369,13 +1370,16 @@ export function registerChatRoutes(app: Application) {
             while (steps < MAX_STEPS) {
               steps++;
               // Non-streaming call to check for tool use
-              const response = await client.messages.create({
+              const response = await callClaude({
+                feature: 'maya_chat_agent',
+                userId,
+                allowSonnet: true,
                 model: CLAUDE_MODEL,
-                max_tokens: maxTokens,
+                maxTokens,
                 system,
-                messages: agentMessages,
+                messages: agentMessages as any,
                 tools: ANTHROPIC_AI_TOOLS,
-                tool_choice: { type: 'auto' },
+                toolChoice: { type: 'auto' },
               });
 
               // Check if we have tool calls
@@ -1542,13 +1546,16 @@ export function registerChatRoutes(app: Application) {
 
           while (steps < MAX_STEPS) {
             steps++;
-            const response = await client.messages.create({
+            const response = await callClaude({
+              feature: 'maya_chat_agent',
+              userId,
+              allowSonnet: true,
               model: CLAUDE_MODEL,
-              max_tokens: maxTokens,
+              maxTokens,
               system,
-              messages: agentMessages,
+              messages: agentMessages as any,
               tools: ANTHROPIC_AI_TOOLS,
-              tool_choice: { type: 'auto' },
+              toolChoice: { type: 'auto' },
             });
 
             const toolUseBlocks = response.content.filter(
@@ -1590,11 +1597,14 @@ export function registerChatRoutes(app: Application) {
 
           // If loop ended without a reply, do a final call
           if (!reply) {
-            const finalResp = await client.messages.create({
+            const finalResp = await callClaude({
+              feature: 'maya_chat_final',
+              userId,
+              allowSonnet: true,
               model: CLAUDE_MODEL,
-              max_tokens: maxTokens,
+              maxTokens,
               system,
-              messages: agentMessages,
+              messages: agentMessages as any,
             });
             reply = finalResp.content
               .filter((b): b is Anthropic.TextBlock => b.type === 'text')
@@ -1602,11 +1612,14 @@ export function registerChatRoutes(app: Application) {
               .join('');
           }
         } else {
-          const aiResponse = await client.messages.create({
+          const aiResponse = await callClaude({
+            feature: 'maya_chat',
+            userId,
+            allowSonnet: true,
             model: CLAUDE_MODEL,
-            max_tokens: maxTokens,
+            maxTokens,
             system,
-            messages,
+            messages: messages as any,
           });
           reply = aiResponse.content[0]?.type === 'text' ? aiResponse.content[0].text : '';
         }

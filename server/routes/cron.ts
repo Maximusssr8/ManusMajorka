@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import Anthropic from '@anthropic-ai/sdk';
+import { callClaude } from '../lib/claudeWrap';
 import { createClient } from '@supabase/supabase-js';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { cronLimiter } from '../lib/ratelimit';
@@ -184,10 +184,9 @@ router.get('/refresh-trends', async (req: Request, res: Response) => {
       return res.status(200).json({ ok: true, count: 0, message: 'No Tavily results' });
     }
 
-    const client = new Anthropic();
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 2500, // reduced from 5000
+    const msg = await callClaude({
+      feature: 'cron_product_intel',
+      maxTokens: 2500,
       system: `You are an Australian ecommerce data analyst specialising in dropshipping intelligence. Generate realistic, data-driven product intelligence for AU dropshippers. Always return valid JSON only — no markdown, no backticks, no explanation.`,
       messages: [{
         role: 'user',

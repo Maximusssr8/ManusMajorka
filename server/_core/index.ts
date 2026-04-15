@@ -383,8 +383,7 @@ async function startServer() {
 
       adSpyUserCooldown.set(userId, Date.now());
 
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
-      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const { callClaude } = await import('../lib/claudeWrap');
 
       const systemPrompt = `You are an ad creative researcher. Generate 6 realistic ad creative briefs (2 each for Facebook, TikTok, Instagram) for the product/niche provided. These are AI-generated creative angles based on proven ad patterns — NOT real scraped ads.
 
@@ -405,9 +404,10 @@ Return ONLY valid JSON in this exact format:
 Angles to use: Pain Point, Curiosity, Social Proof, Benefit, Scarcity, Transformation.
 Be specific and creative. No generic filler.`;
 
-      const msg = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
+      const msg = await callClaude({
+        feature: 'ad_spy_search',
+        userId,
+        maxTokens: 1500,
         system: systemPrompt,
         messages: [{ role: 'user', content: `Generate winning ad creative briefs for: ${q}` }],
       });

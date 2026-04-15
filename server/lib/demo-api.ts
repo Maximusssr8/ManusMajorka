@@ -1,5 +1,5 @@
 import type { Express, Request, Response } from 'express';
-import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
+import { callClaude } from './claudeWrap';
 
 interface RateLimitEntry {
   count: number;
@@ -68,11 +68,10 @@ export function registerDemoRoutes(app: Express): void {
     const marketStr = typeof market === 'string' && market.trim() !== '' ? market.trim() : 'global';
 
     try {
-      const client = getAnthropicClient();
-
-      const message = await client.messages.create({
-        model: CLAUDE_MODEL,
-        max_tokens: 1024,
+      const message = await callClaude({
+        feature: 'demo_product_research',
+        allowSonnet: true,
+        maxTokens: 1024,
         system:
           'You are an ecommerce product researcher. Given a product idea and target market, return exactly 3 product opportunities as a JSON array. Each item: { name: string, margin: string, demand: string, tip: string }. Only output valid JSON, no markdown.',
         messages: [
