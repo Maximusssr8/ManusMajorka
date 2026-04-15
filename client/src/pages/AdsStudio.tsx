@@ -152,7 +152,19 @@ export default function AdsStudio() {
   const [dbLoading, setDbLoading] = useState(false);
 
   // Output
-  const [parsed, setParsed] = useState<ParsedSections | null>(null);
+  const EXAMPLE_PARSED: ParsedSections = {
+    primaryHook: 'Why 50,000+ Australians Can\u2019t Stop Buying This',
+    headline: 'Why 50,000+ Australians Can\u2019t Stop Buying This',
+    primaryText: 'Finally — a kitchen gadget that actually works. Ships from AU warehouse. Try it risk-free.',
+    fullBody: 'Finally — a kitchen gadget that actually works. Ships from AU warehouse. Try it risk-free.',
+    cta: 'Shop Now \u2192',
+    hookA: '',
+    hookB: '',
+    hookC: '',
+    objectionKiller: '',
+  };
+  const [parsed, setParsed] = useState<ParsedSections | null>(EXAMPLE_PARSED);
+  const [isExample, setIsExample] = useState(true);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<string>('');
   const [token, setToken] = useState('');
@@ -333,6 +345,7 @@ export default function AdsStudio() {
     }
     setLoading(true);
     setParsed(null);
+    setIsExample(false);
 
     const userPrompt = `Write a complete ad package for this dropshipping product targeting the Australian market.
 
@@ -470,6 +483,18 @@ OBJECTION KILLER:
         @media (max-width: 640px) {
           .mj-ads-header { padding: 14px 16px !important; }
           .mj-ads-2col { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .mj-ads-generate-footer {
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: linear-gradient(to bottom, rgba(8,8,8,0) 0%, rgba(8,8,8,0.95) 30%, #080808 70%) !important;
+            padding: 24px 16px env(safe-area-inset-bottom, 16px) !important;
+            border-top: 1px solid rgba(212,175,55,0.18) !important;
+            z-index: 50 !important;
+          }
         }
       `}</style>
       {/* Header */}
@@ -718,16 +743,46 @@ OBJECTION KILLER:
             <div className="mj-ads-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
               {PLATFORMS.map((p) => {
                 const active = platforms.includes(p.id);
+                const soon = p.id === 'TikTok' || p.id === 'YouTube';
                 return (
-                  <button key={p.id} onClick={() => togglePlatform(p.id)} style={{
-                    padding: '6px 8px',
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                    borderRadius: 8, cursor: 'pointer', textAlign: 'left',
-                  }}>
+                  <button
+                    key={p.id}
+                    onClick={() => { if (!soon) togglePlatform(p.id); }}
+                    disabled={soon}
+                    title={soon ? 'Coming soon — Meta ads available now' : undefined}
+                    aria-disabled={soon || undefined}
+                    style={{
+                      position: 'relative',
+                      padding: '6px 8px',
+                      background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
+                      border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                      borderRadius: 8,
+                      cursor: soon ? 'not-allowed' : 'pointer',
+                      textAlign: 'left',
+                      opacity: soon ? 0.5 : 1,
+                      pointerEvents: soon ? 'none' : 'auto',
+                    }}
+                  >
                     <div style={{ fontSize: 14, lineHeight: 1 }}>{p.icon}</div>
                     <div style={{ fontSize: 11, fontWeight: 700, color: active ? '#f1f1f3' : 'rgba(255,255,255,0.55)', marginTop: 2 }}>{p.label}</div>
                     <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{p.sub}</div>
+                    {soon && (
+                      <span style={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        fontFamily: mono,
+                        fontSize: 8,
+                        fontWeight: 700,
+                        color: '#d4af37',
+                        background: 'rgba(212,175,55,0.12)',
+                        border: '1px solid rgba(212,175,55,0.3)',
+                        padding: '1px 5px',
+                        borderRadius: 999,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                      }}>Soon</span>
+                    )}
                   </button>
                 );
               })}
@@ -755,13 +810,21 @@ OBJECTION KILLER:
           </div>
         </div>{/* end scrollable form content */}
 
-          {/* Pinned Generate footer — outside scroll container, flex-shrink:0 */}
-          <div style={{
-            flexShrink: 0,
-            background: '#151515',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            padding: '14px 18px 18px',
-          }}>
+          {/* Sticky Generate footer — pinned with fade gradient overlay */}
+          <div
+            className="mj-ads-generate-footer"
+            style={{
+              position: 'sticky',
+              bottom: 0,
+              flexShrink: 0,
+              background: 'linear-gradient(to bottom, rgba(21,21,21,0) 0%, rgba(21,21,21,0.92) 35%, #151515 70%)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              padding: '20px 18px 18px',
+              zIndex: 10,
+            }}
+          >
             <button
               onClick={generate}
               disabled={loading || !productName.trim()}
@@ -794,7 +857,7 @@ OBJECTION KILLER:
             </div>
           ) : parsed ? (
             <>
-              <OutputDisplay parsed={parsed} copied={copied} copyText={copyText} />
+              <OutputDisplay parsed={parsed} copied={copied} copyText={copyText} isExample={isExample} />
               <VisualCreativeCard
                 style={imageStyle}
                 aspect={imageAspect}
@@ -944,7 +1007,7 @@ OBJECTION KILLER:
 }
 
 // ── Output display with per-section cards + char counters + copy buttons ──
-function OutputDisplay({ parsed, copied, copyText }: { parsed: ParsedSections; copied: string; copyText: (text: string, key: string) => void }) {
+function OutputDisplay({ parsed, copied, copyText, isExample = false }: { parsed: ParsedSections; copied: string; copyText: (text: string, key: string) => void; isExample?: boolean }) {
   const cards: { key: string; label: string; value: string; limit?: number }[] = [
     { key: 'hook',     label: 'Primary Hook',          value: parsed.primaryHook },
     { key: 'headline', label: 'Headline',              value: parsed.headline, limit: 40 },
@@ -955,7 +1018,29 @@ function OutputDisplay({ parsed, copied, copyText }: { parsed: ParsedSections; c
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 820 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 820, position: 'relative' }}>
+      {isExample && (
+        <div
+          aria-label="Example preview"
+          style={{
+            position: 'absolute',
+            top: 4,
+            right: 4,
+            zIndex: 5,
+            background: 'linear-gradient(135deg, #d4af37, #e5c158)',
+            color: '#0a0a0c',
+            fontFamily: mono,
+            fontSize: 9,
+            fontWeight: 800,
+            letterSpacing: '0.12em',
+            padding: '4px 10px',
+            borderRadius: 999,
+            boxShadow: '0 4px 14px rgba(212,175,55,0.35)',
+            pointerEvents: 'none',
+            maxWidth: 'calc(100% - 8px)',
+          }}
+        >EXAMPLE</div>
+      )}
       {cards.map(({ key: cardKey, ...c }) => <SectionCard key={cardKey} {...c} copied={copied} copyText={copyText} />)}
 
       {/* Hook variations — side by side */}

@@ -591,3 +591,7 @@ Branch: `fix-ad-studio`
 - [ ] Fix 4 — Platform greying (TikTok/YouTube tooltips + Soon pill)
 - [ ] Fix 5 — Sticky Generate button bar
 - [ ] Fix 6 — Sidebar rename + tooltips
+- [x] Fix 3 — Ads Studio example preview with EXAMPLE badge (clears on real generation)
+- [x] Fix 4 — TikTok/YouTube greyed with "Soon" pill + tooltip
+- [x] Fix 5 — Sticky Generate footer with fade gradient (mobile fixed full-width)
+- [x] Fix 6 — Sidebar rename Ad Briefs->Campaign Brief, Ads Studio->Ad Copy + tooltips

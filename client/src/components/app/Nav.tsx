@@ -21,6 +21,7 @@ interface NavItem {
   soon?: boolean;
   adminOnly?: boolean;
   badge?: 'trackedCount';
+  tooltip?: string;
 }
 
 const GROUPS: { title: string; items: NavItem[] }[] = [
@@ -37,8 +38,8 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'Create',
     items: [
       { label: 'Maya AI',       path: '/app/ai-chat',       icon: Sparkles },
-      { label: 'Ads Studio',    path: '/app/ads-studio',    icon: Megaphone },
-      { label: 'Ad Briefs',     path: '/app/ad-briefs',     icon: FileText },
+      { label: 'Ad Copy',        path: '/app/ads-studio',    icon: Megaphone, tooltip: 'Headlines, body copy & CTAs' },
+      { label: 'Campaign Brief', path: '/app/ad-briefs',     icon: FileText,  tooltip: 'Strategy & brief' },
       { label: 'Store Builder', path: '/app/store-builder', icon: Store },
     ],
   },
@@ -178,6 +179,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
                       href={item.soon ? '#' : item.path}
                       aria-current={active ? 'page' : undefined}
                       aria-disabled={item.soon || undefined}
+                      title={item.tooltip}
                       onClick={(e) => {
                         if (item.soon) {
                           e.preventDefault();
