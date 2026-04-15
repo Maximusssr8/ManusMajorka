@@ -790,3 +790,13 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 
 ### Delta 3 — Auto-cycle cadence 6s — done (inline with Delta 2)
 - Previous QuickScoreHero had no auto-cycle (seed chips were click-only) and the TickerBar/CarouselScorer-style 8s interval did not exist in this revision. New setTimeout is exactly AUTO_CYCLE_MS = 6000ms.
+
+### Delta 4 — StickyLaunchBar counter + dismiss-forever — done
+- localStorage counter key bumped to `majorka_launch_spots_v2` (old `majorka_spots_taken` intentionally abandoned to reset stale values cleanly).
+- Seed value: 287 on first read. Tick +1 every 480000ms (8 min). Cap 489. Persisted each tick.
+- Dismiss: never-show-again. Writes `majorka_launch_bar_dismissed_v3 = "1"`. On mount, if present → null.
+- Text copy verbatim: "🔥 Launch pricing — Builder from $99 AUD/mo · Prices increase after first 500 subscribers".
+- Right counter: `[ N / 500 ] spots` — JetBrains Mono, #080808 on gold. Class .mj-launch-counter hidden at <=767px.
+- Height 40px, bg `linear-gradient(90deg, #b8962e, #d4af37, #b8962e)`, text #080808, DM Sans 13px 600.
+- Dismiss × button: 32×32 tap target on right edge.
+- Home.tsx topOffset now LAUNCH_BAR_HEIGHT (40) when visible (was 36); nav + main content padded accordingly (existing `paddingTop: topOffset + 64`).
