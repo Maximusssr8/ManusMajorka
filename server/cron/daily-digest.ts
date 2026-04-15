@@ -12,12 +12,12 @@
  */
 
 import { Router, type Request, type Response } from 'express';
-import { getSupabaseAdmin } from '../../server/_core/supabase';
+import { getSupabaseAdmin } from '../_core/supabase';
 import { Resend } from 'resend';
 import {
   renderDailyDigest,
   type DigestDigestProduct,
-} from '../../server/emails/daily-digest';
+} from '../emails/daily-digest';
 
 const router = Router();
 

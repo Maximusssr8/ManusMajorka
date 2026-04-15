@@ -64,7 +64,7 @@ import revenueRouter from "../server/routes/revenue";
 import authRouter from "../server/routes/auth";
 import onboardingRouter from "../server/routes/onboarding";
 import listsRouter from "../server/routes/lists";
-import dailyDigestRouter from "./cron/daily-digest";
+import dailyDigestRouter from "../server/cron/daily-digest";
 import { trackOnboarding } from "../server/middleware/trackOnboarding";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
