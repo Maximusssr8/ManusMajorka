@@ -290,14 +290,42 @@ export default function SettingsProfile() {
     }
   };
 
+  // Fix 8 — real delete account flow with typed confirmation.
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const handleDeleteAccount = () => {
-    if (
-      !confirm(
-        'Are you sure? This will permanently delete your account and all data. This action cannot be undone.'
-      )
-    )
-      return;
-    toast.info('To delete your account, please contact support@majorka.com');
+    setDeleteConfirm('');
+    setDeleteOpen(true);
+  };
+  const performDelete = async () => {
+    if (deleteConfirm !== 'DELETE') return;
+    setDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error('You must be signed in to delete your account.');
+        setDeleting(false);
+        return;
+      }
+      const res = await fetch('/api/account', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      toast.success('Account deleted. Goodbye.');
+      try { await supabase.auth.signOut(); } catch { /* ignore */ }
+      try { await logout(); } catch { /* ignore */ }
+      setDeleteOpen(false);
+      setLocation('/');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to delete account';
+      toast.error(msg);
+      setDeleting(false);
+    }
   };
 
   const handlePasswordChange = async () => {
@@ -982,6 +1010,80 @@ export default function SettingsProfile() {
           )}
         </div>{/* END right panel */}
       </div>{/* END flex layout */}
+
+      {/* Fix 8 — Delete Account confirmation modal. */}
+      {deleteOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => !deleting && setDeleteOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', zIndex: 100, padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 420,
+              background: '#0D1424', border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: 16, padding: 24,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <Trash2 size={18} color="#ef4444" />
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0, fontFamily: "'Syne', sans-serif" }}>
+                Delete account permanently?
+              </h2>
+            </div>
+            <p style={{ color: '#94A3B8', fontSize: 13, lineHeight: 1.55, marginBottom: 16 }}>
+              This deletes your account and all associated data. This cannot be undone.
+            </p>
+            <label style={{ display: 'block', fontSize: 12, color: '#94A3B8', marginBottom: 6 }}>
+              Type <strong style={{ color: '#ef4444' }}>DELETE</strong> to confirm.
+            </label>
+            <input
+              autoFocus
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder="DELETE"
+              disabled={deleting}
+              style={{
+                width: '100%', padding: '10px 12px', borderRadius: 8,
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                color: '#fff', fontSize: 14, marginBottom: 16, outline: 'none',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+              }}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setDeleteOpen(false)}
+                disabled={deleting}
+                style={{
+                  padding: '8px 14px', borderRadius: 8,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#E2E8F0', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                }}
+              >Cancel</button>
+              <button
+                onClick={performDelete}
+                disabled={deleteConfirm !== 'DELETE' || deleting}
+                style={{
+                  padding: '8px 14px', borderRadius: 8,
+                  background: deleteConfirm === 'DELETE' && !deleting ? '#ef4444' : 'rgba(239,68,68,0.4)',
+                  border: '1px solid rgba(239,68,68,0.6)',
+                  color: '#fff', fontSize: 13, fontWeight: 700,
+                  cursor: deleteConfirm === 'DELETE' && !deleting ? 'pointer' : 'not-allowed',
+                  opacity: deleteConfirm === 'DELETE' ? 1 : 0.6,
+                }}
+              >{deleting ? 'Deleting…' : 'Delete account'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

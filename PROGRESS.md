@@ -1,49 +1,30 @@
-# Landing Page WOW Rebuild — 2026-04-15
+# fix-product-surfaces — progress
 
-This is a live checkpoint. Updated at each milestone so a compaction-restarted run can continue without losing state.
+Branch isolated from main. Lane: Maya / Creators / Analytics / Settings.
 
-## Scope (10 queued directives, executed as ONE coherent rebuild)
 
-1. **Hero WOW** — canvas particle background (gold, 50-80 drifting, line-connected within 80px, RAF, pause on hidden, no layout shift), staggered Framer Motion text (overline → H1 words staggered 0.08s → sub → CTAs with 4s pulse → trust signals), animated dashboard mockup (3 products cycling every 8s: count-up Trend Velocity to 94, orders to 231,847, market split bars 42/35/23, sparkline draw, typewriter AI brief), bouncing scroll chevron fading on scroll.
-2. **FOMO engine** — gold sticky top bar with launch-pricing counter (localStorage: starts 127, +1/8min, cap 189), live activity toasts bottom-left every 12-25s (10 rotating messages), animated hero stats, pricing urgency (14-day countdown), demo FOMO caption.
-3. **Academy section** — between features and pricing: overline FREE ACADEMY, 3 value cards (8 modules / 48 lessons / free certificate), accordion preview (Module 1/2/3), FOMO (247 students this week, avatars), CTAs, animated lesson preview card right side desktop.
-4. **Live demo section** — call `/api/products?limit=5&sort=orders`, fallback hardcoded; dark table: Rank / Product / Orders / Score / Market / Trend; rows stagger in, counts count up; blur gate on rows 3-5 with "Sign up to see all 3,715 products" overlay; LIVE pulse dot.
-5. **Design audit** — Syne headings / DM Sans body / JetBrains Mono numbers enforced; base-8 spacing; colour palette locked to 11 tokens (no indigo/purple/violet); border radii 16/12/100/12/10; shadows systematised; 65ch line length.
-6. **Features rebuild** — alternating side-by-side rows (text↔visual), 6 features: Product Intelligence, Market Split, AI Briefs, Ads Manager, Store Builder, Academy; each visual animates independently on whileInView once.
-7. **How It Works + Trust Signals + FAQ** — 3-step flow (Find / Analyse / Launch) with connectors; 3 trust columns (Data / Security / Support) + logos bar; 6-question FAQ accordion.
-8. **Pricing rebuild** — monthly/annual toggle (-20%), Builder $99 / Scale $199 "Most Popular", 30-day guarantee, expandable comparison, value anchoring.
-9. **Performance** — preconnect fonts + API, preload fonts font-display:swap, transform/opacity animations only, `prefers-reduced-motion` respected, below-fold React.lazy + Suspense, no chunks > 500KB (excluding existing syntax-highlighter vendor chunks outside landing), LCP < 2.5s.
-10. **Final audit** — score each section /10, fix anything <8; competitor name grep (Minea/Kalodata/Ecomhunt/AutoDS/Zendrop/DSers/Spocket/Sell The Trend) must return zero; mobile 390px no horizontal overflow, tap targets ≥44px, body ≥14px. Overall ≥9/10 before landing.
+## Creators (Fix 4 + 5) — done
+- {brand} pulled from /api/stores (first saved_store.name, .myshopify.com stripped); fallback "Your Brand"
+- {product} pulled from localStorage majorka_last_viewed_product (string or JSON); fallback "Your product"
+- {creator} editable contenteditable span with gold dashed underline + "click to edit" hint
+- "Reset to template" toggles between substituted view and original placeholders
+- Recommendation tier now derived from category (Beauty/Fashion → Nano/Micro, Tech → Micro/Mid-tier, Home/Pet → Micro, Fitness → Mid-tier/Macro, unknown → omitted)
 
-## Hard constraints
-- Do not name any competitor platforms anywhere. Use "other tools" or "traditional research".
-- Must never stop until prod verified 100/100 + overall audit ≥9/10.
-- After EVERY milestone commit: `git add -A && git commit -m "..." && git push origin main`.
-- Vercel deploy at end with `--force` to bypass cache. Verify prod with headless Chrome — zero uncaught errors, `<div id="mj-boot">` absent, Sign In nav present, no "Majorka didn't load" banner.
-- Keep `vite.config.ts` chunk fix intact (no ui-vendor / chart-vendor / motion-vendor / data-vendor split — all bundled into react-vendor). If cycle returns, diagnose.
 
-## Execution checkpoints
-- [ ] Survey Home.tsx + landing components, inventory existing building blocks (Framer Motion already installed v12.26.2, lucide-react v0.453, wouter v3.7.1).
-- [ ] Build shared primitives: ParticleField canvas, CountUp, Typewriter, MarketSplitBars, SparklineDraw, RevealWord, ScrollChevron.
-- [ ] Section components (parallelisable): HeroWow, StickyLaunchBar, LiveActivityTicker, HowItWorks, LiveDemo, FeaturesReveal, AcademySection, Testimonials, PricingTable, TrustSignals, FAQ, FinalCTA.
-- [ ] Assemble Home.tsx (replace inline sections with imports, lazy-load below-fold).
-- [ ] Strip competitor names (grep + replace with "other tools").
-- [ ] Design token enforcement (colour/spacing/font/radius/shadow grep).
-- [ ] Mobile 390px sweep.
-- [ ] Build + TS typecheck — 0 errors.
-- [ ] Local headless Chrome verify.
-- [ ] Commit + push + deploy --force.
-- [ ] Prod headless Chrome verify + section audit scorecard ≥9/10.
+## Analytics (Fix 6 + 7) — done
+- "general" rendered as "Uncategorised" and sorted to the bottom (still groups all current "general" rows in DB)
+- "Re-categorise" gold button on the categories card prompts for X-Admin-Token then calls POST /api/admin/recategorise
+- New POST /api/admin/recategorise picks 100 null/general rows, asks Claude Haiku for {category}, updates winning_products. Capped at 100 per call.
+- Your Activity row of 4 tiles fed by GET /api/analytics/my-activity
+- New /api/analytics/my-activity endpoint: usage_counters → api_cost_log fallback for briefs/ads, JOIN product_lists/product_list_items for saves, optional product_views for top category. Each source try/catch → 0/null on missing table.
 
-## Current state of repo (at rebuild start)
-- HEAD: `8196884` — rollback to 25afa0d landing + vite.config.ts chunk fix preserved.
-- Home.tsx: 2891 lines, monolithic inline sections. Hero at line 594, SocialProofBar 884, BrowserWindow 1005, LiveTicker 1122, Stats 1177, PartnerBar 1237, ThePlatform 1286, RevenueProofBanner 1601, Comparison 1682, Markets 1812 (truncated — more below).
-- Deps present: framer-motion 12.26.2, lucide-react 0.453, wouter 3.7.1.
-- Known companion files: HeroDemo.tsx (580L, 5-panel animated demo) — candidate to reuse or retire.
-- Prod currently live after `--force` redeploy: bundle `index-DMkgKLym.js`, zero boot errors.
 
-## Session log
-- **T+0**: 10 mega-prompts queued in a burst. Spawning one Director to execute the combined scope in parallel sub-agents. PROGRESS.md replaced with this rebuild tracker.
+## Settings (Fix 8) — done
+- Delete Account button already lived at the bottom of the Data & Privacy tab (the de-facto Account section). Wired it to a real modal.
+- Modal: "Delete account permanently?" with required typed "DELETE" confirmation
+- Calls DELETE /api/account → /server/routes/account.ts
+- Server cascades user-owned rows across user_onboarding, user_preferences, user_watchlist, product_lists (+ product_list_items via list IDs), price_alerts, alerts, revenue_entries, generated_stores, saved_stores, saved_ad_sets, usage_counters, api_cost_log, product_views — each wrapped in try/catch so a missing table never aborts the rest. Then supabase.auth.admin.deleteUser(userId).
+- On success: toast goodbye, signOut, logout, redirect /
 
 ## Session T+0 log (2026-04-15)
 - Plan: full rewrite of /Users/maximus/Projects/ManusMajorka/client/src/pages/Home.tsx as a single cohesive file implementing all 10 directives. Strategy: one Home.tsx (lean, ~1500 lines), shared primitives inline, design tokens in client/src/lib/landingTokens.ts, no below-fold lazy-split needed if total bundle stays small.

@@ -1,12 +1,31 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { scorePillStyle } from '@/lib/scorePill';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
+import { supabase } from '@/lib/supabase';
 
 import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
 const sans = C.fontBody;
 const mono = C.fontBody;
+
+// Fix 5 — recommendation tier by category (replaces hardcoded "Micro influencer")
+function recommendedTierForCategory(category: string): { label: string; reach: string; cpm: string } | null {
+  const c = (category || '').toLowerCase();
+  if (/(beauty|skincare|cosmetic|makeup|fashion|apparel|clothing|jewel)/.test(c)) {
+    return { label: 'Nano or Micro', reach: '<10K – 100K followers', cpm: '$5–$15 CPM' };
+  }
+  if (/(electronic|tech|gadget|phone|computer|laptop)/.test(c)) {
+    return { label: 'Micro or Mid-tier', reach: '10K–1M followers', cpm: '$8–$20 CPM' };
+  }
+  if (/(home|kitchen|pet|cooking|cleaning|decor)/.test(c)) {
+    return { label: 'Micro', reach: '10K–100K followers', cpm: '$8–$15 CPM' };
+  }
+  if (/(fitness|wellness|gym|sport|yoga|workout|health)/.test(c)) {
+    return { label: 'Mid-tier or Macro', reach: '100K–1M+ followers', cpm: '$12–$30 CPM' };
+  }
+  return null; // unknown — omit recommendation per spec
+}
 
 interface Template {
   title: string;
@@ -50,6 +69,55 @@ function creatorTier(score: number): { label: string; reach: string; cpm: string
   };
 }
 
+// Renders template body with {creator} converted into a contenteditable
+// gold-underline span. Other placeholders are pre-substituted by the parent.
+function OutreachBody({
+  t, rendered, creatorValue, isReset, onCreatorEdit,
+}: {
+  t: Template;
+  rendered: string;
+  creatorValue: string;
+  isReset: boolean;
+  onCreatorEdit: (v: string) => void;
+}) {
+  void t;
+  // Split on the literal "{creator}" token (only present when not yet edited
+  // and not in reset mode after substitution; rendered keeps the placeholder).
+  const parts = rendered.split('{creator}');
+  return (
+    <div style={{
+      fontFamily: sans, fontSize: 12, color: 'rgba(255,255,255,0.65)',
+      lineHeight: 1.55, whiteSpace: 'pre-wrap',
+      background: 'rgba(255,255,255,0.03)',
+      padding: 14, borderRadius: 8,
+      marginBottom: 10, flex: 1,
+    }}>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 && (
+            <span
+              contentEditable={!isReset}
+              suppressContentEditableWarning
+              onBlur={(e) => onCreatorEdit(e.currentTarget.textContent || '')}
+              data-placeholder="click to edit"
+              style={{
+                outline: 'none',
+                color: '#e5c158',
+                borderBottom: '1px dashed #e5c158',
+                cursor: 'text',
+                padding: '0 2px',
+              }}
+            >
+              {creatorValue || '{creator}'}
+            </span>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function Creators() {
   const { niches: rawNiches, loading } = useNicheStats(20);
   // Re-rank by average score for creator matching (highest-quality categories first)
@@ -60,18 +128,79 @@ export default function Creators() {
   const [query, setQuery] = useState('');
   const [copied, setCopied] = useState<string | null>(null);
 
+  // Fix 4 — outreach template placeholders (brand, product) auto-substitution.
+  const [brandName, setBrandName] = useState<string>('Your Brand');
+  const [productName, setProductName] = useState<string>('Your product');
+  // Per-template editable creator name (allows "click to edit" gold underline).
+  const [creatorEdits, setCreatorEdits] = useState<Record<string, string>>({});
+  // Per-template "show original placeholders" flag (Reset to template).
+  const [resetFlags, setResetFlags] = useState<Record<string, boolean>>({});
+
+  // Read user's store name from /api/stores/my (degrade to fallback).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session: sess } } = await supabase.auth.getSession();
+        if (!sess?.access_token) return;
+        // /api/stores returns the user's saved Shopify stores (most recent first).
+        // Fall back to "Your Brand" if no store is connected yet.
+        const res = await fetch('/api/stores', {
+          headers: { Authorization: `Bearer ${sess.access_token}` },
+        });
+        if (!res.ok) return;
+        const json = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        const list = Array.isArray(json?.data) ? json.data : (Array.isArray(json?.stores) ? json.stores : []);
+        const first = list[0];
+        const name = first?.name || first?.shop_name || first?.shop_domain || null;
+        if (name) setBrandName(String(name).replace(/\.myshopify\.com$/i, ''));
+      } catch { /* fallback retained */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Read most recently viewed product from localStorage.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('majorka_last_viewed_product');
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        const name = parsed?.product_title || parsed?.title || parsed?.name;
+        if (name) setProductName(String(name));
+      } catch {
+        // Plain string in localStorage
+        if (raw.length > 0 && raw.length < 200) setProductName(raw);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  function substituteTemplate(t: Template): string {
+    if (resetFlags[t.title]) return t.body;
+    const creator = creatorEdits[t.title] || '{creator}';
+    return t.body
+      .replace(/\{brand\}/g, brandName)
+      .replace(/\{product\}/g, productName)
+      .replace(/\{creator\}/g, creator);
+  }
+
   const matchResult = useMemo(() => {
     if (!query.trim() || niches.length === 0) return null;
     const q = query.toLowerCase();
     const match = niches.find((n) => n.name.toLowerCase().includes(q))
       ?? niches.find((n) => n.name.toLowerCase().split(/\s+/).some((w) => q.includes(w)))
       ?? niches[0];
-    const tier = creatorTier(match.avgScore);
+    // Fix 5 — prefer category-based recommendation; fall back to score tier;
+    // if category is unknown the recommendation panel is hidden entirely.
+    const categoryTier = recommendedTierForCategory(match.name);
+    const tier = categoryTier ?? creatorTier(match.avgScore);
     const baseTags = ['#tiktokmademebuyit', '#fyp', '#auhaul', '#dropshipau'];
     const catTag = '#' + shortenCategory(match.name).toLowerCase().replace(/[^a-z0-9]/g, '');
     return {
       niche: match,
       tier,
+      tierIsCategoryBased: categoryTier != null,
       hashtags: [catTag, ...baseTags],
     };
   }, [query, niches]);
@@ -179,7 +308,8 @@ export default function Creators() {
                 <div key={i} className="mj-shim" style={{ width: 240, height: 180, borderRadius: 12, flexShrink: 0 }} />
               ))
             : niches.slice(0, 8).map((n) => {
-                const tier = creatorTier(n.avgScore);
+                // Fix 5 — category-based recommendation; omit if unknown.
+                const tier = recommendedTierForCategory(n.name);
                 const sp = scorePillStyle(n.avgScore);
                 return (
                   <div key={n.name} style={{
@@ -203,10 +333,12 @@ export default function Creators() {
                     </div>
                     <div style={{ fontFamily: display, fontSize: 17, fontWeight: 700, color: C.text }}>{shortenCategory(n.name)}</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{n.count} products tracked</div>
-                    <div style={{ marginTop: 'auto', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Recommended</div>
-                      <div style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{tier.label}</div>
-                    </div>
+                    {tier && (
+                      <div style={{ marginTop: 'auto', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Recommended</div>
+                        <div style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{tier.label}</div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -227,26 +359,44 @@ export default function Creators() {
               flexDirection: 'column',
             }}>
               <div style={{ fontFamily: display, fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 12 }}>{t.title}</div>
-              <div style={{
-                fontFamily: sans, fontSize: 12, color: 'rgba(255,255,255,0.65)',
-                lineHeight: 1.55, whiteSpace: 'pre-wrap',
-                background: 'rgba(255,255,255,0.03)',
-                padding: 14, borderRadius: 8,
-                marginBottom: 10, flex: 1,
-              }}>{t.body}</div>
+              {/* Fix 4 — auto-substitute {brand}/{product}; keep {creator} editable. */}
+              <OutreachBody
+                t={t}
+                rendered={substituteTemplate(t)}
+                creatorValue={creatorEdits[t.title] || ''}
+                isReset={!!resetFlags[t.title]}
+                onCreatorEdit={(v) => setCreatorEdits(prev => ({ ...prev, [t.title]: v }))}
+              />
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>{t.note}</div>
-              <button
-                onClick={() => copyTemplate(t.title, t.body)}
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: 8,
-                  background: copied === t.title ? 'rgba(16,185,129,0.15)' : 'rgba(124,106,255,0.1)',
-                  border: `1px solid ${copied === t.title ? 'rgba(16,185,129,0.3)' : 'rgba(124,106,255,0.25)'}`,
-                  color: copied === t.title ? C.green : C.accentHover,
-                  fontFamily: sans, fontSize: 12, fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >{copied === t.title ? '✓ Copied' : 'Copy template'}</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => copyTemplate(t.title, substituteTemplate(t))}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: 8,
+                    background: copied === t.title ? 'rgba(16,185,129,0.15)' : 'rgba(124,106,255,0.1)',
+                    border: `1px solid ${copied === t.title ? 'rgba(16,185,129,0.3)' : 'rgba(124,106,255,0.25)'}`,
+                    color: copied === t.title ? C.green : C.accentHover,
+                    fontFamily: sans, fontSize: 12, fontWeight: 600,
+                    cursor: 'pointer', flex: 1,
+                  }}
+                >{copied === t.title ? '✓ Copied' : 'Copy template'}</button>
+                <button
+                  onClick={() => {
+                    setResetFlags(prev => ({ ...prev, [t.title]: !prev[t.title] }));
+                  }}
+                  title={resetFlags[t.title] ? 'Show with substitutions' : 'Show original placeholders'}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.55)',
+                    fontFamily: sans, fontSize: 11, fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >{resetFlags[t.title] ? 'Show filled' : 'Reset to template'}</button>
+              </div>
             </div>
           ))}
         </div>
