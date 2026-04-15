@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { supabase } from '@/lib/supabase';
 
 import { C } from '@/lib/designTokens';
@@ -23,13 +25,50 @@ const AD_TYPES: { key: AdType; label: string }[] = [
   { key: 'story',     label: 'Story' },
 ];
 
-const TEMPLATES = [
-  'Kitchen Gadgets',
-  'Pet Accessories',
-  'Phone Accessories',
-  'Home Organisation',
-  'Fitness Equipment',
-  'Beauty & Skincare',
+interface TemplateMeta {
+  name: string;
+  description: string;
+  exampleProduct: string;
+  previewLine: string;
+}
+
+const TEMPLATES: TemplateMeta[] = [
+  {
+    name: 'Kitchen Gadgets',
+    description: 'Fast-moving tools that solve a small daily friction. Tight margins, viral hook potential.',
+    exampleProduct: 'Stainless steel garlic press with built-in peeler — solves the sticky-fingers problem in 4 seconds',
+    previewLine: 'Hooks built around the "ugh, finally" moment when a tiny daily annoyance vanishes.',
+  },
+  {
+    name: 'Pet Accessories',
+    description: 'Cozy, durable, photogenic. Impulse-buyable at $30-60 price points.',
+    exampleProduct: 'Calming donut bed for anxious dogs — orthopaedic foam, machine washable, 4 sizes',
+    previewLine: 'Emotional, owner-pride angles paired with a clear before/after demo.',
+  },
+  {
+    name: 'Phone Accessories',
+    description: 'High-margin micro-niches. Demo-able in 3 seconds, ships flat, repeat purchase potential.',
+    exampleProduct: 'MagSafe-compatible kickstand wallet with RFID-blocking sleeve',
+    previewLine: 'Clean product hero plus a quick "watch this" demo — designed for thumb-stop scrolls.',
+  },
+  {
+    name: 'Home Organisation',
+    description: 'High-perceived-value, easy ad demo, recurring need.',
+    exampleProduct: 'Acrylic stackable pantry containers with bamboo lids — set of 8, leak-proof seal',
+    previewLine: 'Satisfying transformation arc — chaos to calm in 15 seconds.',
+  },
+  {
+    name: 'Fitness Equipment',
+    description: 'Evergreen category with seasonal spikes. Strong AOV, transformation-driven.',
+    exampleProduct: 'Adjustable 5-25kg dumbbell with quick-twist plate system — replaces a full rack',
+    previewLine: 'Result-driven hooks with credibility anchors — reps, weeks, before/after.',
+  },
+  {
+    name: 'Beauty & Skincare',
+    description: 'High-margin, creator-led, compliance-sensitive.',
+    exampleProduct: 'Vitamin-C brightening serum with hyaluronic acid — fragrance-free, dermatologist-tested',
+    previewLine: 'Ingredient-led trust copy paired with a UGC-style "day 0 vs day 14" hook.',
+  },
 ];
 
 interface StoredBrief {
@@ -62,6 +101,7 @@ export default function AdBriefs() {
   const [history, setHistory] = useState<StoredBrief[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => { setHistory(loadBriefs()); }, []);
 
@@ -206,6 +246,7 @@ export default function AdBriefs() {
         <div style={{ position: 'relative', marginBottom: 16 }}>
           <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'rgba(255,255,255,0.3)', pointerEvents: 'none' }}>✨</span>
           <input
+            ref={inputRef}
             value={product}
             onChange={(e) => setProduct(e.target.value)}
             placeholder="Enter a product name or niche…"
@@ -321,8 +362,8 @@ export default function AdBriefs() {
               style={actionBtnStyle(false)}
             >Download .md</button>
           </div>
-          <div style={{ whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.65, color: 'rgba(255,255,255,0.85)' }}>
-            {output}
+          <div className="mj-brief-prose">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{output}</ReactMarkdown>
           </div>
         </div>
       )}
@@ -345,12 +386,18 @@ export default function AdBriefs() {
                   <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
                     {b.platforms.join(' · ')} · {new Date(b.createdAt).toLocaleDateString()}
                   </div>
-                  <div style={{
-                    fontSize: 12, color: 'rgba(255,255,255,0.55)',
-                    whiteSpace: 'pre-wrap', lineHeight: 1.55,
-                    maxHeight: open ? 'none' : 60,
-                    overflow: 'hidden',
-                  }}>{open ? b.brief : b.brief.slice(0, 120) + (b.brief.length > 120 ? '…' : '')}</div>
+                  {open ? (
+                    <div className="mj-brief-prose mj-brief-prose--compact" style={{ maxHeight: 'none', overflow: 'hidden' }}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{b.brief}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div style={{
+                      fontSize: 12, color: 'rgba(255,255,255,0.55)',
+                      whiteSpace: 'pre-wrap', lineHeight: 1.55,
+                      maxHeight: 60,
+                      overflow: 'hidden',
+                    }}>{b.brief.slice(0, 120) + (b.brief.length > 120 ? '…' : '')}</div>
+                  )}
                   <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
                     {b.brief.length > 120 && (
                       <button
@@ -382,11 +429,15 @@ export default function AdBriefs() {
       {/* Templates */}
       <section>
         <h2 style={{ fontFamily: display, fontSize: 17, fontWeight: 700, margin: '0 0 14px' }}>Popular Templates</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
           {TEMPLATES.map((t) => (
             <button
-              key={t}
-              onClick={() => generate(t)}
+              key={t.name}
+              onClick={() => {
+                setProduct(t.exampleProduct);
+                inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                inputRef.current?.focus();
+              }}
               disabled={loading}
               style={{
                 background: C.raised,
@@ -400,19 +451,101 @@ export default function AdBriefs() {
                 fontSize: 13,
                 fontWeight: 500,
                 transition: 'all 150ms ease',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
               }}
               onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(124,106,255,0.3)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
             >
-              <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Template</div>
-              {t}
+              <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Template</div>
+              <div style={{ fontFamily: display, fontSize: 14, fontWeight: 700, color: '#fff' }}>{t.name}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>{t.description}</div>
+              <div style={{
+                fontSize: 11,
+                color: 'rgba(212,175,55,0.85)',
+                fontStyle: 'italic',
+                paddingTop: 6,
+                borderTop: '1px dashed rgba(255,255,255,0.06)',
+                lineHeight: 1.5,
+              }}>
+                <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,175,55,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: 6 }}>Example output preview</span>
+                {t.previewLine}
+              </div>
             </button>
           ))}
         </div>
       </section>
+      <style>{briefProseCss}</style>
     </div>
   );
 }
+
+const briefProseCss = `
+.mj-brief-prose {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #9CA3AF;
+}
+.mj-brief-prose h1,
+.mj-brief-prose h2,
+.mj-brief-prose h3,
+.mj-brief-prose h4 {
+  font-family: 'Syne', system-ui, sans-serif;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 18px 0 8px;
+  line-height: 1.25;
+}
+.mj-brief-prose h1 { font-size: 20px; }
+.mj-brief-prose h2 { font-size: 17px; }
+.mj-brief-prose h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: #d4af37; }
+.mj-brief-prose h4 { font-size: 13px; }
+.mj-brief-prose p { margin: 0 0 10px; color: #9CA3AF; }
+.mj-brief-prose ul,
+.mj-brief-prose ol { margin: 0 0 12px 0; padding-left: 22px; color: #9CA3AF; }
+.mj-brief-prose li { margin-bottom: 4px; }
+.mj-brief-prose strong { color: #ffffff; font-weight: 700; }
+.mj-brief-prose em { color: #c4c4c4; }
+.mj-brief-prose code {
+  background: #111111;
+  color: #d4af37;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.mj-brief-prose pre {
+  background: #111111;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 12px;
+}
+.mj-brief-prose pre code {
+  background: transparent;
+  padding: 0;
+  color: #e5e5e5;
+}
+.mj-brief-prose blockquote {
+  border-left: 2px solid rgba(212,175,55,0.4);
+  padding: 4px 0 4px 12px;
+  color: #c4c4c4;
+  margin: 10px 0;
+  font-style: italic;
+}
+.mj-brief-prose hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
+.mj-brief-prose a { color: #a78bfa; text-decoration: underline; text-underline-offset: 2px; }
+.mj-brief-prose table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: 12px; }
+.mj-brief-prose th, .mj-brief-prose td { border: 1px solid rgba(255,255,255,0.08); padding: 6px 10px; text-align: left; }
+.mj-brief-prose th { color: #ffffff; background: rgba(255,255,255,0.03); }
+.mj-brief-prose--compact h1 { font-size: 16px; }
+.mj-brief-prose--compact h2 { font-size: 14px; }
+.mj-brief-prose--compact { font-size: 12px; line-height: 1.55; }
+`;
 
 function actionBtnStyle(active: boolean): React.CSSProperties {
   return {

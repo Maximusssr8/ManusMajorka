@@ -591,4 +591,18 @@ preview-only deploy; rebase-and-merge coordination deferred to user.
 ## Status
 - pnpm check: 0 errors
 - pnpm build: 0 errors
-- vercel preview: pending push
+- vercel preview: verified
+
+---
+
+# Ad Studio Director — fix-ad-studio branch (2026-04-15)
+
+Branch: `fix-ad-studio`
+
+## Fixes
+- [x] Fix 1 — Markdown rendering in Ad Briefs (react-markdown + remark-gfm + scoped .mj-brief-prose CSS)
+- [x] Fix 2 — Popular Templates: descriptions, example product on click, preview-line caption, scroll-to-input
+- [x] Fix 3 — Ads Studio example preview with EXAMPLE badge (clears on real generation)
+- [x] Fix 4 — TikTok/YouTube greyed with "Soon" pill + tooltip
+- [x] Fix 5 — Sticky Generate footer with fade gradient (mobile fixed full-width)
+- [x] Fix 6 — Sidebar rename Ad Briefs->Campaign Brief, Ads Studio->Ad Copy + tooltips
