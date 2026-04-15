@@ -751,3 +751,87 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 - GET `/api/stripe/webhook` health handler (POST handler unchanged for actual Stripe events).
 - Stale comment references to "violet/purple/indigo" purged from `client/src/pages/app/Market.tsx` + `client/src/components/products/AuMoatPanels.tsx`.
 - Stripe key placeholders in `client/src/pages/WebsiteGenerator.tsx` genericised (`pk_…` / `sk_…`).
+
+## Landing Deltas 1-5 — session (2026-04-15)
+
+### Delta 1 — Hero H1 underline redesign — done
+- Rewrote client/src/components/landing/wow/KineticHeadline.tsx:
+  - Old: SVG clip-path drew a sparkline *inside* letter glyphs (gimmicky, hard to read).
+  - New: plain H1 with word-stagger fade-up (y:30→0, opacity 0→1, 120ms stagger, 200ms mount delay, 0.55s duration per word).
+  - Gold underline #d4af37 rendered as absolutely-positioned SVG under the FINAL line only, width measured via ref + getBoundingClientRect (also remeasures on resize + document.fonts.ready).
+  - Path is Q-curve (subtle arc) drawn via Framer Motion pathLength 0→1, 800ms, 500ms mount delay.
+  - After draw completes: mjUnderlinePulse keyframes loop opacity 0.6↔0.95 on 4.5s.
+  - prefers-reduced-motion → skip stagger + draw, render final state instantly.
+  - Old clipPath sparkline-in-glyphs logic entirely deleted.
+- Home.tsx hero now calls `<KineticHeadline lines={['Find winning products', 'before anyone else.']} fontSize={72} fontSizeMobile={44} lineHeight={1.0} />` instead of two separate headline components (fixes accessibility — single h1).
+- `pnpm check` — 0 errors.
+
+### Delta 2 — Live Scorer: 5 category chips backed by DB — done
+- New endpoint: GET /api/demo/quick-score?category=<Pet|Kitchen|Home|Beauty|Fitness>
+  - server/routes/demoQuickScore.ts — ILIKE OR-expression on tolerant category patterns (pet/pets/pet accessories · kitchen/bar/cookware · home storage/home/organiser · beauty/skincare/cosmetics · fitness/wellness/gym).
+  - Order by real_orders_count desc nullsFirst:false, image_url NOT NULL, limit 1.
+  - Response: { ok:true, product:{ id,title,image,price_aud,orders,score,market_split,sparkline(30pts),brief,category } }.
+  - market_split: deterministic hash of id → AU skewed 35-50%, always sums 100.
+  - sparkline: monotone-cubic interpolation of sold_count_7d_ago → sold_count normalised 0–100; falls back to seeded rising walk if both null.
+  - brief: why_winning clamped to 120 chars when present, else synthesised "${cat} staple · ${orders}+ orders · AU demand ${au}%".
+  - Failure: 404 { ok:false, reason:"no_match" }. Rate: 30/min/IP in-memory sliding window.
+  - Mounted under /api/demo in both api/_server.ts and server/_core/index.ts.
+- Legacy /api/public/quick-score kept intact (still referenced elsewhere).
+- Rewrote client/src/components/landing/wow/QuickScoreHero.tsx:
+  - 5 chips (Pet Products · Kitchen & Bar · Home Storage · Beauty · Fitness) with the spec'd styles: border 1px #1a1a1a, rounded-full, px-16 py-8, 13px DM Sans #9CA3AF, 44px min tap target. Active: border+text #d4af37, bg rgba(212,175,55,0.08).
+  - Click → fetch /api/demo/quick-score?category=<key>.
+  - Skeleton shimmer while pending.
+  - Orchestrated sequence phases: 100ms skeleton → 250ms image/name fade → 450ms count-up scores → 650ms market bars → 800ms brief typewriter. Total ~800ms.
+  - CountUp spring-feel via existing primitive. Market bars use existing stagger. Sparkline via SparklineDraw pathLength 0→1.
+  - Image routed through proxyImage() for AliExpress CDN.
+  - Gold CTA at the bottom: "Find 4,155 products like this →" linking /sign-up.
+  - Auto-cycle: 6 seconds (Delta 3 cadence) → next chip round-robin. Paused when document.hidden. User interaction stops the cycle permanently.
+  - Two-strike fallback: if fetch fails twice in a row, render seeded sampled data and flag "Sampled demo — API momentarily unavailable".
+
+### Delta 3 — Auto-cycle cadence 6s — done (inline with Delta 2)
+- Previous QuickScoreHero had no auto-cycle (seed chips were click-only) and the TickerBar/CarouselScorer-style 8s interval did not exist in this revision. New setTimeout is exactly AUTO_CYCLE_MS = 6000ms.
+
+### Delta 4 — StickyLaunchBar counter + dismiss-forever — done
+- localStorage counter key bumped to `majorka_launch_spots_v2` (old `majorka_spots_taken` intentionally abandoned to reset stale values cleanly).
+- Seed value: 287 on first read. Tick +1 every 480000ms (8 min). Cap 489. Persisted each tick.
+- Dismiss: never-show-again. Writes `majorka_launch_bar_dismissed_v3 = "1"`. On mount, if present → null.
+- Text copy verbatim: "🔥 Launch pricing — Builder from $99 AUD/mo · Prices increase after first 500 subscribers".
+- Right counter: `[ N / 500 ] spots` — JetBrains Mono, #080808 on gold. Class .mj-launch-counter hidden at <=767px.
+- Height 40px, bg `linear-gradient(90deg, #b8962e, #d4af37, #b8962e)`, text #080808, DM Sans 13px 600.
+- Dismiss × button: 32×32 tap target on right edge.
+- Home.tsx topOffset now LAUNCH_BAR_HEIGHT (40) when visible (was 36); nav + main content padded accordingly (existing `paddingTop: topOffset + 64`).
+
+### Delta 5 — City marquee — done
+- New `<CityMarquee />` component inserted between `<Hero />` and `<MicroOrderTicker />` on the landing.
+- Content: "Trusted by dropshippers in  Sydney · Melbourne · Gold Coast · Brisbane · London · Manchester · New York · Auckland · Toronto".
+- Style: DM Sans 13px #6B7280, gold #d4af37 `·` separators, 32px padding between pill repeats.
+- Two identical <Pill /> spans rendered side-by-side; `@keyframes mjMarquee` translates 0 → -50% over 30s linear infinite for a seamless loop.
+- Hover pauses via `.mj-marquee-track:hover { animation-play-state: paused; }`.
+- `prefers-reduced-motion` → branch renders a single static centred line, no animation.
+- Container `overflow: hidden` + `maxWidth: 100vw` prevents any horizontal overflow leak at 390px.
+
+### Verification
+- `pnpm check` — 0 errors.
+- `pnpm build` — SUCCESS.
+- Competitor grep (landing tree): 0 matches.
+- Cliché grep (landing tree): 0 matches.
+- Banned palette grep (landing files + new server route): 0 matches.
+
+### Gate verification (preview: https://agent-ab3c909b.vercel.app)
+- Headless Chrome 390x844: scrollWidth === clientWidth === 390 (zero overflow), h1 = "Find winning products\nbefore anyone else.", marquee present, launch counter hidden on mobile as spec'd.
+- Headless Chrome 1280x900: h1 correct, underline <svg><path> present under final line, launch counter shows "[ 287 / 500 ] spots" on first load (seed value), marquee present, all 5 chips present (Pet Products · Kitchen & Bar · Home Storage · Beauty · Fitness).
+- Console: only network resource failures (500/503) on unrelated pre-existing routes + our /api/demo/quick-score (preview env lacks SUPABASE_URL/SERVICE_ROLE_KEY — expected; the component's 2-strike fallback renders sampled data with a caption, no uncaught React errors).
+- `pnpm check`: 0 errors. `pnpm build`: SUCCESS.
+- Competitor / cliché / banned-palette greps across the landing tree + new server route: 0 matches.
+
+### Commits on landing-deltas-1-5
+- 69b0411  feat(landing-delta-1): hero H1 clean word-stagger + gold underline draw
+- 8f5323a  feat(landing-delta-2): Live Scorer — 5 category chips backed by real DB
+- 7092e3a  feat(landing-delta-4): launch bar — 287→489 counter, 500 cap, dismiss-forever
+- b9de8af  feat(landing-delta-5): city marquee between hero and social proof bar
+(Delta 3 = 6s auto-cycle cadence; landed inline with Delta 2 per spec.)
+
+### Deferred / notes for merge coordinator
+- /api/demo/quick-score returns 503 { ok:false, reason:"db_unavailable" } on the preview because SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set on this preview project. Both will be present on prod — endpoint returns real DB-backed JSON there.
+- Old localStorage key `majorka_spots_taken` is no longer read (replaced by `majorka_launch_spots_v2`). Intentional clean reset.
+- Old `majorka_launch_bar_dismissed_v3` semantics changed from "timestamp, 24h reshow" to "'1' = never show again". If a user already has a timestamp stored, the bar will re-show (since `!== '1'`). Acceptable for launch; if you'd rather respect a stale timestamp, add a wrapper.

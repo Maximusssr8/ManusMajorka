@@ -81,13 +81,16 @@ body { font-family: ${F.body}; color: ${LT.text}; -webkit-font-smoothing: antial
   .mj-feature-row-reverse .mj-feature-text { order: 2 !important; }
   .mj-hide-mobile { display: none !important; }
   .mj-stack-mobile { flex-direction: column !important; align-items: stretch !important; }
-  .mj-hero-h1 { font-size: 36px !important; }
+  /* Delta 1: mobile H1 handled by fontSizeMobile prop; leave inline style authoritative. */
   .mj-section-h2 { font-size: 28px !important; }
   .mj-section { padding: 64px 20px !important; }
   .mj-step-connector { display: none !important; }
 }
 @media (max-width: 420px) {
   body { font-size: 14px; }
+}
+@media (max-width: 767px) {
+  .mj-launch-counter { display: none !important; }
 }
 
 a { color: inherit; }
@@ -200,47 +203,60 @@ function CtaGhost({ href, children, style }: { href: string; children: React.Rea
   );
 }
 
-// ── Sticky Launch Bar ───────────────────────────────────────────────────────
-const SPOTS_KEY = 'majorka_spots_taken';
+// ── Sticky Launch Bar (Delta 4) ─────────────────────────────────────────────
+// Counter: seed 287 on first read, +1 every 8 minutes, cap at 489, persisted.
+// Dismiss: never-show-again.
+const SPOTS_KEY = 'majorka_launch_spots_v2';
+const SPOT_SEED = 287;
+const SPOT_CAP = 489;
+const SPOT_TICK_MS = 8 * 60 * 1000;
 const DISMISS_KEY = 'majorka_launch_bar_dismissed_v3';
+const LAUNCH_BAR_HEIGHT = 40;
 
 function StickyLaunchBar() {
-  const [spots, setSpots] = useState(127);
-  const [dismissed, setDismissed] = useState(true);
+  const [spots, setSpots] = useState<number>(SPOT_SEED);
+  const [dismissed, setDismissed] = useState<boolean>(true);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    // Dismiss check (24h re-show)
+    // Never-show-again gate.
     try {
-      const d = localStorage.getItem(DISMISS_KEY);
-      if (d) {
-        const age = Date.now() - parseInt(d, 10);
-        if (age < 24 * 60 * 60 * 1000) { setDismissed(true); return; }
+      if (localStorage.getItem(DISMISS_KEY) === '1') {
+        setDismissed(true);
+        return;
       }
     } catch { /* ignore */ }
     setDismissed(false);
 
-    // Seed / load spots
-    let cur = 127;
+    // Seed / load counter.
+    let cur = SPOT_SEED;
     try {
       const raw = localStorage.getItem(SPOTS_KEY);
-      if (raw) cur = Math.max(127, Math.min(189, parseInt(raw, 10) || 127));
+      if (raw) {
+        const parsed = parseInt(raw, 10);
+        if (Number.isFinite(parsed)) {
+          cur = Math.max(SPOT_SEED, Math.min(SPOT_CAP, parsed));
+        }
+      } else {
+        localStorage.setItem(SPOTS_KEY, String(SPOT_SEED));
+      }
     } catch { /* ignore */ }
     setSpots(cur);
 
-    // Increment every 8min
+    // Increment every 8 minutes, cap at 489.
     const id = window.setInterval(() => {
       setSpots((prev) => {
-        const next = Math.min(189, prev + 1);
+        if (prev >= SPOT_CAP) return prev;
+        const next = prev + 1;
         try { localStorage.setItem(SPOTS_KEY, String(next)); } catch { /* ignore */ }
         return next;
       });
-    }, 8 * 60 * 1000);
+    }, SPOT_TICK_MS);
     return () => window.clearInterval(id);
   }, []);
 
   const dismiss = () => {
-    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* ignore */ }
+    try { localStorage.setItem(DISMISS_KEY, '1'); } catch { /* ignore */ }
     setDismissed(true);
   };
 
@@ -252,32 +268,53 @@ function StickyLaunchBar() {
       left: 0,
       right: 0,
       zIndex: 1001,
-      background: LT.gold,
-      color: LT.bg,
+      height: LAUNCH_BAR_HEIGHT,
+      background: 'linear-gradient(90deg, #b8962e, #d4af37, #b8962e)',
+      color: '#080808',
       fontFamily: F.body,
       fontSize: 13,
       fontWeight: 600,
-      padding: '8px 40px 8px 16px',
+      padding: '0 44px 0 16px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       gap: 16,
-      flexWrap: 'wrap',
     }}>
-      <span>🔥 Launch pricing — Builder from $99 AUD/mo. First 200 users lock this price forever.</span>
-      <span style={{ fontFamily: F.mono, fontSize: 12, padding: '3px 10px', background: 'rgba(0,0,0,0.15)', borderRadius: R.badge, whiteSpace: 'nowrap' }}>
-        [ {spots} / 200 ] spots taken
+      <span style={{ lineHeight: 1.2 }}>
+        🔥 Launch pricing — Builder from $99 AUD/mo · Prices increase after first 500 subscribers
+      </span>
+      <span
+        className="mj-launch-counter"
+        style={{
+          fontFamily: F.mono,
+          fontSize: 13,
+          fontWeight: 600,
+          whiteSpace: 'nowrap',
+          color: '#080808',
+        }}
+      >
+        [ {spots} / 500 ] spots
       </span>
       <button
         onClick={dismiss}
         aria-label="Dismiss launch pricing bar"
         style={{
-          position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-          width: 28, height: 28, minWidth: 28,
-          background: 'transparent', border: 'none', cursor: 'pointer',
-          color: LT.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'absolute',
+          right: 6,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: 32,
+          height: 32,
+          minWidth: 32,
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          color: '#080808',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-      ><X size={16} /></button>
+      ><X size={18} /></button>
     </div>
   );
 }
@@ -542,8 +579,12 @@ function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
           </motion.div>
 
           <div style={{ margin: `0 0 ${S.md}px` }}>
-            <KineticHeadline text="Find winning products" fontSize={64} />
-            <KineticHeadline text="before they peak." fontSize={64} />
+            <KineticHeadline
+              lines={['Find winning products', 'before anyone else.']}
+              fontSize={72}
+              fontSizeMobile={44}
+              lineHeight={1.0}
+            />
           </div>
 
           <motion.div
@@ -1428,6 +1469,99 @@ function AcademySection() {
   );
 }
 
+// ── City Marquee (Delta 5) ──────────────────────────────────────────────────
+// Subtle single-line scroll of city names. Two copies rendered side-by-side
+// so the translateX -50% loop is seamless. Paused on hover and reduced motion.
+const MARQUEE_CITIES = [
+  'Sydney', 'Melbourne', 'Gold Coast', 'Brisbane',
+  'London', 'Manchester', 'New York', 'Auckland', 'Toronto',
+];
+
+function CityMarquee() {
+  const reduced = usePrefersReducedMotion();
+  const cities = MARQUEE_CITIES.join('  ·  ');
+  const prefix = 'Trusted by dropshippers in  ';
+
+  if (reduced) {
+    return (
+      <div style={{
+        borderTop: `1px solid ${LT.border}`,
+        borderBottom: `1px solid ${LT.border}`,
+        padding: '10px 20px',
+        overflow: 'hidden',
+        background: LT.bg,
+      }}>
+        <div style={{
+          fontFamily: F.body, fontSize: 13, color: LT.textDim,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+          textAlign: 'center',
+        }}>
+          <span>{prefix}</span>
+          {MARQUEE_CITIES.map((c, i) => (
+            <span key={c}>
+              {i > 0 && <span style={{ color: LT.gold, margin: '0 10px' }}>·</span>}
+              <span>{c}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const Pill = () => (
+    <span
+      className="mj-marquee-pill"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        fontFamily: F.body,
+        fontSize: 13,
+        color: LT.textDim,
+        paddingRight: 32,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <span>{prefix}</span>
+      {MARQUEE_CITIES.map((c, i) => (
+        <span key={c} style={{ display: 'inline-flex', alignItems: 'center' }}>
+          {i > 0 && <span style={{ color: LT.gold, margin: '0 10px' }}>·</span>}
+          <span>{c}</span>
+        </span>
+      ))}
+    </span>
+  );
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        borderTop: `1px solid ${LT.border}`,
+        borderBottom: `1px solid ${LT.border}`,
+        padding: '10px 0',
+        overflow: 'hidden',
+        background: LT.bg,
+        maxWidth: '100vw',
+      }}
+    >
+      <div className="mj-marquee-track" style={{
+        display: 'inline-flex',
+        width: 'max-content',
+        animation: 'mjMarquee 30s linear infinite',
+      }}>
+        <Pill />
+        <Pill />
+      </div>
+      <style>{`
+        @keyframes mjMarquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .mj-marquee-track:hover { animation-play-state: paused; }
+      `}</style>
+    </div>
+  );
+}
+
 // ── Social Proof Bar (small testimonial row) ────────────────────────────────
 function SocialProofBar() {
   const { stats, products } = useLandingData();
@@ -2072,15 +2206,13 @@ export default function Home() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const d = localStorage.getItem(DISMISS_KEY);
-      if (d) {
-        const age = Date.now() - parseInt(d, 10);
-        setBarVisible(age >= 24 * 60 * 60 * 1000);
+      if (localStorage.getItem(DISMISS_KEY) === '1') {
+        setBarVisible(false);
       }
     } catch { /* default visible */ }
   }, []);
 
-  const topOffset = barVisible ? 36 : 0;
+  const topOffset = barVisible ? LAUNCH_BAR_HEIGHT : 0;
 
   // memoize nothing heavy; just a hint that re-renders are fine
   const _stylesMemo = useMemo(() => GLOBAL_CSS, []);
@@ -2108,6 +2240,7 @@ export default function Home() {
       <div style={{ paddingTop: topOffset + 64 }} />
 
       <Hero tickerUrl={tickerUrl} />
+      <CityMarquee />
       <MicroOrderTicker />
       <SocialProofBar />
       <ChapterMorph />

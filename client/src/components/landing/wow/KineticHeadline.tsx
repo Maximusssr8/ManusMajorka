@@ -1,136 +1,185 @@
-// Directive 6 — Kinetic H1 with sparkline mask clipped inside each word.
-// The text itself acts as a clip region; a gold sparkline <path> draws via
-// stroke-dasharray inside the letter shapes and then pulses in opacity.
-// Reduced motion: static gold sparkline baked in, no draw animation.
+// Delta 1 — clean H1 with word-stagger fade-up and a gold underline
+// drawn under the FINAL line via Framer Motion pathLength.
+//
+// Usage:
+//   <KineticHeadline
+//     lines={['Find winning products', 'before anyone else.']}
+//     // lineToUnderline defaults to the last line index
+//   />
+//
+// - Words fade in y:30→0, opacity 0→1, 120ms stagger, starting 200ms after mount.
+// - Underline under the final line only, starts 500ms after mount, draws 800ms.
+// - After draw: subtle opacity pulse 0.6→0.95→0.6 on a 4.5s loop.
+// - prefers-reduced-motion: skip stagger + draw, render final state instantly.
 
-import { useEffect, useId, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { LT, F } from '@/lib/landingTokens';
-import { usePrefersReducedMotion } from '../primitives';
 
 interface Props {
-  text: string;
-  // Controls SVG font-size in px. The surrounding article scales responsively.
+  lines?: string[];
   fontSize?: number;
+  fontSizeMobile?: number;
   lineHeight?: number;
-  // Sparkline values (0..100). Default = natural rising ramp with 2 dips.
-  values?: number[];
-  gold?: boolean;
+  // Which line gets the gold underline. Defaults to last line.
+  lineToUnderline?: number;
 }
 
-const DEFAULT_VALUES = [
-  42, 48, 46, 52, 58, 56, 64, 62, 70, 72, 68, 76, 82, 78, 85, 90, 88, 94, 91, 96,
-];
+const DEFAULT_LINES = ['Find winning products', 'before anyone else.'];
 
 export function KineticHeadline({
-  text,
-  fontSize = 64,
-  lineHeight = 1.05,
-  values = DEFAULT_VALUES,
-  gold = true,
+  lines = DEFAULT_LINES,
+  fontSize = 72,
+  fontSizeMobile = 44,
+  lineHeight = 1.0,
+  lineToUnderline,
 }: Props) {
-  const ref = useRef<SVGPathElement | null>(null);
-  const reduced = usePrefersReducedMotion();
-  const uid = useId().replace(/:/g, '_');
+  const reduced = useReducedMotion();
+  const underlineLine = typeof lineToUnderline === 'number' ? lineToUnderline : lines.length - 1;
+  const finalLineRef = useRef<HTMLSpanElement | null>(null);
+  const [uWidth, setUWidth] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
-  // Build sparkline path sized to a wide viewbox.
-  const W = 1200, H = 140;
-  const step = W / (values.length - 1);
-  const min = Math.min(...values), max = Math.max(...values);
-  const range = max - min || 1;
-  const d = values
-    .map((v, i) => {
-      const x = i * step;
-      const y = H - ((v - min) / range) * H;
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
-    })
-    .join(' ');
-
-  useEffect(() => {
-    const path = ref.current;
-    if (!path) return;
-    if (reduced) {
-      path.style.strokeDasharray = 'none';
-      path.style.strokeDashoffset = '0';
-      path.style.opacity = '1';
-      return;
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    const measure = () => {
+      setIsMobile(window.innerWidth < 768);
+      const el = finalLineRef.current;
+      if (el) setUWidth(el.getBoundingClientRect().width);
+    };
+    measure();
+    // Remeasure on resize + fonts ready (web fonts load async).
+    window.addEventListener('resize', measure);
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      const fontFaceSet = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
+      fontFaceSet?.ready?.then(measure).catch(() => { /* ignore */ });
     }
-    const L = path.getTotalLength();
-    path.style.strokeDasharray = `${L}`;
-    path.style.strokeDashoffset = `${L}`;
-    path.style.opacity = '1';
-    path.getBoundingClientRect();
-    path.style.transition = 'stroke-dashoffset 1200ms cubic-bezier(0.2,0.8,0.2,1)';
-    path.style.strokeDashoffset = '0';
-  }, [reduced, d]);
+    return () => window.removeEventListener('resize', measure);
+  }, [lines.join('|')]);
 
-  const clipId = `kh-clip-${uid}`;
+  const resolvedFontSize = isMobile ? fontSizeMobile : fontSize;
+
+  // Build a gentle two-tone hand-drawn underline path.
+  // We use a slightly wavy stroke for character — not a perfectly straight line.
+  // Underline SVG: 2 control points for a smooth arc hint.
+  const UNDERLINE_H = 10;
+  const uPath = (w: number) =>
+    `M 2 ${UNDERLINE_H / 2} Q ${w / 2} ${UNDERLINE_H / 2 + 2.5}, ${w - 2} ${UNDERLINE_H / 2}`;
 
   return (
     <h1
       className="mj-hero-h1"
       style={{
         fontFamily: F.display,
-        fontSize,
+        fontSize: resolvedFontSize,
         fontWeight: 800,
         lineHeight,
         letterSpacing: '-0.02em',
         color: LT.text,
         margin: 0,
-        position: 'relative',
+        display: 'block',
       }}
     >
-      {/* Base text (accessible) */}
-      <span style={{ color: LT.text }}>{text}</span>
-      {/* Decorative overlay with sparkline clipped inside the glyphs */}
-      <svg
-        aria-hidden="true"
-        viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="none"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-      >
-        <defs>
-          <clipPath id={clipId}>
-            {/* The text shapes form the clip region. We tile it across so
-                the sparkline visually appears inside every glyph. */}
-            <text
-              x="0"
-              y={H * 0.75}
-              fontFamily={F.display as string}
-              fontWeight={800}
-              fontSize={H * 0.95}
-              letterSpacing="-2"
-              // Hide from a11y; the outer <h1> already carries the text.
+      {lines.map((line, li) => {
+        const words = line.split(/\s+/);
+        const isFinal = li === underlineLine;
+        return (
+          <span
+            key={li}
+            style={{ display: 'block', position: 'relative' }}
+          >
+            <span
+              ref={isFinal ? finalLineRef : undefined}
+              style={{ display: 'inline-block' }}
             >
-              {text}
-            </text>
-          </clipPath>
-        </defs>
-        <g clipPath={`url(#${clipId})`}>
-          <path
-            ref={ref}
-            d={d}
-            fill="none"
-            stroke={gold ? LT.gold : LT.success}
-            strokeWidth={6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              animation: reduced ? undefined : 'mjKineticPulse 4.5s ease-in-out 1.6s infinite',
-              opacity: 0.55,
-            }}
-          />
-        </g>
-      </svg>
+              {words.map((w, wi) => {
+                // Compute flat index for stagger across lines.
+                const flatIdx =
+                  lines.slice(0, li).reduce((n, l) => n + l.split(/\s+/).length, 0) + wi;
+                return (
+                  <motion.span
+                    key={`${li}-${wi}`}
+                    initial={reduced ? undefined : { y: 30, opacity: 0 }}
+                    animate={reduced ? undefined : { y: 0, opacity: 1 }}
+                    transition={
+                      reduced
+                        ? undefined
+                        : {
+                            delay: 0.2 + flatIdx * 0.12,
+                            duration: 0.55,
+                            ease: [0.2, 0.8, 0.2, 1],
+                          }
+                    }
+                    style={{
+                      display: 'inline-block',
+                      whiteSpace: 'pre',
+                      willChange: 'transform, opacity',
+                    }}
+                  >
+                    {w}
+                    {wi < words.length - 1 ? ' ' : ''}
+                  </motion.span>
+                );
+              })}
+            </span>
+
+            {isFinal && uWidth > 0 && (
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  // ~6px below baseline; since lineHeight=1 and fontSize drives baseline,
+                  // placing at 100% + 6 approximates baseline+6 well enough for display type.
+                  top: `calc(100% + 6px)`,
+                  width: uWidth,
+                  height: UNDERLINE_H,
+                  pointerEvents: 'none',
+                }}
+              >
+                <motion.svg
+                  width={uWidth}
+                  height={UNDERLINE_H}
+                  viewBox={`0 0 ${uWidth} ${UNDERLINE_H}`}
+                  preserveAspectRatio="none"
+                  style={{
+                    display: 'block',
+                    overflow: 'visible',
+                    animation:
+                      reduced ? undefined : 'mjUnderlinePulse 4.5s ease-in-out 1.4s infinite',
+                  }}
+                >
+                  <motion.path
+                    d={uPath(uWidth)}
+                    fill="none"
+                    stroke={LT.gold}
+                    strokeWidth={3.5}
+                    strokeLinecap="round"
+                    initial={reduced ? undefined : { pathLength: 0, opacity: 0.9 }}
+                    animate={reduced ? { pathLength: 1, opacity: 0.9 } : { pathLength: 1, opacity: 0.9 }}
+                    transition={
+                      reduced
+                        ? { duration: 0 }
+                        : {
+                            pathLength: {
+                              delay: 0.5,
+                              duration: 0.8,
+                              ease: [0.2, 0.8, 0.2, 1],
+                            },
+                          }
+                    }
+                  />
+                </motion.svg>
+              </span>
+            )}
+          </span>
+        );
+      })}
+
       <style>{`
-        @keyframes mjKineticPulse {
-          0%, 100% { opacity: 0.55; }
-          50% { opacity: 0.28; }
+        @keyframes mjUnderlinePulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 0.95; }
         }
       `}</style>
     </h1>

@@ -362,6 +362,8 @@ async function startServer() {
   app.use('/api/products', productsRouter);
   const publicRouter = (await import('../routes/public')).default;
   app.use('/api/public', publicRouter);
+  const demoQuickScoreRouter = (await import('../routes/demoQuickScore')).default;
+  app.use('/api/demo', demoQuickScoreRouter);
   const waitlistRouter = (await import('../routes/waitlist')).default;
   app.use('/api/waitlist', waitlistRouter);
   const { default: aliexpressRouter } = await import('../routes/aliexpress');
