@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Send, Sparkles, Trash2 } from "lucide-react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Send, Sparkles, Trash2, Package, X, Search } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -8,11 +8,37 @@ import { useLocation } from 'wouter';
 const brico = "'Syne', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
+// Session boundary: gap > 30min between messages = new session
+const SESSION_GAP_MS = 30 * 60 * 1000;
+
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   ts: Date;
+}
+
+interface AttachedProduct {
+  id: string;
+  product_title: string;
+  price_aud: number | null;
+  orders_count?: number | null;
+  winning_score?: number | null;
+}
+
+interface ProductSearchResult {
+  id: string;
+  product_title: string;
+  price_aud: number | null;
+  orders_count?: number | null;
+  winning_score?: number | null;
+  image_url?: string | null;
+}
+
+function fmtSessionDate(d: Date): string {
+  const day = d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  const time = d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase().replace(' ', '');
+  return `${day}, ${time}`;
 }
 
 // ── Inline markdown renderer (no external deps) ───────────────────────────────
@@ -296,14 +322,102 @@ export default function AIChat() {
     return () => clearTimeout(timeout);
   }, [messages]);
 
-  // Fixed suggested prompts (Maya upgrade spec)
+  // Fix 2 — Empty chat suggestion chips (spec text)
   const suggestedPrompts = [
-    "Find me a winning pet product for AU market",
-    "What's the best-margin electronics product right now?",
-    "Show me 3 products with 90+ winning score",
-    "Give me ad copy ideas for my last saved product",
+    "Find me a trending pet product for AU under $30",
+    "Write a Meta ad hook for the nano tape product",
+    "What's the best niche for AU dropshipping right now?",
+    "How do I price a product with 30% margin?",
   ];
   void userNiche; // retained for future personalisation
+
+  // Fix 3 — Product attachment state
+  const [attachOpen, setAttachOpen] = useState(false);
+  const [attachQuery, setAttachQuery] = useState("");
+  const [attachResults, setAttachResults] = useState<ProductSearchResult[]>([]);
+  const [attachLoading, setAttachLoading] = useState(false);
+  const [attachments, setAttachments] = useState<AttachedProduct[]>([]);
+  const attachRef = useRef<HTMLDivElement>(null);
+
+  // Debounced product search (250ms)
+  useEffect(() => {
+    if (!attachOpen) return;
+    const q = attachQuery.trim();
+    if (!q) { setAttachResults([]); return; }
+    const t = setTimeout(async () => {
+      setAttachLoading(true);
+      try {
+        const { data: { session: sess } } = await supabase.auth.getSession();
+        const headers: Record<string, string> = {};
+        if (sess?.access_token) headers["Authorization"] = `Bearer ${sess.access_token}`;
+        const res = await fetch(`/api/products?limit=8&search=${encodeURIComponent(q)}`, { headers });
+        if (res.ok) {
+          const json = await res.json();
+          const list: ProductSearchResult[] = (json.products || []).slice(0, 8).map((p: any) => ({
+            id: String(p.id),
+            product_title: p.product_title || p.title || 'Untitled',
+            price_aud: p.price_aud ?? null,
+            orders_count: p.orders_count ?? p.real_orders_count ?? p.sold_count ?? null,
+            winning_score: p.winning_score ?? null,
+            image_url: p.image_url ?? null,
+          }));
+          setAttachResults(list);
+        } else {
+          setAttachResults([]);
+        }
+      } catch {
+        setAttachResults([]);
+      } finally {
+        setAttachLoading(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [attachQuery, attachOpen]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!attachOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (attachRef.current && !attachRef.current.contains(e.target as Node)) setAttachOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [attachOpen]);
+
+  const addAttachment = (p: ProductSearchResult) => {
+    if (attachments.length >= 3) return;
+    if (attachments.some(a => a.id === p.id)) return;
+    setAttachments(prev => [...prev, {
+      id: p.id, product_title: p.product_title, price_aud: p.price_aud,
+      orders_count: p.orders_count, winning_score: p.winning_score,
+    }]);
+    setAttachQuery("");
+  };
+
+  const removeAttachment = (id: string) => setAttachments(prev => prev.filter(a => a.id !== id));
+
+  // Fix 1 — Session divider computation: gap > 30min indicates new session
+  const sessionDividers = useMemo(() => {
+    const map = new Map<string, Date>();
+    for (let i = 0; i < messages.length; i++) {
+      if (i === 0) continue;
+      const prev = messages[i - 1].ts.getTime();
+      const cur = messages[i].ts.getTime();
+      if (cur - prev > SESSION_GAP_MS) {
+        map.set(messages[i].id, messages[i].ts);
+      }
+    }
+    return map;
+  }, [messages]);
+
+  // Last divider id => everything strictly before it is "previous session" (opacity 0.6)
+  const lastDividerIdx = useMemo(() => {
+    let idx = -1;
+    for (let i = 0; i < messages.length; i++) {
+      if (i > 0 && sessionDividers.has(messages[i].id)) idx = i;
+    }
+    return idx;
+  }, [messages, sessionDividers]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -317,12 +431,27 @@ export default function AIChat() {
   };
 
   const sendMessage = async (text?: string) => {
-    const content = (text ?? input).trim();
-    if (!content || loading) return;
+    const baseContent = (text ?? input).trim();
+    if (!baseContent || loading) return;
+
+    // Fix 3 — append attached product context to outgoing message
+    const attachmentSuffix = attachments.length > 0
+      ? '\n\n' + attachments.map(a => {
+          const price = a.price_aud != null ? `AUD $${Number(a.price_aud).toFixed(2)}` : 'AUD $—';
+          const orders = a.orders_count != null ? `${a.orders_count} orders` : '— orders';
+          const score = a.winning_score != null ? `score ${a.winning_score}` : 'score —';
+          return `[Attached: ${a.product_title} · ${price} · ${orders} · ${score}]`;
+        }).join('\n')
+      : '';
+    const content = baseContent + attachmentSuffix;
+
     if (content.length > 10000) {
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant' as const, content: 'Message too long (max 10,000 characters). Please shorten your message.', ts: new Date() }]);
       return;
     }
+
+    // Clear attachments after compose
+    setAttachments([]);
 
     const userMsg: Message = { id: Date.now().toString(), role: "user", content, ts: new Date() };
     setMessages(prev => [...prev, userMsg]);
@@ -494,9 +623,22 @@ export default function AIChat() {
             </div>
           )}
 
-          {/* Messages */}
-          {messages.map(msg => (
-            <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 8 }}>
+          {/* Messages with Fix 1 session dividers */}
+          {messages.map((msg, idx) => {
+            const isPrevSession = lastDividerIdx > 0 && idx < lastDividerIdx;
+            const dividerTs = sessionDividers.get(msg.id);
+            return (
+              <React.Fragment key={msg.id}>
+                {dividerTs && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 4px', opacity: 0.6 }}>
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                    <span style={{ fontFamily: dm, fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap' }}>
+                      New session — {fmtSessionDate(dividerTs)}
+                    </span>
+                    <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                  </div>
+                )}
+                <div style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 8, opacity: isPrevSession ? 0.6 : 1, transition: 'opacity 200ms' }}>
               {msg.role === "assistant" && (
                 <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 18 }}>
                   <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
@@ -527,7 +669,9 @@ export default function AIChat() {
                 <span style={{ fontFamily: dm, fontSize: 11, color: "#64748B", marginTop: 4, fontVariantNumeric: "tabular-nums" }}>{fmtTime(msg.ts)}</span>
               </div>
             </div>
-          ))}
+              </React.Fragment>
+            );
+          })}
 
           {loading && <TypingDots />}
           <div ref={bottomRef} />
@@ -535,7 +679,108 @@ export default function AIChat() {
 
         {/* ── Input ────────────────────────────────────────────────────────── */}
         <div className="px-3 sm:px-6" style={{ paddingTop: 12, paddingBottom: "max(20px, env(safe-area-inset-bottom, 20px))", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,17,23,0.98)", position: "sticky", bottom: 0, zIndex: 10 }}>
-          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
+          {/* Fix 3 — attached product chips */}
+          {attachments.length > 0 && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+              {attachments.map(a => (
+                <span key={a.id} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontSize: 11, padding: '4px 8px', borderRadius: 16,
+                  background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)',
+                  color: '#e5c158', fontFamily: dm, maxWidth: 280,
+                }}>
+                  <Package size={11} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {a.product_title}
+                  </span>
+                  <button
+                    onClick={() => removeAttachment(a.id)}
+                    aria-label="Remove attachment"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e5c158', padding: 0, display: 'flex' }}
+                  >
+                    <X size={11} />
+                  </button>
+                </span>
+              ))}
+              <span style={{ fontSize: 10, color: '#64748B', alignSelf: 'center' }}>{attachments.length}/3</span>
+            </div>
+          )}
+          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 8, alignItems: "flex-end" }}>
+            {/* Fix 3 — Attach product button + dropdown */}
+            <div ref={attachRef} style={{ position: 'relative', flexShrink: 0 }}>
+              <button
+                onClick={() => setAttachOpen(v => !v)}
+                disabled={attachments.length >= 3}
+                aria-label="Attach product"
+                title={attachments.length >= 3 ? 'Max 3 attachments' : 'Attach product'}
+                style={{
+                  width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: attachOpen ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)', cursor: attachments.length >= 3 ? 'not-allowed' : 'pointer',
+                  color: attachOpen ? '#e5c158' : '#94A3B8', opacity: attachments.length >= 3 ? 0.4 : 1,
+                  transition: 'all 150ms',
+                }}
+              >
+                <Package size={15} />
+              </button>
+              {attachOpen && (
+                <div style={{
+                  position: 'absolute', bottom: 44, left: 0, width: 320,
+                  background: '#13151c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12,
+                  padding: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.4)', zIndex: 20,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 8, marginBottom: 6 }}>
+                    <Search size={12} color="#94A3B8" />
+                    <input
+                      autoFocus
+                      value={attachQuery}
+                      onChange={e => setAttachQuery(e.target.value)}
+                      placeholder="Search products..."
+                      style={{
+                        flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                        color: '#E0E7FF', fontFamily: dm, fontSize: 12,
+                      }}
+                    />
+                  </div>
+                  <div style={{ maxHeight: 280, overflowY: 'auto' }}>
+                    {attachLoading && (
+                      <div style={{ padding: 12, textAlign: 'center' as const, color: '#64748B', fontSize: 11 }}>Searching…</div>
+                    )}
+                    {!attachLoading && attachQuery.trim() && attachResults.length === 0 && (
+                      <div style={{ padding: 12, textAlign: 'center' as const, color: '#64748B', fontSize: 11 }}>No products found</div>
+                    )}
+                    {!attachLoading && !attachQuery.trim() && (
+                      <div style={{ padding: 12, textAlign: 'center' as const, color: '#64748B', fontSize: 11 }}>Type to search products</div>
+                    )}
+                    {attachResults.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => addAttachment(p)}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '6px 8px', background: 'transparent', border: 'none',
+                          borderRadius: 6, cursor: 'pointer', textAlign: 'left' as const,
+                          color: '#D1D5DB', fontFamily: dm, fontSize: 12,
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,175,55,0.08)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {p.image_url && (
+                          <img src={p.image_url} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }} />
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.product_title}</div>
+                          <div style={{ fontSize: 10, color: '#64748B' }}>
+                            {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
+                            {p.winning_score != null ? ` · score ${p.winning_score}` : ''}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <textarea
               ref={textareaRef}
               className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-[#d4af37]/50 resize-none transition-all maya-textarea"
