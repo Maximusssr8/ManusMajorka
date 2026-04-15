@@ -67,6 +67,7 @@ import onboardingRouter from "../server/routes/onboarding";
 import listsRouter from "../server/routes/lists";
 import dailyDigestRouter from "../server/cron/daily-digest";
 import { trackOnboarding } from "../server/middleware/trackOnboarding";
+import dashboardRouter from "../server/routes/dashboard";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -646,7 +647,6 @@ app.use('/api/onboarding', onboardingRouter);
 app.use('/api/lists', listsRouter);
 app.use('/api/cron', dailyDigestRouter);
 // Dashboard slices — server-side dedup of Hot Today vs Top Opportunities.
-const dashboardRouter = (await import('../server/routes/dashboard')).default;
 app.use('/api/dashboard', dashboardRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
