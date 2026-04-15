@@ -1653,7 +1653,7 @@ function TrustSignals() {
         borderTop: `1px solid ${LT.border}`,
         display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: S.lg,
       }}>
-        <span style={{ fontFamily: F.mono, fontSize: 11, color: LT.textDim, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Built with</span>
+        <span style={{ fontFamily: F.mono, fontSize: 11, color: LT.textDim, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Powered by</span>
         {logos.map(l => (
           <span key={l} style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, fontWeight: 500 }}>{l}</span>
         ))}

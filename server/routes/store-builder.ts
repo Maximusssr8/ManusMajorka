@@ -1,5 +1,6 @@
 import { Router, Request } from 'express';
 import { callClaude } from '../lib/claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 
 import { expandStoreBrief } from '../lib/website-api';
 import { requireSubscription } from '../middleware/requireSubscription';
@@ -323,7 +324,7 @@ router.get('/products-for-niche', requireAuth, async (req, res) => {
 });
 
 // ── POST /api/store-builder/generate-copy ──────────────────────
-router.post('/generate-copy', requireAuth, async (req, res) => {
+router.post('/generate-copy', requireAuth, claudeRateLimit, async (req, res) => {
   try {
     const { rateLimit } = await import('../lib/rate-limit');
     const userId = req.user?.userId || 'anon';

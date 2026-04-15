@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { callClaude } from '../lib/claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
 import { searchAffiliateProducts } from '../lib/aliexpress-affiliate';
@@ -1669,7 +1670,7 @@ router.get("/ad-creatives", async (req: Request, res: Response) => {
 });
 
 // ── POST /api/products/generate-ad-copy ─────────────────────────────────────
-router.post("/generate-ad-copy", requireAuth, async (req: Request, res: Response) => {
+router.post("/generate-ad-copy", requireAuth, claudeRateLimit, async (req: Request, res: Response) => {
   const { product, price } = req.body || {};
   if (!product) { res.status(400).json({ error: "product required" }); return; }
   try {
@@ -1698,7 +1699,7 @@ router.get('/velocity', async (req: Request, res: Response) => {
 });
 
 // POST /api/products/:id/why-trending — AI brief explaining why this product is trending
-router.post('/:id/why-trending', requireAuth, async (req: Request, res: Response) => {
+router.post('/:id/why-trending', requireAuth, claudeRateLimit, async (req: Request, res: Response) => {
   const { id } = req.params;
   const CACHE_MS = 24 * 60 * 60 * 1000;
   const cached = whyTrendingCache.get(id);

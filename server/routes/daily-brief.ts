@@ -3,10 +3,11 @@ import type { Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { cacheGet, cacheSet, TTL } from '../lib/redisCache';
 import { callClaude } from '../lib/claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 
 const router = Router();
 
-router.post('/', requireAuth, async (req: Request, res: Response) => {
+router.post('/', requireAuth, claudeRateLimit, async (req: Request, res: Response) => {
   const { niche } = req.body;
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const nicheKey = (niche || 'general').toLowerCase().replace(/\s+/g, '_');

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { callClaude } from '../lib/claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 
 import { checkRateLimit, aiLimiter, chatLimiter } from '../lib/ratelimit';
 import { requireAuth } from '../middleware/requireAuth';
@@ -15,6 +16,9 @@ import {
 import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
 
 const router = Router();
+
+// Stopgap per-user Claude rate limit — protects the wallet.
+router.use(claudeRateLimit);
 
 // Anthropic access now flows through callClaude() (server/lib/claudeWrap.ts).
 

@@ -12,6 +12,7 @@ import { buildMarketContext, DEFAULT_MARKET, MARKETS, type MarketCode } from '..
 import { ANTHROPIC_AI_TOOLS, executeTool, TOOL_STATUS_MESSAGES } from '../lib/ai-tools';
 import { CLAUDE_MODEL, getAnthropicClient } from '../lib/anthropic';
 import { callClaude } from '../lib/claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 import { addMemory, searchMemories } from '../lib/memory';
 import { logTrace, runAURelevanceEval } from '../lib/opik';
 import { rateLimit } from '../lib/rate-limit';
@@ -1026,7 +1027,7 @@ export function registerChatRoutes(app: Application) {
   });
 
   // ── Main chat endpoint ──────────────────────────────────────────────────
-  app.post('/api/chat', chatLimiter, async (req, res) => {
+  app.post('/api/chat', chatLimiter, claudeRateLimit, async (req, res) => {
     try {
       const {
         messages: rawMessages,

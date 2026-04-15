@@ -3,6 +3,7 @@ import { requireAuth } from '../middleware/requireAuth';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { createClient } from '@supabase/supabase-js';
 import { callClaude } from '../lib/claudeWrap';
+import { claudeRateLimit } from '../middleware/claudeRateLimit';
 
 const router = Router();
 
@@ -92,7 +93,7 @@ router.get('/:id', requireAuth, requireSubscription, async (req: Request, res: R
 });
 
 // POST /api/shops/seed — seed 50 AU shops via Haiku
-router.post('/seed', requireAuth, requireSubscription, requireAdmin, async (req: Request, res: Response) => {
+router.post('/seed', requireAuth, requireSubscription, requireAdmin, claudeRateLimit, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
     if (!hasAnthropicKey()) {
@@ -202,7 +203,7 @@ Spread across all ${niches.length} niches (2-3 per niche). Mix shop_types. Make 
 });
 
 // POST /api/shops/analyse/:id — AI analysis of a single shop
-router.post('/analyse/:id', requireAuth, requireSubscription, async (req: Request, res: Response) => {
+router.post('/analyse/:id', requireAuth, requireSubscription, claudeRateLimit, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
     const { data: shop } = await supabase.from('shop_intelligence').select('*').eq('id', req.params.id).single();
