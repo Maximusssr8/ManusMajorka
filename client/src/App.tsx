@@ -87,6 +87,7 @@ const AIChat = lazyWithRetry(() => import('./pages/AIChat'));
 const RevenuePage = lazyWithRetry(() => import('./pages/RevenuePage'));
 // SEO landing pages
 const Privacy = lazy(() => import('./pages/Privacy'));
+const DocsPlaceholder = lazy(() => import('./pages/DocsPlaceholder'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Cookies = lazy(() => import('./pages/Cookies'));
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
@@ -376,6 +377,8 @@ function Router() {
             <Route path="/privacy" component={Privacy} />
             <Route path="/terms" component={Terms} />
             <Route path="/cookies" component={Cookies} />
+            <Route path="/docs">{() => <DocsPlaceholder kind="docs" />}</Route>
+            <Route path="/changelog">{() => <DocsPlaceholder kind="changelog" />}</Route>
             <Route path="/refund-policy">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
             <Route path="/refunds">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
             <Route path="/contact">{() => <Contact />}</Route>

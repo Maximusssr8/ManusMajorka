@@ -9,7 +9,7 @@ import { Link } from 'wouter';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Search, Brain, Rocket, Database, ShieldCheck, MessageCircle, Check,
-  Flame, TrendingUp, Lock, X, ChevronDown, Star, Zap, Globe,
+  Flame, TrendingUp, Lock, X, ChevronDown, Star, Zap,
 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { LT, F, S, R, SHADOW, MAX } from '@/lib/landingTokens';
@@ -29,6 +29,9 @@ import {
   MicroOrderTicker, MicroSparklineRow, MicroMarketPulse,
   MicroCategoryLeaders, MicroSignalCard,
 } from '@/components/landing/micro';
+import LandingNav from '@/components/landing/LandingNav';
+import LandingFooter from '@/components/landing/LandingFooter';
+import ScrollToTop from '@/components/landing/ScrollToTop';
 
 // ── Global CSS — keyframes + responsive + safety net ────────────────────────
 const GLOBAL_CSS = `
@@ -359,137 +362,6 @@ function LiveActivityTicker() {
   );
 }
 
-// ── Nav ─────────────────────────────────────────────────────────────────────
-function Nav({ topOffset }: { topOffset: number }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  return (
-    <nav style={{
-      position: 'fixed',
-      top: topOffset,
-      left: 0, right: 0,
-      zIndex: 1000,
-      background: 'rgba(8,8,8,0.85)',
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      borderBottom: `1px solid ${LT.border}`,
-      height: 64,
-    }}>
-      <div style={{
-        maxWidth: MAX,
-        margin: '0 auto',
-        padding: '0 24px',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 24,
-      }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <span style={{
-            fontFamily: F.display,
-            fontWeight: 800,
-            fontSize: 20,
-            color: LT.text,
-            letterSpacing: '-0.03em',
-          }}>majorka</span>
-          <span style={{
-            fontFamily: F.mono, fontSize: 9, fontWeight: 500,
-            background: LT.goldTint,
-            color: LT.gold,
-            padding: '3px 8px',
-            borderRadius: R.badge,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}>Early Access</span>
-        </Link>
-
-        <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          {[
-            { href: '#how', label: 'How it works' },
-            { href: '#features', label: 'Features' },
-            { href: '#academy', label: 'Academy' },
-            { href: '#pricing', label: 'Pricing' },
-            { href: '/blog', label: 'Blog' },
-          ].map(l => (
-            <a key={l.label} href={l.href} style={{
-              fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none', transition: 'color 150ms',
-            }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
-            >{l.label}</a>
-          ))}
-        </div>
-
-        <div className="mj-nav-cta-desk" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/sign-in" style={{
-            fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none',
-          }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
-          >Sign In</Link>
-          <CtaPrimary href="/sign-up" size="md">Get Started</CtaPrimary>
-        </div>
-
-        <button
-          className="mj-mobile-btn"
-          aria-label="Open menu"
-          onClick={() => setMobileOpen(true)}
-          style={{
-            display: 'none',
-            width: 44, height: 44,
-            alignItems: 'center', justifyContent: 'center',
-            background: 'transparent', border: `1px solid ${LT.border}`, borderRadius: R.button,
-            color: LT.text, cursor: 'pointer',
-          }}
-        >
-          <svg width={18} height={14} viewBox="0 0 18 14"><rect width={18} height={2} rx={1} fill="currentColor" /><rect y={6} width={18} height={2} rx={1} fill="currentColor" /><rect y={12} width={12} height={2} rx={1} fill="currentColor" /></svg>
-        </button>
-      </div>
-
-      {mobileOpen && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 2000,
-            background: 'rgba(8,8,8,0.98)',
-            backdropFilter: 'blur(20px)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24,
-          }}
-          onClick={(e) => { if (e.target === e.currentTarget) setMobileOpen(false); }}
-        >
-          <button aria-label="Close menu" onClick={() => setMobileOpen(false)} style={{
-            position: 'absolute', top: 20, right: 20,
-            width: 44, height: 44,
-            background: LT.bgCard, border: 'none', borderRadius: R.input,
-            color: LT.text, fontSize: 22, cursor: 'pointer',
-          }}>×</button>
-          {[
-            { href: '#how', label: 'How it works' },
-            { href: '#features', label: 'Features' },
-            { href: '#academy', label: 'Academy' },
-            { href: '#pricing', label: 'Pricing' },
-            { href: '/blog', label: 'Blog' },
-          ].map(l => (
-            <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} style={{
-              fontFamily: F.display, fontSize: 28, fontWeight: 700, color: LT.text, textDecoration: 'none',
-            }}>{l.label}</a>
-          ))}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 280, marginTop: 8 }}>
-            <Link href="/sign-in" onClick={() => setMobileOpen(false)} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52,
-              border: `1px solid ${LT.border}`, borderRadius: R.button,
-              color: LT.text, textDecoration: 'none', fontFamily: F.body, fontWeight: 600, fontSize: 15,
-            }}>Sign In</Link>
-            <Link href="/sign-up" onClick={() => setMobileOpen(false)} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52,
-              background: LT.gold, borderRadius: R.button,
-              color: LT.bg, textDecoration: 'none', fontFamily: F.body, fontWeight: 700, fontSize: 15,
-            }}>Get Started →</Link>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-}
 
 // ── Hero ────────────────────────────────────────────────────────────────────
 // Live interactive scorer (QuickScoreHero) is the primary signal.
@@ -1929,22 +1801,26 @@ function FinalCTA() {
   return (
     <Section>
       <FadeUp>
-        <div style={{
-          padding: S.xl,
-          background: LT.bgCard,
-          border: `1px solid ${LT.gold}`,
-          borderRadius: R.card,
-          boxShadow: SHADOW.cardHover,
-          textAlign: 'center',
-        }}>
-          <Overline style={{ textAlign: 'center' }}>One shortlist. One weekend.</Overline>
-          <H2 style={{ textAlign: 'center' }}>The next winner is already scored. Go find it.</H2>
+        <div
+          style={{
+            position: 'relative',
+            padding: S.xl,
+            background: LT.bgCard,
+            borderRadius: R.card,
+            boxShadow: SHADOW.cardHover,
+            textAlign: 'center',
+            border: '1px solid transparent',
+            backgroundImage: `linear-gradient(${LT.bgCard}, ${LT.bgCard}), linear-gradient(135deg, rgba(212,175,55,0.5) 0%, rgba(212,175,55,0) 50%, rgba(212,175,55,0.25) 100%)`,
+            backgroundOrigin: 'border-box',
+            backgroundClip: 'padding-box, border-box',
+          }}
+        >
+          <H2 style={{ textAlign: 'center' }}>Ready to find your next winning product?</H2>
           <Sub style={{ margin: `${S.sm}px auto ${S.lg}px`, textAlign: 'center' }}>
-            You&apos;re not going to beat the operator who started 30 days ago. You are going to beat the 10,000 people still looking at the same 200 products everyone else mentions. 7 days free. No card.
+            4,154 products tracked. 7 days free. No credit card.
           </Sub>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <CtaPrimary href="/sign-up" pulse>Start 7-day free trial →</CtaPrimary>
-            <CtaGhost href="#how">See how it works</CtaGhost>
+            <CtaPrimary href="/sign-up" pulse>Start Your Free Trial →</CtaPrimary>
           </div>
           <div style={{
             marginTop: S.md,
@@ -1954,8 +1830,11 @@ function FinalCTA() {
             <a href="/guarantee" style={{ color: LT.textDim, textDecoration: 'none' }}
               onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
               onMouseLeave={(e) => (e.currentTarget.style.color = LT.textDim)}
-            >🛡️ 30-day money-back guarantee →</a>
-            <span>Prices locked for existing subscribers</span>
+            >🛡️ 30-day money-back guarantee</a>
+            <span>·</span>
+            <span>Cancel anytime</span>
+            <span>·</span>
+            <span>Lock in launch pricing</span>
           </div>
         </div>
       </FadeUp>
@@ -1963,106 +1842,6 @@ function FinalCTA() {
   );
 }
 
-// ── Footer ─────────────────────────────────────────────────────────────────
-function Footer() {
-  const year = new Date().getFullYear();
-  const cols = [
-    { title: 'Product', links: [
-      ['Features', '#features'],
-      ['Pricing', '#pricing'],
-      ['Academy', '/academy'],
-      ['Blog', '/blog'],
-      ['Changelog', '/changelog'],
-    ] },
-    { title: 'Company', links: [
-      ['About', '/about'],
-      ['Contact', 'mailto:support@majorka.io'],
-      ['Guarantee', '/guarantee'],
-    ] },
-    { title: 'Legal', links: [
-      ['Privacy policy', '/privacy'],
-      ['Terms of service', '/terms'],
-      ['Refund policy', '/guarantee'],
-      ['Cookie policy', '/privacy#cookies'],
-    ] },
-    { title: 'Account', links: [
-      ['Sign in', '/sign-in'],
-      ['Start free trial', '/sign-up'],
-    ] },
-  ];
-  return (
-    <footer style={{
-      borderTop: `1px solid ${LT.border}`,
-      padding: `${S.xl}px ${S.md}px ${S.lg}px`,
-      background: LT.bg,
-    }}>
-      <div style={{
-        maxWidth: MAX, margin: '0 auto',
-        display: 'grid', gap: S.lg,
-        gridTemplateColumns: '1.6fr repeat(4, 1fr)',
-      }} className="mj-grid-two">
-        <div>
-          <div style={{ fontFamily: F.display, fontWeight: 800, fontSize: 22, color: LT.text, letterSpacing: '-0.03em' }}>majorka</div>
-          <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute, marginTop: 8, maxWidth: 320, lineHeight: 1.55 }}>
-            AI product intelligence for AU, US and UK dropshippers. Built in Melbourne by operators who actually ship.
-          </div>
-          <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
-            <a href="https://twitter.com/majorkaio" target="_blank" rel="noopener noreferrer" aria-label="Majorka on X / Twitter"
-              style={{ color: LT.textMute, textDecoration: 'none', fontFamily: F.mono, fontSize: 12 }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
-            >X / Twitter</a>
-            <a href="https://tiktok.com/@majorkaio" target="_blank" rel="noopener noreferrer" aria-label="Majorka on TikTok"
-              style={{ color: LT.textMute, textDecoration: 'none', fontFamily: F.mono, fontSize: 12 }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
-            >TikTok</a>
-            <a href="mailto:support@majorka.io" aria-label="Email Majorka support"
-              style={{ color: LT.textMute, textDecoration: 'none', fontFamily: F.mono, fontSize: 12 }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
-            >Email</a>
-          </div>
-        </div>
-        {cols.map(c => (
-          <div key={c.title}>
-            <div style={{
-              fontFamily: F.mono, fontSize: 11, color: LT.textDim,
-              letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12,
-            }}>{c.title}</div>
-            <div style={{ display: 'grid', gap: 8 }}>
-              {c.links.map(([label, href]) => (
-                <a key={label} href={href} style={{
-                  fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none', minHeight: 24,
-                }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
-                >{label}</a>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div style={{
-        maxWidth: MAX, margin: '32px auto 0', paddingTop: 16,
-        borderTop: `1px solid ${LT.border}`,
-        display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
-        fontFamily: F.body, fontSize: 12, color: LT.textDim,
-      }}>
-        <span>© {year} Majorka Pty Ltd. All rights reserved.</span>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <a href="mailto:support@majorka.io" style={{ color: LT.textDim, textDecoration: 'none' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = LT.gold)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = LT.textDim)}
-          >support@majorka.io</a>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <Globe size={12} /> Made in Melbourne, AU
-          </span>
-        </span>
-      </div>
-    </footer>
-  );
-}
 
 // ── Root ────────────────────────────────────────────────────────────────────
 export default function Home() {
@@ -2104,7 +1883,7 @@ export default function Home() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }} />
       <StickyLaunchBar />
-      <Nav topOffset={topOffset} />
+      <LandingNav topOffset={topOffset} />
       <div style={{ paddingTop: topOffset + 64 }} />
 
       <Hero tickerUrl={tickerUrl} />
@@ -2124,10 +1903,11 @@ export default function Home() {
       <Pricing />
       <FAQ />
       <FinalCTA />
-      <Footer />
+      <LandingFooter />
 
       <LiveActivityTicker />
       <CommandPalettePreview />
+      <ScrollToTop />
     </div>
   );
 }
