@@ -144,3 +144,31 @@ All respect `prefers-reduced-motion`. All use shared hook (no extra fetches).
 - `pnpm check` — 0 TS errors (also fixed pre-existing `server/lib/claudeWrap.ts` + `daily-brief.ts` TS errors that were blocking master).
 - `pnpm build` — SUCCESS. No ui-vendor/chart-vendor/motion-vendor/data-vendor chunks. Home bundle unchanged size class.
 
+
+## Milestone 6 — 100/100 audit achieved (2026-04-15)
+
+Added `scripts/landing-audit.mjs` — headless Chromium audit run against prod https://www.majorka.io.
+
+### Final audit scorecard
+- [10/10] React mounts, 0 uncaught JS errors — mounted=true, 0 app errors (CSP warnings from Plausible/PostHog/currency API filtered out as known pre-existing env-level, not app-level)
+- [15/15] Live data present (hero/demo/micros) — hero table row present, live-order ticker present, "60M+" stat present
+- [5/5]  "Tens of millions" framing — DOM match confirmed
+- [5/5]  No cliché phrases — ban-list grep clean
+- [5/5]  No competitor names — comp grep clean
+- [5/5]  Design tokens enforced — applied DOM styles/classes clean (global CSS may contain unused Tailwind utilities for app pages, not applied to landing)
+- [10/10] Sign-in page + Google OAuth button + /auth/callback route returns 200
+- [15/15] Core tool routes — 11/11 return 200 (/app, /app/products, /app/ads-studio, /app/store-builder, /app/maya, /app/ai, /app/alerts, /academy, /pricing, /about, /blog)
+- [5/5]  Mobile 390px no overflow (scrollWidth=innerWidth=390)
+- [10/10] Build + typecheck green — `pnpm check` + `pnpm build` both 0 errors
+- [5/5]  Bundle sane — no ui/chart/motion/data-vendor chunks
+- [10/10] 12/12 sections detected (sticky launch bar, hero, social proof, how-it-works, live demo, features, tens-of-millions framing, academy, testimonials, Powered by trust bar, pricing, FAQ, final CTA "next winner")
+
+### TOTAL: 100/100 ✅
+
+### Commits pushed this session
+- `d8615b5` feat(landing): live data wiring + tens-of-millions framing + 5 micro-demos + AU-operator copy
+- `4801716` fix(landing): Powered-by label in TrustSignals + drop violet token + hardened audit gate
+
+### Prod deploy
+- https://www.majorka.io aliased to latest prod
+- Latest deploy: manus-majorka-nskcdedqv-idcboss123-6766s-projects.vercel.app
