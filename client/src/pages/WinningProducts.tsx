@@ -685,7 +685,7 @@ Cover:
 2. Profit margin estimate (sourcing cost, selling price, net margin)
 3. Target demographics (age, gender, interests, AU-specific)
 4. Top 3 ad angles for Meta + TikTok AU (with example hooks)
-5. Recommended suppliers: AliExpress, AliExpress, any AU-local
+5. Recommended suppliers: AliExpress, CJDropshipping, any AU-local
 6. Go / No-Go recommendation with confidence score
 
 Be specific, opinionated, use AUD figures.`;
@@ -1352,7 +1352,7 @@ Be specific, opinionated, use AUD figures.`;
               {[
                 { label: 'AliExpress →', url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`, color: '#ff6a00' },
                 { label: 'Alibaba →', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(product.product_title)}`, color: '#ff9900' },
-                { label: 'AliExpress →', url: `https://aliexpress.com/search.html?q=${encodeURIComponent(product.product_title)}`, color: '#0ea5e9' },
+                { label: 'CJ Dropshipping →', url: `https://cjdropshipping.com/search.html?q=${encodeURIComponent(product.product_title)}`, color: '#0ea5e9' },
               ].map(({ label, url, color }) => (
                 <a key={label} href={url} target="_blank" rel="noreferrer" style={{ flex: '1 1 120px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '9px 10px', borderRadius: 10, background: `${color}14`, border: `1px solid ${color}40`, color, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
                   <ExternalLink size={10} />
@@ -1750,7 +1750,7 @@ function FullReportModal({
               {[
                 { label: 'Search Suppliers →', url: `/app/suppliers?q=${encodeURIComponent(product.product_title)}`, color: C.gold, bg: C.goldBg, border: C.goldBorder },
                 { label: 'AliExpress', url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`, color: '#ff6a00', bg: 'rgba(255,106,0,0.08)', border: 'rgba(255,106,0,0.25)' },
-                { label: 'AliExpress', url: `https://aliexpress.com/search.html?q=${encodeURIComponent(product.product_title)}`, color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)', border: 'rgba(14,165,233,0.25)' },
+                { label: 'CJ Dropshipping', url: `https://cjdropshipping.com/search.html?q=${encodeURIComponent(product.product_title)}`, color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)', border: 'rgba(14,165,233,0.25)' },
               ].map(({ label, url, color, bg, border }) => (
                 <a key={label} href={url} target={url.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ flex: '1 1 130px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 12px', borderRadius: 10, background: bg, border: `1px solid ${border}`, color, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
                   <ExternalLink size={10} />{label}

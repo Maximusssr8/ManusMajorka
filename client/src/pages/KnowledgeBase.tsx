@@ -232,7 +232,7 @@ Majorka's **Supplier Finder** tool searches across multiple sourcing channels an
 - **1688** — Lower prices than AliExpress, requires Chinese agent or freight forwarder, ideal for scale
 - **Alibaba** — Best for bulk orders with MOQ, negotiate directly with factories
 - **Dropshipzone** — AU-based dropshipper, 1–3 day delivery within Australia, higher unit cost but no international freight
-- **AliExpress AU** — AU warehouse stock, fast local delivery, competitive pricing
+- **CJDropshipping AU** — AU warehouse stock, fast local delivery, competitive pricing
 
 ## Vetting a Supplier
 
@@ -937,7 +937,7 @@ function InlineMarkdown({ text }: { text: string }) {
           style={{
             background: 'rgba(212,175,55,0.1)',
             color: '#d4af37',
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: 'DM Mono, monospace',
           }}
         >
           {firstMatch[1]}

@@ -60,7 +60,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
             {Object.entries(brief.colourPalette as Record<string, string>).map(([k, v]) => (
               <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 44, height: 44, borderRadius: '50%', background: v, border: '2px solid #E5E7EB', boxShadow: `0 0 12px ${v}40` }} />
-                <span style={{ fontSize: 10, color: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>{v}</span>
+                <span style={{ fontSize: 10, color: '#9CA3AF', fontFamily: "'DM Mono', monospace" }}>{v}</span>
                 <span style={{ fontSize: 10, color: '#3f3f46' }}>{k}</span>
               </div>
             ))}

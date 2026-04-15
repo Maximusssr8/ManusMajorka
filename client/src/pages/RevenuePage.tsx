@@ -628,7 +628,7 @@ export default function RevenuePage() {
                         {o.product}
                       </div>
                       <div style={{ display:'flex',alignItems:'center',gap:8,flexWrap:'wrap' as const }}>
-                        <span style={{ fontSize:11,color:'#64748B',fontFamily:"'JetBrains Mono',monospace" }}>#{o.id}</span>
+                        <span style={{ fontSize:11,color:'#64748B',fontFamily:"'DM Mono',monospace" }}>#{o.id}</span>
                         <span style={{ fontSize:10,color:'rgba(255,255,255,.15)' }}>·</span>
                         <span style={{ fontSize:11,color:'rgba(255,255,255,.35)' }}>{o.time}</span>
                         <span style={{ fontSize:15 }}>{o.flag}</span>

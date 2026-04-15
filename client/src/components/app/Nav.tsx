@@ -80,13 +80,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
   const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Operator';
 
   const isActive = (item: NavItem): boolean => {
-    if (item.exact) {
-      // Home: match /app, /app/, and /app/home (all three are the dashboard)
-      if (item.path === '/app') {
-        return location === '/app' || location === '/app/' || location === '/app/home';
-      }
-      return location === item.path;
-    }
+    if (item.exact) return location === item.path;
     return location === item.path || location.startsWith(item.path + '/');
   };
 
@@ -224,7 +218,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
                       <span className="flex-1 truncate">{item.label}</span>
                       {item.badge === 'trackedCount' && trackedCount > 0 && (
                         <span
-                          className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-bold tabular-nums shrink-0 min-w-[18px] text-center"
+                          className="text-[10px] px-1.5 py-0.5 rounded-full font-bold tabular-nums shrink-0 min-w-[18px] text-center"
                           style={{
                             background: 'rgba(245,158,11,0.14)',
                             border: '1px solid rgba(245,158,11,0.4)',

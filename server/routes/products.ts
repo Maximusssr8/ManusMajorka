@@ -2047,15 +2047,6 @@ function parseTabFilters(req: Request): ProductsTabFilters {
   };
 }
 
-// Parse pagination — clamps to sane bounds so clients can't DoS the DB.
-function parseTabPagination(req: Request): { limit: number; offset: number } {
-  const rawLimit = Number(req.query.limit);
-  const rawOffset = Number(req.query.offset);
-  const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(Math.floor(rawLimit), 100) : 50;
-  const offset = Number.isFinite(rawOffset) && rawOffset > 0 ? Math.min(Math.floor(rawOffset), 1000) : 0;
-  return { limit, offset };
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function applyTabFilters(q: any, f: ProductsTabFilters): any {
   let out = q.not('image_url', 'is', null).gt('price_aud', 0);
@@ -2071,99 +2062,32 @@ function applyTabFilters(q: any, f: ProductsTabFilters): any {
 const TAB_LIMIT = 50;
 const TAB_CACHE_TTL_SEC = 120; // 2min SWR cache
 
-// Shared tab row shape — keeps dedup strictly typed with no `any`.
-interface TabRow {
-  id: number | string;
-  product_title?: string | null;
-  sold_count?: number | null;
-  [key: string]: unknown;
-}
-
-/**
- * Normalise a product title for dedup comparisons.
- *
- * Lowercases, strips punctuation, and collapses to a single-space
- * word bag so visual near-duplicates ("Long Pink Wig — 24\"" vs.
- * "Long Pink Wig 24in") hash to the same key. Returns '' when the
- * input is null/empty so upstream callers can decide whether to
- * keep untitled rows or drop them.
- */
-function normalizeTitle(t: string | null | undefined): string {
-  if (!t) return '';
-  return t
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[^\p{Letter}\p{Number}\s]/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-/**
- * Keep only one row per normalised title, preferring the highest
- * sold_count. Preserves original ordering — the first occurrence of
- * a key wins its slot, and any later row with a bigger sold_count
- * replaces it in place (rather than being appended at the end).
- * Rows with an empty normalised key (null/blank titles) pass
- * through untouched so we never drop untitled data silently.
- */
-function dedupByTitle<T extends TabRow>(rows: ReadonlyArray<T>): T[] {
-  const bestIndex = new Map<string, number>();
-  const out: T[] = [];
-  for (const row of rows) {
-    const key = normalizeTitle(row.product_title ?? null);
-    if (key === '') {
-      out.push(row);
-      continue;
-    }
-    const existingIdx = bestIndex.get(key);
-    if (existingIdx === undefined) {
-      bestIndex.set(key, out.length);
-      out.push(row);
-      continue;
-    }
-    const existing = out[existingIdx];
-    const existingSold = Number(existing.sold_count ?? 0);
-    const rowSold = Number(row.sold_count ?? 0);
-    if (rowSold > existingSold) {
-      out[existingIdx] = row;
-    }
-  }
-  return out;
-}
-
 // ── GET /api/products/trending — 24h/7d velocity leaders ────────────────────
 // Ordered by velocity_7d DESC. Falls back to empty with meta.insufficientData
 // when the velocity_7d column has no rows above 0 across the filtered set.
 router.get('/trending', async (req: Request, res: Response) => {
   try {
     const filters = parseTabFilters(req);
-    const { limit, offset } = parseTabPagination(req);
     const sb = getSupabase();
 
-    // Overfetch by 2× the offset+limit window to survive dedup shrinkage.
-    const pool = Math.max((offset + limit) * 2, TAB_LIMIT * 2);
     const base = applyTabFilters(
       sb.from('winning_products').select('*').gt('velocity_7d', 0),
       filters,
     )
       .order('velocity_7d', { ascending: false, nullsFirst: false })
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(pool);
+      .limit(TAB_LIMIT);
 
     const { data, error } = await base;
     if (error) return res.status(500).json({ error: error.message });
 
-    const deduped = dedupByTitle<TabRow>((data ?? []) as TabRow[]);
-    const products = deduped.slice(offset, offset + limit);
-    const hasMore = deduped.length > offset + limit;
+    const products = data ?? [];
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
       count: products.length,
       tab: 'trending',
-      insufficientData: products.length === 0 && offset === 0,
-      hasMore,
-      nextOffset: hasMore ? offset + limit : null,
+      insufficientData: products.length === 0,
     });
   } catch (err: unknown) {
     console.error('[products/trending]', err);
@@ -2179,7 +2103,6 @@ router.get('/trending', async (req: Request, res: Response) => {
 router.get('/hot', async (req: Request, res: Response) => {
   try {
     const filters = parseTabFilters(req);
-    const { limit, offset } = parseTabPagination(req);
     const sb = getSupabase();
     const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
@@ -2201,17 +2124,14 @@ router.get('/hot', async (req: Request, res: Response) => {
     if (trendingIds.length > 0) {
       hotQ = hotQ.not('id', 'in', `(${trendingIds.map(String).join(',')})`);
     }
-    const pool = Math.max((offset + limit) * 2, TAB_LIMIT * 2);
     hotQ = hotQ
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(pool);
+      .limit(TAB_LIMIT);
 
     const { data, error } = await hotQ;
     if (error) return res.status(500).json({ error: error.message });
 
-    const deduped = dedupByTitle<TabRow>((data ?? []) as TabRow[]);
-    const products = deduped.slice(offset, offset + limit);
-    const hasMore = deduped.length > offset + limit;
+    const products = data ?? [];
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
@@ -2219,8 +2139,6 @@ router.get('/hot', async (req: Request, res: Response) => {
       tab: 'hot',
       excludedIds: trendingIds,
       windowHours: 48,
-      hasMore,
-      nextOffset: hasMore ? offset + limit : null,
     });
   } catch (err: unknown) {
     console.error('[products/hot]', err);
@@ -2235,7 +2153,6 @@ router.get('/hot', async (req: Request, res: Response) => {
 router.get('/high-volume', async (req: Request, res: Response) => {
   try {
     const filters = parseTabFilters(req);
-    const { limit, offset } = parseTabPagination(req);
     const sb = getSupabase();
 
     const trendingQ = applyTabFilters(
@@ -2255,122 +2172,26 @@ router.get('/high-volume', async (req: Request, res: Response) => {
     if (trendingIds.length > 0) {
       hvQ = hvQ.not('id', 'in', `(${trendingIds.map(String).join(',')})`);
     }
-    const pool = Math.max((offset + limit) * 2, TAB_LIMIT * 2);
     hvQ = hvQ
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(pool);
+      .limit(TAB_LIMIT);
 
     const { data, error } = await hvQ;
     if (error) return res.status(500).json({ error: error.message });
 
-    const deduped = dedupByTitle<TabRow>((data ?? []) as TabRow[]);
-    const products = deduped.slice(offset, offset + limit);
-    const hasMore = deduped.length > offset + limit;
+    const products = data ?? [];
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
       count: products.length,
       tab: 'high-volume',
       excludedIds: trendingIds,
-      hasMore,
-      nextOffset: hasMore ? offset + limit : null,
     });
   } catch (err: unknown) {
     console.error('[products/high-volume]', err);
     return res.status(500).json({
       error: err instanceof Error ? err.message : 'Unknown error',
     });
-  }
-});
-
-// ── POST /api/products/:id/brief — structured AI brief ──────────────────────
-// Returns { marketingAngle, targetAudience, hookIdeas: string[3] } generated
-// by Claude Haiku. Cached in-memory for 24h per product id. The drawer also
-// caches the JSON payload for 24h in localStorage for instant reopen.
-interface StructuredBrief {
-  marketingAngle: string;
-  targetAudience: string;
-  hookIdeas: string[];
-}
-
-const structuredBriefCache = new Map<string, { data: StructuredBrief; at: number }>();
-const STRUCTURED_BRIEF_TTL_MS = 24 * 60 * 60 * 1000;
-
-function coerceBrief(raw: unknown): StructuredBrief | null {
-  if (!raw || typeof raw !== 'object') return null;
-  const obj = raw as Record<string, unknown>;
-  const marketingAngle = typeof obj.marketingAngle === 'string' ? obj.marketingAngle.trim() : '';
-  const targetAudience = typeof obj.targetAudience === 'string' ? obj.targetAudience.trim() : '';
-  const rawHooks = Array.isArray(obj.hookIdeas) ? obj.hookIdeas : [];
-  const hookIdeas = rawHooks
-    .filter((h): h is string => typeof h === 'string' && h.trim().length > 0)
-    .map((h) => h.trim())
-    .slice(0, 3);
-  if (!marketingAngle || !targetAudience || hookIdeas.length < 1) return null;
-  while (hookIdeas.length < 3) hookIdeas.push('Show the product in action with a relatable everyday problem.');
-  return { marketingAngle, targetAudience, hookIdeas: hookIdeas.slice(0, 3) };
-}
-
-router.post('/:id/brief', async (req: Request, res: Response) => {
-  try {
-    const id = String(req.params.id);
-    const cached = structuredBriefCache.get(id);
-    if (cached && Date.now() - cached.at < STRUCTURED_BRIEF_TTL_MS) {
-      return res.json({ ...cached.data, cached: true });
-    }
-    const sb = getSupabase();
-    const { data: product, error } = await sb
-      .from('winning_products')
-      .select('product_title, category, price_aud, sold_count, winning_score')
-      .eq('id', id)
-      .single();
-    if (error || !product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    const client = getAnthropicClient();
-    const prompt = `You are a senior performance-marketing strategist for a Shopify dropshipping brand.
-Return STRICT JSON only (no prose, no markdown) with this exact schema:
-{"marketingAngle": string, "targetAudience": string, "hookIdeas": string[3]}
-
-- marketingAngle: ONE sentence (max 25 words) describing the sharpest angle to sell this product.
-- targetAudience: ONE sentence (max 22 words) describing the buyer (age, lifestyle, pain point).
-- hookIdeas: exactly 3 short (max 12 words) TikTok/Reels first-line hooks.
-
-Product: ${product.product_title}
-Category: ${product.category ?? 'General'}
-Landed cost: A$${Number(product.price_aud ?? 0).toFixed(2)}
-Lifetime orders: ${Number(product.sold_count ?? 0)}
-AI score: ${Math.round(Number(product.winning_score ?? 0))}/100`;
-
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 500,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const block = msg.content[0];
-    const text = block && block.type === 'text' ? block.text : '';
-    // Best-effort JSON extraction — Haiku usually returns clean JSON but
-    // occasionally wraps in ```json fences. Strip them before parsing.
-    const jsonStr = text
-      .trim()
-      .replace(/^```(?:json)?\s*/i, '')
-      .replace(/\s*```$/i, '');
-    let parsed: unknown = null;
-    try {
-      parsed = JSON.parse(jsonStr);
-    } catch {
-      parsed = null;
-    }
-    const brief = coerceBrief(parsed);
-    if (!brief) {
-      return res.status(502).json({ error: 'Invalid brief shape from model' });
-    }
-    structuredBriefCache.set(id, { data: brief, at: Date.now() });
-    return res.json({ ...brief, cached: false });
-  } catch (err: unknown) {
-    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
   }
 });
 

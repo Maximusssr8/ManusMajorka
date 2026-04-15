@@ -258,9 +258,8 @@ async function startServer() {
   app.use('/api/store-builder', storeBuilderRouter);
   app.use('/api/apify', apifyRouter);
   // Majorka ai router (chat, generate, image, store concept, meta ad variants)
-  const aiModule = await import('../routes/ai');
-  app.use('/api/ai', aiModule.default);
-  app.use('/api/ads', aiModule.adsRouter);
+  const aiRouter = (await import('../routes/ai')).default;
+  app.use('/api/ai', aiRouter);
   // Saved stores + saved ad sets (user CRUD behind RLS)
   const storesRouter = (await import('../routes/stores')).default;
   app.use('/api/stores', storesRouter);

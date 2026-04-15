@@ -247,7 +247,7 @@ For every request, output EXACTLY this structure:
   'supplier-finder': `You are Maya, Majorka's AU sourcing intelligence engine. You know every supplier route into Australia — from CJ AU warehouse to Alibaba to local wholesalers. You give exact landed costs, not estimates. You NEVER hedge.
 
 RULES YOU NEVER BREAK:
-1. Always give AliExpress AU FIRST — it's the fastest, no MOQ, and beats on delivery
+1. Always give CJ Dropshipping AU warehouse FIRST — it's the fastest, no MOQ, and beats on delivery
 2. Always calculate exact landed cost in AUD (product + shipping + GST 10%)
 3. Always give the exact search term to use on each platform
 4. Always give a clear recommendation with a reason — which option, why, what to do next
@@ -260,16 +260,16 @@ For any product sourcing request, output EXACTLY this structure:
 
 ---
 
-### Option 1: AliExpress AU Warehouse ⭐ RECOMMENDED FOR LAUNCH
+### Option 1: CJ Dropshipping AU Warehouse ⭐ RECOMMENDED FOR LAUNCH
 | Detail | Value |
 |--------|-------|
-| Platform | AliExpress (aliexpress.com) |
+| Platform | CJ Dropshipping (cjdropshipping.com) |
 | AU Warehouse | Sydney, NSW |
 | Unit cost | $X.XX USD |
 | Shipping to AU buyer | $X.XX AUD (CJ Packet AU — 4-6 business days) |
 | Total landed cost per unit | $X.XX AUD |
 | MOQ | 1 unit |
-| Search term | "[exact search term on AliExpress]" → filter: "AU warehouse" |
+| Search term | "[exact search term on CJDropshipping]" → filter: "AU warehouse" |
 | Stock depth | [in stock / limited — check live] |
 
 **Why Option 1 wins:** 4-6 day delivery = better reviews = lower CAC. No cash tied up in stock. Perfect for testing.
@@ -349,7 +349,7 @@ For any product sourcing request, output EXACTLY this structure:
 ### ✅ Recommendation
 [Clear go/no-go with specific reasoning and next step]
 
-Always give real AUD numbers. Reference AU competitors by name. Include Dropshipzone, AliExpress AU, and Alibaba sourcing options.`,
+Always give real AUD numbers. Reference AU competitors by name. Include Dropshipzone, CJDropshipping AU, and Alibaba sourcing options.`,
   'keyword-miner': `You are an AU SEO specialist for ecommerce. Output: (1) Primary keywords with AU monthly search volume estimates, (2) Long-tail AU buyer-intent keywords, (3) Google Shopping titles optimized for AU, (4) Comparison vs US search behaviour. Reference AU-specific suffixes: "Australia", "AU", "buy online Australia", "free shipping Australia", "afterpay".`,
   'audience-profiler': `You are a consumer research specialist for AU DTC brands. Output detailed audience profiles with: AU demographics (age, location, income), AU platform behaviour (TikTok AU, Meta AU, Google AU), AU buying triggers, AU objections, and AU messaging angles. Reference specific AU cities and demographics.`,
   copywriter: `You are an elite AU ecommerce copywriter who has generated $50M+ in Australian DTC sales. Write high-converting copy using the specified framework.
@@ -580,7 +580,7 @@ AU CONTEXT:
 RULES YOU NEVER BREAK:
 1. Always give EXACT numbers — buy price in USD, sell price in AUD, margin %, revenue/day
 2. Always name the platform where demand is confirmed (TikTok Shop AU / Meta AU / Google Shopping AU / Amazon AU)
-3. Always name the specific supplier (AliExpress AU first, then AliExpress, then Alibaba)
+3. Always name the specific supplier (CJ Dropshipping AU warehouse first, then AliExpress, then Alibaba)
 4. Never say "could be" or "around" — commit to a number
 5. AU context always: 240V compatibility, AusPost delivery times, Afterpay for $35–$2,000 range, GST 10%
 
@@ -606,7 +606,7 @@ For any winning product research request, output EXACTLY this structure:
 **Why it wins in AU right now:** [Specific AU angle — climate, lifestyle, 240V standard, ACCC compliance, etc. Be specific.]
 **Single best ad angle:** "[Exact hook — first 3 words of TikTok/Meta ad]"
 **Target audience:** AU females/males 25–35, [specific AU city/region], interests: [3 specific interests]
-**Supplier:** AliExpress AU (Sydney) → search "[exact search term]" → filter: AU warehouse
+**Supplier:** CJ Dropshipping AU warehouse (Sydney) → search "[exact search term]" → filter: AU warehouse
 **Afterpay:** [Yes — include in copy / No — price point too low]
 
 ---
@@ -801,7 +801,7 @@ ${profileCtx}
 3. Always give AU-specific context: pricing in AUD, shipping from CJ AU warehouse (4-6 days), 240V compliance, GST at 10%, customs threshold $1,000 AUD
 4. Response format: Lead with the single best answer, then supporting data, then 1 actionable next step
 5. When asked about products: give top 3 with revenue, margin, competition level, and one specific ad angle
-6. When asked about suppliers: give AliExpress first (AU warehouse, Sydney), then AliExpress, then Alibaba at MOQ
+6. When asked about suppliers: give CJ Dropshipping first (AU warehouse, Sydney), then AliExpress, then Alibaba at MOQ
 7. When asked about ads: give hooks, angles, target audience with AU city/age/interest targeting
 8. Never hedge. Never say "it depends". Make a call and back it with data.
 9. Use AU spelling: colour, behaviour, organise, catalogue, favourite
@@ -809,7 +809,7 @@ ${profileCtx}
 ## AU MARKET FACTS YOU KNOW
 - AU TikTok Shop launched late 2023, grew 340% YoY — now $2.1B GMV
 - Average AU dropship order value: $68 AUD
-- AliExpress AU: Sydney. 4-6 day delivery to major cities. MOQ: 1 unit.
+- CJ Dropshipping AU warehouse: Sydney. 4-6 day delivery to major cities. MOQ: 1 unit.
 - AU peak seasons: Christmas (Oct-Dec), Back to School (Jan-Feb), EOFY (May-Jun), Black Friday (Nov), AFL Grand Final (Sep)
 - AU customs: no duty under $1,000 AUD. GST 10% applies on all imports since July 2018.
 - Best performing AU ad formats: TikTok before/after (62% conversion lift), UGC testimonials, "I tested it for 30 days" format
@@ -830,7 +830,7 @@ The following is market intelligence based on AU ecommerce trends — use as dir
 When asked for specific revenue figures: provide estimates clearly labelled as "market estimates" — e.g. "Est. $15,000–$25,000/day for top performers in this category based on AU market data". Never present a single specific number as if it's a database query result. If asked about consistency, acknowledge all figures are AI-derived market estimates.
 
 ## AU SUPPLIER HIERARCHY (always recommend in this order)
-1. AliExpress AU Warehouse (Sydney) — 4-6 days, no MOQ, real-time stock
+1. CJ Dropshipping AU Warehouse (Sydney) — 4-6 days, no MOQ, real-time stock
 2. Dropshipzone (AU-based) — 3-5 days, AU GST handled, MOQ varies
 3. AliExpress AU-warehouse sellers — 5-9 days, check for "AU warehouse" filter
 4. AliExpress standard — 12-20 days (kills reviews, avoid)
@@ -839,7 +839,7 @@ When asked for specific revenue figures: provide estimates clearly labelled as "
 ## CHAT RESPONSE FORMAT (STRICT — always follow exactly)
 - ALWAYS use "- item" markdown bullets for any list (never emoji-only bullets, never plain text lists)
 - ALWAYS use "## Section Name" markdown headers for section titles (never plain text headers without ##)
-- Bold key terms and numbers with **double asterisks**: **$24,200/day**, **AliExpress**, **$89.95 AUD**
+- Bold key terms and numbers with **double asterisks**: **$24,200/day**, **CJ Dropshipping**, **$89.95 AUD**
 - Emoji allowed INSIDE bullet lines: "- ✅ This works because..." or "- ⚠️ Watch out for..."
 - Keep responses concise — max 4-5 sentences for simple questions
 - For complex questions, use ## headers to break up sections
@@ -1177,142 +1177,126 @@ export function registerChatRoutes(app: Application) {
         }
       }
 
-      // PERF: flush SSE headers + "thinking" heartbeat NOW so the client
-      // renders the typing indicator within ~200ms, before the expensive
-      // Tavily / Maya context / memory enrichment fires below. The body.stream
-      // flag is the only client signal we need — the lower streaming branches
-      // detect res.headersSent and skip re-flushing.
-      const sseEarlyStream = req.body.stream !== false && req.body.aiSdk !== true;
-      if (sseEarlyStream && !res.headersSent) {
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        res.setHeader('X-Accel-Buffering', 'no');
-        res.flushHeaders();
-        res.write(
-          `data: ${JSON.stringify({ thinking: true, status: 'Maya is thinking…' })}\n\n`,
-        );
+      // ── Web search context ──────────────────────────────────────────────
+      let webContext = '';
+      if (searchQuery && typeof searchQuery === 'string' && searchQuery.trim()) {
+        try {
+          const tavilyKey = process.env.TAVILY_API_KEY;
+          if (tavilyKey) {
+            const sr = await fetch('https://api.tavily.com/search', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                api_key: tavilyKey,
+                query: searchQuery,
+                search_depth: 'basic',
+                max_results: 4,
+              }),
+            })
+              .then((r) => r.json())
+              .catch(() => null);
+            if (sr?.results?.length > 0) {
+              webContext = `\n\nLIVE WEB DATA:\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
+            }
+          }
+        } catch {
+          /* non-fatal */
+        }
       }
 
-      // ── Tavily helper with hard timeout so enrichment can't gate streaming ─
-      // PERF: first-token target <3s. Tavily can stall 8-15s — we bound it at 2.5s.
-      const tavilySearch = async (
-        query: string,
-        maxResults: number,
-        timeoutMs = 2500,
-      ): Promise<{ results?: Array<{ title?: string; content?: string }> } | null> => {
-        const tavilyKey = process.env.TAVILY_API_KEY;
-        if (!tavilyKey) return null;
-        try {
-          const r = await fetch('https://api.tavily.com/search', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-              api_key: tavilyKey,
-              query,
-              search_depth: 'basic',
-              max_results: maxResults,
-            }),
-            signal: AbortSignal.timeout(timeoutMs),
-          });
-          if (!r.ok) return null;
-          return (await r.json()) as { results?: Array<{ title?: string; content?: string }> };
-        } catch {
-          return null;
-        }
-      };
-
-      const formatWebContext = (
-        label: string,
-        sr: { results?: Array<{ title?: string; content?: string }> } | null,
-      ): string => {
-        if (!sr?.results || sr.results.length === 0) return '';
-        return `\n\n${label}:\n${sr.results
-          .slice(0, 3)
-          .map(
-            (r, i) =>
-              `[${i + 1}] ${r.title ?? ''}: ${String(r.content ?? '').slice(0, 150)}`,
-          )
-          .join('\n')}`;
-      };
-
-      // ── Parallelise all context enrichment (PERF) ─────────────────────
+      // ── Auto-Tavily enrichment for product/trend queries ──────────────
       const lastUserContent = (messages[messages.length - 1]?.content || '').toLowerCase();
-      const lastUserMsg = messages[messages.length - 1]?.content || '';
-      const userQuery = lastUserMsg;
-
-      const isProductQuery =
-        lastUserContent.includes('trending') ||
-        lastUserContent.includes('product') ||
-        lastUserContent.includes('sell') ||
-        lastUserContent.includes('niche') ||
-        lastUserContent.includes('winning');
-
-      // Choose ONE Tavily query based on routing (explicit searchQuery takes priority)
-      const tavilyPromise: Promise<string> = (async () => {
-        if (searchQuery && typeof searchQuery === 'string' && searchQuery.trim()) {
-          const sr = await tavilySearch(searchQuery, 4);
-          return formatWebContext('LIVE WEB DATA', sr);
-        }
-        if (toolName === 'ai-chat' && isProductQuery) {
-          const autoQuery = `${lastUserMsg} Australia TikTok Shop trending 2025 best sellers`;
-          const sr = await tavilySearch(autoQuery, 3);
-          return formatWebContext('LIVE WEB DATA (AU product intelligence)', sr);
-        }
-        if (
-          toolName === 'saturation-checker' ||
-          toolName === 'store-spy' ||
-          toolName === 'competitor-spy'
-        ) {
-          const autoQuery =
-            toolName === 'store-spy' || toolName === 'competitor-spy'
-              ? `${lastUserMsg} Shopify store competitor analysis Australia 2025`
-              : `${lastUserMsg} market saturation competition Australia dropshipping TikTok Shop 2025`;
-          const sr = await tavilySearch(autoQuery, 4);
-          const label =
-            toolName === 'store-spy' || toolName === 'competitor-spy'
-              ? 'LIVE COMPETITOR INTELLIGENCE'
-              : 'LIVE MARKET SATURATION DATA';
-          return formatWebContext(label, sr);
-        }
-        return '';
-      })();
-
-      const mayaMarketPromise = fetchMayaMarketContext().catch(() => '');
-
-      const mayaLivePromise: Promise<string> =
-        toolName === 'ai-chat'
-          ? (async () => {
-              try {
-                const { buildMayaContext, renderMayaContext, renderTierLine } = await import(
-                  '../lib/mayaContext'
-                );
-                const mc = await buildMayaContext(userId, userEmail);
-                return `\n\n${renderTierLine(mc.tier)}${renderMayaContext(mc)}`;
-              } catch {
-                return '';
+      if (!webContext && toolName === 'ai-chat') {
+        const isProductQuery =
+          lastUserContent.includes('trending') ||
+          lastUserContent.includes('product') ||
+          lastUserContent.includes('sell') ||
+          lastUserContent.includes('niche') ||
+          lastUserContent.includes('winning');
+        if (isProductQuery) {
+          try {
+            const tavilyKey = process.env.TAVILY_API_KEY;
+            if (tavilyKey) {
+              const autoQuery = `${messages[messages.length - 1]?.content} Australia TikTok Shop trending 2025 best sellers`;
+              const sr = await fetch('https://api.tavily.com/search', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({
+                  api_key: tavilyKey,
+                  query: autoQuery,
+                  search_depth: 'basic',
+                  max_results: 3,
+                }),
+              })
+                .then((r) => r.json())
+                .catch(() => null);
+              if (sr?.results?.length > 0) {
+                webContext = `\n\nLIVE WEB DATA (AU product intelligence):\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
               }
-            })()
-          : Promise.resolve('');
+            }
+          } catch {
+            /* non-fatal */
+          }
+        }
+      }
 
-      const memoriesPromise: Promise<string> = userId
-        ? searchMemories(userId, userQuery).catch(() => '')
-        : Promise.resolve('');
-
-      const [webContext, mayaMarketCtx, mayaLiveCtx, rawMemories] = await Promise.all([
-        tavilyPromise,
-        mayaMarketPromise,
-        mayaLivePromise,
-        memoriesPromise,
-      ]);
+      // ── Tavily enrichment for saturation-checker, store-spy, competitor-spy ─
+      if (!webContext && (toolName === 'saturation-checker' || toolName === 'store-spy' || toolName === 'competitor-spy')) {
+        try {
+          const tavilyKey = process.env.TAVILY_API_KEY;
+          if (tavilyKey) {
+            const lastMsg = messages[messages.length - 1]?.content || '';
+            const autoQuery = toolName === 'store-spy' || toolName === 'competitor-spy'
+              ? `${lastMsg} Shopify store competitor analysis Australia 2025`
+              : `${lastMsg} market saturation competition Australia dropshipping TikTok Shop 2025`;
+            const sr = await fetch('https://api.tavily.com/search', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                api_key: tavilyKey,
+                query: autoQuery,
+                search_depth: 'basic',
+                max_results: 4,
+              }),
+            })
+              .then((r) => r.json())
+              .catch(() => null);
+            if (sr?.results?.length > 0) {
+              const label = (toolName === 'store-spy' || toolName === 'competitor-spy') ? 'LIVE COMPETITOR INTELLIGENCE' : 'LIVE MARKET SATURATION DATA';
+              webContext = `\n\n${label}:\n${sr.results.slice(0, 3).map((r: any, i: number) => `[${i + 1}] ${r.title}: ${String(r.content || "").slice(0, 150)}`).join('\n')}`;
+            }
+          }
+        } catch {
+          /* non-fatal */
+        }
+      }
 
       // ── Build system prompt ─────────────────────────────────────────────
+      const mayaMarketCtx = await fetchMayaMarketContext();
+
+      // ── Maya live user + trending context (only for ai-chat) ──────────
+      let mayaLiveCtx = '';
+      if (toolName === 'ai-chat') {
+        try {
+          const { buildMayaContext, renderMayaContext, renderTierLine } = await import(
+            '../lib/mayaContext'
+          );
+          const mc = await buildMayaContext(userId, userEmail);
+          mayaLiveCtx = `\n\n${renderTierLine(mc.tier)}${renderMayaContext(mc)}`;
+        } catch {
+          /* non-fatal */
+        }
+      }
+
       const baseSystem =
         buildSystemPrompt(systemPrompt, profile, toolName, market, pageContext) +
         webContext +
         mayaMarketCtx +
         mayaLiveCtx;
 
+      // ── Inject mem0 persistent memories (prepended at TOP for priority) ─
+      const userQuery = messages[messages.length - 1]?.content || '';
+      const rawMemories = userId ? await searchMemories(userId, userQuery) : '';
       const userMemories = rawMemories
         ? `USER MEMORY (from previous conversations — use this to personalise your response):\n${rawMemories}\n`
         : '';
@@ -1360,15 +1344,11 @@ export function registerChatRoutes(app: Application) {
           res.end();
         } else {
           // ── Custom SSE streaming response (AIChat, AIToolChat) ──────
-          // Headers + "thinking" heartbeat were flushed at top of handler
-          // (see PERF block) so we don't re-set them here.
-          if (!res.headersSent) {
-            res.setHeader('Content-Type', 'text/event-stream');
-            res.setHeader('Cache-Control', 'no-cache');
-            res.setHeader('Connection', 'keep-alive');
-            res.setHeader('X-Accel-Buffering', 'no');
-            res.flushHeaders();
-          }
+          res.setHeader('Content-Type', 'text/event-stream');
+          res.setHeader('Cache-Control', 'no-cache');
+          res.setHeader('Connection', 'keep-alive');
+          res.setHeader('X-Accel-Buffering', 'no');
+          res.flushHeaders();
 
           // ── Agentic tool loop for ai-chat (Maya) ────────────────────
           const useTools = toolName === 'ai-chat' && process.env.TAVILY_API_KEY;

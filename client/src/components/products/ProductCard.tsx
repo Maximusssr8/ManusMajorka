@@ -270,7 +270,6 @@ function QuickActions({ product, hover }: QuickActionsProps) {
         title: product.product_title,
         price_aud: product.price_aud,
         image_url: product.image_url,
-        productUrl: product.product_url,
         category: product.category,
       };
       sessionStorage.setItem('majorka_ad_product', JSON.stringify(payload));

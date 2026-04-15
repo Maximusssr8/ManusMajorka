@@ -831,52 +831,29 @@ export default function SettingsProfile() {
                 </div>
                 )}
               </div>
-              {subInfo && (subInfo.plan === 'builder' || subInfo.plan === 'scale' || subInfo.plan === 'pro') ? (
-                <button
-                  onClick={openBillingPortal}
-                  className="w-full flex items-center justify-between rounded-xl p-4 transition-all"
-                  style={{
-                    background: '#0D1424',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    cursor: 'pointer',
-                    color: '#F1F5F9',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard size={16} style={{ color: '#d4af37' }} />
-                    <div className="text-left">
-                      <div className="text-sm font-medium">Manage Subscription</div>
-                      <div className="text-xs" style={{ color: '#9CA3AF' }}>
-                        Update billing, change plan, or cancel via Stripe
-                      </div>
+              <button
+                onClick={openBillingPortal}
+                className="w-full flex items-center justify-between rounded-xl p-4 transition-all"
+                style={{
+                  background: '#0D1424',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  cursor: 'pointer',
+                  color: '#F1F5F9',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)')}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E7EB')}
+              >
+                <div className="flex items-center gap-3">
+                  <CreditCard size={16} style={{ color: '#d4af37' }} />
+                  <div className="text-left">
+                    <div className="text-sm font-medium">Manage Subscription</div>
+                    <div className="text-xs" style={{ color: '#9CA3AF' }}>
+                      Update billing, change plan, or cancel via Stripe
                     </div>
                   </div>
-                  <ExternalLink size={14} style={{ color: '#9CA3AF' }} />
-                </button>
-              ) : (
-                <a
-                  href="/pricing"
-                  className="w-full flex items-center justify-between rounded-xl p-4 no-underline transition-all"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.04))',
-                    border: '1px solid rgba(212,175,55,0.3)',
-                    color: '#F1F5F9',
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard size={16} style={{ color: '#d4af37' }} />
-                    <div className="text-left">
-                      <div className="text-sm font-medium">Start a subscription</div>
-                      <div className="text-xs" style={{ color: '#9CA3AF' }}>
-                        Choose Builder or Scale — cancel any time
-                      </div>
-                    </div>
-                  </div>
-                  <ExternalLink size={14} style={{ color: '#d4af37' }} />
-                </a>
-              )}
+                </div>
+                <ExternalLink size={14} style={{ color: '#9CA3AF' }} />
+              </button>
             </div>
           )}
 

@@ -6,7 +6,6 @@
 import type { Express } from 'express';
 import express from 'express';
 import Stripe from 'stripe';
-import { z } from 'zod';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { sendTransactional } from './email';
 
@@ -28,29 +27,13 @@ export function isStripeConfigured(): boolean {
 
 // ── Plan → live Price ID mapping ──────────────────────────────────────────────
 
-export type BillingCadence = 'monthly' | 'annual';
-
-/**
- * Resolve the Stripe price ID for a given plan + billing cadence.
- * Order of precedence for each slot:
- *   1. cadence-specific env var (e.g. STRIPE_BUILDER_PRICE_ID_MONTHLY)
- *   2. legacy cadence-less env var (STRIPE_BUILDER_PRICE_ID)
- * Returns null only if NO price is configured for the requested slot.
- */
-export function planToPriceId(plan: string, billing: BillingCadence = 'monthly'): string | null {
-  const key = plan.toLowerCase();
-  const monthly: Record<string, string | undefined> = {
-    pro:     process.env.STRIPE_BUILDER_PRICE_ID_MONTHLY ?? process.env.STRIPE_BUILDER_PRICE_ID,
-    builder: process.env.STRIPE_BUILDER_PRICE_ID_MONTHLY ?? process.env.STRIPE_BUILDER_PRICE_ID,
-    scale:   process.env.STRIPE_SCALE_PRICE_ID_MONTHLY   ?? process.env.STRIPE_SCALE_PRICE_ID,
+export function planToPriceId(plan: string): string | null {
+  const map: Record<string, string | undefined> = {
+    pro:     process.env.STRIPE_BUILDER_PRICE_ID, // legacy pro → builder
+    builder: process.env.STRIPE_BUILDER_PRICE_ID,
+    scale:   process.env.STRIPE_SCALE_PRICE_ID,
   };
-  const annual: Record<string, string | undefined> = {
-    pro:     process.env.STRIPE_BUILDER_PRICE_ID_ANNUAL,
-    builder: process.env.STRIPE_BUILDER_PRICE_ID_ANNUAL,
-    scale:   process.env.STRIPE_SCALE_PRICE_ID_ANNUAL,
-  };
-  const source = billing === 'annual' ? annual : monthly;
-  return source[key] ?? monthly[key] ?? null;
+  return map[plan.toLowerCase()] ?? process.env.STRIPE_BUILDER_PRICE_ID ?? null;
 }
 
 // ── Checkout session ──────────────────────────────────────────────────────────
@@ -61,58 +44,55 @@ export interface CreateCheckoutOptions {
   /** Either a Stripe price ID (price_...) or a plan name (pro/builder/scale) */
   priceId?: string;
   plan?: string;
-  billing?: BillingCadence;
   successUrl?: string;
   cancelUrl?: string;
 }
-
-const DEFAULT_SUCCESS_URL = 'https://www.majorka.io/app?upgraded=true&session_id={CHECKOUT_SESSION_ID}';
-const DEFAULT_CANCEL_URL  = 'https://www.majorka.io/pricing?cancelled=true';
 
 export async function createCheckoutSession(opts: CreateCheckoutOptions): Promise<{ url: string } | null> {
   const stripe = getStripe();
   if (!stripe) return null;
 
-  const billing: BillingCadence = opts.billing === 'annual' ? 'annual' : 'monthly';
-
   // Resolve price ID: accept plan name or direct price ID; plan name takes priority
   let priceId: string | null = null;
   if (opts.plan) {
-    priceId = planToPriceId(opts.plan, billing);
+    priceId = planToPriceId(opts.plan);
   } else if (opts.priceId?.startsWith('price_')) {
     priceId = opts.priceId;
   } else if (opts.priceId) {
-    priceId = planToPriceId(opts.priceId, billing) ?? opts.priceId;
+    // Treat non-price_ value as a plan name fallback
+    priceId = planToPriceId(opts.priceId) ?? opts.priceId;
   }
-  if (!priceId) {
-    throw new Error(
-      `Stripe price ID missing for plan=${opts.plan ?? 'unspecified'} billing=${billing}. ` +
-      `Set STRIPE_${(opts.plan ?? 'BUILDER').toUpperCase()}_PRICE_ID_${billing.toUpperCase()} in env.`
-    );
-  }
+  priceId = priceId ?? process.env.STRIPE_PRO_PRICE_ID ?? null;
+  if (!priceId) return null;
 
-  // Resolve or create a customer via the canonical helper so every
-  // subscription row carries the same stripe_customer_id.
+  // Look up existing Stripe customer by email to avoid duplicates
   let customerId: string | undefined;
-  try {
-    const resolved = await resolveOrCreateStripeCustomer(opts.userId, opts.userEmail);
-    if (resolved) customerId = resolved;
-  } catch (err) {
-    console.warn('[Stripe] Customer resolve failed, falling back to email:', err);
+  if (opts.userEmail) {
+    try {
+      const existing = await stripe.customers.list({ email: opts.userEmail, limit: 1 });
+      if (existing.data.length > 0) {
+        customerId = existing.data[0].id;
+      } else {
+        const created = await stripe.customers.create({
+          email: opts.userEmail,
+          metadata: { userId: opts.userId },
+        });
+        customerId = created.id;
+      }
+    } catch (err) {
+      console.warn('[Stripe] Customer lookup failed, proceeding without customer ID:', err);
+    }
   }
 
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: 'subscription',
     payment_method_types: ['card'],
-    allow_promotion_codes: true,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: opts.successUrl ?? DEFAULT_SUCCESS_URL,
-    cancel_url: opts.cancelUrl ?? DEFAULT_CANCEL_URL,
+    success_url: opts.successUrl ?? 'https://majorka.io/dashboard?upgraded=true',
+    cancel_url: opts.cancelUrl ?? 'https://majorka.io/pricing',
     client_reference_id: opts.userId,
-    metadata: { userId: opts.userId, plan: opts.plan ?? 'builder', billing },
-    subscription_data: {
-      metadata: { userId: opts.userId, plan: opts.plan ?? 'builder', billing },
-    },
+    metadata: { userId: opts.userId },
+    subscription_data: { metadata: { userId: opts.userId } },
   };
 
   if (customerId) {
@@ -209,14 +189,11 @@ export function constructWebhookEvent(payload: Buffer, signature: string): Strip
 function priceIdToPlan(priceId: string | undefined | null): string {
   if (!priceId) return 'builder';
   const map: Record<string, string> = {
-    [process.env.STRIPE_PRO_PRICE_ID              ?? '']: 'builder', // legacy pro → builder
-    [process.env.STRIPE_BUILDER_PRICE_ID          ?? '']: 'builder',
-    [process.env.STRIPE_BUILDER_PRICE_ID_MONTHLY  ?? '']: 'builder',
-    [process.env.STRIPE_BUILDER_PRICE_ID_ANNUAL   ?? '']: 'builder',
-    [process.env.STRIPE_SCALE_PRICE_ID            ?? '']: 'scale',
-    [process.env.STRIPE_SCALE_PRICE_ID_MONTHLY    ?? '']: 'scale',
-    [process.env.STRIPE_SCALE_PRICE_ID_ANNUAL     ?? '']: 'scale',
+    [process.env.STRIPE_PRO_PRICE_ID     ?? '']: 'builder', // legacy pro → builder
+    [process.env.STRIPE_BUILDER_PRICE_ID ?? '']: 'builder',
+    [process.env.STRIPE_SCALE_PRICE_ID   ?? '']: 'scale',
   };
+  // Remove empty-string key so unknown prices fall through cleanly
   delete map[''];
   return map[priceId] ?? 'builder';
 }
@@ -457,83 +434,6 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
   return true;
 }
 
-// ── Resolve or create a Stripe customer for a given user ─────────────────────
-
-/**
- * Ensures a Stripe customer exists for the given user. Returns the Stripe
- * customer ID. Strategy:
- * 1. Read stripe_customer_id from user_subscriptions.
- * 2. If missing, try stripe.customers.list by email.
- * 3. If still missing, stripe.customers.create and upsert into
- *    user_subscriptions so future lookups are O(1).
- */
-export async function resolveOrCreateStripeCustomer(
-  userId: string,
-  userEmail: string | undefined
-): Promise<string | null> {
-  const stripe = getStripe();
-  if (!stripe) return null;
-
-  const sb = getSupabaseAdmin();
-
-  // 1) Existing row in user_subscriptions
-  const { data: existing } = await sb
-    .from('user_subscriptions')
-    .select('stripe_customer_id')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (existing?.stripe_customer_id) return existing.stripe_customer_id as string;
-
-  if (!userEmail) return null;
-
-  // 2) Check Stripe by email to avoid duplicates
-  let customerId: string | null = null;
-  try {
-    const list = await stripe.customers.list({ email: userEmail, limit: 1 });
-    if (list.data.length > 0) customerId = list.data[0].id;
-  } catch (err) {
-    console.warn('[Stripe] customer lookup by email failed:', err);
-  }
-
-  // 3) Create if still missing
-  if (!customerId) {
-    const created = await stripe.customers.create({
-      email: userEmail,
-      metadata: { userId },
-    });
-    customerId = created.id;
-  }
-
-  // 4) Persist mapping for future calls
-  const upsertRow: Record<string, unknown> = {
-    user_id: userId,
-    stripe_customer_id: customerId,
-    updated_at: new Date().toISOString(),
-  };
-  if (!existing) {
-    upsertRow.plan = null;
-    upsertRow.status = 'inactive';
-  }
-  await sb.from('user_subscriptions').upsert(upsertRow, { onConflict: 'user_id' });
-
-  return customerId;
-}
-
-// ── Zod schemas for request validation ───────────────────────────────────────
-
-const checkoutBodySchema = z.object({
-  priceId: z.string().optional(),
-  plan: z.enum(['builder', 'scale', 'pro']).optional(),
-  billing: z.enum(['monthly', 'annual']).optional(),
-  successUrl: z.string().url().optional(),
-  cancelUrl: z.string().url().optional(),
-});
-
-const portalBodySchema = z.object({
-  returnUrl: z.string().url().optional(),
-});
-
 // ── Express route registration ───────────────────────────────────────────────
 
 export function registerStripeRoutes(app: Express) {
@@ -551,34 +451,24 @@ export function registerStripeRoutes(app: Express) {
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
       if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-      const parsed = checkoutBodySchema.safeParse(req.body ?? {});
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
-      }
-      const { priceId, plan, billing, successUrl, cancelUrl } = parsed.data;
-
+      const { priceId, plan, successUrl, cancelUrl } = req.body ?? {};
       const result = await createCheckoutSession({
         userId: user.id,
         userEmail: user.email,
         priceId,
         plan,  // plan name (builder/scale) takes priority over raw priceId
-        billing,
-        successUrl,
-        cancelUrl,
+        successUrl: successUrl ?? 'https://majorka.io/dashboard?upgraded=true',
+        cancelUrl: cancelUrl ?? 'https://majorka.io/pricing',
       });
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Stripe error';
+    } catch (err: any) {
       console.error('[stripe] checkout error:', err);
-      res.status(500).json({ error: message });
+      res.status(500).json({ error: err.message ?? 'Stripe error' });
     }
   });
 
   // POST /api/stripe/customer-portal
-  // Resolves or creates a Stripe customer on-the-fly so users without a
-  // persisted subscription row can still access the portal (e.g. legacy
-  // Checkout Links, imported accounts, or manual refunds).
   app.post('/api/stripe/customer-portal', async (req, res) => {
     if (!isStripeConfigured()) {
       return res.status(503).json({ configured: false, error: 'Payment processing launching soon' });
@@ -590,54 +480,31 @@ export function registerStripeRoutes(app: Express) {
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
       if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-      const parsed = portalBodySchema.safeParse(req.body ?? {});
-      if (!parsed.success) {
-        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
-      }
-      const returnUrl = parsed.data.returnUrl ?? 'https://majorka.io/app/settings/profile';
-
-      const customerId = await resolveOrCreateStripeCustomer(user.id, user.email);
-      if (!customerId) {
-        return res.status(400).json({ error: 'Unable to resolve Stripe customer — missing email on account' });
+      const subStatus = await getSubscriptionStatus(user.id);
+      if (!subStatus.stripeCustomerId) {
+        return res.status(400).json({ error: 'No active subscription found' });
       }
 
-      const result = await createCustomerPortal(customerId, returnUrl);
+      const result = await createCustomerPortal(
+        subStatus.stripeCustomerId,
+        req.body?.returnUrl ?? 'https://majorka.io/app/billing'
+      );
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Stripe error';
+    } catch (err: any) {
       console.error('[stripe] portal error:', err);
-      res.status(500).json({ error: message });
+      res.status(500).json({ error: err.message ?? 'Stripe error' });
     }
   });
 
   // GET /api/stripe/subscription-status
-  // Unauthenticated callers receive only { stripeConfigured } so the public
-  // Pricing page can probe readiness without requiring a session.
   app.get('/api/stripe/subscription-status', async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
-      const hasToken = authHeader?.startsWith('Bearer ') && authHeader.slice(7) !== 'anonymous';
-
-      if (!hasToken) {
-        return res.json({
-          plan: '',
-          status: 'anonymous',
-          periodEnd: null,
-          stripeConfigured: isStripeConfigured(),
-        });
-      }
-
-      const token = authHeader!.slice(7);
+      if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
+      const token = authHeader.slice(7);
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
-      if (error || !user) {
-        return res.json({
-          plan: '',
-          status: 'anonymous',
-          periodEnd: null,
-          stripeConfigured: isStripeConfigured(),
-        });
-      }
+      if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
       const status = await getSubscriptionStatus(user.id);
       res.json({
@@ -646,53 +513,9 @@ export function registerStripeRoutes(app: Express) {
         periodEnd: status.periodEnd,
         stripeConfigured: isStripeConfigured(),
       });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error';
+    } catch (err: any) {
       console.error('[stripe] status error:', err);
-      res.status(500).json({ error: message });
-    }
-  });
-
-  // POST /api/stripe/webhook-test — admin-gated simulator.
-  // Lets operators trigger a synthetic checkout.session.completed for a given
-  // userId + plan so user_subscriptions flips to active without a real
-  // Stripe round-trip. Gated by ADMIN_TOKEN header. NEVER exposes Stripe keys.
-  app.post('/api/stripe/webhook-test', async (req, res) => {
-    const adminToken = process.env.ADMIN_TOKEN ?? '';
-    const provided = (req.headers['x-admin-token'] as string | undefined) ?? '';
-    if (!adminToken || provided !== adminToken) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const schema = z.object({
-      userId: z.string().uuid(),
-      plan: z.enum(['builder', 'scale']).default('builder'),
-      billing: z.enum(['monthly', 'annual']).default('monthly'),
-      daysUntilRenewal: z.number().int().min(1).max(400).default(30),
-    });
-    const parsed = schema.safeParse(req.body ?? {});
-    if (!parsed.success) {
-      return res.status(400).json({ error: 'Invalid body', details: parsed.error.flatten() });
-    }
-    const { userId, plan, daysUntilRenewal } = parsed.data;
-    const periodEnd = new Date(Date.now() + daysUntilRenewal * 24 * 60 * 60 * 1000);
-    try {
-      const sb = getSupabaseAdmin();
-      await sb.from('user_subscriptions').upsert(
-        {
-          user_id: userId,
-          plan,
-          status: 'active',
-          current_period_end: periodEnd.toISOString(),
-          stripe_subscription_id: `test_sub_${Date.now()}`,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' },
-      );
-      return res.json({ ok: true, userId, plan, periodEnd: periodEnd.toISOString() });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'DB error';
-      console.error('[stripe webhook-test] error:', err);
-      return res.status(500).json({ error: message });
+      res.status(500).json({ error: err.message ?? 'Error' });
     }
   });
 

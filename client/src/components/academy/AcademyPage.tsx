@@ -171,8 +171,6 @@ export function AcademyPage({ publicMode }: AcademyPageProps) {
       <FAQSection />
       <FinalCTA onStart={scrollToCurriculum} publicMode={publicMode} />
 
-      <ProgressSyncNotice isAuthed={isAuthed} />
-
       <AnimatePresence>
         {fomoModule ? (
           <motion.div
@@ -243,33 +241,6 @@ function PublicTopCTA() {
             Start free trial
             <ArrowRight size={12} />
           </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProgressSyncNotice({ isAuthed }: { isAuthed: boolean }) {
-  const label = isAuthed
-    ? 'Progress syncs to your account.'
-    : 'Progress saved in your browser — sign in to sync.';
-  return (
-    <div className="border-t border-white/[0.05] py-6">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
-        <div
-          className="flex flex-wrap items-center justify-center gap-3 text-center text-xs"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
-        >
-          <span>{label}</span>
-          {!isAuthed ? (
-            <a
-              href="/sign-in"
-              className="rounded-lg px-2.5 py-1 text-[11px] font-semibold text-black"
-              style={{ background: '#d4af37' }}
-            >
-              Sign in to sync
-            </a>
-          ) : null}
         </div>
       </div>
     </div>

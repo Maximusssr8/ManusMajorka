@@ -30,37 +30,42 @@ const POLL_INTERVAL_MS = 3000;
 const QUALITY_MIN_TITLE_LEN = 5;
 const QUALITY_MIN_PRICE_AUD = 0.5;
 
-const DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR = 100;
+const DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR = 1000;
 const TARGET_SUCCESS_ROWS = 500;
 
-/**
- * Demand-signal queries — NO category searches, pure order-volume signals.
- * Each query triggers one pintostudio actor call, sorted by ORDERS desc.
- * Query terms tuned empirically — broader terms yield more results on AliExpress
- * than niche/compound phrases. Bucket mapping = SourceBreakdown keys:
- *   trending[] → 'trending'   bestsellers[] → 'bestsellers'
- *   hot[]      → 'hot'        newArrivals[] → 'new_arrivals'
- */
-const TRENDING_QUERIES: ReadonlyArray<string> = [
-  'best selling', 'trending now', 'top selling', 'most ordered', 'viral product',
-  'hot selling', 'popular items', 'fast selling', 'top rated sellers', 'most bought',
+/** 20 bestseller category URLs — tuned for AU dropship demand. */
+const BESTSELLER_CATEGORIES: ReadonlyArray<{ id: string; name: string; url: string }> = [
+  { id: '200003655', name: 'Beauty & Health', url: 'https://www.aliexpress.com/category/200003655/beauty-health.html?SortType=total_tranpro_desc' },
+  { id: '200000343', name: 'Pet Products', url: 'https://www.aliexpress.com/category/200000343/pet-products.html?SortType=total_tranpro_desc' },
+  { id: '200000783', name: 'Home & Garden', url: 'https://www.aliexpress.com/category/200000783/home-garden.html?SortType=total_tranpro_desc' },
+  { id: '200000506', name: 'Sports & Fitness', url: 'https://www.aliexpress.com/category/200000506/sports-entertainment.html?SortType=total_tranpro_desc' },
+  { id: '200000340', name: 'Consumer Electronics', url: 'https://www.aliexpress.com/category/200000340/consumer-electronics.html?SortType=total_tranpro_desc' },
+  { id: '200000345', name: 'Mother & Kids', url: 'https://www.aliexpress.com/category/200000345/mother-kids.html?SortType=total_tranpro_desc' },
+  { id: '200000344', name: 'Apparel Accessories', url: 'https://www.aliexpress.com/category/200000344/apparel-accessories.html?SortType=total_tranpro_desc' },
+  { id: '1501',      name: 'Phone Accessories', url: 'https://www.aliexpress.com/category/1501/phone-accessories.html?SortType=total_tranpro_desc' },
+  { id: '200000828', name: 'Automotive', url: 'https://www.aliexpress.com/category/200000828/automotive.html?SortType=total_tranpro_desc' },
+  { id: '44',        name: 'Tools', url: 'https://www.aliexpress.com/category/44/tools.html?SortType=total_tranpro_desc' },
+  { id: '200000532', name: 'Jewelry', url: 'https://www.aliexpress.com/category/200000532/jewelry.html?SortType=total_tranpro_desc' },
+  { id: '200001996', name: 'Watches', url: 'https://www.aliexpress.com/category/200001996/watches.html?SortType=total_tranpro_desc' },
+  { id: '15',        name: 'Office & School', url: 'https://www.aliexpress.com/category/15/office-school-supplies.html?SortType=total_tranpro_desc' },
+  { id: '1503',      name: 'Computer & Office', url: 'https://www.aliexpress.com/category/1503/computer-office.html?SortType=total_tranpro_desc' },
+  { id: '200003498', name: 'Lights & Lighting', url: 'https://www.aliexpress.com/category/200003498/lights-lighting.html?SortType=total_tranpro_desc' },
+  { id: '200000297', name: 'Bags & Luggage', url: 'https://www.aliexpress.com/category/200000297/luggage-bags.html?SortType=total_tranpro_desc' },
+  { id: '200000298', name: 'Shoes', url: 'https://www.aliexpress.com/category/200000298/shoes.html?SortType=total_tranpro_desc' },
+  { id: '509',       name: 'Toys & Hobbies', url: 'https://www.aliexpress.com/category/509/toys-hobbies.html?SortType=total_tranpro_desc' },
+  { id: '6',         name: 'Security & Protection', url: 'https://www.aliexpress.com/category/6/security-protection.html?SortType=total_tranpro_desc' },
+  { id: '200001075', name: 'Furniture', url: 'https://www.aliexpress.com/category/200001075/furniture.html?SortType=total_tranpro_desc' },
 ];
 
-const BESTSELLER_QUERIES: ReadonlyArray<string> = [
-  'bestseller 2025', '100000 sold', 'top seller global', 'most orders', 'over 50000 sold',
-  'high volume seller', 'mass market product', 'bulk orders', 'wholesale popular', 'commercial bestseller',
+/** Trending keyword seeds per market. */
+const TRENDING_KEYWORDS_PER_MARKET: ReadonlyArray<{ market: 'AU' | 'US' | 'UK'; keywords: string[] }> = [
+  { market: 'AU', keywords: ['viral gadget', 'tiktok made me buy', 'trending home', 'cooling', 'led'] },
+  { market: 'US', keywords: ['viral gadget', 'tiktok made me buy', 'aesthetic', 'skincare', 'gaming'] },
+  { market: 'UK', keywords: ['viral gadget', 'tiktok made me buy', 'kitchen', 'pet', 'fitness'] },
 ];
 
-const HOT_QUERIES: ReadonlyArray<string> = [
-  'viral product 2025', 'tiktok viral', 'hot trending',
-];
-
-/** New-arrival queries — filter post-hoc to orders floor.
- *  Lowered floor: 100 → anything with real traction qualifies. */
-const NEW_HIGH_VOLUME_QUERIES: ReadonlyArray<string> = [
-  'new product 2025', 'latest launch', 'fresh arrival',
-  'new gadget', 'newest release',
-];
+const HOT_PRODUCT_KEYWORDS = ['hot product', 'bestseller', 'new trending'];
+const NEW_ARRIVAL_KEYWORDS = ['new arrival', 'just launched', 'latest'];
 
 function log(tag: string, msg: string): void {
   if (process.env.NODE_ENV !== 'production') {
@@ -128,11 +133,9 @@ export interface PintostudioItem {
 export async function runPintostudio(input: PintostudioInput): Promise<PintostudioItem[]> {
   const token = getToken();
   if (!token) {
-    logErr('pintostudio', 'APIFY_API_TOKEN missing — check Vercel env APIFY_API_KEY');
+    logErr('pintostudio', 'APIFY_API_TOKEN not set');
     return [];
   }
-  // Debug — prints first 8 chars of key and mode/country. Never the full key.
-  logErr('pintostudio', `mode=${input.mode} country=${input.country ?? 'AU'} key=${token.slice(0, 8)}… limit=${input.limit}`);
 
   const body = buildInput(input);
   try {
@@ -145,10 +148,9 @@ export async function runPintostudio(input: PintostudioInput): Promise<Pintostud
     });
     if (!startRes.ok) {
       const text = await startRes.text().catch(() => '');
-      logErr('pintostudio', `start HTTP ${startRes.status}: ${text.slice(0, 300)}`);
+      logErr('pintostudio', `start ${startRes.status}: ${text.slice(0, 200)}`);
       return [];
     }
-    logErr('pintostudio', `start OK HTTP ${startRes.status}`);
     const startData = (await startRes.json()) as { data?: { id?: string; defaultDatasetId?: string } };
     const runId = startData.data?.id;
     if (!runId) return [];
@@ -185,29 +187,12 @@ export async function runPintostudio(input: PintostudioInput): Promise<Pintostud
     const fx = await getFxRates();
     const audRate = fx.AUD || FALLBACK_RATES.AUD;
     const out: PintostudioItem[] = [];
-    // pintostudio wraps the real product list inside `{ data: { content: [...] } }`
-    // — flatten before mapping. Items that are already flat (legacy shape) still work.
-    const flattened: Record<string, unknown>[] = [];
     for (const r of raw) {
       if (!r || typeof r !== 'object') continue;
-      const maybeWrapped = r as Record<string, unknown>;
-      const dataVal = maybeWrapped.data;
-      if (dataVal && typeof dataVal === 'object') {
-        const content = (dataVal as Record<string, unknown>).content;
-        if (Array.isArray(content)) {
-          for (const c of content) {
-            if (c && typeof c === 'object') flattened.push(c as Record<string, unknown>);
-          }
-          continue;
-        }
-      }
-      flattened.push(maybeWrapped);
-    }
-    for (const f of flattened) {
-      const mapped = mapItem(f, audRate);
+      const mapped = mapItem(r as Record<string, unknown>, audRate);
       if (mapped) out.push(mapped);
     }
-    logErr('pintostudio', `mode=${input.mode} raw=${raw.length} flat=${flattened.length} mapped=${out.length} dataset=${datasetId}`);
+    log('pintostudio', `mode=${input.mode} got=${out.length} from dataset=${datasetId}`);
     return out;
   } catch (e: unknown) {
     logErr('pintostudio', e instanceof Error ? e.message : 'unknown error');
@@ -215,133 +200,64 @@ export async function runPintostudio(input: PintostudioInput): Promise<Pintostud
   }
 }
 
-/**
- * Build the actor input. Pintostudio describes itself as
- * "Search for products on AliExpress based on a query" — it is query-based,
- * NOT URL-based. We defensively send every common synonym for the search
- * field (`query`, `keyword`, `searchQuery`, `text`, `searchText`, `q`) and
- * every common sort-field name so the actor cannot silently no-op because
- * we used the wrong key. Apify actors ignore unknown inputs.
- */
 function buildInput(input: PintostudioInput): Record<string, unknown> {
   const shipTo = input.country ?? 'AU';
-  const q = queryForMode(input);
-  const sortKey = input.mode === 'new_arrivals' ? 'NEWEST' : 'ORDERS';
-  return {
-    query: q,
-    keyword: q,
-    searchQuery: q,
-    searchText: q,
-    text: q,
-    q,
-    maxItems: input.limit,
-    maxResults: input.limit,
-    resultsLimit: input.limit,
-    sortBy: sortKey,
-    sort: sortKey,
-    sortType: sortKey === 'ORDERS' ? 'total_tranqt_desc' : 'newest_desc',
-    shipTo,
-    shipCountry: shipTo,
-    country: shipTo,
-  };
-}
-
-/**
- * Derive a search query from the input mode. For bestsellers (category-based)
- * we fall back to the keyword field if provided, else extract a human-readable
- * category name from the URL slug.
- */
-function queryForMode(input: PintostudioInput): string {
-  if (input.keyword && input.keyword.trim().length > 0) return input.keyword;
-  // Every mode is now query-based. No category URL synthesis.
   switch (input.mode) {
     case 'trending':
-      return 'best selling';
-    case 'hot_products':
-      return 'hot selling';
-    case 'new_arrivals':
-      return 'new arrival hot';
+      return {
+        keyword: input.keyword ?? 'trending',
+        maxItems: input.limit,
+        sortBy: 'ORDERS',
+        shipTo,
+      };
     case 'bestsellers':
-      return 'bestseller';
+      return {
+        startUrls: input.categoryUrl ? [{ url: input.categoryUrl }] : [],
+        maxItems: input.limit,
+        sortBy: 'ORDERS',
+        shipTo,
+      };
+    case 'hot_products':
+      return {
+        keyword: input.keyword ?? 'hot product',
+        maxItems: input.limit,
+        sortBy: 'ORDERS',
+        shipTo,
+      };
+    case 'new_arrivals':
+      return {
+        keyword: input.keyword ?? 'new arrival',
+        maxItems: input.limit,
+        sortBy: 'NEWEST',
+        shipTo,
+      };
   }
-}
-
-// ──────────────────────────────────────────────────────────────────────────
-// pintostudio actor result shape (verified 2026-04-14 via /api/admin/test-apify):
-// {
-//   productId: "3256810280552947",
-//   title: { displayTitle: "...", seoTitle: "..." },
-//   image: { imgUrl: "//ae-pic-a1.aliexpress-media.com/kf/...jpg" },
-//   images: [{ imgUrl }, ...],
-//   prices: {
-//     salePrice:     { minPrice: 8.54,  formattedPrice: "US $8.54", discount: 74 },
-//     originalPrice: { minPrice: 34.11, formattedPrice: "US $34.11" }
-//   },
-//   trade: { realTradeCount: 436, tradeDesc: "436 sold" },
-//   evaluation: { starRating: 4.2 },
-//   lunchTime: "2025-11-30 00:00:00"
-// }
-// ──────────────────────────────────────────────────────────────────────────
-function pick<T = unknown>(obj: Record<string, unknown>, path: string): T | undefined {
-  let cur: unknown = obj;
-  for (const part of path.split('.')) {
-    if (!cur || typeof cur !== 'object') return undefined;
-    cur = (cur as Record<string, unknown>)[part];
-  }
-  return cur as T | undefined;
-}
-
-function normalizeUrl(u: string | undefined): string {
-  if (!u) return '';
-  if (u.startsWith('//')) return `https:${u}`;
-  if (u.startsWith('http')) return u;
-  return u;
 }
 
 function mapItem(item: Record<string, unknown>, audRate: number): PintostudioItem | null {
-  // Title — prefer nested displayTitle, fall back to flat shape (legacy/alt actors).
-  const titleDisplay = str(pick<string>(item, 'title.displayTitle') ?? pick<string>(item, 'title.seoTitle'));
-  const title = (titleDisplay || str(item.title ?? item.name ?? item.productTitle)).trim();
+  const title = str(item.title ?? item.name ?? item.productTitle).trim();
   if (title.length < QUALITY_MIN_TITLE_LEN) return null;
 
-  // Image — nested `image.imgUrl` (protocol-relative) with flat fallbacks.
-  const imgNested = pick<string>(item, 'image.imgUrl')
-    ?? pick<string>(item, 'images.0.imgUrl');
-  const imageUrl = normalizeUrl(
-    imgNested
-      ?? str(item.imageUrl ?? item.mainImage ?? item.thumbnail ?? item.imgUrl)
-      ?? (typeof item.image === 'string' ? (item.image as string) : ''),
+  const imageUrl = str(
+    item.image ?? item.imageUrl ?? item.mainImage ?? item.thumbnail ?? item.imgUrl,
   );
   if (!imageUrl) return null;
 
-  // Product URL — actor omits it; synthesise from productId.
-  const productIdRaw = str(item.productId ?? item.id ?? item.itemId ?? '');
-  const productUrl = str(item.url ?? item.link ?? item.productUrl)
-    || (productIdRaw ? `https://www.aliexpress.com/item/${productIdRaw}.html` : '');
-
-  // Price — prefer nested salePrice, then originalPrice, then flat fallbacks.
-  const priceRaw =
-    numOrNull(pick<number>(item, 'prices.salePrice.minPrice'))
-    ?? numOrNull(pick<number>(item, 'prices.originalPrice.minPrice'))
-    ?? numOrNull(item.price ?? item.priceMin ?? item.salePrice ?? item.discountPrice);
+  const productUrl = str(item.url ?? item.link ?? item.productUrl);
+  const rawCurrency = str(item.currency ?? item.currencyCode ?? 'USD').toUpperCase().slice(0, 3) || 'USD';
+  const priceRaw = numOrNull(item.price ?? item.priceMin ?? item.salePrice ?? item.discountPrice);
   if (priceRaw == null || priceRaw <= 0) return null;
 
-  const priceUsd = priceRaw;
+  const priceUsd = rawCurrency === 'USD' ? priceRaw : priceRaw; // pintostudio normalises to USD
   const priceAud = Math.round(priceUsd * audRate * 100) / 100;
   if (priceAud < QUALITY_MIN_PRICE_AUD) return null;
 
-  // Orders — prefer nested trade.realTradeCount, fall back to flat.
-  // Global quality gate: reject zero-order items; per-call minOrders enforces
-  // stricter floors (1000 for trending/bestsellers, 100 for new arrivals).
-  const ordersRaw = numOrNull(pick<number>(item, 'trade.realTradeCount'));
-  const orders = ordersRaw != null && ordersRaw > 0 ? Math.round(ordersRaw) : ordersFromAny(item);
+  const orders = ordersFromAny(item);
   if (orders <= 0) return null;
 
-  // Rating — nested evaluation.starRating, fall back to flat.
-  const rating = numOrNull(pick<number>(item, 'evaluation.starRating'))
-    ?? numOrNull(item.rating ?? item.starRating ?? item.score);
-  const reviewCount = ordersFromAny({ sold: pick<number>(item, 'evaluation.reviewCount') ?? item.reviews ?? item.reviewCount ?? item.commentCount ?? 0 });
-  const sourceProductId = productIdRaw.slice(0, 120) || str(productUrl).slice(0, 120);
+  const rating = numOrNull(item.rating ?? item.starRating ?? item.score);
+  const reviewCount = ordersFromAny({ sold: item.reviews ?? item.reviewCount ?? item.commentCount ?? 0 });
+  const sourceProductId = str(item.id ?? item.productId ?? item.itemId ?? productUrl).slice(0, 120);
   if (!sourceProductId) return null;
 
   return {
@@ -356,7 +272,7 @@ function mapItem(item: Record<string, unknown>, audRate: number): PintostudioIte
     reviewCount,
     category: str(item.category ?? item.categoryName) || null,
     sellerName: str(item.storeName ?? item.seller ?? item.shopName) || null,
-    currency: 'USD',
+    currency: rawCurrency,
   };
 }
 
@@ -392,68 +308,48 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   let updated = 0;
   let rejected = 0;
 
-  // 25 parallel calls: 10 trending + 10 bestsellers + 5 new-high-volume.
-  // Zero category-based searches. Every query is a pure demand signal.
-  type Call = {
-    input: PintostudioInput;
-    source: string;
-    bucket: keyof SourceBreakdown;
-    minOrders?: number;
-  };
-  const calls: Call[] = [];
-
-  for (const q of TRENDING_QUERIES) {
-    calls.push({
-      input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
-      source: `trending:${q}`,
-      bucket: 'trending',
-      minOrders: 1000,
-    });
-  }
-  for (const q of BESTSELLER_QUERIES) {
-    calls.push({
-      input: { mode: 'trending', keyword: q, country: 'AU', limit: 100 },
-      source: `bestsellers:${q}`,
-      bucket: 'bestsellers',
-      minOrders: 1000,
-    });
-  }
-  for (const q of HOT_QUERIES) {
-    calls.push({
-      input: { mode: 'hot_products', keyword: q, country: 'AU', limit: 100 },
-      source: `hot:${q}`,
-      bucket: 'hot',
-      minOrders: 500,
-    });
-  }
-  for (const q of NEW_HIGH_VOLUME_QUERIES) {
-    calls.push({
-      input: { mode: 'new_arrivals', keyword: q, country: 'AU', limit: 100 },
-      source: `new_high_volume:${q}`,
-      bucket: 'new_arrivals',
-      minOrders: DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR,
-    });
-  }
-
-  logErr('pintostudio', `[PIPELINE START] firing ${calls.length} parallel actor calls (10 trending + 10 bestsellers + 5 new-high-volume)`);
-  const results = await Promise.allSettled(calls.map(async (c) => {
-    const items = await runPintostudio(c.input);
-    const filtered = c.minOrders != null ? items.filter((i) => i.orders >= c.minOrders!) : items;
-    const u = await upsertProducts(filtered, c.source);
-    return { call: c, items: filtered, upserted: u };
-  }));
-
-  for (const r of results) {
-    if (r.status !== 'fulfilled') {
-      errors.push(`fatal:${(r.reason as Error)?.message ?? 'unknown'}`);
-      continue;
+  // Trending across 3 markets (×5 keywords each = 15 calls × 100 items)
+  for (const m of TRENDING_KEYWORDS_PER_MARKET) {
+    for (const kw of m.keywords) {
+      const items = await runPintostudio({ mode: 'trending', keyword: kw, country: m.market, limit: 100 });
+      if (items.length === 0) errors.push(`trending:${m.market}:${kw}:empty`);
+      const u = await upsertProducts(items, `trending:${m.market}`);
+      breakdown.trending += u.added + u.updated;
+      added += u.added; updated += u.updated; rejected += u.rejected;
     }
-    const { call, items, upserted } = r.value;
-    if (items.length === 0) errors.push(`${call.source}:empty`);
-    breakdown[call.bucket] += upserted.added + upserted.updated;
-    added += upserted.added;
-    updated += upserted.updated;
-    rejected += upserted.rejected;
+  }
+
+  // Bestsellers — 20 categories × 100 items
+  for (const cat of BESTSELLER_CATEGORIES) {
+    const items = await runPintostudio({
+      mode: 'bestsellers',
+      categoryUrl: cat.url,
+      country: 'AU',
+      limit: 100,
+    });
+    if (items.length === 0) errors.push(`bestsellers:${cat.name}:empty`);
+    const u = await upsertProducts(items, `bestsellers:${cat.id}`);
+    breakdown.bestsellers += u.added + u.updated;
+    added += u.added; updated += u.updated; rejected += u.rejected;
+  }
+
+  // Hot products — single deep call
+  for (const kw of HOT_PRODUCT_KEYWORDS) {
+    const items = await runPintostudio({ mode: 'hot_products', keyword: kw, country: 'AU', limit: 200 });
+    if (items.length === 0) errors.push(`hot_products:${kw}:empty`);
+    const u = await upsertProducts(items, 'hot_products');
+    breakdown.hot += u.added + u.updated;
+    added += u.added; updated += u.updated; rejected += u.rejected;
+  }
+
+  // New arrivals — filter to orders >= 1000
+  for (const kw of NEW_ARRIVAL_KEYWORDS) {
+    const items = await runPintostudio({ mode: 'new_arrivals', keyword: kw, country: 'AU', limit: 300 });
+    const filtered = items.filter((i) => i.orders >= DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR);
+    if (filtered.length === 0) errors.push(`new_arrivals:${kw}:empty`);
+    const u = await upsertProducts(filtered, 'new_arrivals');
+    breakdown.new_arrivals += u.added + u.updated;
+    added += u.added; updated += u.updated; rejected += u.rejected;
   }
 
   const total = added + updated;
@@ -506,84 +402,71 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
     return {
       product_title: i.title,
       image_url: i.imageUrl,
+      hi_res_image_url: i.imageUrl,
       category: i.category ?? 'general',
-      platform: 'aliexpress', // REQUIRED — composite unique is (product_title, platform)
+      platform: 'aliexpress' as const,
       price_aud: i.priceAud,
+      cost_price_aud: Math.round(i.priceAud * 0.4 * 100) / 100,
+      supplier_cost_aud: Math.round(i.priceAud * 0.4 * 100) / 100,
       sold_count: i.orders,
+      orders_count: i.orders,
+      rating: i.rating,
+      review_count: i.reviewCount,
+      shop_name: i.sellerName ?? 'AliExpress',
       winning_score: winningScore,
+      au_relevance: 'High',
+      units_per_day: unitsPerDay,
       est_daily_revenue_aud: estDailyRevenueAud,
+      est_monthly_revenue_aud: Math.round(estDailyRevenueAud * 30 * 100) / 100,
+      profit_margin: 60,
       aliexpress_url: i.productUrl || null,
       aliexpress_id: i.sourceProductId,
+      source_product_id: i.sourceProductId,
+      source_url: i.productUrl,
+      data_source: `apify-pintostudio:${source}`,
+      source_currency: i.currency,
+      is_active: true,
+      scraped_at: nowIso,
+      last_refreshed: nowIso,
+      last_seen_at: nowIso,
+      last_seen_in_scrape_at: nowIso,
     };
   });
-  void nowIso; // kept for future use when snapshot migrations land
+
+  // Quality gate already enforced in mapItem (title>=5, image, price, orders>0).
+  // Anything missing fails on the NOT NULL columns and is counted as rejected.
 
   let added = 0;
   let updated = 0;
   let rejected = 0;
 
-  // No unique constraint on aliexpress_id so ON CONFLICT fails. Two-pass:
-  //   1. SELECT existing aliexpress_ids → INSERT only truly-new rows
-  //   2. For existing rows, bulk UPDATE sold_count / winning_score / scraped_at
-  //      so the dashboard sees fresh demand numbers even when no new SKUs arrive.
-  const ids = rows.map((r) => r.aliexpress_id).filter(Boolean);
+  // Check existing by source_product_id in one round-trip.
+  const ids = rows.map((r) => r.source_product_id).filter(Boolean);
   const existingIds = new Set<string>();
   if (ids.length > 0) {
-    const { data, error: selErr } = await supabase
+    const { data } = await supabase
       .from('winning_products')
-      .select('aliexpress_id')
-      .in('aliexpress_id', ids);
-    if (selErr) {
-      logErr('upsert', `select existing ${source}: ${selErr.message}`);
-    }
+      .select('source_product_id')
+      .in('source_product_id', ids);
     for (const row of data ?? []) {
-      const v = (row as { aliexpress_id?: string }).aliexpress_id;
+      const v = (row as { source_product_id?: string }).source_product_id;
       if (v) existingIds.add(v);
     }
   }
-  const newRows = rows.filter((r) => !existingIds.has(r.aliexpress_id));
-  const existingRows = rows.filter((r) => existingIds.has(r.aliexpress_id));
 
-  logErr('upsert', `${source}: items=${items.length} rows=${rows.length} new=${newRows.length} existing=${existingRows.length}`);
+  // Upsert in a single call — Supabase will INSERT or UPDATE per row.
+  const { error } = await supabase
+    .from('winning_products')
+    .upsert(rows, { onConflict: 'source_product_id', ignoreDuplicates: false });
 
-  // Insert new rows — use upsert with onConflict on (product_title, platform)
-  // so title-collisions with existing rows silently no-op instead of throwing.
-  if (newRows.length > 0) {
-    const { error: insErr } = await supabase
-      .from('winning_products')
-      .upsert(newRows, {
-        onConflict: 'product_title,platform',
-        ignoreDuplicates: true,
-      });
-    if (insErr) {
-      const msg = `insert ${source} n=${newRows.length}: ${insErr.message}${insErr.details ? ` | ${insErr.details}` : ''}${insErr.hint ? ` | hint: ${insErr.hint}` : ''}`;
-      logErr('upsert', msg);
-      // Don't throw — partial batch success is better than losing all 25 calls.
-      rejected += newRows.length;
-    } else {
-      added = newRows.length;
-    }
+  if (error) {
+    logErr('upsert', `${source}: ${error.message}`);
+    return { added: 0, updated: 0, rejected: rows.length };
   }
 
-  // Refresh existing rows — UPDATE demand signals per aliexpress_id
-  for (const r of existingRows) {
-    const { error: updErr } = await supabase
-      .from('winning_products')
-      .update({
-        sold_count: r.sold_count,
-        winning_score: r.winning_score,
-        est_daily_revenue_aud: r.est_daily_revenue_aud,
-        price_aud: r.price_aud,
-        image_url: r.image_url,
-      })
-      .eq('aliexpress_id', r.aliexpress_id);
-    if (updErr) {
-      // Don't throw — log and count as rejected so the rest of the batch lands.
-      logErr('upsert', `update ${source} aid=${r.aliexpress_id}: ${updErr.message}`);
-      rejected++;
-      continue;
-    }
-    updated++;
+  for (const r of rows) {
+    if (existingIds.has(r.source_product_id)) updated++;
+    else added++;
   }
 
   return { added, updated, rejected };

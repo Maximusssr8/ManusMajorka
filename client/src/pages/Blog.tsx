@@ -25,7 +25,7 @@ const POSTS = [
   },
   {
     slug: 'aliexpress-vs-cj-dropshipping-2026',
-    title: 'AliExpress vs AliExpress 2026: Full Comparison',
+    title: 'AliExpress vs CJ Dropshipping 2026: Full Comparison',
     excerpt: 'A data-driven breakdown of shipping times, margins, product range, and automation support. Which supplier wins for each product type in 2026.',
     category: 'Suppliers',
     readTime: '8 min read',

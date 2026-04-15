@@ -14,10 +14,7 @@ export function ProgressPreview({ completedCount, streakDays, userName }: Progre
   const cards = [
     { title: 'Lesson Progress', body: <ProgressRing value={completedCount} max={TOTAL_LESSONS} sublabel="Lessons" /> },
     { title: 'Daily Streak', body: <FlameStreak days={streakDays} /> },
-    {
-      title: 'Your Certificate',
-      body: <CertificatePreview name={userName ?? 'Operator'} completedCount={completedCount} />,
-    },
+    { title: 'Your Certificate', body: <CertificatePreview name={userName ?? 'Operator'} /> },
   ];
   return (
     <section className="border-t border-white/[0.05] py-20 md:py-28">

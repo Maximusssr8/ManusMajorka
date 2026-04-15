@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 // Module-level query cache. Shared across every `useProducts` /
@@ -373,11 +373,6 @@ export interface UseProductsTabResult {
   insufficientData: boolean;
   excludedIds: Array<number | string>;
   cached: boolean;
-  hasMore: boolean;
-  loadingMore: boolean;
-  loadMore: () => void;
-  refresh: () => void;
-  lastUpdatedAt: number | null;
 }
 
 function buildTabQS(filters: ProductsTabFilters): string {
@@ -396,11 +391,7 @@ interface TabApiResponse {
   tab: string;
   insufficientData?: boolean;
   excludedIds?: Array<number | string>;
-  hasMore?: boolean;
-  nextOffset?: number | null;
 }
-
-const PAGE_SIZE = 20;
 
 export function useProductsTab(tab: ProductsTab, filters: ProductsTabFilters = {}): UseProductsTabResult {
   const qs = buildTabQS(filters);
@@ -409,31 +400,21 @@ export function useProductsTab(tab: ProductsTab, filters: ProductsTabFilters = {
   const [excludedIds, setExcludedIds] = useState<Array<number | string>>([]);
   const [insufficientData, setInsufficientData] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [nextOffset, setNextOffset] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [cached, setCached] = useState(false);
-  const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
-  const [refreshCounter, setRefreshCounter] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
 
+    // Stale-while-revalidate: if we have cached data, render it immediately
+    // (cached=true), then refetch in the background and update on success.
     const hit = QUERY_CACHE.get(cacheKey);
     const isFresh = hit && (Date.now() - hit.timestamp) < TAB_CACHE_TTL_MS;
-    if (hit && refreshCounter === 0) {
+    if (hit) {
       const cachedResp = hit.data as TabApiResponse;
       setProducts(cachedResp.products);
       setExcludedIds(cachedResp.excludedIds ?? []);
       setInsufficientData(Boolean(cachedResp.insufficientData));
-      setHasMore(Boolean(cachedResp.hasMore));
-      setNextOffset(
-        typeof cachedResp.nextOffset === 'number'
-          ? cachedResp.nextOffset
-          : (cachedResp.products?.length ?? 0),
-      );
-      setLastUpdatedAt(hit.timestamp);
       setCached(true);
       setLoading(false);
       if (isFresh) return;
@@ -444,8 +425,7 @@ export function useProductsTab(tab: ProductsTab, filters: ProductsTabFilters = {
     async function load() {
       setError(null);
       try {
-        const sep = qs.length > 0 ? '&' : '?';
-        const res = await fetch(`/api/products/${tab}${qs}${sep}limit=${PAGE_SIZE}&offset=0`, {
+        const res = await fetch(`/api/products/${tab}${qs}`, {
           headers: { Accept: 'application/json' },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -455,11 +435,6 @@ export function useProductsTab(tab: ProductsTab, filters: ProductsTabFilters = {
         setProducts(data.products ?? []);
         setExcludedIds(data.excludedIds ?? []);
         setInsufficientData(Boolean(data.insufficientData));
-        setHasMore(Boolean(data.hasMore));
-        setNextOffset(
-          typeof data.nextOffset === 'number' ? data.nextOffset : (data.products?.length ?? 0),
-        );
-        setLastUpdatedAt(Date.now());
         setCached(false);
       } catch (e: unknown) {
         if (cancelled) return;
@@ -471,48 +446,9 @@ export function useProductsTab(tab: ProductsTab, filters: ProductsTabFilters = {
 
     load();
     return () => { cancelled = true; };
-  }, [cacheKey, qs, tab, refreshCounter]);
+  }, [cacheKey, qs, tab]);
 
-  const loadMore = useCallback(() => {
-    if (loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    (async () => {
-      try {
-        const sep = qs.length > 0 ? '&' : '?';
-        const res = await fetch(`/api/products/${tab}${qs}${sep}limit=${PAGE_SIZE}&offset=${nextOffset}`, {
-          headers: { Accept: 'application/json' },
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = (await res.json()) as TabApiResponse;
-        setProducts((prev) => {
-          const seen = new Set(prev.map((p) => String(p.id)));
-          const merged = [...prev];
-          for (const p of data.products ?? []) {
-            if (!seen.has(String(p.id))) merged.push(p);
-          }
-          return merged;
-        });
-        setHasMore(Boolean(data.hasMore));
-        setNextOffset(
-          typeof data.nextOffset === 'number' ? data.nextOffset : nextOffset + PAGE_SIZE,
-        );
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : 'Failed to load more');
-      } finally {
-        setLoadingMore(false);
-      }
-    })();
-  }, [hasMore, loadingMore, nextOffset, qs, tab]);
-
-  const refresh = useCallback(() => {
-    QUERY_CACHE.delete(cacheKey);
-    setRefreshCounter((c) => c + 1);
-  }, [cacheKey]);
-
-  return {
-    products, loading, error, insufficientData, excludedIds, cached,
-    hasMore, loadingMore, loadMore, refresh, lastUpdatedAt,
-  };
+  return { products, loading, error, insufficientData, excludedIds, cached };
 }
 
 export interface ProductStats {

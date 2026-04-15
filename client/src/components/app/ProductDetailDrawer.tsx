@@ -51,7 +51,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           gap: 12,
         }}>
           <h3 style={{
-            fontFamily: "'Syne', 'DM Sans', sans-serif",
+            fontFamily: "'Syne', 'Inter', sans-serif",
             fontSize: 16,
             fontWeight: 600,
             color: '#f0f4ff',
@@ -151,7 +151,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
                 padding: '12px 14px',
               }}>
                 <div style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 11,
                   fontWeight: 500,
                   color: 'rgba(255,255,255,0.4)',
@@ -160,7 +160,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
                   marginBottom: 6,
                 }}>{m.label}</div>
                 <div style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: 16,
                   fontWeight: 700,
                   color: m.color,

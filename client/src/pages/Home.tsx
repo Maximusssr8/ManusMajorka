@@ -6,7 +6,6 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
 import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
 import { StickyTrialBar } from '@/components/funnel/StickyTrialBar';
-import { HeroDemo } from '@/components/landing/HeroDemo';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -335,7 +334,7 @@ const STEPS: { num: string; title: string; body: string; time: string }[] = [
 
 const FAQ_DATA: { q: string; a: string }[] = [
   { q: 'How is Majorka different from KaloData or Minea?', a: 'Majorka is the operating system, not a single tool. Product research, competitor spying, store building, ad creative, and profit math live in one dashboard with one bill.' },
-  { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and AliExpress. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
+  { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and CJ Dropshipping. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
   { q: 'Do I need a Shopify store first?',     a: "No. You can use Majorka's built-in Store Builder to generate and launch a store from scratch, or connect an existing Shopify store in one click. Majorka adds an intelligence layer on top of whatever setup you have." },
   { q: 'Which markets are supported?',         a: 'Australia, United States, United Kingdom, Canada, New Zealand, Germany, and Singapore. Each market has localised pricing, supplier recommendations, tax calculations, and regional ad benchmarks built in.' },
   { q: 'Can I cancel anytime?',                a: "Yes. No contracts, no lock-ins. Cancel before your next billing date and you won't be charged. Your data exports (CSV) are available for 30 days after cancellation." },
@@ -1340,7 +1339,7 @@ function ThePlatform() {
               2,302 winning products.<br />Ranked by real orders.
             </h3>
             <p style={{ color: '#8a8a8f', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
-              Every product is sourced directly from the AliExpress Affiliate API and AliExpress — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
+              Every product is sourced directly from the AliExpress Affiliate API and CJ Dropshipping — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
@@ -2647,20 +2646,56 @@ function TrustBar() {
   );
 }
 
-// ── Live animated walkthrough (HeroDemo — 5 panels, real API data) ─────────
+// ── Video placeholder ──────────────────────────────────────────────────────
 function VideoPreview() {
   return (
     <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px', background: '#0a0a0a' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
         <SectionHeader
-          eyebrow="Live walkthrough"
+          eyebrow="Walkthrough"
           line1="See Majorka"
           line2="in action."
-          description="Animated dashboard powered by real product data — watch the AI score, rank, and surface winners across 7 markets."
+          description="A full product walkthrough is coming soon. Early-access members will be the first to see it."
           align="center"
         />
-        <div style={{ marginTop: 40 }}>
-          <HeroDemo />
+        <div style={{
+          maxWidth: 880,
+          margin: '0 auto',
+          background: T.bgSurface,
+          border: `1px solid ${T.border}`,
+          borderRadius: 16,
+          aspectRatio: '16 / 9',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 20,
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 60%)',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'relative',
+            width: 84, height: 84, borderRadius: '50%',
+            background: 'rgba(212,175,55,0.12)',
+            border: '2px solid rgba(212,175,55,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{
+              width: 0, height: 0,
+              borderLeft: '22px solid #a5b4fc',
+              borderTop: '14px solid transparent',
+              borderBottom: '14px solid transparent',
+              marginLeft: 6,
+            }} />
+          </div>
+          <div style={{ position: 'relative', fontFamily: mono, fontSize: 13, color: T.textDim, letterSpacing: '0.03em' }}>
+            Product walkthrough coming soon — join to get early access
+          </div>
         </div>
         <div style={{ marginTop: 28 }}>
           <Link href="/sign-up" style={{
@@ -2670,7 +2705,7 @@ function VideoPreview() {
             textDecoration: 'none',
             fontWeight: 500,
           }}>
-            Create a free account to explore the live dashboard →
+            Create a free account to explore the dashboard →
           </Link>
         </div>
       </div>

@@ -36,7 +36,6 @@ const MIGRATIONS: ReadonlyArray<{ name: string; file: string }> = [
   { name: "ships-to-columns", file: "ships-to-columns-migration.sql" },
   { name: "chat-history", file: "chat-history-migration.sql" },
   { name: "revenue", file: "revenue-migration.sql" },
-  { name: "user-subscriptions", file: "user-subscriptions-migration.sql" },
   { name: "trials", file: "trials-migration.sql" },
   { name: "product-history", file: "product-history-migration.sql" },
   { name: "pipeline-logs", file: "pipeline-logs-migration.sql" },

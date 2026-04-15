@@ -277,7 +277,7 @@ const MODULES: Module[] = [
         body: [
           "Once you are doing 20+ orders/day of a product, message the AliExpress seller directly and ask for a private rate. 'Hi, I am importing this to Australia for a dropship brand. At volume, can we discuss per-unit pricing and faster dispatch?' You will get a better price, priority packing, and sometimes a contact at the factory.",
           "Ask for an 'AE Standard Shipping' upgrade at your cost — often 2-3 days faster than the default.",
-          "Move to AliExpress or Zendrop as soon as you can afford the 5-10% premium. Faster shipping, better QC, real support. Your customers will never know — your refund rate will plummet.",
+          "Move to CJDropshipping or Zendrop as soon as you can afford the 5-10% premium. Faster shipping, better QC, real support. Your customers will never know — your refund rate will plummet.",
         ],
       },
     ],
@@ -682,7 +682,7 @@ export default function LearnHub() {
           color: 'rgba(255,255,255,0.55)',
         }}>
           <CheckCircle2 size={13} style={{ color: '#a78bfa', flexShrink: 0 }} />
-          <span>You&apos;re on Scale Plan — all lessons unlocked. Progress syncs to your account.</span>
+          <span>You&apos;re on Scale Plan — all lessons unlocked. Progress is stored locally in your browser.</span>
         </div>
       ) : (
         <div style={{

@@ -7,7 +7,7 @@ import { Link } from 'wouter';
 
 const dm = "'DM Sans', sans-serif";
 const syne = "'Syne', sans-serif";
-const mono = "'JetBrains Mono', 'Fira Code', monospace";
+const mono = "'DM Mono', 'Fira Code', 'Courier New', monospace";
 
 const DEMO_STYLES = `
 @keyframes border-breathe {

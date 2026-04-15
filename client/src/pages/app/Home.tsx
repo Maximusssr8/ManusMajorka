@@ -6,12 +6,6 @@ import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { GradientM } from '@/components/MajorkaLogo';
 import { useProducts, type Product } from '@/hooks/useProducts';
-import {
-  useTopProducts,
-  useVelocityLeaders,
-  useHotToday,
-  useOpportunities,
-} from '@/hooks/useDashboard';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { useFavourites } from '@/hooks/useFavourites';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
@@ -98,53 +92,20 @@ export default function AppHome() {
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Per-section dashboard dedup — exclusion chain is resolved on the client
-  // but each query is served by its own /api/dashboard/* endpoint with its
-  // own cache window (15m / 30m / 1h).
-  //
-  // Step 1: Top Products fetched FIRST so its IDs seed every other section.
-  const topQuery = useTopProducts();
-  const topProductsRaw = topQuery.data?.products ?? [];
-  const prodLoading = topQuery.isLoading;
-  const products = topProductsRaw.slice(0, 10);
-  const topIds = topProductsRaw.map((p) => p.id);
-  const topIdsReady = topQuery.isSuccess;
-
-  // Step 2a: Velocity Leaders — server slice is already disjoint from Top
-  // (velocity filter is `sold_count > 10000`, ordered by created_at), so we
-  // let it fire in parallel.
-  const velocityQuery = useVelocityLeaders(true);
-  const velocityProducts = velocityQuery.data?.products ?? [];
-
-  // Step 2b: Hot Today — excludes topIds. Waits for topQuery to complete.
-  const hotTodayQuery = useHotToday(topIds, topIdsReady);
-  const hotTodayProducts = hotTodayQuery.data?.products ?? [];
-
-  // Step 3: Opportunities — excludes topIds ∪ velocityIds ∪ hotIds.
-  // Waits for all three upstream queries so the exclusion chain is complete.
-  const velocityReady = velocityQuery.isSuccess;
-  const hotReady = hotTodayQuery.isSuccess;
-  const opportunityExcludeIds = [
-    ...topIds,
-    ...velocityProducts.map((p) => p.id),
-    ...hotTodayProducts.map((p) => p.id),
-  ];
-  const opportunityQuery = useOpportunities(
-    opportunityExcludeIds,
-    topIdsReady && velocityReady && hotReady,
-  );
-  const opportunityProducts = opportunityQuery.data?.products ?? [];
-  const opportunityLoading = opportunityQuery.isLoading || opportunityQuery.isPending;
-
-  // Fallback singles for the Opportunities slot — kept on useProducts because
-  // they're one-off curated picks, not section feeds.
+  // Velocity Leaders: ranked by 7-day sold_count delta (recent momentum).
+  // Server-computed on every cron tick — see server/routes/cron.ts.
+  const { products: velocityProducts } = useProducts({ limit: 10, orderBy: 'velocity_7d' });
+  const velocityIds = velocityProducts.map((p) => p.id);
+  // Top Products: highest cumulative sold_count, DEDUPED against Velocity Leaders
+  // so the two sections never show the same SKU.
+  const { products, loading: prodLoading, total } = useProducts({
+    limit: 10,
+    orderBy: 'sold_count',
+    excludeIds: velocityIds.length > 0 ? velocityIds : undefined,
+  });
+  const { products: hotTodayProducts } = useProducts({ limit: 4, tab: 'hot-now' });
   const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
   const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
-
-  // Total for the "View all N →" link. Not returned by the dashboard endpoints
-  // (they're aggregate reads, not paginated); falls back to length of the Top
-  // slice so the link always renders a sensible number.
-  const total = topProductsRaw.length;
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
   const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -154,24 +115,21 @@ export default function AppHome() {
   const bestMargin    = bestMarginProducts[0] ?? null;
   const newestProduct = newestProducts[0] ?? null;
 
-  /* Trending Now carousel: genuinely distinct from Top Products table.
-     Priority: hot-now tab (new+high-score+high-orders, dedup'd) → velocity
-     leaders (newest w/ strong orders, dedup'd). NEVER falls through to the
-     Top Products array — that would clone the table. Empty state instead. */
+  /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
+     created within 30d). Falls back to velocity leaders (then top-volume)
+     if the strict filter returns nothing so this card always shows real
+     products AND never mirrors the Top Products table. */
   const trendingNow = hotTodayProducts.length > 0
     ? hotTodayProducts
-    : velocityProducts.slice(0, 4);
+    : velocityProducts.length > 0
+      ? velocityProducts.slice(0, 4)
+      : products.slice(0, 4);
 
   /* Trending Today — products with sold_count > 100,000 in the loaded set */
   const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
 
   /* KPI cards */
-  // Neutralise negative weekly deltas — clamp to 0 so we never render alarming
-  // "-871 this week" copy. Churn is not a signal we surface on the dashboard;
-  // that lives in Analytics. When we do have positive movement we render it
-  // as a gold pill (upward signal in the Majorka palette).
-  const rawTotalDelta = stats?.totalDelta ?? 0;
-  const totalDelta = Math.max(0, rawTotalDelta);
+  const totalDelta = stats?.totalDelta ?? 0;
   const hotDelta = stats?.hotDelta ?? null;
   const kpiCards: {
     label: string; numeric: number | null; sub: string;
@@ -185,9 +143,11 @@ export default function AppHome() {
       Icon: Package,
       accent: '#d4af37',
       href: '/app/products',
-      // Delta is clamped to >=0 above — we only surface growth on the
-      // dashboard. Positive → gold pill; zero → hide pill entirely.
-      trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week` : null,
+      // Only show a trend pill when we actually have movement — empty
+      // weeks shouldn't render a "No change" pill that ages badly
+      trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week`
+                 : totalDelta < 0 ? `${totalDelta.toLocaleString()} this week`
+                 : null,
       trendPositive: totalDelta > 0,
     },
     {
@@ -229,28 +189,30 @@ export default function AppHome() {
 
   // Animation variants now driven by CSS .animate-in / .stagger-N classes
 
-  /* Top Opportunities — real Supabase query (minScore 90, maxOrders 50K,
-     deduped). Each slot carries a stable chip style + deep-link to the
-     corresponding Products-page tab. When the query yields fewer than 3
-     rows we fall back to the curated trio (top / best-margin / newest)
-     so the slot is never empty. */
-  const opportunityChipStyles: { chipBg: string; chipFg: string; href: string; label: string }[] = [
-    { label: 'Hidden Gem',     chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158', href: '/app/products?tab=top' },
-    { label: 'High Potential', chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981', href: '/app/products?tab=top' },
-    { label: 'Underrated',     chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b', href: '/app/products?tab=top' },
+  /* Top Opportunities — pulled from live data */
+  const opportunities: {
+    label: string; chipBg: string; chipFg: string; href: string;
+    product: Product | null;
+  }[] = [
+    {
+      label: 'Top Trending',
+      chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b',
+      href: '/app/products?tab=hot-now',
+      product: topProduct ?? null,
+    },
+    {
+      label: 'Best Margin',
+      chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981',
+      href: '/app/products?tab=high-profit',
+      product: bestMargin,
+    },
+    {
+      label: 'Newest',
+      chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158',
+      href: '/app/products?tab=new',
+      product: newestProduct,
+    },
   ];
-  const fallbackOpportunities: { label: string; chipBg: string; chipFg: string; href: string; product: Product | null }[] = [
-    { label: 'Top Trending', chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b', href: '/app/products?tab=hot-now',     product: topProduct ?? null },
-    { label: 'Best Margin',  chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981', href: '/app/products?tab=high-profit', product: bestMargin },
-    { label: 'Newest',       chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158', href: '/app/products?tab=new',         product: newestProduct },
-  ];
-  const opportunities: { label: string; chipBg: string; chipFg: string; href: string; product: Product | null }[] =
-    opportunityProducts.length > 0
-      ? opportunityProducts.slice(0, 3).map((p, i) => ({
-          ...opportunityChipStyles[i % opportunityChipStyles.length],
-          product: p,
-        }))
-      : fallbackOpportunities;
 
   const liveLabel = stats?.updatedAt
     ? `Live · AliExpress feed · updated ${formatRelative(stats.updatedAt)}`
@@ -398,9 +360,9 @@ export default function AppHome() {
                   <span
                     className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold"
                     style={{
-                      background: card.trendPositive ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.06)',
-                      color: card.trendPositive ? '#d4af37' : 'rgba(255,255,255,0.45)',
-                      border: `1px solid ${card.trendPositive ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                      background: card.trendPositive ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
+                      color: card.trendPositive ? '#10b981' : 'rgba(255,255,255,0.45)',
+                      border: `1px solid ${card.trendPositive ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`,
                     }}
                   >
                     {card.trendPositive && <ArrowUp size={10} strokeWidth={2.5} />}
@@ -415,11 +377,8 @@ export default function AppHome() {
 
       {/* Top products table — full-width hero content, Shopify-style */}
       <div className="relative z-10 mx-4 md:mx-8 mb-6">
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
-            <p className="text-xs text-muted mt-0.5">All-time highest order count</p>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-display font-semibold text-text">Top products</h2>
           <a
             href="/app/products"
             onClick={clearFiltersAndGo('/app/products')}
@@ -539,14 +498,11 @@ export default function AppHome() {
 
         {/* LEFT — Trending Now */}
         <div className="w-full flex-1 min-w-0 bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden">
-          <div className="flex items-end justify-between mb-5">
-            <div>
-              <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                Hot Today
-              </h2>
-              <p className="text-xs text-muted mt-0.5">Added to Majorka in last 48 hours</p>
-            </div>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-sm font-semibold text-text flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+              Hot Today
+            </h2>
             <Link
               href="/app/products?tab=trending"
               className="text-xs text-accent hover:text-accent-hover transition-colors no-underline"
@@ -554,7 +510,7 @@ export default function AppHome() {
               View all →
             </Link>
           </div>
-          {(hotTodayQuery.isLoading || hotTodayQuery.isPending) && trendingNow.length === 0 ? (
+          {prodLoading ? (
             <div className="flex flex-col gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3 py-2">
@@ -639,17 +595,7 @@ export default function AppHome() {
 
           {/* Top Opportunities */}
           <div className="bg-surface border border-white/[0.07] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5">
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-text">Top Opportunities</h3>
-              <p className="text-xs text-muted mt-0.5">High score, lower competition</p>
-            </div>
-            {opportunityLoading && opportunities.every((o) => o.product === null) ? (
-              <div className="py-6 text-center text-xs text-muted">Loading opportunities…</div>
-            ) : opportunities.every((o) => o.product === null) ? (
-              <div className="py-6 text-center text-xs text-muted">
-                No hidden gems right now — check back after the next feed refresh.
-              </div>
-            ) : null}
+            <h3 className="text-sm font-semibold text-text mb-4">Top Opportunities</h3>
             {opportunities.map((o, i) => {
               const p = o.product;
               const score = Math.round(p?.winning_score ?? 0);

@@ -20,20 +20,9 @@ interface TabDef {
 
 export const PRODUCT_TABS: ReadonlyArray<TabDef> = [
   { key: 'trending',    label: 'Trending',      sublabel: '7d velocity leaders',   Icon: TrendingUp },
-  { key: 'hot',         label: 'New Arrivals',  sublabel: 'Fresh last 48 hours',   Icon: Flame },
+  { key: 'hot',         label: 'Hot Products',  sublabel: 'New last 48 hours',     Icon: Flame },
   { key: 'high-volume', label: 'High Volume',   sublabel: 'Evergreen all-time',    Icon: ShoppingBag },
 ];
-
-function formatK(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10_000 ? 0 : 1)}K`;
-  return String(n);
-}
-
-function tabBadge(key: ProductsTabKey, count: number): string {
-  if (key === 'trending') return count > 0 ? `🔥 ${formatK(count)}` : '🔥 Live';
-  if (key === 'high-volume') return '👑 All-time';
-  return '✨ New';
-}
 
 interface TabHeaderProps {
   active: ProductsTabKey;
@@ -111,21 +100,20 @@ function TabHeaderImpl({ active, counts, loading, onChange }: TabHeaderProps) {
               <span style={{ fontSize: 11, color: '#737373', marginTop: 2 }}>{t.sublabel}</span>
             </div>
             <span
+              className="mj-num"
               style={{
                 fontSize: 11,
-                padding: '2px 8px',
+                padding: '2px 7px',
                 color: isActive ? '#d4af37' : '#737373',
                 background: isActive ? 'rgba(212,175,55,0.10)' : 'rgba(255,255,255,0.03)',
                 border: `1px solid ${isActive ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.06)'}`,
                 borderRadius: 6,
+                minWidth: 28,
                 textAlign: 'center',
                 flexShrink: 0,
-                whiteSpace: 'nowrap',
-                fontFamily: "'DM Sans', system-ui, sans-serif",
-                fontWeight: 600,
               }}
             >
-              {isLoading ? '…' : tabBadge(t.key, count)}
+              {isLoading ? '…' : count}
             </span>
           </button>
         );

@@ -28,39 +28,31 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
 
     const { data, error } = await getSupabase()
       .from('user_subscriptions')
-      .select('plan, status, current_period_end, trial_ends_at')
+      .select('plan, status, current_period_end')
       .eq('user_id', userId)
       .single();
 
     if (error || !data) {
-      res.json({ plan: '', status: 'inactive', subscribed: false, trial_ends_at: null });
+      res.json({ plan: '', status: 'inactive', subscribed: false });
       return;
     }
 
-    const trialEndsAt = data.trial_ends_at ?? null;
-
-    // Check expiry for paid subs
+    // Check expiry
     if (data.current_period_end && new Date(data.current_period_end) < new Date()) {
-      res.json({ plan: '', status: 'expired', subscribed: false, trial_ends_at: trialEndsAt });
+      res.json({ plan: '', status: 'expired', subscribed: false });
       return;
     }
 
     const plan = data.plan?.toLowerCase() || '';
     const status = data.status?.toLowerCase() || 'inactive';
-
-    // Surface trialing status verbatim so the client-side trial countdown/gate work.
-    if (status === 'trialing' || status === 'trial') {
-      res.json({ plan, status: 'trialing', subscribed: false, trial_ends_at: trialEndsAt, current_period_end: data.current_period_end ?? null });
-      return;
-    }
-
     const isValid = ['builder', 'scale'].includes(plan) && status === 'active';
+
     if (!isValid) {
-      res.json({ plan: '', status: 'inactive', subscribed: false, trial_ends_at: trialEndsAt });
+      res.json({ plan: '', status: 'inactive', subscribed: false });
       return;
     }
 
-    res.json({ plan, status, subscribed: true, trial_ends_at: trialEndsAt, current_period_end: data.current_period_end ?? null });
+    res.json({ plan, status, subscribed: true });
   } catch (err) {
     console.error('[subscription/me]', err);
     res.json({ plan: '', status: 'inactive', subscribed: false });
