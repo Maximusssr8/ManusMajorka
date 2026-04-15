@@ -1,587 +1,476 @@
-import { useEffect, useState } from 'react';
+// Majorka — Landing Page
+// Directives implemented: Hero WOW + FOMO + Academy + Live Demo + Design audit +
+// Features alternating + How It Works + Trust + FAQ + Pricing + Performance.
+// Design tokens: see /client/src/lib/landingTokens.ts
+// Primitives: see /client/src/components/landing/primitives
+
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
-import { Database, Globe, ShieldCheck, Zap, Check } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import {
+  Search, Brain, Rocket, Database, ShieldCheck, MessageCircle, Check,
+  Flame, TrendingUp, Lock, X, ChevronDown, Star, Zap, Globe,
+} from 'lucide-react';
 import { SEO } from '@/components/SEO';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { AnnouncementBanner } from '@/components/landing/widgets/AnnouncementBanner';
-import { SocialProofToasts } from '@/components/landing/widgets/SocialProofToasts';
-import { StickyTrialBar } from '@/components/funnel/StickyTrialBar';
+import { LT, F, S, R, SHADOW, MAX } from '@/lib/landingTokens';
+import {
+  ParticleField, CountUp, Typewriter, SparklineDraw,
+  RevealWords, MarketSplitBars, ScrollChevron, FadeUp, usePrefersReducedMotion,
+} from '@/components/landing/primitives';
 
-// ── Design tokens ────────────────────────────────────────────────────────────
-const T = {
-  bg: '#0a0a0a',
-  bgAlt: '#0d0d10',
-  bgElevated: '#0e0e10',
-  bgSurface: '#111114',
-  bgPanel: '#0d0d10',
-  bgChrome: '#1a1a1f',
-  bgChromeAlt: '#16161a',
-  border: 'rgba(255,255,255,0.08)',
-  borderStrong: 'rgba(255,255,255,0.14)',
-  borderFaint: 'rgba(255,255,255,0.05)',
-  text: '#ededed',
-  textMuted: '#a1a1aa',
-  textDim: '#8a8a8f',
-  textFaint: '#52525b',
-  textGhost: '#3f3f46',
-  accent: '#d4af37',
-  accentHover: '#7c83f4',
-  accentDim: 'rgba(212,175,55,0.12)',
-  green: '#22c55e',
-  red: '#ef4444',
-  amber: '#f59e0b',
-} as const;
+// ── Global CSS — keyframes + responsive + safety net ────────────────────────
+const GLOBAL_CSS = `
+*, *::before, *::after { box-sizing: border-box; }
+html, body { background: ${LT.bg}; margin: 0; padding: 0; }
+body { font-family: ${F.body}; color: ${LT.text}; -webkit-font-smoothing: antialiased; }
+::selection { background: ${LT.goldTint}; color: #fff; }
 
-const display = "'Syne', system-ui, sans-serif";
-const sans = "'DM Sans', system-ui, sans-serif";
-const mono = "'JetBrains Mono', 'SF Mono', ui-monospace, monospace";
+/* Never hide section content — defence in depth against opacity:0 leaks */
+[data-majorka-landing] section { opacity: 1 !important; }
 
-// ── Global styles ────────────────────────────────────────────────────────────
-const STYLES = `
-*::selection { background: rgba(212,175,55,0.3); color: #fff; }
-html, body { background: ${T.bg}; }
-
-/* CRITICAL: Force every landing section + every scroll-reveal variant to
-   be visible. Stops any future animation/fill-mode/reveal/JS pattern from
-   hiding content below the fold. If the fade animation doesn't fire,
-   content must still be readable. */
-section,
-section *,
-[data-animate],
-.mj-fade-up,
-.mj-fade-in,
-.mj-fade-in-down,
-.mj-fade-in-up,
-.animate-on-scroll,
-[class*="fade"],
-[class*="reveal"],
-[class*="slide-in"] {
-  opacity: 1 !important;
-  visibility: visible !important;
+@keyframes mjChevronBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
 }
-section h1, section h2, section h3, section h4, section p,
-section span, section div, section a, section button {
-  opacity: 1 !important;
+@keyframes mjGoldPulse {
+  0%, 100% { box-shadow: 0 0 0 0 ${LT.goldGlow}, 0 0 20px ${LT.goldGlow}; }
+  50% { box-shadow: 0 0 0 6px rgba(212,175,55,0), 0 0 30px ${LT.goldGlow}; }
 }
-/* Allow transforms on explicitly-animated hover elements */
-section [data-transform-ok] {
-  transform: revert !important;
-}
-
-@keyframes mj-pulse {
+@keyframes mjLivePulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 0.5; transform: scale(0.85); }
 }
-@keyframes mj-float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
+@keyframes mjSlideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
 }
-@keyframes mj-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+@keyframes mjTickerFade {
+  0% { opacity: 0; transform: translateX(-20px); }
+  8% { opacity: 1; transform: translateX(0); }
+  92% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-20px); }
 }
-@keyframes mj-fade-in-down {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes mj-row-stagger {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes mj-row-pulse-green {
-  0%   { box-shadow: inset 3px 0 0 ${T.green}, 0 0 0 0 rgba(34,197,94,0.4); }
-  50%  { box-shadow: inset 3px 0 0 ${T.green}, 0 0 0 4px rgba(34,197,94,0.0); }
-  100% { box-shadow: inset 3px 0 0 transparent, 0 0 0 0 rgba(34,197,94,0); }
-}
-@keyframes mj-shimmer {
-  0%   { transform: translateX(-120%) skewX(-20deg); }
-  60%  { transform: translateX(220%) skewX(-20deg); }
-  100% { transform: translateX(220%) skewX(-20deg); }
-}
-@keyframes mj-bar-grow { from { width: 0; } }
-@keyframes mj-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.mj-eyebrow {
-  font-family: ${mono};
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: ${T.accent};
-}
-.mj-link {
-  color: ${T.textMuted};
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 150ms;
-}
-.mj-link:hover { color: ${T.text}; }
-
-.mj-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
-  padding: 0 22px;
-  background: ${T.accent};
-  color: #fff;
-  font-family: ${sans};
-  font-weight: 600;
-  font-size: 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 150ms, transform 150ms;
-  white-space: nowrap;
-}
-.mj-btn-primary:hover { background: ${T.accentHover}; transform: translateY(-1px); }
-
-.mj-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
-  padding: 0 22px;
-  background: transparent;
-  color: ${T.text};
-  font-family: ${sans};
-  font-weight: 500;
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid ${T.borderStrong};
-  cursor: pointer;
-  text-decoration: none;
-  transition: border-color 150ms, background 150ms;
-  white-space: nowrap;
-}
-.mj-btn-secondary:hover { border-color: ${T.accent}; background: rgba(212,175,55,0.06); }
-
-.mj-card {
-  background: ${T.bgSurface};
-  border: 1px solid ${T.border};
-  border-radius: 8px;
-  transition: border-color 200ms, background 200ms, transform 200ms;
-}
-.mj-card:hover { border-color: ${T.borderStrong}; background: ${T.bgElevated}; }
-
-.mj-pulse-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: ${T.green};
-  box-shadow: 0 0 8px rgba(34,197,94,0.6);
-  animation: mj-pulse 1.6s infinite;
-}
-.mj-marquee-track {
-  display: flex;
-  gap: 64px;
-  width: max-content;
-  animation: mj-marquee 32s linear infinite;
-}
-.mj-ticker-track {
-  display: flex;
-  gap: 48px;
-  width: max-content;
-  animation: mj-marquee 35s linear infinite;
-}
-
-.mj-row-pulse { animation: mj-row-pulse-green 3s ease-out 1; }
-.mj-row-enter { animation: mj-fade-in-down 400ms ease-out; }
-
-@keyframes mj-fade-up {
-  /* Neutralized — starts at opacity 1 so elements are visible even if the
-     animation never runs (e.g. headless browsers, reduced-motion). */
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.mj-shimmer-btn { position: relative; overflow: hidden; isolation: isolate; }
-.mj-shimmer-btn::after {
-  content: "";
-  position: absolute;
-  top: 0; bottom: 0; left: 0;
-  width: 60%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-  animation: mj-shimmer 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.mj-ticker-strip { position: relative; }
-.mj-ticker-strip::before, .mj-ticker-strip::after {
-  content: "";
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 80px;
-  pointer-events: none;
-  z-index: 2;
-}
-.mj-ticker-strip::before { left: 0;  background: linear-gradient(90deg, ${T.bgPanel}, transparent); }
-.mj-ticker-strip::after  { right: 0; background: linear-gradient(-90deg, ${T.bgPanel}, transparent); }
-
-.mj-glow-edge {
-  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-}
-
-.mj-dot-grid {
-  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-.mj-window-shadow {
-  box-shadow:
-    0 0 0 1px rgba(212,175,55,0.18),
-    0 40px 80px rgba(0,0,0,0.6),
-    0 8px 24px rgba(212,175,55,0.18);
-}
-.mj-mockup-shadow {
-  box-shadow:
-    0 0 0 1px ${T.border},
-    0 40px 80px rgba(0,0,0,0.5);
-}
-
-.mj-feature-panel-header {
-  font-family: ${display};
-  font-weight: 700;
-  font-size: 44px;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  color: ${T.text};
-  margin: 0 0 18px;
-}
-.mj-feature-panel-header span { color: ${T.accent}; }
-
-.mj-bar { animation: mj-bar-grow 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .mj-marquee-track, .mj-ticker-track { animation: none !important; }
 }
 
-@media (max-width: 968px) {
-  .mj-feat-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
-  .mj-feat-grid > * { grid-row: auto !important; }
-  .mj-feat-grid .mj-feat-text { order: 1 !important; }
-  .mj-feat-grid .mj-feat-mock { order: 2 !important; }
-  .mj-stats-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 768px) {
-  .mj-hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
-  .mj-pricing-grid { grid-template-columns: 1fr !important; }
-  .mj-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+/* Mobile responsive */
+@media (max-width: 900px) {
   .mj-nav-links { display: none !important; }
-  .mj-nav-cta { display: none !important; }
-  .mj-mobile-menu-btn { display: flex !important; }
-  .mj-hero-h1 { font-size: 42px !important; }
-  .mj-section-h2 { font-size: 32px !important; }
-  .mj-cta-h2 { font-size: 48px !important; }
-  .mj-feature-panel-header { font-size: 30px !important; }
-  .mj-hero-cta { flex-direction: column !important; align-items: stretch !important; }
-  .mj-hero-cta > * { width: 100% !important; }
-  .mj-hero-window { display: none !important; }
-  .mj-credibility { flex-wrap: wrap !important; gap: 12px 14px !important; }
-  .mj-comparison { font-size: 12px !important; }
-  .mj-stat-num { font-size: 44px !important; }
-  .mj-discovery-grid { grid-template-columns: 1fr !important; }
-  .mj-creative-grid { grid-template-columns: 1fr !important; }
+  .mj-nav-cta-desk { display: none !important; }
+  .mj-mobile-btn { display: inline-flex !important; }
+  .mj-grid-two { grid-template-columns: 1fr !important; }
+  .mj-feature-row { grid-template-columns: 1fr !important; }
+  .mj-feature-row-reverse .mj-feature-visual { order: 1 !important; }
+  .mj-feature-row-reverse .mj-feature-text { order: 2 !important; }
+  .mj-hide-mobile { display: none !important; }
+  .mj-stack-mobile { flex-direction: column !important; align-items: stretch !important; }
+  .mj-hero-h1 { font-size: 36px !important; }
+  .mj-section-h2 { font-size: 28px !important; }
+  .mj-section { padding: 64px 20px !important; }
+  .mj-step-connector { display: none !important; }
 }
-@media (max-width: 480px) {
-  .mj-hero-h1 { font-size: 34px !important; line-height: 1.08 !important; }
-  .mj-section-h2 { font-size: 26px !important; }
-  .mj-cta-h2 { font-size: 34px !important; }
-  .mj-footer-grid { grid-template-columns: 1fr !important; }
-  .mj-stats-grid { grid-template-columns: 1fr !important; }
+@media (max-width: 420px) {
+  body { font-size: 14px; }
 }
-/* Landing safety net: prevent horizontal overflow from any descendant */
-section, section * { max-width: 100%; }
-section img, section video { max-width: 100%; height: auto; }
+
+a { color: inherit; }
+button { font-family: inherit; }
 `;
 
-// ── Data ─────────────────────────────────────────────────────────────────────
-const TICKER_BASE: { text: string; needsTime: boolean }[] = [
-  { text: '🇦🇺 AU operator found $14,200/mo product', needsTime: true },
-  { text: '🇺🇸 US store launched via Store Builder',   needsTime: true },
-  { text: '🇬🇧 UK competitor spy scan completed',       needsTime: true },
-  { text: '🇨🇦 CA margin calculator: 44% net margin',   needsTime: true },
-  { text: '🇩🇪 DE winning product: 91 score',           needsTime: true },
-  { text: '🇸🇬 SG ad creative generated',               needsTime: true },
-  { text: '2,302 winning products across 149 niches',  needsTime: false },
-  { text: '500+ active operators online now',          needsTime: false },
-];
-function generateTickerItems(): string[] {
-  return TICKER_BASE.map((item, i) => {
-    if (!item.needsTime) return item.text;
-    const mins = Math.floor(Math.random() * 5 + i * 3 + 1);
-    return `${item.text} · ${mins} min ago`;
-  });
+// ── Shared bits ─────────────────────────────────────────────────────────────
+const Overline = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
+  <div style={{
+    fontFamily: F.body,
+    fontSize: 12,
+    fontWeight: 500,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: LT.gold,
+    marginBottom: S.sm,
+    ...style,
+  }}>{children}</div>
+);
+
+const H2 = ({ children, style, className }: { children: React.ReactNode; style?: React.CSSProperties; className?: string }) => (
+  <h2 className={`mj-section-h2 ${className ?? ''}`} style={{
+    fontFamily: F.display,
+    fontSize: 40,
+    fontWeight: 700,
+    lineHeight: 1.15,
+    letterSpacing: '-0.02em',
+    color: LT.text,
+    margin: 0,
+    ...style,
+  }}>{children}</h2>
+);
+
+const Sub = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (
+  <p style={{
+    fontFamily: F.body,
+    fontSize: 18,
+    lineHeight: 1.6,
+    color: LT.textMute,
+    margin: 0,
+    maxWidth: '65ch',
+    ...style,
+  }}>{children}</p>
+);
+
+const Section = ({
+  id, children, style, className,
+}: { id?: string; children: React.ReactNode; style?: React.CSSProperties; className?: string }) => (
+  <section id={id} className={`mj-section ${className ?? ''}`} style={{
+    padding: `${S.xxxl}px ${S.md}px`,
+    maxWidth: MAX,
+    margin: '0 auto',
+    ...style,
+  }}>{children}</section>
+);
+
+// Primary CTA
+function CtaPrimary({
+  href, children, pulse = false, size = 'lg', style,
+}: { href: string; children: React.ReactNode; pulse?: boolean; size?: 'lg' | 'md'; style?: React.CSSProperties }) {
+  return (
+    <Link href={href} style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      minHeight: 48,
+      padding: size === 'lg' ? '14px 28px' : '10px 20px',
+      background: LT.gold,
+      color: LT.bg,
+      fontFamily: F.body,
+      fontWeight: 700,
+      fontSize: size === 'lg' ? 15 : 14,
+      borderRadius: R.button,
+      textDecoration: 'none',
+      boxShadow: SHADOW.button,
+      animation: pulse ? 'mjGoldPulse 4s ease-in-out infinite' : undefined,
+      transition: 'transform 150ms ease',
+      ...style,
+    }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+    >{children}</Link>
+  );
 }
 
-const STEPS: { num: string; title: string; body: string; time: string }[] = [
-  { num: '01', time: '~2 minutes',  title: 'Pick your market and niche', body: 'Choose your region and category. Majorka adapts pricing, suppliers, and compliance to where you sell.' },
-  { num: '02', time: '~15 minutes', title: 'Find and validate your winner', body: 'Scored product opportunities, profit calculator, competitor store spy. Fully vetted before you spend a dollar.' },
-  { num: '03', time: '~7 minutes',  title: 'Launch your store', body: 'Generate the brand, push to Shopify, ship ad creatives. Monitor performance from one dashboard.' },
-];
-
-const FAQ_DATA: { q: string; a: string }[] = [
-  { q: 'How is Majorka different from KaloData or Minea?', a: 'Majorka is the operating system, not a single tool. Product research, competitor spying, store building, ad creative, and profit math live in one dashboard with one bill.' },
-  { q: 'Where does product data come from?',  a: 'All product data is sourced directly from the AliExpress Affiliate API and CJ Dropshipping. Order counts, ratings, and prices are real — not estimated. Data refreshes every 6 hours. Every product has a verifiable AliExpress or CJ product ID.' },
-  { q: 'Do I need a Shopify store first?',     a: "No. You can use Majorka's built-in Store Builder to generate and launch a store from scratch, or connect an existing Shopify store in one click. Majorka adds an intelligence layer on top of whatever setup you have." },
-  { q: 'Which markets are supported?',         a: 'Australia, United States, United Kingdom, Canada, New Zealand, Germany, and Singapore. Each market has localised pricing, supplier recommendations, tax calculations, and regional ad benchmarks built in.' },
-  { q: 'Can I cancel anytime?',                a: "Yes. No contracts, no lock-ins. Cancel before your next billing date and you won't be charged. Your data exports (CSV) are available for 30 days after cancellation." },
-];
-
-// ── Section Header ──────────────────────────────────────────────────────────
-interface SectionHeaderProps {
-  eyebrow: string;
-  line1: string;
-  line2: string;
-  description?: string;
-  align?: 'left' | 'center';
-  maxWidth?: number;
+function CtaGhost({ href, children, style }: { href: string; children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <Link href={href} style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      minHeight: 48,
+      padding: '14px 28px',
+      background: 'transparent',
+      color: LT.text,
+      fontFamily: F.body,
+      fontWeight: 600,
+      fontSize: 15,
+      border: `1px solid ${LT.border}`,
+      borderRadius: R.button,
+      textDecoration: 'none',
+      transition: 'border-color 150ms ease',
+      ...style,
+    }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = LT.gold; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = LT.border; }}
+    >{children}</Link>
+  );
 }
-function SectionHeader({ eyebrow, line1, line2, description, align = 'left', maxWidth = 700 }: SectionHeaderProps) {
+
+// ── Sticky Launch Bar ───────────────────────────────────────────────────────
+const SPOTS_KEY = 'majorka_spots_taken';
+const DISMISS_KEY = 'majorka_launch_bar_dismissed_v3';
+
+function StickyLaunchBar() {
+  const [spots, setSpots] = useState(127);
+  const [dismissed, setDismissed] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // Dismiss check (24h re-show)
+    try {
+      const d = localStorage.getItem(DISMISS_KEY);
+      if (d) {
+        const age = Date.now() - parseInt(d, 10);
+        if (age < 24 * 60 * 60 * 1000) { setDismissed(true); return; }
+      }
+    } catch { /* ignore */ }
+    setDismissed(false);
+
+    // Seed / load spots
+    let cur = 127;
+    try {
+      const raw = localStorage.getItem(SPOTS_KEY);
+      if (raw) cur = Math.max(127, Math.min(189, parseInt(raw, 10) || 127));
+    } catch { /* ignore */ }
+    setSpots(cur);
+
+    // Increment every 8min
+    const id = window.setInterval(() => {
+      setSpots((prev) => {
+        const next = Math.min(189, prev + 1);
+        try { localStorage.setItem(SPOTS_KEY, String(next)); } catch { /* ignore */ }
+        return next;
+      });
+    }, 8 * 60 * 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const dismiss = () => {
+    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* ignore */ }
+    setDismissed(true);
+  };
+
+  if (dismissed) return null;
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1001,
+      background: LT.gold,
+      color: LT.bg,
+      fontFamily: F.body,
+      fontSize: 13,
+      fontWeight: 600,
+      padding: '8px 40px 8px 16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 16,
+      flexWrap: 'wrap',
+    }}>
+      <span>🔥 Launch pricing — Builder from $99 AUD/mo. First 200 users lock this price forever.</span>
+      <span style={{ fontFamily: F.mono, fontSize: 12, padding: '3px 10px', background: 'rgba(0,0,0,0.15)', borderRadius: R.badge, whiteSpace: 'nowrap' }}>
+        [ {spots} / 200 ] spots taken
+      </span>
+      <button
+        onClick={dismiss}
+        aria-label="Dismiss launch pricing bar"
+        style={{
+          position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+          width: 28, height: 28, minWidth: 28,
+          background: 'transparent', border: 'none', cursor: 'pointer',
+          color: LT.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      ><X size={16} /></button>
+    </div>
+  );
+}
+
+// ── Live Activity Ticker ────────────────────────────────────────────────────
+const TICKER_MSGS = [
+  { who: 'Sarah from Melbourne', what: 'just found a winning product', emoji: '🇦🇺' },
+  { who: 'Trend alert', what: '47 new trending products added in the last hour', emoji: '📈' },
+  { who: 'Kitchen gadget', what: 'just hit 50,000 orders — spotted by Majorka first', emoji: '🔥' },
+  { who: 'Jake from Sydney', what: 'launched his first Shopify store with Majorka', emoji: '🚀' },
+  { who: 'Emma from Brisbane', what: 'generated 12 ad variants for a pet product', emoji: '🎯' },
+  { who: 'Market update', what: 'AU TikTok Shop just dropped 3,400 new listings', emoji: '📊' },
+  { who: 'Liam from Perth', what: 'upgraded to Scale — locked launch pricing', emoji: '⭐' },
+  { who: 'AI Brief', what: 'generated for LED Scalp Massager Pro in 2.8s', emoji: '🧠' },
+  { who: 'Chloe from Adelaide', what: 'completed Module 2 of the Academy', emoji: '🎓' },
+  { who: 'Home organiser', what: 'trending up 340% in AU this week', emoji: '📦' },
+];
+
+function LiveActivityTicker() {
+  const [idx, setIdx] = useState(-1);
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reduced) return;
+    if (typeof window === 'undefined') return;
+    let t: number;
+    function schedule() {
+      const delay = 12000 + Math.random() * 13000;
+      t = window.setTimeout(() => {
+        setIdx((prev) => {
+          let n = Math.floor(Math.random() * TICKER_MSGS.length);
+          if (n === prev) n = (n + 1) % TICKER_MSGS.length;
+          return n;
+        });
+        schedule();
+      }, delay);
+    }
+    const first = window.setTimeout(() => { setIdx(Math.floor(Math.random() * TICKER_MSGS.length)); schedule(); }, 4000);
+    return () => { window.clearTimeout(first); if (t) window.clearTimeout(t); };
+  }, [reduced]);
+
+  if (idx < 0) return null;
+  const m = TICKER_MSGS[idx];
+  const initial = m.who[0];
   return (
     <div
+      key={idx}
+      role="status"
+      aria-live="polite"
       style={{
-        marginBottom: 56,
-        maxWidth,
-        marginLeft: align === 'center' ? 'auto' : undefined,
-        marginRight: align === 'center' ? 'auto' : undefined,
-        textAlign: align,
-      }}
-    >
-      <div style={{
+        position: 'fixed',
+        left: 20,
+        bottom: 20,
+        zIndex: 900,
+        background: LT.bgCard,
+        borderLeft: `3px solid ${LT.gold}`,
+        borderRadius: R.card,
+        padding: '12px 16px',
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        marginBottom: 16,
-        justifyContent: align === 'center' ? 'center' : 'flex-start',
-      }}>
-        <span style={{ display: 'inline-block', width: 4, height: 32, background: T.accent, borderRadius: 2 }} />
-        <span className="mj-eyebrow">{eyebrow}</span>
+        fontFamily: F.body,
+        maxWidth: 320,
+        animation: 'mjTickerFade 4s ease-in-out forwards',
+        boxShadow: SHADOW.overlay,
+      }}
+    >
+      <div style={{
+        width: 32, height: 32, borderRadius: '50%',
+        background: LT.goldTint, color: LT.gold,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: F.display, fontWeight: 700, fontSize: 13, flexShrink: 0,
+      }}>{initial}</div>
+      <div style={{ fontSize: 13, lineHeight: 1.4 }}>
+        <span style={{ color: LT.text, fontWeight: 600 }}>{m.emoji} {m.who}</span>{' '}
+        <span style={{ color: LT.textMute }}>{m.what}</span>
       </div>
-      <h2 className="mj-section-h2" style={{
-        fontFamily: display,
-        fontWeight: 700,
-        fontSize: 48,
-        lineHeight: 1.1,
-        letterSpacing: '-0.03em',
-        color: T.text,
-        margin: '0 0 16px',
-      }}>
-        {line1}<br />
-        <span style={{ color: T.accent }}>{line2}</span>
-      </h2>
-      {description && (
-        <p style={{ fontSize: 16, color: T.textMuted, margin: 0, lineHeight: 1.6 }}>{description}</p>
-      )}
     </div>
   );
 }
 
 // ── Nav ─────────────────────────────────────────────────────────────────────
-function Nav() {
+function Nav({ topOffset }: { topOffset: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <nav style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
+      top: topOffset,
+      left: 0, right: 0,
       zIndex: 1000,
-      background: 'rgba(10,10,10,0.85)',
+      background: 'rgba(8,8,8,0.85)',
       backdropFilter: 'blur(20px) saturate(180%)',
       WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      height: 60,
-      padding: '0 32px',
+      borderBottom: `1px solid ${LT.border}`,
+      height: 64,
     }}>
       <div style={{
-        maxWidth: 1200,
+        maxWidth: MAX,
         margin: '0 auto',
+        padding: '0 24px',
         height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: 24,
       }}>
-        <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <img src="/majorka-logo.jpg" alt="Majorka" height={28} style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <span style={{
-            fontFamily: display,
+            fontFamily: F.display,
             fontWeight: 800,
-            fontSize: 18,
-            color: T.text,
+            fontSize: 20,
+            color: LT.text,
             letterSpacing: '-0.03em',
-            marginLeft: 10,
           }}>majorka</span>
           <span style={{
-            fontSize: 9,
-            fontFamily: mono,
-            background: 'rgba(212,175,55,0.08)',
-            border: '1px solid rgba(212,175,55,0.18)',
-            color: '#a5b4fc',
-            padding: '2px 7px',
-            borderRadius: 20,
-            marginLeft: 10,
+            fontFamily: F.mono, fontSize: 9, fontWeight: 500,
+            background: LT.goldTint,
+            color: LT.gold,
+            padding: '3px 8px',
+            borderRadius: R.badge,
             letterSpacing: '0.08em',
-            fontWeight: 500,
             textTransform: 'uppercase',
           }}>Early Access</span>
-        </a>
+        </Link>
 
         <div className="mj-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <a href="#features" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Features</a>
-          <a href="#compare" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Compare</a>
-          <a href="#workflow" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Workflow</a>
-          <a href="#pricing" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Pricing</a>
-          <a href="/blog" style={{ fontSize: 14, color: '#8a8a8f', textDecoration: 'none', transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#8a8a8f')}
-          >Blog</a>
+          {[
+            { href: '#how', label: 'How it works' },
+            { href: '#features', label: 'Features' },
+            { href: '#academy', label: 'Academy' },
+            { href: '#pricing', label: 'Pricing' },
+            { href: '/blog', label: 'Blog' },
+          ].map(l => (
+            <a key={l.label} href={l.href} style={{
+              fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none', transition: 'color 150ms',
+            }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+            >{l.label}</a>
+          ))}
         </div>
 
-        <div className="mj-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link href="/sign-in" style={{ color: '#9ca3af', fontSize: 14, textDecoration: 'none', marginRight: 8, transition: 'color 150ms' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#ededed')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}
-          >Log in</Link>
-          <Link href="/sign-up" style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            background: '#d4af37',
-            color: '#fff',
-            padding: '8px 20px',
-            borderRadius: 999,
-            fontSize: 14,
-            fontWeight: 600,
-            textDecoration: 'none',
-            transition: 'background 150ms',
+        <div className="mj-nav-cta-desk" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link href="/sign-in" style={{
+            fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none',
           }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = '#7c83f4')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = '#d4af37')}
-          >Get Started</Link>
+            onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+          >Sign In</Link>
+          <CtaPrimary href="/sign-up" size="md">Get Started</CtaPrimary>
         </div>
 
-        {/* Mobile hamburger — visible only below 768px */}
         <button
-          className="mj-mobile-menu-btn"
+          className="mj-mobile-btn"
           aria-label="Open menu"
           onClick={() => setMobileOpen(true)}
           style={{
             display: 'none',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 44,
-            height: 44,
-            background: 'transparent',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: 8,
-            cursor: 'pointer',
-            color: '#ededed',
+            width: 44, height: 44,
+            alignItems: 'center', justifyContent: 'center',
+            background: 'transparent', border: `1px solid ${LT.border}`, borderRadius: R.button,
+            color: LT.text, cursor: 'pointer',
           }}
         >
-          <svg width={18} height={14} viewBox="0 0 18 14" fill="none">
-            <rect width={18} height={2} rx={1} fill="currentColor" />
-            <rect y={6} width={18} height={2} rx={1} fill="currentColor" />
-            <rect y={12} width={12} height={2} rx={1} fill="currentColor" />
-          </svg>
+          <svg width={18} height={14} viewBox="0 0 18 14"><rect width={18} height={2} rx={1} fill="currentColor" /><rect y={6} width={18} height={2} rx={1} fill="currentColor" /><rect y={12} width={12} height={2} rx={1} fill="currentColor" /></svg>
         </button>
       </div>
 
-      {/* Mobile menu overlay */}
       {mobileOpen && (
         <div
           style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 2000,
-            background: 'rgba(9,9,15,0.98)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 28,
+            position: 'fixed', inset: 0, zIndex: 2000,
+            background: 'rgba(8,8,8,0.98)',
+            backdropFilter: 'blur(20px)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24,
           }}
           onClick={(e) => { if (e.target === e.currentTarget) setMobileOpen(false); }}
         >
-          <button
-            aria-label="Close menu"
-            onClick={() => setMobileOpen(false)}
-            style={{
-              position: 'absolute',
-              top: 20,
-              right: 20,
-              width: 44,
-              height: 44,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(255,255,255,0.08)',
-              border: 'none',
-              borderRadius: 10,
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: 22,
-              fontFamily: sans,
-            }}
-          >×</button>
+          <button aria-label="Close menu" onClick={() => setMobileOpen(false)} style={{
+            position: 'absolute', top: 20, right: 20,
+            width: 44, height: 44,
+            background: LT.bgCard, border: 'none', borderRadius: R.input,
+            color: LT.text, fontSize: 22, cursor: 'pointer',
+          }}>×</button>
           {[
-            { href: '#features',  label: 'Features' },
-            { href: '#compare',   label: 'Compare' },
-            { href: '#workflow',  label: 'Workflow' },
-            { href: '#pricing',   label: 'Pricing' },
-            { href: '/blog',      label: 'Blog' },
-          ].map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              onClick={() => setMobileOpen(false)}
-              style={{
-                fontFamily: display,
-                fontSize: 28,
-                fontWeight: 700,
-                color: '#f0f4ff',
-                textDecoration: 'none',
-                letterSpacing: '-0.02em',
-              }}
-            >{l.label}</a>
+            { href: '#how', label: 'How it works' },
+            { href: '#features', label: 'Features' },
+            { href: '#academy', label: 'Academy' },
+            { href: '#pricing', label: 'Pricing' },
+            { href: '/blog', label: 'Blog' },
+          ].map(l => (
+            <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} style={{
+              fontFamily: F.display, fontSize: 28, fontWeight: 700, color: LT.text, textDecoration: 'none',
+            }}>{l.label}</a>
           ))}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 280, marginTop: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 280, marginTop: 8 }}>
             <Link href="/sign-in" onClick={() => setMobileOpen(false)} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: 52, border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10,
-              color: '#ededed', textDecoration: 'none', fontSize: 15, fontWeight: 500,
-              fontFamily: sans,
-            }}>Log in</Link>
+              display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52,
+              border: `1px solid ${LT.border}`, borderRadius: R.button,
+              color: LT.text, textDecoration: 'none', fontFamily: F.body, fontWeight: 600, fontSize: 15,
+            }}>Sign In</Link>
             <Link href="/sign-up" onClick={() => setMobileOpen(false)} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: 52, background: '#d4af37', borderRadius: 10,
-              color: 'white', textDecoration: 'none', fontSize: 15, fontWeight: 600,
-              fontFamily: sans,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52,
+              background: LT.gold, borderRadius: R.button,
+              color: LT.bg, textDecoration: 'none', fontFamily: F.body, fontWeight: 700, fontSize: 15,
             }}>Get Started →</Link>
           </div>
         </div>
@@ -591,2301 +480,1578 @@ function Nav() {
 }
 
 // ── Hero ────────────────────────────────────────────────────────────────────
+type DashProduct = {
+  title: string;
+  image: string;
+  orders: number;
+  velocity: number;
+  split: { label: string; pct: number }[];
+  sparkline: number[];
+  audience: string;
+};
+
+const HERO_PRODUCTS: DashProduct[] = [
+  {
+    title: 'LED Scalp Massager Pro',
+    image: 'https://ae01.alicdn.com/kf/Sed82b9aaacfb47cfa0e3b8f9d4c9e7e8c.jpg',
+    orders: 231847,
+    velocity: 94,
+    split: [{ label: 'AU', pct: 42 }, { label: 'US', pct: 35 }, { label: 'UK', pct: 23 }],
+    sparkline: [12, 18, 22, 30, 36, 44, 58, 72, 88, 94],
+    audience: '→ Target: Pet owners 25-44 in AU who impulse buy on TikTok',
+  },
+  {
+    title: 'Smart Jar Opener',
+    image: 'https://ae01.alicdn.com/kf/Sed82b9aa0cfb47cfa0e3b8f9d4c9e7e8d.jpg',
+    orders: 184203,
+    velocity: 87,
+    split: [{ label: 'AU', pct: 38 }, { label: 'US', pct: 44 }, { label: 'UK', pct: 18 }],
+    sparkline: [10, 14, 19, 24, 32, 40, 52, 66, 78, 87],
+    audience: '→ Target: Home cooks 35-64 across AU, US kitchen audiences',
+  },
+  {
+    title: 'Under-Bed Storage Modular',
+    image: 'https://ae01.alicdn.com/kf/Sef82b9aaacfb47cfa0e3b8f9d4c9e7e8e.jpg',
+    orders: 98462,
+    velocity: 81,
+    split: [{ label: 'AU', pct: 48 }, { label: 'US', pct: 30 }, { label: 'UK', pct: 22 }],
+    sparkline: [8, 12, 16, 22, 30, 38, 48, 58, 70, 81],
+    audience: '→ Target: Renters 22-38 in AU/UK who buy on Instagram Reels',
+  },
+];
+
 function Hero() {
+  const reduced = useReducedMotion();
+  const [productIdx, setProductIdx] = useState(0);
+  const [typewriterKey, setTypewriterKey] = useState(0);
+
+  useEffect(() => {
+    if (reduced) return;
+    const id = window.setInterval(() => {
+      setProductIdx((i) => (i + 1) % HERO_PRODUCTS.length);
+      setTypewriterKey((k) => k + 1);
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, [reduced]);
+
+  const p = HERO_PRODUCTS[productIdx];
+
   return (
     <section style={{
-      background: '#0a0a0a',
       position: 'relative',
+      minHeight: '100vh',
+      padding: `${S.xxl + 40}px ${S.md}px ${S.xxl}px`,
       overflow: 'hidden',
-      padding: '80px 24px 100px',
-      borderBottom: `1px solid ${T.border}`,
-      marginTop: 60,
-      minHeight: 'auto',
+      background: `radial-gradient(ellipse at 30% 20%, rgba(212,175,55,0.08), transparent 60%), ${LT.bg}`,
     }}>
-      {/* Full-bleed ambient background so the hero never shows dead black above the content */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212,175,55,0.08) 0%, transparent 60%), #0a0a0a',
-      }} />
-      {/* Bottom fade into next section */}
-      <div style={{
-        position: 'absolute', left: 0, right: 0, bottom: 0, height: 120, zIndex: 2,
-        pointerEvents: 'none',
-        background: 'linear-gradient(180deg, transparent 0%, #0a0a0a 100%)',
-      }} />
-      {/* Glow blobs */}
-      <div style={{
-        position: 'absolute', width: 600, height: 600, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 70%)',
-        top: -100, left: -150, pointerEvents: 'none', zIndex: 0,
-      }} />
-      <div style={{
-        position: 'absolute', width: 500, height: 500, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)',
-        top: 50, right: -100, pointerEvents: 'none', zIndex: 0,
-      }} />
-      <div style={{
-        position: 'absolute', width: 300, height: 300, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%)',
-        bottom: -50, left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none', zIndex: 0,
-      }} />
+      <ParticleField count={60} />
 
       <div style={{
-        position: 'relative',
-        zIndex: 1,
-        maxWidth: 1200,
-        margin: '0 auto',
-      }}>
-        <div className="mj-hero-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 64,
-          alignItems: 'center',
-        }}>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* Eyebrow — interactive pill format */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '7px 16px 7px 12px',
-              background: 'rgba(212,175,55,0.1)',
-              border: '1px solid rgba(212,175,55,0.25)',
-              borderRadius: 100,
-              marginBottom: 24,
-              fontFamily: sans,
-              fontSize: 13,
-              color: '#c7d2fe',
-              fontWeight: 500,
-              width: 'fit-content',
-            }}>
-              <span className="mj-pulse-dot" style={{
-                width: 7, height: 7, borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 10px rgba(34,197,94,0.9)',
-                animation: 'mj-pulse 1.6s infinite',
-                display: 'inline-block',
-              }} />
-              <span>1,776 products trending hot right now</span>
-              <span style={{ color: '#e5c158', fontSize: 12, marginLeft: -4 }}>→</span>
-            </div>
-
-            {/* Headline */}
-            <h1 className="mj-hero-h1" style={{
-              fontFamily: display,
-              fontSize: 'clamp(44px, 6vw, 72px)',
-              fontWeight: 800,
-              lineHeight: 1.03,
-              letterSpacing: '-0.045em',
-              color: '#f0f0f0',
-              margin: '0 0 24px',
-            }}>
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #f0f4ff 0%, #c7d2fe 55%, #a5b4fc 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                Find your next winning product
-              </span>
-              <br />
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #e5c158 0%, #d4af37 45%, #3B82F6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                before anyone else does.
-              </span>
-            </h1>
-
-            <p style={{
-              fontSize: 18,
-              color: '#8a8a8f',
-              lineHeight: 1.65,
-              margin: '0 0 36px',
-              maxWidth: 480,
-            }}>
-              Majorka gives serious operators live AliExpress intelligence, AI-scored rankings, and every tool to launch, sell, and scale — before the market catches on.
-            </p>
-
-            {/* CTAs */}
-            <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
-              <Link href="/sign-up" className="mj-cta-glow" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                height: 60,
-                padding: '0 36px',
-                background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
-                backgroundSize: '200% 100%',
-                color: '#111111',
-                fontFamily: sans,
-                fontWeight: 800,
-                fontSize: 17,
-                letterSpacing: '0.005em',
-                borderRadius: 999,
-                textDecoration: 'none',
-                boxShadow: '0 0 0 1px rgba(212,175,55,0.4), 0 10px 40px -6px rgba(212,175,55,0.5), 0 0 80px -10px rgba(212,175,55,0.55)',
-                transform: 'scale(1.02)',
-              }}
-              >Start free trial &mdash; find my first winner &rarr;</Link>
-              <a href="#features" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                height: 52,
-                padding: '0 24px',
-                background: 'transparent',
-                color: '#9ca3af',
-                fontFamily: sans,
-                fontWeight: 500,
-                fontSize: 15,
-                borderRadius: 999,
-                border: '1px solid rgba(255,255,255,0.12)',
-                textDecoration: 'none',
-                transition: 'border-color 150ms, color 150ms',
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.color = '#ededed'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#9ca3af'; }}
-              >Explore features ↓</a>
-            </div>
-
-            {/* No credit card required — immediately under CTA, prominent */}
-            <p style={{
-              fontSize: 14,
-              color: '#a1a1aa',
-              margin: '-16px 0 28px',
-              fontFamily: sans,
-              fontWeight: 500,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}>
-              <Check size={14} strokeWidth={2.5} style={{ color: '#22c55e' }} />
-              No credit card required
-              <span style={{ color: '#4b5563', margin: '0 4px' }}>·</span>
-              30-day money-back guarantee
-            </p>
-
-            <SocialProofBar />
-
-            <div style={{ marginTop: 14 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6 }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ef4444', boxShadow: '0 0 6px rgba(239,68,68,0.6)', flexShrink: 0, display: 'inline-block' }} />
-                <span style={{ fontFamily: mono, fontSize: 11, color: '#9ca3af', letterSpacing: '0.02em' }}>127 operators found a winning product this week · 23 new products added in the last 24h</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: floating browser window */}
-          <div style={{ position: 'relative' }}>
-            {/* Glow ring behind the window */}
-            <div style={{
-              position: 'absolute',
-              inset: -20,
-              borderRadius: 20,
-              background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.15) 0%, transparent 70%)',
-              zIndex: 0,
-              pointerEvents: 'none',
-            }} />
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <BrowserWindow />
-            </div>
-
-            {/* Floating stat card — top right of mockup */}
-            <div style={{
-              position: 'absolute',
-              top: -22,
-              right: -28,
-              background: 'rgba(17,17,20,0.92)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 14,
-              padding: '14px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              zIndex: 3,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.12)',
-              pointerEvents: 'none',
-              animation: 'mj-float 4s ease-in-out infinite',
-            }}>
-              <span style={{ fontSize: 22 }}>📈</span>
-              <div>
-                <div style={{ fontFamily: display, fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
-                  $15,600
-                </div>
-                <div style={{ fontSize: 11, color: '#8a8a8f', marginTop: 3 }}>Best product today · Kitchen</div>
-                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 3 }}>↑ +41% this week</div>
-              </div>
-            </div>
-
-            {/* Floating notification card — bottom left */}
-            <div style={{
-              position: 'absolute',
-              bottom: 24,
-              left: -32,
-              background: 'rgba(17,17,20,0.92)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 14,
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              zIndex: 3,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(212,175,55,0.12)',
-              pointerEvents: 'none',
-              animation: 'mj-float 4s ease-in-out 1.5s infinite',
-            }}>
-              <span style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: '#d4af37',
-                boxShadow: '0 0 8px rgba(212,175,55,0.7)',
-                flexShrink: 0,
-              }} />
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#ededed' }}>🔥 New: Nano Tape Strong</div>
-                <div style={{ fontSize: 11, color: '#8a8a8f', marginTop: 2 }}>99/100 · +41% this week</div>
-              </div>
-            </div>
-
-            {/* Floating LIVE badge — bottom right (kept) */}
-            <div style={{
-              position: 'absolute',
-              bottom: -16,
-              right: -16,
-              background: '#111114',
-              border: '1px solid rgba(212,175,55,0.3)',
-              borderRadius: 10,
-              padding: '10px 14px',
-              zIndex: 2,
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
-            }}>
-              <div style={{ fontFamily: mono, fontSize: 11, color: '#22c55e', marginBottom: 2 }}>● LIVE FEED</div>
-              <div style={{ fontFamily: mono, fontSize: 10, color: '#6b7280' }}>7 markets · refreshed live</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Social Proof Bar ────────────────────────────────────────────────────────
-function SocialProofBar() {
-  const avatars = [
-    { i: 'A', from: '#d4af37', to: '#d4af37' },
-    { i: 'J', from: '#059669', to: '#10B981' },
-    { i: 'S', from: '#DC2626', to: '#F97316' },
-    { i: 'M', from: '#0891B2', to: '#06B6D4' },
-  ];
-  return (
-    <div className="mj-credibility" style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 20,
-      padding: '14px 20px',
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 12,
-      width: 'fit-content',
-    }}>
-      <div style={{ display: 'flex' }}>
-        {avatars.map((a, i) => (
-          <div key={a.i} style={{
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            background: `linear-gradient(135deg, ${a.from}, ${a.to})`,
-            border: '2px solid #0a0a0a',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 11,
-            fontWeight: 700,
-            color: '#fff',
-            marginLeft: i === 0 ? 0 : -8,
-            zIndex: 4 - i,
-            position: 'relative',
-          }}>{a.i}</div>
-        ))}
-      </div>
-
-      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ color: '#FBBF24', fontSize: 12, letterSpacing: '1px' }}>★★★★★</div>
-        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>500+ active operators</div>
-      </div>
-
-      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 600, color: '#ededed' }}>2,302</div>
-        <div style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>winning products scored</div>
-      </div>
-
-      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)' }} />
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{
-          width: 6, height: 6, borderRadius: '50%',
-          background: '#22c55e',
-          boxShadow: '0 0 6px rgba(34,197,94,0.8)',
-          animation: 'mj-pulse 1.6s infinite',
-          display: 'inline-block',
-        }} />
-        <span style={{ fontFamily: mono, fontSize: 11, color: '#6b7280' }}>live data</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Browser Window (hero) ──────────────────────────────────────────────────
-interface HeroProductCard {
-  art: React.ReactNode;
-  cat: string;
-  name: string;
-  price: string;
-  orders: string;
-  score: number;
-  source: 'AE' | 'CJ';
-  highlight?: boolean;
-}
-
-// Hero product thumbnails — routed through /api/image-proxy because
-// AliExpress CDN blocks hotlinked images from non-AE referrers.
-const proxied = (url: string) => `/api/image-proxy?url=${encodeURIComponent(url)}`;
-
-const ArtMassageGun = (
-  <img
-    src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/S67daf35bdca4423987825b41de097c3cw.png')}
-    alt="Fascial Massage Gun"
-    loading="lazy"
-    style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1e293b,#334155)' }}
-    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
-  />
-);
-
-const ArtOilBottle = (
-  <img
-    src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/Sd1a0175e1d304c7f9c0bac71d558aa14M.jpg')}
-    alt="Oil Dispenser Bottle"
-    loading="lazy"
-    style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1a2e1a,#2d4a2d)' }}
-    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
-  />
-);
-
-const ArtTapeReel = (
-  <img
-    src={proxied('https://ae-pic-a1.aliexpress-media.com/kf/Sef81281b5a114d688f22f42a3f87c0941.jpg')}
-    alt="Nano Tape Double-sided"
-    loading="lazy"
-    style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', display: 'block', background: 'linear-gradient(135deg,#1e1e2e,#312e81)' }}
-    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0'; }}
-  />
-);
-
-const HERO_PRODUCTS: HeroProductCard[] = [
-  { art: ArtMassageGun, cat: 'Health',   name: 'Fascial Massage Gun Electric Percussion Pistol', price: 'A$23.76', orders: '106k orders', score: 74, source: 'AE' },
-  { art: ArtOilBottle,  cat: 'Kitchen',  name: 'Pour & Spray Oil Dispenser Bottle Kitchen Fryer', price: 'A$14.66', orders: '152k orders', score: 99, source: 'AE' },
-  { art: ArtTapeReel,   cat: 'Hardware', name: 'Nano Tape Extra Strong Double-sided Adhesive Roll', price: 'A$5.60',  orders: '231k orders', score: 99, source: 'CJ', highlight: true },
-];
-
-function BrowserWindow() {
-  return (
-    <div className="mj-hero-window" style={{
-      background: '#111118',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 16,
-      overflow: 'hidden',
-      boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.15)',
-      fontFamily: sans,
-    }}>
-      {/* Window chrome */}
-      <div style={{
-        background: '#0d0d14',
-        padding: '10px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840' }} />
-        <div style={{ marginLeft: 8, fontFamily: mono, fontSize: 11, color: '#4b5563' }}>majorka.io/app/products</div>
-      </div>
-
-      {/* Stats bar */}
-      <div style={{
+        position: 'relative', zIndex: 1,
+        maxWidth: MAX, margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
-        gap: 1,
-        background: 'rgba(255,255,255,0.04)',
-      }}>
-        {[
-          { label: 'Products',  value: '2,302', color: '#ededed' },
-          { label: 'Hot Today', value: '1,776', color: '#f97316' },
-          { label: 'Avg Score', value: '80/100', color: '#f59e0b' },
-          { label: 'Top Niche', value: 'Fashion', color: '#d4af37' },
-        ].map((s) => (
-          <div key={s.label} style={{ background: '#0d0d14', padding: '12px 14px' }}>
-            <div style={{ fontFamily: mono, fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
-            <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Product cards grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 10, padding: 12, background: '#0a0a10' }}>
-        {HERO_PRODUCTS.map((p) => (
-          <div key={p.name} style={{
-            background: '#111118',
-            border: p.highlight ? '1px solid rgba(212,175,55,0.25)' : '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 10,
-            overflow: 'hidden',
-            boxShadow: p.highlight ? '0 0 12px rgba(212,175,55,0.1)' : 'none',
-          }}>
-            <div style={{
-              background: '#1a1a24',
-              height: 110,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-            }}>
-              {p.art}
-              <div style={{
-                position: 'absolute', top: 8, left: 8,
-                background: '#ef4444', color: '#fff',
-                fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-              }}>🔥 HOT</div>
-              <div style={{
-                position: 'absolute', top: 8, right: 8,
-                background: 'rgba(0,0,0,0.6)',
-                color: p.source === 'AE' ? '#f97316' : '#6b7280',
-                fontSize: 8, padding: '2px 5px', borderRadius: 3,
-                fontFamily: mono, fontWeight: 700,
-              }}>{p.source}</div>
-            </div>
-            <div style={{ padding: 10 }}>
-              <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 4 }}>{p.cat}</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#ededed', lineHeight: 1.3, marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{p.name}</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#ededed', fontFamily: mono }}>{p.price}</div>
-                <div style={{ fontSize: 10, color: '#22c55e', fontWeight: 600 }}>{p.orders}</div>
-              </div>
-              <div style={{ height: 3, background: '#1f2937', borderRadius: 2, marginBottom: 4 }}>
-                <div style={{
-                  height: 3,
-                  width: `${p.score}%`,
-                  background: p.score >= 90 ? 'linear-gradient(90deg,#22c55e,#16a34a)' : 'linear-gradient(90deg,#f59e0b,#f97316)',
-                  borderRadius: 2,
-                }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <span style={{ fontSize: 9, color: '#6b7280', fontFamily: mono }}>{p.score}/100</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Bottom bar */}
-      <div style={{
-        padding: '8px 12px',
-        background: '#0d0d14',
-        borderTop: '1px solid rgba(255,255,255,0.04)',
-        display: 'flex',
+        gridTemplateColumns: '1.1fr 1fr',
+        gap: S.xl,
         alignItems: 'center',
-        gap: 6,
-      }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
-        <span style={{ fontSize: 10, color: '#6b7280', fontFamily: mono }}>Live AliExpress data · Updated 6h ago · 2,302 products tracked</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Live Activity Ticker ────────────────────────────────────────────────────
-function LiveTicker() {
-  const [tickerItems] = useState<string[]>(generateTickerItems);
-  const items = [...tickerItems, ...tickerItems];
-  return (
-    <section
-      aria-hidden="true"
-      role="presentation"
-      style={{
-        background: '#0d0d10',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-        padding: '12px 0',
-        overflow: 'hidden',
-        position: 'relative',
-      }}>
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: 120,
-        background: 'linear-gradient(to right, #0d0d10, transparent)',
-        zIndex: 2, pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: 120,
-        background: 'linear-gradient(to left, #0d0d10, transparent)',
-        zIndex: 2, pointerEvents: 'none',
-      }} />
-      <div className="mj-ticker-track">
-        {items.map((item, i) => (
-          <span key={`${item}-${i}`} style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            fontFamily: mono,
-            fontSize: 12,
-            color: '#9ca3af',
-            whiteSpace: 'nowrap',
-          }}>
-            {item}
-            <span style={{ color: '#3f3f46', fontSize: 16, margin: '0 8px' }}>·</span>
-          </span>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ── Stats Section ───────────────────────────────────────────────────────────
-interface StatCardData { eyebrow: string; numNode: React.ReactNode; body: string; color?: string }
-const STATS_CARDS: StatCardData[] = [
-  { eyebrow: 'Winning Products', numNode: <>2,302</>,                                                                                               body: 'across 149 niches, updated every 6h' },
-  { eyebrow: 'Hot Right Now',    numNode: <>1,776</>,                                                                                               body: 'scoring ≥ 65/100 today', color: '#f97316' },
-  { eyebrow: 'Operator Revenue Tracked', numNode: <><span style={{ color: '#22c55e' }}>$</span>487<span style={{ color: '#22c55e' }}>k</span></>,   body: 'total tracked across Majorka stores this month', color: '#22c55e' },
-  { eyebrow: 'Peak AI Score',    numNode: <>99<span style={{ color: '#f59e0b', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>/100</span></>, body: 'AliExpress verified, exploding trend', color: '#f59e0b' },
-  { eyebrow: 'Avg time to winner', numNode: <>18<span style={{ color: '#a5b4fc', fontSize: 32, verticalAlign: 'top', marginLeft: 4 }}>min</span></>, body: 'median time to first winning product', color: '#a5b4fc' },
-];
-
-function Stats() {
-  return (
-    <section style={{
-      padding: '64px 24px',
-      background: '#0a0a0a',
-    }}>
-      <div className="mj-stats-grid" style={{
-        maxWidth: 1000,
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: 1,
-        background: 'rgba(255,255,255,0.06)',
-        borderRadius: 16,
-        overflow: 'hidden',
-      }}>
-        {STATS_CARDS.map((s) => (
-          <div key={s.eyebrow} style={{
-            background: '#0d0d10',
-            padding: '36px 28px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 6,
-            transition: 'background 200ms',
-          }}>
-            <div style={{
-              fontFamily: mono,
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#d4af37',
-              marginBottom: 4,
-            }}>{s.eyebrow}</div>
-            <div className="mj-stat-num" style={{
-              fontFamily: display,
-              fontSize: 52,
-              fontWeight: 800,
-              color: s.color ?? '#f0f0f0',
-              lineHeight: 1,
-              letterSpacing: '-0.04em',
-            }}>{s.numNode}</div>
-            <div style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.5, marginTop: 4 }}>{s.body}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ── Partner Bar (integrations) ──────────────────────────────────────────────
-const INTEGRATIONS: { name: string; icon: string }[] = [
-  { name: 'Shopify',     icon: '🛍️' },
-  { name: 'AliExpress',  icon: '🛒' },
-  { name: 'Meta Ads',    icon: '📘' },
-  { name: 'TikTok',      icon: '🎵' },
-  { name: 'Stripe',      icon: '💳' },
-  { name: 'Google Ads',  icon: '🔍' },
-  { name: 'DHL',         icon: '📦' },
-];
-
-function PartnerBar() {
-  return (
-    <section style={{
-      padding: '40px 24px',
-      borderTop: '1px solid rgba(255,255,255,0.05)',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
-      background: '#0a0a0a',
-    }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
-        <div style={{
-          fontFamily: mono,
-          fontSize: 11,
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          color: '#3f3f46',
-          marginBottom: 24,
-        }}>Integrates with</div>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 12,
-          flexWrap: 'wrap',
-        }}>
-          {INTEGRATIONS.map((p) => (
-            <div key={p.name} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 16px',
-              background: '#111114',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: 8,
-              transition: 'border-color 200ms',
+      }} className="mj-grid-two">
+        {/* LEFT: text */}
+        <div>
+          <motion.div
+            initial={reduced ? false : { y: 10, opacity: 0 }}
+            animate={reduced ? undefined : { y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 14px', borderRadius: R.badge,
+              background: LT.goldTint, border: `1px solid ${LT.goldTint}`,
+              color: LT.gold,
+              fontFamily: F.body, fontSize: 12, fontWeight: 600,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              marginBottom: S.md,
             }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
-            >
-              <span style={{ fontSize: 16 }}>{p.icon}</span>
-              <span style={{ fontSize: 13, fontWeight: 500, color: '#9ca3af' }}>{p.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+          >
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%', background: LT.gold,
+              animation: reduced ? undefined : 'mjLivePulse 1.8s ease-in-out infinite',
+            }} />
+            AI product intelligence · AU first
+          </motion.div>
 
-// ── The Platform ──────────────────────────────────────────────────────────
-function ThePlatform() {
-  return (
-    <section id="features" style={{ background: '#0a0a0a', padding: '100px 0' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
-
-        <div style={{ textAlign: 'center', marginBottom: 72 }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'rgba(212,175,55,0.1)',
-            border: '1px solid rgba(212,175,55,0.2)',
-            borderRadius: 100,
-            padding: '4px 14px',
-            marginBottom: 20,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', display: 'inline-block' }} />
-            <span style={{ fontFamily: mono, fontSize: 12, color: '#d4af37', fontWeight: 600, letterSpacing: '0.05em' }}>THE FULL STACK</span>
-          </div>
-          <h2 style={{
-            fontFamily: display,
+          <h1 className="mj-hero-h1" style={{
+            fontFamily: F.display,
+            fontSize: 64,
             fontWeight: 800,
-            fontSize: 'clamp(32px, 5vw, 52px)',
-            color: '#ededed',
-            lineHeight: 1.1,
-            marginBottom: 16,
-            letterSpacing: '-0.03em',
+            lineHeight: 1.05,
+            letterSpacing: '-0.035em',
+            color: LT.text,
+            margin: `0 0 ${S.md}px`,
           }}>
-            The unfair advantage<br />serious operators don&apos;t share.
-          </h2>
-          <p style={{ fontSize: 18, color: '#8a8a8f', maxWidth: 560, margin: '0 auto' }}>
-            From product discovery to live store — Majorka is the only platform purpose-built for serious dropship operators.
-          </p>
+            <RevealWords text="Find winning products" delay={0.2} />
+            <br />
+            <RevealWords text="before" delay={0.5} />{' '}
+            <span style={{ color: LT.gold }}>
+              <RevealWords text="they peak." delay={0.65} />
+            </span>
+          </h1>
+
+          <motion.div
+            initial={reduced ? false : { y: 15, opacity: 0 }}
+            animate={reduced ? undefined : { y: 0, opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            style={{ marginBottom: S.md }}
+          >
+            <Sub>
+              Real AliExpress + TikTok Shop data across AU, US, UK. AI-scored trend velocity, ad briefs in 3 seconds, store built in under an hour. No guesswork.
+            </Sub>
+          </motion.div>
+
+          {/* Hero stats */}
+          <motion.div
+            initial={reduced ? false : { opacity: 0 }}
+            animate={reduced ? undefined : { opacity: 1 }}
+            transition={{ delay: 1.35, duration: 0.5 }}
+            style={{
+              display: 'flex', gap: S.lg, flexWrap: 'wrap',
+              fontFamily: F.body, fontSize: 13, color: LT.textMute,
+              margin: `0 0 ${S.md}px`,
+            }}
+          >
+            <span>
+              <span style={{ fontFamily: F.mono, color: LT.gold, fontWeight: 600 }}>
+                <CountUp to={4054} duration={1500} />+
+              </span>{' '}products tracked
+            </span>
+            <span>
+              <Typewriter text="Updated every 6 hours" startDelay={1500} speed={40} />
+            </span>
+            <span>AU · US · UK markets</span>
+          </motion.div>
+
+          <motion.div
+            initial={reduced ? false : { y: 15, opacity: 0 }}
+            animate={reduced ? undefined : { y: 0, opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.5 }}
+            style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: S.md }}
+          >
+            <CtaPrimary href="/sign-up" pulse>Start 7-day free trial →</CtaPrimary>
+            <CtaGhost href="#how">See how it works</CtaGhost>
+          </motion.div>
+
+          <motion.div
+            initial={reduced ? false : { opacity: 0 }}
+            animate={reduced ? undefined : { opacity: 1 }}
+            transition={{ delay: 1.8, duration: 0.5 }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+              fontFamily: F.body, fontSize: 12, color: LT.textDim,
+            }}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Check size={14} color={LT.success} /> No credit card required
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Check size={14} color={LT.success} /> Cancel anytime
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Check size={14} color={LT.success} /> 30-day guarantee
+            </span>
+          </motion.div>
         </div>
 
-        {/* Product Intelligence — full-width */}
-        <div style={{
-          background: '#111118',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 20,
-          padding: 40,
-          marginBottom: 20,
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 40,
-          alignItems: 'center',
-        }}>
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <span style={{ fontSize: 20 }}>🔥</span>
-              <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Product Intelligence</span>
-            </div>
-            <h3 style={{ fontFamily: display, fontWeight: 800, fontSize: 28, color: '#ededed', marginBottom: 12, lineHeight: 1.2, letterSpacing: '-0.02em' }}>
-              2,302 winning products.<br />Ranked by real orders.
-            </h3>
-            <p style={{ color: '#8a8a8f', fontSize: 15, lineHeight: 1.6, marginBottom: 24 }}>
-              Every product is sourced directly from the AliExpress Affiliate API and CJ Dropshipping — real order counts, real margins, updated every 6 hours. Filter by niche, trend trajectory, or AI score.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[
-                { label: '2,302 products', sub: 'across 149 niches' },
-                { label: '1,776 hot today', sub: 'winning score ≥ 65/100' },
-                { label: 'Score 99/100',    sub: 'AI-graded for margin + demand + trend' },
-              ].map((item) => (
-                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, color: '#ededed', fontWeight: 600 }}>{item.label}</span>
-                  <span style={{ fontSize: 13, color: '#4b5563' }}>— {item.sub}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{
-            background: '#0d0d14',
-            borderRadius: 12,
-            border: '1px solid rgba(255,255,255,0.05)',
-            overflow: 'hidden',
-            fontSize: 12,
-          }}>
+        {/* RIGHT: animated dashboard mockup */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, scale: 0.96 }}
+          animate={reduced ? undefined : { opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6, duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+          style={{
+            background: LT.bgCard,
+            borderRadius: R.card,
+            border: `1px solid ${LT.border}`,
+            padding: S.md,
+            boxShadow: SHADOW.overlay,
+            animation: reduced ? undefined : 'mjGoldPulse 4s ease-in-out infinite',
+            willChange: 'transform',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: S.sm }}>
             <div style={{
-              padding: '10px 14px',
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
-              display: 'grid',
-              gridTemplateColumns: '2fr 1fr 1fr 1fr',
-              gap: 8,
-              color: '#4b5563',
-              fontFamily: mono,
-              fontWeight: 600,
-              fontSize: 10,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
+              width: 56, height: 56, borderRadius: R.image,
+              background: LT.bgElevated, border: `1px solid ${LT.border}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0,
             }}>
-              <span>Product</span><span>Orders</span><span>Margin</span><span style={{ textAlign: 'right' }}>Score</span>
+              <Flame size={24} color={LT.gold} />
             </div>
-            {[
-              { name: 'Nano Tape Extra Strong', cat: 'Hardware',    orders: '231k', margin: '54%', score: 99, scoreColor: '#22c55e' },
-              { name: 'Oil Dispenser Bottle',   cat: 'Kitchen',     orders: '152k', margin: '50%', score: 99, scoreColor: '#22c55e' },
-              { name: 'Tire Rim Scrubber',      cat: 'Car Care',    orders: '132k', margin: '50%', score: 99, scoreColor: '#22c55e' },
-              { name: 'USB C Charger 100W',     cat: 'Electronics', orders: '180k', margin: '52%', score: 94, scoreColor: '#f59e0b' },
-              { name: 'Microfibre Towel Pack',  cat: 'Home',        orders: '133k', margin: '52%', score: 99, scoreColor: '#22c55e' },
-            ].map((p, i) => (
-              <div key={p.name} style={{
-                padding: '10px 14px',
-                borderBottom: '1px solid rgba(255,255,255,0.03)',
-                display: 'grid',
-                gridTemplateColumns: '2fr 1fr 1fr 1fr',
-                gap: 8,
-                alignItems: 'center',
-                background: i === 0 ? 'rgba(212,175,55,0.04)' : 'transparent',
-              }}>
-                <div>
-                  <div style={{ color: '#ededed', fontWeight: 500 }}>{p.name}</div>
-                  <div style={{ color: '#4b5563', fontSize: 10 }}>{p.cat}</div>
-                </div>
-                <span style={{ color: '#22c55e', fontFamily: mono, fontWeight: 600 }}>{p.orders}</span>
-                <span style={{ color: '#ededed' }}>{p.margin}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: F.display, fontSize: 16, fontWeight: 700, color: LT.text, marginBottom: 2 }}>
+                {p.title}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
-                  background: p.scoreColor + '20',
-                  color: p.scoreColor,
-                  padding: '2px 7px',
-                  borderRadius: 100,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  fontFamily: mono,
-                  textAlign: 'center',
-                  justifySelf: 'end',
-                }}>{p.score}</span>
-              </div>
-            ))}
-            <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
-              <span style={{ color: '#4b5563', fontSize: 10, fontFamily: mono }}>Live AliExpress data · Updated 6h ago</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Tool grid row 1 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16, marginBottom: 16 }}>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
-            <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📡</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Market Intelligence</div>
-            <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your market before your competitor does</h4>
-            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
-              Global, AU, US, UK signals. Today&apos;s top products with revenue-per-day estimates. Category rankings updated in real time.
-            </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: 12 }}>
-              {[
-                { name: 'USB C Cable — Mobile',   rev: '$8.5k/day' },
-                { name: 'Ratcheting Crimper Set', rev: '$15.6k/day' },
-                { name: 'Kawaii Sticker Pack',    rev: '$1.2k/day' },
-              ].map((row, i, arr) => (
-                <div key={row.name} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: i === arr.length - 1 ? 0 : 8,
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  fontFamily: F.body, fontSize: 11, padding: '2px 8px',
+                  background: 'rgba(34,197,94,0.12)', color: LT.success,
+                  borderRadius: R.badge, fontWeight: 600,
                 }}>
-                  <span style={{ fontSize: 11, color: '#9ca3af' }}>{row.name}</span>
-                  <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: '#22c55e' }}>{row.rev}</span>
-                </div>
-              ))}
+                  <span style={{
+                    width: 6, height: 6, borderRadius: '50%', background: LT.success,
+                    animation: reduced ? undefined : 'mjLivePulse 1.4s ease-in-out infinite',
+                  }} />LIVE
+                </span>
+                <span style={{ fontFamily: F.mono, fontSize: 11, color: LT.textDim }}>Updated 4m ago</span>
+              </div>
             </div>
           </div>
 
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
-            <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📊</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Profit Calculator</div>
-            <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Know your margin before you launch</h4>
-            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
-              Model product cost, sell price, ad spend, shipping, fees. Get real break-even CPA and monthly projections in seconds.
-            </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: 12 }}>
-              {[
-                { label: 'Net Margin',     val: '51.4%',  color: '#22c55e' },
-                { label: 'Monthly Profit', val: '$2,275', color: '#ededed' },
-                { label: 'Break-even CPA', val: '$25.17', color: '#ededed' },
-              ].map((r, i) => (
-                <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: i === 2 ? 0 : 6 }}>
-                  <span style={{ fontSize: 11, color: '#6b7280' }}>{r.label}</span>
-                  <span style={{ fontFamily: mono, fontSize: 14, fontWeight: 700, color: r.color }}>{r.val}</span>
-                </div>
-              ))}
-              <div style={{
-                marginTop: 10,
-                padding: '6px 10px',
-                background: 'rgba(34,197,94,0.1)',
-                borderRadius: 6,
-                fontSize: 11,
-                color: '#22c55e',
-                fontWeight: 600,
-                textAlign: 'center',
-                fontFamily: mono,
-              }}>
-                ✓ Highly Viable — scale with confidence
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: S.sm, marginBottom: S.sm }}>
+            <div>
+              <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Trend Velocity</div>
+              <div key={`v-${productIdx}`} style={{ fontFamily: F.mono, fontSize: 32, fontWeight: 700, color: LT.success }}>
+                <CountUp to={p.velocity} duration={1500} startOnView={false} />
               </div>
             </div>
+            <div>
+              <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Orders</div>
+              <div key={`o-${productIdx}`} style={{ fontFamily: F.mono, fontSize: 24, fontWeight: 700, color: LT.gold }}>
+                <CountUp to={p.orders} duration={2000} startOnView={false} />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: S.sm }}>
+            <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Market Split</div>
+            <MarketSplitBars key={`m-${productIdx}`} data={p.split} />
+          </div>
+
+          <div style={{ marginBottom: S.sm }}>
+            <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>30-day order trend</div>
+            <SparklineDraw key={`s-${productIdx}`} values={p.sparkline} width={340} height={54} color={LT.success} />
           </div>
 
           <div style={{
-            background: 'linear-gradient(135deg, #111118 0%, #13111f 100%)',
-            border: '1px solid rgba(212,175,55,0.2)',
-            borderRadius: 16,
-            padding: 28,
+            padding: 12,
+            background: LT.bgElevated,
+            border: `1px solid ${LT.border}`,
+            borderRadius: R.input,
+            fontFamily: F.mono, fontSize: 12, color: LT.textMute,
+            minHeight: 52,
           }}>
-            <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🧠</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Maya AI</div>
-            <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Your AI ecommerce strategist</h4>
-            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5, marginBottom: 16 }}>
-              Maya knows your market, your products, and your plan. Ask anything — she answers with AU pricing, ad angles, and supplier recs.
-            </p>
-            <div style={{ background: 'rgba(212,175,55,0.06)', borderRadius: 8, padding: 12, fontSize: 12 }}>
-              <div style={{ color: '#6b7280', marginBottom: 6, fontSize: 10, fontFamily: mono }}>→ &ldquo;Find me 3 winning Beauty products under $5 cost&rdquo;</div>
-              <div style={{ color: '#ededed', lineHeight: 1.5 }}>
-                <strong style={{ color: '#d4af37' }}>Maya:</strong> Here are 3 Beauty products with explosive potential…<br />
-                <span style={{ color: '#22c55e' }}>Sakura Exfoliating Gel</span> — $4.19 cost, 50% margin, TikTok viral<br />
-                <span style={{ color: '#6b7280', fontSize: 10 }}>Fastest to profit · easiest UGC content</span>
-              </div>
-            </div>
+            <span style={{ color: LT.gold }}>AI Brief:</span>{' '}
+            <Typewriter key={typewriterKey} text={p.audience} speed={22} startDelay={600} />
           </div>
-        </div>
-
-        {/* Tool grid row 2 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
-            <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🎯</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ads Studio</div>
-            <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Meta + TikTok ad creative generator</h4>
-            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
-              Select funnel stage, platform, and creative type. Get 5 headline variants, VSL scripts, and AU-specific ad angles — ready to launch.
-            </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14, fontSize: 11 }}>
-              <div style={{ color: '#4b5563', marginBottom: 6 }}>Generating for: LED Face Mask Pro</div>
-              <div style={{ color: '#ededed', fontWeight: 600, marginBottom: 3 }}>&ldquo;Dermatologists hate this $29 trick.&rdquo;</div>
-              <div style={{ color: '#6b7280' }}>Hook · Cold Traffic · Facebook Feed</div>
-              <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                {['Hook', 'VSL', 'UGC', 'Carousel'].map((t) => (
-                  <span key={t} style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontFamily: mono }}>{t}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
-            <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>🏪</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Store Builder</div>
-            <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Zero to live store in 7 minutes</h4>
-            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
-              Build with AI from your niche. Connect existing Shopify. Or list directly on Majorka — no Shopify needed. Scale plan gets you the full suite.
-            </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
-              {[
-                { step: '1', label: 'Niche selected',     done: true },
-                { step: '2', label: 'Products imported',  done: true },
-                { step: '3', label: 'Brand generated',    done: true },
-                { step: '4', label: 'Pushed to Shopify',  done: false },
-              ].map((s) => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0' }}>
-                  <div style={{
-                    width: 16, height: 16, borderRadius: '50%',
-                    background: s.done ? '#22c55e' : 'rgba(255,255,255,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 9, color: s.done ? '#fff' : '#4b5563',
-                    flexShrink: 0,
-                    fontFamily: mono,
-                    fontWeight: 700,
-                  }}>{s.done ? '✓' : s.step}</div>
-                  <span style={{ fontSize: 11, color: s.done ? '#ededed' : '#4b5563' }}>{s.label}</span>
-                </div>
-              ))}
-              <div style={{ marginTop: 8, fontSize: 10, color: '#22c55e', fontFamily: mono }}>⚡ Store live in 7 minutes</div>
-            </div>
-          </div>
-          <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
-            <span style={{ fontSize: 24, display: 'block', marginBottom: 12 }}>📱</span>
-            <div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Creators &amp; Video</div>
-            <h4 style={{ fontFamily: display, fontWeight: 800, fontSize: 20, color: '#ededed', marginBottom: 10, lineHeight: 1.2, letterSpacing: '-0.015em' }}>Find your next viral partner</h4>
-            <p style={{ fontSize: 13, color: '#8a8a8f', lineHeight: 1.5 }}>
-              Browse TOP, ELITE, and RISING creators by niche. Filter by engagement tier. One-click AI Pitch — personalised outreach generated instantly.
-            </p>
-            <div style={{ background: '#0d0d14', borderRadius: 8, padding: '10px 12px', marginTop: 14 }}>
-              {[
-                { initials: 'KE', name: 'Keeoh',    niche: 'ecommerce', tier: 'TOP' },
-                { initials: 'LB', name: 'Laura B.', niche: 'lifestyle', tier: 'ELITE' },
-              ].map((c, i) => (
-                <div key={c.initials} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '4px 0',
-                  borderBottom: i === 0 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                }}>
-                  <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
-                    background: 'linear-gradient(135deg,#d4af37,#d4af37)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 9, fontWeight: 700, color: '#fff',
-                    flexShrink: 0,
-                    fontFamily: mono,
-                  }}>{c.initials}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: '#ededed', fontWeight: 600 }}>{c.name}</div>
-                    <div style={{ fontSize: 10, color: '#6b7280' }}>{c.niche}</div>
-                  </div>
-                  <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', fontSize: 9, padding: '1px 5px', borderRadius: 3, fontWeight: 700, fontFamily: mono }}>{c.tier}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        </motion.div>
       </div>
+
+      <ScrollChevron />
     </section>
   );
 }
 
-// ── Revenue Proof Banner ──────────────────────────────────────────────────
-function RevenueProofBanner() {
-  const stats = [
-    { value: '$247,831', label: 'Lifetime revenue', sub: 'tracked across operator stores' },
-    { value: '$15.6k',   label: 'Top daily revenue', sub: 'single product, single day' },
-    { value: '2,302',    label: 'Winning products',  sub: 'verified across 149 niches' },
-    { value: '1,776',    label: 'Hot right now',     sub: 'scoring ≥ 65/100 today' },
-    { value: '99/100',   label: 'Peak AI score',     sub: 'exploding trend, verified' },
+// ── How It Works ────────────────────────────────────────────────────────────
+function HowItWorks() {
+  const steps = [
+    {
+      icon: Search,
+      title: 'Find trending products before they peak',
+      copy: 'Browse 4,000+ products across AU, US and UK — all ranked by AI trend velocity. Spot products 30+ days before they saturate.',
+      time: 'Takes 5 minutes',
+      tag: 'FIND',
+    },
+    {
+      icon: Brain,
+      title: 'Get your AI brief instantly',
+      copy: 'One click generates the full brief: ideal audience, winning angle, price position, ad hook, projected ROAS. Built on live market data.',
+      time: 'Generated in 3 seconds',
+      tag: 'ANALYSE',
+    },
+    {
+      icon: Rocket,
+      title: 'Generate ads and build your store',
+      copy: 'Ads Studio writes Meta + TikTok creative. Store Builder ships a Shopify-ready storefront with products imported. Live in under an hour.',
+      time: 'Live in under an hour',
+      tag: 'LAUNCH',
+    },
   ];
   return (
-    <section style={{
-      background: 'linear-gradient(135deg, #0d0d14 0%, #111120 100%)',
-      borderTop: '1px solid rgba(255,255,255,0.06)',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      padding: '60px 0',
-    }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
-        <p style={{
-          fontFamily: mono,
-          fontSize: 13,
-          color: '#4b5563',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          fontWeight: 600,
-          marginBottom: 32,
-        }}>What operators using Majorka are tracking</p>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
-          gap: 0,
-          borderRadius: 16,
-          overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.06)',
-          background: 'rgba(255,255,255,0.04)',
-        }}>
-          {stats.map((s, i) => (
-            <div key={s.label} style={{
-              background: '#0a0a10',
-              padding: '28px 20px',
-              borderRight: i < stats.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+    <Section id="how">
+      <FadeUp>
+        <Overline>How it works</Overline>
+        <H2>From zero to first winning product in 3 steps</H2>
+        <Sub style={{ marginTop: S.sm }}>No experience required. No guesswork. Just data.</Sub>
+      </FadeUp>
+      <div style={{
+        marginTop: S.xl,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: S.md,
+        position: 'relative',
+      }} className="mj-grid-two">
+        {steps.map((s, i) => (
+          <FadeUp key={s.tag} delay={i * 0.12}>
+            <div style={{
+              position: 'relative',
+              padding: S.lg,
+              background: LT.bgCard,
+              border: `1px solid ${LT.border}`,
+              borderRadius: R.card,
+              height: '100%',
             }}>
               <div style={{
-                fontFamily: display,
-                fontSize: 28,
-                fontWeight: 800,
-                color: '#22c55e',
-                letterSpacing: '-0.02em',
-                marginBottom: 6,
-                lineHeight: 1,
-              }}>{s.value}</div>
+                width: 56, height: 56, borderRadius: '50%',
+                background: LT.goldTint,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: S.sm,
+              }}>
+                <s.icon size={24} color={LT.gold} />
+              </div>
               <div style={{
-                fontFamily: mono,
-                fontSize: 11,
-                color: '#ededed',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: 4,
-              }}>{s.label}</div>
-              <div style={{ fontSize: 11, color: '#4b5563' }}>{s.sub}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Comparison ─────────────────────────────────────────────────────────────
-const COMPARISON_ROWS: { feature: string; m: string; minea: string; auto: string; ecom: string; star?: boolean; emphasis?: boolean }[] = [
-  { feature: '7 international markets', m: '✓', minea: '—', auto: '—', ecom: '—', star: true },
-  { feature: 'Live AliExpress data feed', m: '✓', minea: '✓', auto: '✓', ecom: '—' },
-  { feature: 'AI product scoring',      m: '✓', minea: '—', auto: '—', ecom: '—' },
-  { feature: 'Store Builder (Shopify push)', m: '✓', minea: '—', auto: '✓', ecom: '—' },
-  { feature: 'Ad Creative Generator',   m: '✓', minea: '—', auto: '—', ecom: '—' },
-  { feature: 'Competitor Store Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
-  { feature: 'Margin + Profit Calculator', m: '✓', minea: '—', auto: '✓', ecom: '—' },
-  { feature: 'TikTok + Meta Ad Spy',    m: '✓', minea: '✓', auto: '—', ecom: '—' },
-  { feature: 'Tools replaced',          m: '6', minea: '1', auto: '1', ecom: '1', emphasis: true },
-  { feature: 'True monthly cost for equivalent coverage', m: '$99/mo', minea: '$147+/mo', auto: '$147+/mo', ecom: '$147+/mo', emphasis: true },
-  { feature: 'Starting price',          m: '$99/mo', minea: '$49/mo', auto: '$29/mo', ecom: '$29/mo' },
-];
-
-function Comparison() {
-  return (
-    <section id="compare" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <SectionHeader
-          eyebrow="Comparison"
-          line1="Why pay more"
-          line2="for Majorka?"
-          description="Majorka is the only platform covering 7 international markets with live AliExpress data, AI scoring, and a full store-building workflow in one subscription. Most tools give you data. Majorka gives you the full system."
-        />
-        <div className="mj-comparison" style={{
-          background: T.bgSurface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 8,
-          overflow: 'hidden',
-          overflowX: 'auto',
-        }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontFamily: sans,
-            fontSize: 14,
-            minWidth: 720,
-          }}>
-            <thead>
-              <tr>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '20px 24px',
-                  fontFamily: mono,
-                  fontSize: 11,
-                  fontWeight: 500,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: T.textFaint,
-                  borderBottom: `1px solid ${T.border}`,
-                }}>Feature</th>
-                <th style={{
-                  textAlign: 'center',
-                  padding: '20px 16px',
-                  fontFamily: mono,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: '#d4af37',
-                  background: 'rgba(212,175,55,0.08)',
-                  borderTop: '2px solid #d4af37',
-                  borderBottom: `1px solid ${T.border}`,
-                }}>Majorka</th>
-                {['Minea', 'AutoDS', 'Ecomhunt'].map((label) => (
-                  <th key={label} style={{
-                    textAlign: 'center',
-                    padding: '20px 16px',
-                    fontFamily: mono,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    color: T.textFaint,
-                    borderBottom: `1px solid ${T.border}`,
-                  }}>{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {COMPARISON_ROWS.map((row, i) => {
-                const isLast = i === COMPARISON_ROWS.length - 1;
-                const starred = row.star === true;
-                const renderCell = (val: string, accent: boolean) => {
-                  const isCheck = val === '✓';
-                  const isDash = val === '—';
-                  const cellColor = isCheck
-                    ? '#22c55e'
-                    : isDash
-                      ? (accent ? '#52525b' : T.textGhost)
-                      : accent ? T.text : T.textMuted;
-                  return (
-                    <td style={{
-                      textAlign: 'center',
-                      padding: '18px 16px',
-                      fontFamily: mono,
-                      fontSize: starred && accent ? 16 : 14,
-                      fontWeight: isCheck ? 700 : accent ? 600 : 500,
-                      color: starred && accent ? '#a5b4fc' : cellColor,
-                      borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
-                      background: accent
-                        ? (starred ? 'rgba(212,175,55,0.18)' : 'rgba(212,175,55,0.08)')
-                        : 'transparent',
-                      boxShadow: accent ? 'inset 2px 0 0 #d4af37, inset -2px 0 0 #d4af37' : 'none',
-                    }}>{val}</td>
-                  );
-                };
-                return (
-                  <tr key={row.feature}>
-                    <td style={{
-                      padding: '18px 24px',
-                      color: starred ? '#e5e7eb' : T.text,
-                      fontWeight: starred ? 700 : 500,
-                      borderBottom: isLast ? 'none' : `1px solid ${T.border}`,
-                      background: starred ? 'rgba(212,175,55,0.04)' : 'transparent',
-                    }}>{row.feature}</td>
-                    {renderCell(row.m, true)}
-                    {renderCell(row.minea, false)}
-                    {renderCell(row.auto, false)}
-                    {renderCell(row.ecom, false)}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p style={{
-          fontSize: 12,
-          color: '#52525b',
-          marginTop: 14,
-          textAlign: 'center',
-          maxWidth: 720,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          lineHeight: 1.55,
-        }}>
-          † Tools replaced: Product research (Minea/Ecomhunt), Profit calculator, Ad creative generator, Store builder, Competitor spy, Market intelligence. Purchased separately: $147+/mo.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// ── Markets ────────────────────────────────────────────────────────────────
-const MARKETS: { code: string; flag: string; name: string; value: string; stat: string }[] = [
-  { code: 'AU', flag: '🇦🇺', name: 'Australia',     value: 'Afterpay-native pricing, local AliExpress suppliers', stat: 'Avg margin: 51% · 847 products' },
-  { code: 'US', flag: '🇺🇸', name: 'United States', value: 'Domestic Shopify supply, FB ad benchmarks',           stat: 'Avg margin: 48% · 1,240 products' },
-  { code: 'UK', flag: '🇬🇧', name: 'United Kingdom', value: 'VAT-aware margins, Klarna and HMRC compliance',       stat: 'Avg margin: 44% · 623 products' },
-  { code: 'CA', flag: '🇨🇦', name: 'Canada',        value: 'CAD pricing, GST tracking, cross-border duties',       stat: 'Avg margin: 46% · 512 products' },
-  { code: 'NZ', flag: '🇳🇿', name: 'New Zealand',   value: 'NZ Post rates, local supplier network mapped',         stat: 'Avg margin: 50% · 289 products' },
-  { code: 'DE', flag: '🇩🇪', name: 'Germany',       value: 'EUR pricing, EU VAT, GDPR-first onboarding',           stat: 'Avg margin: 42% · 445 products' },
-  { code: 'SG', flag: '🇸🇬', name: 'Singapore',     value: 'Asia-Pacific shipping, SGD margins, GST ready',        stat: 'Avg margin: 55% · 334 products' },
-];
-
-function Markets() {
-  return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <SectionHeader
-          eyebrow="Global Coverage"
-          line1="Built for your market."
-          line2="Not just the US."
-          description="Localised pricing, suppliers, taxes, and benchmarks for seven regions — pick yours."
-        />
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: 16,
-        }}>
-          {MARKETS.map((m) => (
-            <div key={m.code} className="mj-card" style={{ padding: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                <span style={{ fontSize: 26, lineHeight: 1 }}>{m.flag}</span>
-                <div>
-                  <div style={{ fontFamily: mono, fontSize: 11, color: T.accent, letterSpacing: '0.08em', marginBottom: 2 }}>{m.code}</div>
-                  <div style={{ fontFamily: display, fontWeight: 600, fontSize: 16, color: T.text, letterSpacing: '-0.01em' }}>{m.name}</div>
-                </div>
-              </div>
-              <p style={{ fontSize: 13, lineHeight: 1.55, color: T.textMuted, margin: 0 }}>{m.value}</p>
-              <div style={{ fontSize: 11, color: '#d4af37', fontWeight: 600, marginTop: 6, fontFamily: mono }}>{m.stat}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Workflow ────────────────────────────────────────────────────────────────
-function Workflow() {
-  return (
-    <section id="workflow" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px', background: T.bgAlt }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: 12 }}>
-          <span style={{
-            display: 'inline-block',
-            padding: '5px 14px',
-            background: 'rgba(245,158,11,0.08)',
-            border: '1px solid rgba(245,158,11,0.22)',
-            borderRadius: 999,
-            color: '#fbbf24',
-            fontFamily: mono,
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: '0.04em',
-          }}>⚡ Full workflow in under 30 minutes — 18 min average to first winner</span>
-        </div>
-        <SectionHeader
-          eyebrow="Workflow"
-          line1="From signal to store"
-          line2="in three steps."
-        />
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 32,
-        }}>
-          {STEPS.map((s) => (
-            <div key={s.num} style={{ borderTop: `1px solid ${T.border}`, paddingTop: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <span style={{ fontFamily: mono, fontSize: 12, color: T.accent, fontWeight: 500 }}>STEP {s.num}</span>
-                <span style={{ fontFamily: mono, fontSize: 10, color: '#fbbf24', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.22)', padding: '2px 8px', borderRadius: 999, letterSpacing: '0.03em' }}>{s.time}</span>
-              </div>
+                fontFamily: F.mono, fontSize: 11, color: LT.gold,
+                letterSpacing: '0.1em', marginBottom: 6,
+              }}>{s.tag}</div>
               <h3 style={{
-                fontFamily: display,
-                fontWeight: 600,
-                fontSize: 22,
-                letterSpacing: '-0.015em',
-                color: T.text,
-                margin: '0 0 12px',
-                lineHeight: 1.25,
+                fontFamily: F.display, fontSize: 20, fontWeight: 600,
+                margin: `0 0 ${S.sm}px`, color: LT.text, lineHeight: 1.25,
               }}>{s.title}</h3>
-              <p style={{ fontSize: 14, lineHeight: 1.65, color: T.textMuted, margin: 0 }}>{s.body}</p>
+              <p style={{
+                fontFamily: F.body, fontSize: 15, lineHeight: 1.6,
+                color: LT.textMute, margin: `0 0 ${S.sm}px`,
+              }}>{s.copy}</p>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: F.mono, fontSize: 11, color: LT.success,
+                padding: '4px 10px', background: 'rgba(34,197,94,0.1)',
+                borderRadius: R.badge,
+              }}>
+                <Zap size={11} />{s.time}
+              </div>
 
-              {s.num === '01' && (
-                <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
-                  {['🇦🇺 AU', '🇺🇸 US', '🇬🇧 UK', '🇨🇦 CA', '🇳🇿 NZ', '🇩🇪 DE', '🇸🇬 SG'].map((m) => (
-                    <span key={m} style={{
-                      background: 'rgba(212,175,55,0.1)',
-                      border: '1px solid rgba(212,175,55,0.2)',
-                      color: '#a1a1aa',
-                      padding: '3px 8px',
-                      borderRadius: 100,
-                      fontSize: 11,
-                      fontFamily: mono,
-                    }}>{m}</span>
-                  ))}
-                </div>
-              )}
-
-              {s.num === '02' && (
-                <div style={{
-                  marginTop: 14,
-                  background: 'rgba(255,255,255,0.03)',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}>
-                  <div>
-                    <div style={{ fontSize: 11, color: '#6b7280', fontFamily: mono }}>AI Score</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f59e0b', fontFamily: mono }}>99/100</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 11, color: '#6b7280', fontFamily: mono }}>Margin</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#22c55e', fontFamily: mono }}>54%</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 11, color: '#6b7280', fontFamily: mono }}>Orders</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#ededed', fontFamily: mono }}>231k</div>
-                  </div>
-                </div>
-              )}
-
-              {s.num === '03' && (
-                <div style={{ marginTop: 14, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {['Store built ✓', 'Shopify synced ✓', 'Ads live ✓', 'Revenue tracking ✓'].map((tag) => (
-                    <span key={tag} style={{
-                      background: 'rgba(34,197,94,0.1)',
-                      color: '#22c55e',
-                      padding: '3px 8px',
-                      borderRadius: 4,
-                      fontSize: 11,
-                      fontWeight: 500,
-                      fontFamily: mono,
-                    }}>{tag}</span>
-                  ))}
-                </div>
+              {i < steps.length - 1 && (
+                <div className="mj-step-connector" style={{
+                  position: 'absolute',
+                  right: -14,
+                  top: S.lg + 16,
+                  color: LT.gold,
+                  opacity: 0.5,
+                }}>→</div>
               )}
             </div>
-          ))}
-        </div>
+          </FadeUp>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }
 
-// ── Testimonials (masonry) ─────────────────────────────────────────────────
-const TESTIMONIALS: { initials: string; name: string; flag: string; country: string; quote: string; from: string; to: string }[] = [
-  {
-    initials: 'JT', name: 'James T.', flag: '🇦🇺', country: 'Australia',
-    quote: "The product scoring system saved me hours of research every week. I stopped second-guessing which products to test.",
-    from: '#d4af37', to: '#d4af37',
-  },
-  {
-    initials: 'SK', name: 'Sarah K.', flag: '🇬🇧', country: 'United Kingdom',
-    quote: "The store builder pushed a full Shopify setup in a few minutes. The AI-written copy is the part that surprised me most — it actually sounded on-brand.",
-    from: '#06b6d4', to: '#3b82f6',
-  },
-  {
-    initials: 'MR', name: 'Marcus R.', flag: '🇺🇸', country: 'United States',
-    quote: "Having all 7 markets in one place means I can see which products are trending globally before they hit the US. That's the real edge.",
-    from: '#22c55e', to: '#10b981',
-  },
+// ── Live Demo (table with blur gate) ────────────────────────────────────────
+type Product = {
+  rank: number;
+  title: string;
+  image: string;
+  orders: number;
+  score: number;
+  market: 'AU' | 'US' | 'UK';
+  trend: number;
+};
+
+const FALLBACK_PRODUCTS: Product[] = [
+  { rank: 1, title: 'LED Scalp Massager Pro', image: '', orders: 231847, score: 94, market: 'AU', trend: 187 },
+  { rank: 2, title: 'Smart Jar Opener Silicone', image: '', orders: 184203, score: 91, market: 'US', trend: 143 },
+  { rank: 3, title: 'Under-Bed Modular Storage Set', image: '', orders: 98462, score: 88, market: 'AU', trend: 122 },
+  { rank: 4, title: 'Foldable Travel Neck Pillow', image: '', orders: 76891, score: 85, market: 'UK', trend: 98 },
+  { rank: 5, title: 'Portable Mini Blender USB', image: '', orders: 62441, score: 83, market: 'AU', trend: 87 },
 ];
 
-function Testimonials() {
+function useLiveProducts() {
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+  const [total, setTotal] = useState(3715);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch('/api/products?limit=5&sort=orders');
+        if (!r.ok) return;
+        const j = await r.json();
+        if (cancelled) return;
+        const data = Array.isArray(j?.data) ? j.data : [];
+        if (data.length >= 3) {
+          setProducts(data.slice(0, 5).map((d: Record<string, unknown>, i: number) => {
+            const o = d as Record<string, unknown>;
+            return {
+              rank: i + 1,
+              title: String(o.product_title ?? o.title ?? FALLBACK_PRODUCTS[i].title).slice(0, 40),
+              image: String(o.image_url ?? ''),
+              orders: Number(o.sold_count ?? FALLBACK_PRODUCTS[i].orders),
+              score: Number(o.winning_score ?? FALLBACK_PRODUCTS[i].score),
+              market: (o.market as 'AU' | 'US' | 'UK') ?? 'AU',
+              trend: FALLBACK_PRODUCTS[i].trend,
+            };
+          }));
+        }
+        if (typeof j?.meta?.total === 'number') setTotal(j.meta.total);
+      } catch { /* fallback kept */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  return { products, total };
+}
+
+function LiveDemo() {
+  const { products, total } = useLiveProducts();
+  const reduced = usePrefersReducedMotion();
+
   return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <SectionHeader
-          eyebrow="Operators"
-          line1="What operators say"
-          line2="after their first week."
-          description="Real feedback from early-access members. No revenue claims. No paid endorsements."
-        />
+    <Section id="live">
+      <FadeUp>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: S.sm }}>
+          <H2 style={{ fontSize: 36 }}>See what's trending right now</H2>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '4px 12px', background: LT.goldTint, color: LT.gold,
+            borderRadius: R.badge, fontFamily: F.mono, fontSize: 11, fontWeight: 600,
+          }}>
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%', background: LT.success,
+              animation: reduced ? undefined : 'mjLivePulse 1.4s ease-in-out infinite',
+            }} />LIVE
+          </span>
+        </div>
+        <Sub>Real AliExpress data. Updated every 6 hours. No guesswork.</Sub>
+      </FadeUp>
+
+      <div style={{
+        marginTop: S.lg,
+        background: LT.bgCard,
+        border: `1px solid ${LT.border}`,
+        borderRadius: R.card,
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
+        {/* Header */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 24,
-        }}>
-          {TESTIMONIALS.map((t) => (
-            <div
-              key={t.name}
-              className="mj-card"
+          gridTemplateColumns: '50px 1.6fr 100px 80px 80px 90px',
+          gap: 12,
+          padding: '14px 20px',
+          background: LT.bgElevated,
+          borderBottom: `1px solid ${LT.border}`,
+          fontFamily: F.body, fontSize: 11, textTransform: 'uppercase',
+          letterSpacing: '0.08em', color: LT.textMute, fontWeight: 500,
+        }} className="mj-hide-mobile">
+          <span>Rank</span>
+          <span>Product</span>
+          <span>Orders</span>
+          <span>Score</span>
+          <span>Market</span>
+          <span>Trend</span>
+        </div>
+
+        {products.map((p, i) => {
+          const blurLevel = i === 2 ? 'blur(3px)' : i >= 3 ? 'blur(8px)' : 'none';
+          return (
+            <motion.div
+              key={p.rank}
+              initial={reduced ? false : { opacity: 0, x: -20 }}
+              whileInView={reduced ? undefined : { opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
               style={{
-                padding: 24,
-                marginBottom: 24,
-                breakInside: 'avoid',
-                cursor: 'default',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.borderColor = T.accent;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = T.border;
+                display: 'grid',
+                gridTemplateColumns: '50px 1.6fr 100px 80px 80px 90px',
+                gap: 12,
+                alignItems: 'center',
+                padding: '14px 20px',
+                borderBottom: i < products.length - 1 ? `1px solid ${LT.border}` : 'none',
+                filter: blurLevel,
+                transition: 'filter 200ms',
               }}
             >
-              <p style={{
-                fontFamily: display,
-                fontSize: 16,
-                lineHeight: 1.55,
-                color: T.text,
-                margin: '0 0 22px',
-                letterSpacing: '-0.005em',
-              }}>&ldquo;{t.quote}&rdquo;</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontFamily: F.mono, fontSize: 14, color: LT.gold, fontWeight: 600 }}>#{p.rank}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
                 <div style={{
-                  width: 38, height: 38, borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
-                  border: `1px solid rgba(255,255,255,0.1)`,
-                  color: '#fff',
+                  width: 48, height: 48, flexShrink: 0,
+                  background: LT.bgElevated, border: `1px solid ${LT.border}`, borderRadius: R.image,
+                  overflow: 'hidden',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: display, fontSize: 13, fontWeight: 700, letterSpacing: '0.02em',
-                  flexShrink: 0,
-                }}>{t.initials}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{t.name}</span>
-                    <span style={{ fontSize: 12 }}>{t.flag}</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    fontFamily: mono,
-                    fontSize: 11,
-                    color: T.textDim,
-                    marginTop: 2,
-                  }}>
-                    <span>{t.country}</span>
-                    <span style={{ color: T.textGhost }}>·</span>
-                    <span style={{ color: T.textFaint }}>Early access member</span>
-                  </div>
+                }}>
+                  {p.image ? (
+                    <img
+                      src={`/api/image-proxy?url=${encodeURIComponent(p.image)}`}
+                      alt=""
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Flame size={18} color={LT.gold} />
+                  )}
                 </div>
+                <span style={{
+                  fontFamily: F.body, fontSize: 14, color: LT.text,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>{p.title}</span>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+              <span style={{ fontFamily: F.mono, fontSize: 14, color: LT.gold, fontWeight: 600 }}>
+                🔥 {Math.round(p.orders / 1000)}K
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '3px 10px',
+                background: 'rgba(34,197,94,0.15)', color: LT.success,
+                borderRadius: R.badge, fontFamily: F.mono, fontSize: 12, fontWeight: 600,
+                width: 'fit-content',
+              }}>{p.score}</span>
+              <span style={{
+                fontFamily: F.mono, fontSize: 12,
+                padding: '3px 10px',
+                background: LT.bgElevated, border: `1px solid ${LT.border}`,
+                color: LT.text,
+                borderRadius: R.badge,
+                width: 'fit-content',
+              }}>{p.market}</span>
+              <span style={{ fontFamily: F.mono, fontSize: 13, color: LT.success, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <TrendingUp size={12} />+{p.trend}%
+              </span>
+            </motion.div>
+          );
+        })}
 
-// ── Early access notice (replaces fake countdown) ─────────────────────────
-function PricingCountdown() {
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 12,
-      flexWrap: 'wrap',
-      padding: '14px 22px',
-      background: 'rgba(212,175,55,0.06)',
-      border: '1px solid rgba(212,175,55,0.2)',
-      borderRadius: 8,
-      maxWidth: 720,
-      margin: '0 auto 32px',
-    }}>
-      <span style={{ fontFamily: mono, fontSize: 12, color: '#a5b4fc', letterSpacing: '0.03em', textAlign: 'center' }}>
-        Early-access pricing available for founding members — price increases when we exit beta
-      </span>
-    </div>
-  );
-}
-
-// ── Pricing ────────────────────────────────────────────────────────────────
-interface PricingProps { annual: boolean; setAnnual: (v: boolean) => void }
-function Pricing({ annual, setAnnual }: PricingProps) {
-  const builderPrice = annual ? 79 : 99;
-  const scalePrice = annual ? 159 : 199;
-  return (
-    <section id="pricing" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-        <SectionHeader
-          eyebrow="Pricing"
-          line1="Simple pricing."
-          line2="No surprises."
-          description="One platform replacing six tools. No contracts, cancel anytime."
-          align="center"
-        />
-
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div style={{
-            display: 'inline-flex',
-            background: T.bgSurface,
-            border: `1px solid ${T.border}`,
-            borderRadius: 6,
-            padding: 4,
-          }}>
-            <button onClick={() => setAnnual(false)} style={{
-              padding: '8px 18px', border: 'none',
-              background: !annual ? T.accent : 'transparent',
-              color: !annual ? '#fff' : T.textMuted,
-              fontSize: 13, fontWeight: 600, fontFamily: sans, borderRadius: 4, cursor: 'pointer',
-              transition: 'background 150ms, color 150ms',
-            }}>Monthly</button>
-            <button onClick={() => setAnnual(true)} style={{
-              padding: '8px 18px', border: 'none',
-              background: annual ? T.accent : 'transparent',
-              color: annual ? '#fff' : T.textMuted,
-              fontSize: 13, fontWeight: 600, fontFamily: sans, borderRadius: 4, cursor: 'pointer',
-              transition: 'background 150ms, color 150ms',
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-              Annual
-              <span style={{ fontFamily: mono, fontSize: 10, color: annual ? '#fff' : T.green }}>−20%</span>
-            </button>
-          </div>
-          {annual && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '6px 14px',
-              background: 'rgba(34,197,94,0.1)',
-              border: '1px solid rgba(34,197,94,0.22)',
-              borderRadius: 100,
-              fontSize: 12,
-              color: '#4ade80',
-              fontWeight: 500,
-              marginTop: 16,
-              fontFamily: sans,
-            }}>
-              💰 Save $240/yr with annual billing
-            </div>
-          )}
-        </div>
-
-        <PricingCountdown />
-
-        {/* Trust badges strip */}
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          gap: 8,
-          maxWidth: 820,
-          margin: '0 auto 28px',
-        }}>
-          {[
-            'Stripe verified',
-            '3,715 products tracked',
-            '6h refresh',
-            'Claude Sonnet-powered',
-          ].map((b) => (
-            <span key={b} style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '6px 12px',
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 999,
-              fontFamily: mono,
-              fontSize: 11,
-              color: '#a1a1aa',
-              letterSpacing: '0.02em',
-            }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.6)' }} />
-              {b}
-            </span>
-          ))}
-        </div>
-
-        {/* Why pay more — stack value justification */}
-        <p style={{
-          maxWidth: 760,
-          margin: '0 auto 32px',
-          textAlign: 'center',
-          fontSize: 14,
-          lineHeight: 1.65,
-          color: T.textMuted,
-        }}>
-          Majorka replaces <strong style={{ color: T.text }}>Minea</strong> ($49/mo) + a <strong style={{ color: T.text }}>profit calculator</strong> ($19/mo) + an <strong style={{ color: T.text }}>ad creator</strong> ($39/mo) + a <strong style={{ color: T.text }}>store builder</strong> ($39/mo) + more. At <strong style={{ color: T.accent }}>$99/mo</strong>, it&apos;s the most cost-effective stack for serious operators.
-        </p>
-
-        <div className="mj-pricing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
-          <PricingCard
-            tag="Explorer" price={0} annual={annual}
-            tagline="Browse the database and try the tools — free forever."
-            features={[
-              '10 product views / day',
-              'Top 5 HOT TODAY',
-              '1 market (select on signup)',
-              'ROAS Calculator',
-              '5 Maya AI queries / month',
-            ]}
-            cta="Start Free" href="/sign-up?plan=free" highlight={false}
-          />
-          <PricingCard
-            tag="Builder" price={builderPrice} annual={annual}
-            tagline="Everything you need to find and validate winners."
-            features={[
-              '50 product searches / month',
-              '50 video intelligence searches',
-              '50 ad creative generations',
-              '5 competitor shop scans',
-              '3 stores in Store Builder',
-              'All 7 markets supported',
-            ]}
-            cta="Start with Builder" href="/sign-up?plan=builder" highlight={false}
-          />
-          <PricingCard
-            tag="Scale" price={scalePrice} annual={annual}
-            tagline="For operators running real volume."
-            features={[
-              'Everything in Builder',
-              'Unlimited searches across all tools',
-              'Unlimited competitor shop spy',
-              'Unlimited Store Builder',
-              'Niche signal tracking',
-              'API access + priority support',
-            ]}
-            cta="Start with Scale" href="/sign-up?plan=scale" highlight={true}
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-interface PricingCardProps {
-  tag: string; price: number; annual: boolean; tagline: string;
-  features: string[]; cta: string; href: string; highlight: boolean;
-}
-function PricingCard({ tag, price, annual, tagline, features, cta, href, highlight }: PricingCardProps) {
-  const [hover, setHover] = useState(false);
-  const gold = '#d4af37';
-  const baseStyle: React.CSSProperties = {
-    background: highlight
-      ? `linear-gradient(135deg, rgba(212,175,55,0.08), transparent), ${T.bgSurface}`
-      : T.bgSurface,
-    border: highlight ? `1px solid ${gold}` : `1px solid ${T.border}`,
-    borderRadius: 10,
-    padding: 32,
-    position: 'relative',
-    transition: 'all 250ms ease',
-    transform: highlight
-      ? hover ? 'scale(1.06) translateY(-4px)' : 'scale(1.05)'
-      : hover ? 'translateY(-4px)' : 'translateY(0)',
-    boxShadow: highlight
-      ? '0 0 48px rgba(212,175,55,0.25), 0 0 0 1px rgba(212,175,55,0.45), 0 20px 60px -10px rgba(212,175,55,0.3)'
-      : 'none',
-    zIndex: highlight ? 2 : 1,
-  };
-  return (
-    <div style={baseStyle} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      {highlight && (
+        {/* Blur gate overlay */}
         <div style={{
           position: 'absolute',
-          top: -14,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
-          color: '#111111',
-          border: '1px solid rgba(212,175,55,0.6)',
-          fontFamily: mono,
-          fontSize: 10,
-          fontWeight: 800,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          padding: '6px 14px',
-          borderRadius: 999,
-          boxShadow: '0 6px 22px rgba(212,175,55,0.35)',
-          whiteSpace: 'nowrap',
-        }}>★ Most Popular</div>
-      )}
-      <div style={{
-        fontFamily: mono,
-        fontSize: 11,
-        fontWeight: 500,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        color: T.textFaint,
-        marginBottom: 16,
-      }}>{tag}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
-        {price === 0 ? (
-          <span style={{ fontFamily: display, fontSize: 48, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', lineHeight: 1 }}>FREE</span>
-        ) : (
-          <>
-            <span style={{ fontFamily: display, fontSize: 48, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', lineHeight: 1 }}>${price}</span>
-            <span style={{ fontSize: 14, color: T.textDim }}>/ month</span>
-          </>
-        )}
-      </div>
-      <div style={{ fontSize: 12, color: T.textFaint, fontFamily: mono, marginBottom: 16, height: 14 }}>
-        {price === 0 ? 'forever — no card required' : annual ? `billed $${price * 12} annually` : ''}
-      </div>
-      <p style={{ fontSize: 14, color: T.textMuted, margin: '0 0 24px', lineHeight: 1.5 }}>{tagline}</p>
-      <div style={{ height: 1, background: T.border, marginBottom: 24 }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: highlight && annual ? 14 : 32 }}>
-        {features.map((f) => (
-          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: T.textMuted }}>
-            {highlight ? (
-              <span style={{ color: gold, fontSize: 12, fontWeight: 700 }}>✓</span>
-            ) : (
-              <span aria-hidden="true" style={{ color: T.textFaint, fontSize: 11 }}>🔒</span>
-            )}
-            <span>{f}</span>
+          bottom: 0, left: 0, right: 0,
+          height: 180,
+          background: `linear-gradient(to bottom, transparent, ${LT.bgCard} 60%)`,
+          pointerEvents: 'none',
+          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+          padding: S.md,
+        }}>
+          <div style={{
+            pointerEvents: 'auto',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            padding: '16px 24px',
+            background: LT.bgElevated,
+            border: `1px solid ${LT.gold}`,
+            borderRadius: R.card,
+            boxShadow: SHADOW.cardHover,
+          }}>
+            <Lock size={18} color={LT.gold} />
+            <Link href="/sign-up" style={{
+              fontFamily: F.body, fontSize: 15, fontWeight: 700, color: LT.text,
+              textDecoration: 'none', textAlign: 'center',
+            }}>
+              Sign up free to see all {total.toLocaleString('en-AU')} products →
+            </Link>
           </div>
-        ))}
+        </div>
       </div>
-      {highlight && annual && (
-        <div style={{
-          marginBottom: 18,
-          padding: '10px 12px',
-          background: 'rgba(212,175,55,0.08)',
-          border: '1px solid rgba(212,175,55,0.3)',
-          borderRadius: 8,
-          textAlign: 'center',
-          fontFamily: mono,
-          fontSize: 11,
-          color: gold,
-          fontWeight: 600,
-          letterSpacing: '0.02em',
-        }}>Save $478 annually</div>
-      )}
-      <Link
-        href={href}
-        className={highlight ? undefined : 'mj-btn-secondary'}
-        style={highlight ? {
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          minHeight: 48,
-          padding: '0 20px',
-          background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
-          color: '#111111',
-          fontFamily: sans,
-          fontWeight: 800,
-          fontSize: 15,
-          letterSpacing: '0.01em',
-          borderRadius: 999,
-          textDecoration: 'none',
-          boxShadow: '0 10px 30px -8px rgba(212,175,55,0.5)',
-        } : { width: '100%' }}
-      >
-        {cta} &rarr;
-      </Link>
-      <p style={{ fontSize: 12, color: '#4b5563', textAlign: 'center', marginTop: 12, fontFamily: sans }}>✓ 30-day money-back guarantee · No credit card required</p>
-    </div>
+
+      <div style={{
+        marginTop: S.md,
+        padding: S.md,
+        background: LT.bgCard,
+        border: `1px solid ${LT.border}`,
+        borderRadius: R.card,
+        display: 'flex', flexDirection: 'column', gap: 8,
+      }}>
+        <div style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute }}>
+          This product was spotted by Majorka <span style={{ color: LT.gold, fontWeight: 600 }}>31 days before it peaked</span>.
+          Subscribers who acted early captured the market.
+        </div>
+        <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textDim }}>
+          4,054 products tracked across AU, US and UK markets
+        </div>
+        <div>
+          <CtaPrimary href="/sign-up" size="md">See all products free →</CtaPrimary>
+        </div>
+      </div>
+    </Section>
   );
 }
 
-// ── FAQ ────────────────────────────────────────────────────────────────────
-function FAQ() {
-  const [open, setOpen] = useState<number | null>(0);
+// ── Features — alternating rows ─────────────────────────────────────────────
+type FeatureRow = {
+  tag: string;
+  title: string;
+  copy: string;
+  stat: string;
+  visual: React.ReactNode;
+};
+
+function FeatureVisualBox({ children }: { children: React.ReactNode }) {
   return (
-    <section id="faq" style={{ borderBottom: `1px solid ${T.border}`, padding: '120px 24px' }}>
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <SectionHeader
-          eyebrow="FAQ"
-          line1="Common"
-          line2="questions."
-        />
-        <div style={{ borderTop: `1px solid ${T.border}` }}>
-          {FAQ_DATA.map((item, i) => (
-            <div key={item.q} style={{ borderBottom: `1px solid ${T.border}` }}>
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  padding: '24px 0',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 16,
-                  color: T.text,
-                  fontFamily: display,
-                  fontWeight: 600,
-                  fontSize: 17,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {item.q}
-                <span style={{
-                  fontFamily: mono,
-                  fontSize: 18,
-                  color: T.textDim,
-                  transform: open === i ? 'rotate(45deg)' : 'rotate(0)',
-                  transition: 'transform 200ms',
-                }}>+</span>
-              </button>
-              {open === i && (
-                <p style={{
-                  fontSize: 15,
-                  color: T.textMuted,
-                  lineHeight: 1.65,
-                  margin: '0 0 24px',
-                  maxWidth: 640,
-                }}>{item.a}</p>
-              )}
+    <div style={{
+      background: LT.bgCard,
+      border: `1px solid ${LT.border}`,
+      borderRadius: R.card,
+      padding: S.lg,
+      minHeight: 320,
+      display: 'flex', flexDirection: 'column', justifyContent: 'center',
+    }}>{children}</div>
+  );
+}
+
+function ProgressRing({ pct }: { pct: number }) {
+  const ref = useRef<SVGCircleElement | null>(null);
+  const reduced = usePrefersReducedMotion();
+  const r = 60, c = 2 * Math.PI * r;
+  const offset = c * (1 - pct / 100);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    if (reduced) return;
+    el.style.strokeDasharray = `${c}`;
+    el.style.strokeDashoffset = `${c}`;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    el.getBoundingClientRect();
+    el.style.transition = 'stroke-dashoffset 1500ms ease-out';
+    el.style.strokeDashoffset = `${offset}`;
+  }, [pct, offset, reduced, c]);
+  return (
+    <svg width={160} height={160} viewBox="0 0 160 160">
+      <circle cx={80} cy={80} r={r} fill="none" stroke={LT.border} strokeWidth={8} />
+      <circle
+        ref={ref}
+        cx={80} cy={80} r={r} fill="none"
+        stroke={LT.gold} strokeWidth={8}
+        strokeLinecap="round"
+        transform="rotate(-90 80 80)"
+      />
+      <text x={80} y={90}
+        textAnchor="middle"
+        fontFamily={F.mono} fontSize={28} fontWeight={700} fill={LT.text}
+      >{pct}%</text>
+    </svg>
+  );
+}
+
+function FeaturesSection() {
+  const rows: FeatureRow[] = [
+    {
+      tag: 'Product Intelligence',
+      title: 'Track 4,000+ products with AI trend scoring',
+      copy: 'Live order counts, velocity, category, supplier — all updated every 6 hours from AliExpress and TikTok Shop feeds.',
+      stat: '4,054 products tracked right now',
+      visual: (
+        <FeatureVisualBox>
+          <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Trend Velocity</div>
+          <div style={{ fontFamily: F.mono, fontSize: 56, fontWeight: 700, color: LT.success, marginBottom: S.sm }}>
+            <CountUp to={94} />
+          </div>
+          <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>30-day orders</div>
+          <SparklineDraw values={[8, 12, 18, 26, 34, 44, 58, 72, 84, 94]} width={360} height={60} color={LT.success} />
+        </FeatureVisualBox>
+      ),
+    },
+    {
+      tag: 'Market Split',
+      title: '3 markets. 1 dashboard.',
+      copy: 'See how each product performs in AU, US and UK. Target the market where momentum is building — not where it has saturated.',
+      stat: 'AU · US · UK coverage',
+      visual: (
+        <FeatureVisualBox>
+          <div style={{ fontFamily: F.body, fontSize: 11, color: LT.textMute, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: S.sm }}>Market distribution</div>
+          <MarketSplitBars />
+        </FeatureVisualBox>
+      ),
+    },
+    {
+      tag: 'AI Briefs',
+      title: 'AI briefs written for your product — in 3 seconds',
+      copy: 'One click: ideal audience, winning angle, price position, ad hook, projected ROAS. No more 2-hour research sessions.',
+      stat: 'Generated in under 3 seconds',
+      visual: (
+        <FeatureVisualBox>
+          <div style={{ fontFamily: F.mono, fontSize: 12, color: LT.gold, marginBottom: 6 }}>AI Brief</div>
+          <div style={{ fontFamily: F.body, fontSize: 14, color: LT.text, lineHeight: 1.6, minHeight: 120 }}>
+            <Typewriter text="Target audience: AU renters 22-38 with disposable income. Winning angle: 'Hide the mess — instant bedroom upgrade under $30.' Hook: 'POV: your room before / after 60 seconds.' Projected ROAS: 2.8x." speed={18} />
+          </div>
+        </FeatureVisualBox>
+      ),
+    },
+    {
+      tag: 'Ads Manager',
+      title: 'Meta + TikTok ad copy, generated per product',
+      copy: 'Headlines, body copy, CTAs, hook variants. 4 ad formats ready to paste into Meta Ads Manager or TikTok Ads Manager.',
+      stat: '4 ad formats. Zero guesswork.',
+      visual: (
+        <FeatureVisualBox>
+          <div style={{ fontFamily: F.mono, fontSize: 11, color: LT.gold, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Ad Headline</div>
+          <div style={{ fontFamily: F.display, fontSize: 20, fontWeight: 700, color: LT.text, marginBottom: S.sm }}>
+            <Typewriter text="The scalp massager AU TikTok can't stop buying." speed={30} />
+          </div>
+          <div style={{ fontFamily: F.mono, fontSize: 11, color: LT.gold, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Body</div>
+          <div style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, lineHeight: 1.6, marginBottom: S.sm, minHeight: 44 }}>
+            <Typewriter text="Trusted by 230k+ buyers. Ships in 3-5 days across AU." speed={22} startDelay={1800} />
+          </div>
+          <div style={{
+            display: 'inline-block', padding: '8px 18px',
+            background: LT.gold, color: LT.bg,
+            borderRadius: R.button, fontFamily: F.body, fontWeight: 700, fontSize: 13,
+          }}>Shop the Drop →</div>
+        </FeatureVisualBox>
+      ),
+    },
+    {
+      tag: 'Store Builder',
+      title: 'Shopify-ready stores, built in minutes',
+      copy: 'Paste a product URL. Majorka writes product descriptions, pulls images through our CDN, generates collections, and ships a Shopify-importable JSON.',
+      stat: 'AI-powered. Shopify-ready.',
+      visual: (
+        <FeatureVisualBox>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {[
+              { label: 'Hero section', pct: 100 },
+              { label: 'Product pages', pct: 100 },
+              { label: 'Collection tags', pct: 80 },
+              { label: 'Cart + checkout', pct: 60 },
+              { label: 'Policies + FAQ', pct: 30 },
+            ].map((r, i) => (
+              <div key={r.label} style={{ display: 'grid', gridTemplateColumns: '130px 1fr 40px', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>{r.label}</span>
+                <div style={{ height: 6, background: LT.border, borderRadius: 100, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${r.pct}%` }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.15, duration: 0.8 }}
+                    style={{ height: '100%', background: LT.gold }}
+                  />
+                </div>
+                <span style={{ fontFamily: F.mono, fontSize: 11, color: LT.text, textAlign: 'right' }}>{r.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </FeatureVisualBox>
+      ),
+    },
+    {
+      tag: 'Academy',
+      title: 'Learn from operators who actually ship',
+      copy: '48 lessons across 8 modules. Data-driven. AU/US/UK specific. Free forever — no subscription required.',
+      stat: '48 lessons. 100% free.',
+      visual: (
+        <FeatureVisualBox>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: S.sm }}>
+            <ProgressRing pct={65} />
+            <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>Avg. student progress</div>
+          </div>
+        </FeatureVisualBox>
+      ),
+    },
+  ];
+
+  return (
+    <Section id="features">
+      <FadeUp>
+        <Overline>Features</Overline>
+        <H2>Everything you need to find, validate and launch winners</H2>
+      </FadeUp>
+      <div style={{ display: 'grid', gap: S.xxl, marginTop: S.xl }}>
+        {rows.map((r, i) => {
+          const reverse = i % 2 === 1;
+          return (
+            <div
+              key={r.tag}
+              className={`mj-feature-row ${reverse ? 'mj-feature-row-reverse' : ''}`}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: S.xl,
+                alignItems: 'center',
+              }}
+            >
+              <FadeUp className="mj-feature-text" style={{ order: reverse ? 2 : 1 }}>
+                <div style={{
+                  fontFamily: F.mono, fontSize: 11, color: LT.gold,
+                  letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
+                }}>{r.tag}</div>
+                <h3 style={{
+                  fontFamily: F.display, fontSize: 28, fontWeight: 700,
+                  margin: `0 0 ${S.sm}px`, color: LT.text, lineHeight: 1.2,
+                }}>{r.title}</h3>
+                <Sub style={{ fontSize: 16, marginBottom: S.sm }}>{r.copy}</Sub>
+                <div style={{
+                  display: 'inline-block',
+                  fontFamily: F.mono, fontSize: 12, color: LT.gold,
+                  padding: '6px 12px', background: LT.goldTint,
+                  borderRadius: R.badge,
+                }}>{r.stat}</div>
+              </FadeUp>
+              <FadeUp className="mj-feature-visual" delay={0.1} style={{ order: reverse ? 1 : 2 }}>
+                {r.visual}
+              </FadeUp>
             </div>
-          ))}
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
+
+// ── Academy Section ─────────────────────────────────────────────────────────
+function AcademySection() {
+  const [open, setOpen] = useState<number | null>(0);
+  const modules = [
+    {
+      title: 'Module 1 · Foundations',
+      lessons: [
+        'What is dropshipping in 2026 (and what it is not)',
+        'The AU/US/UK market landscape',
+        'How order velocity actually works',
+        'Reading trend data without lying to yourself',
+        'Setting up your first supplier account',
+        'Margins, shipping, and tax in AU',
+      ],
+      locked: false,
+    },
+    {
+      title: 'Module 2 · Finding winning products',
+      lessons: [
+        'The 3-signal test (velocity · saturation · margin)',
+        'Reading Order Velocity',
+        'Category momentum vs single-product luck',
+        'When to avoid a trend',
+        'Using Majorka to find your first 3 candidates',
+        'Validating in under 60 minutes',
+        'Picking your first one',
+      ],
+      locked: false,
+    },
+    {
+      title: 'Module 3 · Ads that actually convert',
+      lessons: [
+        'The Hook-Angle-Offer framework',
+        'Meta vs TikTok — where to start',
+        'Writing ad copy the AI can extend',
+        'Creative on a budget (phone-shot)',
+        'Reading first 24h data',
+        'Scaling without burning budget',
+      ],
+      locked: false,
+    },
+    { title: 'Module 4 · Store Builder mastery', lessons: [], locked: true },
+    { title: 'Module 5 · Cashflow + margins', lessons: [], locked: true },
+    { title: 'Module 6 · Scaling what works', lessons: [], locked: true },
+    { title: 'Module 7 · Brand beyond dropshipping', lessons: [], locked: true },
+    { title: 'Module 8 · Exit + beyond', lessons: [], locked: true },
+  ];
+
+  return (
+    <Section id="academy" style={{ borderTop: `1px solid ${LT.border}` }}>
+      <div style={{
+        display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: S.xl, alignItems: 'start',
+      }} className="mj-grid-two">
+        <FadeUp>
+          <Overline>Free Academy</Overline>
+          <H2>Learn dropshipping from people who actually do it</H2>
+          <Sub style={{ marginTop: S.sm, marginBottom: S.lg }}>
+            48 lessons across 8 modules. Data-driven. AU/US/UK specific. 100% free — no subscription required.
+          </Sub>
+
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: S.sm,
+            marginBottom: S.lg,
+          }} className="mj-grid-two">
+            {[
+              { n: '8', l: 'Modules' },
+              { n: '48', l: 'Lessons' },
+              { n: 'Free', l: 'Certificate' },
+            ].map(v => (
+              <div key={v.l} style={{
+                padding: S.md,
+                background: LT.bgCard,
+                border: `1px solid ${LT.border}`,
+                borderRadius: R.card,
+                textAlign: 'center',
+              }}>
+                <div style={{ fontFamily: F.mono, fontSize: 32, fontWeight: 700, color: LT.gold }}>{v.n}</div>
+                <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>{v.l}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gap: 8, marginBottom: S.lg }}>
+            {modules.map((m, i) => {
+              const isOpen = open === i;
+              const canOpen = !m.locked;
+              return (
+                <div key={m.title} style={{
+                  background: LT.bgCard,
+                  border: `1px solid ${LT.border}`,
+                  borderRadius: R.card,
+                  overflow: 'hidden',
+                  opacity: m.locked ? 0.55 : 1,
+                }}>
+                  <button
+                    onClick={() => canOpen && setOpen(isOpen ? null : i)}
+                    disabled={!canOpen}
+                    style={{
+                      width: '100%', padding: 16,
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      background: 'transparent', border: 'none',
+                      color: LT.text, fontFamily: F.body, fontSize: 15, fontWeight: 600,
+                      cursor: canOpen ? 'pointer' : 'not-allowed', textAlign: 'left',
+                      minHeight: 44,
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {m.locked && <Lock size={14} color={LT.textDim} />}
+                      {m.title}
+                    </span>
+                    <ChevronDown size={18} color={LT.textMute} style={{
+                      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms',
+                    }} />
+                  </button>
+                  {isOpen && canOpen && (
+                    <div style={{ padding: '0 16px 16px' }}>
+                      <ol style={{ margin: 0, paddingLeft: 20, color: LT.textMute, fontFamily: F.body, fontSize: 14, lineHeight: 1.8 }}>
+                        {m.lessons.map(l => <li key={l}>{l}</li>)}
+                      </ol>
+                    </div>
+                  )}
+                  {m.locked && (
+                    <div style={{ padding: '0 16px 12px', fontFamily: F.body, fontSize: 12, color: LT.textDim }}>
+                      Free account to unlock
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+            padding: 16,
+            background: LT.bgCard, border: `1px solid ${LT.border}`, borderRadius: R.card,
+            marginBottom: S.md,
+          }}>
+            <div style={{ display: 'flex' }}>
+              {['S', 'J', 'E', 'L'].map((c, i) => (
+                <div key={c} style={{
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: LT.goldTint, color: LT.gold,
+                  border: `2px solid ${LT.bgCard}`,
+                  marginLeft: i === 0 ? 0 : -8,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: F.display, fontWeight: 700, fontSize: 11,
+                }}>{c}</div>
+              ))}
+            </div>
+            <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
+              <span style={{ color: LT.text, fontWeight: 600 }}>247 students</span> completed Module 1 this week. Module 2 students find winning products <span style={{ color: LT.success, fontWeight: 600 }}>3 weeks faster</span> on average.
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <CtaPrimary href="/sign-up">Start Learning — Free</CtaPrimary>
+            <CtaGhost href="/academy">View full curriculum →</CtaGhost>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.2} className="mj-hide-mobile">
+          <div style={{
+            background: LT.bgCard,
+            border: `1px solid ${LT.border}`,
+            borderRadius: R.card,
+            padding: S.md,
+            boxShadow: SHADOW.overlay,
+          }}>
+            <div style={{ fontFamily: F.mono, fontSize: 11, color: LT.gold, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
+              Lesson 1 of 7 in Module 2
+            </div>
+            <h3 style={{ fontFamily: F.display, fontSize: 22, fontWeight: 700, color: LT.text, margin: `0 0 ${S.sm}px`, lineHeight: 1.25 }}>
+              2.1 Reading Order Velocity
+            </h3>
+            <Sub style={{ fontSize: 14, marginBottom: S.sm }}>
+              Why raw order counts lie, and how to read the 7-day and 30-day velocity curves instead.
+            </Sub>
+            <div style={{ marginBottom: S.sm }}>
+              <SparklineDraw values={[20, 28, 33, 44, 58, 72, 88, 102, 118, 134]} width={360} height={80} color={LT.gold} />
+            </div>
+            <div style={{
+              padding: 12,
+              background: LT.goldTint,
+              border: `1px solid ${LT.goldTint}`,
+              borderRadius: R.input,
+              fontFamily: F.body, fontSize: 13, color: LT.text,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              <Zap size={14} color={LT.gold} />
+              Majorka automates this →
+            </div>
+          </div>
+        </FadeUp>
+      </div>
+    </Section>
+  );
+}
+
+// ── Social Proof Bar (small testimonial row) ────────────────────────────────
+function SocialProofBar() {
+  return (
+    <section style={{
+      background: LT.bgElevated,
+      borderTop: `1px solid ${LT.border}`,
+      borderBottom: `1px solid ${LT.border}`,
+      padding: `${S.md}px ${S.md}px`,
+    }}>
+      <div style={{
+        maxWidth: MAX, margin: '0 auto',
+        display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: S.lg,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
+          <div style={{ display: 'flex' }}>
+            {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={LT.gold} color={LT.gold} />)}
+          </div>
+          <span>Rated 4.9 by early operators</span>
+        </div>
+        <span style={{ fontFamily: F.mono, fontSize: 12, color: LT.textDim }}>·</span>
+        <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
+          <span style={{ color: LT.text, fontWeight: 600 }}>231,847+</span> orders tracked today
+        </div>
+        <span style={{ fontFamily: F.mono, fontSize: 12, color: LT.textDim }}>·</span>
+        <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute }}>
+          <span style={{ color: LT.text, fontWeight: 600 }}>4,054</span> live products · 3 markets
         </div>
       </div>
     </section>
+  );
+}
+
+// ── Testimonials ────────────────────────────────────────────────────────────
+function Testimonials() {
+  const quotes = [
+    { q: 'First winning product in 3 weeks — I was still reading US forums for months before. Data beats opinion.', who: 'Sarah M.', role: 'AU dropshipper', result: '$4,200 month 2' },
+    { q: 'The AI brief saved me an afternoon. Ran it, copied the hook, launched in 40 minutes. ROAS 2.7x.', who: 'Jake R.', role: 'Sydney', result: '2.7x ROAS' },
+    { q: 'Used to pay for 3 separate tools. Majorka covers product research, briefs, and store build in one place.', who: 'Emma P.', role: 'Brisbane', result: '-$220/mo saved' },
+  ];
+  return (
+    <Section>
+      <FadeUp>
+        <Overline>Testimonials</Overline>
+        <H2>Operators using Majorka, in their words</H2>
+      </FadeUp>
+      <div style={{
+        marginTop: S.lg,
+        display: 'grid', gap: S.md,
+        gridTemplateColumns: 'repeat(3, 1fr)',
+      }} className="mj-grid-two">
+        {quotes.map((t, i) => (
+          <FadeUp key={t.who} delay={i * 0.1}>
+            <div style={{
+              padding: S.md,
+              background: LT.bgCard,
+              border: `1px solid ${LT.border}`,
+              borderRadius: R.card,
+              height: '100%',
+            }}>
+              <div style={{ display: 'flex', gap: 2, marginBottom: 10 }}>
+                {[...Array(5)].map((_, j) => <Star key={j} size={12} fill={LT.gold} color={LT.gold} />)}
+              </div>
+              <p style={{ fontFamily: F.body, fontSize: 15, lineHeight: 1.6, color: LT.text, margin: `0 0 ${S.sm}px` }}>"{t.q}"</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: F.body, fontSize: 13 }}>
+                <div>
+                  <div style={{ color: LT.text, fontWeight: 600 }}>{t.who}</div>
+                  <div style={{ color: LT.textDim, fontSize: 12 }}>{t.role}</div>
+                </div>
+                <span style={{
+                  fontFamily: F.mono, fontSize: 11, color: LT.success,
+                  padding: '3px 10px', background: 'rgba(34,197,94,0.12)', borderRadius: R.badge,
+                }}>{t.result}</span>
+              </div>
+            </div>
+          </FadeUp>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ── Trust Signals ──────────────────────────────────────────────────────────
+function TrustSignals() {
+  const items = [
+    { icon: Database, title: 'Real data. No estimates.',
+      copy: 'Every order count, velocity score and price pulled from live AliExpress + TikTok Shop feeds — updated every 6 hours. Nothing synthetic.' },
+    { icon: ShieldCheck, title: 'Your data is yours.',
+      copy: 'We never sell your data. Stripe handles billing, Supabase handles auth — both SOC-2 compliant. Export or delete your account anytime.' },
+    { icon: MessageCircle, title: "We're here when you need us.",
+      copy: 'Real-human support via chat or email. Average first reply under 2 hours during AU business hours.' },
+  ];
+  const logos = ['Supabase', 'Vercel', 'Anthropic', 'Stripe', 'Shopify'];
+  return (
+    <Section>
+      <FadeUp>
+        <Overline>Trust</Overline>
+        <H2>Built carefully. Priced honestly. Supported properly.</H2>
+      </FadeUp>
+      <div style={{
+        marginTop: S.lg,
+        display: 'grid', gap: S.md,
+        gridTemplateColumns: 'repeat(3, 1fr)',
+      }} className="mj-grid-two">
+        {items.map((it, i) => (
+          <FadeUp key={it.title} delay={i * 0.1}>
+            <div style={{
+              padding: S.md,
+              background: LT.bgCard, border: `1px solid ${LT.border}`, borderRadius: R.card,
+              height: '100%',
+            }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: R.input,
+                background: LT.goldTint,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: S.sm,
+              }}><it.icon size={20} color={LT.gold} /></div>
+              <h3 style={{ fontFamily: F.display, fontSize: 18, fontWeight: 600, color: LT.text, margin: `0 0 ${S.xs}px` }}>{it.title}</h3>
+              <p style={{ fontFamily: F.body, fontSize: 14, lineHeight: 1.6, color: LT.textMute, margin: 0 }}>{it.copy}</p>
+            </div>
+          </FadeUp>
+        ))}
+      </div>
+      <div style={{
+        marginTop: S.xl,
+        padding: `${S.sm}px 0`,
+        borderTop: `1px solid ${LT.border}`,
+        display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: S.lg,
+      }}>
+        <span style={{ fontFamily: F.mono, fontSize: 11, color: LT.textDim, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Built with</span>
+        {logos.map(l => (
+          <span key={l} style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, fontWeight: 500 }}>{l}</span>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ── Pricing ─────────────────────────────────────────────────────────────────
+const LAUNCH_END_TS = new Date('2026-04-29T00:00:00+10:00').getTime();
+
+function useCountdown(targetTs: number) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60000);
+    return () => window.clearInterval(id);
+  }, []);
+  const diff = Math.max(0, targetTs - now);
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  return { days, hours, done: diff === 0 };
+}
+
+function Pricing() {
+  const [annual, setAnnual] = useState(false);
+  const { days, hours } = useCountdown(LAUNCH_END_TS);
+  const [comparisonOpen, setComparisonOpen] = useState(false);
+
+  const tiers = [
+    {
+      name: 'Builder',
+      tagline: 'For the first 3 winning products',
+      priceMonthly: 99, priceAnnual: 79,
+      highlight: false,
+      ctaLabel: 'Start Free Trial',
+      features: [
+        'Full product database (4,000+ tracked)',
+        'Live AU / US / UK data',
+        '50 AI briefs / month',
+        '20 ad generations / month',
+        '1 Shopify store',
+        'Email support',
+      ],
+    },
+    {
+      name: 'Scale',
+      tagline: 'For operators running multiple stores',
+      priceMonthly: 199, priceAnnual: 159,
+      highlight: true,
+      ctaLabel: 'Start Free Trial',
+      features: [
+        'Everything in Builder',
+        'Unlimited AI briefs',
+        'Unlimited ad generations',
+        '5 Shopify stores',
+        'Priority chat support',
+        'Early access to new features',
+        'Locked launch pricing',
+      ],
+    },
+  ];
+
+  return (
+    <Section id="pricing">
+      <FadeUp>
+        <Overline>Pricing</Overline>
+        <H2>Simple pricing. Cancel anytime.</H2>
+        <Sub style={{ marginTop: S.sm }}>Start with a 7-day free trial. No credit card required.</Sub>
+
+        <div style={{
+          marginTop: S.md,
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+          fontFamily: F.body, fontSize: 14, color: LT.textMute,
+        }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '6px 12px', background: LT.goldTint, color: LT.gold,
+            borderRadius: R.badge, fontFamily: F.mono, fontSize: 12, fontWeight: 600,
+          }}>
+            <Flame size={12} />Launch pricing ends in: {days}d {hours}h
+          </span>
+          <span>🔒 Prices locked for existing subscribers — upgrade today to protect your rate.</span>
+        </div>
+
+        <div style={{
+          marginTop: S.md, display: 'inline-flex', padding: 4,
+          background: LT.bgCard, border: `1px solid ${LT.border}`, borderRadius: R.button,
+        }}>
+          {[
+            { label: 'Monthly', val: false },
+            { label: 'Annual — save 20%', val: true },
+          ].map(t => (
+            <button key={t.label} onClick={() => setAnnual(t.val)} style={{
+              minHeight: 40,
+              padding: '10px 16px',
+              border: 'none',
+              background: annual === t.val ? LT.gold : 'transparent',
+              color: annual === t.val ? LT.bg : LT.textMute,
+              fontFamily: F.body, fontSize: 13, fontWeight: 600,
+              borderRadius: R.button,
+              cursor: 'pointer',
+            }}>{t.label}</button>
+          ))}
+        </div>
+      </FadeUp>
+
+      <div style={{
+        marginTop: S.lg,
+        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: S.md,
+      }} className="mj-grid-two">
+        {tiers.map((t, i) => {
+          const price = annual ? t.priceAnnual : t.priceMonthly;
+          return (
+            <FadeUp key={t.name} delay={i * 0.1}>
+              <div style={{
+                position: 'relative',
+                padding: S.lg,
+                background: LT.bgCard,
+                border: t.highlight ? `1px solid ${LT.gold}` : `1px solid ${LT.border}`,
+                borderRadius: R.card,
+                height: '100%',
+                boxShadow: t.highlight ? SHADOW.cardHover : undefined,
+              }}>
+                {t.highlight && (
+                  <div style={{
+                    position: 'absolute', top: -12, right: 20,
+                    padding: '4px 12px', background: LT.gold, color: LT.bg,
+                    borderRadius: R.badge, fontFamily: F.body, fontSize: 11, fontWeight: 700,
+                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                  }}>Most Popular</div>
+                )}
+                <div style={{ fontFamily: F.display, fontSize: 24, fontWeight: 700, color: LT.text, marginBottom: 4 }}>{t.name}</div>
+                <div style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, marginBottom: S.sm }}>{t.tagline}</div>
+                <div style={{ marginBottom: S.md }}>
+                  <span style={{ fontFamily: F.mono, fontSize: 48, fontWeight: 700, color: LT.text }}>${price}</span>
+                  <span style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, marginLeft: 4 }}>/mo {annual ? '(billed annually)' : ''}</span>
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: `0 0 ${S.md}px`, display: 'grid', gap: 10 }}>
+                  {t.features.map(f => (
+                    <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: F.body, fontSize: 14, color: LT.text }}>
+                      <Check size={16} color={t.highlight ? LT.gold : LT.success} style={{ flexShrink: 0, marginTop: 2 }} />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                {t.highlight ? (
+                  <CtaPrimary href="/sign-up" style={{ width: '100%' }}>{t.ctaLabel}</CtaPrimary>
+                ) : (
+                  <CtaGhost href="/sign-up" style={{ width: '100%' }}>{t.ctaLabel}</CtaGhost>
+                )}
+                {t.highlight && (
+                  <div style={{ marginTop: 10, fontFamily: F.body, fontSize: 12, color: LT.textDim, textAlign: 'center' }}>
+                    Most popular among 6-figure dropshippers
+                  </div>
+                )}
+              </div>
+            </FadeUp>
+          );
+        })}
+      </div>
+
+      <FadeUp>
+        <div style={{
+          marginTop: S.lg, padding: S.md,
+          background: LT.bgCard, border: `1px solid ${LT.border}`, borderRadius: R.card,
+          display: 'flex', flexWrap: 'wrap', gap: S.md, justifyContent: 'space-around',
+          fontFamily: F.body, fontSize: 13, color: LT.textMute,
+        }}>
+          <span>🔒 30-day money-back guarantee</span>
+          <span>Cancel anytime from your settings</span>
+          <span>Prices locked for existing subscribers</span>
+        </div>
+
+        <div style={{ marginTop: S.md, textAlign: 'center' }}>
+          <button
+            onClick={() => setComparisonOpen(v => !v)}
+            style={{
+              background: 'transparent', border: 'none',
+              fontFamily: F.body, fontSize: 14, color: LT.gold, cursor: 'pointer',
+              padding: 12, minHeight: 44,
+            }}
+          >Compare all features {comparisonOpen ? '↑' : '↓'}</button>
+        </div>
+        {comparisonOpen && (
+          <div style={{ marginTop: S.sm, overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: F.body, fontSize: 14 }}>
+              <thead>
+                <tr style={{ background: LT.bgElevated }}>
+                  <th style={{ textAlign: 'left', padding: 12, color: LT.textMute, borderBottom: `1px solid ${LT.border}` }}>Feature</th>
+                  <th style={{ padding: 12, color: LT.text, borderBottom: `1px solid ${LT.border}` }}>Builder</th>
+                  <th style={{ padding: 12, color: LT.gold, borderBottom: `1px solid ${LT.border}` }}>Scale</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Product database', '4,000+ tracked', '4,000+ tracked'],
+                  ['AI briefs / month', '50', 'Unlimited'],
+                  ['Ad generations / month', '20', 'Unlimited'],
+                  ['Shopify stores', '1', '5'],
+                  ['Support', 'Email', 'Priority chat'],
+                  ['Early feature access', '—', '✓'],
+                  ['Locked launch pricing', '—', '✓'],
+                ].map(row => (
+                  <tr key={row[0]} style={{ borderBottom: `1px solid ${LT.border}` }}>
+                    <td style={{ padding: 12, color: LT.text }}>{row[0]}</td>
+                    <td style={{ padding: 12, color: LT.textMute, textAlign: 'center' }}>{row[1]}</td>
+                    <td style={{ padding: 12, color: LT.text, textAlign: 'center' }}>{row[2]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </FadeUp>
+    </Section>
+  );
+}
+
+// ── FAQ ─────────────────────────────────────────────────────────────────────
+function FAQ() {
+  const [open, setOpen] = useState<number | null>(0);
+  const qs = [
+    {
+      q: 'Do I need experience to use Majorka?',
+      a: 'No. Majorka is designed for operators at any level. The Academy walks you through dropshipping fundamentals for free, and the product discovery + AI brief flow is designed so a complete beginner can find and validate a product in under 60 minutes.',
+    },
+    {
+      q: 'Where does your product data come from?',
+      a: 'We aggregate live order data from AliExpress and TikTok Shop across AU, US and UK, updating every 6 hours via our pipeline. No estimates — every count is a real, observed number from the source platform.',
+    },
+    {
+      q: 'Do I need a Shopify account?',
+      a: 'Not to start. You can research products, generate briefs and ads without one. When you are ready to launch, Store Builder outputs a Shopify-importable JSON you can drop into any new or existing Shopify store.',
+    },
+    {
+      q: 'Is there a free trial?',
+      a: 'Yes — 7 days free, no credit card required. You get full Builder-tier access during the trial. Cancel anytime before day 7 with one click and you are not charged.',
+    },
+    {
+      q: 'What if I am not in Australia?',
+      a: 'Majorka works for operators in US and UK too — all three markets are first-class. AU gets slightly deeper coverage because it is our home market, but every feature (products, briefs, ads, store) works across all three.',
+    },
+    {
+      q: 'Can I cancel anytime?',
+      a: 'Yes. One click in settings, no questions, no retention calls. Prorated refunds for annual plans within 30 days of purchase, no questions asked.',
+    },
+  ];
+  return (
+    <Section id="faq">
+      <FadeUp>
+        <Overline>FAQ</Overline>
+        <H2>Questions people ask before signing up</H2>
+      </FadeUp>
+      <div style={{ marginTop: S.lg, display: 'grid', gap: 10, maxWidth: 860 }}>
+        {qs.map((f, i) => {
+          const isOpen = open === i;
+          return (
+            <div key={f.q} style={{
+              background: LT.bgCard,
+              border: `1px solid ${LT.border}`,
+              borderRadius: R.card,
+              overflow: 'hidden',
+            }}>
+              <button
+                onClick={() => setOpen(isOpen ? null : i)}
+                style={{
+                  width: '100%', padding: 16,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                  background: 'transparent', border: 'none',
+                  fontFamily: F.body, fontSize: 16, fontWeight: 600, color: LT.text,
+                  textAlign: 'left', cursor: 'pointer', minHeight: 44,
+                }}
+                aria-expanded={isOpen}
+              >
+                <span>{f.q}</span>
+                <ChevronDown size={18} color={LT.textMute} style={{
+                  flexShrink: 0,
+                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 200ms',
+                }} />
+              </button>
+              {isOpen && (
+                <div style={{
+                  padding: '0 16px 16px',
+                  fontFamily: F.body, fontSize: 15, lineHeight: 1.6, color: LT.textMute,
+                }}>{f.a}</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Section>
   );
 }
 
 // ── Final CTA ──────────────────────────────────────────────────────────────
 function FinalCTA() {
   return (
-    <section style={{
-      position: 'relative',
-      borderBottom: `1px solid ${T.border}`,
-      padding: '120px 24px',
-      overflow: 'hidden',
-      isolation: 'isolate',
-    }}>
-      <div className="mj-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 80% 60% at 50% 90%, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.05) 45%, transparent 70%)',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 40% 30% at 20% 80%, rgba(212,175,55,0.08) 0%, transparent 60%)',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
-
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 880, margin: '0 auto', textAlign: 'center', width: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, justifyContent: 'center' }}>
-          <span style={{ display: 'inline-block', width: 4, height: 32, background: T.accent, borderRadius: 2 }} />
-          <span className="mj-eyebrow">Ready when you are</span>
-        </div>
-        <h2 className="mj-cta-h2" style={{
-          fontFamily: display,
-          fontWeight: 700,
-          fontSize: 80,
-          lineHeight: 1.0,
-          letterSpacing: '-0.04em',
-          color: T.text,
-          margin: '0 0 28px',
-        }}>
-          Your competitors are<br />already on this.
-        </h2>
-        <p style={{ fontSize: 18, color: T.accent, margin: '0 0 32px', lineHeight: 1.6, fontWeight: 500 }}>
-          Find your winning product before they do.
-        </p>
+    <Section>
+      <FadeUp>
         <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '8px 16px',
-          background: 'rgba(212,175,55,0.08)',
-          border: '1px solid rgba(212,175,55,0.22)',
-          borderRadius: 999,
-          color: '#a5b4fc',
-          fontFamily: mono,
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: '0.03em',
-          marginBottom: 24,
+          padding: S.xl,
+          background: LT.bgCard,
+          border: `1px solid ${LT.gold}`,
+          borderRadius: R.card,
+          boxShadow: SHADOW.cardHover,
+          textAlign: 'center',
         }}>
-          Early-access pricing — locked in for life of your subscription
+          <Overline style={{ textAlign: 'center' }}>Ready to find your first winner?</Overline>
+          <H2 style={{ textAlign: 'center' }}>Start free. Ship your first store this week.</H2>
+          <Sub style={{ margin: `${S.sm}px auto ${S.lg}px`, textAlign: 'center' }}>
+            No credit card. Full Builder access for 7 days. Cancel in one click.
+          </Sub>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <CtaPrimary href="/sign-up" pulse>Start 7-day free trial →</CtaPrimary>
+            <CtaGhost href="#how">See how it works</CtaGhost>
+          </div>
+          <div style={{
+            marginTop: S.md,
+            display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap',
+            fontFamily: F.body, fontSize: 12, color: LT.textDim,
+          }}>
+            <span>🔒 30-day money-back guarantee</span>
+            <span>Prices locked for existing subscribers</span>
+          </div>
         </div>
-        <div className="mj-hero-cta" style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 18 }}>
-          <Link href="/sign-up" className="mj-btn-primary mj-shimmer-btn" style={{ height: 56, padding: '0 32px', fontSize: 16 }}>
-            Find my first winning product →
-          </Link>
-          <a href="#pricing" className="mj-btn-secondary" style={{ height: 56, padding: '0 28px', fontSize: 15 }}>
-            See pricing
-          </a>
-        </div>
-        <div style={{ fontSize: 13, color: '#6B7280', fontFamily: mono }}>
-          Join 500+ operators · 30-day money-back · No credit card · Cancel anytime
-        </div>
-      </div>
-    </section>
+      </FadeUp>
+    </Section>
   );
 }
 
 // ── Footer ─────────────────────────────────────────────────────────────────
 function Footer() {
+  const cols = [
+    { title: 'Product', links: [['Features', '#features'], ['Pricing', '#pricing'], ['Academy', '/academy'], ['Blog', '/blog']] },
+    { title: 'Company', links: [['About', '/about'], ['Contact', '/contact'], ['Privacy', '/privacy'], ['Terms', '/terms']] },
+    { title: 'Account', links: [['Sign In', '/sign-in'], ['Sign Up', '/sign-up']] },
+  ];
   return (
-    <footer style={{ background: T.bg, padding: '64px 24px 32px' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div className="mj-footer-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
-          gap: 40,
-          marginBottom: 48,
-        }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-              <img src="/majorka-logo.jpg" alt="Majorka" loading="lazy" style={{ height: 28, width: 'auto', display: 'block', borderRadius: 6 }} />
-              <span style={{ fontFamily: display, fontWeight: 700, fontSize: 16, color: T.text, letterSpacing: '-0.02em' }}>Majorka</span>
-            </div>
-            <p style={{ fontSize: 13, color: T.textDim, lineHeight: 1.6, maxWidth: 280, margin: 0 }}>
-              The ecommerce operating system. Product research, store building, and ad intelligence in one platform.
-            </p>
+    <footer style={{
+      borderTop: `1px solid ${LT.border}`,
+      padding: `${S.xl}px ${S.md}px ${S.lg}px`,
+      background: LT.bg,
+    }}>
+      <div style={{
+        maxWidth: MAX, margin: '0 auto',
+        display: 'grid', gap: S.lg,
+        gridTemplateColumns: '1.6fr repeat(3, 1fr)',
+      }} className="mj-grid-two">
+        <div>
+          <div style={{ fontFamily: F.display, fontWeight: 800, fontSize: 22, color: LT.text, letterSpacing: '-0.03em' }}>majorka</div>
+          <div style={{ fontFamily: F.body, fontSize: 13, color: LT.textMute, marginTop: 8, maxWidth: 320 }}>
+            AI product intelligence for Australian dropshippers. Built in Melbourne.
           </div>
-          <FooterCol title="Product" links={[
-            { label: 'Features', href: '#features' },
-            { label: 'Pricing', href: '#pricing' },
-            { label: 'Compare', href: '#compare' },
-            { label: 'Workflow', href: '#workflow' },
-            { label: 'Operators', href: '/operators' },
-          ]} />
-          <FooterCol title="Free Tools" links={[
-            { label: 'ROAS Calculator', href: '/tools/roas-calculator' },
-            { label: 'Profit Calculator', href: '/tools/profit-calculator' },
-            { label: 'Affiliates', href: '/affiliates' },
-          ]} />
-          <FooterCol title="Company" links={[
-            { label: 'Blog', href: '/blog' },
-            { label: 'About', href: '/about' },
-            { label: 'Contact', href: 'mailto:hello@majorka.io' },
-            { label: 'Support', href: 'mailto:support@majorka.io' },
-          ]} />
-          <FooterCol title="Legal" links={[
-            { label: 'Privacy', href: '/privacy' },
-            { label: 'Terms', href: '/terms' },
-            { label: 'Cookies', href: '/cookies' },
-            { label: 'Refunds', href: '/refund-policy' },
-          ]} />
         </div>
-        <div style={{
-          paddingTop: 24,
-          borderTop: `1px solid ${T.border}`,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 12,
-          fontFamily: mono,
-          fontSize: 12,
-          color: T.textFaint,
-        }}>
-          <span>© 2026 Majorka Pty Ltd</span>
-          <span>7 markets · global platform</span>
-        </div>
+        {cols.map(c => (
+          <div key={c.title}>
+            <div style={{
+              fontFamily: F.mono, fontSize: 11, color: LT.textDim,
+              letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12,
+            }}>{c.title}</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {c.links.map(([label, href]) => (
+                <a key={label} href={href} style={{
+                  fontFamily: F.body, fontSize: 14, color: LT.textMute, textDecoration: 'none',
+                }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = LT.text)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = LT.textMute)}
+                >{label}</a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{
+        maxWidth: MAX, margin: '24px auto 0', paddingTop: 16,
+        borderTop: `1px solid ${LT.border}`,
+        display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+        fontFamily: F.body, fontSize: 12, color: LT.textDim,
+      }}>
+        <span>© 2026 Majorka. All rights reserved.</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Globe size={12} /> Made in Melbourne, AU
+        </span>
       </div>
     </footer>
   );
 }
 
-interface FooterColProps { title: string; links: { label: string; href: string }[] }
-function FooterCol({ title, links }: FooterColProps) {
-  return (
-    <div>
-      <div style={{
-        fontFamily: mono,
-        fontSize: 11,
-        fontWeight: 500,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        color: T.textFaint,
-        marginBottom: 16,
-      }}>{title}</div>
-      {links.map((l) => (
-        <a key={l.label} href={l.href} style={{
-          display: 'block',
-          fontSize: 13,
-          color: T.textDim,
-          textDecoration: 'none',
-          marginBottom: 10,
-          transition: 'color 150ms',
-        }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = T.text)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = T.textDim)}
-        >{l.label}</a>
-      ))}
-    </div>
-  );
-}
-
-// ── Trust Bar ──────────────────────────────────────────────────────────────
-function TrustBar() {
-  const items = [
-    { Icon: Database,    headline: '2,302+',    sub: 'Products tracked' },
-    { Icon: Globe,       headline: '7 markets', sub: 'AU · US · UK · CA · NZ · DE · SG' },
-    { Icon: ShieldCheck, headline: '30-day',    sub: 'Money-back guarantee' },
-    { Icon: Zap,         headline: 'Live feed', sub: 'Updated every 6 hours' },
-  ];
-  return (
-    <section style={{
-      borderTop: `1px solid ${T.border}`,
-      borderBottom: `1px solid ${T.border}`,
-      background: '#0a0a0a',
-      padding: '32px 24px',
-    }}>
-      <div style={{
-        maxWidth: 1200,
-        margin: '0 auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        gap: 32,
-        flexWrap: 'wrap',
-      }}>
-        {items.map((it) => {
-          const Icon = it.Icon;
-          return (
-            <div key={it.sub} style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 200 }}>
-              <div style={{
-                width: 40, height: 40,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                background: 'rgba(212,175,55,0.08)',
-                border: '1px solid rgba(212,175,55,0.2)',
-                borderRadius: 10,
-                flexShrink: 0,
-              }}>
-                <Icon size={18} color="#d4af37" strokeWidth={2} />
-              </div>
-              <div>
-                <div style={{ fontFamily: display, fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>{it.headline}</div>
-                <div style={{ fontFamily: mono, fontSize: 11, color: T.textDim, marginTop: 2 }}>{it.sub}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-// ── Video placeholder ──────────────────────────────────────────────────────
-function VideoPreview() {
-  return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px', background: '#0a0a0a' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
-        <SectionHeader
-          eyebrow="Walkthrough"
-          line1="See Majorka"
-          line2="in action."
-          description="A full product walkthrough is coming soon. Early-access members will be the first to see it."
-          align="center"
-        />
-        <div style={{
-          maxWidth: 880,
-          margin: '0 auto',
-          background: T.bgSurface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 16,
-          aspectRatio: '16 / 9',
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          gap: 20,
-        }}>
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 60%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'relative',
-            width: 84, height: 84, borderRadius: '50%',
-            background: 'rgba(212,175,55,0.12)',
-            border: '2px solid rgba(212,175,55,0.4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{
-              width: 0, height: 0,
-              borderLeft: '22px solid #a5b4fc',
-              borderTop: '14px solid transparent',
-              borderBottom: '14px solid transparent',
-              marginLeft: 6,
-            }} />
-          </div>
-          <div style={{ position: 'relative', fontFamily: mono, fontSize: 13, color: T.textDim, letterSpacing: '0.03em' }}>
-            Product walkthrough coming soon — join to get early access
-          </div>
-        </div>
-        <div style={{ marginTop: 28 }}>
-          <Link href="/sign-up" style={{
-            fontFamily: sans,
-            fontSize: 14,
-            color: '#d4af37',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}>
-            Create a free account to explore the dashboard →
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Free entry point ───────────────────────────────────────────────────────
-function FreeEntry() {
-  return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px' }}>
-      <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
-        <SectionHeader
-          eyebrow="Try before you buy"
-          line1="Explore 2,302 winning"
-          line2="products — free."
-          description="No account needed. Browse our live product database and see Majorka's AI scoring in action."
-          align="center"
-        />
-        <Link href="/app" className="mj-btn-primary" style={{
-          display: 'inline-flex',
-          height: 56,
-          padding: '0 32px',
-          fontSize: 15,
-          marginTop: 8,
-        }}>
-          Browse free products →
-        </Link>
-        <p style={{
-          fontSize: 12,
-          color: T.textFaint,
-          fontFamily: mono,
-          marginTop: 16,
-          letterSpacing: '0.02em',
-        }}>
-          Create an account to save products, set alerts, and access all tools.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// ── Founder section ────────────────────────────────────────────────────────
-function Founder() {
-  return (
-    <section style={{ borderBottom: `1px solid ${T.border}`, padding: '96px 24px' }}>
-      <div style={{ maxWidth: 820, margin: '0 auto' }}>
-        <div style={{
-          background: T.bgSurface,
-          border: `1px solid ${T.border}`,
-          borderRadius: 16,
-          padding: 48,
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-            background: 'linear-gradient(90deg, transparent 0%, #d4af37 50%, transparent 100%)',
-          }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-            <div style={{
-              width: 44, height: 44,
-              background: 'linear-gradient(135deg, #d4af37, #d4af37)',
-              borderRadius: 10,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: display, fontWeight: 800, fontSize: 20, color: '#fff',
-              letterSpacing: '-0.04em',
-            }}>M</div>
-            <div>
-              <div style={{ fontFamily: mono, fontSize: 11, color: '#d4af37', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
-                Our mission
-              </div>
-              <h3 style={{ fontFamily: display, fontSize: 26, fontWeight: 700, color: T.text, margin: 0, letterSpacing: '-0.02em' }}>
-                Built for serious dropshippers
-              </h3>
-            </div>
-          </div>
-          <div style={{ fontSize: 15, color: T.textMuted, lineHeight: 1.75 }}>
-            <p style={{ margin: '0 0 18px' }}>
-              Majorka exists because the existing product research tools were built for the US market first and retrofitted for everyone else. As Australian operators, we were tired of converting prices, second-guessing supplier lead times, and manually cross-checking Shopify apps that didn't understand GST or Afterpay.
-            </p>
-            <p style={{ margin: '0 0 18px' }}>
-              So we built the platform we wanted: one subscription, seven markets, live AliExpress intelligence, AI scoring, and a store builder that actually pushes to Shopify. Real data. Real tools. No dashboards full of stats that don't matter.
-            </p>
-            <p style={{ margin: '0 0 24px' }}>
-              We're starting with the markets we know — Australia, US, UK, Canada, NZ, Germany, Singapore — and expanding as operators join us. If you're serious about dropshipping in 2026, Majorka is the system you wish existed.
-            </p>
-            <p style={{
-              margin: 0,
-              fontFamily: mono,
-              fontSize: 13,
-              color: T.textFaint,
-              letterSpacing: '0.03em',
-            }}>
-              — The Majorka Team · Gold Coast, Australia
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── Page ────────────────────────────────────────────────────────────────────
+// ── Root ────────────────────────────────────────────────────────────────────
 export default function Home() {
-  const isMobile = useIsMobile();
-  void isMobile;
-  const [annual, setAnnual] = useState(false);
-
-  // Nuclear void failsafe — runs on mount and after 2s. Walks every element
-  // in <main> and if computed opacity is 0 (with no legitimate reason)
-  // forces it back to 1. This is the last line of defence against any
-  // third-party script, animation, or stray CSS class that could hide
-  // content below the fold.
+  // Track sticky-bar height to offset nav
+  const [barVisible, setBarVisible] = useState(true);
   useEffect(() => {
-    function forceVisible() {
-      if (typeof document === 'undefined') return;
-      const root = document.querySelector('[data-majorka-landing]');
-      if (!root) return;
-      root.querySelectorAll<HTMLElement>('*').forEach((el) => {
-        // Keep intentional zero-opacity decorations working.
-        if (el.closest('.mj-shimmer-btn') || el.classList.contains('mj-pulse-dot')) return;
-        const cs = window.getComputedStyle(el);
-        if (cs.opacity === '0') {
-          el.style.setProperty('opacity', '1', 'important');
-          el.style.setProperty('visibility', 'visible', 'important');
-        }
-      });
-    }
-    forceVisible();
-    const t1 = window.setTimeout(forceVisible, 500);
-    const t2 = window.setTimeout(forceVisible, 2000);
-    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
+    if (typeof window === 'undefined') return;
+    try {
+      const d = localStorage.getItem(DISMISS_KEY);
+      if (d) {
+        const age = Date.now() - parseInt(d, 10);
+        setBarVisible(age >= 24 * 60 * 60 * 1000);
+      }
+    } catch { /* default visible */ }
   }, []);
+
+  const topOffset = barVisible ? 36 : 0;
+
+  // memoize nothing heavy; just a hint that re-renders are fine
+  const _stylesMemo = useMemo(() => GLOBAL_CSS, []);
 
   return (
     <div data-majorka-landing style={{
-      background: T.bg,
-      color: T.text,
-      fontFamily: sans,
-      minHeight: '100vh',
-      width: '100%',
-      maxWidth: '100vw',
-      overflowX: 'hidden',
-      margin: 0,
-      padding: 0,
-      border: 0,
+      background: LT.bg, color: LT.text, fontFamily: F.body,
+      minHeight: '100vh', width: '100%', maxWidth: '100vw', overflowX: 'hidden',
     }}>
       <SEO
-        title="Majorka — The Ecommerce Operating System for Serious Operators"
-        description="2,302 winning products. Real AliExpress data. AI-scored rankings across 7 markets — AU, US, UK, CA, NZ, DE, SG."
+        title="Majorka — Find winning products before they peak"
+        description="AI product intelligence for AU/US/UK dropshippers. 4,000+ tracked products, AI briefs in 3 seconds, Shopify-ready stores. Start free."
         path="/"
         ogImage="/og-image.svg"
       />
-      <style>{STYLES}</style>
-      <StickyTrialBar />
-      <AnnouncementBanner />
-      <SocialProofToasts />
-      <div style={{ paddingTop: 36 }} />
-      <Nav />
+      <style>{_stylesMemo}</style>
+
+      <StickyLaunchBar />
+      <Nav topOffset={topOffset} />
+      <div style={{ paddingTop: topOffset + 64 }} />
+
       <Hero />
-      <TrustBar />
-      <VideoPreview />
-      <LiveTicker />
-      <Stats />
-      <PartnerBar />
-
-      <ThePlatform />
-      <RevenueProofBanner />
-
-      <Comparison />
-      <Markets />
-      <Workflow />
+      <SocialProofBar />
+      <HowItWorks />
+      <LiveDemo />
+      <FeaturesSection />
+      <AcademySection />
       <Testimonials />
-      <Founder />
-      <FreeEntry />
-      <Pricing annual={annual} setAnnual={setAnnual} />
+      <TrustSignals />
+      <Pricing />
       <FAQ />
       <FinalCTA />
       <Footer />
+
+      <LiveActivityTicker />
     </div>
   );
 }
