@@ -11,7 +11,7 @@ export default function SignIn() {
   const [location, navigate] = useLocation();
 
   // Determine if this is a signup route
-  const isSignup = location === '/signup';
+  const isSignup = location === '/signup' || location === '/sign-up' || location === '/register';
 
   // If already authenticated, check if onboarding is complete
   useEffect(() => {

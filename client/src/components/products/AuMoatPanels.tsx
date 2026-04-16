@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase';
 // ─── Shared helpers ─────────────────────────────────────────────────────────
 
 const GOLD = '#4f8ef7';
-const GOLD_DARK = '#b8941f';
+const GOLD_DARK = '#3B82F6';
 const DIVIDER = '#161b22';
 const SURFACE = '#0d1117';
 

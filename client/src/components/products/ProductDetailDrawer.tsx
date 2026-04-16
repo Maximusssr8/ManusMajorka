@@ -268,10 +268,13 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
       const payload = {
         id: product.id,
         title: product.product_title,
-        price_aud: product.price_aud,
-        image_url: product.image_url,
+        price: product.price_aud,
+        image: product.image_url,
         category: product.category,
         product_url: product.product_url,
+        // Legacy keys for backward compat
+        price_aud: product.price_aud,
+        image_url: product.image_url,
       };
       sessionStorage.setItem('majorka_import_product', JSON.stringify(payload));
       toast.success('Added to Store Builder');
@@ -287,9 +290,12 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
       const payload = {
         id: product.id,
         title: product.product_title,
+        price: product.price_aud,
+        image: product.image_url,
+        category: product.category,
+        // Legacy keys for backward compat
         price_aud: product.price_aud,
         image_url: product.image_url,
-        category: product.category,
       };
       sessionStorage.setItem('majorka_ad_product', JSON.stringify(payload));
       toast.success('Opening Ads Studio');
@@ -666,7 +672,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               fontWeight: 600,
               color: '#0a0a0a',
               background: '#4f8ef7',
-              border: '1px solid #b8941f',
+              border: '1px solid #3B82F6',
               borderRadius: 10,
               cursor: 'pointer',
               fontFamily: "'DM Sans', system-ui, sans-serif",

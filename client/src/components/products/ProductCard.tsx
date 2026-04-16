@@ -133,7 +133,7 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
               letterSpacing: '0.04em',
               color: '#0a0a0a',
               background: '#4f8ef7',
-              border: '1px solid #b8941f',
+              border: '1px solid #3B82F6',
               borderRadius: 6,
               boxShadow: '0 2px 8px rgba(79,142,247,0.35)',
             }}

@@ -436,16 +436,18 @@ export default function StoreBuilder() {
       const stored = sessionStorage.getItem('majorka_import_product');
       if (!stored) return;
       const prod = JSON.parse(stored) as {
-        id?: string | number; title?: string; rawTitle?: string; image?: string;
-        price?: number | string; cost?: number | string; description?: string; category?: string | null;
+        id?: string | number; title?: string; rawTitle?: string; image?: string; image_url?: string;
+        price?: number | string; price_aud?: number | string; cost?: number | string; description?: string; category?: string | null;
       };
       if (prod.title) {
         setCustomTitle(String(prod.title));
         if (!storeName) setStoreName(String(prod.title).split(/\s+/).slice(0, 2).join(' '));
         if (!niche) setNiche(prod.category ? String(prod.category) : String(prod.title).split(/\s+/).slice(0, 3).join(' '));
       }
-      if (prod.image) setCustomImageUrl(String(prod.image));
-      if (prod.price != null) setCustomPrice(String(prod.price));
+      const image = prod.image ?? prod.image_url;
+      if (image) setCustomImageUrl(String(image));
+      const price = prod.price ?? prod.price_aud;
+      if (price != null) setCustomPrice(String(price));
       if (prod.description) setCustomDesc(String(prod.description));
       setMode('ai');
       setCustomProductModal(true);

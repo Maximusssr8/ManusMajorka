@@ -44,7 +44,7 @@ export function ProductExample({ category, caption, seed }: ProductExampleProps)
 
   const imageUrl = product.image
     ? (product.image.includes('alicdn.com') || product.image.includes('aliexpress-media.com'))
-      ? `/api/proxy/image?url=${encodeURIComponent(product.image)}`
+      ? `/api/image-proxy?url=${encodeURIComponent(product.image)}`
       : product.image
     : null;
 

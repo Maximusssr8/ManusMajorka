@@ -208,7 +208,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
                 <div style={{
                   fontFamily: mono,
                   fontSize: 10,
-                  color: '#7c6aff',
+                  color: '#4f8ef7',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   marginBottom: 14,
@@ -252,7 +252,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             <div style={{
               fontFamily: mono,
               fontSize: 10,
-              color: '#7c6aff',
+              color: '#4f8ef7',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: 12,
@@ -275,7 +275,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             <div style={{
               fontFamily: mono,
               fontSize: 11,
-              color: '#7c6aff',
+              color: '#4f8ef7',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: 12,
@@ -317,7 +317,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             {product.product_url && (
               <a href={product.product_url} target="_blank" rel="noopener noreferrer" style={actionStyle('rgba(255,90,0,0.1)', 'rgba(255,90,0,0.2)', 'rgba(255,120,0,0.9)')}>↗ View on AliExpress</a>
             )}
-            <a href={`/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`} style={actionStyle('rgba(124,106,255,0.1)', 'rgba(124,106,255,0.2)', '#7c6aff')}>🎯 Generate Ad</a>
+            <a href={`/app/ads-studio?product=${encodeURIComponent(product.product_title || '')}`} style={actionStyle('rgba(79,142,247,0.1)', 'rgba(79,142,247,0.2)', '#4f8ef7')}>🎯 Generate Ad</a>
             <a href="/app/profit" style={actionStyle('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.2)', '#10b981')}>💰 Profit Calc</a>
             <a href="/app/store-builder" style={actionStyle('rgba(255,255,255,0.05)', 'rgba(255,255,255,0.1)', '#a1a1aa')}>🏪 Build Store</a>
           </div>

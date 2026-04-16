@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
 const sans = C.fontBody;
-const mono = C.fontBody;
+const mono = C.fontMono;
 
 type Platform = 'facebook' | 'tiktok' | 'instagram' | 'youtube';
 type AdType = 'video' | 'image' | 'carousel' | 'story';
@@ -227,7 +227,7 @@ export default function AdBriefs() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #4f8ef7 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Ad Briefs</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
@@ -314,13 +314,13 @@ export default function AdBriefs() {
           style={{
             padding: '12px 24px',
             borderRadius: 9,
-            background: loading ? 'rgba(124,106,255,0.3)' : 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+            background: loading ? 'rgba(79,142,247,0.3)' : 'linear-gradient(135deg,#4f8ef7,#6ba3ff)',
             color: 'white',
             border: 'none',
             fontFamily: sans, fontSize: 14, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            boxShadow: '0 4px 20px rgba(124,106,255,0.3)',
+            boxShadow: '0 4px 20px rgba(79,142,247,0.3)',
           }}
         >{loading ? 'Generating…' : 'Generate Brief →'}</button>
       </section>
@@ -343,7 +343,7 @@ export default function AdBriefs() {
       {output && !loading && (
         <div style={{
           background: C.raised,
-          border: '1px solid rgba(124,106,255,0.2)',
+          border: '1px solid rgba(79,142,247,0.2)',
           borderRadius: 12,
           padding: 24,
           marginBottom: 28,
@@ -455,7 +455,7 @@ export default function AdBriefs() {
                 flexDirection: 'column',
                 gap: 8,
               }}
-              onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(124,106,255,0.3)'; }}
+              onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(79,142,247,0.3)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
             >
               <div style={{ fontFamily: mono, fontSize: 9, color: C.accentHover, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Template</div>
@@ -538,7 +538,7 @@ const briefProseCss = `
   font-style: italic;
 }
 .mj-brief-prose hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 16px 0; }
-.mj-brief-prose a { color: #a78bfa; text-decoration: underline; text-underline-offset: 2px; }
+.mj-brief-prose a { color: #4f8ef7; text-decoration: underline; text-underline-offset: 2px; }
 .mj-brief-prose table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: 12px; }
 .mj-brief-prose th, .mj-brief-prose td { border: 1px solid rgba(255,255,255,0.08); padding: 6px 10px; text-align: left; }
 .mj-brief-prose th { color: #ffffff; background: rgba(255,255,255,0.03); }
@@ -551,9 +551,9 @@ function actionBtnStyle(active: boolean): React.CSSProperties {
   return {
     padding: '7px 12px',
     borderRadius: 7,
-    background: active ? 'rgba(16,185,129,0.12)' : 'rgba(124,106,255,0.1)',
-    border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(124,106,255,0.28)'}`,
-    color: active ? '#10b981' : '#a78bfa',
+    background: active ? 'rgba(16,185,129,0.12)' : 'rgba(79,142,247,0.1)',
+    border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(79,142,247,0.28)'}`,
+    color: active ? '#10b981' : '#4f8ef7',
     fontFamily: C.fontBody,
     fontSize: 12,
     fontWeight: 600,
@@ -581,8 +581,8 @@ function pillStyle(active: boolean): React.CSSProperties {
   return {
     padding: '7px 12px',
     borderRadius: 7,
-    background: active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
-    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+    background: active ? 'rgba(79,142,247,0.12)' : 'rgba(255,255,255,0.03)',
+    border: `1px solid ${active ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.07)'}`,
     color: active ? '#f5f5f5' : 'rgba(255,255,255,0.5)',
     fontFamily: C.fontBody,
     fontSize: 12,

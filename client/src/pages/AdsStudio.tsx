@@ -194,7 +194,7 @@ export default function AdsStudio() {
     setSaved(loadSavedAds());
 
     // Pre-fill from a 'Create Ad' click on the Products page.
-    // sessionStorage key written by ProductSheet handleCreateAd.
+    // sessionStorage key written by ProductDetailDrawer handleCreateAd.
     try {
       const stored = sessionStorage.getItem('majorka_ad_product');
       if (stored) {
@@ -202,15 +202,30 @@ export default function AdsStudio() {
           id?: string | number;
           title?: string;
           image?: string;
+          image_url?: string;
           price?: number | string;
+          price_aud?: number | string;
         };
         if (prod.title) setProductName(String(prod.title));
-        if (prod.price != null) setPricePoint(`$${Number(prod.price).toFixed(2)} AUD`);
-        if (typeof prod.image === 'string') setProductUrl(prod.image);
+        const price = prod.price ?? prod.price_aud;
+        if (price != null) setPricePoint(`$${Number(price).toFixed(2)} AUD`);
+        const image = prod.image ?? prod.image_url;
+        if (typeof image === 'string') setProductUrl(image);
         sessionStorage.removeItem('majorka_ad_product');
       }
     } catch {
       // ignore malformed payload
+    }
+
+    // Fallback: pre-fill from ?product= query param (used by Home drawer link)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const qProduct = params.get('product');
+      if (qProduct && !sessionStorage.getItem('majorka_ad_product')) {
+        setProductName(qProduct);
+      }
+    } catch {
+      // ignore
     }
   }, []);
 
@@ -301,19 +316,17 @@ export default function AdsStudio() {
       // Use the server route — bypasses RLS via service role key, no client-side auth hassle
       const r = await fetch('/api/products/top20');
       if (!r.ok) {
-        console.error('[ads-studio] DB picker HTTP error:', r.status);
         setDbProducts([]);
         return;
       }
       const data = await r.json() as { products: DbProduct[]; count: number; error?: string };
       if (data.error) {
-        console.error('[ads-studio] DB picker server error:', data.error);
         setDbProducts([]);
         return;
       }
       setDbProducts(data.products ?? []);
     } catch (err) {
-      console.error('[ads-studio] DB picker threw:', err);
+      void err;
       setDbProducts([]);
     } finally {
       setDbLoading(false);
@@ -450,7 +463,7 @@ OBJECTION KILLER:
 
       setTimeout(() => outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (err) {
-      console.error('[ads-studio] generate error:', err);
+      void err;
       setParsed({
         primaryHook: 'Connection error — check your internet and try again.',
         headline: '', primaryText: '', fullBody: '', cta: '',
@@ -540,10 +553,10 @@ OBJECTION KILLER:
             style={{
               width: '100%',
               padding: '10px 12px',
-              background: 'rgba(124,106,255,0.1)',
-              border: '1px solid rgba(124,106,255,0.28)',
+              background: 'rgba(79,142,247,0.1)',
+              border: '1px solid rgba(79,142,247,0.28)',
               borderRadius: 9,
-              color: '#a78bfa',
+              color: '#4f8ef7',
               fontFamily: dm, fontSize: 12, fontWeight: 600,
               cursor: 'pointer',
               marginBottom: 14,
@@ -598,7 +611,7 @@ OBJECTION KILLER:
                       textAlign: 'left',
                       transition: 'background 100ms',
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(124,106,255,0.06)'; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(79,142,247,0.06)'; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                   >
                     <div style={{
@@ -704,8 +717,8 @@ OBJECTION KILLER:
                   <button key={s} onClick={() => setFunnelStage(s)} style={{
                     textAlign: 'left',
                     padding: '7px 10px',
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    background: active ? 'rgba(79,142,247,0.1)' : 'transparent',
+                    border: `1px solid ${active ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: 7,
                     fontSize: 11, fontWeight: 600,
                     color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)',
@@ -727,9 +740,9 @@ OBJECTION KILLER:
                 return (
                   <button key={o} onClick={() => setAdObjective(o)} style={{
                     flex: 1, height: 28,
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
+                    background: active ? 'rgba(79,142,247,0.1)' : 'transparent',
                     color: active ? '#f1f1f3' : 'rgba(255,255,255,0.5)',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    border: `1px solid ${active ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: 6, fontSize: 10, fontWeight: 600,
                     cursor: 'pointer',
                   }}>{o}</button>
@@ -755,8 +768,8 @@ OBJECTION KILLER:
                     style={{
                       position: 'relative',
                       padding: '6px 8px',
-                      background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                      border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                      background: active ? 'rgba(79,142,247,0.1)' : 'transparent',
+                      border: `1px solid ${active ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.07)'}`,
                       borderRadius: 8,
                       cursor: soon ? 'not-allowed' : 'pointer',
                       textAlign: 'left',
@@ -799,8 +812,8 @@ OBJECTION KILLER:
                 return (
                   <button key={ct.id} onClick={() => setCreativeType(ct.id)} style={{
                     textAlign: 'left', padding: '7px 10px',
-                    background: active ? 'rgba(124,106,255,0.1)' : 'transparent',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    background: active ? 'rgba(79,142,247,0.1)' : 'transparent',
+                    border: `1px solid ${active ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: 8, cursor: 'pointer',
                   }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: active ? '#f1f1f3' : 'rgba(255,255,255,0.55)' }}>{ct.label}</div>
@@ -833,15 +846,15 @@ OBJECTION KILLER:
                 width: '100%',
                 height: 44,
                 background: !productName.trim()
-                  ? 'rgba(124,106,255,0.25)'
-                  : 'linear-gradient(135deg, #7c6aff, #4f8ef7)',
+                  ? 'rgba(79,142,247,0.25)'
+                  : 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 10,
                 fontSize: 14, fontWeight: 600,
                 cursor: loading || !productName.trim() ? 'not-allowed' : 'pointer',
                 fontFamily: dm,
-                boxShadow: !productName.trim() ? 'none' : '0 4px 20px rgba(124,106,255,0.35)',
+                boxShadow: !productName.trim() ? 'none' : '0 4px 20px rgba(79,142,247,0.35)',
                 opacity: loading ? 0.7 : 1,
                 transition: 'all 150ms ease',
               }}
@@ -853,7 +866,7 @@ OBJECTION KILLER:
         <div ref={outputRef} style={{ overflowY: 'auto', padding: '24px 28px' }}>
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #7c6aff, #4f8ef7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
               <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800 }}>Writing your ad package…</div>
             </div>
           ) : parsed ? (
@@ -945,8 +958,8 @@ OBJECTION KILLER:
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
                             <span style={{
                               fontSize: 9,
-                              background: 'rgba(124,106,255,0.12)',
-                              color: '#a78bfa',
+                              background: 'rgba(79,142,247,0.12)',
+                              color: '#4f8ef7',
                               padding: '1px 6px',
                               borderRadius: 999,
                               fontFamily: mono, fontWeight: 600,
@@ -1171,7 +1184,7 @@ function VisualCreativeCard({
           <span style={{
             fontFamily: mono, fontSize: 9, fontWeight: 700,
             padding: '3px 8px', borderRadius: 999,
-            background: 'rgba(124,106,255,0.12)', color: '#a78bfa',
+            background: 'rgba(79,142,247,0.12)', color: '#4f8ef7',
             textTransform: 'uppercase', letterSpacing: '0.08em',
           }}>{provider}</span>
         )}
@@ -1203,8 +1216,8 @@ function VisualCreativeCard({
                 disabled={loading}
                 style={{
                   padding: '6px 12px', borderRadius: 8,
-                  background: active ? 'rgba(124,106,255,0.18)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${active ? 'rgba(124,106,255,0.45)' : 'rgba(255,255,255,0.08)'}`,
+                  background: active ? 'rgba(79,142,247,0.18)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(79,142,247,0.45)' : 'rgba(255,255,255,0.08)'}`,
                   color: active ? '#c4b5fd' : 'rgba(255,255,255,0.7)',
                   fontSize: 12, fontWeight: 600, fontFamily: dm,
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -1255,7 +1268,7 @@ function VisualCreativeCard({
         title={disabledTooltip || undefined}
         style={{
           width: '100%', padding: '11px 14px', borderRadius: 10,
-          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7c6aff, #4f8ef7)',
+          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
           border: 'none',
           color: disabled ? 'rgba(255,255,255,0.35)' : '#ffffff',
           fontSize: 13, fontWeight: 700, fontFamily: brico, letterSpacing: '-0.01em',
@@ -1358,9 +1371,9 @@ function VisualCreativeCard({
               onClick={onGenerate}
               disabled={disabled}
               style={{
-                background: 'rgba(124,106,255,0.12)',
-                border: '1px solid rgba(124,106,255,0.28)',
-                color: '#a78bfa',
+                background: 'rgba(79,142,247,0.12)',
+                border: '1px solid rgba(79,142,247,0.28)',
+                color: '#4f8ef7',
                 fontSize: 11, fontWeight: 600, fontFamily: dm,
                 padding: '6px 12px', borderRadius: 6,
                 cursor: disabled ? 'not-allowed' : 'pointer',

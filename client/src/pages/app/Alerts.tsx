@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { C } from '@/lib/designTokens';
 const display = C.fontDisplay;
 const sans = C.fontBody;
-const mono = C.fontBody;
+const mono = C.fontMono;
 
 // ─── Types that match the server contract (server/routes/alerts.ts) ─────────
 
@@ -270,7 +270,7 @@ export default function Alerts() {
         <h1 style={{
           fontFamily: display, fontSize: 28, fontWeight: 800,
           letterSpacing: '-0.02em', margin: '0 0 4px', lineHeight: 1.1,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #4f8ef7 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>Alerts</h1>
         <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
@@ -498,11 +498,11 @@ export default function Alerts() {
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '10px 18px',
               borderRadius: 9,
-              background: 'linear-gradient(135deg,#7c6aff,#a78bfa)',
+              background: 'linear-gradient(135deg,#4f8ef7,#6ba3ff)',
               color: 'white',
               fontFamily: sans, fontSize: 13, fontWeight: 600,
               textDecoration: 'none',
-              boxShadow: '0 4px 20px rgba(124,106,255,0.35)',
+              boxShadow: '0 4px 20px rgba(79,142,247,0.35)',
             }}>
               <Package size={13} /> Browse products →
             </Link>
@@ -598,8 +598,8 @@ export default function Alerts() {
           }}>
             <div style={{
               width: 56, height: 56, borderRadius: '50%',
-              background: 'rgba(124,106,255,0.1)',
-              border: '1px solid rgba(124,106,255,0.25)',
+              background: 'rgba(79,142,247,0.1)',
+              border: '1px solid rgba(79,142,247,0.25)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 14px',
               color: C.accentHover,
@@ -696,8 +696,8 @@ export default function Alerts() {
                   style={{
                     padding: '8px 14px',
                     borderRadius: 8,
-                    background: active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${active ? 'rgba(124,106,255,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    background: active ? 'rgba(79,142,247,0.12)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${active ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     color: active ? '#f5f5f5' : 'rgba(255,255,255,0.5)',
                     fontFamily: sans, fontSize: 12, fontWeight: active ? 600 : 500,
                     cursor: formDisabled ? 'not-allowed' : 'pointer',
@@ -774,13 +774,13 @@ export default function Alerts() {
             style={{
               padding: '12px 24px',
               borderRadius: 9,
-              background: (email && !saving && !formDisabled) ? 'linear-gradient(135deg,#7c6aff,#a78bfa)' : 'rgba(124,106,255,0.2)',
+              background: (email && !saving && !formDisabled) ? 'linear-gradient(135deg,#4f8ef7,#6ba3ff)' : 'rgba(79,142,247,0.2)',
               border: 'none',
               color: 'white',
               fontFamily: sans, fontSize: 14, fontWeight: 600,
               cursor: (email && !saving && !formDisabled) ? 'pointer' : 'not-allowed',
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              boxShadow: (email && !saving && !formDisabled) ? '0 4px 20px rgba(124,106,255,0.35)' : 'none',
+              boxShadow: (email && !saving && !formDisabled) ? '0 4px 20px rgba(79,142,247,0.35)' : 'none',
             }}
           ><Plus size={14} /> {saving ? 'Saving…' : 'Create Alert'}</button>
         </div>
