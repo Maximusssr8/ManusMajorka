@@ -1,27 +1,4 @@
-// HERO DESIGN DECISIONS
-//
-// Q1: What does a dropshipper feel the moment they find a winning product?
-// A: Adrenaline. "I found it before everyone else." It's the feeling of
-//    having information nobody else has — like seeing a stock tip before
-//    the market opens. Urgency + confidence + greed.
-//
-// Q2: What would make someone screenshot this page and send it to a friend?
-// A: Seeing REAL products with REAL scores that they recognise from their
-//    own AliExpress research — but ranked and scored in a way they've never
-//    seen before. The "holy shit this exists?" moment.
-//
-// Q3: What does NO other dropshipping tool's landing page look like?
-// A: None of them show you the ACTUAL product database on the landing page.
-//    They all have generic hero images or mockup screenshots. Majorka can
-//    show live data. That's the unfair advantage of the LANDING PAGE itself.
-//
-// CHOSEN: Option B — Full bleed product moment
-// The hero IS the product. No mockup frame. No browser chrome. You're
-// looking at a live Majorka product feed with real scores, real images,
-// real data. The headline is small, overlaid, almost secondary to the
-// data itself. Like walking into a trading floor.
-
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { LT, F } from '@/lib/landingTokens';
 
@@ -73,16 +50,12 @@ async function fetchHeroProducts(): Promise<HeroProduct[]> {
   const all = results
     .filter((r): r is PromiseFulfilledResult<HeroProduct | null> => r.status === 'fulfilled')
     .map((r) => r.value)
-    .filter((p): p is HeroProduct => p !== null);
+    .filter((p): p is HeroProduct => p !== null && p.score >= 75);
 
-  // Filter to score >= 85; if fewer than 4, relax to >= 75
-  const high = all.filter((p) => p.score >= 85);
-  const pool = high.length >= 4 ? high : all.filter((p) => p.score >= 75);
-
-  // Deduplicate by base product id (strip seed suffix)
+  // Deduplicate by base product id
   const seen = new Set<string>();
   const unique: HeroProduct[] = [];
-  for (const p of pool) {
+  for (const p of all) {
     const baseId = p.id.replace(/-\d+$/, '');
     if (!seen.has(baseId)) {
       seen.add(baseId);
@@ -90,7 +63,6 @@ async function fetchHeroProducts(): Promise<HeroProduct[]> {
     }
   }
 
-  // Sort descending by score, take up to 8
   return unique.sort((a, b) => b.score - a.score).slice(0, 8);
 }
 
@@ -109,251 +81,192 @@ function truncate(s: string, n: number): string {
 function formatRevenue(orders: number, price: number): string | null {
   const rev = Math.round(orders * price * 0.3);
   if (!rev || !Number.isFinite(rev) || rev <= 0) return null;
-  if (rev >= 1000) return `$${(rev / 1000).toFixed(1)}k/mo est.`;
-  return `$${rev}/mo est.`;
+  if (rev >= 1000) return `$${(rev / 1000).toFixed(1)}k/mo`;
+  return `$${rev}/mo`;
 }
 
-function easeOutCubic(t: number): number {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-/* ── useCounter hook ────────────────────────────────────────── */
-
-function useCounter(target: number, active: boolean, duration = 800): number {
-  const [value, setValue] = useState(0);
-  const startRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!active || target <= 0) {
-      setValue(0);
-      startRef.current = null;
-      return;
-    }
-    let raf: number;
-    startRef.current = null;
-    function tick(now: number) {
-      if (startRef.current === null) startRef.current = now;
-      const elapsed = now - startRef.current;
-      const progress = Math.min(elapsed / duration, 1);
-      setValue(Math.floor(easeOutCubic(progress) * target));
-      if (progress < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        setValue(target);
-      }
-    }
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, active, duration]);
-
-  return value;
+function formatOrders(n: number): string {
+  return n.toLocaleString('en-AU');
 }
 
 /* ── CSS ────────────────────────────────────────────────────── */
 
 const HERO_CSS = `
+@keyframes mjScrollUp {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
 @keyframes mjPulse {
   0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
   70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
   100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
 }
-@keyframes mjShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.mj-hero-scroll-feed {
+  animation: mjScrollUp 40s linear infinite;
 }
-.mj-hero-feed {
+.mj-hero-scroll-feed:hover {
+  animation-play-state: paused;
+}
+.mj-hero-feed-col {
   position: relative;
+  overflow: hidden;
 }
-.mj-hero-feed::after {
+.mj-hero-feed-col::before {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: linear-gradient(to bottom, transparent, #04060f);
+  top: 0; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, #04060f, transparent);
+  z-index: 2;
   pointer-events: none;
-  z-index: 1;
 }
-.mj-hero-cta-v2 {
-  background-image: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.15) 50%, transparent 75%);
-  background-size: 200% 100%;
-  background-position: -200% 0;
-  background-color: ${LT.cobalt};
+.mj-hero-feed-col::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(to top, #04060f, transparent);
+  z-index: 2;
+  pointer-events: none;
 }
-.mj-hero-cta-v2:hover {
-  animation: mjShimmer 0.4s ease forwards;
-  transform: scale(1.03);
+.mj-hero-cta:hover {
+  background-color: #3a7de0 !important;
+  transform: scale(1.02);
   box-shadow: 0 0 40px rgba(79,142,247,0.3);
-  background-color: #3a7de0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .mj-hero-card {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-  .mj-hero-pulse-dot { animation: none !important; }
+  .mj-hero-scroll-feed { animation: none !important; }
 }
 @media (max-width: 768px) {
-  .mj-hero-headline {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    text-align: center !important;
-    padding: 100px 20px 24px !important;
-    max-width: 100% !important;
-  }
-  .mj-hero-cta-wrap {
-    position: relative !important;
-    bottom: auto !important;
-    right: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    padding: 24px 20px 48px !important;
-  }
-  .mj-hero-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    padding: 0 20px !important;
-  }
-  .mj-hero-grid > :nth-child(n+5) {
-    display: none !important;
-  }
-  .mj-hero-card-img {
-    width: 40px !important;
-    height: 40px !important;
-  }
-  .mj-hero-card {
-    padding: 12px !important;
-  }
-  .mj-hero-card-name {
-    font-size: 13px !important;
-  }
+  .mj-hero-split { grid-template-columns: 1fr !important; }
+  .mj-hero-left { padding: 100px 20px 32px !important; text-align: center; align-items: center; }
+  .mj-hero-h1 { font-size: 40px !important; }
+  .mj-hero-scroll-feed { animation: none !important; }
+  .mj-hero-feed-col { max-height: 360px; }
+  .mj-hero-feed-col::before, .mj-hero-feed-col::after { display: none; }
+  .mj-hero-stat-pills { justify-content: center; }
 }
 `;
 
 /* ── ProductCard ─────────────────────────────────────────────── */
 
-interface ProductCardProps {
-  product: HeroProduct;
-  index: number;
-  mounted: boolean;
-}
-
-function ProductCard({ product, index, mounted }: ProductCardProps) {
-  const [hovered, setHovered] = useState(false);
-  const scoreValue = useCounter(product.score, mounted, 800 + index * 100);
+function ProductCard({ product }: { product: HeroProduct }) {
   const revenue = formatRevenue(product.orders, product.price);
 
   return (
     <div
-      className="mj-hero-card"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       style={{
-        background: LT.bgCard,
-        border: `1px solid ${hovered ? 'rgba(79,142,247,0.2)' : LT.border}`,
+        background: '#0d1117',
+        border: '1px solid #161b22',
         borderRadius: 12,
         padding: 16,
-        opacity: mounted ? 1 : 0,
-        transform: mounted ? 'translateY(0)' : 'translateY(16px)',
-        transition: `opacity 0.4s ease ${index * 80}ms, transform 0.4s ease ${index * 80}ms, border-color 200ms ease`,
+        marginBottom: 16,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 14,
+        alignItems: 'center',
       }}
     >
-      {/* Image + Name row */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+      {/* Image */}
+      <div
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: 8,
+          overflow: 'hidden',
+          background: '#161b22',
+          flexShrink: 0,
+        }}
+      >
+        {product.image && (
+          <img
+            src={proxyImg(product.image)}
+            alt=""
+            loading="eager"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (img.src !== product.image && product.image) {
+                img.src = product.image;
+              } else {
+                img.style.display = 'none';
+              }
+            }}
+          />
+        )}
+      </div>
+
+      {/* Text column */}
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div
-          className="mj-hero-card-img"
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: 8,
+            fontFamily: F.body,
+            fontSize: 14,
+            fontWeight: 500,
+            color: LT.text,
+            whiteSpace: 'nowrap',
             overflow: 'hidden',
-            background: '#161b22',
-            flexShrink: 0,
+            textOverflow: 'ellipsis',
+            marginBottom: 2,
           }}
         >
-          {product.image && (
-            <img
-              src={proxyImg(product.image)}
-              alt=""
-              loading="eager"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e) => {
-                // Proxy failed — try direct URL as fallback (may 403 but worth trying)
-                const img = e.currentTarget as HTMLImageElement;
-                if (img.src !== product.image && product.image) {
-                  img.src = product.image;
-                } else {
-                  img.style.display = 'none';
-                }
-              }}
-            />
-          )}
+          {truncate(product.title, 35)}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            className="mj-hero-card-name"
-            style={{
-              fontFamily: F.body,
-              fontSize: 14,
-              fontWeight: 500,
-              color: LT.text,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              marginBottom: 2,
-            }}
-          >
-            {truncate(product.title, 35)}
-          </div>
-          <div style={{ fontFamily: F.body, fontSize: 11, color: '#6b7280' }}>
-            {product.category} · AliExpress
-          </div>
+        <div style={{ fontFamily: F.body, fontSize: 11, color: '#6b7280' }}>
+          {product.category}
         </div>
       </div>
 
-      {/* Score + Orders row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+      {/* Right column — score + meta */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
         <span
           style={{
             fontFamily: F.mono,
             fontSize: 14,
             fontWeight: 700,
-            color: LT.cobalt,
+            color: '#4f8ef7',
             background: '#1e3a5f',
             borderRadius: 6,
             padding: '4px 10px',
             lineHeight: 1,
           }}
         >
-          {scoreValue}
+          {product.score}
         </span>
-        <span style={{ fontFamily: F.mono, fontSize: 13, color: '#8b949e' }}>
-          {product.orders.toLocaleString('en-AU')} orders
+        <span style={{ fontFamily: F.mono, fontSize: 12, color: '#8b949e' }}>
+          {formatOrders(product.orders)}
         </span>
-      </div>
-
-      {/* Labels row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', minHeight: 22 }}>
-        {product.score >= 90 && (
+        {product.score >= 90 ? (
           <span
             style={{
               fontFamily: F.body,
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: 700,
               color: '#ef4444',
               background: 'rgba(239,68,68,0.12)',
               borderRadius: 999,
-              padding: '2px 8px',
+              padding: '2px 6px',
             }}
           >
             HOT {'\uD83D\uDD25'}
           </span>
-        )}
+        ) : product.score >= 80 ? (
+          <span
+            style={{
+              fontFamily: F.body,
+              fontSize: 10,
+              fontWeight: 700,
+              color: '#4f8ef7',
+              background: 'rgba(79,142,247,0.12)',
+              borderRadius: 999,
+              padding: '2px 6px',
+            }}
+          >
+            TRENDING {'\u2191'}
+          </span>
+        ) : null}
         {revenue && (
-          <span style={{ fontFamily: F.mono, fontSize: 13, color: '#10b981' }}>
+          <span style={{ fontFamily: F.mono, fontSize: 11, color: '#10b981' }}>
             {revenue}
           </span>
         )}
@@ -366,45 +279,36 @@ function ProductCard({ product, index, mounted }: ProductCardProps) {
 
 export function Hero() {
   const [products, setProducts] = useState<HeroProduct[]>([]);
-  const [mounted, setMounted] = useState(false);
-  const prefersReduced = useRef(false);
 
   useEffect(() => {
-    prefersReduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     let cancelled = false;
     fetchHeroProducts().then((p) => {
-      if (cancelled) return;
-      setProducts(p);
-      if (prefersReduced.current) {
-        setMounted(true);
-      } else {
-        requestAnimationFrame(() => {
-          if (!cancelled) setMounted(true);
-        });
-      }
+      if (!cancelled) setProducts(p);
     });
     return () => { cancelled = true; };
   }, []);
 
   return (
     <section
+      className="mj-hero-split"
       style={{
-        position: 'relative',
         height: '100vh',
         overflow: 'hidden',
+        position: 'relative',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
       }}
     >
       <style>{HERO_CSS}</style>
 
       {/* ── BG layers ── */}
-      <div aria-hidden style={{ position: 'absolute', inset: 0, background: LT.bg, zIndex: 0 }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, background: '#04060f', zIndex: 0 }} />
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
-          background: `radial-gradient(ellipse 80% 40% at 50% -5%, ${LT.cobaltSubtle}, transparent 70%)`,
+          background: 'radial-gradient(ellipse 80% 40% at 50% -5%, rgba(79,142,247,0.07), transparent 70%)',
           zIndex: 1,
         }}
       />
@@ -428,138 +332,160 @@ export function Hero() {
         }}
       />
 
-      {/* ── Headline — top-left ── */}
+      {/* ── LEFT HALF ── */}
       <div
-        className="mj-hero-headline"
+        className="mj-hero-left"
         style={{
-          position: 'absolute',
-          top: 120,
-          left: 48,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '0 64px',
+          position: 'relative',
           zIndex: 10,
-          maxWidth: 420,
         }}
       >
-        <h1
-          style={{
-            fontFamily: F.display,
-            fontSize: 28,
-            fontWeight: 600,
-            lineHeight: 1.3,
-            color: LT.text,
-            margin: 0,
-          }}
-        >
-          The products your competitors
-          <br />
-          haven't found yet.
-        </h1>
-        <p
-          style={{
-            fontFamily: F.body,
-            fontSize: 15,
-            color: '#8b949e',
-            margin: '8px 0 0',
-            lineHeight: 1.5,
-          }}
-        >
-          Live AliExpress data. Scored by velocity. Updated every 6 hours.
-        </p>
-        {/* Live pill */}
-        <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Eyebrow */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
           <span
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: '#22c55e',
+              animation: 'mjPulse 2s infinite',
+              flexShrink: 0,
+            }}
+          />
+          <span
+            style={{
               fontFamily: F.body,
               fontSize: 11,
               fontWeight: 600,
-              color: '#22c55e',
-              border: '1px solid rgba(34,197,94,0.2)',
-              borderRadius: 999,
-              padding: '4px 12px',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase' as const,
+              color: '#6b7280',
             }}
           >
-            <span
-              className="mj-hero-pulse-dot"
-              aria-hidden
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: '#22c55e',
-                animation: 'mjPulse 2s infinite',
-                flexShrink: 0,
-              }}
-            />
-            LIVE
-          </span>
-          <span style={{ fontFamily: F.mono, fontSize: 11, color: '#6b7280' }}>
-            AU · US · UK
+            LIVE {'\u00B7'} AU / US / UK
           </span>
         </div>
-      </div>
 
-      {/* ── Product feed grid ── */}
-      <div className="mj-hero-feed" style={{ position: 'absolute', inset: 0, zIndex: 5, padding: '140px 48px 100px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
-        <div
-          className="mj-hero-grid"
+        {/* H1 */}
+        <h1
+          className="mj-hero-h1"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 16,
-            width: '100%',
-            maxWidth: 1200,
+            fontFamily: F.display,
+            fontSize: 64,
+            fontWeight: 800,
+            lineHeight: 1.05,
+            letterSpacing: '-0.03em',
+            color: LT.text,
+            margin: '0 0 20px 0',
           }}
         >
-          {products.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} mounted={mounted} />
-          ))}
-        </div>
-      </div>
+          Find winning products before your competitors even know they exist.
+        </h1>
 
-      {/* ── CTA — bottom-right ── */}
-      <div
-        className="mj-hero-cta-wrap"
-        style={{
-          position: 'absolute',
-          bottom: 48,
-          right: 48,
-          zIndex: 10,
-          textAlign: 'right',
-        }}
-      >
+        {/* Sub */}
+        <p
+          style={{
+            fontFamily: F.body,
+            fontSize: 18,
+            color: '#8b949e',
+            lineHeight: 1.6,
+            maxWidth: 440,
+            margin: '0 0 32px 0',
+          }}
+        >
+          Majorka scores millions of AliExpress products by real order velocity. You see winners first.
+        </p>
+
+        {/* CTA */}
         <Link
           href="/sign-up"
-          className="mj-hero-cta-v2"
+          className="mj-hero-cta"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
+            alignSelf: 'flex-start',
             padding: '16px 32px',
+            background: LT.cobalt,
             color: '#fff',
             fontFamily: F.body,
             fontWeight: 600,
             fontSize: 16,
-            borderRadius: 12,
+            borderRadius: 10,
             textDecoration: 'none',
-            transition: 'transform 150ms ease, background-color 150ms ease, box-shadow 150ms ease',
             border: 'none',
             cursor: 'pointer',
+            transition: 'transform 150ms ease, background-color 150ms ease, box-shadow 150ms ease',
+            marginBottom: 16,
           }}
         >
-          Get Started &rarr;
+          Get Started {'\u2192'}
         </Link>
-        <div
+
+        {/* Trust line */}
+        <p
           style={{
-            marginTop: 8,
             fontFamily: F.body,
-            fontSize: 12,
+            fontSize: 13,
             color: '#4b5563',
+            margin: '0 0 24px 0',
           }}
         >
-          {'\u2713'} No credit card · {'\u2713'} Cancel anytime
+          {'\u2713'} No credit card {'\u00B7'} {'\u2713'} Cancel anytime {'\u00B7'} {'\u2713'} 30-day guarantee
+        </p>
+
+        {/* Stat pills */}
+        <div className="mj-hero-stat-pills" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {['50M+ products', '6hr refresh', 'AU/US/UK'].map((label) => (
+            <span
+              key={label}
+              style={{
+                background: 'rgba(79,142,247,0.06)',
+                border: '1px solid rgba(79,142,247,0.15)',
+                borderRadius: 999,
+                padding: '6px 14px',
+                fontFamily: F.body,
+                fontSize: 12,
+                color: '#8b949e',
+              }}
+            >
+              {label}
+            </span>
+          ))}
         </div>
+      </div>
+
+      {/* ── RIGHT HALF ── */}
+      <div
+        className="mj-hero-feed-col"
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          zIndex: 5,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {products.length > 0 && (
+          <div
+            className="mj-hero-scroll-feed"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '0 24px',
+              width: '100%',
+            }}
+          >
+            {/* Render list twice for seamless loop */}
+            {[...products, ...products].map((p, i) => (
+              <ProductCard key={`${p.id}-${i}`} product={p} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
