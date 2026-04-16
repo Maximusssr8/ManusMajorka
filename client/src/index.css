@@ -252,6 +252,10 @@
 /* NOTE: No custom reset here — Tailwind v4 @layer base handles box-sizing/margin/padding.
    An unlayered reset would beat all @layer utilities and zero out every Tailwind spacing class. */
 
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+}
 html, body, #root {
   background: var(--color-bg);
   color: var(--color-text);
@@ -267,7 +271,6 @@ html, body, #root {
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
-  overflow-x: clip;
 }
 
 /* Full-bleed on mobile — strips any accidental box-shadow/border/margin
