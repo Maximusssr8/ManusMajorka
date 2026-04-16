@@ -120,7 +120,7 @@ function tokenizeJson(src: string): Token[] {
 }
 
 const TOKEN_COLORS: Record<Token['kind'], string> = {
-  key: '#d4af37',
+  key: '#4f8ef7',
   str: '#9CA3AF',
   num: '#22C55E',
   bool: '#F59E0B',

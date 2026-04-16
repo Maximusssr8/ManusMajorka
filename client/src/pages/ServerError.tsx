@@ -49,7 +49,7 @@ export default function ServerError({ onRetry }: ServerErrorProps = {}) {
             fontWeight: 800,
             fontSize: 'clamp(96px, 22vw, 140px)',
             lineHeight: 1,
-            color: '#d4af37',
+            color: '#4f8ef7',
             letterSpacing: '-0.05em',
             marginBottom: 12,
           }}
@@ -90,7 +90,7 @@ export default function ServerError({ onRetry }: ServerErrorProps = {}) {
             style={{
               minHeight: 44,
               padding: '0 20px',
-              background: '#d4af37',
+              background: '#4f8ef7',
               color: '#080808',
               border: 'none',
               borderRadius: 12,

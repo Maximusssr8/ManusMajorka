@@ -96,7 +96,7 @@ export function EmptyState({ icon, title, body, primaryCta, secondaryCta }: Empt
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#d4af37',
+          color: '#4f8ef7',
         }}
         aria-hidden
       >
@@ -149,7 +149,7 @@ export function EmptyState({ icon, title, body, primaryCta, secondaryCta }: Empt
                 minHeight: 44,
                 padding: '0 20px',
                 borderRadius: 12,
-                background: '#d4af37',
+                background: '#4f8ef7',
                 color: '#080808',
                 border: 'none',
                 fontFamily: "'DM Sans', system-ui, sans-serif",
