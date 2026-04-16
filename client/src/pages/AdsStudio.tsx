@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Sparkles, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -895,10 +896,13 @@ OBJECTION KILLER:
               }}
             />
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60%' }}>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', fontFamily: dm }}>
-                Fill in your product details and click Generate
-              </div>
+            <div style={{ padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50%' }}>
+              <EmptyState
+                icon={<Sparkles size={40} strokeWidth={1.75} />}
+                title="Generate your first ad copy"
+                body="Pick a product, choose a format, and Majorka generates headline + body + CTA in 10 seconds."
+                primaryCta={{ label: 'Pick a product', href: '/app/products' }}
+              />
             </div>
           )}
         </div>

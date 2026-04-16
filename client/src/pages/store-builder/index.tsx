@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 /* ────────────────────────────────────────────────────────────────
  * Store Builder — Deerflow/Minea-inspired two-panel wizard
@@ -703,6 +704,19 @@ export default function StoreBuilder() {
       {/* ══════ MODE SELECT ══════ */}
       {mode === 'select' && (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+          {existingStores.length === 0 && (
+            <div className="mb-10">
+              <EmptyState
+                icon={<StoreIcon size={40} strokeWidth={1.75} />}
+                title="Spin up a store concept"
+                body="Give Majorka a niche and target market. It returns a store name, tagline, palette, and a product shortlist — Shopify-ready."
+                primaryCta={{
+                  label: 'Start generator',
+                  onClick: () => { setMode('ai'); setStepId('niche'); },
+                }}
+              />
+            </div>
+          )}
           {/* Hero */}
           <div className="text-center mb-14 sb-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'wouter';
 import { Bell, Plus, Package, X, Tag } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
@@ -589,49 +590,12 @@ export default function Alerts() {
             fontSize: 13,
           }}>Loading your alerts…</div>
         ) : alerts.length === 0 ? (
-          <div style={{
-            background: C.raised,
-            border: '1px dashed rgba(255,255,255,0.1)',
-            borderRadius: 12,
-            padding: '40px 24px',
-            textAlign: 'center',
-          }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: 'rgba(124,106,255,0.1)',
-              border: '1px solid rgba(124,106,255,0.25)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 14px',
-              color: C.accentHover,
-              position: 'relative',
-            }}>
-              <Bell size={22} />
-              <span style={{
-                position: 'absolute', top: 2, right: 2,
-                width: 16, height: 16, borderRadius: '50%',
-                background: C.accent, color: 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 700,
-              }}>+</span>
-            </div>
-            <div style={{ fontFamily: display, fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>No alerts set up yet</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>
-              Get notified when a product hits your score threshold, orders spike, or price drops.
-            </div>
-            <button
-              onClick={scrollToForm}
-              style={{
-                padding: '10px 18px',
-                borderRadius: 9,
-                background: '#d4af37',
-                color: '#080808',
-                border: 'none',
-                fontFamily: sans, fontSize: 13, fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 0 20px rgba(212,175,55,0.3)',
-              }}
-            >Create your first alert →</button>
-          </div>
+          <EmptyState
+            icon={<Bell size={40} strokeWidth={1.75} />}
+            title="No alerts yet"
+            body="Track a product's price, score, or order velocity. We'll email you the moment it changes."
+            primaryCta={{ label: 'Create your first alert', onClick: scrollToForm }}
+          />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             {alerts.map((a) => {

@@ -16,7 +16,7 @@
  * Design tokens: new gold palette (see designTokens.ts + index.css).
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Sparkles, RefreshCw, X, Loader2 } from 'lucide-react';
+import { PackageSearch, Search, Sparkles, RefreshCw, X, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import {
   useProductsTab,
@@ -31,7 +31,7 @@ import {
 } from '@/components/products/ProductFilters';
 import { ProductCard } from '@/components/products/ProductCard';
 import { TabHeader, type ProductsTabKey } from '@/components/products/TabHeader';
-import { EmptyState } from '@/components/EmptyState';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useAESearch, type AELiveProduct } from '@/hooks/useAESearch';
 
 const ProductDetailDrawer = lazy(() => import('@/components/products/ProductDetailDrawer'));
@@ -218,32 +218,6 @@ export default function Products() {
     setSearchInput('');
   }, []);
 
-  // ── Empty-state copy per tab ──────────────────────────────────────────────
-  const emptyCopy = useMemo(() => {
-    if (activeTab === 'trending') {
-      if (active.insufficientData) {
-        return {
-          title: 'More data collecting',
-          description:
-            'Trending needs 7-day velocity snapshots. Once enough products have baseline + current counts, this view will light up with real-time breakouts.',
-        };
-      }
-      return {
-        title: 'No trending products match',
-        description: 'Try widening your filters — lower the score or orders threshold, or switch market.',
-      };
-    }
-    if (activeTab === 'hot') {
-      return {
-        title: 'Nothing new in the last 48 hours',
-        description: 'Check back soon — the pipeline discovers fresh winners every few hours.',
-      };
-    }
-    return {
-      title: 'No high-volume matches',
-      description: 'Your filters are too tight for our evergreen catalogue. Reset and try again.',
-    };
-  }, [activeTab, active.insufficientData]);
 
   return (
     <div style={{ minHeight: '100vh', background: '#080808', color: '#e5e5e5' }}>
@@ -481,24 +455,13 @@ export default function Products() {
         {active.loading && active.products.length === 0 ? (
           <SkeletonGrid />
         ) : displayRows.length === 0 ? (
-          <div
-            style={{
-              padding: '48px 16px',
-              background: '#111111',
-              border: '1px solid #1a1a1a',
-              borderRadius: 16,
-            }}
-          >
-            <EmptyState
-              icon={Search}
-              title={emptyCopy.title}
-              description={emptyCopy.description}
-              action={{
-                label: 'Reset filters',
-                onClick: handleResetFilters,
-              }}
-            />
-          </div>
+          <EmptyState
+            icon={<PackageSearch size={40} strokeWidth={1.75} />}
+            title="No products match these filters"
+            body="Try widening the score or orders range, or switching market."
+            primaryCta={{ label: 'Reset filters', onClick: handleResetFilters }}
+            secondaryCta={{ label: 'Browse all', href: '/app/products' }}
+          />
         ) : (
           <div
             style={{
