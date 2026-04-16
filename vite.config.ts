@@ -44,12 +44,25 @@ export default defineConfig({
         manualChunks(id: string) {
           if (!id.includes("node_modules")) return;
 
-          // NOTE: We intentionally do NOT group Shiki (@shikijs/*) or
-          // Streamdown together, for the same reason as below — Rollup would
-          // hoist the preload helper into this massive (~10 MB of grammars)
-          // vendor chunk and make the entry statically depend on it, which
-          // defeats our lazy-load of Streamdown. Letting Rollup auto-split
-          // them yields per-language chunks fetched on demand.
+          // Shiki language grammars — one micro-chunk per language.
+          // Letting Rollup auto-split them already produces per-language
+          // chunks, but being explicit guarantees no grammar ever ends up
+          // statically imported into a page chunk (e.g. when a dep version
+          // bump changes Rollup's heuristics). Each grammar remains
+          // individually lazy behind the dynamic imports in @streamdown/code.
+          const shikiLangMatch = id.match(
+            /[\\/]@shikijs[\\/]langs[\\/]([^\\/]+?)\.(?:m?js|json)$/
+          );
+          if (shikiLangMatch) {
+            return `shiki-lang-${shikiLangMatch[1]}`;
+          }
+
+          // NOTE: We intentionally do NOT group Shiki CORE (@shikijs/core,
+          // @shikijs/engine-*, themes) or Streamdown together, for the same
+          // reason as below — Rollup would hoist the preload helper into
+          // a massive vendor chunk and make the entry statically depend on
+          // it, which defeats our lazy-load of Streamdown. Letting Rollup
+          // auto-split them yields on-demand chunks.
 
           // NOTE: We intentionally do NOT group mermaid/cytoscape/d3 into a
           // "diagram-vendor" chunk. When we did, Rollup hoisted its shared
