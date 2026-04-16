@@ -1194,6 +1194,8 @@ html { scroll-behavior: smooth; }
   .mj-stats-cell {
     font-size: 13px !important;
     padding: 12px 10px !important;
+    border-right: none !important;
+    border-bottom: 1px solid #161b22 !important;
   }
 
   /* Feature tabs: sidebar + content → stacked on mobile */
@@ -1222,6 +1224,21 @@ html { scroll-behavior: smooth; }
 
   /* Tables: horizontal scroll at 390px */
   table { overflow-x: auto; }
+
+  /* Pricing standalone: savings calculator grid stacks on mobile */
+  .pricing-calc-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Pricing standalone: comparison table horizontal scroll hint */
+  .pricing-comparison-table {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Landing pricing H2: cap at 28px on mobile */
+  .mj-h2 {
+    font-size: 28px !important;
+  }
 
   /* Clamp the root content width to prevent horizontal overflow */
   #root {

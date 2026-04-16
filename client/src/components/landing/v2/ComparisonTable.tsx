@@ -194,13 +194,15 @@ export function ComparisonTable() {
 
   return (
     <Section id="compare" style={{ background: LT.bg, padding: '80px 24px' }}>
-      {/* header */}
+      {/* header — Academy-style monospace eyebrow + two-tone heading */}
       <div style={{ textAlign: 'center', marginBottom: 48 }}>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
-          <EyebrowPill style={{ fontSize: 11 }}>The Real Cost</EyebrowPill>
+        <div style={{ fontFamily: F.mono, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: LT.cobalt, marginBottom: 12 }}>
+          The Real Cost {'\u00B7'} Time vs Intelligence
         </div>
         <H2 style={{ margin: '0 auto', maxWidth: 700 }}>
-          Every day without Majorka is a day your competitors get ahead.
+          Every day without Majorka
+          <br />
+          <span style={{ color: LT.textMute }}>is a day your competitors get ahead.</span>
         </H2>
       </div>
 

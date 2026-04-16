@@ -434,11 +434,11 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
                       style={{
                         background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid #F0F0F0',
+                        border: '1px solid #161b22',
                         color: '#CBD5E1',
                       }}
                       onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.4)')}
-                      onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
+                      onBlur={(e) => (e.target.style.borderColor = '#161b22')}
                       required
                     />
                   </div>
@@ -459,11 +459,11 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
                         style={{
                           background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid #F0F0F0',
+                          border: '1px solid #161b22',
                           color: '#CBD5E1',
                         }}
                         onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.4)')}
-                        onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
+                        onBlur={(e) => (e.target.style.borderColor = '#161b22')}
                         required
                         minLength={8}
                       />
@@ -479,7 +479,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                                   background:
                                     i < passwordStrength
                                       ? strengthColors[passwordStrength - 1]
-                                      : '#F5F5F5',
+                                      : '#1e2530',
                                 }}
                               />
                             ))}
@@ -679,7 +679,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     setStep('form');
                     setError(null);
                   }}
-                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: 'rgba(79,142,247,0.08)', color: '#4f8ef7', border: '1px solid #C7D2FE', cursor: 'pointer' }}
+                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: 'rgba(79,142,247,0.08)', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.25)', cursor: 'pointer' }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Back to sign in

@@ -141,11 +141,13 @@ const HERO_CSS = `
 @media (max-width: 768px) {
   .mj-hero-split { grid-template-columns: 1fr !important; }
   .mj-hero-left { padding: 100px 20px 32px !important; text-align: center; align-items: center; }
-  .mj-hero-h1 { font-size: 36px !important; }
+  .mj-hero-h1 { font-size: 38px !important; }
   .mj-hero-scroll-feed { animation: none !important; }
   .mj-hero-feed-col { display: none !important; }
   .mj-hero-feed-col::before, .mj-hero-feed-col::after { display: none; }
   .mj-hero-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; padding: 0 20px; margin-top: 24px; }
+  .mj-hero-cta { width: 100% !important; align-self: stretch !important; }
+  .mj-hero-trust { text-align: center; }
 }
 `;
 
@@ -198,6 +200,8 @@ function ProductCard({ product }: { product: HeroProduct }) {
                 img.src = product.image;
               } else {
                 img.style.display = 'none';
+                const parent = img.parentElement;
+                if (parent) parent.style.background = 'linear-gradient(135deg, #0d1117, #161b22)';
               }
             }}
           />
@@ -304,7 +308,7 @@ export function Hero() {
         overflow: 'hidden',
         position: 'relative',
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: '1.2fr 0.8fr',
       }}
     >
       <style>{HERO_CSS}</style>
@@ -378,21 +382,36 @@ export function Hero() {
           </span>
         </div>
 
-        {/* H1 */}
+        {/* H1 — 56px primary headline */}
         <h1
           className="mj-hero-h1"
           style={{
             fontFamily: F.display,
-            fontSize: 52,
+            fontSize: 56,
             fontWeight: 800,
             lineHeight: 1.05,
             letterSpacing: '-0.03em',
             color: LT.text,
+            margin: '0 0 16px 0',
+          }}
+        >
+          The dropshipping intelligence platform.
+        </h1>
+
+        {/* Value prop — unmissable one-liner */}
+        <p
+          style={{
+            fontFamily: F.display,
+            fontSize: 22,
+            fontWeight: 600,
+            color: LT.cobalt,
+            lineHeight: 1.3,
             margin: '0 0 20px 0',
+            maxWidth: 480,
           }}
         >
           Find winning products before your competitors even know they exist.
-        </h1>
+        </p>
 
         {/* Sub */}
         <p
@@ -405,7 +424,7 @@ export function Hero() {
             margin: '0 0 32px 0',
           }}
         >
-          Majorka scores millions of AliExpress products by real order velocity. You see winners first.
+          Majorka scores millions of AliExpress products by real order velocity across AU, US and UK. You see winners first.
         </p>
 
         {/* CTA */}
@@ -436,6 +455,7 @@ export function Hero() {
 
         {/* Trust line */}
         <p
+          className="mj-hero-trust"
           style={{
             fontFamily: F.body,
             fontSize: 13,
@@ -467,6 +487,7 @@ export function Hero() {
           background: '#060810',
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
+          opacity: 0.75,
         }}
       >
         {products.length > 0 && (

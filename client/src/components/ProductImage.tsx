@@ -10,7 +10,7 @@ interface ProductImageProps {
 }
 
 const BLOCKED = ['picsum.photos', 'placeholder.com', 'via.placeholder', 'pexels.com', 'unsplash.com', 'images.unsplash', 'loremflickr'];
-const ALI_DOMAINS = ['ae01.alicdn.com', 'ae-pic-a1.aliexpress-media.com', 'aliexpress-media.com'];
+const ALI_DOMAINS = ['alicdn.com', 'aliexpress-media.com'];
 
 function isValidUrl(url?: string | null): boolean {
   if (!url || typeof url !== 'string' || url.trim() === '') return false;
@@ -20,8 +20,9 @@ function isValidUrl(url?: string | null): boolean {
 
 /** Route AliExpress CDN images through our proxy to fix AVIF/format 404s */
 function resolveImgSrc(url: string): string {
+  if (url.startsWith('/api/')) return url;
   if (ALI_DOMAINS.some(d => url.includes(d))) {
-    return `/api/proxy-img?url=${encodeURIComponent(url)}`;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   }
   return url;
 }

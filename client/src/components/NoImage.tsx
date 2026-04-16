@@ -10,13 +10,13 @@ export function NoImage({ size = 48, className }: NoImageProps) {
       style={{
         width: size,
         height: size,
-        background: 'rgba(255,255,255,0.03)',
+        background: 'linear-gradient(135deg, #0d1117, #161b22)',
         borderRadius: 8,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid rgba(79,142,247,0.12)',
       }}
     >
       <svg
@@ -24,7 +24,7 @@ export function NoImage({ size = 48, className }: NoImageProps) {
         height={size * 0.4}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#D1D5DB"
+        stroke="rgba(79,142,247,0.4)"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"

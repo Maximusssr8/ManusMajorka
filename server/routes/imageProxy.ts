@@ -12,9 +12,9 @@ const ALLOWED_HOSTS = [
   'alicdn.com',
 ];
 
-// Tiny dark SVG placeholder with subtle gold dot — served on upstream
+// Tiny dark SVG placeholder with subtle cobalt dot — served on upstream
 // failure so <img onError> handlers stay quiet and layout doesn't jump.
-const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" fill="#111111"/><circle cx="32" cy="32" r="6" fill="#d4af37" fill-opacity="0.55"/></svg>`;
+const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" fill="#0d1117"/><circle cx="32" cy="32" r="6" fill="#4f8ef7" fill-opacity="0.45"/></svg>`;
 
 function sendPlaceholder(res: Response): void {
   res.setHeader('Content-Type', 'image/svg+xml');

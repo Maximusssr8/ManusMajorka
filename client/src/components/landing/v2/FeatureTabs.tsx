@@ -516,27 +516,29 @@ export function FeatureTabs() {
     >
       <style>{SECTION_CSS}</style>
 
-      {/* Section header */}
+      {/* Section header — Academy-style monospace eyebrow + two-tone heading */}
       <div style={{ textAlign: 'left', marginBottom: 64 }}>
         <div style={{
-          fontFamily: F.body, fontSize: 11, fontWeight: 600,
+          fontFamily: F.mono, fontSize: 10, fontWeight: 500,
           letterSpacing: '0.12em', textTransform: 'uppercase',
           color: COBALT, marginBottom: 12,
         }}>
-          THE TOOLKIT
+          The Toolkit {'\u00B7'} 4 tools {'\u00B7'} 1 subscription
         </div>
         <h2 style={{
           fontFamily: F.display, fontSize: 40, fontWeight: 700,
           lineHeight: 1.15, letterSpacing: '-0.02em',
           color: '#ffffff', margin: '0 0 12px 0',
         }}>
-          Stop researching. Start selling.
+          Stop researching.
+          <br />
+          <span style={{ color: MUTED }}>Start selling.</span>
         </h2>
         <p style={{
           fontFamily: F.body, fontSize: 17, color: MUTED,
           lineHeight: 1.6, margin: 0,
         }}>
-          Four tools. One subscription. Every edge a dropshipper needs.
+          Every edge a dropshipper needs. Data-backed, not guesswork.
         </p>
       </div>
 

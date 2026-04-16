@@ -37,6 +37,8 @@ function AccordionItem({ q, a, open, onToggle }: { q: string; a: string; open: b
       style={{
         borderBottom: `1px solid ${LT.border}`,
         padding: '20px 0',
+        transition: 'border-color 200ms ease',
+        ...(open ? { borderBottomColor: 'rgba(79,142,247,0.2)' } : {}),
       }}
     >
       <button
@@ -117,11 +119,14 @@ export function FAQ() {
     <Section id="faq" style={{ padding: '64px 24px' }}>
       <div ref={fadeUp.ref} style={{ ...fadeUp.style, maxWidth: 800, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
-            <EyebrowPill>FAQ</EyebrowPill>
+          <div style={{ fontFamily: F.mono, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: LT.cobalt, marginBottom: 12 }}>
+            FAQ {'\u00B7'} 6 questions
           </div>
-          <H2 style={{ margin: '0 auto' }}>Frequently asked questions</H2>
-          <Sub style={{ margin: '12px auto 0' }}>Everything you need to know before getting started.</Sub>
+          <H2 style={{ margin: '0 auto' }}>
+            Frequently asked questions.
+            <br />
+            <span style={{ color: LT.textMute }}>Everything you need to know.</span>
+          </H2>
         </div>
 
         <div>

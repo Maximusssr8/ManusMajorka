@@ -9,14 +9,14 @@ import { useAuth } from '@/contexts/AuthContext';
 
 // ── Design tokens ───────────────────────────────────────────────────────────
 const C = {
-  bg: '#FAFAFA',
-  card: 'white',
-  elevated: '#F9FAFB',
-  border: '#E5E7EB',
+  bg: '#04060f',
+  card: '#0d1117',
+  elevated: '#0d1117',
+  border: '#161b22',
   borderHover: 'rgba(79,142,247,0.3)',
-  text: '#374151',
-  secondary: '#6B7280',
-  muted: '#9CA3AF',
+  text: '#E0E0E0',
+  secondary: '#9CA3AF',
+  muted: '#6B7280',
   gold: '#4f8ef7',
   goldDim: 'rgba(79,142,247,0.1)',
   goldBorder: 'rgba(79,142,247,0.25)',
@@ -44,7 +44,7 @@ function LockedToolOverlay({ toolName }: { toolName: string }) {
       }}
     >
       <span style={{ fontSize: 24 }}>🔒</span>
-      <p style={{ fontFamily: syne, fontWeight: 700, color: '#FAFAFA', fontSize: 14 }}>
+      <p style={{ fontFamily: syne, fontWeight: 700, color: '#ffffff', fontSize: 14 }}>
         {toolName}
       </p>
       <p style={{ color: '#E5E7EB', fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
@@ -53,7 +53,7 @@ function LockedToolOverlay({ toolName }: { toolName: string }) {
         style={{
           padding: '6px 14px',
           background: '#4f8ef7',
-          color: '#FAFAFA',
+          color: '#ffffff',
           borderRadius: 8,
           fontSize: 12,
           fontWeight: 700,
@@ -196,8 +196,8 @@ function EmotionalComparisonTable() {
                 display: 'grid',
                 gridTemplateColumns: '1fr 140px 130px',
                 padding: '13px 20px',
-                borderBottom: '1px solid #F9FAFB',
-                background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
               }}
             >
               <span style={{ fontSize: 13, color: '#94A3B8' }}>{tool.name}</span>
@@ -459,7 +459,7 @@ function SavingsCalculator() {
               WebkitAppearance: 'none',
               height: 6,
               borderRadius: 3,
-              background: `linear-gradient(to right, #4f8ef7 ${((adSpend - 500) / (50000 - 500)) * 100}%, #F0F0F0 ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
+              background: `linear-gradient(to right, #4f8ef7 ${((adSpend - 500) / (50000 - 500)) * 100}%, #1e2530 ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
               outline: 'none',
               cursor: 'pointer',
             }}
@@ -505,7 +505,7 @@ function SavingsCalculator() {
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)', color: '#FAFAFA', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
+          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)', color: '#fff', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
             Start Saving Now →
           </a>
         </div>
@@ -663,7 +663,7 @@ export default function Pricing() {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          background: 'rgba(255,255,255,0.9)',
+          background: 'rgba(4,6,15,0.9)',
           backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
           borderBottom: `1px solid ${C.border}`,
@@ -708,12 +708,12 @@ export default function Pricing() {
                 fontFamily: syne,
                 fontWeight: 800,
                 fontSize: 16,
-                color: '#FAFAFA',
+                color: '#ffffff',
               }}
             >
               M
             </div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#F8FAFC' }}>MAJORKA</span>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#E0E0E0' }}>MAJORKA</span>
           </div>
         </div>
       </nav>
@@ -842,10 +842,10 @@ export default function Pricing() {
           {/* Metrics-based social proof — no fake names */}
           <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto 0' }}>
             {[
-              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#4f8ef7', bg: 'rgba(79,142,247,0.08)', border: '#C7D2FE' },
-              { stat: '7',   label: 'global markets covered',   icon: '🌏', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
-              { stat: '14',  label: 'day money-back guarantee', icon: '✅', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
-              { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#4f8ef7', bg: '#F3E8FF', border: '#6ba3ff' },
+              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#4f8ef7', bg: 'rgba(79,142,247,0.06)', border: 'rgba(79,142,247,0.2)' },
+              { stat: '7',   label: 'global markets covered',   icon: '🌏', color: '#0891B2', bg: 'rgba(8,145,178,0.06)', border: 'rgba(8,145,178,0.2)' },
+              { stat: '14',  label: 'day money-back guarantee', icon: '✅', color: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.2)' },
+              { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#4f8ef7', bg: 'rgba(79,142,247,0.06)', border: 'rgba(79,142,247,0.2)' },
             ].map(m => (
               <div key={m.label} style={{ background: m.bg, border: `1px solid ${m.border}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' as const }}>
                 <div style={{ fontSize: 22, marginBottom: 6 }}>{m.icon}</div>
@@ -893,7 +893,7 @@ export default function Pricing() {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
-                    color: '#FAFAFA',
+                    color: '#ffffff',
                     borderRadius: 100,
                     padding: '5px 18px',
                     fontSize: 11,
@@ -1010,7 +1010,7 @@ export default function Pricing() {
                     width: '100%',
                     textAlign: 'center',
                     background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
-                    color: '#FAFAFA',
+                    color: '#ffffff',
                     border: 'none',
                     borderRadius: 10,
                     padding: '13px 20px',
@@ -1045,7 +1045,7 @@ export default function Pricing() {
                   <span
                     style={{
                       background: '#b2fce4',
-                      color: '#F8FAFC',
+                      color: '#0d1117',
                       borderRadius: 4,
                       padding: '2px 6px',
                       fontSize: 10,
@@ -1271,7 +1271,7 @@ export default function Pricing() {
                   gridTemplateColumns: '1fr 140px 140px',
                   padding: '14px 24px',
                   borderBottom: `1px solid ${C.border}`,
-                  background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
+                  background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
                 }}
               >
                 <span style={{ fontSize: 14, color: C.secondary }}>{row.label}</span>
@@ -1411,7 +1411,7 @@ export default function Pricing() {
           style={{
             display: 'inline-block',
             background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`,
-            color: '#FAFAFA',
+            color: '#ffffff',
             borderRadius: 10,
             padding: '14px 36px',
             fontFamily: syne,
@@ -1470,7 +1470,7 @@ export default function Pricing() {
               fontFamily: syne,
               fontWeight: 800,
               fontSize: 14,
-              color: '#FAFAFA',
+              color: '#ffffff',
             }}
           >
             M

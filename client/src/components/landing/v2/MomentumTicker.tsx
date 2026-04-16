@@ -11,7 +11,8 @@ const TICKER_CSS = `
   gap: 48px;
 }
 @media (max-width: 768px) {
-  .mj-ticker-row { gap: 24px; }
+  .mj-ticker-row { gap: 16px; }
+  .mj-ticker-label { display: none !important; }
 }
 `;
 
@@ -140,6 +141,7 @@ function Metric({ value, label, color }: MetricProps) {
         {value}
       </span>
       <span
+        className="mj-ticker-label"
         style={{
           fontFamily: F.body,
           fontSize: 11,
