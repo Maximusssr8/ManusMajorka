@@ -37,7 +37,7 @@ function AccordionItem({ q, a, open, onToggle }: { q: string; a: string; open: b
     <div
       style={{
         background: '#0d1117',
-        border: open ? '1px solid rgba(79,142,247,0.18)' : '1px solid rgba(79,142,247,0.08)',
+        border: open ? '1px solid rgba(79,142,247,0.18)' : '1px solid rgba(79,142,247,0.12)',
         borderRadius: 16,
         overflow: 'hidden',
         transition: 'border-color 200ms ease',

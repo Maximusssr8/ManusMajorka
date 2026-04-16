@@ -76,7 +76,7 @@ function TimelineCard({
 
   const cardStyle: CSSProperties = {
     background: '#0d1117',
-    border: '1px solid rgba(79,142,247,0.08)',
+    border: '1px solid rgba(79,142,247,0.12)',
     borderRadius: 16,
     padding: 24,
     opacity: 0,
@@ -226,7 +226,7 @@ export function ComparisonTable() {
         ref={punchRef}
         style={{
           background: '#0d1117',
-          border: '1px solid rgba(79,142,247,0.08)',
+          border: '1px solid rgba(79,142,247,0.12)',
           borderRadius: 16,
           padding: '24px 48px',
           maxWidth: 700,

@@ -8,7 +8,7 @@ import { useInViewFadeUp } from '../useInViewFadeUp';
 /* ── Shared helpers ─────────────────────────────────────────────────────────── */
 
 const CARD_BG = '#0d1117';
-const CARD_BORDER = 'rgba(79,142,247,0.08)';
+const CARD_BORDER = 'rgba(79,142,247,0.12)';
 const MUTED = '#8b949e';
 const COBALT = '#4f8ef7';
 const GREEN = '#10b981';
@@ -201,7 +201,7 @@ function ScoreRow({ product, visible, isTop }: { product: DemoProduct; visible: 
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
       padding: '10px 14px', borderRadius: 12,
-      ...(isTop ? { boxShadow: '0 0 20px rgba(79,142,247,0.08)', background: 'rgba(79,142,247,0.03)' } : {}),
+      ...(isTop ? { boxShadow: '0 0 20px rgba(79,142,247,0.12)', background: 'rgba(79,142,247,0.03)' } : {}),
     }}>
       {imgSrc ? (
         <img
@@ -214,7 +214,7 @@ function ScoreRow({ product, visible, isTop }: { product: DemoProduct; visible: 
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontFamily: F.body, fontSize: 13, fontWeight: 600, color: '#E0E0E0',
+          fontFamily: F.body, fontSize: 14, fontWeight: 600, color: '#E0E0E0',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '35ch',
         }}>
           {product.product_title}
@@ -233,7 +233,7 @@ function ScoreRow({ product, visible, isTop }: { product: DemoProduct; visible: 
       </span>
       {isHot && (
         <span style={{
-          fontFamily: F.mono, fontSize: 10, fontWeight: 600, color: '#ef4444',
+          fontFamily: F.mono, fontSize: 11, fontWeight: 600, color: '#ef4444',
           background: 'rgba(239,68,68,0.12)', borderRadius: 999, padding: '2px 8px',
           letterSpacing: '0.06em', textTransform: 'uppercase' as const,
         }}>
@@ -295,7 +295,7 @@ function ScoringVisual() {
           </svg>
         </div>
         <div style={{
-          fontFamily: F.mono, fontSize: 10, color: '#4b5563', marginTop: 8, textAlign: 'right',
+          fontFamily: F.mono, fontSize: 11, color: '#4b5563', marginTop: 8, textAlign: 'right',
         }}>
           Updated 4 min ago
         </div>
@@ -354,7 +354,7 @@ function AlertsVisual() {
               animation: 'mjPulseBar 2s ease-in-out infinite',
             }} />
             <span style={{
-              fontFamily: F.mono, fontSize: 10, fontWeight: 700,
+              fontFamily: F.mono, fontSize: 11, fontWeight: 700,
               color: GREEN, letterSpacing: '0.05em',
             }}>
               Live
@@ -387,16 +387,16 @@ function AlertsVisual() {
                 flexShrink: 0, marginTop: 6,
               }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: F.body, fontSize: 13, color: '#E0E0E0', lineHeight: 1.5 }}>
+                <div style={{ fontFamily: F.body, fontSize: 14, color: '#E0E0E0', lineHeight: 1.5 }}>
                   {a.text}
                 </div>
                 {a.hasPrice && (
-                  <div style={{ fontFamily: F.mono, fontSize: 13, color: GREEN, marginTop: 2 }}>
+                  <div style={{ fontFamily: F.mono, fontSize: 14, color: GREEN, marginTop: 2 }}>
                     {a.price}
                   </div>
                 )}
                 <div style={{
-                  fontFamily: F.mono, fontSize: 10, marginTop: 4, letterSpacing: '0.04em',
+                  fontFamily: F.mono, fontSize: 11, marginTop: 4, letterSpacing: '0.04em',
                   color: a.isLive ? COBALT : '#6B7280',
                   fontWeight: a.isLive ? 600 : 400,
                 }}>
@@ -446,7 +446,7 @@ function AdBriefVisual() {
             type="button"
             style={{
               padding: '10px 20px', background: COBALT, color: '#000', border: 'none',
-              borderRadius: 10, fontFamily: F.body, fontSize: 13, fontWeight: 600, cursor: 'default',
+              borderRadius: 10, fontFamily: F.body, fontSize: 14, fontWeight: 600, cursor: 'default',
               flexShrink: 0,
             }}
           >
@@ -587,7 +587,7 @@ function StoreVisual() {
 
         {/* Generated timestamp */}
         <div style={{
-          fontFamily: F.mono, fontSize: 10, color: '#4b5563', marginTop: 12,
+          fontFamily: F.mono, fontSize: 11, color: '#4b5563', marginTop: 12,
         }}>
           Generated 2 hours ago
         </div>

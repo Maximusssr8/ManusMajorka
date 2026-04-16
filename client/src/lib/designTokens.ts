@@ -1,9 +1,9 @@
 /**
- * Majorka Design Tokens — gold/blue, Syne + DM Sans + JetBrains Mono.
+ * Majorka Design Tokens — cobalt/blue, Syne + DM Sans + JetBrains Mono.
  *
  * Authoritative palette (v2 — Apr 2026):
  *   bg     #04060f   card #0d1117   border #161b22
- *   gold   #4f8ef7   (primary accent / brand)
+ *   cobalt #4f8ef7   (primary accent / brand)
  *   blue   #3B82F6   (CTA)
  *   text   #e5e5e5   muted #737373   success #10b981
  *
@@ -31,7 +31,7 @@ export const C = {
   body:         '#a3a3a3',
   muted:        '#737373',
 
-  // Accent — gold (brand)
+  // Accent — cobalt (brand)
   accent:       '#4f8ef7',
   accentHover:  '#6ba3ff',
   accentSubtle: 'rgba(79,142,247,0.10)',
@@ -62,7 +62,7 @@ export const C = {
 
   // Type scale
   fH1: 52, fH2: 32, fH3: 20, fH4: 16,
-  fLead: 15, fBody: 13, fSm: 12, fXs: 11, fXxs: 10,
+  fLead: 15, fBody: 14, fSm: 12, fXs: 11, fXxs: 10,
 
   // Spacing (8pt)
   s1: 4, s2: 8, s3: 12, s4: 16, s5: 20, s6: 24, s7: 32, s8: 40, s9: 48, s10: 64,
@@ -75,15 +75,15 @@ export const C = {
   ease: 'cubic-bezier(0.16,1,0.3,1)',
 } as const;
 
-/* ── Elevation ramp + signature gold glows ── */
+/* ── Elevation ramp + signature cobalt glows ── */
 export const elevation = {
   e1: '0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02)',
   e2: '0 2px 8px -2px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)',
   e3: '0 12px 32px -12px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.04)',
   e4: '0 30px 80px -20px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05)',
 
-  // Gold glows — the signature
-  glow:      '0 0 0 1px rgba(79,142,247,0.08), 0 8px 40px -10px rgba(79,142,247,0.15)',
+  // Cobalt glows — the signature
+  glow:      '0 0 0 1px rgba(79,142,247,0.12), 0 8px 40px -10px rgba(79,142,247,0.15)',
   glowSoft:  '0 0 40px -16px rgba(79,142,247,0.25)',
   glowHover: '0 0 0 1px rgba(79,142,247,0.18), 0 14px 44px -10px rgba(79,142,247,0.28)',
   ringAccent:'0 0 0 1px rgba(79,142,247,0.35), 0 0 24px -6px rgba(79,142,247,0.45)',
@@ -101,7 +101,7 @@ export const gradients = {
   textAccent:   'linear-gradient(135deg, #ffffff 0%, #6ba3ff 40%, #4f8ef7 100%)',
   meshBg:       'conic-gradient(from 220deg at 50% 50%, rgba(79,142,247,0.08), rgba(59,130,246,0.04), rgba(79,142,247,0.06), rgba(79,142,247,0.08))',
   ctaShine:     'linear-gradient(135deg, #3B82F6 0%, #60a5fa 50%, #3B82F6 100%)',
-  goldShine:    'linear-gradient(135deg, #4f8ef7 0%, #6ba3ff 50%, #4f8ef7 100%)',
+  cobaltShine:  'linear-gradient(135deg, #4f8ef7 0%, #6ba3ff 50%, #4f8ef7 100%)',
   border:       'linear-gradient(135deg, rgba(79,142,247,0.22), rgba(255,255,255,0.04) 50%, rgba(79,142,247,0.14))',
 } as const;
 
@@ -121,7 +121,7 @@ export const motion = {
 } as const;
 
 /* ── Legacy compat aliases — keep every existing call site building.
-   The old code referenced gold-ish tokens; they now resolve to gold. */
+   The old code referenced gold-ish tokens; they now resolve to cobalt. */
 export const t = {
   ...C,
 

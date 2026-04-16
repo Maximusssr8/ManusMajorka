@@ -1,18 +1,23 @@
 // Stats Bar v2 — Academy-style: monospace labels, Syne values, cobalt accent cards.
 import { F } from '@/lib/landingTokens';
+import { useInViewFadeUp } from '../useInViewFadeUp';
 
 const STATS: Array<{ value: string; label: string }> = [
-  { value: '50M+', label: 'Products Sourced' },
+  { value: '50M+', label: 'Listings Scanned' },
   { value: 'Live', label: 'AliExpress Data' },
   { value: '6hr', label: 'Data Refresh' },
   { value: 'AU \u00B7 US \u00B7 UK', label: 'Markets' },
 ];
 
 export function StatsBar() {
+  const fade = useInViewFadeUp();
+
   return (
     <section
+      ref={fade.ref}
       aria-label="Platform stats"
       style={{
+        ...fade.style,
         background: '#0d1117',
         borderTop: '1px solid rgba(255,255,255,0.05)',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
@@ -55,7 +60,7 @@ export function StatsBar() {
             </span>
             <span style={{
               fontFamily: F.mono,
-              fontSize: 10,
+              fontSize: 11,
               letterSpacing: '0.1em',
               textTransform: 'uppercase' as const,
               color: '#6B7280',

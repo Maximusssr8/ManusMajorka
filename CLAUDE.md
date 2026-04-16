@@ -19,10 +19,10 @@ Goal: operator finds a winning product and makes their first sale in under 60 mi
 - CSS: client/src/index.css
 
 ## Design System
-- Bg: #0d0f14 · Surface: #13151c · Accent: #6366f1 (indigo)
-- Text: #f0f4ff primary · #a1a1aa body · #52525b muted
-- Fonts: Nohemi (display/headings) · DM Sans (body)
-- Cards: bg-surface border border-white/[0.07] rounded-2xl
+- Bg: #04060f · Surface: #0d1117 · Border: #161b22 · Accent: #4f8ef7 (cobalt blue)
+- Text: #ffffff primary · #e5e5e5 body · #8b949e muted
+- Fonts: Syne (display/headings) · DM Sans (body) · JetBrains Mono (numbers/stats)
+- Cards: bg-surface border border-[rgba(79,142,247,0.12)] rounded-2xl
 - Glass: bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl
 - Score colours: ≥90 emerald #10b981 · ≥75 amber #f59e0b · <75 orange #f97316
 - Philosophy: Bloomberg terminal meets luxury product app. Data first. No gamification.

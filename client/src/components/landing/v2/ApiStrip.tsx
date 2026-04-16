@@ -207,7 +207,7 @@ export function ApiStrip() {
               color: '#4f8ef7',
               fontFamily: F.mono,
               fontWeight: 500,
-              fontSize: 13,
+              fontSize: 14,
               border: '1px solid rgba(79,142,247,0.25)',
               borderRadius: 12,
               textDecoration: 'none',
@@ -223,7 +223,7 @@ export function ApiStrip() {
         <div style={{ position: 'relative' }}>
           <div style={{
             background: '#080c14',
-            border: '1px solid rgba(79,142,247,0.08)',
+            border: '1px solid rgba(79,142,247,0.12)',
             borderRadius: 16,
             padding: 20,
             overflowX: 'auto',

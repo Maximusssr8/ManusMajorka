@@ -13,7 +13,7 @@ export function Eyebrow({ children, center, style }: { children: ReactNode; cent
     <div
       style={{
         fontFamily: F.mono,
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 500,
         letterSpacing: '0.12em',
         textTransform: 'uppercase',

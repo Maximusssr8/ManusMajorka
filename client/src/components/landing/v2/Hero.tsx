@@ -76,6 +76,11 @@ const HERO_CSS = `
   from { opacity: 0; transform: translateX(20px); }
   to { opacity: 1; transform: translateX(0); }
 }
+@keyframes mjSlideInBounce {
+  0% { opacity: 0; transform: translateX(20px); }
+  60% { opacity: 1; transform: translateX(-3px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
 @keyframes mjScaleBounce {
   0% { transform: scale(0); opacity: 0; }
   60% { transform: scale(1.2); }
@@ -86,12 +91,62 @@ const HERO_CSS = `
   50% { text-shadow: 0 0 16px rgba(79,142,247,0.6); }
   100% { text-shadow: 0 0 0 transparent; }
 }
+@keyframes mjRipple {
+  from { transform: scale(0); opacity: 0.4; }
+  to { transform: scale(3); opacity: 0; }
+}
+@keyframes mjScanLine {
+  0% { top: 0; opacity: 0.6; }
+  100% { top: 100%; opacity: 0; }
+}
+@keyframes mjCardGlow {
+  0% { box-shadow: 0 0 80px rgba(79,142,247,0.06); }
+  50% { box-shadow: 0 0 80px rgba(79,142,247,0.15), 0 0 160px rgba(79,142,247,0.05); }
+  100% { box-shadow: 0 0 80px rgba(79,142,247,0.06); }
+}
+@keyframes mjBriefUnderline {
+  from { width: 0; }
+  to { width: 100%; }
+}
 .mj-demo-cursor {
   position: absolute;
   transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1), top 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease;
   z-index: 50;
   pointer-events: none;
 }
+.mj-demo-card-glow {
+  animation: mjCardGlow 1.2s ease forwards;
+}
+.mj-ripple-effect {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(79,142,247,0.5);
+  animation: mjRipple 0.6s ease-out forwards;
+  pointer-events: none;
+}
+.mj-scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #4f8ef7, transparent);
+  animation: mjScanLine 1.5s ease-out forwards;
+  pointer-events: none;
+  z-index: 40;
+}
+.mj-corner-accent {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 30;
+}
+.mj-corner-tl { top: -1px; left: -1px; border-top: 2px solid rgba(79,142,247,0.3); border-left: 2px solid rgba(79,142,247,0.3); }
+.mj-corner-tr { top: -1px; right: -1px; border-top: 2px solid rgba(79,142,247,0.3); border-right: 2px solid rgba(79,142,247,0.3); }
+.mj-corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid rgba(79,142,247,0.3); border-left: 2px solid rgba(79,142,247,0.3); }
+.mj-corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid rgba(79,142,247,0.3); border-right: 2px solid rgba(79,142,247,0.3); }
 @media (max-width: 768px) {
   .mj-hero-minimal {
     grid-template-columns: 1fr !important;
@@ -110,6 +165,9 @@ const HERO_CSS = `
   .mj-hero-mobile-card {
     display: flex !important;
   }
+  .mj-corner-accent, .mj-scan-line {
+    display: none !important;
+  }
 }
 @media (min-width: 769px) {
   .mj-hero-mobile-card {
@@ -119,6 +177,7 @@ const HERO_CSS = `
 @media (prefers-reduced-motion: reduce) {
   .mj-demo-cursor { display: none !important; }
   .mj-demo-reduced-show { opacity: 1 !important; }
+  .mj-scan-line { display: none !important; }
 }
 `;
 
@@ -148,23 +207,23 @@ function CursorSVG({ clicking }: { clicking: boolean }) {
 
 /* ── Animated Demo ──────────────────────────────────────────── */
 
-// Timeline durations per phase (ms)
-const TIMELINE = [800, 700, 500, 500, 1000, 300, 1700, 1000, 300, 700, 1000, 1500];
+// Timeline durations per phase (ms) — snappier score (1.0s), faster brief (25ms/char), longer pause (3s)
+const TIMELINE = [800, 700, 500, 500, 1000, 300, 1400, 1000, 300, 700, 1000, 3000];
 
-// Cursor positions for each phase
+// Cursor positions for each phase (adjusted for larger 520x380 card)
 const CURSOR_POS: Record<number, { left: number; top: number }> = {
-  0: { left: 90, top: 52 },
-  1: { left: 220, top: 88 },
-  2: { left: 280, top: 95 },
-  3: { left: 200, top: 128 },
-  4: { left: 155, top: 182 },
-  5: { left: 155, top: 182 },
-  6: { left: 220, top: 240 },
-  7: { left: 330, top: 182 },
-  8: { left: 330, top: 182 },
-  9: { left: 300, top: 290 },
-  10: { left: 160, top: 40 },
-  11: { left: 80, top: 20 },
+  0: { left: 100, top: 58 },
+  1: { left: 240, top: 98 },
+  2: { left: 310, top: 105 },
+  3: { left: 220, top: 140 },
+  4: { left: 170, top: 200 },
+  5: { left: 170, top: 200 },
+  6: { left: 240, top: 265 },
+  7: { left: 370, top: 200 },
+  8: { left: 370, top: 200 },
+  9: { left: 340, top: 320 },
+  10: { left: 180, top: 45 },
+  11: { left: 90, top: 25 },
 };
 
 const BRIEF_LINES = [
@@ -182,6 +241,10 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
   const [showNotif, setShowNotif] = useState(false);
   const [clicking, setClicking] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
+  const [cardGlow, setCardGlow] = useState(false);
+  const [showRipple, setShowRipple] = useState<{ x: number; y: number } | null>(null);
+  const [showScanLine, setShowScanLine] = useState(false);
+  const [briefLineCount, setBriefLineCount] = useState(0);
   const timerRef = useRef<number>(0);
   const scoreRafRef = useRef<number>(0);
   const typeIntervalRef = useRef<number>(0);
@@ -202,18 +265,28 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
     setShowNotif(false);
     setClicking(false);
     setFadeOut(false);
+    setCardGlow(false);
+    setShowRipple(null);
+    setShowScanLine(false);
+    setBriefLineCount(0);
     cancelAnimationFrame(scoreRafRef.current);
     clearInterval(typeIntervalRef.current);
   }, []);
 
-  // Score counter animation
+  // Score counter animation — snappier at 600ms
   const animateScore = useCallback((target: number) => {
     const start = performance.now();
-    const duration = 700;
+    const duration = 600;
     function tick(now: number) {
       const t = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-      setScore(Math.round(eased * target));
+      const val = Math.round(eased * target);
+      setScore(val);
+      // Trigger glow when score reaches target
+      if (val >= target) {
+        setCardGlow(true);
+        setTimeout(() => setCardGlow(false), 1200);
+      }
       if (t < 1) {
         scoreRafRef.current = requestAnimationFrame(tick);
       }
@@ -232,20 +305,26 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
     }, 40);
   }, []);
 
-  // Brief type-in
+  // Brief type-in — faster at 25ms per char
   const animateBrief = useCallback(() => {
     const fullText = BRIEF_LINES.join('\n');
     let i = 0;
     typeIntervalRef.current = window.setInterval(() => {
       i++;
-      setBriefText(fullText.slice(0, i));
+      const slice = fullText.slice(0, i);
+      setBriefText(slice);
+      setBriefLineCount(slice.split('\n').length);
       if (i >= fullText.length) clearInterval(typeIntervalRef.current);
-    }, 30);
+    }, 25);
   }, []);
 
-  // Click flash
-  const doClick = useCallback(() => {
+  // Click flash with ripple effect
+  const doClick = useCallback((ripplePos?: { x: number; y: number }) => {
     setClicking(true);
+    if (ripplePos) {
+      setShowRipple(ripplePos);
+      setTimeout(() => setShowRipple(null), 600);
+    }
     setTimeout(() => setClicking(false), 150);
   }, []);
 
@@ -265,6 +344,11 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
 
       // Phase-specific side effects
       switch (currentPhase) {
+        case 0:
+          // Trigger scan line at start of each loop
+          setShowScanLine(true);
+          setTimeout(() => setShowScanLine(false), 1500);
+          break;
         case 1:
           animateScore(product.score);
           break;
@@ -275,13 +359,13 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
           animateOrders(product.orders);
           break;
         case 5:
-          doClick();
+          doClick({ x: 170, y: 200 }); // ripple on Generate Brief
           break;
         case 6:
           animateBrief();
           break;
         case 8:
-          doClick();
+          doClick({ x: 370, y: 200 }); // ripple on Set Alert
           break;
         case 9:
           setShowNotif(true);
@@ -333,21 +417,41 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
 
   return (
     <div
+      className={cardGlow && !isReduced ? 'mj-demo-card-glow' : ''}
       style={{
         position: 'relative',
-        width: 460,
+        width: 520,
         maxWidth: '100%',
-        height: 340,
+        minHeight: 380,
         background: '#0a0d14',
         border: '1px solid #161b22',
         borderRadius: 14,
         overflow: 'hidden',
         boxShadow: '0 0 80px rgba(79,142,247,0.06)',
         opacity: fadeOut && !isReduced ? 0.3 : 1,
-        transition: 'opacity 1s ease',
+        transition: 'opacity 1s ease, box-shadow 0.4s ease',
         fontFamily: F.body,
       }}
     >
+      {/* Corner accents — targeting reticle frame */}
+      <div className="mj-corner-accent mj-corner-tl" />
+      <div className="mj-corner-accent mj-corner-tr" />
+      <div className="mj-corner-accent mj-corner-bl" />
+      <div className="mj-corner-accent mj-corner-br" />
+
+      {/* Scanning line — sweeps once at start of each loop */}
+      {showScanLine && !isReduced && (
+        <div className="mj-scan-line" />
+      )}
+
+      {/* Ripple effect on button clicks */}
+      {showRipple && !isReduced && (
+        <div
+          className="mj-ripple-effect"
+          style={{ left: showRipple.x - 6, top: showRipple.y - 6 }}
+        />
+      )}
+
       {/* Mini sidebar */}
       <div
         style={{
@@ -391,9 +495,16 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
             />
           </div>
         ))}
-        {/* Sidebar labels */}
-        <div style={{ marginTop: 'auto', marginBottom: 12 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', margin: '0 auto', animation: 'mjPulse 2s infinite' }} />
+
+        {/* Sidebar stats */}
+        <div style={{ marginTop: 'auto', padding: '0 4px', marginBottom: 12 }}>
+          <div style={{ borderTop: '1px solid #161b22', paddingTop: 10, textAlign: 'center' }}>
+            <div style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>4,155</div>
+            <div style={{ fontSize: 8, color: '#4b5563', lineHeight: 1.3, marginBottom: 8 }}>products<br />scored</div>
+            <div style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>6hr</div>
+            <div style={{ fontSize: 8, color: '#4b5563', lineHeight: 1.3 }}>refresh<br />cycle</div>
+          </div>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', margin: '10px auto 0', animation: 'mjPulse 2s infinite' }} />
         </div>
       </div>
 
@@ -401,7 +512,7 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
       <div style={{ marginLeft: 52, padding: '14px 16px', position: 'relative', height: '100%' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <span style={{ fontSize: 10, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
             Product Intelligence
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -425,7 +536,7 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
           <div style={{ fontSize: 14, fontWeight: 600, color: '#ffffff', marginBottom: 2, lineHeight: 1.3 }}>
             {product.title}
           </div>
-          <div style={{ fontSize: 10, color: '#6b7280', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
             {product.category}
           </div>
 
@@ -433,7 +544,7 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 6 }}>
             {/* Score */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 10, color: '#6b7280' }}>Score</span>
+              <span style={{ fontSize: 11, color: '#6b7280' }}>Score</span>
               <span
                 style={{
                   fontFamily: F.mono,
@@ -455,7 +566,7 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
               {(showHot || isReduced) && (
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: 700,
                     color: '#ef4444',
                     background: 'rgba(239,68,68,0.1)',
@@ -471,7 +582,7 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
 
             {/* Orders */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 10, color: '#6b7280' }}>Orders</span>
+              <span style={{ fontSize: 11, color: '#6b7280' }}>Orders</span>
               <span
                 style={{
                   fontFamily: F.mono,
@@ -619,12 +730,12 @@ function MobileStaticCard({ product }: { product: DemoProduct }) {
         <span style={{ fontFamily: F.mono, fontSize: 18, fontWeight: 700, color: '#4f8ef7', background: '#1e3a5f', padding: '2px 8px', borderRadius: 6 }}>
           {product.score}
         </span>
-        <span style={{ fontSize: 10, fontWeight: 700, color: '#ef4444' }}>HOT {'\uD83D\uDD25'}</span>
-        <span style={{ fontFamily: F.mono, fontSize: 13, color: '#8b949e' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#ef4444' }}>HOT {'\uD83D\uDD25'}</span>
+        <span style={{ fontFamily: F.mono, fontSize: 14, color: '#8b949e' }}>
           {formatOrders(product.orders)} orders
         </span>
       </div>
-      <div style={{ fontSize: 10, color: '#6b7280', fontFamily: F.body }}>{product.category}</div>
+      <div style={{ fontSize: 11, color: '#6b7280', fontFamily: F.body }}>{product.category}</div>
     </div>
   );
 }
@@ -733,7 +844,7 @@ export function Hero() {
           </a>
           <p style={{
             fontFamily: F.body,
-            fontSize: 13,
+            fontSize: 14,
             color: '#4b5563',
             marginTop: 12,
           }}>
@@ -753,7 +864,7 @@ export function Hero() {
               animation: 'mjPulse 2s infinite',
             }}
           />
-          <span style={{ fontFamily: F.body, fontSize: 13, color: '#6b7280' }}>
+          <span style={{ fontFamily: F.body, fontSize: 14, color: '#6b7280' }}>
             {liveCount} dropshippers found a winner in the last hour
           </span>
         </div>

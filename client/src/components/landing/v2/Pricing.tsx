@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import { F } from '@/lib/landingTokens';
 import { Link } from 'wouter';
 import { Eyebrow, H2, Sub } from './shared';
+import { useInViewFadeUp } from '../useInViewFadeUp';
 
 const PRICING_CSS = `
 .mj-pricing-grid {
@@ -40,14 +41,17 @@ const SCALE_FEATURES = [
 
 export function Pricing() {
   const [annual, setAnnual] = useState(true);
+  const fade = useInViewFadeUp();
 
   const builderPrice = annual ? 82 : 99;
   const scalePrice = annual ? 166 : 199;
 
   return (
     <section
+      ref={fade.ref}
       id="pricing"
       style={{
+        ...fade.style,
         padding: '80px 20px',
         maxWidth: 1152,
         margin: '0 auto',
@@ -74,7 +78,7 @@ export function Pricing() {
             display: 'inline-flex',
             padding: 4,
             background: '#0d1117',
-            border: '1px solid rgba(79,142,247,0.08)',
+            border: '1px solid rgba(79,142,247,0.12)',
             borderRadius: 12,
           }}
         >
@@ -113,7 +117,7 @@ export function Pricing() {
           maxWidth: 700,
           margin: '0 auto 48px',
           background: '#0d1117',
-          border: '1px solid rgba(79,142,247,0.08)',
+          border: '1px solid rgba(79,142,247,0.12)',
           borderRadius: 16,
           padding: 28,
         }}
@@ -182,7 +186,7 @@ export function Pricing() {
           style={{
             padding: 28,
             background: '#0d1117',
-            border: '1px solid rgba(79,142,247,0.08)',
+            border: '1px solid rgba(79,142,247,0.12)',
             borderRadius: 16,
           }}
         >
@@ -247,7 +251,7 @@ export function Pricing() {
               color: '#000',
               borderRadius: 999,
               fontFamily: F.mono,
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 600,
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
@@ -320,6 +324,31 @@ export function Pricing() {
         }}
       >
         Lock in early access pricing &mdash; rates increase as we grow.
+      </div>
+
+      {/* Academy bridge — positions the free Academy as the free tier */}
+      <div
+        style={{
+          textAlign: 'center',
+          marginTop: 24,
+          fontFamily: F.body,
+          fontSize: 14,
+          color: '#9CA3AF',
+          lineHeight: 1.6,
+        }}
+      >
+        Not ready to subscribe?{' '}
+        <Link
+          href="/academy"
+          style={{
+            color: '#4f8ef7',
+            textDecoration: 'none',
+            fontWeight: 500,
+          }}
+        >
+          Start with the free Academy
+        </Link>
+        {' '}&mdash; 48 lessons, no account needed.
       </div>
     </section>
   );

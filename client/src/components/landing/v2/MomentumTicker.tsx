@@ -1,6 +1,7 @@
 // MomentumTicker — Academy-style horizontal strip with live-looking metrics.
 import { useEffect, useRef, useState } from 'react';
 import { F } from '@/lib/landingTokens';
+import { useInViewFadeUp } from '../useInViewFadeUp';
 
 const TICKER_CSS = `
 .mj-ticker-row {
@@ -74,9 +75,13 @@ export function MomentumTicker() {
     return () => intervalsRef.current.forEach(clearInterval);
   }, [reducedMotion]);
 
+  const fade = useInViewFadeUp();
+
   return (
     <div
+      ref={fade.ref}
       style={{
+        ...fade.style,
         background: '#0a0d14',
         borderTop: '1px solid rgba(255,255,255,0.05)',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
@@ -121,7 +126,7 @@ function Metric({ value, label, color }: MetricProps) {
         className="mj-ticker-label"
         style={{
           fontFamily: F.mono,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: 500,
           letterSpacing: '0.08em',
           textTransform: 'uppercase' as const,

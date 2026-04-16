@@ -42,7 +42,7 @@ export function LaunchBar() {
         borderBottom: `1px solid ${LT.border}`,
         color: LT.text,
         fontFamily: F.body,
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: 500,
         padding: '0 44px',
         display: 'flex',

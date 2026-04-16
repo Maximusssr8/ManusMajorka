@@ -3,6 +3,7 @@
 import { Link } from 'wouter';
 import { GradientM } from '@/components/MajorkaLogo';
 import { F } from '@/lib/landingTokens';
+import { useInViewFadeUp } from '../useInViewFadeUp';
 
 const FOOTER_CSS = `
 .mj-footer-grid {
@@ -88,7 +89,7 @@ function LinkColumn({ heading, links }: { heading: string; links: Array<{ label:
     <div>
       <div style={{
         fontFamily: F.mono,
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 500,
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
@@ -109,9 +110,13 @@ function LinkColumn({ heading, links }: { heading: string; links: Array<{ label:
 }
 
 export function Footer() {
+  const fade = useInViewFadeUp();
+
   return (
     <footer
+      ref={fade.ref}
       style={{
+        ...fade.style,
         background: '#04060f',
         borderTop: '1px solid rgba(255,255,255,0.05)',
         padding: '64px 20px',
@@ -183,7 +188,7 @@ export function Footer() {
           letterSpacing: '0.04em',
         }}
       >
-        <span>&copy; 2026 Majorka Pty Ltd</span>
+        <span>&copy; {new Date().getFullYear()} Majorka Pty Ltd</span>
         <span>Built in Australia</span>
       </div>
     </footer>

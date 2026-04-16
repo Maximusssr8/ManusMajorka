@@ -10,7 +10,7 @@ export const LT = {
   // Accent (cobalt) — CTA, active states, underline, badges, checkmarks only.
   cobalt: '#4f8ef7',
   cobaltTint: 'rgba(79,142,247,0.15)',
-  cobaltSubtle: 'rgba(79,142,247,0.08)',
+  cobaltSubtle: 'rgba(79,142,247,0.12)',
   cobaltBorder: 'rgba(79,142,247,0.4)',
   cobaltGlow: 'rgba(79,142,247,0.04)',
   // Text
@@ -23,6 +23,7 @@ export const LT = {
   crossGrey: '#3f3f46',
   // Backward-compat aliases (consumed by Guarantee.tsx and other non-landing pages
   // that import from landingTokens). Maps to cobalt palette.
+  // NOTE: Keys named "gold" are legacy — the actual colour is cobalt #4f8ef7.
   gold: '#4f8ef7',
   goldTint: 'rgba(79,142,247,0.15)',
   goldGlow: 'rgba(79,142,247,0.30)',
