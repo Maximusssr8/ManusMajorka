@@ -87,6 +87,15 @@ const HERO_CSS = `
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes mjLabelPop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes mjScoreGlow {
+  0% { box-shadow: 0 0 40px rgba(79,142,247,0.3); }
+  100% { box-shadow: 0 0 0px transparent; }
+}
 @media (prefers-reduced-motion: reduce) {
   .mj-scoring-card, .mj-scoring-label, .mj-scoring-bar,
   .mj-scoring-brief, .mj-scoring-cta {
@@ -114,16 +123,14 @@ const HERO_CSS = `
   box-shadow: 0 0 40px rgba(79,142,247,0.3);
   background-color: #3a7de0;
 }
-.mj-cta-ghost-v2:hover {
-  border-color: ${LT.cobalt} !important;
-  color: #ffffff !important;
+.mj-card-crossfade {
+  transition: opacity 300ms ease;
 }
-.mj-cta-ghost-v2:hover .mj-play-icon {
-  transform: rotate(15deg);
+.mj-card-crossfade-out {
+  opacity: 0;
 }
-.mj-play-icon {
-  transition: transform 200ms ease;
-  display: inline-block;
+.mj-card-crossfade-in {
+  opacity: 1;
 }
 `;
 
@@ -189,15 +196,30 @@ const MARKET_BARS = [
   { label: 'UK', pct: 20, opacity: 0.4 },
 ];
 
-function ScoringCard({ product, phase, scoreDisplay, aiBriefText }: ScoringCardProps) {
+interface ScoringCardExtProps extends ScoringCardProps {
+  scoreGlow: boolean;
+}
+
+function ScoringCard({ product, phase, scoreDisplay, aiBriefText, scoreGlow }: ScoringCardExtProps) {
   const isHot = product.score >= 90;
   const estRev = product.estRevenue ?? 0;
-  const progressPct = phase >= 2 ? 100 : 0;
+  const [barAnimated, setBarAnimated] = useState(false);
+
+  useEffect(() => {
+    if (phase >= 2) {
+      // Delay slightly so browser paints width:0 first
+      const t = requestAnimationFrame(() => setBarAnimated(true));
+      return () => cancelAnimationFrame(t);
+    } else {
+      setBarAnimated(false);
+    }
+  }, [phase]);
 
   return (
     <div
       className="mj-scoring-card"
       style={{
+        position: 'relative',
         background: LT.bgCard,
         border: `1px solid ${LT.border}`,
         borderRadius: 16,
@@ -205,10 +227,13 @@ function ScoringCard({ product, phase, scoreDisplay, aiBriefText }: ScoringCardP
         maxWidth: 480,
         width: '100%',
         margin: '0 auto',
-        boxShadow: '0 32px 64px -16px rgba(0,0,0,0.6), 0 0 80px rgba(79,142,247,0.08)',
+        minHeight: 420,
+        boxShadow: scoreGlow
+          ? '0 32px 64px -16px rgba(0,0,0,0.6), 0 0 40px rgba(79,142,247,0.3)'
+          : '0 32px 64px -16px rgba(0,0,0,0.6), 0 0 80px rgba(79,142,247,0.08)',
         opacity: phase >= 1 ? 1 : 0,
         transform: phase >= 1 ? 'translateY(0)' : 'translateY(20px)',
-        transition: 'opacity 400ms ease, transform 400ms ease',
+        transition: 'opacity 400ms ease, transform 400ms ease, box-shadow 800ms ease',
       }}
     >
       {/* Product header */}
@@ -253,14 +278,14 @@ function ScoringCard({ product, phase, scoreDisplay, aiBriefText }: ScoringCardP
             >
               {scoreDisplay}
             </div>
-            {/* Progress bar */}
+            {/* Progress bar — animates from 0 to 100% */}
             <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.04)', margin: '12px auto 0', maxWidth: 200, overflow: 'hidden' }}>
               <div style={{
                 height: '100%',
                 borderRadius: 2,
                 background: LT.cobalt,
-                width: `${progressPct}%`,
-                transition: 'width 1s ease-out',
+                width: barAnimated ? '100%' : '0%',
+                transition: 'width 0.8s ease-out',
               }} />
             </div>
           </>
@@ -272,16 +297,13 @@ function ScoringCard({ product, phase, scoreDisplay, aiBriefText }: ScoringCardP
         {phase >= 3 && (
           <div style={{
             display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
-            opacity: phase >= 3 ? 1 : 0,
-            transform: phase >= 3 ? 'translateX(0)' : 'translateX(12px)',
-            transition: 'opacity 300ms ease, transform 300ms ease',
           }}>
             {isHot ? (
-              <span style={{ fontFamily: F.body, fontSize: 12, fontWeight: 700, color: '#ef4444', background: 'rgba(239,68,68,0.12)', borderRadius: 999, padding: '3px 12px' }}>
+              <span style={{ fontFamily: F.body, fontSize: 12, fontWeight: 700, color: '#ef4444', background: 'rgba(239,68,68,0.12)', borderRadius: 999, padding: '3px 12px', animation: 'mjLabelPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards' }}>
                 HOT {'\uD83D\uDD25'}
               </span>
             ) : (
-              <span style={{ fontFamily: F.body, fontSize: 12, fontWeight: 700, color: LT.cobalt, background: LT.cobaltTint, borderRadius: 999, padding: '3px 12px' }}>
+              <span style={{ fontFamily: F.body, fontSize: 12, fontWeight: 700, color: LT.cobalt, background: LT.cobaltTint, borderRadius: 999, padding: '3px 12px', animation: 'mjLabelPop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards' }}>
                 TRENDING {'\u2191'}
               </span>
             )}
@@ -297,14 +319,14 @@ function ScoringCard({ product, phase, scoreDisplay, aiBriefText }: ScoringCardP
             {product.orders.toLocaleString('en-AU')} orders
           </div>
         )}
-        {phase >= 3 && (
+        {phase >= 3 && estRev > 0 && (
           <div style={{
             fontFamily: F.mono, fontSize: 15, color: '#10b981',
             opacity: 1,
             transform: 'translateX(0)',
             transition: 'opacity 300ms ease 400ms, transform 300ms ease 400ms',
           }}>
-            Est. ${estRev > 0 ? `$${estRev.toLocaleString('en-AU')}/mo` : '$0/mo'} revenue
+            Est. ${estRev.toLocaleString('en-AU')}/mo revenue
           </div>
         )}
       </div>
@@ -361,6 +383,8 @@ export function Hero() {
   const [product, setProduct] = useState<DemoProduct | null>(null);
   const [phase, setPhase] = useState(0);
   const [cycleIndex, setCycleIndex] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const [scoreGlow, setScoreGlow] = useState(false);
   const prefersReduced = useRef(false);
   const visibilityRef = useRef(true);
   const cycleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -403,6 +427,12 @@ export function Hero() {
     // Phase 2: score counts up (600ms)
     const t2 = setTimeout(() => setPhase(2), 600);
 
+    // Score glow after counter finishes (600 + 1200 = 1800ms)
+    const tGlow = setTimeout(() => {
+      setScoreGlow(true);
+      setTimeout(() => setScoreGlow(false), 800);
+    }, 1800);
+
     // Phase 3: labels fire in (1800ms)
     const t3 = setTimeout(() => setPhase(3), 1800);
 
@@ -415,7 +445,7 @@ export function Hero() {
     // Phase 6: CTA pulse (4000ms)
     const t6 = setTimeout(() => setPhase(6), 4000);
 
-    return () => { clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); };
+    return () => { clearTimeout(t2); clearTimeout(tGlow); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); };
   }, []);
 
   // Initial load + auto-cycle
@@ -427,14 +457,21 @@ export function Hero() {
       cleanup = await runSequence(cycleIndex) || undefined;
       if (!mounted) return;
 
-      // After 6s of final state, cycle to next category
+      // After 6s of final state, cycle to next category with crossfade
       cycleTimerRef.current = setTimeout(() => {
         if (!mounted || !visibilityRef.current) return;
-        setPhase(0);
-        setProduct(null);
+        setTransitioning(true); // fade out
         setTimeout(() => {
-          if (mounted) setCycleIndex((prev) => prev + 1);
-        }, 400);
+          if (!mounted) return;
+          setPhase(0);
+          setProduct(null);
+          setTimeout(() => {
+            if (mounted) {
+              setTransitioning(false); // fade in happens with new product
+              setCycleIndex((prev) => prev + 1);
+            }
+          }, 100);
+        }, 300); // wait for fade-out
       }, 10000); // 4s sequence + 6s hold
     }
 
@@ -450,7 +487,7 @@ export function Hero() {
   return (
     <section style={{
       position: 'relative',
-      minHeight: '100vh',
+      height: '100vh',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
@@ -505,8 +542,8 @@ export function Hero() {
           AI scans millions of AliExpress products and surfaces the few worth selling.
         </p>
 
-        {/* ROW 4 — CTAs */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginTop: 40 }}>
+        {/* ROW 4 — CTA */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
           <Link href="/sign-up" className="mj-cta-primary-v2" style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             padding: '16px 36px', color: '#fff', fontFamily: F.body,
@@ -515,16 +552,6 @@ export function Hero() {
             border: 'none', cursor: 'pointer',
           }}>
             Get Started &rarr;
-          </Link>
-          <Link href="#demo" className="mj-cta-ghost-v2" style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            gap: 8, padding: '16px 32px', background: 'transparent', color: LT.textMute,
-            fontFamily: F.body, fontWeight: 600, fontSize: 16,
-            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-            textDecoration: 'none', transition: 'border-color 200ms ease, color 200ms ease', cursor: 'pointer',
-          }}>
-            <span className="mj-play-icon">{'\u25B6'}</span>
-            Watch 90s Demo
           </Link>
         </div>
 
