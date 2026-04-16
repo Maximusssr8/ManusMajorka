@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 /* ── types ──────────────────────────────────────────────────── */
 
@@ -6,28 +6,37 @@ interface HeroProduct {
   title: string;
   score: number;
   orders: number;
-  price: number;
   category: string;
   image: string | null;
 }
 
-const FALLBACK: HeroProduct = {
-  title: 'LED Scalp Massager Pro',
-  score: 97,
-  orders: 48210,
-  price: 34.95,
-  category: 'Health & Beauty',
-  image: null,
-};
+const FALLBACK_PRODUCTS: HeroProduct[] = [
+  { title: 'LED Scalp Massager Pro', score: 97, orders: 48210, category: 'Health', image: null },
+  { title: 'Silicone Pet Grooming Brush', score: 94, orders: 31450, category: 'Pet', image: null },
+  { title: 'Nano Tape Double-sided Roll', score: 92, orders: 231847, category: 'Home', image: null },
+  { title: 'Pour & Spray Oil Dispenser', score: 91, orders: 152300, category: 'Kitchen', image: null },
+  { title: 'Mini Dough Press Kit', score: 88, orders: 24980, category: 'Kitchen', image: null },
+  { title: 'Phone Stand Adjustable', score: 85, orders: 18420, category: 'Tech', image: null },
+];
 
-const CATEGORIES = ['Pet', 'Kitchen', 'Home', 'Beauty'] as const;
+const FETCH_PARAMS = [
+  { category: 'Pet', seed: 0 },
+  { category: 'Kitchen', seed: 0 },
+  { category: 'Home', seed: 0 },
+  { category: 'Beauty', seed: 0 },
+  { category: 'Fitness', seed: 0 },
+  { category: 'Pet', seed: 1 },
+  { category: 'Kitchen', seed: 1 },
+  { category: 'Home', seed: 1 },
+  { category: 'Beauty', seed: 1 },
+];
 
 /* ── data fetching ─────────────────────────────────────────── */
 
 async function fetchProducts(): Promise<HeroProduct[]> {
   const results = await Promise.allSettled(
-    CATEGORIES.map(async (category, i) => {
-      const res = await fetch(`/api/demo/quick-score?category=${category}&seed=${i}`);
+    FETCH_PARAMS.map(async ({ category, seed }) => {
+      const res = await fetch(`/api/demo/quick-score?category=${category}&seed=${seed}`);
       if (!res.ok) return null;
       const json = await res.json();
       if (!json.ok || !json.product) return null;
@@ -36,17 +45,36 @@ async function fetchProducts(): Promise<HeroProduct[]> {
         title: String(p.title || ''),
         score: Number(p.score) || 0,
         orders: Number(p.orders) || 0,
-        price: Number(p.price_aud) || 0,
         category: String(p.category || category),
         image: p.image || null,
       } as HeroProduct;
     }),
   );
 
-  return results
+  const products = results
     .filter((r): r is PromiseFulfilledResult<HeroProduct | null> => r.status === 'fulfilled')
     .map((r) => r.value)
-    .filter((p): p is HeroProduct => p !== null && p.score > 0);
+    .filter((p): p is HeroProduct => p !== null && p.score >= 80);
+
+  // Deduplicate by title, sort by score desc, take top 6
+  const seen = new Set<string>();
+  const unique: HeroProduct[] = [];
+  for (const p of products.sort((a, b) => b.score - a.score)) {
+    if (!seen.has(p.title)) {
+      seen.add(p.title);
+      unique.push(p);
+    }
+    if (unique.length >= 6) break;
+  }
+  return unique;
+}
+
+/* ── format helpers ────────────────────────────────────────── */
+
+function formatOrders(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
 }
 
 /* ── CSS ────────────────────────────────────────────────────── */
@@ -56,6 +84,13 @@ const HERO_CSS = `
   background-color: #6ba3ff !important;
   transform: scale(1.02);
   box-shadow: 0 10px 40px -8px rgba(79,142,247,0.55);
+}
+.mj-hero-table-row:hover {
+  background: rgba(79,142,247,0.04) !important;
+}
+@keyframes mj-pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 @media (max-width: 768px) {
   .mj-hero-minimal {
@@ -72,12 +107,35 @@ const HERO_CSS = `
   .mj-hero-minimal-right {
     justify-content: center !important;
   }
-  .mj-hero-minimal-card {
-    width: 280px !important;
+  .mj-hero-table-container {
+    max-width: 100% !important;
+  }
+  .mj-hero-table-img {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+  }
+  .mj-hero-table-rank {
+    font-size: 11px !important;
+  }
+  .mj-hero-table-name {
+    font-size: 12px !important;
+  }
+  .mj-hero-table-cat {
+    font-size: 9px !important;
+  }
+  .mj-hero-table-orders {
+    font-size: 12px !important;
+  }
+  .mj-hero-table-score {
+    font-size: 12px !important;
+  }
+  .mj-hero-table-hot {
+    font-size: 8px !important;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mj-hero-card-fade { transition: none !important; }
+  .mj-hero-row-stagger { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
 `;
 
@@ -85,67 +143,32 @@ const HERO_CSS = `
 
 export function Hero() {
   const [products, setProducts] = useState<HeroProduct[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [transitioning, setTransitioning] = useState(false);
-  const cycleRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [mounted, setMounted] = useState(false);
   const reducedMotion = useRef(false);
 
-  // Check reduced motion preference once
   useEffect(() => {
     reducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
 
-  // Fetch 4 products (Pet, Kitchen, Home, Beauty)
   useEffect(() => {
     let cancelled = false;
     fetchProducts().then((p) => {
       if (!cancelled) {
-        setProducts(p.length > 0 ? p : [FALLBACK]);
+        const list = p.length > 0 ? p : FALLBACK_PRODUCTS;
+        setProducts(list);
+        // Trigger stagger after data loads
+        requestAnimationFrame(() => {
+          if (!cancelled) setMounted(true);
+        });
       }
     });
     return () => { cancelled = true; };
   }, []);
 
-  // Auto-cycle every 5s with crossfade
-  const startCycle = useCallback(() => {
-    if (reducedMotion.current) return;
-    if (cycleRef.current) clearInterval(cycleRef.current);
-
-    cycleRef.current = setInterval(() => {
-      setTransitioning(true);
-      setTimeout(() => {
-        setActiveIndex((prev) => (prev + 1) % Math.max(products.length, 1));
-        setTransitioning(false);
-      }, 300);
-    }, 5000);
-  }, [products.length]);
-
-  useEffect(() => {
-    if (products.length <= 1) return;
-    startCycle();
-    return () => { if (cycleRef.current) clearInterval(cycleRef.current); };
-  }, [products.length, startCycle]);
-
-  // Pause when tab hidden
-  useEffect(() => {
-    function handleVisibility() {
-      if (document.hidden) {
-        if (cycleRef.current) {
-          clearInterval(cycleRef.current);
-          cycleRef.current = null;
-        }
-      } else if (products.length > 1) {
-        startCycle();
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [products.length, startCycle]);
-
-  const product = products[activeIndex] || FALLBACK;
-
-  const rev = Math.round(product.orders * product.price * 0.3);
-  const revFormatted = rev >= 1000 ? `$${(rev / 1000).toFixed(1)}k/mo est.` : `$${rev}/mo est.`;
+  // On mobile show 4 rows, desktop 6
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const displayProducts = products.slice(0, isMobile ? 4 : 6);
+  const totalCount = '4,155';
 
   return (
     <section
@@ -234,7 +257,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Right: ONE card */}
+      {/* Right: Live Product Intelligence Table */}
       <div
         className="mj-hero-minimal-right"
         style={{
@@ -246,103 +269,236 @@ export function Hero() {
         }}
       >
         <div
-          className="mj-hero-card-fade mj-hero-minimal-card"
+          className="mj-hero-table-container"
           style={{
-            width: 320,
-            background: '#0d1117',
-            border: '1px solid #1f2937',
-            borderRadius: 16,
-            padding: 20,
-            boxShadow: '0 0 60px rgba(79,142,247,0.08)',
-            opacity: transitioning ? 0 : 1,
-            transition: 'opacity 300ms ease',
+            maxWidth: 480,
+            width: '100%',
+            background: '#0a0d14',
+            border: '1px solid #161b22',
+            borderRadius: 14,
+            overflow: 'hidden',
+            boxShadow: '0 0 80px rgba(79,142,247,0.06)',
           }}
         >
-          {/* Image */}
+          {/* Header row */}
           <div style={{
-            width: '100%',
-            height: 180,
-            borderRadius: 10,
-            overflow: 'hidden',
-            background: 'linear-gradient(135deg, #0d1117, #161b22)',
+            background: '#0d1117',
+            padding: '10px 16px',
+            borderBottom: '1px solid #161b22',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}>
-            {product.image && (
-              <img
-                src={`/api/image-proxy?url=${encodeURIComponent(product.image)}`}
-                alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-              />
-            )}
-          </div>
-
-          {/* Product name */}
-          <div style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: 14,
-            color: '#ffffff',
-            marginTop: 12,
-            lineHeight: 1.4,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}>
-            {product.title}
-          </div>
-
-          {/* Score */}
-          <div style={{
-            fontFamily: "'Syne', sans-serif",
-            fontSize: 56,
-            fontWeight: 800,
-            color: '#4f8ef7',
-            textAlign: 'center',
-            margin: '16px 0',
-            lineHeight: 1,
-          }}>
-            {product.score}
-          </div>
-
-          {/* Orders */}
-          <div style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: 13,
-            color: '#6b7280',
-            textAlign: 'center',
-          }}>
-            {product.orders.toLocaleString('en-AU')} orders
-          </div>
-
-          {/* HOT badge if >= 90 */}
-          {product.score >= 90 && (
-            <div style={{ textAlign: 'center', marginTop: 8 }}>
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#6b7280',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+            }}>
+              Top Scored Products
+            </span>
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+            }}>
+              <span style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#22c55e',
+                display: 'inline-block',
+                animation: 'mj-pulse-dot 2s ease-in-out infinite',
+              }} />
               <span style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: 700,
-                color: '#ef4444',
-                background: 'rgba(239,68,68,0.12)',
-                borderRadius: 999,
-                padding: '3px 10px',
+                color: '#22c55e',
+                letterSpacing: '0.05em',
               }}>
-                HOT {'\uD83D\uDD25'}
+                LIVE
               </span>
-            </div>
-          )}
+            </span>
+          </div>
 
-          {/* Revenue if > 0 */}
-          {rev > 0 && (
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 13,
-              color: '#10b981',
-              textAlign: 'center',
-              marginTop: 6,
-            }}>
-              {revFormatted}
+          {/* Data rows */}
+          {displayProducts.map((product, i) => (
+            <div
+              key={`${product.title}-${i}`}
+              className="mj-hero-table-row mj-hero-row-stagger"
+              style={{
+                padding: '12px 16px',
+                borderBottom: i < displayProducts.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                transition: `background 150ms ease, opacity 0.3s ease ${i * 80}ms, transform 0.3s ease ${i * 80}ms`,
+                opacity: mounted || reducedMotion.current ? 1 : 0,
+                transform: mounted || reducedMotion.current ? 'translateY(0)' : 'translateY(8px)',
+              }}
+            >
+              {/* Rank */}
+              <span
+                className="mj-hero-table-rank"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 12,
+                  color: '#4b5563',
+                  minWidth: 14,
+                  textAlign: 'right',
+                }}
+              >
+                {i + 1}
+              </span>
+
+              {/* Image */}
+              <div
+                className="mj-hero-table-img"
+                style={{
+                  width: 36,
+                  height: 36,
+                  minWidth: 36,
+                  borderRadius: 6,
+                  overflow: 'hidden',
+                  background: 'linear-gradient(135deg, #0d1525, #162033)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                {product.image ? (
+                  <img
+                    src={`/api/image-proxy?url=${encodeURIComponent(product.image)}`}
+                    alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => {
+                      const el = e.currentTarget as HTMLImageElement;
+                      el.style.display = 'none';
+                      if (el.parentElement) {
+                        el.parentElement.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>';
+                      }
+                    }}
+                  />
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                  </svg>
+                )}
+              </div>
+
+              {/* Name + Category */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  className="mj-hero-table-name"
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    color: '#ffffff',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {product.title}
+                </div>
+                <div
+                  className="mj-hero-table-cat"
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 10,
+                    color: '#6b7280',
+                    marginTop: 1,
+                  }}
+                >
+                  {product.category}
+                </div>
+              </div>
+
+              {/* Orders */}
+              <span
+                className="mj-hero-table-orders"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 13,
+                  color: '#8b949e',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                {formatOrders(product.orders)}
+              </span>
+
+              {/* Score badge */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                <span
+                  className="mj-hero-table-score"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#4f8ef7',
+                    background: '#1e3a5f',
+                    padding: '3px 8px',
+                    borderRadius: 6,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {product.score}
+                </span>
+                {product.score >= 90 && (
+                  <span
+                    className="mj-hero-table-hot"
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 9,
+                      fontWeight: 700,
+                      color: '#ef4444',
+                      marginTop: 2,
+                      lineHeight: 1,
+                    }}
+                  >
+                    HOT
+                  </span>
+                )}
+              </div>
             </div>
-          )}
+          ))}
+
+          {/* Bottom bar */}
+          <div style={{
+            background: '#0d1117',
+            padding: '8px 16px',
+            borderTop: '1px solid #161b22',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 11,
+              color: '#4b5563',
+            }}>
+              Showing top {displayProducts.length} of {totalCount}+ scored products
+            </span>
+            <a
+              href="/sign-up"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                color: '#4f8ef7',
+                textDecoration: 'none',
+              }}
+            >
+              View all {'\u2192'}
+            </a>
+          </div>
         </div>
       </div>
     </section>
