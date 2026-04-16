@@ -2,22 +2,24 @@ import './styles/components.css';
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { Toaster } from '@/components/ui/sonner';
-import AlmostWonModal from '@/components/AlmostWonModal';
 import { OAuthErrorBanner } from '@/components/OAuthErrorBanner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { PageSkeleton } from './components/skeletons';
-import CookieBanner from './components/CookieBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { CommandPalette } from './components/CommandPalette';
 import { AuthProvider } from './contexts/AuthContext';
 import { MarketProvider } from './contexts/MarketContext';
 import { ProductProvider } from './contexts/ProductContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { MayaProvider } from './context/MayaContext';
 import { RegionProvider } from './context/RegionContext';
+
+// Lazy-loaded non-critical UI — modals/banners that render conditionally
+const AlmostWonModal = lazy(() => import('@/components/AlmostWonModal'));
+const CookieBanner = lazy(() => import('./components/CookieBanner'));
+const CommandPalette = lazy(() => import('./components/CommandPalette').then(m => ({ default: m.CommandPalette })));
 
 function lazyWithRetry(factory: () => Promise<any>) {
   return lazy(() =>
@@ -518,8 +520,8 @@ function App() {
                 <TooltipProvider>
                   <Toaster />
                   <OAuthErrorBanner />
-                  <AlmostWonModal />
-                  <CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} />
+                  <Suspense fallback={null}><AlmostWonModal /></Suspense>
+                  <Suspense fallback={null}><CommandPalette open={cmdkOpen} onOpenChange={setCmdkOpen} /></Suspense>
                   <Router />
                 </TooltipProvider>
               </MayaProvider>
@@ -528,7 +530,7 @@ function App() {
           </MarketProvider>
         </AuthProvider>
       </ThemeProvider>
-      <CookieBanner />
+      <Suspense fallback={null}><CookieBanner /></Suspense>
     </ErrorBoundary>
   );
 }
