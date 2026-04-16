@@ -1,13 +1,16 @@
-// Feature Previews v2 — 4 stacked living feature blocks with real data.
+// Feature Previews v2 — Academy-inspired: monospace eyebrows, two-tone headings,
+// Academy card style (#0d1117, rounded-2xl, subtle cobalt borders), Syne display.
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { LT, F, S } from '@/lib/landingTokens';
+import { F } from '@/lib/landingTokens';
+import { Eyebrow, H2, Sub } from './shared';
 import { useInViewFadeUp } from '../useInViewFadeUp';
 
 /* ── Shared helpers ─────────────────────────────────────────────────────────── */
 
 const CARD_BG = '#0d1117';
-const CARD_BORDER = '#161b22';
-const MUTED = '#8b949e';
+const CARD_BORDER = 'rgba(79,142,247,0.08)';
+const CARD_BORDER_HOVER = 'rgba(79,142,247,0.18)';
+const MUTED = '#9CA3AF';
 const COBALT = '#4f8ef7';
 const GREEN = '#10b981';
 
@@ -94,7 +97,7 @@ function FeatureText({
           fontFamily: F.mono,
           fontSize: 48,
           fontWeight: 700,
-          color: 'rgba(79,142,247,0.15)',
+          color: 'rgba(79,142,247,0.12)',
           lineHeight: 1,
           marginBottom: 12,
           userSelect: 'none',
@@ -103,10 +106,10 @@ function FeatureText({
         {num}
       </div>
       <h3 style={{
-        fontFamily: F.display,
+        fontFamily: "'Syne', sans-serif",
         fontSize: 22,
         fontWeight: 600,
-        color: '#ffffff',
+        color: '#E0E0E0',
         lineHeight: 1.25,
         margin: '0 0 16px 0',
       }}>
@@ -114,7 +117,7 @@ function FeatureText({
       </h3>
       <p style={{
         fontFamily: F.body,
-        fontSize: 17,
+        fontSize: 16,
         color: MUTED,
         lineHeight: 1.7,
         margin: '0 0 20px 0',
@@ -123,7 +126,8 @@ function FeatureText({
       </p>
       <div style={{
         fontFamily: F.mono,
-        fontSize: 14,
+        fontSize: 12,
+        letterSpacing: '0.06em',
         color: COBALT,
       }}>
         {stat}
@@ -157,40 +161,42 @@ function ScoreRow({ product, visible }: { product: DemoProduct; visible: boolean
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
-      padding: '10px 14px', borderRadius: 8,
+      padding: '10px 14px', borderRadius: 12,
     }}>
       {imgSrc ? (
         <img
           src={imgSrc} alt=""
-          style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', background: '#161b22', flexShrink: 0 }}
+          style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', background: '#161b22', flexShrink: 0 }}
           onError={(e) => { e.currentTarget.style.display = 'none'; }}
         />
       ) : (
-        <div style={{ width: 40, height: 40, borderRadius: 6, background: '#161b22', flexShrink: 0 }} />
+        <div style={{ width: 40, height: 40, borderRadius: 8, background: '#161b22', flexShrink: 0 }} />
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontFamily: F.body, fontSize: 13, fontWeight: 600, color: '#ffffff',
+          fontFamily: F.body, fontSize: 13, fontWeight: 600, color: '#E0E0E0',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '35ch',
         }}>
           {product.product_title}
         </div>
-        <div style={{ fontFamily: F.mono, fontSize: 12, color: MUTED }}>
+        <div style={{ fontFamily: F.mono, fontSize: 11, color: '#6B7280' }}>
           {product.sold_count.toLocaleString('en-AU')} orders
         </div>
       </div>
       <span style={{
-        fontFamily: F.mono, fontSize: 14, fontWeight: 600, color: '#ffffff',
-        background: 'rgba(79,142,247,0.15)', borderRadius: 999, padding: '3px 10px',
+        fontFamily: F.mono, fontSize: 14, fontWeight: 600, color: '#E0E0E0',
+        background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.2)',
+        borderRadius: 999, padding: '3px 10px',
       }}>
         {count}
       </span>
       {isHot && (
         <span style={{
-          fontFamily: F.mono, fontSize: 11, fontWeight: 600, color: '#ffffff',
-          background: '#ef4444', borderRadius: 999, padding: '2px 8px',
+          fontFamily: F.mono, fontSize: 10, fontWeight: 600, color: '#ef4444',
+          background: 'rgba(239,68,68,0.12)', borderRadius: 999, padding: '2px 8px',
+          letterSpacing: '0.06em', textTransform: 'uppercase' as const,
         }}>
-          HOT 🔥
+          HOT
         </span>
       )}
     </div>
@@ -221,7 +227,6 @@ function ScoringVisual() {
     return () => { cancelled = true; };
   }, []);
 
-  // Static sparkline points
   const sparkPoints = Array.from({ length: 30 }, (_, i) => {
     const x = (i / 29) * 240;
     const y = 28 - (i / 29) * 20 + Math.sin(i * 0.8) * 3;
@@ -231,14 +236,14 @@ function ScoringVisual() {
   return (
     <div ref={ref as (el: HTMLDivElement | null) => void} className="mj-feat-visual">
       <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 12, padding: 20,
+        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 20,
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {products.map((p, i) => (
             <ScoreRow key={i} product={p} visible={visible} />
           ))}
         </div>
-        <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${CARD_BORDER}` }}>
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <svg viewBox="0 0 240 32" width="100%" height="32" preserveAspectRatio="none" aria-hidden="true">
             <polyline
               points={sparkPoints}
@@ -259,23 +264,20 @@ function ScoringVisual() {
 
 const ALERTS = [
   {
-    icon: '🔔',
-    text: 'Pet Massage Claw — price dropped 18%',
-    price: '$7.20 → $5.91 AUD',
+    text: 'Pet Massage Claw \u2014 price dropped 18%',
+    price: '$7.20 \u2192 $5.91 AUD',
     time: '2 min ago',
     hasPrice: true,
   },
   {
-    icon: '🔔',
-    text: 'LED Under-Cabinet Strip — restocked (2,400 units)',
+    text: 'LED Under-Cabinet Strip \u2014 restocked (2,400 units)',
     price: '',
     time: '14 min ago',
     hasPrice: false,
   },
   {
-    icon: '🔔',
-    text: 'Silicone Lid Set — price dropped 12%',
-    price: '$14.50 → $12.76 AUD',
+    text: 'Silicone Lid Set \u2014 price dropped 12%',
+    price: '$14.50 \u2192 $12.76 AUD',
     time: '1 hour ago',
     hasPrice: true,
   },
@@ -290,7 +292,7 @@ function AlertsVisual() {
   return (
     <div ref={ref as (el: HTMLDivElement | null) => void} className="mj-feat-visual">
       <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 12, padding: 0,
+        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 0,
         overflow: 'hidden',
       }}>
         {ALERTS.map((a, i) => {
@@ -300,17 +302,19 @@ function AlertsVisual() {
               key={i}
               style={{
                 display: 'flex', alignItems: 'flex-start', gap: 12,
-                padding: 14,
+                padding: 16,
                 background: '#080c14',
-                borderBottom: i < ALERTS.length - 1 ? `1px solid ${CARD_BORDER}` : 'none',
+                borderBottom: i < ALERTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
                 opacity: visible ? 1 : 0,
                 transform: visible ? 'translateY(0)' : 'translateY(12px)',
                 transition: `opacity 400ms ease-out ${delay}ms, transform 400ms ease-out ${delay}ms`,
               }}
             >
-              <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0, marginTop: 2 }}>{a.icon}</span>
+              <div style={{
+                width: 8, height: 8, borderRadius: '50%', background: COBALT, flexShrink: 0, marginTop: 6,
+              }} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: F.body, fontSize: 13, color: '#ffffff', lineHeight: 1.5 }}>
+                <div style={{ fontFamily: F.body, fontSize: 13, color: '#E0E0E0', lineHeight: 1.5 }}>
                   {a.text}
                 </div>
                 {a.hasPrice && (
@@ -318,7 +322,7 @@ function AlertsVisual() {
                     {a.price}
                   </div>
                 )}
-                <div style={{ fontFamily: F.mono, fontSize: 11, color: '#6b7280', marginTop: 4 }}>
+                <div style={{ fontFamily: F.mono, fontSize: 10, color: '#6B7280', marginTop: 4, letterSpacing: '0.04em' }}>
                   {a.time}
                 </div>
               </div>
@@ -337,7 +341,7 @@ const BRIEF_LINES: Array<{ key: string; value: string }> = [
   { key: 'HOOK', value: '"Your dog needs this and you know it"' },
   { key: 'ANGLE', value: 'Problem-solution (grooming pain point)' },
   { key: 'PLATFORM', value: 'TikTok Feed + Meta Story' },
-  { key: 'CTA', value: '"Shop Now — Free AU Shipping"' },
+  { key: 'CTA', value: '"Shop Now \u2014 Free AU Shipping"' },
 ];
 
 function AdBriefVisual() {
@@ -349,16 +353,16 @@ function AdBriefVisual() {
   return (
     <div ref={ref as (el: HTMLDivElement | null) => void} className="mj-feat-visual">
       <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 12, padding: 20,
+        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 20,
       }}>
         {/* URL input mock */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
-          paddingBottom: 20, borderBottom: `1px solid ${CARD_BORDER}`,
+          paddingBottom: 20, borderBottom: '1px solid rgba(255,255,255,0.05)',
         }}>
           <div style={{
             flex: 1, padding: '10px 14px', background: '#080c14', border: `1px solid ${CARD_BORDER}`,
-            borderRadius: 8, fontFamily: F.mono, fontSize: 13, color: MUTED,
+            borderRadius: 10, fontFamily: F.mono, fontSize: 12, color: '#6B7280',
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
             aliexpress.com/item/...
@@ -366,8 +370,8 @@ function AdBriefVisual() {
           <button
             type="button"
             style={{
-              padding: '10px 20px', background: COBALT, color: '#ffffff', border: 'none',
-              borderRadius: 8, fontFamily: F.body, fontSize: 13, fontWeight: 600, cursor: 'default',
+              padding: '10px 20px', background: COBALT, color: '#000', border: 'none',
+              borderRadius: 10, fontFamily: F.body, fontSize: 13, fontWeight: 600, cursor: 'default',
               flexShrink: 0,
             }}
           >
@@ -388,13 +392,13 @@ function AdBriefVisual() {
               <div
                 key={line.key}
                 style={{
-                  fontFamily: F.mono, fontSize: 13, lineHeight: 1.6,
+                  fontFamily: F.mono, fontSize: 12, lineHeight: 1.6,
                   opacity: visible ? 1 : 0,
                   transition: `opacity 300ms ease-out ${delay}ms`,
                 }}
               >
                 <span style={{ color: COBALT }}>{line.key}:</span>{' '}
-                <span style={{ color: '#ffffff' }}>{line.value}</span>
+                <span style={{ color: '#E0E0E0' }}>{line.value}</span>
               </div>
             );
           })}
@@ -412,10 +416,10 @@ function StoreVisual() {
   return (
     <div className="mj-feat-visual" ref={fade.ref} style={fade.style}>
       <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 12, padding: 24,
+        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 24,
       }}>
         <div style={{
-          fontFamily: F.display, fontSize: 20, fontWeight: 600, color: '#ffffff', marginBottom: 4,
+          fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 600, color: '#E0E0E0', marginBottom: 4,
         }}>
           Pawdacious
         </div>
@@ -444,7 +448,7 @@ function StoreVisual() {
             <div
               key={i}
               style={{
-                width: 40, height: 40, borderRadius: 8,
+                width: 40, height: 40, borderRadius: 10,
                 background: '#161b22', flexShrink: 0,
               }}
             />
@@ -453,9 +457,10 @@ function StoreVisual() {
 
         {/* Deploy button mock */}
         <div style={{
-          fontFamily: F.body, fontSize: 14, fontWeight: 600, color: COBALT, cursor: 'default',
+          fontFamily: F.mono, fontSize: 12, fontWeight: 500, color: COBALT, cursor: 'default',
+          letterSpacing: '0.04em',
         }}>
-          Deploy to Shopify →
+          Deploy to Shopify {'\u2192'}
         </div>
       </div>
     </div>
@@ -477,7 +482,7 @@ const FEATURES: FeatureBlock[] = [
   {
     num: '01',
     headline: 'Find the winner before the crowd.',
-    body: 'Majorka scores every product by real order velocity — not just total orders. A product doubling weekly at 10K beats one slowing at 100K. You see the signal weeks early.',
+    body: 'Majorka scores every product by real order velocity \u2014 not just total orders. A product doubling weekly at 10K beats one slowing at 100K. You see the signal weeks early.',
     stat: '50M+ listings scanned',
     reverse: false,
     Visual: ScoringVisual,
@@ -485,7 +490,7 @@ const FEATURES: FeatureBlock[] = [
   {
     num: '02',
     headline: 'Get the alert. Beat the restock.',
-    body: 'Set alerts on any product. When a supplier drops price by 12%, you know at 3am — before anyone else orders. Automated edge.',
+    body: 'Set alerts on any product. When a supplier drops price by 12%, you know at 3am \u2014 before anyone else orders. Automated edge.',
     stat: 'Checks every 6 hours',
     reverse: true,
     Visual: AlertsVisual,
@@ -493,7 +498,7 @@ const FEATURES: FeatureBlock[] = [
   {
     num: '03',
     headline: 'Paste a URL. Get a complete ad strategy.',
-    body: "Every product comes with an AI-generated marketing brief — target audience, hook angles, platform recommendations, and AU-specific insights. Not a template. Fresh analysis from today's data.",
+    body: "Every product comes with an AI-generated marketing brief \u2014 target audience, hook angles, platform recommendations, and AU-specific insights. Not a template. Fresh analysis from today\u2019s data.",
     stat: 'Generated in 3 seconds',
     reverse: false,
     Visual: AdBriefVisual,
@@ -512,34 +517,21 @@ export function FeatureTabs() {
   return (
     <section
       id="features"
-      style={{ padding: '96px 24px', maxWidth: 1100, margin: '0 auto' }}
+      style={{ padding: '80px 20px', maxWidth: 1152, margin: '0 auto' }}
     >
       <style>{SECTION_CSS}</style>
 
-      {/* Section header — Academy-style monospace eyebrow + two-tone heading */}
-      <div style={{ textAlign: 'left', marginBottom: 64 }}>
-        <div style={{
-          fontFamily: F.mono, fontSize: 10, fontWeight: 500,
-          letterSpacing: '0.12em', textTransform: 'uppercase',
-          color: COBALT, marginBottom: 12,
-        }}>
-          The Toolkit {'\u00B7'} 4 tools {'\u00B7'} 1 subscription
-        </div>
-        <h2 className="mj-h2" style={{
-          fontFamily: F.display, fontSize: 40, fontWeight: 700,
-          lineHeight: 1.15, letterSpacing: '-0.02em',
-          color: '#ffffff', margin: '0 0 12px 0',
-        }}>
+      {/* Section header -- Academy-style monospace eyebrow + two-tone heading */}
+      <div style={{ marginBottom: 64 }}>
+        <Eyebrow>The Toolkit {'\u00B7'} 4 tools {'\u00B7'} 1 subscription</Eyebrow>
+        <H2>
           Stop researching.
           <br />
-          <span style={{ color: MUTED }}>Start selling.</span>
-        </h2>
-        <p style={{
-          fontFamily: F.body, fontSize: 17, color: MUTED,
-          lineHeight: 1.6, margin: 0,
-        }}>
+          <span style={{ color: '#9CA3AF' }}>Start selling.</span>
+        </H2>
+        <Sub style={{ marginTop: 12 }}>
           Every edge a dropshipper needs. Data-backed, not guesswork.
-        </p>
+        </Sub>
       </div>
 
       {/* Feature blocks */}

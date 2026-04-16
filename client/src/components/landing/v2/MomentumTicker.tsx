@@ -1,5 +1,4 @@
-// MomentumTicker — horizontal trading-terminal strip between Hero and StatsBar.
-// Shows real-time-looking metrics that gently increment.
+// MomentumTicker — Academy-style horizontal strip with live-looking metrics.
 import { useEffect, useRef, useState } from 'react';
 import { F } from '@/lib/landingTokens';
 
@@ -39,11 +38,8 @@ function formatPlus(n: number): string {
 export function MomentumTicker() {
   const reducedMotion = useReducedMotion();
 
-  // Metric 1: est. daily revenue
   const [revenue, setRevenue] = useState(84200);
-  // Metric 2: orders in last 24h
   const [orders, setOrders] = useState(2847);
-  // Metric 3: products discovered this hour
   const [discovered, setDiscovered] = useState(12);
 
   const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
@@ -51,7 +47,6 @@ export function MomentumTicker() {
   useEffect(() => {
     if (reducedMotion) return;
 
-    // Fetch real stat if available, otherwise keep fallback
     fetch('/api/products/stats-overview')
       .then((r) => r.json())
       .then((data) => {
@@ -61,9 +56,7 @@ export function MomentumTicker() {
           setRevenue(Math.floor(data.count * data.avgPrice * 0.1));
         }
       })
-      .catch(() => {
-        // keep fallback
-      });
+      .catch(() => { /* keep fallback */ });
 
     const i1 = setInterval(() => {
       setRevenue((prev) => prev + Math.floor(Math.random() * 41) + 10);
@@ -85,8 +78,8 @@ export function MomentumTicker() {
     <div
       style={{
         background: '#0a0d14',
-        borderTop: '1px solid #161b22',
-        borderBottom: '1px solid #161b22',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
         height: 48,
         display: 'flex',
         alignItems: 'center',
@@ -96,24 +89,9 @@ export function MomentumTicker() {
     >
       <style>{TICKER_CSS}</style>
       <div className="mj-ticker-row">
-        {/* Metric 1: Revenue */}
-        <Metric
-          value={formatDollars(revenue)}
-          label="est. daily revenue on trending products"
-          color="#10b981"
-        />
-        {/* Metric 2: Orders */}
-        <Metric
-          value={formatPlus(orders)}
-          label="orders in last 24 hours"
-          color="#4f8ef7"
-        />
-        {/* Metric 3: Discovered */}
-        <Metric
-          value={String(discovered)}
-          label="products discovered this hour"
-          color="#f59e0b"
-        />
+        <Metric value={formatDollars(revenue)} label="est. daily revenue on trending products" color="#10b981" />
+        <Metric value={formatPlus(orders)} label="orders in last 24 hours" color="#4f8ef7" />
+        <Metric value={String(discovered)} label="products discovered this hour" color="#f59e0b" />
       </div>
     </div>
   );
@@ -131,24 +109,23 @@ function Metric({ value, label, color }: MetricProps) {
       <span
         style={{
           fontFamily: F.mono,
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: 700,
           color,
           whiteSpace: 'nowrap',
         }}
       >
-        <span style={{ color, fontSize: 12, marginRight: 2 }}>&#9650;</span>
         {value}
       </span>
       <span
         className="mj-ticker-label"
         style={{
-          fontFamily: F.body,
-          fontSize: 11,
+          fontFamily: F.mono,
+          fontSize: 10,
           fontWeight: 500,
-          letterSpacing: '0.04em',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase' as const,
-          color: '#6b7280',
+          color: '#6B7280',
           whiteSpace: 'nowrap',
         }}
       >

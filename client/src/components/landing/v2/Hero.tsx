@@ -1,81 +1,55 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'wouter';
 import { LT, F } from '@/lib/landingTokens';
 
 /* ── types ──────────────────────────────────────────────────── */
 
 interface HeroProduct {
-  id: string;
   title: string;
-  image: string | null;
-  orders: number;
   score: number;
+  orders: number;
   price: number;
   category: string;
 }
 
 /* ── data fetching ─────────────────────────────────────────── */
 
-const FETCH_PARAMS: Array<{ category: string; seed: number }> = [
-  { category: 'Pet', seed: 0 },
-  { category: 'Kitchen', seed: 0 },
-  { category: 'Home', seed: 0 },
-  { category: 'Beauty', seed: 0 },
-  { category: 'Pet', seed: 1 },
-  { category: 'Kitchen', seed: 1 },
-  { category: 'Home', seed: 1 },
-  { category: 'Beauty', seed: 1 },
-];
+const CATEGORIES = ['Pet', 'Kitchen', 'Home', 'Beauty'] as const;
 
-async function fetchHeroProducts(): Promise<HeroProduct[]> {
+async function fetchScoreProducts(): Promise<HeroProduct[]> {
   const results = await Promise.allSettled(
-    FETCH_PARAMS.map(async ({ category, seed }) => {
-      const res = await fetch(`/api/demo/quick-score?category=${category}&seed=${seed}`);
+    CATEGORIES.map(async (category) => {
+      const res = await fetch(`/api/demo/quick-score?category=${category}`);
       if (!res.ok) return null;
       const json = await res.json();
       if (!json.ok || !json.product) return null;
       const p = json.product;
+      const score = Number(p.score) || 0;
+      if (score < 75) return null;
       return {
-        id: `${p.id}-${seed}`,
         title: String(p.title || ''),
-        image: p.image ?? null,
+        score,
         orders: Number(p.orders) || 0,
-        score: Number(p.score) || 0,
         price: Number(p.price_aud) || 0,
         category: String(p.category || category),
       } as HeroProduct;
     }),
   );
 
-  const all = results
+  return results
     .filter((r): r is PromiseFulfilledResult<HeroProduct | null> => r.status === 'fulfilled')
     .map((r) => r.value)
     .filter((p): p is HeroProduct => p !== null && p.score >= 75);
-
-  // Deduplicate by base product id
-  const seen = new Set<string>();
-  const unique: HeroProduct[] = [];
-  for (const p of all) {
-    const baseId = p.id.replace(/-\d+$/, '');
-    if (!seen.has(baseId)) {
-      seen.add(baseId);
-      unique.push(p);
-    }
-  }
-
-  return unique.sort((a, b) => b.score - a.score).slice(0, 8);
 }
 
 /* ── helpers ────────────────────────────────────────────────── */
 
-function proxyImg(url: string | null): string {
-  if (!url) return '';
-  if (url.startsWith('/')) return url;
-  return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
 }
 
-function truncate(s: string, n: number): string {
-  return s.length > n ? s.slice(0, n - 1).trimEnd() + '\u2026' : s;
+function formatOrders(n: number): string {
+  return n.toLocaleString('en-AU');
 }
 
 function formatRevenue(orders: number, price: number): string | null {
@@ -85,203 +59,344 @@ function formatRevenue(orders: number, price: number): string | null {
   return `$${rev}/mo`;
 }
 
-function formatOrders(n: number): string {
-  return n.toLocaleString('en-AU');
+function truncate(s: string, n: number): string {
+  return s.length > n ? s.slice(0, n - 1).trimEnd() + '\u2026' : s;
+}
+
+function getLabel(score: number): { text: string; color: string; bg: string } | null {
+  if (score >= 90) return { text: 'HOT \uD83D\uDD25', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' };
+  if (score >= 80) return { text: 'TRENDING \u2191', color: '#4f8ef7', bg: 'rgba(79,142,247,0.12)' };
+  return null;
+}
+
+function getTargetLine(category: string): string {
+  const targets: Record<string, string> = {
+    Pet: 'Pet owners 25-44 in AU',
+    Kitchen: 'Home cooks 28-50 in AU',
+    Home: 'Homeowners 30-55 in AU',
+    Beauty: 'Beauty enthusiasts 18-35 in AU',
+  };
+  return targets[category] || `${category} shoppers in AU`;
+}
+
+/* ── reduced motion check ──────────────────────────────────── */
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return reduced;
 }
 
 /* ── CSS ────────────────────────────────────────────────────── */
 
 const HERO_CSS = `
-@keyframes mjScrollUp {
-  from { transform: translateY(0); }
-  to { transform: translateY(-50%); }
-}
 @keyframes mjPulse {
   0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
   70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
   100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
 }
-.mj-hero-scroll-feed {
-  animation: mjScrollUp 60s linear infinite;
+@keyframes mjLabelPop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
 }
-.mj-hero-scroll-feed:hover {
-  animation-play-state: paused;
+@keyframes mjCobaltPulse {
+  0% { box-shadow: 0 0 0 0 rgba(79,142,247,0.3); }
+  70% { box-shadow: 0 0 0 6px rgba(79,142,247,0); }
+  100% { box-shadow: 0 0 0 0 rgba(79,142,247,0); }
 }
-.mj-hero-feed-col {
-  position: relative;
-  overflow: hidden;
-}
-.mj-hero-feed-col::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 120px;
-  background: linear-gradient(to bottom, #04060f, transparent);
-  z-index: 2;
-  pointer-events: none;
-}
-.mj-hero-feed-col::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 120px;
-  background: linear-gradient(to top, #04060f, transparent);
-  z-index: 2;
-  pointer-events: none;
+@keyframes heroGridPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.55; }
 }
 .mj-hero-cta:hover {
-  background-color: #3a7de0 !important;
+  background-color: #6ba3ff !important;
   transform: scale(1.02);
-  box-shadow: 0 0 40px rgba(79,142,247,0.3);
-}
-.mj-hero-mobile-cards { display: none; }
-@media (prefers-reduced-motion: reduce) {
-  .mj-hero-scroll-feed { animation: none !important; }
+  box-shadow: 0 10px 40px -8px rgba(79,142,247,0.55);
 }
 @media (max-width: 768px) {
   .mj-hero-split { grid-template-columns: 1fr !important; }
-  .mj-hero-left { padding: 100px 20px 32px !important; text-align: center; align-items: center; }
-  .mj-hero-h1 { font-size: 38px !important; }
-  .mj-hero-scroll-feed { animation: none !important; }
-  .mj-hero-feed-col { display: none !important; }
-  .mj-hero-feed-col::before, .mj-hero-feed-col::after { display: none; }
-  .mj-hero-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; padding: 0 20px; margin-top: 24px; }
+  .mj-hero-left {
+    padding: 100px 20px 32px !important;
+    text-align: center;
+    align-items: center;
+  }
+  .mj-hero-h1 { font-size: 36px !important; }
+  .mj-hero-right { padding: 0 20px 40px !important; }
+  .mj-hero-score-num { font-size: clamp(60px, 15vw, 80px) !important; }
+  .mj-hero-card { padding: 24px !important; }
   .mj-hero-cta { width: 100% !important; align-self: stretch !important; }
   .mj-hero-trust { text-align: center; }
 }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0s !important; transition-duration: 0s !important; }
+}
 `;
 
-/* ── ProductCard ─────────────────────────────────────────────── */
+/* ── Score Card ─────────────────────────────────────────────── */
 
-function ProductCard({ product }: { product: HeroProduct }) {
+interface ScoreCardProps {
+  product: HeroProduct;
+  isVisible: boolean;
+  reducedMotion: boolean;
+}
+
+function ScoreCard({ product, isVisible, reducedMotion }: ScoreCardProps) {
+  const [phase, setPhase] = useState(0);
+  const [displayScore, setDisplayScore] = useState(0);
+  const [progressWidth, setProgressWidth] = useState(0);
+  const [glowActive, setGlowActive] = useState(false);
+  const rafRef = useRef<number>(0);
+  const phaseRef = useRef(0);
+
+  // Reset on product change
+  useEffect(() => {
+    if (!isVisible) return;
+
+    if (reducedMotion) {
+      setPhase(5);
+      setDisplayScore(product.score);
+      setProgressWidth(product.score);
+      setGlowActive(true);
+      return;
+    }
+
+    setPhase(0);
+    setDisplayScore(0);
+    setProgressWidth(0);
+    setGlowActive(false);
+    phaseRef.current = 0;
+
+    // Phase 1: product name (0-600ms)
+    const t1 = setTimeout(() => { setPhase(1); phaseRef.current = 1; }, 50);
+
+    // Phase 2: score counter (600-1800ms)
+    const t2 = setTimeout(() => {
+      setPhase(2);
+      phaseRef.current = 2;
+      const startTime = performance.now();
+      const duration = 1200;
+      const target = product.score;
+
+      function tick(now: number) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        const val = Math.round(easeOutCubic(t) * target);
+        setDisplayScore(val);
+        setProgressWidth(easeOutCubic(t) * target);
+        if (t < 1) {
+          rafRef.current = requestAnimationFrame(tick);
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    }, 600);
+
+    // Phase 3: stats (1800-2800ms)
+    const t3 = setTimeout(() => { setPhase(3); phaseRef.current = 3; }, 1800);
+
+    // Phase 4: label (2800-3400ms)
+    const t4 = setTimeout(() => { setPhase(4); phaseRef.current = 4; }, 2800);
+
+    // Phase 5: glow (3400ms+)
+    const t5 = setTimeout(() => {
+      setPhase(5);
+      phaseRef.current = 5;
+      setGlowActive(true);
+    }, 3400);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [product, isVisible, reducedMotion]);
+
+  const label = getLabel(product.score);
   const revenue = formatRevenue(product.orders, product.price);
-  const [hovered, setHovered] = useState(false);
+  const showPhase = reducedMotion ? 5 : phase;
+
+  const statLines = [
+    { text: `${formatOrders(product.orders)} orders`, color: '#ffffff' },
+    { text: `AU demand ${Math.min(99, Math.round(product.score * 0.52))}%`, color: '#8b949e' },
+    ...(revenue ? [{ text: `Est. ${revenue} revenue`, color: '#10b981' }] : []),
+  ];
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="mj-hero-card"
       style={{
         background: '#0d1117',
         border: '1px solid #161b22',
-        borderLeft: hovered ? '3px solid #4f8ef7' : '1px solid #161b22',
-        borderRadius: 12,
-        padding: 16,
-        paddingLeft: hovered ? 13 : 16,
-        marginBottom: 0,
-        borderBottom: '1px solid #0d1520',
-        display: 'flex',
-        flexDirection: 'row',
-        gap: 14,
-        alignItems: 'center',
-        transition: 'border-left 150ms ease, padding-left 150ms ease',
+        borderRadius: 16,
+        padding: '32px 40px',
+        maxWidth: 420,
+        width: '100%',
+        position: 'relative',
+        transition: 'box-shadow 400ms ease',
+        boxShadow: glowActive ? '0 0 40px rgba(79,142,247,0.15)' : 'none',
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'none' : 'translateY(8px)',
       }}
     >
-      {/* Image */}
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 8,
-          overflow: 'hidden',
-          background: '#161b22',
-          flexShrink: 0,
-        }}
-      >
-        {product.image && (
-          <img
-            src={proxyImg(product.image)}
-            alt=""
-            loading="eager"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => {
-              const img = e.currentTarget;
-              if (img.src !== product.image && product.image) {
-                img.src = product.image;
-              } else {
-                img.style.display = 'none';
-                const parent = img.parentElement;
-                if (parent) parent.style.background = 'linear-gradient(135deg, #0d1117, #161b22)';
-              }
-            }}
-          />
-        )}
-      </div>
-
-      {/* Text column */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontFamily: F.body,
-            fontSize: 14,
+      {/* Phase 1: Scoring label + product name */}
+      <div style={{
+        opacity: showPhase >= 1 ? 1 : 0,
+        transform: showPhase >= 1 ? 'translateY(0)' : 'translateY(8px)',
+        transition: reducedMotion ? 'none' : 'opacity 300ms ease, transform 300ms ease',
+      }}>
+        {/* Scoring indicator */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          marginBottom: 12,
+        }}>
+          <span style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: LT.cobalt,
+            animation: showPhase < 5 ? 'mjCobaltPulse 1.5s infinite' : 'none',
+            flexShrink: 0,
+          }} />
+          <span style={{
+            fontFamily: F.mono,
+            fontSize: 11,
             fontWeight: 500,
-            color: LT.text,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            marginBottom: 2,
-          }}
-        >
-          {truncate(product.title, 35)}
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase' as const,
+            color: '#8b949e',
+          }}>
+            {showPhase >= 5 ? 'SCORED' : 'SCORING\u2026'}
+          </span>
         </div>
-        <div style={{ fontFamily: F.body, fontSize: 11, color: '#6b7280', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '1px 6px', display: 'inline-block' }}>
+
+        {/* Product name + category */}
+        <div style={{
+          fontFamily: F.body,
+          fontSize: 18,
+          fontWeight: 500,
+          color: '#ffffff',
+          marginBottom: 4,
+          lineHeight: 1.3,
+        }}>
+          {truncate(product.title, 50)}
+        </div>
+        <div style={{
+          display: 'inline-block',
+          fontFamily: F.body,
+          fontSize: 11,
+          color: '#6b7280',
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: 4,
+          padding: '2px 8px',
+          marginBottom: 24,
+        }}>
           {product.category}
         </div>
       </div>
 
-      {/* Right column — score + meta */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-        <span
+      {/* Phase 2: THE SCORE */}
+      <div style={{
+        opacity: showPhase >= 2 ? 1 : 0,
+        transition: reducedMotion ? 'none' : 'opacity 200ms ease',
+      }}>
+        <div
+          className="mj-hero-score-num"
           style={{
-            fontFamily: F.mono,
-            fontSize: 14,
-            fontWeight: 700,
-            color: '#4f8ef7',
-            background: '#1e3a5f',
-            borderRadius: 6,
-            padding: '4px 10px',
+            fontFamily: "'Syne', sans-serif",
+            fontWeight: 900,
+            fontSize: 'clamp(80px, 12vw, 120px)',
             lineHeight: 1,
+            color: LT.cobalt,
+            letterSpacing: '-0.03em',
+            marginBottom: 8,
           }}
         >
-          {product.score}
-        </span>
-        <span style={{ fontFamily: F.mono, fontSize: 12, color: '#8b949e' }}>
-          {formatOrders(product.orders)}
-        </span>
-        {product.score >= 90 ? (
-          <span
+          {displayScore}
+        </div>
+
+        {/* Progress bar */}
+        <div style={{
+          width: '100%',
+          height: 3,
+          background: 'rgba(255,255,255,0.06)',
+          borderRadius: 2,
+          marginBottom: 24,
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            width: `${progressWidth}%`,
+            height: '100%',
+            background: LT.cobalt,
+            borderRadius: 2,
+            transition: reducedMotion ? 'none' : 'width 50ms linear',
+          }} />
+        </div>
+      </div>
+
+      {/* Phase 3: Stats */}
+      <div style={{ minHeight: 72 }}>
+        {statLines.map((line, i) => (
+          <div
+            key={line.text}
             style={{
-              fontFamily: F.body,
-              fontSize: 10,
-              fontWeight: 700,
-              color: '#ef4444',
-              background: 'rgba(239,68,68,0.12)',
-              borderRadius: 999,
-              padding: '2px 6px',
+              fontFamily: F.mono,
+              fontSize: 15,
+              color: line.color,
+              lineHeight: 1.8,
+              opacity: showPhase >= 3 ? 1 : 0,
+              transform: showPhase >= 3 ? 'translateX(0)' : 'translateX(12px)',
+              transition: reducedMotion
+                ? 'none'
+                : `opacity 300ms ease ${i * 150}ms, transform 300ms ease ${i * 150}ms`,
             }}
           >
-            HOT {'\uD83D\uDD25'}
-          </span>
-        ) : product.score >= 80 ? (
-          <span
-            style={{
-              fontFamily: F.body,
-              fontSize: 10,
-              fontWeight: 700,
-              color: '#4f8ef7',
-              background: 'rgba(79,142,247,0.12)',
-              borderRadius: 999,
-              padding: '2px 6px',
-            }}
-          >
-            TRENDING {'\u2191'}
-          </span>
-        ) : null}
-        {revenue && (
-          <span style={{ fontFamily: F.mono, fontSize: 13, fontWeight: 600, color: '#10b981' }}>
-            {revenue}
+            {line.text}
+          </div>
+        ))}
+      </div>
+
+      {/* Phase 4: Label + target */}
+      <div style={{ marginTop: 16, minHeight: 48 }}>
+        {label && (
+          <span style={{
+            display: 'inline-block',
+            fontFamily: F.mono,
+            fontSize: 12,
+            fontWeight: 700,
+            color: label.color,
+            background: label.bg,
+            borderRadius: 999,
+            padding: '4px 12px',
+            letterSpacing: '0.08em',
+            opacity: showPhase >= 4 ? 1 : 0,
+            animation: showPhase === 4 && !reducedMotion ? 'mjLabelPop 400ms ease forwards' : 'none',
+            ...(showPhase >= 5 ? { transform: 'scale(1)' } : {}),
+          }}>
+            {label.text}
           </span>
         )}
+        <div style={{
+          fontFamily: F.body,
+          fontSize: 14,
+          fontStyle: 'italic',
+          color: '#6b7280',
+          marginTop: 8,
+          opacity: showPhase >= 4 ? 1 : 0,
+          transition: reducedMotion ? 'none' : 'opacity 300ms ease 200ms',
+        }}>
+          {'\u2192'} Target: {getTargetLine(product.category)}
+        </div>
       </div>
     </div>
   );
@@ -291,60 +406,118 @@ function ProductCard({ product }: { product: HeroProduct }) {
 
 export function Hero() {
   const [products, setProducts] = useState<HeroProduct[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [cardVisible, setCardVisible] = useState(true);
+  const reducedMotion = usePrefersReducedMotion();
+  const cycleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMobileRef = useRef(false);
 
+  // Check mobile once
+  useEffect(() => {
+    isMobileRef.current = window.innerWidth <= 768;
+  }, []);
+
+  // Fetch products
   useEffect(() => {
     let cancelled = false;
-    fetchHeroProducts().then((p) => {
-      if (!cancelled) setProducts(p);
+    fetchScoreProducts().then((p) => {
+      if (!cancelled && p.length > 0) setProducts(p);
     });
     return () => { cancelled = true; };
   }, []);
+
+  // Auto-cycle (desktop only, 8s interval)
+  const startCycle = useCallback(() => {
+    if (isMobileRef.current || products.length <= 1) return;
+    cycleTimerRef.current = setTimeout(() => {
+      setCardVisible(false);
+      setTimeout(() => {
+        setActiveIndex((prev) => (prev + 1) % products.length);
+        setCardVisible(true);
+        startCycle();
+      }, 300);
+    }, 8000);
+  }, [products]);
+
+  useEffect(() => {
+    if (products.length === 0) return;
+    startCycle();
+    return () => { if (cycleTimerRef.current) clearTimeout(cycleTimerRef.current); };
+  }, [products, startCycle]);
+
+  // Pause on hidden
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.hidden) {
+        if (cycleTimerRef.current) clearTimeout(cycleTimerRef.current);
+      } else {
+        startCycle();
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [startCycle]);
+
+  const activeProduct = products[activeIndex] || null;
 
   return (
     <section
       className="mj-hero-split"
       style={{
-        height: '100vh',
+        minHeight: '100vh',
         overflow: 'hidden',
         position: 'relative',
         display: 'grid',
         gridTemplateColumns: '1.2fr 0.8fr',
+        alignItems: 'center',
       }}
     >
       <style>{HERO_CSS}</style>
 
-      {/* ── BG layers ── */}
+      {/* BG layers */}
       <div aria-hidden style={{ position: 'absolute', inset: 0, background: '#04060f', zIndex: 0 }} />
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(ellipse 80% 40% at 50% -5%, rgba(79,142,247,0.07), transparent 70%)',
+          backgroundImage:
+            'radial-gradient(circle, rgba(79,142,247,0.08) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          maskImage: 'radial-gradient(circle at 50% 40%, black 0%, transparent 70%)',
+          WebkitMaskImage: 'radial-gradient(circle at 50% 40%, black 0%, transparent 70%)',
+          animation: 'heroGridPulse 8s ease-in-out infinite',
           zIndex: 1,
         }}
       />
+      {/* Radial glow */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
-          inset: 0,
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
+          left: '35%',
+          top: '15%',
+          width: 800,
+          height: 500,
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(79,142,247,0.12) 0%, transparent 65%)',
+          filter: 'blur(40px)',
           zIndex: 2,
         }}
       />
+      {/* Vignette */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(ellipse at center, transparent 50%, #04060f 100%)',
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 50%, #04060f 100%)',
           zIndex: 3,
+          pointerEvents: 'none',
         }}
       />
 
-      {/* ── LEFT HALF ── */}
+      {/* LEFT HALF */}
       <div
         className="mj-hero-left"
         style={{
@@ -360,58 +533,53 @@ export function Hero() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
           <span
             style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: '#22c55e',
-              animation: 'mjPulse 2s infinite',
-              flexShrink: 0,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: F.body,
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: '0.08em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontFamily: F.mono,
+              fontSize: 10,
+              fontWeight: 500,
+              letterSpacing: '0.12em',
               textTransform: 'uppercase' as const,
-              color: '#6b7280',
+              color: '#6ba3ff',
+              background: 'rgba(79,142,247,0.1)',
+              border: '1px solid rgba(79,142,247,0.3)',
+              borderRadius: 999,
+              padding: '5px 12px',
             }}
           >
-            LIVE {'\u00B7'} AU / US / UK
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#22c55e',
+                animation: 'mjPulse 2s infinite',
+                flexShrink: 0,
+              }}
+            />
+            Live {'\u00B7'} AU {'\u00B7'} US {'\u00B7'} UK
           </span>
         </div>
 
-        {/* H1 — 56px primary headline */}
+        {/* H1 */}
         <h1
           className="mj-hero-h1"
           style={{
-            fontFamily: F.display,
-            fontSize: 56,
-            fontWeight: 800,
-            lineHeight: 1.05,
+            fontFamily: "'Syne', sans-serif",
+            fontSize: 48,
+            fontWeight: 700,
+            lineHeight: 1.08,
             letterSpacing: '-0.03em',
-            color: LT.text,
-            margin: '0 0 16px 0',
-          }}
-        >
-          The dropshipping intelligence platform.
-        </h1>
-
-        {/* Value prop — unmissable one-liner */}
-        <p
-          style={{
-            fontFamily: F.display,
-            fontSize: 22,
-            fontWeight: 600,
-            color: LT.cobalt,
-            lineHeight: 1.3,
+            color: '#ffffff',
             margin: '0 0 20px 0',
-            maxWidth: 480,
+            maxWidth: 440,
           }}
         >
-          Find winning products before your competitors even know they exist.
-        </p>
+          The dropshipping
+          <br />
+          intelligence platform.
+        </h1>
 
         {/* Sub */}
         <p
@@ -419,91 +587,81 @@ export function Hero() {
             fontFamily: F.body,
             fontSize: 17,
             color: '#8b949e',
-            lineHeight: 1.7,
+            lineHeight: 1.6,
             maxWidth: 440,
             margin: '0 0 32px 0',
           }}
         >
-          Majorka scores millions of AliExpress products by real order velocity across AU, US and UK. You see winners first.
+          Scores millions of AliExpress products by real order velocity.
+          You see what's selling before you spend a dollar on ads.
         </p>
 
         {/* CTA */}
-        <Link
-          href="/sign-up"
-          className="mj-hero-cta"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            alignSelf: 'flex-start',
-            padding: '16px 32px',
-            background: LT.cobalt,
-            color: '#fff',
-            fontFamily: F.body,
-            fontWeight: 600,
-            fontSize: 16,
-            borderRadius: 10,
-            textDecoration: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'transform 150ms ease, background-color 150ms ease, box-shadow 150ms ease',
-            marginBottom: 16,
-          }}
-        >
-          Get Started {'\u2192'}
-        </Link>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <Link
+            href="/sign-up"
+            className="mj-hero-cta"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'flex-start',
+              padding: '16px 28px',
+              gap: 8,
+              background: '#4f8ef7',
+              color: '#000',
+              fontFamily: F.body,
+              fontWeight: 600,
+              fontSize: 15,
+              borderRadius: 12,
+              textDecoration: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'transform 150ms ease, background-color 150ms ease, box-shadow 150ms ease',
+              boxShadow: '0 10px 40px -8px rgba(79,142,247,0.55)',
+            }}
+          >
+            Get Started {'\u2192'}
+          </Link>
+        </div>
 
-        {/* Trust line */}
+        {/* Trust */}
         <p
           className="mj-hero-trust"
           style={{
-            fontFamily: F.body,
-            fontSize: 13,
-            color: '#4b5563',
-            margin: '0 0 0 0',
+            fontFamily: F.mono,
+            fontSize: 11,
+            letterSpacing: '0.04em',
+            color: '#6B7280',
+            margin: 0,
           }}
         >
-          {'\u2713'} No credit card {'\u00B7'} {'\u2713'} Cancel anytime {'\u00B7'} {'\u2713'} 30-day guarantee
+          No credit card {'\u00B7'} Cancel anytime {'\u00B7'} 30-day guarantee
         </p>
-
-        {/* Mobile cards — visible only ≤768px */}
-        <div className="mj-hero-mobile-cards">
-          {products.slice(0, 3).map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
       </div>
 
-      {/* ── RIGHT HALF ── */}
+      {/* RIGHT HALF — Score Reveal Card */}
       <div
-        className="mj-hero-feed-col"
-        aria-hidden="true"
+        className="mj-hero-right"
         style={{
-          position: 'relative',
-          overflow: 'hidden',
-          zIndex: 5,
           display: 'flex',
           alignItems: 'center',
-          background: '#060810',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-          opacity: 0.75,
+          justifyContent: 'center',
+          position: 'relative',
+          zIndex: 10,
+          padding: '0 32px',
         }}
       >
-        {products.length > 0 && (
-          <div
-            className="mj-hero-scroll-feed"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '0 24px',
-              width: '100%',
-            }}
-          >
-            {/* Render list twice for seamless loop */}
-            {[...products, ...products].map((p, i) => (
-              <ProductCard key={`${p.id}-${i}`} product={p} />
-            ))}
+        {activeProduct && (
+          <div style={{
+            opacity: cardVisible ? 1 : 0,
+            transition: reducedMotion ? 'none' : 'opacity 300ms ease',
+          }}>
+            <ScoreCard
+              product={activeProduct}
+              isVisible={cardVisible}
+              reducedMotion={reducedMotion}
+            />
           </div>
         )}
       </div>

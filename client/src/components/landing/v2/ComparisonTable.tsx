@@ -1,7 +1,8 @@
-// Cost of Inaction — "7 hours vs 10 minutes" timeline comparison.
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
-import { LT, F, S } from '@/lib/landingTokens';
-import { EyebrowPill, H2, Section } from './shared';
+// Cost of Inaction — Academy-style: monospace eyebrow, Syne two-tone heading,
+// dark cards with subtle cobalt borders, clean typography.
+import { useEffect, useRef, type CSSProperties } from 'react';
+import { F } from '@/lib/landingTokens';
+import { Eyebrow, H2, Section } from './shared';
 
 /* ── timeline data ─────────────────────────────────────────── */
 
@@ -52,21 +53,6 @@ function useFadeUp<T extends HTMLElement>() {
 
 /* ── sub-components ────────────────────────────────────────── */
 
-function Dot({ color }: { color: string }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 8,
-        height: 8,
-        borderRadius: '50%',
-        background: color,
-        flexShrink: 0,
-      }}
-    />
-  );
-}
-
 function TimelineCard({
   title,
   dotColor,
@@ -89,9 +75,9 @@ function TimelineCard({
   const ref = useFadeUp<HTMLDivElement>();
 
   const cardStyle: CSSProperties = {
-    background: LT.bgCard,
-    border: `1px solid ${LT.border}`,
-    borderRadius: 12,
+    background: '#0d1117',
+    border: '1px solid rgba(79,142,247,0.08)',
+    borderRadius: 16,
     padding: 24,
     opacity: 0,
     transform: 'translateY(16px)',
@@ -103,15 +89,16 @@ function TimelineCard({
     <div ref={ref} style={cardStyle}>
       {/* header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-        <Dot color={dotColor} />
-        <span style={{ fontFamily: F.display, fontSize: 20, fontWeight: 600, color: LT.text }}>{title}</span>
+        <span style={{
+          width: 8, height: 8, borderRadius: '50%', background: dotColor, flexShrink: 0,
+        }} />
+        <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 600, color: '#E0E0E0' }}>{title}</span>
       </div>
 
       {/* timeline */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {items.map((item, i) => (
           <div key={i} style={{ display: 'flex', gap: 16, position: 'relative' }}>
-            {/* vertical connector */}
             {i < items.length - 1 && (
               <div
                 style={{
@@ -119,16 +106,15 @@ function TimelineCard({
                   left: 36,
                   top: 20,
                   bottom: 0,
-                  borderLeft: `1px dotted ${LT.border}`,
+                  borderLeft: '1px dotted rgba(255,255,255,0.06)',
                 }}
               />
             )}
-            {/* time label */}
             <div
               style={{
                 fontFamily: F.mono,
-                fontSize: 13,
-                color: '#6b7280',
+                fontSize: 12,
+                color: '#6B7280',
                 minWidth: 72,
                 flexShrink: 0,
                 paddingTop: 2,
@@ -137,7 +123,6 @@ function TimelineCard({
             >
               {item.time}
             </div>
-            {/* description */}
             <div style={{ paddingBottom: 20, flex: 1 }}>
               {item.lines.map((line, j) => (
                 <div
@@ -145,7 +130,7 @@ function TimelineCard({
                   style={{
                     fontFamily: F.body,
                     fontSize: 14,
-                    color: j === 0 ? LT.text : LT.textMute,
+                    color: j === 0 ? '#E0E0E0' : '#9CA3AF',
                     lineHeight: 1.55,
                   }}
                 >
@@ -156,7 +141,7 @@ function TimelineCard({
                 <div
                   style={{
                     fontFamily: F.mono,
-                    fontSize: 13,
+                    fontSize: 12,
                     color: accentColor,
                     marginTop: 4,
                     fontWeight: 500,
@@ -173,14 +158,14 @@ function TimelineCard({
       {/* summary */}
       <div
         style={{
-          borderTop: `1px solid ${LT.border}`,
+          borderTop: '1px solid rgba(255,255,255,0.05)',
           marginTop: 8,
           paddingTop: 20,
         }}
       >
-        <div style={{ fontFamily: F.body, fontSize: 24, fontWeight: 700, color: accentColor }}>{summaryBig}</div>
-        <div style={{ fontFamily: F.body, fontSize: 14, color: LT.textMute, marginTop: 4 }}>{summaryLine}</div>
-        <div style={{ fontFamily: F.mono, fontSize: 14, color: accentColor, marginTop: 8 }}>{summaryCost}</div>
+        <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 700, color: accentColor }}>{summaryBig}</div>
+        <div style={{ fontFamily: F.body, fontSize: 14, color: '#9CA3AF', marginTop: 4 }}>{summaryLine}</div>
+        <div style={{ fontFamily: F.mono, fontSize: 12, color: accentColor, marginTop: 8 }}>{summaryCost}</div>
       </div>
     </div>
   );
@@ -193,16 +178,14 @@ export function ComparisonTable() {
   const closerRef = useFadeUp<HTMLDivElement>();
 
   return (
-    <Section id="compare" style={{ background: LT.bg, padding: '80px 24px' }}>
-      {/* header — Academy-style monospace eyebrow + two-tone heading */}
+    <Section id="compare" style={{ background: '#04060f', padding: '80px 20px' }}>
+      {/* header -- Academy-style */}
       <div style={{ textAlign: 'center', marginBottom: 48 }}>
-        <div style={{ fontFamily: F.mono, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: LT.cobalt, marginBottom: 12 }}>
-          The Real Cost {'\u00B7'} Time vs Intelligence
-        </div>
+        <Eyebrow center>The Real Cost {'\u00B7'} Time vs Intelligence</Eyebrow>
         <H2 style={{ margin: '0 auto', maxWidth: 700 }}>
           Every day without Majorka
           <br />
-          <span style={{ color: LT.textMute }}>is a day your competitors get ahead.</span>
+          <span style={{ color: '#9CA3AF' }}>is a day your competitors get ahead.</span>
         </H2>
       </div>
 
@@ -212,7 +195,7 @@ export function ComparisonTable() {
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: 32,
+          gap: 24,
           maxWidth: 1000,
           margin: '0 auto',
         }}
@@ -228,8 +211,8 @@ export function ComparisonTable() {
         />
         <TimelineCard
           title="Majorka"
-          dotColor={LT.cobalt}
-          accentColor={LT.cobalt}
+          dotColor="#4f8ef7"
+          accentColor="#4f8ef7"
           items={WITH}
           summaryBig="10 minutes"
           summaryLine="Data-backed decision. Confidence to launch."
@@ -242,9 +225,9 @@ export function ComparisonTable() {
       <div
         ref={punchRef}
         style={{
-          background: '#0a0d14',
-          border: `1px solid ${LT.border}`,
-          borderRadius: 12,
+          background: '#0d1117',
+          border: '1px solid rgba(79,142,247,0.08)',
+          borderRadius: 16,
           padding: '24px 48px',
           maxWidth: 700,
           margin: '48px auto 0',
@@ -257,8 +240,8 @@ export function ComparisonTable() {
         <p
           style={{
             fontFamily: F.body,
-            fontSize: 17,
-            color: LT.text,
+            fontSize: 16,
+            color: '#E0E0E0',
             lineHeight: 1.7,
             fontStyle: 'italic',
             margin: 0,
@@ -283,7 +266,7 @@ export function ComparisonTable() {
           transition: 'opacity 400ms ease 100ms, transform 400ms ease 100ms',
         }}
       >
-        <p style={{ fontFamily: F.body, fontSize: 15, color: LT.textMute, margin: 0, lineHeight: 1.7 }}>
+        <p style={{ fontFamily: F.body, fontSize: 15, color: '#9CA3AF', margin: 0, lineHeight: 1.7 }}>
           The question isn&rsquo;t whether Majorka is worth $166/month.
           <br />
           It&rsquo;s how much the delay is costing you.

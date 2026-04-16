@@ -1,11 +1,11 @@
-// Stats Bar v2 — edge-to-edge row of 4 metrics.
-import { LT, F } from '@/lib/landingTokens';
+// Stats Bar v2 — Academy-style: monospace labels, Syne values, cobalt accent cards.
+import { F } from '@/lib/landingTokens';
 
 const STATS: Array<{ value: string; label: string }> = [
   { value: '50M+', label: 'Products Sourced' },
   { value: 'Live', label: 'AliExpress Data' },
   { value: '6hr', label: 'Data Refresh' },
-  { value: 'AU · US · UK', label: 'Markets' },
+  { value: 'AU \u00B7 US \u00B7 UK', label: 'Markets' },
 ];
 
 export function StatsBar() {
@@ -13,9 +13,9 @@ export function StatsBar() {
     <section
       aria-label="Platform stats"
       style={{
-        background: LT.bgCard,
-        borderTop: `1px solid ${LT.border}`,
-        borderBottom: `1px solid ${LT.border}`,
+        background: '#0d1117',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
         width: '100%',
       }}
     >
@@ -24,7 +24,9 @@ export function StatsBar() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          minHeight: 60,
+          maxWidth: 1152,
+          margin: '0 auto',
+          padding: '0 20px',
         }}
       >
         {STATS.map((s, i) => (
@@ -33,21 +35,34 @@ export function StatsBar() {
             className="mj-stats-cell"
             style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
-              padding: '18px 16px',
-              borderRight: i < STATS.length - 1 ? `1px solid ${LT.border}` : 'none',
-              fontFamily: F.body,
-              fontSize: 15,
-              color: LT.textMute,
+              gap: 4,
+              padding: '20px 16px',
+              borderRight: i < STATS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
               textAlign: 'center',
             }}
           >
-            <span style={{ fontFamily: F.mono, fontSize: 15, color: LT.text, whiteSpace: 'nowrap' }}>
+            <span style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: 20,
+              fontWeight: 600,
+              color: '#4f8ef7',
+              whiteSpace: 'nowrap',
+            }}>
               {s.value}
             </span>
-            <span style={{ whiteSpace: 'nowrap' }}>{s.label}</span>
+            <span style={{
+              fontFamily: F.mono,
+              fontSize: 10,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase' as const,
+              color: '#6B7280',
+              whiteSpace: 'nowrap',
+            }}>
+              {s.label}
+            </span>
           </div>
         ))}
       </div>

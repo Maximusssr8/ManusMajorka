@@ -1,7 +1,7 @@
-// Early access community section — honest framing for a pre-launch product.
-// No fake revenue numbers. No 5-star ratings. Just real product feedback.
-// TODO: Replace with verified testimonials once real users are onboarded.
+// Social proof — Academy-style: monospace eyebrow, two-tone heading,
+// dark cards with subtle cobalt borders, restrained typography.
 import { F } from '@/lib/landingTokens';
+import { Eyebrow, H2, Sub } from './shared';
 
 interface Quote {
   text: string;
@@ -9,27 +9,26 @@ interface Quote {
   context: string;
 }
 
-// Short, casual, product-focused — no revenue claims pre-launch.
 const QUOTES: readonly Quote[] = [
   {
     text: 'The velocity data is genuinely different from anything I\'ve used. Found three products worth testing in my first session.',
     name: 'Early access operator',
-    context: 'AU · Builder plan',
+    context: 'AU \u00B7 Builder plan',
   },
   {
-    text: 'Replaced three separate tools I was paying for. Product research, ad spy, and trend data — all in one place now.',
+    text: 'Replaced three separate tools I was paying for. Product research, ad spy, and trend data \u2014 all in one place now.',
     name: 'Early access operator',
-    context: 'AU · Scale plan',
+    context: 'AU \u00B7 Scale plan',
   },
   {
     text: 'The AU market split is what sold me. I was targeting the wrong country entirely. This showed me where the actual demand was.',
     name: 'Early access operator',
-    context: 'AU · Builder plan',
+    context: 'AU \u00B7 Builder plan',
   },
   {
     text: 'Price alert woke me up at 3am. Supplier dropped 18%. Ordered before the price corrected. That feature alone is worth the subscription.',
     name: 'Early access operator',
-    context: 'US · Scale plan',
+    context: 'US \u00B7 Scale plan',
   },
 ];
 
@@ -37,80 +36,65 @@ const CSS = `
 .mj-ea-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  max-width: 900px;
+  gap: 16px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 @media (max-width: 768px) {
-  .mj-ea-grid { grid-template-columns: 1fr; gap: 16px; }
+  .mj-ea-grid { grid-template-columns: 1fr; gap: 12px; }
 }
 `;
 
 export function SocialProof() {
   return (
-    <section style={{ padding: '80px 24px', background: '#04060f' }}>
+    <section style={{ padding: '80px 20px', background: '#04060f' }}>
       <style>{CSS}</style>
 
-      <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center', marginBottom: 48 }}>
-        <span style={{
-          fontFamily: F.body,
-          fontSize: 11,
-          color: '#4f8ef7',
-          textTransform: 'uppercase' as const,
-          letterSpacing: '0.12em',
-          display: 'inline-block',
-          marginBottom: 16,
-        }}>
-          EARLY ACCESS
-        </span>
-        <h2 className="mj-h2" style={{
-          fontFamily: F.display,
-          fontSize: 36,
-          fontWeight: 700,
-          color: '#ffffff',
-          margin: '0 0 12px',
-          lineHeight: 1.15,
-        }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center', marginBottom: 48 }}>
+        <Eyebrow center>Early Access</Eyebrow>
+        <H2 style={{ margin: '0 auto 12px' }}>
           What early operators are saying
-        </h2>
-        <p style={{
-          fontFamily: F.body,
-          fontSize: 16,
-          color: '#8b949e',
-          margin: 0,
-          lineHeight: 1.6,
-        }}>
-          Majorka is in early access. These are real reactions from our first cohort — not scripted reviews.
-        </p>
+        </H2>
+        <Sub style={{ margin: '0 auto' }}>
+          Majorka is in early access. These are real reactions from our first cohort \u2014 not scripted reviews.
+        </Sub>
       </div>
 
       <div className="mj-ea-grid">
         {QUOTES.map((q, i) => (
           <div
             key={i}
+            className="mj-testimonial-card"
             style={{
               background: '#0d1117',
-              border: '1px solid #161b22',
-              borderRadius: 12,
+              border: '1px solid rgba(79,142,247,0.08)',
+              borderRadius: 16,
               padding: 24,
+              transition: 'border-color 200ms ease',
             }}
           >
             <p style={{
               fontFamily: F.body,
-              fontSize: 15,
-              color: '#e5e7eb',
+              fontSize: 14,
+              color: '#E0E0E0',
               lineHeight: 1.7,
               margin: '0 0 16px',
               fontStyle: 'italic',
             }}>
               &ldquo;{q.text}&rdquo;
             </p>
-            <div style={{
-              fontFamily: F.body,
-              fontSize: 13,
-              color: '#6b7280',
-            }}>
-              {q.name} · {q.context}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 6, height: 6, borderRadius: '50%', background: '#4f8ef7', flexShrink: 0,
+              }} />
+              <span style={{
+                fontFamily: F.mono,
+                fontSize: 11,
+                letterSpacing: '0.04em',
+                color: '#6B7280',
+              }}>
+                {q.name} {'\u00B7'} {q.context}
+              </span>
             </div>
           </div>
         ))}
@@ -122,14 +106,15 @@ export function SocialProof() {
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            fontFamily: F.body,
-            fontSize: 14,
-            color: '#8b949e',
+            fontFamily: F.mono,
+            fontSize: 12,
+            color: '#6B7280',
             textDecoration: 'none',
+            letterSpacing: '0.04em',
             transition: 'color 200ms',
           }}
         >
-          Join our Discord community →
+          Join our Discord community {'\u2192'}
         </a>
       </div>
     </section>
