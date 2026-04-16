@@ -113,6 +113,10 @@ export function QuickScoreHero(_props: QuickScoreHeroProps) {
   const cycleTimer = useRef<number | null>(null);
   const userInteracted = useRef<boolean>(false);
   const mountedRef = useRef<boolean>(true);
+  // Rotation seed — increments per category run so the same chip surfaces
+  // different top-10 products on re-click. Starts from the mount timestamp
+  // so first-paint still feels fresh.
+  const seedRef = useRef<number>(Date.now() & 0x7fffffff);
 
   useEffect(() => () => { mountedRef.current = false; }, []);
 
@@ -128,9 +132,11 @@ export function QuickScoreHero(_props: QuickScoreHeroProps) {
     let isSampled = false;
 
     try {
-      const r = await fetch(`/api/demo/quick-score?category=${encodeURIComponent(key)}`, {
-        credentials: 'omit',
-      });
+      seedRef.current = (seedRef.current + 1) & 0x7fffffff;
+      const r = await fetch(
+        `/api/demo/quick-score?category=${encodeURIComponent(key)}&seed=${seedRef.current}`,
+        { credentials: 'omit' },
+      );
       const json: DemoResponse = await r.json();
       if (r.ok && json.ok) {
         result = json.product;

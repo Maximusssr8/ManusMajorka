@@ -181,7 +181,7 @@ router.get('/quick-score', rateLimit, async (req: Request, res: Response) => {
       )
       .ilike('category', pattern)
       .order('sold_count', { ascending: false, nullsFirst: false })
-      .limit(5);
+      .limit(10);
 
     if (error) {
       console.error('[demo-quick-score] supabase error:', error);
@@ -191,8 +191,17 @@ router.get('/quick-score', rateLimit, async (req: Request, res: Response) => {
       return res.status(404).json({ ok: false, reason: 'no_match', pattern });
     }
 
-    // Pick first row that has a usable image; fallback to first row.
-    const row = (data.find((r) => r.image_url) ?? data[0]) as Record<string, unknown>;
+    // Rotate across all rows that actually have a usable image.
+    // Primary rotation: explicit ?seed=N query param (client increments per click).
+    // Fallback: UTC minute bucket — same product within a minute, fresh each minute.
+    // Either way the pick is deterministic but feels alive on re-click.
+    const usable = data.filter((r) => !!r.image_url);
+    const pool = usable.length > 0 ? usable : data;
+    const rawSeed = String(req.query.seed ?? '').trim();
+    const seedNum = /^\d+$/.test(rawSeed) ? Number(rawSeed) : NaN;
+    const minuteBucket = Math.floor(Date.now() / 60_000);
+    const idx = (Number.isFinite(seedNum) ? seedNum : minuteBucket) % pool.length;
+    const row = pool[Math.abs(idx) % pool.length] as Record<string, unknown>;
     const id = String(row.id);
     const title = String(row.product_title || `${category} Product`);
     const image = (row.image_url as string) || null;
