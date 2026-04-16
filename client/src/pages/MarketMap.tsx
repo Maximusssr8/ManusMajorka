@@ -24,9 +24,9 @@ interface MapData {
 }
 
 const COLORS = [
-  '#d4af37',
+  '#4f8ef7',
   '#9c5fff',
-  '#d4af37',
+  '#4f8ef7',
   '#ff6b6b',
   '#4ecdc4',
   '#ffa500',
@@ -149,7 +149,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
       >
         <div className="p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
           <div className="flex items-center gap-2 mb-1">
-            <Map className="w-4 h-4" style={{ color: '#d4af37' }} />
+            <Map className="w-4 h-4" style={{ color: '#4f8ef7' }} />
             <h1
               className="font-extrabold text-sm"
               style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
@@ -233,8 +233,8 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
             className="w-full font-extrabold"
             style={{
               background: loading
-                ? 'rgba(212,175,55,0.3)'
-                : 'linear-gradient(135deg, #d4af37, #c09a28)',
+                ? 'rgba(79,142,247,0.3)'
+                : 'linear-gradient(135deg, #4f8ef7, #c09a28)',
               color: '#FAFAFA',
               fontFamily: "'Syne', sans-serif",
             }}
@@ -265,9 +265,9 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   onClick={() => setNiche(ex)}
                   className="w-full text-left text-xs px-3 py-2 rounded-lg border transition-colors"
                   style={{
-                    borderColor: 'rgba(212,175,55,0.2)',
-                    color: 'rgba(212,175,55,0.8)',
-                    background: 'rgba(212,175,55,0.04)',
+                    borderColor: 'rgba(79,142,247,0.2)',
+                    color: 'rgba(79,142,247,0.8)',
+                    background: 'rgba(79,142,247,0.04)',
                   }}
                 >
                   {ex}
@@ -285,9 +285,9 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
             <div className="text-center">
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'rgba(212,175,55,0.08)' }}
+                style={{ background: 'rgba(79,142,247,0.08)' }}
               >
-                <Map className="w-8 h-8" style={{ color: '#d4af37', opacity: 0.4 }} />
+                <Map className="w-8 h-8" style={{ color: '#4f8ef7', opacity: 0.4 }} />
               </div>
               <p
                 className="text-sm font-bold mb-1"
@@ -305,7 +305,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
         {loading && (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: '#d4af37' }} />
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: '#4f8ef7' }} />
               <p className="text-sm" style={{ color: '#94A3B8' }}>
                 Researching market positioning…
               </p>
@@ -414,12 +414,12 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                     style={{
                       left: `calc(${toPercent(mapData.recommendedPosition.price)}% - 20px)`,
                       bottom: `calc(${toPercent(mapData.recommendedPosition.quality)}% - 20px)`,
-                      borderColor: 'rgba(212,175,55,0.75)',
-                      background: 'rgba(212,175,55,0.09)',
+                      borderColor: 'rgba(79,142,247,0.75)',
+                      background: 'rgba(79,142,247,0.09)',
                     }}
                     title={`Opportunity: ${mapData.recommendedPosition.label}`}
                   >
-                    <Plus className="w-4 h-4" style={{ color: '#d4af37', opacity: 0.7 }} />
+                    <Plus className="w-4 h-4" style={{ color: '#4f8ef7', opacity: 0.7 }} />
                   </div>
                 )}
 
@@ -518,9 +518,9 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 <div className="flex items-center gap-2 text-xs">
                   <div
                     className="w-3 h-3 rounded-full border border-dashed flex-shrink-0"
-                    style={{ borderColor: '#d4af37' }}
+                    style={{ borderColor: '#4f8ef7' }}
                   />
-                  <span style={{ color: '#d4af37' }}>Opportunity zone</span>
+                  <span style={{ color: '#4f8ef7' }}>Opportunity zone</span>
                 </div>
               </div>
 
@@ -529,13 +529,13 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 <div
                   className="rounded-xl p-5 border"
                   style={{
-                    background: 'rgba(212,175,55,0.06)',
-                    borderColor: 'rgba(212,175,55,0.30)',
+                    background: 'rgba(79,142,247,0.06)',
+                    borderColor: 'rgba(79,142,247,0.30)',
                   }}
                 >
                   <h3
                     className="text-xs font-extrabold uppercase tracking-widest mb-3"
-                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                   >
                     Opportunity Zone
                   </h3>
@@ -545,7 +545,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   {mapData.recommendedPosition && (
                     <div
                       className="mt-3 px-3 py-1.5 rounded-lg inline-block text-xs font-bold"
-                      style={{ background: 'rgba(212,175,55,0.18)', color: '#d4af37' }}
+                      style={{ background: 'rgba(79,142,247,0.18)', color: '#4f8ef7' }}
                     >
                       Recommended: {mapData.recommendedPosition.label}
                     </div>
@@ -583,7 +583,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                         className="flex items-start gap-2 text-xs"
                         style={{ color: '#CBD5E1' }}
                       >
-                        <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
+                        <span style={{ color: '#4f8ef7', flexShrink: 0 }}>→</span>
                         {ins}
                       </li>
                     ))}

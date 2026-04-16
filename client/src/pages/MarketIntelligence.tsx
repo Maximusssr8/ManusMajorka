@@ -74,8 +74,8 @@ function CopyBtn({ text }: { text: string }) {
       onClick={handleCopy}
       className="p-1.5 rounded-lg transition-all duration-150 flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`,
+        background: copied ? 'rgba(79,142,247,0.15)' : 'rgba(255,255,255,0.05)',
+        border: `1px solid ${copied ? 'rgba(79,142,247,0.4)' : 'rgba(255,255,255,0.1)'}`,
         color: copied ? '#A5B4FC' : '#94A3B8',
       }}
       title="Copy to clipboard"
@@ -88,7 +88,7 @@ function CopyBtn({ text }: { text: string }) {
 // ─── Section Card ─────────────────────────────────────────────────────────────
 function SectionCard({
   title,
-  accent = '#d4af37',
+  accent = '#4f8ef7',
   children,
   defaultOpen = true,
 }: {
@@ -127,7 +127,7 @@ function SectionCard({
 
 // ─── Trend Icon ───────────────────────────────────────────────────────────────
 function TrendIcon({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
-  if (trend === 'growing') return <TrendingUp size={16} style={{ color: '#d4af37' }} />;
+  if (trend === 'growing') return <TrendingUp size={16} style={{ color: '#4f8ef7' }} />;
   if (trend === 'declining') return <TrendingDown size={16} style={{ color: '#ef4444' }} />;
   return <Minus size={16} style={{ color: '#f59e0b' }} />;
 }
@@ -135,7 +135,7 @@ function TrendIcon({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
 // ─── Difficulty Badge ─────────────────────────────────────────────────────────
 function DifficultyBadge({ difficulty }: { difficulty: 'low' | 'medium' | 'high' }) {
   const config = {
-    low: { color: '#d4af37', label: 'Low Effort' },
+    low: { color: '#4f8ef7', label: 'Low Effort' },
     medium: { color: '#f59e0b', label: 'Medium Effort' },
     high: { color: '#ef4444', label: 'High Effort' },
   };
@@ -310,11 +310,11 @@ Generate a full competitive intelligence report as JSON.`;
           <div className="flex items-center gap-2 mb-1">
             <div
               className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#4f8ef7' }}
             />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(212,175,55,0.7)', fontFamily: "'Syne', sans-serif" }}
+              style={{ color: 'rgba(79,142,247,0.7)', fontFamily: "'Syne', sans-serif" }}
             >
               Competitive Intel
             </span>
@@ -349,7 +349,7 @@ Generate a full competitive intelligence report as JSON.`;
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#F1F5F9',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
           </div>
@@ -371,7 +371,7 @@ Generate a full competitive intelligence report as JSON.`;
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#F1F5F9',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
           </div>
@@ -393,7 +393,7 @@ Generate a full competitive intelligence report as JSON.`;
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#F1F5F9',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
           </div>
@@ -415,7 +415,7 @@ Generate a full competitive intelligence report as JSON.`;
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#F1F5F9',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
           </div>
@@ -438,7 +438,7 @@ Generate a full competitive intelligence report as JSON.`;
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: '#F1F5F9',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
           </div>
@@ -453,10 +453,10 @@ Generate a full competitive intelligence report as JSON.`;
             style={{
               fontFamily: "'Syne', sans-serif",
               background: isGenerating
-                ? 'rgba(212,175,55,0.15)'
-                : 'linear-gradient(135deg, #d4af37 0%, #d4af37 100%)',
-              color: isGenerating ? '#d4af37' : '#fff',
-              border: isGenerating ? '1px solid rgba(212,175,55,0.3)' : 'none',
+                ? 'rgba(79,142,247,0.15)'
+                : 'linear-gradient(135deg, #4f8ef7 0%, #4f8ef7 100%)',
+              color: isGenerating ? '#4f8ef7' : '#fff',
+              border: isGenerating ? '1px solid rgba(79,142,247,0.3)' : 'none',
               opacity: !niche.trim() ? 0.4 : 1,
               cursor: !niche.trim() ? 'not-allowed' : 'pointer',
             }}
@@ -499,8 +499,8 @@ Generate a full competitive intelligence report as JSON.`;
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
               style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1px solid rgba(212,175,55,0.2)',
+                background: 'rgba(79,142,247,0.1)',
+                border: '1px solid rgba(79,142,247,0.2)',
               }}
             >
               <span className="text-3xl">🔍</span>
@@ -547,19 +547,19 @@ Generate a full competitive intelligence report as JSON.`;
             <div className="relative w-16 h-16 mb-6">
               <div
                 className="absolute inset-0 rounded-full animate-ping"
-                style={{ background: 'rgba(212,175,55,0.2)' }}
+                style={{ background: 'rgba(79,142,247,0.2)' }}
               />
               <div
                 className="relative w-16 h-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: 'rgba(212,175,55,0.1)',
-                  border: '1px solid rgba(212,175,55,0.3)',
+                  background: 'rgba(79,142,247,0.1)',
+                  border: '1px solid rgba(79,142,247,0.3)',
                 }}
               >
-                <Sparkles size={24} style={{ color: '#d4af37' }} className="animate-pulse" />
+                <Sparkles size={24} style={{ color: '#4f8ef7' }} className="animate-pulse" />
               </div>
             </div>
-            <p className="text-sm font-semibold" style={{ color: '#d4af37' }}>
+            <p className="text-sm font-semibold" style={{ color: '#4f8ef7' }}>
               Scanning the market...
             </p>
             <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -573,10 +573,10 @@ Generate a full competitive intelligence report as JSON.`;
             {/* Market Header */}
             <div className="mb-8 pb-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#d4af37' }} />
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#4f8ef7' }} />
                 <span
                   className="text-xs font-semibold uppercase tracking-widest"
-                  style={{ color: 'rgba(212,175,55,0.7)', fontFamily: "'Syne', sans-serif" }}
+                  style={{ color: 'rgba(79,142,247,0.7)', fontFamily: "'Syne', sans-serif" }}
                 >
                   Market Intelligence Report
                 </span>
@@ -593,11 +593,11 @@ Generate a full competitive intelligence report as JSON.`;
                   style={{
                     background:
                       result.marketOverview.trend === 'growing'
-                        ? 'rgba(212,175,55,0.12)'
+                        ? 'rgba(79,142,247,0.12)'
                         : result.marketOverview.trend === 'declining'
                           ? 'rgba(239,68,68,0.1)'
                           : 'rgba(245,158,11,0.1)',
-                    border: `1px solid ${result.marketOverview.trend === 'growing' ? 'rgba(212,175,55,0.3)' : result.marketOverview.trend === 'declining' ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.3)'}`,
+                    border: `1px solid ${result.marketOverview.trend === 'growing' ? 'rgba(79,142,247,0.3)' : result.marketOverview.trend === 'declining' ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.3)'}`,
                   }}
                 >
                   <TrendIcon trend={result.marketOverview.trend} />
@@ -606,7 +606,7 @@ Generate a full competitive intelligence report as JSON.`;
                     style={{
                       color:
                         result.marketOverview.trend === 'growing'
-                          ? '#d4af37'
+                          ? '#4f8ef7'
                           : result.marketOverview.trend === 'declining'
                             ? '#ef4444'
                             : '#f59e0b',
@@ -626,13 +626,13 @@ Generate a full competitive intelligence report as JSON.`;
                     key={label}
                     className="rounded-xl px-3 py-2.5"
                     style={{
-                      background: 'rgba(212,175,55,0.06)',
-                      border: '1px solid rgba(212,175,55,0.15)',
+                      background: 'rgba(79,142,247,0.06)',
+                      border: '1px solid rgba(79,142,247,0.15)',
                     }}
                   >
                     <div
                       className="text-xs font-semibold uppercase tracking-wider mb-1"
-                      style={{ color: 'rgba(212,175,55,0.6)' }}
+                      style={{ color: 'rgba(79,142,247,0.6)' }}
                     >
                       {label}
                     </div>
@@ -645,7 +645,7 @@ Generate a full competitive intelligence report as JSON.`;
             </div>
 
             {/* Market Overview */}
-            <SectionCard title="Market Overview" accent="#d4af37">
+            <SectionCard title="Market Overview" accent="#4f8ef7">
               <div className="pt-1">
                 <span
                   className="text-xs font-semibold uppercase tracking-wider block mb-2"
@@ -658,7 +658,7 @@ Generate a full competitive intelligence report as JSON.`;
                     <li key={driver} className="flex items-start gap-2">
                       <div
                         className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
-                        style={{ background: '#d4af37' }}
+                        style={{ background: '#4f8ef7' }}
                       />
                       <span className="text-sm" style={{ color: '#F1F5F9' }}>
                         {driver}
@@ -715,7 +715,7 @@ Generate a full competitive intelligence report as JSON.`;
                       <div>
                         <span
                           className="text-xs font-semibold uppercase tracking-wider block mb-1.5"
-                          style={{ color: 'rgba(212,175,55,0.90)' }}
+                          style={{ color: 'rgba(79,142,247,0.90)' }}
                         >
                           Strengths
                         </span>
@@ -726,7 +726,7 @@ Generate a full competitive intelligence report as JSON.`;
                               className="text-xs flex items-start gap-1.5"
                               style={{ color: '#94A3B8' }}
                             >
-                              <span style={{ color: '#d4af37' }}>+</span> {s}
+                              <span style={{ color: '#4f8ef7' }}>+</span> {s}
                             </li>
                           ))}
                         </ul>
@@ -772,15 +772,15 @@ Generate a full competitive intelligence report as JSON.`;
             </SectionCard>
 
             {/* Opportunity Gaps */}
-            <SectionCard title="Opportunity Gaps" accent="#d4af37">
+            <SectionCard title="Opportunity Gaps" accent="#4f8ef7">
               <div className="space-y-3">
                 {result.opportunityGaps.map((opp, i) => (
                   <div
                     key={i}
                     className="rounded-xl p-4"
                     style={{
-                      background: 'rgba(212,175,55,0.06)',
-                      border: '1px solid rgba(212,175,55,0.18)',
+                      background: 'rgba(79,142,247,0.06)',
+                      border: '1px solid rgba(79,142,247,0.18)',
                     }}
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
@@ -790,8 +790,8 @@ Generate a full competitive intelligence report as JSON.`;
                       <DifficultyBadge difficulty={opp.difficulty} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <TrendingUp size={12} style={{ color: '#d4af37' }} />
-                      <span className="text-xs" style={{ color: 'rgba(212,175,55,1.00)' }}>
+                      <TrendingUp size={12} style={{ color: '#4f8ef7' }} />
+                      <span className="text-xs" style={{ color: 'rgba(79,142,247,1.00)' }}>
                         {opp.potentialImpact}
                       </span>
                     </div>
@@ -807,7 +807,7 @@ Generate a full competitive intelligence report as JSON.`;
                   {
                     label: 'Market Low',
                     value: result.pricingIntelligence.marketLow,
-                    color: '#d4af37',
+                    color: '#4f8ef7',
                   },
                   {
                     label: 'Average',
@@ -822,7 +822,7 @@ Generate a full competitive intelligence report as JSON.`;
                   {
                     label: 'Sweet Spot',
                     value: result.pricingIntelligence.sweetSpot,
-                    color: '#d4af37',
+                    color: '#4f8ef7',
                   },
                 ].map(({ label, value, color }) => (
                   <div
@@ -863,7 +863,7 @@ Generate a full competitive intelligence report as JSON.`;
                   {
                     label: 'What They Love',
                     items: result.customerSentiment.topPraises,
-                    color: '#d4af37',
+                    color: '#4f8ef7',
                     icon: '😍',
                   },
                   {
@@ -902,7 +902,7 @@ Generate a full competitive intelligence report as JSON.`;
             </SectionCard>
 
             {/* Strategic Recommendations & Entry */}
-            <SectionCard title="Strategy & Entry Plan" accent="#d4af37">
+            <SectionCard title="Strategy & Entry Plan" accent="#4f8ef7">
               <div className="mb-4">
                 <span
                   className="text-xs font-semibold uppercase tracking-wider block mb-3"
@@ -916,13 +916,13 @@ Generate a full competitive intelligence report as JSON.`;
                       key={i}
                       className="flex items-start gap-3 px-4 py-3 rounded-xl"
                       style={{
-                        background: 'rgba(212,175,55,0.05)',
-                        border: '1px solid rgba(212,175,55,0.12)',
+                        background: 'rgba(79,142,247,0.05)',
+                        border: '1px solid rgba(79,142,247,0.12)',
                       }}
                     >
                       <span
                         className="text-xs font-extrabold flex-shrink-0 mt-0.5"
-                        style={{ color: 'rgba(212,175,55,0.5)' }}
+                        style={{ color: 'rgba(79,142,247,0.5)' }}
                       >
                         {String(i + 1).padStart(2, '0')}
                       </span>
@@ -958,8 +958,8 @@ Generate a full competitive intelligence report as JSON.`;
                 <div
                   className="flex items-start gap-3 px-4 py-3 rounded-xl"
                   style={{
-                    background: 'rgba(212,175,55,0.08)',
-                    border: '1px solid rgba(212,175,55,0.2)',
+                    background: 'rgba(79,142,247,0.08)',
+                    border: '1px solid rgba(79,142,247,0.2)',
                   }}
                 >
                   <p className="text-sm leading-relaxed flex-1" style={{ color: '#F1F5F9' }}>

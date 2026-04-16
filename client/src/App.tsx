@@ -133,7 +133,7 @@ function ComingSoon({ page }: ComingSoonProps) {
 const LOADING_BAR_CSS = `
   .page-loading-bar {
     position: fixed; top: 0; left: 0; height: 2px;
-    background: #d4af37; z-index: 99999;
+    background: #4f8ef7; z-index: 99999;
     animation: loadingBar 0.5s ease forwards;
     pointer-events: none;
   }
@@ -453,16 +453,16 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
   return (
     <div style={{ minHeight: '100vh', background: '#05070F', color: '#F8FAFC', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <a href="/" style={{ color: '#d4af37', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
+        <a href="/" style={{ color: '#4f8ef7', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
         <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#F8FAFC' }}>{title}</h1>
         <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 48 }}>Last updated: March 2026 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {paragraphs.map((p, i) => (
-            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#94A3B8', borderLeft: '2px solid rgba(212,175,55,0.2)', paddingLeft: 20 }}>{p}</p>
+            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#94A3B8', borderLeft: '2px solid rgba(79,142,247,0.2)', paddingLeft: 20 }}>{p}</p>
           ))}
         </div>
-        <div style={{ marginTop: 60, padding: '24px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-          <p style={{ fontSize: 14, color: '#94A3B8' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#d4af37' }}>hello@majorka.io</a></p>
+        <div style={{ marginTop: 60, padding: '24px', background: 'rgba(79,142,247,0.05)', border: '1px solid rgba(79,142,247,0.15)', borderRadius: 12 }}>
+          <p style={{ fontSize: 14, color: '#94A3B8' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#4f8ef7' }}>hello@majorka.io</a></p>
           <div style={{ marginTop: 16, display: 'flex', gap: 16, flexWrap: 'wrap' as const }}>
             {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Refund Policy', '/refund-policy'], ['Cookie Policy', '/cookies']].map(([label, href]) => (
               <a key={href} href={href} style={{ fontSize: 12, color: '#9CA3AF', textDecoration: 'none' }}>{label}</a>
@@ -507,7 +507,7 @@ function App() {
     return () => document.removeEventListener('open-command-palette', open);
   }, []);
   return (
-    <ErrorBoundary fallback={<div style={{minHeight:'100vh',background:'#05070F',color:'#f87171',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:32,fontFamily:'monospace'}}><h2 style={{margin:0,color:'#f87171'}}>App Error</h2><p id="app-err-msg" style={{margin:0,fontSize:13,color:'#fca5a5',textAlign:'center',maxWidth:600}}>Check browser console for details</p><button onClick={()=>window.location.reload()} style={{padding:'8px 20px',background:'#d4af37',color:'white',border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>Reload</button></div>}>
+    <ErrorBoundary fallback={<div style={{minHeight:'100vh',background:'#05070F',color:'#f87171',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:32,fontFamily:'monospace'}}><h2 style={{margin:0,color:'#f87171'}}>App Error</h2><p id="app-err-msg" style={{margin:0,fontSize:13,color:'#fca5a5',textAlign:'center',maxWidth:600}}>Check browser console for details</p><button onClick={()=>window.location.reload()} style={{padding:'8px 20px',background:'#4f8ef7',color:'white',border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>Reload</button></div>}>
       <div className="aurora-bg" aria-hidden="true"><div className="aurora-blob-3" /></div>
       <ThemeProvider defaultTheme="dark" switchable={false}>
         <AuthProvider>

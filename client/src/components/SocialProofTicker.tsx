@@ -110,7 +110,7 @@ export default function SocialProofTicker() {
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             border: '1px solid rgba(255,255,255,0.08)',
-            borderLeft: '3px solid #d4af37',
+            borderLeft: '3px solid #4f8ef7',
             borderRadius: 10,
             padding: '12px 14px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -128,7 +128,7 @@ export default function SocialProofTicker() {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#d4af37',
+                background: '#4f8ef7',
                 animation: 'green-dot-pulse 2s ease-in-out infinite',
               }}
             />

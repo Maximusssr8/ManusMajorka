@@ -117,7 +117,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const content = line.replace(/^[\-\*•] /, "");
       nodes.push(
         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
-          <span style={{ color: "#e5c158", flexShrink: 0, marginTop: 2, fontSize: 10 }}>▸</span>
+          <span style={{ color: "#6ba3ff", flexShrink: 0, marginTop: 2, fontSize: 10 }}>▸</span>
           <span style={{ lineHeight: 1.6, fontSize: 14 }}>{renderInline(content)}</span>
         </div>
       );
@@ -145,7 +145,7 @@ function renderMarkdown(text: string): React.ReactNode {
       const content = line.replace(/^\d+\. /, "");
       nodes.push(
         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
-          <span style={{ color: "#e5c158", flexShrink: 0, fontWeight: 700, minWidth: 18, fontSize: 13 }}>{num}.</span>
+          <span style={{ color: "#6ba3ff", flexShrink: 0, fontWeight: 700, minWidth: 18, fontSize: 13 }}>{num}.</span>
           <span style={{ lineHeight: 1.6, fontSize: 14 }}>{renderInline(content)}</span>
         </div>
       );
@@ -176,12 +176,12 @@ function renderMarkdown(text: string): React.ReactNode {
 function TypingDots() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #4f8ef7, #4f8ef7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
       </div>
       <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px 18px 18px 4px", padding: "12px 16px", display: "flex", gap: 5, alignItems: "center" }}>
         {[0, 1, 2].map(i => (
-          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#d4af37", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
+          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "#4f8ef7", display: "inline-block", animation: "dotPulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.2}s` }} />
         ))}
       </div>
     </div>
@@ -224,7 +224,7 @@ function MayaContextChips() {
   const chips = [
     niche ? { label: niche, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' } : null,
     { label: `${region} market`, color: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.08)', text: '#CBD5E1' },
-    planLabel ? { label: planLabel, color: 'rgba(212,175,55,0.1)', border: 'rgba(212,175,55,0.2)', text: '#e5c158' } : null,
+    planLabel ? { label: planLabel, color: 'rgba(79,142,247,0.1)', border: 'rgba(79,142,247,0.2)', text: '#6ba3ff' } : null,
   ].filter(Boolean) as Array<{ label: string; color: string; border: string; text: string }>;
 
   if (!chips.length) return null;
@@ -568,7 +568,7 @@ export default function AIChat() {
         {/* ── Header ────────────────────────────────────────────────────────── */}
         <div className="px-3 sm:px-6 py-3 sm:py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(212,175,55,0.4)" }}>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg, #4f8ef7, #4f8ef7)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 16px rgba(79,142,247,0.4)" }}>
               <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "white" }}>M</span>
             </div>
             <div>
@@ -601,7 +601,7 @@ export default function AIChat() {
           {messages.length === 0 && !loading && (
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, paddingTop: 40 }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 0 32px rgba(212,175,55,0.3)" }}>
+                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #4f8ef7, #4f8ef7)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 0 32px rgba(79,142,247,0.3)" }}>
                   <Sparkles size={28} color="white" />
                 </div>
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "white", marginBottom: 8 }}>How can I help you win today?</div>
@@ -613,7 +613,7 @@ export default function AIChat() {
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
                     style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, cursor: "pointer", color: "#D1D5DB", fontFamily: dm, fontSize: 13, textAlign: "left" as const, lineHeight: 1.4, transition: "all 150ms" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)"; e.currentTarget.style.background = "rgba(212,175,55,0.08)"; e.currentTarget.style.color = "#E0E7FF"; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(79,142,247,0.5)"; e.currentTarget.style.background = "rgba(79,142,247,0.08)"; e.currentTarget.style.color = "#E0E7FF"; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.color = "#D1D5DB"; }}
                   >
                     {prompt}
@@ -640,13 +640,13 @@ export default function AIChat() {
                 )}
                 <div style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 8, opacity: isPrevSession ? 0.6 : 1, transition: 'opacity 200ms' }}>
               {msg.role === "assistant" && (
-                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 18 }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg, #4f8ef7, #4f8ef7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 18 }}>
                   <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 12, color: "white" }}>M</span>
                 </div>
               )}
               <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", maxWidth: msg.role === "user" ? "70%" : "75%" }}>
                 <div
-                  className={msg.role === "user" ? "rounded-xl px-4 py-3 border-r-2 border-[#3B82F6]" : "rounded-xl px-4 py-3 border-l-2 border-[#d4af37]"}
+                  className={msg.role === "user" ? "rounded-xl px-4 py-3 border-r-2 border-[#3B82F6]" : "rounded-xl px-4 py-3 border-l-2 border-[#4f8ef7]"}
                   style={msg.role === "user" ? {
                     background: 'rgba(59,130,246,0.10)',
                     color: "white",
@@ -654,7 +654,7 @@ export default function AIChat() {
                     fontSize: 14,
                     lineHeight: 1.6,
                   } : {
-                    background: 'rgba(212,175,55,0.05)',
+                    background: 'rgba(79,142,247,0.05)',
                     color: "white",
                     fontFamily: dm,
                     fontSize: 14,
@@ -686,8 +686,8 @@ export default function AIChat() {
                 <span key={a.id} style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   fontSize: 11, padding: '4px 8px', borderRadius: 16,
-                  background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)',
-                  color: '#e5c158', fontFamily: dm, maxWidth: 280,
+                  background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.25)',
+                  color: '#6ba3ff', fontFamily: dm, maxWidth: 280,
                 }}>
                   <Package size={11} />
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -696,7 +696,7 @@ export default function AIChat() {
                   <button
                     onClick={() => removeAttachment(a.id)}
                     aria-label="Remove attachment"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e5c158', padding: 0, display: 'flex' }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6ba3ff', padding: 0, display: 'flex' }}
                   >
                     <X size={11} />
                   </button>
@@ -715,9 +715,9 @@ export default function AIChat() {
                 title={attachments.length >= 3 ? 'Max 3 attachments' : 'Attach product'}
                 style={{
                   width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: attachOpen ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)',
+                  background: attachOpen ? 'rgba(79,142,247,0.15)' : 'rgba(255,255,255,0.06)',
                   border: '1px solid rgba(255,255,255,0.1)', cursor: attachments.length >= 3 ? 'not-allowed' : 'pointer',
-                  color: attachOpen ? '#e5c158' : '#94A3B8', opacity: attachments.length >= 3 ? 0.4 : 1,
+                  color: attachOpen ? '#6ba3ff' : '#94A3B8', opacity: attachments.length >= 3 ? 0.4 : 1,
                   transition: 'all 150ms',
                 }}
               >
@@ -762,7 +762,7 @@ export default function AIChat() {
                           borderRadius: 6, cursor: 'pointer', textAlign: 'left' as const,
                           color: '#D1D5DB', fontFamily: dm, fontSize: 12,
                         }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,175,55,0.08)'}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(79,142,247,0.08)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
                         {p.image_url && (
@@ -783,7 +783,7 @@ export default function AIChat() {
             </div>
             <textarea
               ref={textareaRef}
-              className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-[#d4af37]/50 resize-none transition-all maya-textarea"
+              className="w-full bg-[#0d0d10]/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-slate-100 placeholder:text-white/30 outline-none focus:border-[#4f8ef7]/50 resize-none transition-all maya-textarea"
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
@@ -797,7 +797,7 @@ export default function AIChat() {
               style={{
                 width: 36, height: 36, borderRadius: 10, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: input.trim() && !loading ? "pointer" : "not-allowed", border: "none", transition: "all 150ms",
-                background: input.trim() && !loading ? "linear-gradient(135deg, #d4af37, #d4af37)" : "rgba(255,255,255,0.06)",
+                background: input.trim() && !loading ? "linear-gradient(135deg, #4f8ef7, #4f8ef7)" : "rgba(255,255,255,0.06)",
                 opacity: input.trim() && !loading ? 1 : 0.4,
               }}
               onMouseEnter={e => { if (input.trim() && !loading) e.currentTarget.style.transform = "scale(1.05)"; }}

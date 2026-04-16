@@ -1595,7 +1595,7 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
   },
   {
     stage: 'Optimize',
-    color: '#d4af37',
+    color: '#4f8ef7',
     tools: [
       {
         id: 'market-intel',

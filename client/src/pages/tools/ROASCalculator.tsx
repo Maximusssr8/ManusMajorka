@@ -143,7 +143,7 @@ export default function ROASCalculator() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+            background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14,
             fontFamily: "'Syne', sans-serif",
@@ -168,8 +168,8 @@ export default function ROASCalculator() {
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
             padding: '6px 14px', borderRadius: 999,
-            background: 'rgba(212,175,55,0.08)',
-            border: '1px solid rgba(212,175,55,0.2)',
+            background: 'rgba(79,142,247,0.08)',
+            border: '1px solid rgba(79,142,247,0.2)',
             marginBottom: 18,
           }}>
             <Calculator size={14} color="#a5b4fc" />
@@ -300,8 +300,8 @@ export default function ROASCalculator() {
           marginTop: 64,
           padding: 32,
           borderRadius: 16,
-          background: 'linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.04))',
-          border: '1px solid rgba(212,175,55,0.18)',
+          background: 'linear-gradient(135deg, rgba(79,142,247,0.08), rgba(79,142,247,0.04))',
+          border: '1px solid rgba(79,142,247,0.18)',
           textAlign: 'center',
         }}>
           <div style={{
@@ -319,7 +319,7 @@ export default function ROASCalculator() {
             alignItems: 'center',
             gap: 8,
             padding: '12px 24px',
-            background: '#d4af37',
+            background: '#4f8ef7',
             color: '#fff',
             fontWeight: 600,
             fontSize: 14,

@@ -201,16 +201,16 @@ export function ProductFilters({ onChange, categories, initial }: ProductFilters
       <label
         className="flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors"
         style={{
-          background: state.auWarehouseOnly ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
-          borderColor: state.auWarehouseOnly ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.08)',
-          color: state.auWarehouseOnly ? '#d4af37' : 'rgba(255,255,255,0.6)',
+          background: state.auWarehouseOnly ? 'rgba(79,142,247,0.12)' : 'rgba(255,255,255,0.03)',
+          borderColor: state.auWarehouseOnly ? 'rgba(79,142,247,0.45)' : 'rgba(255,255,255,0.08)',
+          color: state.auWarehouseOnly ? '#4f8ef7' : 'rgba(255,255,255,0.6)',
         }}
       >
         <input
           type="checkbox"
           checked={!!state.auWarehouseOnly}
           onChange={(e) => setState((s) => ({ ...s, auWarehouseOnly: e.target.checked }))}
-          className="accent-amber-500"
+          className="accent-blue-500"
           style={{ width: 14, height: 14 }}
         />
         <span className="text-xs font-medium">AU Warehouse only</span>

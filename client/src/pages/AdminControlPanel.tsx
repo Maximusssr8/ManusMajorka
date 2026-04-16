@@ -13,8 +13,8 @@ const C = {
   bg: '#FAFAFA',
   surface: 'white',
   border: '#E5E7EB',
-  gold: '#d4af37',
-  goldBg: 'rgba(212,175,55,0.08)',
+  gold: '#4f8ef7',
+  goldBg: 'rgba(79,142,247,0.08)',
   text: '#0A0A0A',
   sub: '#6B7280',
   muted: '#9CA3AF',
@@ -127,7 +127,7 @@ function UsersTab() {
                       <button
                         onClick={() => updatePlan(u.id, 'pro', 'active')}
                         disabled={updatingId === u.id}
-                        style={{ padding: '4px 8px', background: C.goldBg, border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 5, color: C.gold, fontSize: 11, cursor: 'pointer' }}
+                        style={{ padding: '4px 8px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 5, color: C.gold, fontSize: 11, cursor: 'pointer' }}
                       >Grant Pro</button>
                       <button
                         onClick={() => updatePlan(u.id, u.plan || 'free', 'inactive')}
@@ -196,7 +196,7 @@ function TrendsTab() {
           {lastRefreshed && <span>Last refreshed: <strong style={{ color: C.text }}>{hoursAgo}h ago</strong> · Next in: <strong style={{ color: C.text }}>{nextIn}h</strong></span>}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Add Product</button>
+          <button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Add Product</button>
           <button onClick={refresh} disabled={refreshing} style={{ padding: '7px 14px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: C.text, fontSize: 12, cursor: 'pointer' }}>
             {refreshing ? 'Refreshing...' : 'Refresh Now'}
           </button>
@@ -282,7 +282,7 @@ function SubscriptionsTab() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button onClick={() => setShowAdd(!showAdd)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Manual Subscription</button>
+        <button onClick={() => setShowAdd(!showAdd)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Manual Subscription</button>
       </div>
 
       {showAdd && (
@@ -394,7 +394,7 @@ function HealthTab() {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' as const }}>
-        <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
           Run All Checks
         </button>
         <button
@@ -410,7 +410,7 @@ function HealthTab() {
             }
           }}
           disabled={enriching}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#d4af37', color: '#000', border: 'none', borderRadius: 6, cursor: enriching ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: enriching ? 0.7 : 1 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#4f8ef7', color: '#000', border: 'none', borderRadius: 6, cursor: enriching ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: enriching ? 0.7 : 1 }}
         >
           {enriching ? 'Enriching…' : '⚡ Enrich Products'}
         </button>
@@ -423,7 +423,7 @@ function HealthTab() {
               alert('Error: ' + e.message);
             }
           }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #444', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#fff', border: '1px solid #444', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
         >
           🔧 Supplier Migration
         </button>
@@ -436,7 +436,7 @@ function HealthTab() {
               alert('Error: ' + e.message);
             }
           }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#a78bfa', border: '1px solid #3b1f6b', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#a78bfa', border: '1px solid #3b1f6b', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
         >
           🗃️ User Tables
         </button>
@@ -451,7 +451,7 @@ function HealthTab() {
               alert('Error: ' + e.message);
             }
           }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#7dd3fc', border: '1px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#7dd3fc', border: '1px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
         >
           🔍 Scrape AliExpress
         </button>
@@ -525,7 +525,7 @@ function HealthTab() {
               alert('Error: ' + e.message);
             }
           }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#f39c12', border: '1px solid #5a3a00', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#f39c12', border: '1px solid #5a3a00', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
         >
           🛒 AliExpress Status
         </button>

@@ -7,7 +7,7 @@
  * a dependent service is offline (Australia Post key missing, no auth
  * for alerts, etc).
  *
- * Design tokens: gold (#d4af37) primary, surface #111111, divider #1a1a1a.
+ * Design tokens: gold (#4f8ef7) primary, surface #0d1117, divider #161b22.
  * Only gold, teal, amber, and greyscale used here — no off-palette colours.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -18,10 +18,10 @@ import { supabase } from '@/lib/supabase';
 
 // ─── Shared helpers ─────────────────────────────────────────────────────────
 
-const GOLD = '#d4af37';
+const GOLD = '#4f8ef7';
 const GOLD_DARK = '#b8941f';
-const DIVIDER = '#1a1a1a';
-const SURFACE = '#111111';
+const DIVIDER = '#161b22';
+const SURFACE = '#0d1117';
 
 async function authHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
@@ -137,8 +137,8 @@ export function AlertBell({ product }: AlertBellProps) {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: hasActive ? 'rgba(212,175,55,0.18)' : 'rgba(255,255,255,0.04)',
-          border: `1px solid ${hasActive ? 'rgba(212,175,55,0.45)' : DIVIDER}`,
+          background: hasActive ? 'rgba(79,142,247,0.18)' : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${hasActive ? 'rgba(79,142,247,0.45)' : DIVIDER}`,
           borderRadius: 10,
           color: hasActive ? GOLD : '#f5f5f5',
           cursor: 'pointer',
@@ -300,8 +300,8 @@ function PriceAlertModal({ product, onClose, onCreated }: PriceAlertModalProps) 
                   fontSize: 11,
                   fontWeight: 600,
                   borderRadius: 8,
-                  background: active ? 'rgba(212,175,55,0.18)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${active ? 'rgba(212,175,55,0.45)' : DIVIDER}`,
+                  background: active ? 'rgba(79,142,247,0.18)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${active ? 'rgba(79,142,247,0.45)' : DIVIDER}`,
                   color: active ? GOLD : '#a3a3a3',
                   cursor: enabled ? 'pointer' : 'not-allowed',
                 }}
@@ -345,7 +345,7 @@ function PriceAlertModal({ product, onClose, onCreated }: PriceAlertModalProps) 
             padding: '0 16px',
             fontSize: 14, fontWeight: 600,
             color: '#0a0a0a',
-            background: enabled ? GOLD : 'rgba(212,175,55,0.4)',
+            background: enabled ? GOLD : 'rgba(79,142,247,0.4)',
             border: `1px solid ${GOLD_DARK}`,
             borderRadius: 10,
             cursor: enabled && !saving ? 'pointer' : 'not-allowed',
@@ -404,8 +404,8 @@ export function AuWarehouseBadge({ product }: { product: Product }) {
     <div
       style={{
         padding: '8px 12px',
-        background: 'rgba(212,175,55,0.10)',
-        border: `1px solid rgba(212,175,55,0.35)`,
+        background: 'rgba(79,142,247,0.10)',
+        border: `1px solid rgba(79,142,247,0.35)`,
         borderRadius: 10,
         display: 'inline-flex', alignItems: 'center', gap: 8,
         fontSize: 12, fontWeight: 700, color: GOLD,
@@ -772,7 +772,7 @@ export function BNPLScore({ product }: { product: Product }) {
 function BNPLLogo({ label }: { label: string }) {
   // Lightweight text badges — no external logo network calls, no third-party
   // image hosts. Looks crisp in dark UI and can't break.
-  const colour = label === 'Afterpay' ? '#b2fce4' : '#d4af37';
+  const colour = label === 'Afterpay' ? '#b2fce4' : '#4f8ef7';
   const bg = label === 'Afterpay' ? '#0a0a0a' : '#0a0a0a';
   return (
     <span

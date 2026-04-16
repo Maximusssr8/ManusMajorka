@@ -23,7 +23,7 @@ export function Hero({ onStart, onCurriculum, publicMode }: HeroProps) {
         className="absolute inset-0 -z-10 opacity-40"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(212,175,55,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.08) 1px, transparent 1px)',
+            'linear-gradient(rgba(79,142,247,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(79,142,247,0.08) 1px, transparent 1px)',
           backgroundSize: '56px 56px',
           maskImage: 'radial-gradient(circle at 50% 40%, black 0%, transparent 75%)',
           WebkitMaskImage: 'radial-gradient(circle at 50% 40%, black 0%, transparent 75%)',
@@ -43,7 +43,7 @@ export function Hero({ onStart, onCurriculum, publicMode }: HeroProps) {
       <div
         aria-hidden
         className="absolute left-1/2 top-[18%] -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full blur-3xl"
-        style={{ background: 'radial-gradient(ellipse, rgba(212,175,55,0.18) 0%, transparent 65%)' }}
+        style={{ background: 'radial-gradient(ellipse, rgba(79,142,247,0.18) 0%, transparent 65%)' }}
       />
 
       <div className="mx-auto max-w-6xl px-5 md:px-8">
@@ -68,7 +68,7 @@ export function Hero({ onStart, onCurriculum, publicMode }: HeroProps) {
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Master Dropshipping with{' '}
-              <span className="bg-gradient-to-br from-[#e5c158] via-[#d4af37] to-[#a88620] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-br from-[#6ba3ff] via-[#4f8ef7] to-[#a88620] bg-clip-text text-transparent">
                 Data, Not Guesswork
               </span>
               .
@@ -156,9 +156,9 @@ function HeroVelocityCard() {
       transition={{ duration: 0.8, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="relative mx-auto w-full max-w-[360px] rounded-2xl border p-6"
       style={{
-        borderColor: 'rgba(212,175,55,0.2)',
-        background: 'linear-gradient(180deg, #111111 0%, #0d0d0d 100%)',
-        boxShadow: '0 30px 80px -30px rgba(212,175,55,0.25), inset 0 1px 0 rgba(212,175,55,0.06)',
+        borderColor: 'rgba(79,142,247,0.2)',
+        background: 'linear-gradient(180deg, #0d1117 0%, #0d0d0d 100%)',
+        boxShadow: '0 30px 80px -30px rgba(79,142,247,0.25), inset 0 1px 0 rgba(79,142,247,0.06)',
       }}
     >
       <div className="mb-4 flex items-center justify-between">
@@ -176,7 +176,7 @@ function HeroVelocityCard() {
       </div>
       <div className="mt-2 flex items-baseline gap-2">
         <div
-          className="text-6xl font-bold tabular-nums text-[#d4af37]"
+          className="text-6xl font-bold tabular-nums text-[#4f8ef7]"
           style={{ fontFamily: "'Syne', sans-serif" }}
         >
           <AnimatedCounter to={94} duration={2.2} />
@@ -186,7 +186,7 @@ function HeroVelocityCard() {
       <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/[0.06]">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #d4af37, #e5c158)' }}
+          style={{ background: 'linear-gradient(90deg, #4f8ef7, #6ba3ff)' }}
           initial={{ width: 0 }}
           animate={{ width: '94%' }}
           transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}

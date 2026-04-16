@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const brico = "'Syne', sans-serif";
 const dm = 'DM Sans, sans-serif';
 // Always dark — the app is dark-mode only
-const C = { bg: '#0a0a0a', card: '#111114', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', gold: '#d4af37', goldBg: 'rgba(212,175,55,0.1)', goldBorder: 'rgba(212,175,55,0.25)' };
+const C = { bg: '#0a0a0a', card: '#111114', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', gold: '#4f8ef7', goldBg: 'rgba(79,142,247,0.1)', goldBorder: 'rgba(79,142,247,0.25)' };
 
 type AlertType = 'trending' | 'price_drop' | 'competitor';
 interface Alert { id: string; alert_type: AlertType; config: Record<string, unknown>; is_active: boolean; last_triggered_at: string | null; created_at: string; }
@@ -149,11 +149,11 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
         ) : tab === 'active' && alerts.length === 0 ? (
           <div>
             {/* Email notice */}
-            <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Bell size={15} style={{ color: '#d4af37', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: C.sub, flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#d4af37', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+            <div style={{ background: 'rgba(79,142,247,0.06)', border: '1px solid rgba(79,142,247,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Bell size={15} style={{ color: '#4f8ef7', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: C.sub, flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#4f8ef7', fontWeight: 600 }}>Settings → Notifications</a>.</span>
               <button onClick={sendTestNotification} disabled={testSending || testSent}
-                style={{ flexShrink: 0, height: 28, padding: '0 10px', background: testSent ? '#059669' : '#d4af37', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: testSending || testSent ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
+                style={{ flexShrink: 0, height: 28, padding: '0 10px', background: testSent ? '#059669' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: testSending || testSent ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
                 {testSent ? '✓ Sent!' : testSending ? 'Sending…' : 'Test Email'}
               </button>
             </div>
@@ -174,7 +174,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                       <div style={{ fontSize: 11, color: C.sub }}>{s.preview}</div>
                     </div>
                     <button onClick={() => setShowCreate(true)}
-                      style={{ flexShrink: 0, height: 30, padding: '0 12px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                      style={{ flexShrink: 0, height: 30, padding: '0 12px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                       + Set Up
                     </button>
                   </div>
@@ -206,7 +206,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                     }
                     <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>Fired 0 times this week</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                      <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(212,175,55,0.1)', color: '#d4af37', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(79,142,247,0.1)', color: '#4f8ef7', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
                       <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(255,255,255,0.05)', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
                     </div>
                   </div>

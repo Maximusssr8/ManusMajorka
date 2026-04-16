@@ -46,7 +46,7 @@ body { font-family: ${F.body}; color: ${LT.text}; -webkit-font-smoothing: antial
 }
 @keyframes mjGoldPulse {
   0%, 100% { box-shadow: 0 0 0 0 ${LT.goldGlow}, 0 0 20px ${LT.goldGlow}; }
-  50% { box-shadow: 0 0 0 6px rgba(212,175,55,0), 0 0 30px ${LT.goldGlow}; }
+  50% { box-shadow: 0 0 0 6px rgba(79,142,247,0), 0 0 30px ${LT.goldGlow}; }
 }
 @keyframes mjLivePulse {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -269,8 +269,8 @@ function StickyLaunchBar() {
       right: 0,
       zIndex: 1001,
       height: LAUNCH_BAR_HEIGHT,
-      background: 'linear-gradient(90deg, #b8962e, #d4af37, #b8962e)',
-      color: '#080808',
+      background: 'linear-gradient(90deg, #3d72c4, #4f8ef7, #3d72c4)',
+      color: '#04060f',
       fontFamily: F.body,
       fontSize: 13,
       fontWeight: 600,
@@ -290,7 +290,7 @@ function StickyLaunchBar() {
           fontSize: 13,
           fontWeight: 600,
           whiteSpace: 'nowrap',
-          color: '#080808',
+          color: '#04060f',
         }}
       >
         [ {spots} / 500 ] spots
@@ -309,7 +309,7 @@ function StickyLaunchBar() {
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          color: '#080808',
+          color: '#04060f',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -543,7 +543,7 @@ function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
       minHeight: '100vh',
       padding: `${S.xxl + 40}px ${S.md}px ${S.xxl}px`,
       overflow: 'hidden',
-      background: `radial-gradient(ellipse at 30% 20%, rgba(212,175,55,0.08), transparent 60%), ${LT.bg}`,
+      background: `radial-gradient(ellipse at 30% 20%, rgba(79,142,247,0.08), transparent 60%), ${LT.bg}`,
     }}>
       <ParticleFieldReactive />
 

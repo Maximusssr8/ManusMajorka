@@ -85,7 +85,7 @@ export default function StoreSetup() {
                   done
                     ? 'bg-emerald-500 border-emerald-500 text-white'
                     : active
-                      ? 'border-[#d4af37] text-[#d4af37]'
+                      ? 'border-[#4f8ef7] text-[#4f8ef7]'
                       : 'border-white/[0.08] text-gray-400'
                 }`}
               >
@@ -165,7 +165,7 @@ export default function StoreSetup() {
             </div>
             <div className="bg-[#111B2E] rounded-lg p-6 border border-white/[0.08]">
               <div className="flex items-center gap-3 mb-4">
-                <CreditCard className="w-6 h-6 text-[#d4af37]" />
+                <CreditCard className="w-6 h-6 text-[#4f8ef7]" />
                 <span className="text-slate-100 font-medium">Stripe Payments</span>
               </div>
               <p className="text-gray-500 text-sm mb-4">
@@ -223,7 +223,7 @@ export default function StoreSetup() {
                 href="https://business.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#d4af37] text-sm hover:underline"
+                className="text-[#4f8ef7] text-sm hover:underline"
               >
                 How to find your Meta IDs →
               </a>
@@ -245,7 +245,7 @@ export default function StoreSetup() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Store URL</span>
-                <span className="text-[#d4af37] text-sm">/store/{form.storeSlug}</span>
+                <span className="text-[#4f8ef7] text-sm">/store/{form.storeSlug}</span>
               </div>
               {form.metaPixelId && (
                 <div className="flex justify-between">
@@ -258,7 +258,7 @@ export default function StoreSetup() {
               onClick={handleLaunch}
               disabled={createStore.isPending}
               className="w-full py-3 text-lg font-semibold text-slate-100"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#4f8ef7' }}
             >
               {createStore.isPending ? 'Launching...' : '🚀 Launch My Store'}
             </Button>
@@ -281,7 +281,7 @@ export default function StoreSetup() {
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
               className="text-slate-100 font-semibold"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#4f8ef7' }}
             >
               Continue
               <ArrowRight className="w-4 h-4 ml-2" />

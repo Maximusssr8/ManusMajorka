@@ -35,10 +35,10 @@ export function SocialProofBar() {
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: i * 0.06 }}
               className="rounded-2xl border p-4 text-center"
-              style={{ borderColor: 'rgba(212,175,55,0.08)', background: '#111111' }}
+              style={{ borderColor: 'rgba(79,142,247,0.08)', background: '#0d1117' }}
             >
               <div
-                className="text-2xl font-bold tabular-nums text-[#d4af37] md:text-3xl"
+                className="text-2xl font-bold tabular-nums text-[#4f8ef7] md:text-3xl"
                 style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 <AnimatedCounter to={m.value} suffix={m.suffix} decimals={m.decimals ?? 0} />

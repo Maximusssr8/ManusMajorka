@@ -20,10 +20,10 @@ const C = {
   text: '#FAFAFA',
   muted: '#A1A1AA',
   dim: '#71717A',
-  gold: '#d4af37',
+  gold: '#4f8ef7',
   goldHover: '#3B82F6',
-  goldBg: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.2)',
+  goldBg: 'rgba(79,142,247,0.08)',
+  goldBorder: 'rgba(79,142,247,0.2)',
   green: '#10B981',
   greenBg: 'rgba(16,185,129,0.08)',
   greenBorder: 'rgba(16,185,129,0.2)',
@@ -715,7 +715,7 @@ function CampaignBuilder({
 
           {/* Cloned Ad banner */}
           {clonedAd && (
-            <Card style={{ marginBottom: 16, background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.goldBorder}` }}>
+            <Card style={{ marginBottom: 16, background: 'rgba(79,142,247,0.06)', border: `1px solid ${C.goldBorder}` }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.gold, marginBottom: 8, fontFamily: FONT_HEADING, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>CLONED AD</div>
               {clonedAd.hook && <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>{clonedAd.hook}</div>}
               {clonedAd.bodyText && <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>{clonedAd.bodyText.slice(0, 120)}</div>}
@@ -839,7 +839,7 @@ function CampaignBuilder({
               background: '#111', display: 'flex', flexDirection: 'column' as const,
             }}>
               {firstProductImage && (
-                <div style={{ flex: 1, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ flex: 1, background: '#161b22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <img src={firstProductImage} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' as const }} />
                 </div>
               )}
@@ -951,7 +951,7 @@ function CampaignBuilder({
                   top: '-10px',
                   width: 8, height: 8,
                   borderRadius: i % 2 === 0 ? '50%' : 0,
-                  background: ['#d4af37', '#22C55E', '#F59E0B', '#EF4444', '#d4af37'][i % 5],
+                  background: ['#4f8ef7', '#22C55E', '#F59E0B', '#EF4444', '#4f8ef7'][i % 5],
                   animation: `confettiFall ${1.5 + (i % 10) * 0.2}s ease-in forwards`,
                   animationDelay: `${(i % 8) * 0.1}s`,
                 }} />
@@ -1388,7 +1388,7 @@ export default function AdsManager() {
                 Launch Meta campaigns directly from Majorka. No switching between tools. Find product → calculate profit → spy on competitors → launch ad → track results. All in one place. No other tool does this.
               </div>
               <button onClick={() => setShowUpgrade(true)} style={{
-                marginTop: 8, padding: '14px 32px', background: 'linear-gradient(135deg,#d4af37,#d4af37)',
+                marginTop: 8, padding: '14px 32px', background: 'linear-gradient(135deg,#4f8ef7,#4f8ef7)',
                 color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700,
                 cursor: 'pointer', fontFamily: FONT_HEADING,
               }}>
@@ -1489,7 +1489,7 @@ export default function AdsManager() {
                   </div>
                 ) : metaStatus?.meta_not_configured ? (
                   <div>
-                    <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 12, padding: '20px 24px' }}>
+                    <div style={{ background: 'rgba(79,142,247,0.08)', border: '1px solid rgba(79,142,247,0.2)', borderRadius: 12, padding: '20px 24px' }}>
                       <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>
                         Meta Ads Integration — In Development
                       </div>
@@ -1553,7 +1553,7 @@ export default function AdsManager() {
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #d4af37, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#fff', fontWeight: 700 }}>M</div>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#fff', fontWeight: 700 }}>M</div>
                     <span style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 15 }}>Majorka Plugin</span>
                   </div>
                   <StatusBadge
@@ -2170,7 +2170,7 @@ export default function AdsManager() {
 
                           {/* Maya "Why It Worked" analysis */}
                           {creativeAnalysis[c.id] && (
-                            <div style={{ marginTop: 10, padding: 12, background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12, color: C.muted, lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>
+                            <div style={{ marginTop: 10, padding: 12, background: 'rgba(79,142,247,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12, color: C.muted, lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>
                               {creativeAnalysis[c.id]}
                             </div>
                           )}
@@ -2406,7 +2406,7 @@ export default function AdsManager() {
             {onboardingStep === 3 && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #d4af37, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff' }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#fff' }}>
                     <Zap size={24} />
                   </div>
                   <div>

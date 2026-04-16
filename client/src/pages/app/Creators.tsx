@@ -103,8 +103,8 @@ function OutreachBody({
               data-placeholder="click to edit"
               style={{
                 outline: 'none',
-                color: '#e5c158',
-                borderBottom: '1px dashed #e5c158',
+                color: '#6ba3ff',
+                borderBottom: '1px dashed #6ba3ff',
                 cursor: 'text',
                 padding: '0 2px',
               }}

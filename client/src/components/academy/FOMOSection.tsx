@@ -33,7 +33,7 @@ export function FOMOSection() {
         className="absolute inset-0 -z-10 opacity-50"
         style={{
           background:
-            'radial-gradient(ellipse at center top, rgba(212,175,55,0.15) 0%, transparent 60%)',
+            'radial-gradient(ellipse at center top, rgba(79,142,247,0.15) 0%, transparent 60%)',
         }}
       />
       <div className="mx-auto max-w-5xl px-5 md:px-8">
@@ -44,7 +44,7 @@ export function FOMOSection() {
           transition={{ duration: 0.55 }}
           className="text-center"
         >
-          <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-[#d4af37]">
+          <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7]">
             The data doesn't sleep
           </div>
           <h2
@@ -52,7 +52,7 @@ export function FOMOSection() {
             style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Every hour you delay,<br />
-            <span className="text-[#d4af37]">someone else is launching your winner.</span>
+            <span className="text-[#4f8ef7]">someone else is launching your winner.</span>
           </h2>
         </motion.div>
 
@@ -65,9 +65,9 @@ export function FOMOSection() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="rounded-2xl border p-6"
-              style={{ borderColor: 'rgba(212,175,55,0.12)', background: '#111111' }}
+              style={{ borderColor: 'rgba(79,142,247,0.12)', background: '#0d1117' }}
             >
-              <s.icon size={18} className="mb-3 text-[#d4af37]" strokeWidth={1.75} />
+              <s.icon size={18} className="mb-3 text-[#4f8ef7]" strokeWidth={1.75} />
               <div
                 className="text-3xl font-bold tabular-nums text-[#E0E0E0]"
                 style={{ fontFamily: "'Syne', sans-serif" }}

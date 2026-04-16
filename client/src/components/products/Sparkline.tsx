@@ -54,7 +54,7 @@ function SparklineImpl({
   range = 30,
   width = 320,
   height = 64,
-  color = '#d4af37',
+  color = '#4f8ef7',
   emptyLabel = 'Insufficient historical data',
 }: SparklineProps) {
   const [remoteSeries, setRemoteSeries] = useState<number[] | null>(null);
@@ -137,7 +137,7 @@ function SparklineImpl({
             x2={width}
             y1={mid}
             y2={mid}
-            stroke="rgba(212,175,55,0.25)"
+            stroke="rgba(79,142,247,0.25)"
             strokeWidth={1.5}
             strokeDasharray="4 4"
           />

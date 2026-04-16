@@ -11,7 +11,7 @@ const C = {
   bg: '#FAFAFA',
   surface: '#FFFFFF',
   border: '#F0F0F0',
-  accent: '#d4af37',
+  accent: '#4f8ef7',
   text: '#0A0A0A',
   muted: '#6B7280',
 };
@@ -112,7 +112,7 @@ export default function ProductIntelligence() {
             >
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                 <span>{t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout 🔜'}</span>
-                {tab === t && <span style={{ fontSize: 9, fontWeight: 600, color: t === 'trending' ? '#F59E0B' : t === 'database' ? '#d4af37' : '#059669', letterSpacing: '0.04em' }}>
+                {tab === t && <span style={{ fontSize: 9, fontWeight: 600, color: t === 'trending' ? '#F59E0B' : t === 'database' ? '#4f8ef7' : '#059669', letterSpacing: '0.04em' }}>
                   {t === 'trending' ? 'RISING TREND · TIKTOK SIGNALS' : t === 'database' ? 'FULL DATABASE · SORTED BY AI SCORE' : 'AI-POWERED SEARCH'}
                 </span>}
               </span>

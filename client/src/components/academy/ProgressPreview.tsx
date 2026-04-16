@@ -26,7 +26,7 @@ export function ProgressPreview({ completedCount, streakDays, userName }: Progre
           transition={{ duration: 0.55 }}
           className="mb-10 text-center md:mb-14"
         >
-          <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-[#d4af37]">
+          <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7]">
             Your Progress
           </div>
           <h2
@@ -45,7 +45,7 @@ export function ProgressPreview({ completedCount, streakDays, userName }: Progre
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.55, delay: i * 0.08 }}
               className="flex flex-col items-center justify-center rounded-2xl border p-8"
-              style={{ borderColor: 'rgba(212,175,55,0.1)', background: '#111111', minHeight: 360 }}
+              style={{ borderColor: 'rgba(79,142,247,0.1)', background: '#0d1117', minHeight: 360 }}
             >
               <div className="mb-6 text-[10px] font-mono uppercase tracking-widest text-[#9CA3AF]">{c.title}</div>
               {c.body}

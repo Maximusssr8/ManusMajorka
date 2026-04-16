@@ -20,9 +20,9 @@ const C = {
   text: '#F1F5F9',
   secondary: '#94A3B8',
   muted: '#64748B',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.08)',
+  goldBorder: 'rgba(79,142,247,0.25)',
   green: '#22c55e',
   red: '#ef4444',
 };
@@ -203,7 +203,7 @@ export default function ProductReport() {
             <button
               onClick={handleShare}
               style={{
-                height: 34, padding: '0 16px', background: '#d4af37', color: 'white',
+                height: 34, padding: '0 16px', background: '#4f8ef7', color: 'white',
                 border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600,
                 cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
                 transition: 'transform 150ms, opacity 150ms',
@@ -263,7 +263,7 @@ export default function ProductReport() {
 
         {/* Ad angle */}
         {product.ad_angle && (
-          <div style={{ background: 'rgba(212,175,55,0.04)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', marginBottom: 28 }}>
+          <div style={{ background: 'rgba(79,142,247,0.04)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', marginBottom: 28 }}>
             <h3 style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: C.gold, marginBottom: 12 }}>🎯 Winning Ad Angle</h3>
             <p style={{ fontSize: 14, color: C.text, lineHeight: 1.7, fontStyle: 'italic' }}>{product.ad_angle && !product.ad_angle.includes('_') ? `"${product.ad_angle}"` : `"Highlight the key benefit: show how this product solves a real problem your target customer faces daily. Lead with the transformation, not the product."`}</p>
           </div>
@@ -271,7 +271,7 @@ export default function ProductReport() {
 
         {/* Divider + upsell (only shown to non-logged-in visitors) */}
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 28, marginBottom: 24 }}>
-          {!isLoggedIn && <div style={{ background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 20 }}>
+          {!isLoggedIn && <div style={{ background: 'rgba(79,142,247,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: 20, marginBottom: 8 }}>🔒</div>
             <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: C.text, marginBottom: 8 }}>Full supplier data, competitor analysis, and 40+ more products like this →</h3>
             <p style={{ color: C.secondary, fontSize: 13, marginBottom: 20 }}>Get access to real-time AU market intelligence. Free plan available.</p>

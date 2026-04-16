@@ -81,8 +81,8 @@ function MarketFlagsImpl(props: MarketFlagsProps) {
             fontWeight: 600,
             letterSpacing: '0.04em',
             color: '#e5e5e5',
-            background: 'rgba(212,175,55,0.08)',
-            border: '1px solid rgba(212,175,55,0.25)',
+            background: 'rgba(79,142,247,0.08)',
+            border: '1px solid rgba(79,142,247,0.25)',
             borderRadius: 4,
           }}
         >

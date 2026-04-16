@@ -48,13 +48,13 @@ export function EmptyState({
         style={{
           width: 72,
           height: 72,
-          background: 'rgba(212,175,55,0.06)',
-          border: '1px solid rgba(212,175,55,0.14)',
-          boxShadow: '0 0 40px -10px rgba(212,175,55,0.18)',
+          background: 'rgba(79,142,247,0.06)',
+          border: '1px solid rgba(79,142,247,0.14)',
+          boxShadow: '0 0 40px -10px rgba(79,142,247,0.18)',
         }}
       >
         {Icon ? (
-          <Icon size={48} strokeWidth={1.5} style={{ color: '#d4af37' }} />
+          <Icon size={48} strokeWidth={1.5} style={{ color: '#4f8ef7' }} />
         ) : emoji ? (
           <span style={{ fontSize: 36 }}>{emoji}</span>
         ) : null}

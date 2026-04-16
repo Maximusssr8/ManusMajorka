@@ -5,36 +5,36 @@ import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "mj-tap inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080808] focus-visible:ring-[#d4af37] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive will-change-transform",
+  "mj-tap inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#04060f] focus-visible:ring-[#4f8ef7] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive will-change-transform",
   {
     variants: {
       variant: {
         // Neutral dark — default chrome button
         default:
-          'bg-[#141414] text-[#e5e5e5] border border-[#262626] hover:bg-[#1a1a1a] hover:border-[rgba(212,175,55,0.25)]',
+          'bg-[#141414] text-[#e5e5e5] border border-[#262626] hover:bg-[#161b22] hover:border-[rgba(79,142,247,0.25)]',
         // Destructive
         destructive:
           'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         // Outline
         outline:
-          'border border-[#1a1a1a] bg-transparent text-[#e5e5e5] hover:bg-[#111111] hover:border-[rgba(212,175,55,0.25)]',
+          'border border-[#161b22] bg-transparent text-[#e5e5e5] hover:bg-[#0d1117] hover:border-[rgba(79,142,247,0.25)]',
         // Secondary
         secondary:
-          'bg-[#1a1a1a] text-[#e5e5e5] hover:bg-[#262626]',
+          'bg-[#161b22] text-[#e5e5e5] hover:bg-[#262626]',
         // Ghost
         ghost:
-          'bg-transparent text-[#a3a3a3] hover:bg-[rgba(212,175,55,0.06)] hover:text-[#e5e5e5]',
+          'bg-transparent text-[#a3a3a3] hover:bg-[rgba(79,142,247,0.06)] hover:text-[#e5e5e5]',
         // Link
-        link: 'text-[#d4af37] underline-offset-4 hover:underline',
+        link: 'text-[#4f8ef7] underline-offset-4 hover:underline',
         // GOLD — primary brand CTA (dark text on gold)
         gold:
-          'mj-glow-gold bg-[#d4af37] text-[#080808] font-bold border border-[rgba(212,175,55,0.4)] hover:bg-[#e5c158] hover:-translate-y-[1px]',
+          'mj-glow-gold bg-[#4f8ef7] text-[#04060f] font-bold border border-[rgba(79,142,247,0.4)] hover:bg-[#6ba3ff] hover:-translate-y-[1px]',
         // CTA — action blue (white on blue)
         cta:
           'mj-glow-blue bg-[#3B82F6] text-white font-semibold border border-[rgba(59,130,246,0.4)] hover:bg-[#60a5fa] hover:-translate-y-[1px]',
         // Legacy alias — kept so existing `variant="accent"` call sites keep working.
         accent:
-          'mj-glow-gold bg-[#d4af37] text-[#080808] font-bold border border-[rgba(212,175,55,0.4)] hover:bg-[#e5c158] hover:-translate-y-[1px]',
+          'mj-glow-gold bg-[#4f8ef7] text-[#04060f] font-bold border border-[rgba(79,142,247,0.4)] hover:bg-[#6ba3ff] hover:-translate-y-[1px]',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

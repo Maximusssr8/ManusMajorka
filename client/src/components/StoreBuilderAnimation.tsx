@@ -77,7 +77,7 @@ function BudgetCounter({ target, active }: { target: number; active: boolean }) 
 const BLINK_STYLE = `
   @keyframes sba-blink { 50% { opacity: 0; } }
   @keyframes sba-grid-expand { 0% { transform: scale(0.3); opacity: 0; } 40% { opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
-  @keyframes sba-gold-pulse { 0%, 100% { box-shadow: 0 0 40px rgba(212,175,55,0.08), 0 0 80px rgba(100,149,237,0.06); } 50% { box-shadow: 0 0 60px rgba(212,175,55,0.18), 0 0 120px rgba(100,149,237,0.12); } }
+  @keyframes sba-gold-pulse { 0%, 100% { box-shadow: 0 0 40px rgba(79,142,247,0.08), 0 0 80px rgba(100,149,237,0.06); } 50% { box-shadow: 0 0 60px rgba(79,142,247,0.18), 0 0 120px rgba(100,149,237,0.12); } }
   @keyframes sba-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
   @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   @keyframes sba-gold-flash { 0% { opacity: 0; } 25% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
@@ -91,7 +91,7 @@ type Phase = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 // ── Shared panel style ────────────────────────────────────────────────────────
 const PANEL_STYLE: React.CSSProperties = {
   background: 'rgba(10,12,18,0.97)',
-  border: '1px solid rgba(212,175,55,0.15)',
+  border: '1px solid rgba(79,142,247,0.15)',
   borderRadius: 10,
   padding: 20,
   fontFamily: 'DM Sans, sans-serif',
@@ -299,7 +299,7 @@ export default function StoreBuilderAnimation() {
               minHeight: 380,
               borderRadius: 12,
               background: '#05070F',
-              border: '1px solid rgba(212,175,55,0.1)',
+              border: '1px solid rgba(79,142,247,0.1)',
               overflow: 'hidden',
               animation: phase === 4 ? 'sba-gold-pulse 2s ease-in-out infinite' : 'none',
               boxShadow:
@@ -325,13 +325,13 @@ export default function StoreBuilderAnimation() {
                 >
                   <div style={{
                     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                    fontSize: 13, color: '#d4af37', letterSpacing: '0.02em',
+                    fontSize: 13, color: '#4f8ef7', letterSpacing: '0.02em',
                     display: 'flex', alignItems: 'center',
                   }}>
                     <span>{displayedInit}</span>
                     <span style={{
                       display: 'inline-block', width: 2, height: '1em',
-                      background: '#d4af37', marginLeft: 2,
+                      background: '#4f8ef7', marginLeft: 2,
                       animation: 'sba-blink 0.8s step-end infinite', verticalAlign: 'middle',
                     }} />
                   </div>
@@ -355,8 +355,8 @@ export default function StoreBuilderAnimation() {
                     width: 300, height: 300,
                     animation: 'sba-grid-expand 0.9s ease-out forwards',
                     backgroundImage: `
-                      linear-gradient(rgba(212,175,55,0.15) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(212,175,55,0.15) 1px, transparent 1px)
+                      linear-gradient(rgba(79,142,247,0.15) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(79,142,247,0.15) 1px, transparent 1px)
                     `,
                     backgroundSize: '30px 30px',
                     maskImage: 'radial-gradient(circle at center, black 20%, transparent 80%)',
@@ -377,10 +377,10 @@ export default function StoreBuilderAnimation() {
                   transition={{ duration: 0.35, ease: 'easeOut' }}
                   style={{
                     position: 'absolute', inset: '16px', borderRadius: 10,
-                    overflow: 'hidden', border: '1px solid rgba(212,175,55,0.12)',
+                    overflow: 'hidden', border: '1px solid rgba(79,142,247,0.12)',
                     display: 'flex', flexDirection: 'column',
                     boxShadow: phase === 4
-                      ? '0 0 40px rgba(212,175,55,0.12), inset 0 0 60px rgba(0,0,0,0.3)'
+                      ? '0 0 40px rgba(79,142,247,0.12), inset 0 0 60px rgba(0,0,0,0.3)'
                       : '0 8px 32px rgba(0,0,0,0.4)',
                   }}
                 >
@@ -420,13 +420,13 @@ export default function StoreBuilderAnimation() {
                           transition={{ duration: 0.25, ease: 'easeOut' }}
                           style={{
                             background: '#0d0d10',
-                            borderBottom: '1px solid rgba(212,175,55,0.15)',
+                            borderBottom: '1px solid rgba(79,142,247,0.15)',
                             padding: '10px 16px', display: 'flex',
                             justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
                           }}
                         >
                           <span style={{
-                            fontFamily: "'Syne', sans-serif", color: '#d4af37',
+                            fontFamily: "'Syne', sans-serif", color: '#4f8ef7',
                             fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
                           }}>MAJORKA STORE</span>
                           <span style={{ color: '#6b7280', fontSize: 9, fontFamily: "'DM Sans', sans-serif" }}>
@@ -463,14 +463,14 @@ export default function StoreBuilderAnimation() {
                                 width: '100%', height: 140,
                                 borderRadius: 6, position: 'relative', zIndex: 1,
                                 background: 'linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #F9FAFB 100%)',
-                                border: '1px solid rgba(212,175,55,0.1)',
+                                border: '1px solid rgba(79,142,247,0.1)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8,
                               }}>
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                                  <rect x="2" y="3" width="20" height="14" rx="2" stroke="#d4af37" strokeOpacity="0.35" strokeWidth="1.5"/>
-                                  <path d="M8 21h8M12 17v4" stroke="#d4af37" strokeOpacity="0.35" strokeWidth="1.5" strokeLinecap="round"/>
+                                  <rect x="2" y="3" width="20" height="14" rx="2" stroke="#4f8ef7" strokeOpacity="0.35" strokeWidth="1.5"/>
+                                  <path d="M8 21h8M12 17v4" stroke="#4f8ef7" strokeOpacity="0.35" strokeWidth="1.5" strokeLinecap="round"/>
                                 </svg>
-                                <span style={{ color: 'rgba(212,175,55,0.4)', fontSize: 10, letterSpacing: '0.12em', fontFamily: "'Syne', sans-serif" }}>PRODUCT</span>
+                                <span style={{ color: 'rgba(79,142,247,0.4)', fontSize: 10, letterSpacing: '0.12em', fontFamily: "'Syne', sans-serif" }}>PRODUCT</span>
                               </div>
                           </motion.div>
                         )}
@@ -496,7 +496,7 @@ export default function StoreBuilderAnimation() {
                               {titleTypingActive && displayedTitle.length < productTitle.length && (
                                 <span style={{
                                   display: 'inline-block', width: 1.5, height: '0.9em',
-                                  background: '#d4af37', marginLeft: 1,
+                                  background: '#4f8ef7', marginLeft: 1,
                                   animation: 'sba-blink 0.8s step-end infinite', verticalAlign: 'middle',
                                 }} />
                               )}
@@ -510,7 +510,7 @@ export default function StoreBuilderAnimation() {
                               key="price"
                               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                               transition={{ duration: 0.3 }}
-                              style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: '#d4af37' }}
+                              style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 800, color: '#4f8ef7' }}
                             >
                               $89.99 AUD
                             </motion.div>
@@ -524,11 +524,11 @@ export default function StoreBuilderAnimation() {
                               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
                               transition={{ duration: 0.3, type: 'spring', stiffness: 260, damping: 20 }}
                               style={{
-                                background: '#d4af37', color: '#FAFAFA', border: 'none',
+                                background: '#4f8ef7', color: '#FAFAFA', border: 'none',
                                 borderRadius: 5, padding: '7px 12px',
                                 fontFamily: "'Syne', sans-serif", fontWeight: 800,
                                 fontSize: 10, cursor: 'pointer',
-                                boxShadow: '0 0 20px rgba(212,175,55,0.4)', letterSpacing: '0.03em',
+                                boxShadow: '0 0 20px rgba(79,142,247,0.4)', letterSpacing: '0.03em',
                               }}
                             >
                               Add to Cart
@@ -603,7 +603,7 @@ export default function StoreBuilderAnimation() {
                 >
                   <div style={{ width: '100%', maxWidth: 320 }}>
                     <div style={{
-                      color: '#d4af37', fontSize: 14, fontWeight: 700,
+                      color: '#4f8ef7', fontSize: 14, fontWeight: 700,
                       marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8,
                     }}>
                       <span>◈</span> MAJORKA LICENSE
@@ -637,14 +637,14 @@ export default function StoreBuilderAnimation() {
                           transition={{ duration: 1.5, ease: 'easeOut' }}
                           style={{
                             height: '100%',
-                            background: 'linear-gradient(90deg, #d4af37, #f0cc6a)',
+                            background: 'linear-gradient(90deg, #4f8ef7, #f0cc6a)',
                             borderRadius: 4,
                           }}
                         />
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#6b7280' }}>
                         <span>Store is live — majorka.ai/store</span>
-                        <span style={{ color: '#d4af37' }}>100%</span>
+                        <span style={{ color: '#4f8ef7' }}>100%</span>
                       </div>
                     </div>
                   </div>
@@ -663,7 +663,7 @@ export default function StoreBuilderAnimation() {
                   transition={{ duration: 0.4 }}
                   style={{ ...PANEL_STYLE, zIndex: 30 }}
                 >
-                  <div style={{ color: '#d4af37', fontSize: 14, fontWeight: 700, marginBottom: 20 }}>
+                  <div style={{ color: '#4f8ef7', fontSize: 14, fontWeight: 700, marginBottom: 20 }}>
                     📱 AD CAMPAIGNS LAUNCHED
                   </div>
 
@@ -756,7 +756,7 @@ export default function StoreBuilderAnimation() {
                           }}>
                             <span style={{ fontSize: 11, color: '#9ca3af' }}>🛒 NEW ORDER</span>
                             <span style={{
-                              fontFamily: 'monospace', color: '#d4af37',
+                              fontFamily: 'monospace', color: '#4f8ef7',
                               fontSize: 11, fontWeight: 700,
                             }}>{order.id}</span>
                           </div>
@@ -780,7 +780,7 @@ export default function StoreBuilderAnimation() {
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         transition={{ duration: 0.4 }}
                         style={{
-                          color: '#d4af37', fontSize: 11, fontWeight: 600,
+                          color: '#4f8ef7', fontSize: 11, fontWeight: 600,
                           textAlign: 'center', marginTop: 4,
                         }}
                       >
@@ -803,7 +803,7 @@ export default function StoreBuilderAnimation() {
                   transition={{ duration: 0.4 }}
                   style={{ ...PANEL_STYLE, zIndex: 30 }}
                 >
-                  <div style={{ color: '#d4af37', fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+                  <div style={{ color: '#4f8ef7', fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
                     📦 AUTO FULFILMENT
                   </div>
                   <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 14 }}>
@@ -826,7 +826,7 @@ export default function StoreBuilderAnimation() {
                             gap: 10, marginBottom: 12, fontSize: 11,
                           }}
                         >
-                          <span style={{ fontFamily: 'monospace', color: '#d4af37', width: 46 }}>{item.id}</span>
+                          <span style={{ fontFamily: 'monospace', color: '#4f8ef7', width: 46 }}>{item.id}</span>
                           <div style={{
                             flex: 1, background: 'rgba(255,255,255,0.03)',
                             borderRadius: 3, height: 5, overflow: 'hidden',
@@ -837,7 +837,7 @@ export default function StoreBuilderAnimation() {
                               transition={{ duration: 0.8, ease: 'easeOut' }}
                               style={{
                                 height: '100%',
-                                background: item.shipped ? '#4ade80' : '#d4af37',
+                                background: item.shipped ? '#4ade80' : '#4f8ef7',
                                 borderRadius: 3,
                               }}
                             />
@@ -871,7 +871,7 @@ export default function StoreBuilderAnimation() {
                   transition={{ duration: 0.5 }}
                   style={{ ...PANEL_STYLE, zIndex: 30 }}
                 >
-                  <div style={{ color: '#d4af37', fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
+                  <div style={{ color: '#4f8ef7', fontSize: 14, fontWeight: 700, marginBottom: 16 }}>
                     💰 TODAY'S PERFORMANCE
                   </div>
 
@@ -880,8 +880,8 @@ export default function StoreBuilderAnimation() {
                     <div style={{ color: '#6b7280', fontSize: 10, marginBottom: 4 }}>Revenue</div>
                     <div style={{
                       fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 800,
-                      color: '#d4af37',
-                      textShadow: '0 0 30px rgba(212,175,55,0.55), 0 0 60px rgba(212,175,55,0.25)',
+                      color: '#4f8ef7',
+                      textShadow: '0 0 30px rgba(79,142,247,0.55), 0 0 60px rgba(79,142,247,0.25)',
                     }}>
                       ${revenue.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
@@ -917,7 +917,7 @@ export default function StoreBuilderAnimation() {
                         initial={{ width: '0%' }}
                         animate={{ width: '8%' }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        style={{ height: '100%', background: '#d4af37', borderRadius: 4 }}
+                        style={{ height: '100%', background: '#4f8ef7', borderRadius: 4 }}
                       />
                     </div>
                     <div style={{ color: '#6b7280', fontSize: 10 }}>Day 1 of your store</div>
@@ -937,7 +937,7 @@ export default function StoreBuilderAnimation() {
                   transition={{ duration: 0.4 }}
                   style={{
                     position: 'absolute', inset: 0, zIndex: 40,
-                    background: 'rgba(212,175,55,0.05)',
+                    background: 'rgba(79,142,247,0.05)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     animation: 'sba-gold-flash 1s ease-in-out forwards',
                   }}
@@ -949,7 +949,7 @@ export default function StoreBuilderAnimation() {
                     transition={{ duration: 0.3, delay: 0.1 }}
                     style={{
                       fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 700,
-                      color: '#d4af37', letterSpacing: '0.05em',
+                      color: '#4f8ef7', letterSpacing: '0.05em',
                     }}
                   >
                     Built with Majorka
@@ -966,7 +966,7 @@ export default function StoreBuilderAnimation() {
       {!visible && (
         <div style={{
           width: '100%', minHeight: 380, borderRadius: 12,
-          background: '#05070F', border: '1px solid rgba(212,175,55,0.05)',
+          background: '#05070F', border: '1px solid rgba(79,142,247,0.05)',
         }} />
       )}
 

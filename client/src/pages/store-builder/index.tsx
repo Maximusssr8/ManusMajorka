@@ -22,8 +22,8 @@ import { toast } from 'sonner';
  * ──────────────────────────────────────────────────────────────── */
 
 // ── Design tokens ──────────────────────────────────────────────
-const ACCENT = '#d4af37';
-const VIOLET = '#d4af37';
+const ACCENT = '#4f8ef7';
+const VIOLET = '#4f8ef7';
 const BG = '#0d0f14';
 const SURFACE = '#13151c';
 const TEXT_PRIMARY = '#f0f4ff';
@@ -47,7 +47,7 @@ const MARKETS = ['Australia', 'United States', 'United Kingdom', 'Global'];
 const TONES = ['Professional', 'Fun & Casual', 'Luxury', 'Minimal'];
 
 const COLOR_SWATCHES = [
-  { color: '#d4af37', label: 'Gold' },
+  { color: '#4f8ef7', label: 'Gold' },
   { color: '#3B82F6', label: 'Blue' },
   { color: '#f43f5e', label: 'Rose' },
   { color: '#10b981', label: 'Emerald' },
@@ -57,8 +57,8 @@ const COLOR_SWATCHES = [
 
 const TEMPLATES = [
   { id: 'minimal',     name: 'Minimal',     style: 'White · Premium spacing',       bestFor: ['Beauty', 'Fashion', 'Jewellery'],  bg: '#ffffff', preview: { bg: '#fff',     text: '#0a0a0a', btn: '#0a0a0a' } },
-  { id: 'bold',        name: 'Bold',        style: 'Dark · High contrast',          bestFor: ['Fitness', 'Electronics'],           bg: '#09090b', preview: { bg: '#09090b', text: '#fff',    btn: '#d4af37' } },
-  { id: 'luxury',      name: 'Luxury',      style: 'Black · Gold accents',          bestFor: ['Premium', 'Watches'],               bg: '#080808', preview: { bg: '#080808', text: '#d4af37', btn: '#d4af37' } },
+  { id: 'bold',        name: 'Bold',        style: 'Dark · High contrast',          bestFor: ['Fitness', 'Electronics'],           bg: '#09090b', preview: { bg: '#09090b', text: '#fff',    btn: '#4f8ef7' } },
+  { id: 'luxury',      name: 'Luxury',      style: 'Black · Gold accents',          bestFor: ['Premium', 'Watches'],               bg: '#04060f', preview: { bg: '#04060f', text: '#4f8ef7', btn: '#4f8ef7' } },
   { id: 'warm',        name: 'Warm',        style: 'Cream · Earthy tones',          bestFor: ['Pet', 'Baby', 'Eco'],               bg: '#fdf6ec', preview: { bg: '#fdf6ec', text: '#1c1917', btn: '#b45309' } },
   { id: 'clean',       name: 'Clean',       style: 'Light grey · Systematic',       bestFor: ['Electronics', 'Tools'],             bg: '#f8fafc', preview: { bg: '#f8fafc', text: '#0f172a', btn: '#0f172a' } },
   { id: 'high-energy', name: 'High Energy', style: 'Bright · Sale-focused',         bestFor: ['General', 'Impulse buys'],          bg: '#fff7ed', preview: { bg: '#fff7ed', text: '#1c1917', btn: '#dc2626' } },
@@ -135,7 +135,7 @@ function Chip({ label, selected, onClick }: { label: string; selected: boolean; 
       className={[
         'px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150',
         selected
-          ? 'bg-[#d4af37]/15 text-[#e5c158] border border-[#d4af37]/60 shadow-[0_0_0_3px_rgba(212,175,55,0.12)]'
+          ? 'bg-[#4f8ef7]/15 text-[#6ba3ff] border border-[#4f8ef7]/60 shadow-[0_0_0_3px_rgba(79,142,247,0.12)]'
           : 'bg-white/[0.03] text-white/60 border border-white/[0.08] hover:border-white/20 hover:text-white/80',
       ].join(' ')}
       style={{ fontFamily: FONT_BODY }}
@@ -335,12 +335,12 @@ const KEYFRAMES_CSS = `
 @keyframes sb-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 @keyframes sb-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .sb-fade-in { animation: sb-fade-in 300ms ease-out both; }
-.sb-glow-cta { box-shadow: 0 0 0 1px rgba(212,175,55,0.4), 0 10px 40px -10px rgba(212,175,55,0.6), 0 0 60px -10px rgba(212,175,55,0.4); }
-.sb-glow-cta:hover { box-shadow: 0 0 0 1px rgba(212,175,55,0.6), 0 14px 50px -10px rgba(212,175,55,0.8), 0 0 80px -10px rgba(212,175,55,0.6); transform: translateY(-1px); }
+.sb-glow-cta { box-shadow: 0 0 0 1px rgba(79,142,247,0.4), 0 10px 40px -10px rgba(79,142,247,0.6), 0 0 60px -10px rgba(79,142,247,0.4); }
+.sb-glow-cta:hover { box-shadow: 0 0 0 1px rgba(79,142,247,0.6), 0 14px 50px -10px rgba(79,142,247,0.8), 0 0 80px -10px rgba(79,142,247,0.6); transform: translateY(-1px); }
 .sb-input { width: 100%; padding: 13px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: ${TEXT_PRIMARY}; font-size: 14px; font-family: ${FONT_BODY}; outline: none; transition: all 150ms; box-sizing: border-box; }
-.sb-input:focus { border-color: rgba(212,175,55,0.6); background: rgba(212,175,55,0.05); box-shadow: 0 0 0 3px rgba(212,175,55,0.12); }
+.sb-input:focus { border-color: rgba(79,142,247,0.6); background: rgba(79,142,247,0.05); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
 .sb-card-hover { transition: transform 200ms, border-color 200ms, box-shadow 200ms; }
-.sb-card-hover:hover { transform: translateY(-2px); border-color: rgba(212,175,55,0.4); box-shadow: 0 12px 40px -12px rgba(212,175,55,0.4); }
+.sb-card-hover:hover { transform: translateY(-2px); border-color: rgba(79,142,247,0.4); box-shadow: 0 12px 40px -12px rgba(79,142,247,0.4); }
 `;
 
 // ════════════════════════════════════════════════════════════════
@@ -705,7 +705,7 @@ export default function StoreBuilder() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
           {/* Hero */}
           <div className="text-center mb-14 sb-fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)' }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(79,142,247,0.08)', border: '1px solid rgba(79,142,247,0.2)' }}>
               <Sparkles size={14} color={ACCENT} />
               <span className="text-xs font-semibold tracking-wider uppercase" style={{ color: ACCENT, letterSpacing: '0.1em' }}>AI Store Builder</span>
             </div>
@@ -724,12 +724,12 @@ export default function StoreBuilder() {
               className="sb-card-hover group cursor-pointer relative overflow-hidden p-8"
               style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}
             >
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: `radial-gradient(600px circle at 50% 0%, rgba(212,175,55,0.10), transparent 40%)` }} />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: `radial-gradient(600px circle at 50% 0%, rgba(79,142,247,0.10), transparent 40%)` }} />
               <div className="flex items-center gap-2 mb-5">
-                <div className="flex items-center justify-center w-11 h-11 rounded-xl" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                <div className="flex items-center justify-center w-11 h-11 rounded-xl" style={{ background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.25)' }}>
                   <Sparkles size={20} color={ACCENT} />
                 </div>
-                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ background: 'rgba(212,175,55,0.1)', color: ACCENT, letterSpacing: '0.12em' }}>Recommended</span>
+                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ background: 'rgba(79,142,247,0.1)', color: ACCENT, letterSpacing: '0.12em' }}>Recommended</span>
               </div>
               <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 22, fontWeight: 700 }}>Build with AI</div>
               <div className="mb-6" style={{ color: TEXT_BODY, fontSize: 14, lineHeight: 1.5 }}>Wizard generates copy, selects products, and publishes a live storefront in minutes.</div>
@@ -761,8 +761,8 @@ export default function StoreBuilder() {
               className="sb-card-hover cursor-pointer relative p-8"
               style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}
             >
-              <div className="absolute top-4 right-4 text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ background: 'rgba(212,175,55,0.12)', color: VIOLET, letterSpacing: '0.1em' }}>Scale</div>
-              <div className="flex items-center justify-center w-11 h-11 rounded-xl mb-5" style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)' }}>
+              <div className="absolute top-4 right-4 text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded" style={{ background: 'rgba(79,142,247,0.12)', color: VIOLET, letterSpacing: '0.1em' }}>Scale</div>
+              <div className="flex items-center justify-center w-11 h-11 rounded-xl mb-5" style={{ background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.25)' }}>
                 <StoreIcon size={20} color={VIOLET} />
               </div>
               <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 22, fontWeight: 700 }}>Sell on Majorka</div>
@@ -819,10 +819,10 @@ export default function StoreBuilder() {
               />
             </div>
             <div className="hidden md:flex items-center gap-1 px-1 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <button onClick={() => setIsMobilePreview(false)} className={`px-2.5 py-1.5 rounded ${!isMobilePreview ? '' : ''}`} style={{ background: !isMobilePreview ? 'rgba(212,175,55,0.15)' : 'transparent', color: !isMobilePreview ? ACCENT : TEXT_MUTED }}>
+              <button onClick={() => setIsMobilePreview(false)} className={`px-2.5 py-1.5 rounded ${!isMobilePreview ? '' : ''}`} style={{ background: !isMobilePreview ? 'rgba(79,142,247,0.15)' : 'transparent', color: !isMobilePreview ? ACCENT : TEXT_MUTED }}>
                 <Monitor size={15} />
               </button>
-              <button onClick={() => setIsMobilePreview(true)} style={{ background: isMobilePreview ? 'rgba(212,175,55,0.15)' : 'transparent', color: isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2.5 py-1.5 rounded">
+              <button onClick={() => setIsMobilePreview(true)} style={{ background: isMobilePreview ? 'rgba(79,142,247,0.15)' : 'transparent', color: isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2.5 py-1.5 rounded">
                 <Smartphone size={15} />
               </button>
             </div>
@@ -976,7 +976,7 @@ export default function StoreBuilder() {
                         <p className="mb-6" style={{ color: TEXT_BODY, fontSize: 14 }}>Pick a template and accent colour. Preview updates live.</p>
 
                         {generating && (
-                          <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 12 }}>
+                          <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'rgba(79,142,247,0.06)', border: '1px solid rgba(79,142,247,0.2)', borderRadius: 12 }}>
                             <Loader2 size={18} color={ACCENT} style={{ animation: 'spin 1s linear infinite' }} />
                             <div className="flex-1">
                               <div className="text-sm font-semibold" style={{ color: TEXT_PRIMARY }}>Generating copy...</div>
@@ -1059,13 +1059,13 @@ export default function StoreBuilder() {
                           <div
                             className="mb-6 p-5"
                             style={{
-                              background: `linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.08))`,
-                              border: '1px solid rgba(212,175,55,0.35)',
+                              background: `linear-gradient(135deg, rgba(79,142,247,0.12), rgba(79,142,247,0.08))`,
+                              border: '1px solid rgba(79,142,247,0.35)',
                               borderRadius: 16,
                             }}
                           >
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: 'rgba(212,175,55,0.2)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                              <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ background: 'rgba(79,142,247,0.2)', border: '1px solid rgba(79,142,247,0.35)' }}>
                                 <Lock size={14} color={ACCENT} />
                               </div>
                               <div style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700, color: TEXT_PRIMARY }}>Upgrade to publish your store</div>
@@ -1144,7 +1144,7 @@ export default function StoreBuilder() {
                             disabled={!canContinueFrom[stepId]}
                             className="inline-flex items-center gap-1.5 px-6 py-3 rounded-lg text-sm font-bold transition-all sb-glow-cta"
                             style={{
-                              background: canContinueFrom[stepId] ? `linear-gradient(135deg, ${ACCENT}, ${VIOLET})` : 'rgba(212,175,55,0.3)',
+                              background: canContinueFrom[stepId] ? `linear-gradient(135deg, ${ACCENT}, ${VIOLET})` : 'rgba(79,142,247,0.3)',
                               color: '#fff',
                               border: 'none',
                               opacity: canContinueFrom[stepId] ? 1 : 0.5,
@@ -1173,7 +1173,7 @@ export default function StoreBuilder() {
                             disabled={!subdomainAvailable || publishing}
                             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all sb-glow-cta"
                             style={{
-                              background: subdomainAvailable ? `linear-gradient(135deg, ${ACCENT}, ${VIOLET})` : 'rgba(212,175,55,0.3)',
+                              background: subdomainAvailable ? `linear-gradient(135deg, ${ACCENT}, ${VIOLET})` : 'rgba(79,142,247,0.3)',
                               color: '#fff',
                               border: 'none',
                               opacity: !subdomainAvailable ? 0.5 : 1,
@@ -1197,8 +1197,8 @@ export default function StoreBuilder() {
                         <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: TEXT_BODY, letterSpacing: '0.12em' }}>Live preview</span>
                       </div>
                       <div className="md:hidden flex items-center gap-1 px-1 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <button onClick={() => setIsMobilePreview(false)} style={{ background: !isMobilePreview ? 'rgba(212,175,55,0.15)' : 'transparent', color: !isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2 py-1 rounded"><Monitor size={13} /></button>
-                        <button onClick={() => setIsMobilePreview(true)} style={{ background: isMobilePreview ? 'rgba(212,175,55,0.15)' : 'transparent', color: isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2 py-1 rounded"><Smartphone size={13} /></button>
+                        <button onClick={() => setIsMobilePreview(false)} style={{ background: !isMobilePreview ? 'rgba(79,142,247,0.15)' : 'transparent', color: !isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2 py-1 rounded"><Monitor size={13} /></button>
+                        <button onClick={() => setIsMobilePreview(true)} style={{ background: isMobilePreview ? 'rgba(79,142,247,0.15)' : 'transparent', color: isMobilePreview ? ACCENT : TEXT_MUTED }} className="px-2 py-1 rounded"><Smartphone size={13} /></button>
                       </div>
                     </div>
                     <div
@@ -1215,7 +1215,7 @@ export default function StoreBuilder() {
                     >
                       {selectedProducts.length === 0 && stepId !== 'niche' ? (
                         <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center px-6">
-                          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)' }}>
+                          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.2)' }}>
                             <StoreIcon size={22} color={ACCENT} />
                           </div>
                           <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700 }}>Preview will appear here</div>

@@ -55,7 +55,7 @@ export default function AuthCallback() {
   return (
     <div
       style={{
-        background: '#080808',
+        background: '#04060f',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -68,13 +68,13 @@ export default function AuthCallback() {
         style={{
           width: 36,
           height: 36,
-          border: '2px solid #1a1a1a',
-          borderTopColor: '#d4af37',
+          border: '2px solid #161b22',
+          borderTopColor: '#4f8ef7',
           borderRadius: '50%',
           animation: 'mjAuthSpin 0.9s linear infinite',
         }}
       />
-      <p style={{ color: '#d4af37', fontFamily: "'Syne', system-ui, sans-serif", fontSize: 18, letterSpacing: '-0.01em', margin: 0 }}>
+      <p style={{ color: '#4f8ef7', fontFamily: "'Syne', system-ui, sans-serif", fontSize: 18, letterSpacing: '-0.01em', margin: 0 }}>
         {message}
       </p>
       <style>{`@keyframes mjAuthSpin { to { transform: rotate(360deg); } }`}</style>

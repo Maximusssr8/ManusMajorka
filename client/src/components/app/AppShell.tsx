@@ -107,7 +107,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Mobile header bar — sticky, 56px tall, 44px touch targets */}
           <div
             className="md:hidden sticky top-0 z-40 flex items-center justify-between px-3 h-14 shrink-0"
-            style={{ background: 'rgba(8,8,8,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #1a1a1a' }}
+            style={{ background: 'rgba(8,8,8,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #161b22' }}
           >
             <button
               onClick={() => setSidebarOpen(true)}
@@ -145,7 +145,7 @@ export function AppShell({ children }: AppShellProps) {
               {alertBadgeCount > 0 && (
                 <span
                   className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
-                  style={{ background: '#d4af37', color: '#080808' }}
+                  style={{ background: '#4f8ef7', color: '#04060f' }}
                 >
                   {alertBadgeCount > 9 ? '9+' : alertBadgeCount}
                 </span>
@@ -186,13 +186,13 @@ export function AppShell({ children }: AppShellProps) {
         theme="dark"
         toastOptions={{
           style: {
-            background: '#111111',
+            background: '#0d1117',
             color: '#e5e5e5',
-            border: '1px solid #1a1a1a',
+            border: '1px solid #161b22',
             borderRadius: '10px',
             fontSize: '13px',
             fontFamily: "'DM Sans', sans-serif",
-            boxShadow: '0 0 0 1px rgba(212,175,55,0.08), 0 8px 40px -10px rgba(212,175,55,0.15)',
+            boxShadow: '0 0 0 1px rgba(79,142,247,0.08), 0 8px 40px -10px rgba(79,142,247,0.15)',
           },
         }}
       />

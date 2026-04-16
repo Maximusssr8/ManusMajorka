@@ -11,8 +11,8 @@ interface BorderBeamProps {
 export function BorderBeam({
   children,
   className,
-  colorA = '#d4af37',
-  colorB = '#d4af37',
+  colorA = '#4f8ef7',
+  colorB = '#4f8ef7',
   duration = '4s',
 }: BorderBeamProps) {
   return (

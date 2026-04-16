@@ -16,9 +16,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.2)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.08)',
+  goldBorder: 'rgba(79,142,247,0.2)',
 };
 
 const syne = "'Syne', sans-serif";
@@ -130,7 +130,7 @@ export default function TikTokShopAustralia() {
             TikTok Shop launched in Australia in 2024 — and it's already <strong style={{ color: C.text }}>the fastest-growing ecommerce channel</strong> in the country. This guide covers everything you need to know about <strong style={{ color: C.text }}>TikTok dropshipping Australia</strong>: how TikTok Shop AU works, what products are winning, and how to find them before your competitors.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(212,175,55,0.3)` }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(79,142,247,0.3)` }}>
               Find TikTok Shop Products Free →
             </Link>
             <Link href="/dropshipping-australia" style={{ background: 'transparent', color: C.text, fontFamily: syne, fontWeight: 600, fontSize: 15, padding: '16px 30px', borderRadius: 12, textDecoration: 'none', border: `1px solid ${C.border}` }}>
@@ -271,7 +271,7 @@ export default function TikTokShopAustralia() {
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
             Majorka's AI scans TikTok Shop AU, AliExpress, Amazon AU, and eBay AU simultaneously — giving you the full picture on what's winning in Australia right now.
           </p>
-          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(212,175,55,0.35)` }}>
+          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(79,142,247,0.35)` }}>
             Start Finding Products Free →
           </Link>
           <p style={{ color: C.muted, fontSize: 12, marginTop: 14 }}>Free tier · No credit card · 2,400+ AU sellers</p>

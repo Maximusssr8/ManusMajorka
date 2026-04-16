@@ -105,9 +105,9 @@ function GlassCard({
 function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, React.CSSProperties> = {
     starter: { background: 'rgba(113,113,122,0.2)', color: '#94A3B8' },
-    builder: { background: 'rgba(212,175,55,0.15)', color: '#d4af37' },
+    builder: { background: 'rgba(79,142,247,0.15)', color: '#4f8ef7' },
     scale: { background: 'rgba(124,90,245,0.2)', color: '#a78bfa' },
-    pro: { background: 'rgba(212,175,55,0.30)', color: '#d4af37' },
+    pro: { background: 'rgba(79,142,247,0.30)', color: '#4f8ef7' },
   };
   const s = styles[plan] ?? styles.starter;
   return (
@@ -210,7 +210,7 @@ function ConfirmDialog({
             style={{
               padding: '8px 16px',
               borderRadius: 8,
-              background: danger ? 'rgba(239,68,68,0.8)' : '#d4af37',
+              background: danger ? 'rgba(239,68,68,0.8)' : '#4f8ef7',
               color: danger ? '#fff' : '#0a0a0a',
               border: 'none',
               cursor: 'pointer',
@@ -298,7 +298,7 @@ export default function AdminPanel() {
   if (!user) {
     return (
       <div className="h-screen flex items-center justify-center" style={{ background: '#05070F' }}>
-        <Loader2 className="animate-spin" size={24} style={{ color: '#d4af37' }} />
+        <Loader2 className="animate-spin" size={24} style={{ color: '#4f8ef7' }} />
       </div>
     );
   }
@@ -383,13 +383,13 @@ export default function AdminPanel() {
       label: 'Total Users',
       value: statsQuery.data?.totalUsers ?? '—',
       icon: Users,
-      color: '#d4af37',
+      color: '#4f8ef7',
     },
     {
       label: 'Active Today',
       value: statsQuery.data?.activeToday ?? '—',
       icon: Activity,
-      color: '#d4af37',
+      color: '#4f8ef7',
     },
     {
       label: 'Active This Week',
@@ -443,7 +443,7 @@ export default function AdminPanel() {
               width: 28,
               height: 28,
               borderRadius: 8,
-              background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+              background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -552,9 +552,9 @@ export default function AdminPanel() {
                   gap: 10,
                   padding: '8px 12px',
                   borderRadius: 8,
-                  background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
-                  color: active ? '#d4af37' : '#6B7280',
-                  border: active ? '1px solid rgba(212,175,55,0.2)' : '1px solid transparent',
+                  background: active ? 'rgba(79,142,247,0.1)' : 'transparent',
+                  color: active ? '#4f8ef7' : '#6B7280',
+                  border: active ? '1px solid rgba(79,142,247,0.2)' : '1px solid transparent',
                   cursor: 'pointer',
                   fontSize: 13,
                   fontWeight: active ? 600 : 400,
@@ -637,7 +637,7 @@ export default function AdminPanel() {
                           transition: 'border-color 200ms ease',
                         }}
                         onFocus={(e) =>
-                          (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')
+                          (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.4)')
                         }
                         onBlur={(e) =>
                           (e.currentTarget.style.borderColor = '#F5F5F5')
@@ -778,13 +778,13 @@ export default function AdminPanel() {
                                           width: 32,
                                           height: 32,
                                           borderRadius: '50%',
-                                          background: 'rgba(212,175,55,0.15)',
+                                          background: 'rgba(79,142,247,0.15)',
                                           display: 'flex',
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                           fontSize: 11,
                                           fontWeight: 700,
-                                          color: '#d4af37',
+                                          color: '#4f8ef7',
                                           flexShrink: 0,
                                         }}
                                       >
@@ -1025,7 +1025,7 @@ export default function AdminPanel() {
                       </p>
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={toolUsageData}>
-                          <Bar dataKey="count" fill="#d4af37" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="count" fill="#4f8ef7" radius={[4, 4, 0, 0]} />
                           <XAxis
                             dataKey="tool"
                             tick={{ fill: '#9ca3af', fontSize: 11 }}
@@ -1074,13 +1074,13 @@ export default function AdminPanel() {
                         label: 'API Calls This Month',
                         value: '—',
                         hint: 'Set up PostHog to track this',
-                        color: '#d4af37',
+                        color: '#4f8ef7',
                       },
                       {
                         label: 'Estimated Cost',
                         value: '—',
                         hint: 'Requires Anthropic usage API',
-                        color: '#d4af37',
+                        color: '#4f8ef7',
                       },
                       {
                         label: 'Rate Limit Hits',
@@ -1198,7 +1198,7 @@ export default function AdminPanel() {
                                     height: 20,
                                     borderRadius: 10,
                                     background: enabled
-                                      ? 'rgba(212,175,55,0.6)'
+                                      ? 'rgba(79,142,247,0.6)'
                                       : '#F0F0F0',
                                     transition: 'background 200ms',
                                     position: 'relative',
@@ -1209,7 +1209,7 @@ export default function AdminPanel() {
                                       width: 14,
                                       height: 14,
                                       borderRadius: '50%',
-                                      background: enabled ? '#d4af37' : '#9CA3AF',
+                                      background: enabled ? '#4f8ef7' : '#9CA3AF',
                                       position: 'absolute',
                                       top: 3,
                                       left: enabled ? 19 : 3,
@@ -1295,7 +1295,7 @@ export default function AdminPanel() {
                                 transition: 'border-color 200ms ease',
                               }}
                               onFocus={(e) =>
-                                (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')
+                                (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.4)')
                               }
                               onBlur={(e) =>
                                 (e.currentTarget.style.borderColor = '#F5F5F5')
@@ -1310,20 +1310,20 @@ export default function AdminPanel() {
                               style={{
                                 marginTop: 6,
                                 padding: '5px 12px',
-                                background: 'rgba(212,175,55,0.15)',
-                                border: '1px solid rgba(212,175,55,0.3)',
+                                background: 'rgba(79,142,247,0.15)',
+                                border: '1px solid rgba(79,142,247,0.3)',
                                 borderRadius: 6,
-                                color: '#d4af37',
+                                color: '#4f8ef7',
                                 cursor: 'pointer',
                                 fontSize: 12,
                                 fontWeight: 600,
                                 transition: 'all 200ms ease',
                               }}
                               onMouseEnter={(e) =>
-                                (e.currentTarget.style.background = 'rgba(212,175,55,0.25)')
+                                (e.currentTarget.style.background = 'rgba(79,142,247,0.25)')
                               }
                               onMouseLeave={(e) =>
-                                (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')
+                                (e.currentTarget.style.background = 'rgba(79,142,247,0.15)')
                               }
                             >
                               Save
@@ -1360,14 +1360,14 @@ export default function AdminPanel() {
                       {
                         label: 'Send Broadcast Email',
                         icon: Send,
-                        color: '#d4af37',
+                        color: '#4f8ef7',
                         danger: false,
                         onClick: () => setShowBroadcast(true),
                       },
                       {
                         label: 'Welcome Email Sequence',
                         icon: Zap,
-                        color: '#d4af37',
+                        color: '#4f8ef7',
                         danger: false,
                         onClick: () =>
                           triggerN8nWorkflow('s6p2EouVEPIQhGjS', 'Welcome Email Sequence'),
@@ -1375,14 +1375,14 @@ export default function AdminPanel() {
                       {
                         label: 'Daily Digest',
                         icon: BarChart2,
-                        color: '#d4af37',
+                        color: '#4f8ef7',
                         danger: false,
                         onClick: () => triggerN8nWorkflow('EeHbXLFUl0mt7rGg', 'Daily Digest'),
                       },
                       {
                         label: 'Weekly AU Report',
                         icon: Activity,
-                        color: '#d4af37',
+                        color: '#4f8ef7',
                         danger: false,
                         onClick: () => triggerN8nWorkflow('Ih6AKmVQKO7fn8ST', 'Weekly AU Report'),
                       },
@@ -1432,7 +1432,7 @@ export default function AdminPanel() {
                               borderRadius: 8,
                               background: action.danger
                                 ? 'rgba(239,68,68,0.1)'
-                                : 'rgba(212,175,55,0.1)',
+                                : 'rgba(79,142,247,0.1)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -1545,7 +1545,7 @@ export default function AdminPanel() {
                       outline: 'none',
                       transition: 'border-color 200ms ease',
                     }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.4)')}
                     onBlur={(e) => (e.currentTarget.style.borderColor = '#F0F0F0')}
                   />
                 </div>
@@ -1578,7 +1578,7 @@ export default function AdminPanel() {
                       fontFamily: 'DM Sans, sans-serif',
                       transition: 'border-color 200ms ease',
                     }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.4)')}
                     onBlur={(e) => (e.currentTarget.style.borderColor = '#F0F0F0')}
                   />
                 </div>
@@ -1596,7 +1596,7 @@ export default function AdminPanel() {
                   disabled={broadcastMut.isPending}
                   style={{
                     padding: '12px 20px',
-                    background: '#d4af37',
+                    background: '#4f8ef7',
                     border: 'none',
                     borderRadius: 8,
                     color: '#0a0a0a',

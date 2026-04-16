@@ -42,10 +42,10 @@ const NICHES = ['beauty','fitness','home decor','pet care','tech accessories','f
 const NICHE_PILLS = ['ALL', 'Beauty', 'Tech', 'Fitness', 'Home', 'Fashion', 'Pet', 'Kitchen', 'Health', 'Outdoor'];
 
 const NICHE_COLORS: Record<string, string> = {
-  beauty: '#EC4899', tech: '#d4af37', fitness: '#10B981', home: '#F59E0B',
-  'home decor': '#F59E0B', fashion: '#d4af37', pet: '#F97316', 'pet care': '#F97316',
-  kitchen: '#d4af37', health: '#10B981', outdoor: '#6B7280', 'tech accessories': '#d4af37',
-  ecommerce: '#d4af37', dropshipping: '#d4af37', baby: '#EC4899', general: '#6B7280',
+  beauty: '#EC4899', tech: '#4f8ef7', fitness: '#10B981', home: '#F59E0B',
+  'home decor': '#F59E0B', fashion: '#4f8ef7', pet: '#F97316', 'pet care': '#F97316',
+  kitchen: '#4f8ef7', health: '#10B981', outdoor: '#6B7280', 'tech accessories': '#4f8ef7',
+  ecommerce: '#4f8ef7', dropshipping: '#4f8ef7', baby: '#EC4899', general: '#6B7280',
 };
 
 const ENGAGEMENT_RING: Record<string, string> = {
@@ -62,8 +62,8 @@ const ENGAGEMENT_BAR_COLOR: Record<string, string> = {
 
 const TIER_BADGES: { label: string; ring: string; bg: string; color: string }[] = [
   { label: 'TOP', ring: '0 0 0 3px #F59E0B', bg: '#FEF3C7', color: '#92400E' },
-  { label: 'ELITE', ring: '0 0 0 3px #d4af37', bg: 'rgba(212,175,55,0.08)', color: '#3B82F6' },
-  { label: 'RISING', ring: '0 0 0 3px #d4af37', bg: '#F3E8FF', color: '#6D28D9' },
+  { label: 'ELITE', ring: '0 0 0 3px #4f8ef7', bg: 'rgba(79,142,247,0.08)', color: '#3B82F6' },
+  { label: 'RISING', ring: '0 0 0 3px #4f8ef7', bg: '#F3E8FF', color: '#6D28D9' },
 ];
 
 interface Creator {
@@ -321,14 +321,14 @@ export default function CreatorIntelligence() {
         onMouseEnter={() => setHoveredCard(c.handle)}
         onMouseLeave={() => setHoveredCard(null)}
         style={{
-          background: isSelected ? 'rgba(212,175,55,0.15)' : isHovered ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
-          border: `1px solid ${isSelected ? 'rgba(212,175,55,0.5)' : isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
+          background: isSelected ? 'rgba(79,142,247,0.15)' : isHovered ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${isSelected ? 'rgba(79,142,247,0.5)' : isHovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
           borderRadius: 16,
           padding,
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           transform: isHovered ? 'translateY(-2px)' : 'none',
-          boxShadow: isHovered ? '0 8px 24px rgba(212,175,55,0.12)' : 'none',
+          boxShadow: isHovered ? '0 8px 24px rgba(79,142,247,0.12)' : 'none',
           position: 'relative' as const,
         }}
       >
@@ -416,7 +416,7 @@ export default function CreatorIntelligence() {
             onClick={e => { e.stopPropagation(); setSelected(c); generateOutreach(c); }}
             style={{
               flex: 1, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-              background: 'linear-gradient(135deg, #d4af37, #d4af37)', color: 'white',
+              background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', color: 'white',
               border: 'none', borderRadius: 8, padding: '8px 14px',
               fontSize: 12, fontWeight: 700, cursor: 'pointer',
               fontFamily: dmSans,
@@ -442,7 +442,7 @@ export default function CreatorIntelligence() {
   };
 
   const errorFallback = (
-    <div className="flex flex-col items-center justify-center h-full py-24 gap-6" style={{ background: '#080808' }}>
+    <div className="flex flex-col items-center justify-center h-full py-24 gap-6" style={{ background: '#04060f' }}>
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)' }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="1.5">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -454,7 +454,7 @@ export default function CreatorIntelligence() {
           We&apos;re having trouble loading creator intelligence data. This is usually temporary.
         </p>
       </div>
-      <button onClick={() => window.location.reload()} className="bg-[#d4af37] hover:bg-[#d4af37] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors">
+      <button onClick={() => window.location.reload()} className="bg-[#4f8ef7] hover:bg-[#4f8ef7] text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors">
         Try again
       </button>
     </div>
@@ -512,7 +512,7 @@ export default function CreatorIntelligence() {
           {/* Right side: stat badge + actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
             <div style={{
-              background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)',
+              background: 'rgba(79,142,247,0.15)', border: '1px solid rgba(79,142,247,0.3)',
               borderRadius: 10, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <span style={{ fontSize: 20 }}>👥</span>
@@ -531,7 +531,7 @@ export default function CreatorIntelligence() {
             </div>
             {isScale && (
               <button onClick={triggerRefresh} disabled={refreshing}
-                style={{ padding: '6px 14px', background: refreshing ? 'rgba(255,255,255,0.1)' : 'rgba(212,175,55,0.2)', color: 'white', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                style={{ padding: '6px 14px', background: refreshing ? 'rgba(255,255,255,0.1)' : 'rgba(79,142,247,0.2)', color: 'white', border: '1px solid rgba(79,142,247,0.3)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {refreshing ? 'Refreshing...' : '\u21BB Refresh'}
               </button>
             )}
@@ -596,7 +596,7 @@ export default function CreatorIntelligence() {
                   style={{
                     padding: '5px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
                     fontSize: 12, fontWeight: 600, fontFamily: dmSans,
-                    background: isActive ? '#d4af37' : 'rgba(255,255,255,0.08)',
+                    background: isActive ? '#4f8ef7' : 'rgba(255,255,255,0.08)',
                     color: isActive ? 'white' : '#CBD5E1',
                     transition: 'all 0.15s ease',
                   }}
@@ -634,7 +634,7 @@ export default function CreatorIntelligence() {
             <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
               <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#F1F5F9', marginBottom: 8 }}>Creator data refreshing</div>
               <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 20, maxWidth: 380, margin: '0 auto 20px' }}>Our system syncs TikTok creator data every 6 hours. Check back soon — or try the Video Intel tab to browse trending content now.</div>
-              <a href="/app/videos" style={{ display: 'inline-block', height: 38, lineHeight: '38px', padding: '0 20px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}>
+              <a href="/app/videos" style={{ display: 'inline-block', height: 38, lineHeight: '38px', padding: '0 20px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}>
                 Browse Video Intel →
               </a>
               <div style={{ fontSize: 11, color: '#D1D5DB', marginTop: 16 }}>Last sync: checking...</div>
@@ -706,11 +706,11 @@ export default function CreatorIntelligence() {
               )}
 
               <div style={{
-                background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)',
+                background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.2)',
                 borderRadius: 10, padding: 14, marginBottom: 16,
               }}>
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', margin: 0, lineHeight: 1.5 }}>
-                  💡 Creators with 50K–500K followers have <span style={{ color: '#d4af37', fontWeight: 700 }}>3x better response rates</span>
+                  💡 Creators with 50K–500K followers have <span style={{ color: '#4f8ef7', fontWeight: 700 }}>3x better response rates</span>
                 </p>
               </div>
 
@@ -749,7 +749,7 @@ export default function CreatorIntelligence() {
                 </div>
                 <div>
                   <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#F1F5F9' }}>{selected.display_name}</div>
-                  <a href={getTikTokUrl(selected)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none' }}>{selected.handle} ↗</a>
+                  <a href={getTikTokUrl(selected)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#4f8ef7', textDecoration: 'none' }}>{selected.handle} ↗</a>
                 </div>
               </div>
               {(() => {
@@ -790,7 +790,7 @@ export default function CreatorIntelligence() {
                   <div style={{ fontSize: 11, fontWeight: 600, color: '#CBD5E1', marginBottom: 6 }}>Promoting:</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
                     {selected.promoting_products.map((p, i) => (
-                      <span key={i} style={{ fontSize: 10, color: '#A5B4FC', background: 'rgba(212,175,55,0.12)', padding: '2px 8px', borderRadius: 10 }}>{p}</span>
+                      <span key={i} style={{ fontSize: 10, color: '#A5B4FC', background: 'rgba(79,142,247,0.12)', padding: '2px 8px', borderRadius: 10 }}>{p}</span>
                     ))}
                   </div>
                 </div>
@@ -805,21 +805,21 @@ export default function CreatorIntelligence() {
                   onChange={e => setPitchProduct(e.target.value)}
                   placeholder="Your product (e.g. posture corrector, LED lamp…)"
                   style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' as const, color: '#CBD5E1', background: 'rgba(255,255,255,0.05)' }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#d4af37'; }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#4f8ef7'; }}
                   onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
                 />
                 <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 3 }}>Optional — makes the pitch specific to your product</div>
               </div>
               <button onClick={() => generateOutreach(selected)} disabled={outreachLoading}
-                style={{ width: '100%', height: 38, background: 'linear-gradient(135deg, #d4af37, #d4af37)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 12, opacity: outreachLoading ? 0.7 : 1 }}>
+                style={{ width: '100%', height: 38, background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 12, opacity: outreachLoading ? 0.7 : 1 }}>
                 {outreachLoading ? 'Generating...' : 'AI Pitch Message'}
               </button>
               {outreach && (
-                <div style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 8, padding: 12 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#d4af37', marginBottom: 6 }}>AI-Generated Pitch:</div>
+                <div style={{ background: 'rgba(79,142,247,0.08)', border: '1px solid rgba(79,142,247,0.2)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#4f8ef7', marginBottom: 6 }}>AI-Generated Pitch:</div>
                   <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>{outreach}</div>
                   <button onClick={() => navigator.clipboard.writeText(outreach)}
-                    style={{ marginTop: 8, fontSize: 10, color: '#d4af37', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
+                    style={{ marginTop: 8, fontSize: 10, color: '#4f8ef7', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
                     Copy message →
                   </button>
                 </div>

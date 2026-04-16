@@ -71,9 +71,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
+        background: copied ? 'rgba(79,142,247,0.08)' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
-        color: copied ? 'rgba(212,175,55,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(79,142,247,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -84,8 +84,8 @@ function CopyBtn({ text }: { text: string }) {
 
 const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
   Exploding: { color: '#e05c7a', icon: <TrendingUp size={11} />, bg: 'rgba(224,92,122,0.1)' },
-  Rising: { color: '#d4af37', icon: <TrendingUp size={11} />, bg: 'rgba(212,175,55,0.08)' },
-  Stable: { color: '#d4af37', icon: <Minus size={11} />, bg: 'rgba(212,175,55,0.1)' },
+  Rising: { color: '#4f8ef7', icon: <TrendingUp size={11} />, bg: 'rgba(79,142,247,0.08)' },
+  Stable: { color: '#4f8ef7', icon: <Minus size={11} />, bg: 'rgba(79,142,247,0.1)' },
   Declining: {
     color: '#9CA3AF',
     icon: <TrendingDown size={11} />,
@@ -94,8 +94,8 @@ const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg
 };
 
 const POTENTIAL_COLORS: Record<string, string> = {
-  High: '#d4af37',
-  Medium: '#d4af37',
+  High: '#4f8ef7',
+  Medium: '#4f8ef7',
   Low: '#e05c7a',
 };
 
@@ -392,7 +392,7 @@ export default function TrendRadar() {
                   color: 'rgba(255,255,255,0.8)',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(79,142,247,0.5)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -416,7 +416,7 @@ export default function TrendRadar() {
                   color: 'rgba(255,255,255,0.8)',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(79,142,247,0.5)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -446,7 +446,7 @@ export default function TrendRadar() {
                   color: 'rgba(255,255,255,0.8)',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(79,142,247,0.5)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
@@ -533,10 +533,10 @@ export default function TrendRadar() {
                   border: '1px solid rgba(74,184,245,0.15)',
                 }}
               >
-                <div className="h-4 bg-[#1a1a1a] rounded w-24 mb-3"></div>
+                <div className="h-4 bg-[#161b22] rounded w-24 mb-3"></div>
                 <div className="space-y-2">
-                  <div className="h-3 bg-[#1a1a1a] rounded w-full"></div>
-                  <div className="h-3 bg-[#1a1a1a] rounded w-5/6"></div>
+                  <div className="h-3 bg-[#161b22] rounded w-full"></div>
+                  <div className="h-3 bg-[#161b22] rounded w-5/6"></div>
                 </div>
               </div>
 
@@ -552,10 +552,10 @@ export default function TrendRadar() {
                       style={{ background: 'rgba(74,184,245,0.2)' }}
                     ></div>
                     <div className="flex-1 min-w-0 space-y-2">
-                      <div className="h-4 bg-[#1a1a1a] rounded w-3/4"></div>
-                      <div className="h-3 bg-[#1a1a1a] rounded w-1/2"></div>
+                      <div className="h-4 bg-[#161b22] rounded w-3/4"></div>
+                      <div className="h-3 bg-[#161b22] rounded w-1/2"></div>
                     </div>
-                    <div className="w-20 h-8 bg-[#1a1a1a] rounded flex-shrink-0"></div>
+                    <div className="w-20 h-8 bg-[#161b22] rounded flex-shrink-0"></div>
                   </div>
                 </div>
               ))}
@@ -620,13 +620,13 @@ export default function TrendRadar() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.05)',
-                  border: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(79,142,247,0.05)',
+                  border: '1px solid rgba(79,142,247,0.15)',
                 }}
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                  style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                 >
                   Actionable Insight
                 </div>

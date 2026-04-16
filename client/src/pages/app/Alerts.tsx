@@ -332,13 +332,13 @@ export default function Alerts() {
               Tracked SKUs — emailed when price drops vs your snapshot. Cron runs every 6h.
             </p>
           </div>
-          <Link href="/app/products" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none', fontWeight: 600 }}>
+          <Link href="/app/products" style={{ fontSize: 12, color: '#4f8ef7', textDecoration: 'none', fontWeight: 600 }}>
             Browse products →
           </Link>
         </div>
         {priceAlertsLoading ? (
           <div style={{
-            background: '#111', border: '1px solid #1a1a1a', borderRadius: 12,
+            background: '#111', border: '1px solid #161b22', borderRadius: 12,
             padding: '24px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: 13,
           }}>Loading price alerts…</div>
         ) : priceAlerts.length === 0 ? (
@@ -348,10 +348,10 @@ export default function Alerts() {
           }}>
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
-              background: 'rgba(212,175,55,0.10)',
-              border: '1px solid rgba(212,175,55,0.30)',
+              background: 'rgba(79,142,247,0.10)',
+              border: '1px solid rgba(79,142,247,0.30)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 12px', color: '#d4af37',
+              margin: '0 auto 12px', color: '#4f8ef7',
             }}>
               <Tag size={20} />
             </div>
@@ -364,13 +364,13 @@ export default function Alerts() {
           </div>
         ) : (
           <div style={{
-            background: '#111', border: '1px solid #1a1a1a', borderRadius: 12,
+            background: '#111', border: '1px solid #161b22', borderRadius: 12,
             overflow: 'hidden',
           }}>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
                 <thead>
-                  <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid #1a1a1a' }}>
+                  <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid #161b22' }}>
                     {['', 'Product', 'Type', 'Original', 'Current', 'Status', ''].map((h, i) => (
                       <th key={i} style={{
                         padding: '10px 12px', textAlign: 'left',
@@ -389,21 +389,21 @@ export default function Alerts() {
                         ? { c: '#10b981', bg: 'rgba(16,185,129,0.12)', label: 'TRIGGERED' }
                         : a.status === 'cancelled'
                           ? { c: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.04)', label: 'CANCELLED' }
-                          : { c: '#d4af37', bg: 'rgba(212,175,55,0.12)', label: 'ACTIVE' };
+                          : { c: '#4f8ef7', bg: 'rgba(79,142,247,0.12)', label: 'ACTIVE' };
                     const typeLabel = a.alert_type === 'any_drop'
                       ? 'Any drop'
                       : a.alert_type === 'percentage'
                         ? `≥ ${a.threshold_percent ?? '?'}%`
                         : `≤ $${a.target_price?.toFixed(2) ?? '?'}`;
                     return (
-                      <tr key={a.id} style={{ borderBottom: '1px solid #1a1a1a' }}>
+                      <tr key={a.id} style={{ borderBottom: '1px solid #161b22' }}>
                         <td style={{ padding: '10px 12px', width: 60 }}>
                           {a.product_image ? (
                             <img
                               src={proxyImage(a.product_image) ?? a.product_image}
                               alt=""
                               loading="lazy"
-                              style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', border: '1px solid #1a1a1a' }}
+                              style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', border: '1px solid #161b22' }}
                             />
                           ) : (
                             <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255,255,255,0.04)' }} />
@@ -623,12 +623,12 @@ export default function Alerts() {
               style={{
                 padding: '10px 18px',
                 borderRadius: 9,
-                background: '#d4af37',
-                color: '#080808',
+                background: '#4f8ef7',
+                color: '#04060f',
                 border: 'none',
                 fontFamily: sans, fontSize: 13, fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 0 20px rgba(212,175,55,0.3)',
+                boxShadow: '0 0 20px rgba(79,142,247,0.3)',
               }}
             >Create your first alert →</button>
           </div>

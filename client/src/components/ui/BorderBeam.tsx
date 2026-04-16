@@ -10,8 +10,8 @@ interface BorderBeamProps {
 export function BorderBeam({
   size = 150,
   duration = 12,
-  colorFrom = '#d4af37',
-  colorTo = '#d4af37',
+  colorFrom = '#4f8ef7',
+  colorTo = '#4f8ef7',
 }: BorderBeamProps) {
   return (
     <div

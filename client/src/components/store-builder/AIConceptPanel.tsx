@@ -170,10 +170,10 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{
-        background: '#111111', border: '1px solid #1a1a1a', borderRadius: 14, padding: 16,
+        background: '#0d1117', border: '1px solid #161b22', borderRadius: 14, padding: 16,
       }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
-          <Sparkles size={16} color="#d4af37" />
+          <Sparkles size={16} color="#4f8ef7" />
           <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 16, color: '#f0f4ff' }}>
             AI Concept — one-click brand identity
           </span>
@@ -185,8 +185,8 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
             placeholder="Niche — e.g. dog accessories, skincare, home office"
             style={{
               minHeight: 44, padding: '0 12px',
-              background: '#080808', color: '#f0f4ff',
-              border: '1px solid #1a1a1a', borderRadius: 8,
+              background: '#04060f', color: '#f0f4ff',
+              border: '1px solid #161b22', borderRadius: 8,
               fontFamily: dm, fontSize: 13, outline: 'none',
             }}
           />
@@ -195,8 +195,8 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
             onChange={(e) => setMarket(e.target.value)}
             style={{
               minHeight: 44, padding: '0 12px',
-              background: '#080808', color: '#f0f4ff',
-              border: '1px solid #1a1a1a', borderRadius: 8,
+              background: '#04060f', color: '#f0f4ff',
+              border: '1px solid #161b22', borderRadius: 8,
               fontFamily: dm, fontSize: 13,
             }}
           >
@@ -253,7 +253,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
       {concept && (
         <>
           <div style={{
-            background: '#111111', border: '1px solid #1a1a1a', borderRadius: 14, padding: 16,
+            background: '#0d1117', border: '1px solid #161b22', borderRadius: 14, padding: 16,
             display: 'grid', gap: 14,
           }}>
             <div>
@@ -269,9 +269,9 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                       onClick={() => setChosenName(n)}
                       style={{
                         minHeight: 44, padding: '0 14px', borderRadius: 999,
-                        background: selected ? 'rgba(212,175,55,0.15)' : '#0f0f14',
-                        color: selected ? '#d4af37' : '#f0f4ff',
-                        border: `1px solid ${selected ? 'rgba(212,175,55,0.5)' : '#1a1a1a'}`,
+                        background: selected ? 'rgba(79,142,247,0.15)' : '#0f0f14',
+                        color: selected ? '#4f8ef7' : '#f0f4ff',
+                        border: `1px solid ${selected ? 'rgba(79,142,247,0.5)' : '#161b22'}`,
                         fontFamily: syne, fontWeight: 700, fontSize: 14,
                         cursor: 'pointer',
                         display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -288,7 +288,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                 placeholder="Or type your own"
                 style={{
                   marginTop: 10, width: '100%', minHeight: 44, padding: '0 12px',
-                  background: '#080808', border: '1px solid #1a1a1a', borderRadius: 8,
+                  background: '#04060f', border: '1px solid #161b22', borderRadius: 8,
                   color: '#f0f4ff', fontFamily: syne, fontSize: 16, fontWeight: 700, outline: 'none',
                 }}
               />
@@ -303,7 +303,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                 onChange={(e) => setTagline(e.target.value)}
                 style={{
                   width: '100%', minHeight: 44, padding: '0 12px',
-                  background: '#080808', border: '1px solid #1a1a1a', borderRadius: 8,
+                  background: '#04060f', border: '1px solid #161b22', borderRadius: 8,
                   color: '#f0f4ff', fontFamily: dm, fontSize: 14, outline: 'none',
                 }}
               />
@@ -317,7 +317,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                 <div style={{ display: 'grid', gap: 6, gridTemplateColumns: 'repeat(3, 1fr)' }}>
                   {(['primary', 'secondary', 'accent'] as const).map((k) => (
                     <div key={k} style={{
-                      background: '#0f0f14', border: '1px solid #1a1a1a', borderRadius: 8,
+                      background: '#0f0f14', border: '1px solid #161b22', borderRadius: 8,
                       padding: 8, display: 'flex', flexDirection: 'column', gap: 4,
                     }}>
                       <div style={{
@@ -334,7 +334,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                 <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
                   Fonts
                 </div>
-                <div style={{ background: '#0f0f14', border: '1px solid #1a1a1a', borderRadius: 8, padding: 10 }}>
+                <div style={{ background: '#0f0f14', border: '1px solid #161b22', borderRadius: 8, padding: 10 }}>
                   <div style={{ fontFamily: concept.fonts.heading, fontSize: 20, fontWeight: 700, color: '#f0f4ff' }}>
                     {chosenName || 'Your Brand'}
                   </div>
@@ -353,14 +353,14 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                 Target audience
               </div>
               <div style={{
-                background: '#0f0f14', border: '1px solid #1a1a1a', borderRadius: 8,
+                background: '#0f0f14', border: '1px solid #161b22', borderRadius: 8,
                 padding: 10, color: '#f0f4ff', fontFamily: dm, fontSize: 13, lineHeight: 1.55,
               }}>{concept.audience}</div>
             </div>
           </div>
 
           <div style={{
-            background: '#111111', border: '1px solid #1a1a1a', borderRadius: 14, padding: 16,
+            background: '#0d1117', border: '1px solid #161b22', borderRadius: 14, padding: 16,
           }}>
             <div style={{ fontFamily: mono, fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
               5 matching products — each with a fit rationale
@@ -369,16 +369,16 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
               {products.map((p) => (
                 <div key={p.id} style={{
                   display: 'grid', gridTemplateColumns: '64px 1fr', gap: 10, alignItems: 'start',
-                  background: '#0f0f14', border: '1px solid #1a1a1a', borderRadius: 10, padding: 10,
+                  background: '#0f0f14', border: '1px solid #161b22', borderRadius: 10, padding: 10,
                 }}>
                   {p.image_url ? (
                     <img
                       src={p.image_url}
                       alt={p.product_title}
-                      style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, background: '#080808' }}
+                      style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, background: '#04060f' }}
                     />
                   ) : (
-                    <div style={{ width: 64, height: 64, borderRadius: 8, background: '#080808' }} />
+                    <div style={{ width: 64, height: 64, borderRadius: 8, background: '#04060f' }} />
                   )}
                   <div>
                     <div style={{ color: '#f0f4ff', fontFamily: dm, fontSize: 13, fontWeight: 600 }}>
@@ -388,7 +388,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                       ${p.price_aud != null ? Number(p.price_aud).toFixed(2) : '—'} AUD
                     </div>
                     <div style={{
-                      marginTop: 6, color: '#d4af37', fontFamily: dm, fontSize: 12, lineHeight: 1.5,
+                      marginTop: 6, color: '#4f8ef7', fontFamily: dm, fontSize: 12, lineHeight: 1.5,
                       fontStyle: 'italic',
                     }}>
                       {p.rationale}
@@ -419,7 +419,7 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
               style={{
                 minHeight: 44, padding: '0 14px', borderRadius: 8,
                 background: 'rgba(255,255,255,0.04)', color: '#f0f4ff',
-                border: '1px solid #1a1a1a',
+                border: '1px solid #161b22',
                 fontFamily: dm, fontWeight: 600, fontSize: 13,
                 display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
               }}
@@ -431,8 +431,8 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
                 onClick={useThisConcept}
                 style={{
                   minHeight: 44, padding: '0 14px', borderRadius: 8,
-                  background: 'rgba(212,175,55,0.12)', color: '#d4af37',
-                  border: '1px solid rgba(212,175,55,0.3)',
+                  background: 'rgba(79,142,247,0.12)', color: '#4f8ef7',
+                  border: '1px solid rgba(79,142,247,0.3)',
                   fontFamily: dm, fontWeight: 700, fontSize: 13,
                   cursor: 'pointer',
                 }}
@@ -541,7 +541,7 @@ export function SavedStoresList({ isScale, onRequireUpgrade, reloadKey = 0 }: Ma
       {loading && <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: dm }}>Loading your saved concepts…</div>}
       {!loading && items.length === 0 && (
         <div style={{
-          background: '#111111', border: '1px solid #1a1a1a', borderRadius: 12, padding: 20,
+          background: '#0d1117', border: '1px solid #161b22', borderRadius: 12, padding: 20,
           color: 'rgba(255,255,255,0.55)', fontSize: 13, fontFamily: dm, textAlign: 'center',
         }}>
           No saved concepts yet. Generate one with AI Concept above and click Save.
@@ -549,7 +549,7 @@ export function SavedStoresList({ isScale, onRequireUpgrade, reloadKey = 0 }: Ma
       )}
       {items.map((s) => (
         <div key={s.id} style={{
-          background: '#111111', border: '1px solid #1a1a1a', borderRadius: 12, padding: 14,
+          background: '#0d1117', border: '1px solid #161b22', borderRadius: 12, padding: 14,
           display: 'grid', gap: 10, gridTemplateColumns: '1fr auto',
         }}>
           <div>
@@ -580,8 +580,8 @@ export function SavedStoresList({ isScale, onRequireUpgrade, reloadKey = 0 }: Ma
                 style={{
                   minHeight: 36, padding: '0 10px', borderRadius: 6,
                   background: isScale ? '#3B82F6' : 'rgba(255,255,255,0.04)',
-                  color: isScale ? '#fff' : '#d4af37',
-                  border: isScale ? 'none' : '1px solid rgba(212,175,55,0.3)',
+                  color: isScale ? '#fff' : '#4f8ef7',
+                  border: isScale ? 'none' : '1px solid rgba(79,142,247,0.3)',
                   fontFamily: dm, fontWeight: 700, fontSize: 11, cursor: 'pointer',
                 }}
               >

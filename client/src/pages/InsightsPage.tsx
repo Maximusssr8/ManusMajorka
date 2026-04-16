@@ -7,7 +7,7 @@ import { allTools } from '@/lib/tools';
 const INSIGHT_SECTIONS = [
   {
     title: 'Analytics & Performance',
-    color: '#d4af37',
+    color: '#4f8ef7',
     toolIds: ['analytics-decoder', 'cro-advisor', 'store-auditor'],
   },
   {
@@ -45,7 +45,7 @@ export default function InsightsPage() {
           <div className="flex items-center gap-2 mb-2">
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(212,175,55,0.12)', color: '#d4af37' }}
+              style={{ background: 'rgba(79,142,247,0.12)', color: '#4f8ef7' }}
             >
               <Lightbulb size={16} />
             </div>

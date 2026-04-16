@@ -2,8 +2,8 @@
  * Majorka Design Tokens — gold/blue, Syne + DM Sans + JetBrains Mono.
  *
  * Authoritative palette (v2 — Apr 2026):
- *   bg     #080808   card #111111   border #1a1a1a
- *   gold   #d4af37   (primary accent / brand)
+ *   bg     #04060f   card #0d1117   border #161b22
+ *   gold   #4f8ef7   (primary accent / brand)
  *   blue   #3B82F6   (CTA)
  *   text   #e5e5e5   muted #737373   success #10b981
  *
@@ -14,17 +14,17 @@
 
 export const C = {
   // Backgrounds — flat, editorial, almost-black
-  bg:           '#080808',
-  pageBg:       '#080808',
+  bg:           '#04060f',
+  pageBg:       '#04060f',
   contentBg:    '#0c0c0c',
-  cardBg:       '#111111',
-  surface:      '#111111',
+  cardBg:       '#0d1117',
+  surface:      '#0d1117',
   raised:       '#141414',
 
   // Borders
-  border:       '#1a1a1a',
+  border:       '#161b22',
   borderStrong: '#262626',
-  borderFocus:  '#d4af37',
+  borderFocus:  '#4f8ef7',
 
   // Text
   text:         '#e5e5e5',
@@ -32,10 +32,10 @@ export const C = {
   muted:        '#737373',
 
   // Accent — gold (brand)
-  accent:       '#d4af37',
-  accentHover:  '#e5c158',
-  accentSubtle: 'rgba(212,175,55,0.10)',
-  accentInk:    '#080808',
+  accent:       '#4f8ef7',
+  accentHover:  '#6ba3ff',
+  accentSubtle: 'rgba(79,142,247,0.10)',
+  accentInk:    '#04060f',
   white:        '#ffffff',
 
   // CTA — blue (actions)
@@ -83,10 +83,10 @@ export const elevation = {
   e4: '0 30px 80px -20px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05)',
 
   // Gold glows — the signature
-  glow:      '0 0 0 1px rgba(212,175,55,0.08), 0 8px 40px -10px rgba(212,175,55,0.15)',
-  glowSoft:  '0 0 40px -16px rgba(212,175,55,0.25)',
-  glowHover: '0 0 0 1px rgba(212,175,55,0.18), 0 14px 44px -10px rgba(212,175,55,0.28)',
-  ringAccent:'0 0 0 1px rgba(212,175,55,0.35), 0 0 24px -6px rgba(212,175,55,0.45)',
+  glow:      '0 0 0 1px rgba(79,142,247,0.08), 0 8px 40px -10px rgba(79,142,247,0.15)',
+  glowSoft:  '0 0 40px -16px rgba(79,142,247,0.25)',
+  glowHover: '0 0 0 1px rgba(79,142,247,0.18), 0 14px 44px -10px rgba(79,142,247,0.28)',
+  ringAccent:'0 0 0 1px rgba(79,142,247,0.35), 0 0 24px -6px rgba(79,142,247,0.45)',
 
   // Blue CTA glow
   glowBlue:      '0 0 0 1px rgba(59,130,246,0.12), 0 8px 32px -8px rgba(59,130,246,0.35)',
@@ -95,14 +95,14 @@ export const elevation = {
 
 /* ── Gradient presets — sparingly used ── */
 export const gradients = {
-  accentGlow:   'radial-gradient(ellipse at center, rgba(212,175,55,0.22) 0%, transparent 70%)',
+  accentGlow:   'radial-gradient(ellipse at center, rgba(79,142,247,0.22) 0%, transparent 70%)',
   surfaceFade:  'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)',
-  textPrimary:  'linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%)',
-  textAccent:   'linear-gradient(135deg, #ffffff 0%, #e5c158 40%, #d4af37 100%)',
-  meshBg:       'conic-gradient(from 220deg at 50% 50%, rgba(212,175,55,0.08), rgba(59,130,246,0.04), rgba(212,175,55,0.06), rgba(212,175,55,0.08))',
+  textPrimary:  'linear-gradient(135deg, #f5f5f5 0%, #4f8ef7 100%)',
+  textAccent:   'linear-gradient(135deg, #ffffff 0%, #6ba3ff 40%, #4f8ef7 100%)',
+  meshBg:       'conic-gradient(from 220deg at 50% 50%, rgba(79,142,247,0.08), rgba(59,130,246,0.04), rgba(79,142,247,0.06), rgba(79,142,247,0.08))',
   ctaShine:     'linear-gradient(135deg, #3B82F6 0%, #60a5fa 50%, #3B82F6 100%)',
-  goldShine:    'linear-gradient(135deg, #d4af37 0%, #e5c158 50%, #d4af37 100%)',
-  border:       'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(255,255,255,0.04) 50%, rgba(212,175,55,0.14))',
+  goldShine:    'linear-gradient(135deg, #4f8ef7 0%, #6ba3ff 50%, #4f8ef7 100%)',
+  border:       'linear-gradient(135deg, rgba(79,142,247,0.22), rgba(255,255,255,0.04) 50%, rgba(79,142,247,0.14))',
 } as const;
 
 /* ── Motion presets ── */
@@ -134,8 +134,8 @@ export const t = {
   fKpi:         40,
   fLabel:       C.fSm,
 
-  accentInk:    '#080808',
-  accentTint:   'rgba(212,175,55,0.06)',
+  accentInk:    '#04060f',
+  accentTint:   'rgba(79,142,247,0.06)',
   faint:        C.muted,
 
   greenDim:     C.greenSubtle,

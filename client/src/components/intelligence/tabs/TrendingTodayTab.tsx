@@ -4,7 +4,7 @@ const FullDatabase = lazy(() => import('../../../pages/intelligence/FullDatabase
 
 export function TrendingTodayTab() {
   return (
-    <div style={{ background: '#080808' }}>
+    <div style={{ background: '#04060f' }}>
       <Suspense fallback={
         <div className="flex items-center justify-center py-24" style={{ color: 'rgba(255,255,255,0.3)' }}>
           Loading trending products...

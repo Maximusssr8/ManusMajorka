@@ -77,9 +77,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
+        background: copied ? 'rgba(79,142,247,0.08)' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
-        color: copied ? 'rgba(212,175,55,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(79,142,247,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -90,15 +90,15 @@ function CopyBtn({ text }: { text: string }) {
 
 const VERDICT_CONFIG = {
   'Strong Go': {
-    color: '#d4af37',
-    bg: 'rgba(212,175,55,0.08)',
+    color: '#4f8ef7',
+    bg: 'rgba(79,142,247,0.08)',
     border: '#C7D2FE',
     emoji: '🟢',
   },
   'Proceed with Caution': {
-    color: '#d4af37',
-    bg: 'rgba(212,175,55,0.1)',
-    border: 'rgba(212,175,55,0.25)',
+    color: '#4f8ef7',
+    bg: 'rgba(79,142,247,0.1)',
+    border: 'rgba(79,142,247,0.25)',
     emoji: '🟡',
   },
   Avoid: {
@@ -126,7 +126,7 @@ function getScoreColor(score: number): string {
 }
 
 function ScoreBar({ label, score }: { label: string; score: number }) {
-  const color = score >= 70 ? '#d4af37' : score >= 50 ? '#d4af37' : '#e05c7a';
+  const color = score >= 70 ? '#4f8ef7' : score >= 50 ? '#4f8ef7' : '#e05c7a';
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
@@ -251,9 +251,9 @@ export default function NicheScorer() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
+          style={{ background: 'rgba(79,142,247,0.15)', border: '1px solid rgba(79,142,247,0.3)' }}
         >
-          <BarChart2 size={15} style={{ color: '#d4af37' }} />
+          <BarChart2 size={15} style={{ color: '#4f8ef7' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
@@ -352,9 +352,9 @@ export default function NicheScorer() {
                   onClick={() => setNiche(n)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: niche === n ? 'rgba(212,175,55,0.1)' : '#F9FAFB',
-                    border: `1px solid ${niche === n ? 'rgba(212,175,55,0.3)' : '#E5E7EB'}`,
-                    color: niche === n ? '#d4af37' : '#6B7280',
+                    background: niche === n ? 'rgba(79,142,247,0.1)' : '#F9FAFB',
+                    border: `1px solid ${niche === n ? 'rgba(79,142,247,0.3)' : '#E5E7EB'}`,
+                    color: niche === n ? '#4f8ef7' : '#6B7280',
                     cursor: 'pointer',
                   }}
                 >
@@ -369,7 +369,7 @@ export default function NicheScorer() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
-              background: isLoading ? 'rgba(212,175,55,0.25)' : '#d4af37',
+              background: isLoading ? 'rgba(79,142,247,0.25)' : '#4f8ef7',
               color: '#ffffff',
               fontFamily: "'Syne', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -406,11 +406,11 @@ export default function NicheScorer() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: 'rgba(212,175,55,0.1)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  background: 'rgba(79,142,247,0.1)',
+                  border: '1px solid rgba(79,142,247,0.2)',
                 }}
               >
-                <BarChart2 size={24} style={{ color: '#d4af37' }} className="animate-pulse" />
+                <BarChart2 size={24} style={{ color: '#4f8ef7' }} className="animate-pulse" />
               </div>
               <div className="text-center">
                 <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
@@ -487,13 +487,13 @@ export default function NicheScorer() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(212,175,55,0.06)',
-                    border: '1px solid rgba(212,175,55,0.18)',
+                    background: 'rgba(79,142,247,0.06)',
+                    border: '1px solid rgba(79,142,247,0.18)',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-wider mb-2"
-                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                   >
                     Strengths
                   </div>
@@ -504,7 +504,7 @@ export default function NicheScorer() {
                         className="text-xs flex items-start gap-1.5"
                         style={{ color: '#CBD5E1' }}
                       >
-                        <span style={{ color: '#d4af37', flexShrink: 0 }}>+</span>
+                        <span style={{ color: '#4f8ef7', flexShrink: 0 }}>+</span>
                         {s}
                       </div>
                     ))}
@@ -555,7 +555,7 @@ export default function NicheScorer() {
                   </div>
                   <div
                     className="text-xs font-extrabold"
-                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                   >
                     {result.estimatedMonthlyRevenue}
                   </div>
@@ -575,7 +575,7 @@ export default function NicheScorer() {
                   </div>
                   <div
                     className="text-xs font-extrabold"
-                    style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                    style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                   >
                     {result.timeToFirstSale}
                   </div>
@@ -619,8 +619,8 @@ export default function NicheScorer() {
                       key={i}
                       className="text-xs px-3 py-1.5 rounded-lg"
                       style={{
-                        background: 'rgba(212,175,55,0.08)',
-                        border: '1px solid rgba(212,175,55,0.15)',
+                        background: 'rgba(79,142,247,0.08)',
+                        border: '1px solid rgba(79,142,247,0.15)',
                         color: '#CBD5E1',
                       }}
                     >
@@ -634,13 +634,13 @@ export default function NicheScorer() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.04)',
-                  border: '1px solid rgba(212,175,55,0.12)',
+                  background: 'rgba(79,142,247,0.04)',
+                  border: '1px solid rgba(79,142,247,0.12)',
                 }}
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                  style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                 >
                   Next Steps
                 </div>
@@ -654,8 +654,8 @@ export default function NicheScorer() {
                       <span
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"
                         style={{
-                          background: 'rgba(212,175,55,0.15)',
-                          color: '#d4af37',
+                          background: 'rgba(79,142,247,0.15)',
+                          color: '#4f8ef7',
                           fontFamily: "'Syne', sans-serif",
                         }}
                       >

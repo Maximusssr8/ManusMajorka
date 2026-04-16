@@ -13,11 +13,11 @@ import { useLocation } from 'wouter';
 const brico = "'Syne', sans-serif";
 
 const FORMAT_META: Record<string, { emoji: string; color: string; bg: string; desc: string }> = {
-  POV:       { emoji: '👁️', color: '#d4af37', bg: '#F3E8FF', desc: 'First-person story' },
+  POV:       { emoji: '👁️', color: '#4f8ef7', bg: '#F3E8FF', desc: 'First-person story' },
   REVIEW:    { emoji: '⭐', color: '#B45309', bg: '#FEF3C7', desc: 'Honest opinion' },
   UNBOXING:  { emoji: '📦', color: '#0369A1', bg: '#E0F2FE', desc: 'First look reveal' },
   DEMO:      { emoji: '🎬', color: '#065F46', bg: '#D1FAE5', desc: 'Product in action' },
-  LIFESTYLE: { emoji: '✨', color: '#d4af37', bg: 'rgba(212,175,55,0.08)', desc: 'Organic placement' },
+  LIFESTYLE: { emoji: '✨', color: '#4f8ef7', bg: 'rgba(79,142,247,0.08)', desc: 'Organic placement' },
 };
 
 const SIGNAL_META: Record<string, { label: string; color: string; bg: string; dot: string }> = {
@@ -321,7 +321,7 @@ export default function VideoIntelligence() {
             ⬇ Export CSV
           </button>
           <button onClick={triggerRefresh} disabled={refreshing}
-            style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: refreshing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: refreshing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 14 }}>{refreshing ? '⟳' : '↻'}</span>
             {refreshing ? 'Scraping…' : 'Refresh'}
           </button>
@@ -349,12 +349,12 @@ export default function VideoIntelligence() {
             )}
           </div>
           <button onClick={() => searchInput.trim() && runSearch(searchInput.trim())}
-            style={{ height: 40, padding: '0 18px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+            style={{ height: 40, padding: '0 18px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
             Search
           </button>
         </div>
         {searchQuery && !searchLoading && (
-          <div style={{ marginTop: 6, fontSize: 12, color: '#d4af37' }}>
+          <div style={{ marginTop: 6, fontSize: 12, color: '#4f8ef7' }}>
             {searchResults.length > 0 ? `${searchResults.length} results for "${searchQuery}"` : `No videos found for "${searchQuery}" — try a broader search`}
             <button onClick={clearSearch} style={{ marginLeft: 10, fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>clear</button>
           </div>
@@ -366,7 +366,7 @@ export default function VideoIntelligence() {
         {/* ── Search loading skeleton ───────────────────────────────── */}
         {searchLoading && (
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 13, color: '#d4af37', fontWeight: 600, marginBottom: 12 }}>Searching TikTok for "{searchInput}"…</div>
+            <div style={{ fontSize: 13, color: '#4f8ef7', fontWeight: 600, marginBottom: 12 }}>Searching TikTok for "{searchInput}"…</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
               {[1,2,3,4,5,6].map(i => (
                 <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -393,7 +393,7 @@ export default function VideoIntelligence() {
                 <div style={{ padding: '10px 12px' }}>
                   <div style={{ fontSize: 12, color: '#F8FAFC', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>
-                    <span style={{ fontSize: 11, color: '#d4af37', fontWeight: 600 }}>▶ {(v.playCount ?? 0) >= 1000000 ? `${((v.playCount ?? 0)/1000000).toFixed(1)}M` : (v.playCount ?? 0) >= 1000 ? `${((v.playCount ?? 0)/1000).toFixed(0)}K` : v.playCount ?? 0}</span>
+                    <span style={{ fontSize: 11, color: '#4f8ef7', fontWeight: 600 }}>▶ {(v.playCount ?? 0) >= 1000000 ? `${((v.playCount ?? 0)/1000000).toFixed(1)}M` : (v.playCount ?? 0) >= 1000 ? `${((v.playCount ?? 0)/1000).toFixed(0)}K` : v.playCount ?? 0}</span>
                     <span style={{ fontSize: 10, color: '#9CA3AF' }}>{v.creator || v.creatorHandle}</span>
                   </div>
                 </div>
@@ -417,7 +417,7 @@ export default function VideoIntelligence() {
             const count = allVideos.filter(v => v.niche?.toLowerCase() === n).length;
             return (
               <button key={n} onClick={() => setSelectedNiche(selectedNiche === n ? '' : n)}
-                style={{ height: 30, padding: '0 14px', background: selectedNiche === n ? '#d4af37' : 'white', color: selectedNiche === n ? 'white' : count === 0 ? '#D1D5DB' : '#374151', border: `1px solid ${selectedNiche === n ? '#d4af37' : '#E5E7EB'}`, borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+                style={{ height: 30, padding: '0 14px', background: selectedNiche === n ? '#4f8ef7' : 'white', color: selectedNiche === n ? 'white' : count === 0 ? '#D1D5DB' : '#374151', border: `1px solid ${selectedNiche === n ? '#4f8ef7' : '#E5E7EB'}`, borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' as const }}>
                 {n} {count > 0 && `(${count})`}
               </button>
             );
@@ -467,12 +467,12 @@ export default function VideoIntelligence() {
                 </div>
                 {selectedNiche ? (
                   <button onClick={() => setSelectedNiche('')}
-                    style={{ height: 44, padding: '0 28px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ height: 44, padding: '0 28px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                     Show all videos
                   </button>
                 ) : (
                   <button onClick={triggerRefresh} disabled={refreshing}
-                    style={{ height: 44, padding: '0 28px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ height: 44, padding: '0 28px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                     🔄 Scrape Now
                   </button>
                 )}
@@ -538,10 +538,10 @@ export default function VideoIntelligence() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', gap: 4 }}>
                             <span style={{ fontSize: 9, color: '#9CA3AF', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
-                            {v.creatorHandle && <span style={{ fontSize: 9, color: '#d4af37', background: 'rgba(212,175,55,0.08)', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
+                            {v.creatorHandle && <span style={{ fontSize: 9, color: '#4f8ef7', background: 'rgba(79,142,247,0.08)', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
                           </div>
                           <a href={v.url || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
-                            style={{ fontSize: 11, color: '#d4af37', fontWeight: 700, textDecoration: 'none' }}
+                            style={{ fontSize: 11, color: '#4f8ef7', fontWeight: 700, textDecoration: 'none' }}
                             onClick={e => e.stopPropagation()}>
                             {v.url ? 'Watch Video \u2192' : 'Search TikTok \u2192'}
                           </a>
@@ -580,7 +580,7 @@ export default function VideoIntelligence() {
                         <span style={{ fontSize: 9, color: '#9CA3AF', background: 'rgba(255,255,255,0.04)', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
                       </div>
                       <button onClick={() => copyText(v.hook_text!, `hook-${i}`)}
-                        style={{ fontSize: 10, fontWeight: 700, color: copied === `hook-${i}` ? '#059669' : '#d4af37', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                        style={{ fontSize: 10, fontWeight: 700, color: copied === `hook-${i}` ? '#059669' : '#4f8ef7', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                         {copied === `hook-${i}` ? '✓ Copied' : 'Copy'}
                       </button>
                     </div>
@@ -623,7 +623,7 @@ export default function VideoIntelligence() {
               </div>
 
               <button onClick={generateContent} disabled={aiLoading}
-                style={{ width: '100%', height: 38, background: aiLoading ? '#9CA3AF' : 'linear-gradient(135deg, #d4af37, #d4af37)', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: aiLoading ? 'not-allowed' : 'pointer', marginBottom: aiOutput ? 10 : 0 }}>
+                style={{ width: '100%', height: 38, background: aiLoading ? '#9CA3AF' : 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: aiLoading ? 'not-allowed' : 'pointer', marginBottom: aiOutput ? 10 : 0 }}>
                 {aiLoading ? '✍️ Writing…' : `Generate ${aiTab === 'hooks' ? '3 Hooks' : aiTab === 'script' ? '60s Script' : 'Live Outline'}`}
               </button>
 
@@ -631,7 +631,7 @@ export default function VideoIntelligence() {
                 <div style={{ background: '#F8F8FF', border: '1px solid #E0E7FF', borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 11, color: '#CBD5E1', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const, maxHeight: 280, overflowY: 'auto' as const }}>{aiOutput}</div>
                   <button onClick={() => copyText(aiOutput, 'ai-out')}
-                    style={{ marginTop: 8, fontSize: 10, color: copied === 'ai-out' ? '#059669' : '#d4af37', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, padding: 0 }}>
+                    style={{ marginTop: 8, fontSize: 10, color: copied === 'ai-out' ? '#059669' : '#4f8ef7', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, padding: 0 }}>
                     {copied === 'ai-out' ? '✓ Copied!' : 'Copy all →'}
                   </button>
                 </div>

@@ -55,8 +55,8 @@ function Input({
       type={type}
       data-slot="input"
       className={cn(
-        'file:text-[#e5e5e5] placeholder:text-[#737373] selection:bg-[#d4af37] selection:text-[#080808] bg-[#0a0a0a] border border-[#1a1a1a] h-9 w-full min-w-0 rounded-md px-3 py-1 text-base text-[#e5e5e5] transition-[color,box-shadow,border-color] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-        'focus-visible:border-[#d4af37] focus-visible:shadow-[0_0_0_3px_rgba(212,175,55,0.15)]',
+        'file:text-[#e5e5e5] placeholder:text-[#737373] selection:bg-[#4f8ef7] selection:text-[#04060f] bg-[#0a0a0a] border border-[#161b22] h-9 w-full min-w-0 rounded-md px-3 py-1 text-base text-[#e5e5e5] transition-[color,box-shadow,border-color] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+        'focus-visible:border-[#4f8ef7] focus-visible:shadow-[0_0_0_3px_rgba(79,142,247,0.15)]',
         'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
         className
       )}

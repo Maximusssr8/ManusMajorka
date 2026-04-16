@@ -258,8 +258,8 @@ export default function MetaVariantsPanel({ product }: Props) {
                   style={{
                     minHeight: 44, padding: '0 14px',
                     borderRadius: 8,
-                    background: 'rgba(212,175,55,0.12)',
-                    color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)',
+                    background: 'rgba(79,142,247,0.12)',
+                    color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.3)',
                     fontFamily: dm, fontWeight: 700, fontSize: 12,
                     cursor: saving ? 'wait' : 'pointer',
                     display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -573,8 +573,8 @@ export function SavedAdSetsDrawer({ onRestore, reloadKey = 0 }: SavedAdSetsDrawe
         onClick={() => setOpen((o) => !o)}
         style={{
           minHeight: 44, padding: '0 14px', borderRadius: 999,
-          background: '#111111', border: '1px solid #1a1a1a',
-          color: '#d4af37', fontFamily: dm, fontWeight: 700, fontSize: 12,
+          background: '#0d1117', border: '1px solid #161b22',
+          color: '#4f8ef7', fontFamily: dm, fontWeight: 700, fontSize: 12,
           cursor: 'pointer', boxShadow: '0 6px 24px rgba(0,0,0,0.5)',
         }}
       >
@@ -583,7 +583,7 @@ export function SavedAdSetsDrawer({ onRestore, reloadKey = 0 }: SavedAdSetsDrawe
       {open && (
         <div style={{
           position: 'absolute', right: 0, bottom: 52, width: 340, maxHeight: 480, overflowY: 'auto',
-          background: '#111111', border: '1px solid #1a1a1a', borderRadius: 12,
+          background: '#0d1117', border: '1px solid #161b22', borderRadius: 12,
           padding: 12,
         }}>
           <div style={{ fontFamily: mono, fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>

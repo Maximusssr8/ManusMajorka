@@ -49,7 +49,7 @@ const goals = [
     id: 'build-store',
     label: 'Build my store',
     icon: Rocket,
-    color: '#d4af37',
+    color: '#4f8ef7',
     path: '/app/website-generator',
   },
   {
@@ -63,7 +63,7 @@ const goals = [
     id: 'scale-up',
     label: "Scale what's working",
     icon: TrendingUp,
-    color: '#d4af37',
+    color: '#4f8ef7',
     path: '/app/scaling-playbook',
   },
 ];
@@ -233,7 +233,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
             className="h-full transition-all duration-500"
             style={{
               width: `${progress}%`,
-              background: 'linear-gradient(90deg, #d4af37, #d4af37)',
+              background: 'linear-gradient(90deg, #4f8ef7, #4f8ef7)',
             }}
           />
         </div>
@@ -263,9 +263,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     style={{
                       background:
                         selectedLevel === level.id
-                          ? 'rgba(212,175,55,0.12)'
+                          ? 'rgba(79,142,247,0.12)'
                           : '#FAFAFA',
-                      border: `1.5px solid ${selectedLevel === level.id ? 'rgba(212,175,55,0.4)' : '#E5E7EB'}`,
+                      border: `1.5px solid ${selectedLevel === level.id ? 'rgba(79,142,247,0.4)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -275,7 +275,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         className="text-xs font-bold"
                         style={{
                           fontFamily: "'Syne', sans-serif",
-                          color: selectedLevel === level.id ? '#d4af37' : '#0A0A0A',
+                          color: selectedLevel === level.id ? '#4f8ef7' : '#0A0A0A',
                         }}
                       >
                         {level.label}
@@ -302,7 +302,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                 style={{
                   background: selectedLevel
-                    ? 'linear-gradient(135deg, #d4af37, #d4af37)'
+                    ? 'linear-gradient(135deg, #4f8ef7, #4f8ef7)'
                     : '#F9FAFB',
                   color: selectedLevel ? '#FAFAFA' : '#9CA3AF',
                   fontFamily: "'Syne', sans-serif",
@@ -395,7 +395,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
                     background: selectedGoal
-                      ? 'linear-gradient(135deg, #d4af37, #d4af37)'
+                      ? 'linear-gradient(135deg, #4f8ef7, #4f8ef7)'
                       : '#F9FAFB',
                     color: selectedGoal ? '#FAFAFA' : '#9CA3AF',
                     fontFamily: "'Syne', sans-serif",
@@ -433,9 +433,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     style={{
                       background:
                         selectedBudget === budget.id
-                          ? 'rgba(212,175,55,0.18)'
+                          ? 'rgba(79,142,247,0.18)'
                           : '#FAFAFA',
-                      border: `1.5px solid ${selectedBudget === budget.id ? 'rgba(212,175,55,0.60)' : '#E5E7EB'}`,
+                      border: `1.5px solid ${selectedBudget === budget.id ? 'rgba(79,142,247,0.60)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -445,7 +445,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         className="text-xs font-bold"
                         style={{
                           fontFamily: "'Syne', sans-serif",
-                          color: selectedBudget === budget.id ? '#d4af37' : '#0A0A0A',
+                          color: selectedBudget === budget.id ? '#4f8ef7' : '#0A0A0A',
                         }}
                       >
                         {budget.label}
@@ -478,7 +478,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
                     background: selectedBudget
-                      ? 'linear-gradient(135deg, #d4af37, #3B82F6)'
+                      ? 'linear-gradient(135deg, #4f8ef7, #3B82F6)'
                       : '#F9FAFB',
                     color: selectedBudget ? '#fff' : '#9CA3AF',
                     fontFamily: "'Syne', sans-serif",
@@ -525,7 +525,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       border: `1.5px solid ${importError ? 'rgba(224,92,122,0.5)' : '#F5F5F5'}`,
                       color: '#F8FAFC',
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+                    onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.45)')}
                     onBlur={(e) =>
                       (e.target.style.borderColor = importError
                         ? 'rgba(224,92,122,0.5)'
@@ -537,7 +537,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     disabled={importing || !importUrl.trim()}
                     className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+                      background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
                       color: '#FAFAFA',
                       fontFamily: "'Syne', sans-serif",
                       cursor: importing || !importUrl.trim() ? 'not-allowed' : 'pointer',
@@ -571,12 +571,12 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   <div
                     className="flex items-center gap-2 p-2.5 rounded-lg"
                     style={{
-                      background: 'rgba(212,175,55,0.12)',
-                      border: '1px solid rgba(212,175,55,0.30)',
+                      background: 'rgba(79,142,247,0.12)',
+                      border: '1px solid rgba(79,142,247,0.30)',
                     }}
                   >
-                    <Check size={13} style={{ color: '#d4af37', flexShrink: 0 }} />
-                    <span className="text-xs font-semibold" style={{ color: '#d4af37' }}>
+                    <Check size={13} style={{ color: '#4f8ef7', flexShrink: 0 }} />
+                    <span className="text-xs font-semibold" style={{ color: '#4f8ef7' }}>
                       ✓ Product imported! Taking you to your dashboard...
                     </span>
                   </div>
@@ -601,7 +601,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={handleFinish}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
+                    background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)',
                     color: '#fff',
                     fontFamily: "'Syne', sans-serif",
                     cursor: 'pointer',
@@ -642,9 +642,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 style={{
                   background:
                     s === step
-                      ? '#d4af37'
+                      ? '#4f8ef7'
                       : s < step
-                        ? 'rgba(212,175,55,0.4)'
+                        ? 'rgba(79,142,247,0.4)'
                         : '#D1D5DB',
                   width: s === step ? 16 : 6,
                 }}

@@ -59,9 +59,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
+        background: copied ? 'rgba(79,142,247,0.08)' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-        color: copied ? 'rgba(212,175,55,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(79,142,247,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >

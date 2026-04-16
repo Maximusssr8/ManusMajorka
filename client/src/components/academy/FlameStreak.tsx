@@ -21,10 +21,10 @@ export function FlameStreak({ days, max = 7 }: FlameStreakProps) {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full"
         style={{
-          background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0) 70%)',
+          background: 'radial-gradient(circle, rgba(79,142,247,0.25) 0%, rgba(79,142,247,0) 70%)',
         }}
       >
-        <Flame size={42} className="text-[#d4af37]" strokeWidth={1.5} />
+        <Flame size={42} className="text-[#4f8ef7]" strokeWidth={1.5} />
       </motion.div>
       <div className="mt-4 text-3xl font-semibold tabular-nums text-[#E0E0E0]" style={{ fontFamily: "'Syne', sans-serif" }}>
         {days}
@@ -39,7 +39,7 @@ export function FlameStreak({ days, max = 7 }: FlameStreakProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
-            className={`h-2 w-2 rounded-full ${i < bounded ? 'bg-[#d4af37]' : 'bg-white/10'}`}
+            className={`h-2 w-2 rounded-full ${i < bounded ? 'bg-[#4f8ef7]' : 'bg-white/10'}`}
           />
         ))}
       </div>

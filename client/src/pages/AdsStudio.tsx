@@ -490,9 +490,9 @@ OBJECTION KILLER:
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            background: linear-gradient(to bottom, rgba(8,8,8,0) 0%, rgba(8,8,8,0.95) 30%, #080808 70%) !important;
+            background: linear-gradient(to bottom, rgba(8,8,8,0) 0%, rgba(8,8,8,0.95) 30%, #04060f 70%) !important;
             padding: 24px 16px env(safe-area-inset-bottom, 16px) !important;
-            border-top: 1px solid rgba(212,175,55,0.18) !important;
+            border-top: 1px solid rgba(79,142,247,0.18) !important;
             z-index: 50 !important;
           }
         }
@@ -774,9 +774,9 @@ OBJECTION KILLER:
                         fontFamily: mono,
                         fontSize: 8,
                         fontWeight: 700,
-                        color: '#d4af37',
-                        background: 'rgba(212,175,55,0.12)',
-                        border: '1px solid rgba(212,175,55,0.3)',
+                        color: '#4f8ef7',
+                        background: 'rgba(79,142,247,0.12)',
+                        border: '1px solid rgba(79,142,247,0.3)',
                         padding: '1px 5px',
                         borderRadius: 999,
                         letterSpacing: '0.08em',
@@ -833,7 +833,7 @@ OBJECTION KILLER:
                 height: 44,
                 background: !productName.trim()
                   ? 'rgba(124,106,255,0.25)'
-                  : 'linear-gradient(135deg, #7c6aff, #d4af37)',
+                  : 'linear-gradient(135deg, #7c6aff, #4f8ef7)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 10,
@@ -852,7 +852,7 @@ OBJECTION KILLER:
         <div ref={outputRef} style={{ overflowY: 'auto', padding: '24px 28px' }}>
           {loading ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #7c6aff, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #7c6aff, #4f8ef7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
               <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 800 }}>Writing your ad package…</div>
             </div>
           ) : parsed ? (
@@ -1027,7 +1027,7 @@ function OutputDisplay({ parsed, copied, copyText, isExample = false }: { parsed
             top: 4,
             right: 4,
             zIndex: 5,
-            background: 'linear-gradient(135deg, #d4af37, #e5c158)',
+            background: 'linear-gradient(135deg, #4f8ef7, #6ba3ff)',
             color: '#0a0a0c',
             fontFamily: mono,
             fontSize: 9,
@@ -1035,7 +1035,7 @@ function OutputDisplay({ parsed, copied, copyText, isExample = false }: { parsed
             letterSpacing: '0.12em',
             padding: '4px 10px',
             borderRadius: 999,
-            boxShadow: '0 4px 14px rgba(212,175,55,0.35)',
+            boxShadow: '0 4px 14px rgba(79,142,247,0.35)',
             pointerEvents: 'none',
             maxWidth: 'calc(100% - 8px)',
           }}
@@ -1251,7 +1251,7 @@ function VisualCreativeCard({
         title={disabledTooltip || undefined}
         style={{
           width: '100%', padding: '11px 14px', borderRadius: 10,
-          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7c6aff, #d4af37)',
+          background: disabled ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #7c6aff, #4f8ef7)',
           border: 'none',
           color: disabled ? 'rgba(255,255,255,0.35)' : '#ffffff',
           fontSize: 13, fontWeight: 700, fontFamily: brico, letterSpacing: '-0.01em',

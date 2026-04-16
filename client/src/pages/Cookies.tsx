@@ -7,7 +7,7 @@ const C = {
   border: '#E5E7EB',
   text: '#0A0A0A',
   secondary: '#6B7280',
-  gold: '#d4af37',
+  gold: '#4f8ef7',
 };
 
 const syne = "'Syne', sans-serif";
@@ -92,7 +92,7 @@ export default function Cookies() {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+                background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

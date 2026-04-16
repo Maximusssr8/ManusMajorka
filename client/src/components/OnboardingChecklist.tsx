@@ -127,8 +127,8 @@ export default function OnboardingChecklist() {
     <div
       className="rounded-xl p-4 mb-8 relative overflow-hidden"
       style={{
-        background: 'rgba(212,175,55,0.03)',
-        border: '1px solid rgba(212,175,55,0.12)',
+        background: 'rgba(79,142,247,0.03)',
+        border: '1px solid rgba(79,142,247,0.12)',
       }}
     >
       <div className="flex items-center justify-between mb-3">
@@ -141,7 +141,7 @@ export default function OnboardingChecklist() {
           </h3>
           <span
             className="text-xs px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}
+            style={{ background: 'rgba(79,142,247,0.1)', color: '#4f8ef7' }}
           >
             {completedCount}/{totalCount} complete
           </span>
@@ -171,7 +171,7 @@ export default function OnboardingChecklist() {
           className="h-full rounded-full transition-all duration-700"
           style={{
             width: `${progress}%`,
-            background: 'linear-gradient(90deg, #d4af37, #e5c158)',
+            background: 'linear-gradient(90deg, #4f8ef7, #6ba3ff)',
           }}
         />
       </div>

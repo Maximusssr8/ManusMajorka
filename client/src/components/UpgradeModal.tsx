@@ -46,7 +46,7 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #d4af37, #d4af37)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={20} color="white" />
           </div>
           <div>
@@ -66,7 +66,7 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {SCALE_FEATURES.map(f => (
               <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Check size={14} color="#d4af37" />
+                <Check size={14} color="#4f8ef7" />
                 <span style={{ fontSize: 13, color: '#CBD5E1' }}>{f}</span>
               </div>
             ))}
@@ -76,9 +76,9 @@ export default function UpgradeModal({ isOpen, onClose, feature, reason, scaleOn
         <Link href="/sign-up?plan=scale" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           height: 48, borderRadius: 12, fontWeight: 700, fontSize: 15,
-          background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+          background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
           color: 'white', textDecoration: 'none',
-          boxShadow: '0 4px 16px rgba(212,175,55,0.35)',
+          boxShadow: '0 4px 16px rgba(79,142,247,0.35)',
         }}>
           Upgrade to Scale — $199/month
         </Link>

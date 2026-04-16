@@ -29,15 +29,15 @@ export function LessonRow({ lesson, completed, locked, onToggle, index }: Lesson
       className={`group flex w-full items-center gap-4 rounded-xl border px-4 py-3 text-left transition-colors ${
         locked
           ? 'cursor-not-allowed border-white/[0.04] bg-white/[0.015] opacity-60'
-          : 'border-transparent hover:border-[#d4af37]/20 hover:bg-white/[0.03]'
+          : 'border-transparent hover:border-[#4f8ef7]/20 hover:bg-white/[0.03]'
       }`}
       style={{ minHeight: 56 }}
     >
       <div
         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors ${
           completed
-            ? 'border-[#d4af37] bg-[#d4af37] text-black'
-            : 'border-white/15 bg-transparent text-[#6B7280] group-hover:border-[#d4af37]/40'
+            ? 'border-[#4f8ef7] bg-[#4f8ef7] text-black'
+            : 'border-white/15 bg-transparent text-[#6B7280] group-hover:border-[#4f8ef7]/40'
         }`}
       >
         {completed ? <Check size={14} strokeWidth={3} /> : <Circle size={10} strokeWidth={2.5} />}
@@ -47,7 +47,7 @@ export function LessonRow({ lesson, completed, locked, onToggle, index }: Lesson
         <div className="flex items-center gap-2">
           <div className="truncate text-sm font-medium text-[#E0E0E0]">{lesson.title}</div>
           {lesson.hasMajorkaDemo ? (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-widest text-[#e5c158]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#4f8ef7]/30 bg-[#4f8ef7]/10 px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-widest text-[#6ba3ff]">
               <Sparkles size={9} /> Live demo
             </span>
           ) : null}

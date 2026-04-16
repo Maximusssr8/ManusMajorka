@@ -112,7 +112,7 @@ export default function StoreAuditor() {
 
   const statusIcon = (s: string) =>
     s === 'pass' ? (
-      <CheckCircle2 size={14} style={{ color: '#d4af37' }} />
+      <CheckCircle2 size={14} style={{ color: '#4f8ef7' }} />
     ) : s === 'fail' ? (
       <XCircle size={14} style={{ color: '#ff6b6b' }} />
     ) : (
@@ -248,7 +248,7 @@ export default function StoreAuditor() {
                     r="16"
                     fill="none"
                     stroke={
-                      result.score >= 70 ? '#d4af37' : result.score >= 40 ? '#F59E0B' : '#ff6b6b'
+                      result.score >= 70 ? '#4f8ef7' : result.score >= 40 ? '#F59E0B' : '#ff6b6b'
                     }
                     strokeWidth="3"
                     strokeDasharray={`${result.score} ${100 - result.score}`}
@@ -260,7 +260,7 @@ export default function StoreAuditor() {
                   style={{
                     fontFamily: "'Syne', sans-serif",
                     color:
-                      result.score >= 70 ? '#d4af37' : result.score >= 40 ? '#F59E0B' : '#ff6b6b',
+                      result.score >= 70 ? '#4f8ef7' : result.score >= 40 ? '#F59E0B' : '#ff6b6b',
                   }}
                 >
                   {result.score}

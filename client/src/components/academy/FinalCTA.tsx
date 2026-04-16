@@ -20,13 +20,13 @@ export function FinalCTA({ onStart, publicMode }: FinalCTAProps) {
           className="relative overflow-hidden rounded-3xl p-[1px]"
           style={{
             background:
-              'linear-gradient(135deg, #d4af37 0%, rgba(212,175,55,0.15) 30%, rgba(212,175,55,0.15) 70%, #d4af37 100%)',
+              'linear-gradient(135deg, #4f8ef7 0%, rgba(79,142,247,0.15) 30%, rgba(79,142,247,0.15) 70%, #4f8ef7 100%)',
           }}
         >
           <div
             className="relative rounded-[calc(1.5rem-1px)] px-6 py-16 text-center md:px-12 md:py-24"
             style={{
-              background: 'linear-gradient(180deg, #111111 0%, #0d0d0d 100%)',
+              background: 'linear-gradient(180deg, #0d1117 0%, #0d0d0d 100%)',
             }}
           >
             <div
@@ -34,11 +34,11 @@ export function FinalCTA({ onStart, publicMode }: FinalCTAProps) {
               className="absolute inset-x-0 top-0 h-48 opacity-60"
               style={{
                 background:
-                  'radial-gradient(ellipse at center top, rgba(212,175,55,0.18) 0%, transparent 60%)',
+                  'radial-gradient(ellipse at center top, rgba(79,142,247,0.18) 0%, transparent 60%)',
               }}
             />
             <div className="relative">
-              <div className="mb-4 text-[10px] font-mono uppercase tracking-widest text-[#d4af37]">
+              <div className="mb-4 text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7]">
                 The last slide
               </div>
               <h2
@@ -47,7 +47,7 @@ export function FinalCTA({ onStart, publicMode }: FinalCTAProps) {
               >
                 Academy teaches you the game.
                 <br />
-                <span className="bg-gradient-to-br from-[#e5c158] via-[#d4af37] to-[#a88620] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-br from-[#6ba3ff] via-[#4f8ef7] to-[#a88620] bg-clip-text text-transparent">
                   Majorka wins it for you.
                 </span>
               </h2>

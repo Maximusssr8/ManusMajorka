@@ -85,7 +85,7 @@ export default function Affiliates() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+            background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: display,
           }}>M</div>
@@ -179,7 +179,7 @@ export default function Affiliates() {
                   step={500}
                   value={audience}
                   onChange={(e) => setAudience(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#d4af37' }}
+                  style={{ width: '100%', accentColor: '#4f8ef7' }}
                 />
               </label>
               <label style={{ display: 'block' }}>
@@ -193,7 +193,7 @@ export default function Affiliates() {
                   step={0.5}
                   value={convPct}
                   onChange={(e) => setConvPct(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#d4af37' }}
+                  style={{ width: '100%', accentColor: '#4f8ef7' }}
                 />
               </label>
             </div>
@@ -304,7 +304,7 @@ export default function Affiliates() {
                   padding: '14px 28px',
                   borderRadius: 999,
                   border: 'none',
-                  background: status === 'submitting' ? 'rgba(212,175,55,0.4)' : '#d4af37',
+                  background: status === 'submitting' ? 'rgba(79,142,247,0.4)' : '#4f8ef7',
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: 14,

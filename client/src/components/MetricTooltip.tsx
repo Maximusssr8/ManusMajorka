@@ -48,12 +48,12 @@ export function MetricTooltip({ term, children }: MetricTooltipProps) {
         {...getReferenceProps()}
         className="inline-flex items-center gap-1 cursor-help"
         style={{
-          borderBottom: '1px dotted rgba(212,175,55,0.4)',
+          borderBottom: '1px dotted rgba(79,142,247,0.4)',
           color: 'inherit',
         }}
       >
         {children ?? term}
-        <HelpCircle size={10} style={{ color: '#d4af37', opacity: 0.6 }} />
+        <HelpCircle size={10} style={{ color: '#4f8ef7', opacity: 0.6 }} />
       </span>
       {isOpen && (
         <FloatingPortal>
@@ -66,14 +66,14 @@ export function MetricTooltip({ term, children }: MetricTooltipProps) {
             style={{
               ...floatingStyles,
               background: '#1a1a20',
-              border: '1px solid rgba(212,175,55,0.2)',
+              border: '1px solid rgba(79,142,247,0.2)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               color: '#e4e4e7',
               fontFamily: 'DM Sans, sans-serif',
               lineHeight: 1.6,
             }}
           >
-            <span className="font-bold" style={{ color: '#d4af37' }}>
+            <span className="font-bold" style={{ color: '#4f8ef7' }}>
               {term}
             </span>
             : {definition}

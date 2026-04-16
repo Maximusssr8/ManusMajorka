@@ -1,4 +1,4 @@
-const gold = '#d4af37';
+const gold = '#4f8ef7';
 const syne = "'Syne', sans-serif";
 const card: React.CSSProperties = {
   background: '#05070F',
@@ -33,7 +33,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
               display: 'flex', alignItems: 'center', gap: 10,
               padding: '12px 16px', borderRadius: 10, cursor: 'pointer',
               border: `1px solid ${selectedStoreName === n ? gold : '#F5F5F5'}`,
-              background: selectedStoreName === n ? 'rgba(212,175,55,0.06)' : '#FAFAFA',
+              background: selectedStoreName === n ? 'rgba(79,142,247,0.06)' : '#FAFAFA',
             }}>
               <input type="radio" checked={selectedStoreName === n} onChange={() => onSelectStoreName(n)} style={{ accentColor: gold }} />
               <span style={{ fontWeight: 600, color: '#CBD5E1' }}>{n}</span>

@@ -30,8 +30,8 @@ export default function CookieBanner() {
     }}>
       <p style={{ margin: 0, fontSize: 13, color: '#D4D4D8', maxWidth: 680, lineHeight: 1.5 }}>
         We use cookies to improve your experience and analyse usage. By continuing you agree to our{' '}
-        <a href="/privacy" style={{ color: '#e5c158', textDecoration: 'underline' }}>Privacy Policy</a> and{' '}
-        <a href="/cookies" style={{ color: '#e5c158', textDecoration: 'underline' }}>Cookie Policy</a>.
+        <a href="/privacy" style={{ color: '#6ba3ff', textDecoration: 'underline' }}>Privacy Policy</a> and{' '}
+        <a href="/cookies" style={{ color: '#6ba3ff', textDecoration: 'underline' }}>Cookie Policy</a>.
       </p>
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
         <button onClick={decline} style={{
@@ -40,7 +40,7 @@ export default function CookieBanner() {
         }}>Essential only</button>
         <button onClick={accept} style={{
           padding: '8px 16px', fontSize: 13, borderRadius: 6, cursor: 'pointer',
-          background: '#d4af37', border: 'none', color: '#fff', fontWeight: 600,
+          background: '#4f8ef7', border: 'none', color: '#fff', fontWeight: 600,
         }}>Accept all</button>
       </div>
     </div>

@@ -227,7 +227,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           color: '#F8FAFC',
           fontFamily: 'DM Sans, sans-serif',
         }}
-        onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+        onFocus={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.5)')}
         onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
       />
       <button
@@ -236,9 +236,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         className="px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex-shrink-0"
         style={{
           background: url.trim()
-            ? 'linear-gradient(135deg, #d4af37, #3B82F6)'
-            : 'rgba(212,175,55,0.15)',
-          color: url.trim() ? '#FFFFFF' : 'rgba(212,175,55,0.4)',
+            ? 'linear-gradient(135deg, #4f8ef7, #3B82F6)'
+            : 'rgba(79,142,247,0.15)',
+          color: url.trim() ? '#FFFFFF' : 'rgba(79,142,247,0.4)',
           border: 'none',
           cursor: url.trim() ? 'pointer' : 'not-allowed',
           fontFamily: "'Syne', sans-serif",
@@ -291,7 +291,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       {/* Shimmer skeleton */}
       <p
         className="text-xs font-semibold mb-3"
-        style={{ color: 'rgba(212,175,55,0.7)', fontFamily: "'Syne', sans-serif" }}
+        style={{ color: 'rgba(79,142,247,0.7)', fontFamily: "'Syne', sans-serif" }}
       >
         Analysing product...
       </p>
@@ -374,9 +374,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             <span
               className="px-2 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
               style={{
-                background: 'rgba(212,175,55,0.12)',
-                color: '#d4af37',
-                border: '1px solid rgba(212,175,55,0.25)',
+                background: 'rgba(79,142,247,0.12)',
+                color: '#4f8ef7',
+                border: '1px solid rgba(79,142,247,0.25)',
                 fontFamily: "'Syne', sans-serif",
               }}
             >
@@ -411,7 +411,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           <ul className="space-y-1">
             {result.bulletPoints.slice(0, 3).map((bp, i) => (
               <li key={i} className="flex items-start gap-2">
-                <Check size={11} style={{ color: '#d4af37', flexShrink: 0, marginTop: 2 }} />
+                <Check size={11} style={{ color: '#4f8ef7', flexShrink: 0, marginTop: 2 }} />
                 <span className="text-xs" style={{ color: '#94A3B8' }}>
                   {bp}
                 </span>
@@ -451,9 +451,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         {result.intelligence && (
           <div
             className="mt-3 p-3 rounded-lg border"
-            style={{ background: 'rgba(212,175,55,0.05)', borderColor: 'rgba(212,175,55,0.2)' }}
+            style={{ background: 'rgba(79,142,247,0.05)', borderColor: 'rgba(79,142,247,0.2)' }}
           >
-            <div className="text-xs font-medium mb-2" style={{ color: '#d4af37' }}>
+            <div className="text-xs font-medium mb-2" style={{ color: '#4f8ef7' }}>
               🧠 AI Product Intelligence
             </div>
             <div className="space-y-1">
@@ -479,7 +479,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             onClick={handleSetActive}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
+              background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)',
               color: '#FFFFFF',
               border: 'none',
               cursor: 'pointer',
@@ -512,13 +512,13 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="flex items-center gap-3 px-4 py-3 rounded-xl"
       style={{
-        background: 'rgba(212,175,55,0.06)',
-        border: '1px solid rgba(212,175,55,0.2)',
+        background: 'rgba(79,142,247,0.06)',
+        border: '1px solid rgba(79,142,247,0.2)',
       }}
     >
-      <Check size={14} style={{ color: '#d4af37', flexShrink: 0 }} />
+      <Check size={14} style={{ color: '#4f8ef7', flexShrink: 0 }} />
       <span className="text-sm flex-1" style={{ color: '#F8FAFC' }}>
-        <span style={{ color: '#d4af37', fontWeight: 700 }}>
+        <span style={{ color: '#4f8ef7', fontWeight: 700 }}>
           {result.cleanTitle || result.productTitle}
         </span>{' '}
         is now your active product
@@ -527,7 +527,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         onClick={() => setLocation('/app/product-discovery')}
         className="flex items-center gap-1.5 text-xs font-bold transition-all flex-shrink-0"
         style={{
-          color: '#d4af37',
+          color: '#4f8ef7',
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
@@ -617,7 +617,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-xs transition-all"
           style={{ color: '#94A3B8' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#d4af37')}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#4f8ef7')}
           onMouseLeave={(e) => (e.currentTarget.style.color = '#6B7280')}
         >
           <ExternalLink size={11} />

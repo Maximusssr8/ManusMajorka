@@ -246,7 +246,7 @@ export default function Products() {
   }, [activeTab, active.insufficientData]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080808', color: '#e5e5e5' }}>
+    <div style={{ minHeight: '100vh', background: '#04060f', color: '#e5e5e5' }}>
       {/* Header */}
       <header
         className="px-3 py-3 sm:px-5 sm:py-4"
@@ -256,7 +256,7 @@ export default function Products() {
           zIndex: 20,
           background: 'rgba(8,8,8,0.85)',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #1a1a1a',
+          borderBottom: '1px solid #161b22',
         }}
       >
         <div
@@ -311,8 +311,8 @@ export default function Products() {
                 width: '100%',
                 height: 44,
                 padding: '0 40px 0 38px',
-                background: '#111111',
-                border: '1px solid #1a1a1a',
+                background: '#0d1117',
+                border: '1px solid #161b22',
                 borderRadius: 10,
                 color: '#f5f5f5',
                 fontSize: 14,
@@ -321,11 +321,11 @@ export default function Products() {
                 transition: 'border 160ms ease, box-shadow 160ms ease',
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(212,175,55,0.08)';
+                e.currentTarget.style.borderColor = 'rgba(79,142,247,0.4)';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(79,142,247,0.08)';
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#1a1a1a';
+                e.currentTarget.style.borderColor = '#161b22';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             />
@@ -362,7 +362,7 @@ export default function Products() {
                   right: 12,
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#d4af37',
+                  color: '#4f8ef7',
                 }}
               />
             ) : null}
@@ -420,10 +420,10 @@ export default function Products() {
               <span
                 style={{
                   fontSize: 11,
-                  color: '#d4af37',
+                  color: '#4f8ef7',
                   padding: '3px 8px',
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.25)',
+                  background: 'rgba(79,142,247,0.08)',
+                  border: '1px solid rgba(79,142,247,0.25)',
                   borderRadius: 6,
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -446,7 +446,7 @@ export default function Products() {
                 gap: 6,
                 padding: '0 12px',
                 background: 'transparent',
-                border: '1px solid #1a1a1a',
+                border: '1px solid #161b22',
                 borderRadius: 8,
                 color: '#a3a3a3',
                 fontSize: 12,
@@ -484,8 +484,8 @@ export default function Products() {
           <div
             style={{
               padding: '48px 16px',
-              background: '#111111',
-              border: '1px solid #1a1a1a',
+              background: '#0d1117',
+              border: '1px solid #161b22',
               borderRadius: 16,
             }}
           >
@@ -542,8 +542,8 @@ function SkeletonGrid() {
           key={i}
           style={{
             minHeight: 280,
-            background: '#111111',
-            border: '1px solid #1a1a1a',
+            background: '#0d1117',
+            border: '1px solid #161b22',
             borderRadius: 14,
             overflow: 'hidden',
             display: 'flex',

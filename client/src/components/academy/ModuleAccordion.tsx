@@ -38,9 +38,9 @@ export function ModuleAccordion({
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className="overflow-hidden rounded-2xl border"
       style={{
-        borderColor: open ? 'rgba(212,175,55,0.25)' : 'rgba(212,175,55,0.08)',
-        background: '#111111',
-        boxShadow: open ? '0 20px 60px -20px rgba(212,175,55,0.18)' : 'none',
+        borderColor: open ? 'rgba(79,142,247,0.25)' : 'rgba(79,142,247,0.08)',
+        background: '#0d1117',
+        boxShadow: open ? '0 20px 60px -20px rgba(79,142,247,0.18)' : 'none',
       }}
     >
       <button
@@ -51,9 +51,9 @@ export function ModuleAccordion({
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[13px] font-mono tabular-nums"
           style={{
-            background: 'rgba(212,175,55,0.1)',
-            border: '1px solid rgba(212,175,55,0.2)',
-            color: '#d4af37',
+            background: 'rgba(79,142,247,0.1)',
+            border: '1px solid rgba(79,142,247,0.2)',
+            color: '#4f8ef7',
           }}
         >
           {module.num}
@@ -82,7 +82,7 @@ export function ModuleAccordion({
           </div>
           <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/[0.06]">
             <motion.div
-              className="h-full rounded-full bg-[#d4af37]"
+              className="h-full rounded-full bg-[#4f8ef7]"
               animate={{ width: `${progressPct}%` }}
               transition={{ duration: 0.4 }}
             />

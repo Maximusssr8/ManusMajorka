@@ -9,7 +9,7 @@ export function PageSkeleton(): React.ReactElement {
     <div
       style={{
         minHeight: '100vh',
-        background: '#111111',
+        background: '#0d1117',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -43,7 +43,7 @@ export const SHIMMER_CSS = `
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.03) 0%,
-    rgba(212, 175, 55, 0.05) 50%,
+    rgba(79, 142, 247, 0.05) 50%,
     rgba(255, 255, 255, 0.03) 100%
   );
   background-size: 800px 100%;

@@ -49,7 +49,7 @@ export function ProductIntelligencePage() {
   ];
 
   return (
-    <div className="page-transition flex flex-col min-h-screen" style={{ background: '#080808' }}>
+    <div className="page-transition flex flex-col min-h-screen" style={{ background: '#04060f' }}>
       {/* PAGE HEADER */}
       <div className="px-6 pt-6 pb-0">
         <div className="flex items-start justify-between mb-5">
@@ -105,7 +105,7 @@ export function ProductIntelligencePage() {
       {/* TAB BAR */}
       <div
         className="flex mt-4"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#080808', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any, scrollbarWidth: 'none' as any, paddingLeft: 24 }}
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#04060f', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as any, scrollbarWidth: 'none' as any, paddingLeft: 24 }}
       >
         {tabs.map(tab => (
           <button
@@ -113,7 +113,7 @@ export function ProductIntelligencePage() {
             onClick={() => tab.id !== 'scout' && setActiveTab(tab.id)}
             className={`relative flex items-center gap-2 px-4 py-3.5 text-[13px] font-medium border-b-2 transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
-                ? 'text-white border-[#d4af37]'
+                ? 'text-white border-[#4f8ef7]'
                 : 'border-transparent hover:border-white/10'
             } ${tab.id === 'scout' ? 'cursor-default' : 'cursor-pointer'}`}
             style={{ color: activeTab === tab.id ? '#f1f5f9' : 'rgba(255,255,255,0.4)' }}
@@ -121,8 +121,8 @@ export function ProductIntelligencePage() {
             {tab.label}
             {tab.badge && (
               <span
-                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-[#e5c158]"
-                style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.2)' }}
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full text-[#6ba3ff]"
+                style={{ background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.2)' }}
               >
                 {tab.badge}
               </span>

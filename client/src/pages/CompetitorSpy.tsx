@@ -247,7 +247,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           <h3
             key={i}
             className="text-sm font-semibold mt-5 mb-2 first:mt-0"
-            style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+            style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
           >
             {section.replace('## ', '')}
           </h3>
@@ -264,9 +264,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               if (match) {
                 return (
                   <div key={j} className="flex gap-2 text-sm" style={{ color: '#F1F5F9', fontFamily: 'DM Sans, sans-serif' }}>
-                    <span style={{ color: '#d4af37', flexShrink: 0 }}>·</span>
+                    <span style={{ color: '#4f8ef7', flexShrink: 0 }}>·</span>
                     <span>
-                      <span className="font-semibold" style={{ color: '#d4af37' }}>{match[1]}</span>
+                      <span className="font-semibold" style={{ color: '#4f8ef7' }}>{match[1]}</span>
                       <span style={{ color: '#94a3b8' }}>{match[2]}</span>
                     </span>
                   </div>
@@ -339,7 +339,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       onClick={() => { setQuery(w.query); inputRef.current?.focus(); }}
                       className="flex-1 text-left text-xs px-2 py-1.5 rounded transition-colors truncate"
                       style={{ color: '#94A3B8' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = '#e5c158')}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#6ba3ff')}
                       onMouseLeave={(e) => (e.currentTarget.style.color = '#94A3B8')}
                     >
                       {w.query}
@@ -379,7 +379,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                   fontFamily: 'DM Sans, sans-serif',
                 }}
                 disabled={loading}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)'; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(79,142,247,0.5)'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
               />
               <button
@@ -388,7 +388,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 style={{
                   flexShrink: 0,
                   padding: '11px 20px',
-                  background: '#d4af37',
+                  background: '#4f8ef7',
                   color: 'white',
                   border: 'none',
                   borderRadius: 10,
@@ -399,7 +399,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={(e) => { if (!loading && query.trim()) e.currentTarget.style.background = '#5558E8'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = '#d4af37'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#4f8ef7'; }}
               >
                 {loading ? 'Analysing...' : 'Analyse'}
               </button>
@@ -433,20 +433,20 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               style={{ border: '1px solid rgba(255,255,255,0.08)', background: '#0D1424' }}
             >
               <div className="flex justify-center mb-4">
-                <Eye size={28} style={{ color: '#d4af37' }} className="animate-pulse" />
+                <Eye size={28} style={{ color: '#4f8ef7' }} className="animate-pulse" />
               </div>
-              <p className="text-sm font-medium mb-2" style={{ color: '#F1F5F9' }}>Researching: <span style={{ color: '#d4af37' }}>"{query}"</span></p>
+              <p className="text-sm font-medium mb-2" style={{ color: '#F1F5F9' }}>Researching: <span style={{ color: '#4f8ef7' }}>"{query}"</span></p>
               <div className="space-y-2 max-w-xs mx-auto">
                 {PROGRESS_STEPS.map((step, i) => (
                   <div key={step} className="flex items-center gap-3">
                     <div
                       className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
                       style={{
-                        background: i <= progressStep ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)',
-                        border: `1px solid ${i <= progressStep ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                        background: i <= progressStep ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.05)',
+                        border: `1px solid ${i <= progressStep ? 'rgba(79,142,247,0.4)' : 'rgba(255,255,255,0.08)'}`,
                       }}
                     >
-                      {i < progressStep ? '✓' : i === progressStep ? <Loader2 size={10} className="animate-spin" style={{ color: '#d4af37' }} /> : ''}
+                      {i < progressStep ? '✓' : i === progressStep ? <Loader2 size={10} className="animate-spin" style={{ color: '#4f8ef7' }} /> : ''}
                     </div>
                     <span className="text-xs text-left" style={{ color: i <= progressStep ? '#94A3B8' : '#64748B' }}>{step}</span>
                   </div>
@@ -517,7 +517,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
                       outline: 'none',
                     }}
-                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)')}
+                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.5)')}
                     onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
                   />
                   <button
@@ -528,12 +528,12 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       }
                     }}
                     style={{
-                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#d4af37', color: 'white',
+                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#4f8ef7', color: 'white',
                       border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
                       cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
                     }}
                     onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#5558E8'; }}
-                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#d4af37'; }}
+                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#4f8ef7'; }}
                   >
                     {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
                   </button>
@@ -558,7 +558,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 style={{ background: '#0D1424', border: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Analysis: <span style={{ color: '#d4af37' }}>{result.query}</span></p>
+                  <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Analysis: <span style={{ color: '#4f8ef7' }}>{result.query}</span></p>
                   <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
                     {new Date(result.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' })}
                   </p>
@@ -568,9 +568,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     <button
                       onClick={() => void saveToWatchlist()}
                       className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                      style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.25)' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.2)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.1)')}
+                      style={{ background: 'rgba(79,142,247,0.1)', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.25)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(79,142,247,0.2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(79,142,247,0.1)')}
                     >
                       + Save to Watchlist
                     </button>
@@ -674,7 +674,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#F1F5F9',
                       outline: 'none',
                     }}
-                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)')}
+                    onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.5)')}
                     onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
                   />
                   <button
@@ -685,12 +685,12 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       }
                     }}
                     style={{
-                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#d4af37', color: 'white',
+                      padding: '8px 16px', background: waitlistSubmitted ? '#10B981' : '#4f8ef7', color: 'white',
                       border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
                       cursor: 'pointer', whiteSpace: 'nowrap', transition: 'background 0.15s',
                     }}
                     onMouseEnter={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#5558E8'; }}
-                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#d4af37'; }}
+                    onMouseLeave={e => { if (!waitlistSubmitted) e.currentTarget.style.background = '#4f8ef7'; }}
                   >
                     {waitlistSubmitted ? '✓ Noted!' : 'Notify me'}
                   </button>
