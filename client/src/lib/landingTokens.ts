@@ -21,6 +21,12 @@ export const LT = {
   success: '#22c55e',
   error: '#ef4444',
   crossGrey: '#3f3f46',
+  // Backward-compat aliases (consumed by Guarantee.tsx and other non-landing pages
+  // that import from landingTokens). Maps to cobalt palette.
+  gold: '#4f8ef7',
+  goldTint: 'rgba(79,142,247,0.15)',
+  goldGlow: 'rgba(79,142,247,0.30)',
+  blue: '#4f8ef7',
 } as const;
 
 export const F = {

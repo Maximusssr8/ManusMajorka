@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://ievekuazsjbdrltsdksn.supabase.co" />
     <link rel="dns-prefetch" href="https://js.stripe.com" />
-    <meta name="theme-color" content="#080808" />
+    <meta name="theme-color" content="#04060f" />
 
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website" />
@@ -167,19 +167,19 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" />
   </head>
 
-  <body style="margin:0;background:#080808;color:#e5e5e5;font-family:'DM Sans',system-ui,sans-serif;">
+  <body style="margin:0;background:#04060f;color:#e5e5e5;font-family:'DM Sans',system-ui,sans-serif;">
     <a href="#main-content"
-       style="position:absolute;top:-100px;left:16px;z-index:9999;padding:8px 16px;background:#d4af37;color:#080808;border-radius:6px;font-size:14px;font-weight:700;text-decoration:none;transition:top 150ms;"
+       style="position:absolute;top:-100px;left:16px;z-index:9999;padding:8px 16px;background:#4f8ef7;color:#ffffff;border-radius:6px;font-size:14px;font-weight:700;text-decoration:none;transition:top 150ms;"
        onfocus="this.style.top='16px'"
        onblur="this.style.top='-100px'">Skip to content</a>
     <div id="root">
       <!-- Static pre-React fallback. Visible immediately; replaced when React mounts.
            If this text stays on screen >10s, JS failed to load — check console. -->
-      <div id="mj-boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#080808;color:#e5e5e5;padding:24px;font-family:'DM Sans',system-ui,sans-serif;">
+      <div id="mj-boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#04060f;color:#e5e5e5;padding:24px;font-family:'DM Sans',system-ui,sans-serif;">
         <div style="text-align:center;max-width:320px;">
-          <div style="font-family:'Syne',system-ui,sans-serif;font-size:22px;font-weight:800;color:#d4af37;letter-spacing:-0.01em;margin-bottom:8px;">Majorka</div>
+          <div style="font-family:'Syne',system-ui,sans-serif;font-size:22px;font-weight:800;color:#4f8ef7;letter-spacing:-0.01em;margin-bottom:8px;">Majorka</div>
           <div style="font-size:13px;color:#737373;margin-bottom:20px;">Loading…</div>
-          <div style="width:32px;height:32px;border:2px solid #1a1a1a;border-top-color:#d4af37;border-radius:50%;margin:0 auto;animation:mjSpin 0.9s linear infinite;"></div>
+          <div style="width:32px;height:32px;border:2px solid #161b22;border-top-color:#4f8ef7;border-radius:50%;margin:0 auto;animation:mjSpin 0.9s linear infinite;"></div>
           <noscript>
             <div style="margin-top:16px;font-size:13px;color:#ef4444;">JavaScript is required to run Majorka. Please enable it in your browser.</div>
           </noscript>
@@ -203,7 +203,7 @@
       setTimeout(function(){
         var boot = document.getElementById('mj-boot');
         if (boot && document.contains(boot)) {
-          boot.innerHTML = '<div style="text-align:center;max-width:360px;"><div style="font-family:\'Syne\',system-ui,sans-serif;font-size:22px;font-weight:800;color:#d4af37;margin-bottom:8px;">Majorka didn\'t load</div><div style="font-size:13px;color:#a1a1aa;margin-bottom:20px;">The app bundle failed to initialise. This is usually a cached old version. Try a hard refresh.</div><button type="button" onclick="(async()=>{try{if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs)await r.unregister();}if(window.caches){const ks=await caches.keys();for(const k of ks)await caches.delete(k);}}catch(e){}location.reload(true);})()" style="padding:12px 24px;min-height:44px;background:#d4af37;color:#080808;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;">Clear cache and reload</button></div>';
+          boot.innerHTML = '<div style="text-align:center;max-width:360px;"><div style="font-family:\'Syne\',system-ui,sans-serif;font-size:22px;font-weight:800;color:#4f8ef7;margin-bottom:8px;">Majorka didn\'t load</div><div style="font-size:13px;color:#a1a1aa;margin-bottom:20px;">The app bundle failed to initialise. This is usually a cached old version. Try a hard refresh.</div><button type="button" onclick="(async()=>{try{if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs)await r.unregister();}if(window.caches){const ks=await caches.keys();for(const k of ks)await caches.delete(k);}}catch(e){}location.reload(true);})()" style="padding:12px 24px;min-height:44px;background:#4f8ef7;color:#ffffff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;">Clear cache and reload</button></div>';
         }
       }, 12000);
     </script>
