@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 /**
  * Revenue.tsx — Revenue Diary, now server-backed.
@@ -125,7 +126,7 @@ export default function Revenue() {
         const json: { success: boolean; entry: RevenueEntry } = await res.json();
         setEntries((prev) => prev.map((e) => (e.id === optimistic.id ? json.entry : e)));
       } catch (err: unknown) {
-        setSyncError(err instanceof Error ? err.message : 'save failed');
+        setSyncError(err instanceof Error ? err.message : "Couldn't save the entry. Check the date format and try again.");
       }
     }
   }
@@ -217,25 +218,12 @@ export default function Revenue() {
         </div>
 
         {entries.length === 0 ? (
-          <div className="glass-card rounded-2xl p-12 text-center">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)' }}
-            >
-              <TrendingUp size={20} className="text-accent" />
-            </div>
-            <p className="text-text font-semibold mb-1">No entries yet</p>
-            <p className="text-sm text-muted mb-5 max-w-sm mx-auto">
-              Log today&apos;s revenue to start tracking your profit journey. Takes 30 seconds.
-            </p>
-            <button
-              onClick={() => setShowAdd(true)}
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
-              style={{ background: 'rgba(212,175,55,0.2)', border: '1px solid rgba(212,175,55,0.35)' }}
-            >
-              Add your first entry
-            </button>
-          </div>
+          <EmptyState
+            icon={<TrendingUp size={40} strokeWidth={1.75} />}
+            title="Start tracking your revenue"
+            body="Log daily revenue, ad spend, and orders. We'll surface your margin, ROAS, and break-even trend."
+            primaryCta={{ label: "Add today's entry", onClick: () => setShowAdd(true) }}
+          />
         ) : (
           <div className="glass-card rounded-2xl overflow-x-auto">
             <table className="w-full min-w-[700px]">

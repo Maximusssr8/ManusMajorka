@@ -190,7 +190,7 @@ export default function SaturationChecker() {
       setResult(data);
       saveRecent(trimmed);
     } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message || "Couldn't check saturation — try a different niche or try again in a moment.");
     } finally {
       setLoading(false);
     }

@@ -190,13 +190,19 @@ export default function MetaVariantsPanel({ product }: Props) {
       });
       const data = (await resp.json()) as { success?: boolean; error?: string };
       if (!data.success) {
-        toast.error(data.error ?? 'Save failed');
+        toast.error(data.error ?? "Ad copy didn't generate. Try switching format or generating again.", {
+          description: 'If this keeps happening, email support@majorka.io.',
+          duration: 4000,
+        });
       } else {
         toast.success('Saved to your library');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Save failed';
-      toast.error(msg);
+      const msg = err instanceof Error ? err.message : "Ad copy didn't generate. Try switching format or generating again.";
+      toast.error(msg, {
+        description: 'If this keeps happening, email support@majorka.io.',
+        duration: 4000,
+      });
     } finally {
       setSaving(false);
     }

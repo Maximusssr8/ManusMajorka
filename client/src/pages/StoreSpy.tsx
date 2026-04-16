@@ -169,7 +169,7 @@ export default function StoreSpy() {
       const data = await res.json();
       setReport(data.report);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : "Couldn't scan that store — try again in a moment. If this keeps happening, email support@majorka.io.");
     } finally {
       setLoading(false);
     }

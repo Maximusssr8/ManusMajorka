@@ -1512,7 +1512,7 @@ export default function AdsManager() {
                               await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, feature: 'meta_ads' }) });
                               toast.success("You're on the list! We'll notify you when Meta Ads launches.");
                               emailEl.value = '';
-                            } catch { toast.error('Something went wrong. Try again.'); }
+                            } catch { toast.error("Couldn't join the waitlist — try again in a moment.", { description: 'If this keeps happening, email support@majorka.io.', duration: 4000 }); }
                           }}
                           style={{ padding: '10px 20px', background: C.gold, color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' as const, whiteSpace: 'nowrap' as const }}
                         >

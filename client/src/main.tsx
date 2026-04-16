@@ -115,7 +115,7 @@ class ErrorBoundary extends React.Component<
             gap: 16,
           }}
         >
-          <h1>Something went wrong</h1>
+          <h1>We hit a glitch on our end.</h1>
           <p style={{ color: '#94A3B8', fontSize: 14 }}>
             {this.state.error?.message}
           </p>

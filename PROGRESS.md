@@ -835,3 +835,71 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 - /api/demo/quick-score returns 503 { ok:false, reason:"db_unavailable" } on the preview because SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set on this preview project. Both will be present on prod — endpoint returns real DB-backed JSON there.
 - Old localStorage key `majorka_spots_taken` is no longer read (replaced by `majorka_launch_spots_v2`). Intentional clean reset.
 - Old `majorka_launch_bar_dismissed_v3` semantics changed from "timestamp, 24h reshow" to "'1' = never show again". If a user already has a timestamp stored, the bar will re-show (since `!== '1'`). Acceptable for launch; if you'd rather respect a stale timestamp, add a wrapper.
+
+---
+
+## SHOPIFY POLISH — SESSION A (FOUNDATIONS) · branch shopify-polish-session-a
+
+Base: origin/main @ 6ed0ea8. Scope-limited foundational polish dims — mechanical, grep-driven. No merge; coordinator handles deploy.
+
+### DIM 5 — Motion tokens
+- New: client/src/lib/motionTokens.ts — MOTION.duration / MOTION.ease / MOTION.lift / MOTION.press + `reducedMotion()` helper + `cubicBezier()` formatter + TRANSITION convenience presets.
+- Consumers (6 components import MOTION/motionTokens):
+  - client/src/components/ui/EmptyState.tsx
+  - client/src/components/ui/ShimmerButton.tsx
+  - client/src/components/LoadingButton.tsx
+  - client/src/components/products/ProductCard.tsx
+  - client/src/pages/NotFound.tsx
+  - client/src/pages/ServerError.tsx
+- Every consumer respects `prefers-reduced-motion` — transitions short-circuit to `'none'`.
+
+### DIM 1 — EmptyState primitive + wire into app
+- Rewrote: client/src/components/ui/EmptyState.tsx to new Shopify-grade API — `{ icon: ReactNode, title, body, primaryCta?, secondaryCta? }`. Dark #111 card, gold 64px icon circle, Syne 24px title, DM Sans 15px body (max-w-380), gold min-h-44 primary + ghost secondary, fade-up 200ms on mount. Respects reduced motion.
+- Wired into 7 surfaces:
+  - /app/lists (icon Heart) — "Save your first product"
+  - /app/alerts (icon Bell) — "No alerts yet"
+  - /app/revenue (icon TrendingUp) — "Start tracking your revenue"
+  - /app/ads-studio (icon Sparkles) — "Generate your first ad copy"
+  - /app/store-builder mode-select (icon Store, only when no existing stores) — "Spin up a store concept"
+  - /app/ai-chat (icon MessageSquare, replaces the hardcoded empty block; keeps suggested-prompt chips underneath) — "Ask Maya anything"
+  - /app/products filter-no-results (icon PackageSearch) — "No products match these filters" with Reset filters + Browse all
+- Products page stops importing legacy `@/components/EmptyState`; now uses the new `ui/EmptyState`. Removed the now-dead `emptyCopy` useMemo.
+
+### DIM 3 — Error UX + 404/500
+- Rewrote: client/src/pages/NotFound.tsx — full #080808 screen, gold Syne 140px 404 glyph, H2 "That page moved or never existed.", Back to home (gold) + Browse products (ghost), support@majorka.io footer. Mobile-safe (clamp width, flex-col on small).
+- New: client/src/pages/ServerError.tsx — same design language, gold 500 glyph, "We hit a glitch on our end.", Try again (reload or injected `onRetry`) + Back to home, support footer.
+- Wired: client/src/components/RouteErrorBoundary.tsx now renders `<ServerError />` for unhandled route exceptions (keeps one silent auto-retry behaviour; hard reload on second failure).
+- Error copy rewrites (all "Something went wrong" / "An error occurred" gone):
+  - client/src/main.tsx — hard-error boundary heading now "We hit a glitch on our end."
+  - client/src/components/ErrorBoundary.tsx — same heading.
+  - client/src/components/AIToolChat.tsx + AIChatBox.tsx — friendly, action-specific.
+  - client/src/pages/SaturationChecker.tsx — niche-specific guidance.
+  - client/src/pages/StoreHealthScore.tsx — store-audit-specific.
+  - client/src/pages/WebsiteGenerator.tsx — includes subtle `description` on toast.error + 4s duration, and fallback copy updated.
+  - client/src/pages/AdsManager.tsx waitlist catch — specific copy + description.
+  - client/src/pages/StoreSpy.tsx — store-scan-specific.
+  - client/src/pages/WinningProducts.tsx — products-load-specific.
+  - client/src/components/store-builder/ShopifyConnect.tsx — shopify-push-specific.
+  - client/src/pages/Alerts.tsx (legacy) — alert-save toast with description + 4s duration.
+  - client/src/pages/app/AdBriefs.tsx — brief-generation-specific.
+  - client/src/pages/app/Revenue.tsx — revenue-entry-save-specific.
+  - client/src/components/ads/MetaVariantsPanel.tsx — ad-save specific + description.
+  - client/src/components/store-builder/AIConceptPanel.tsx — store-build specific + description.
+
+### Gates
+- `pnpm check`: 0 errors.
+- `pnpm build`: SUCCESS (0 TS errors).
+- `grep -rnE "Something went wrong|An error occurred" client/src/ --include='*.tsx'`: 0 hits (was 15 before).
+- `grep -rn "EmptyState" client/src/pages/app/ client/src/pages/`: 7 wiring sites (≥6 required).
+- `grep -rln "motionTokens|MOTION.duration" client/src/ --include='*.tsx'`: 6 component files (≥6 required).
+
+### Deferred / notes for coordinator
+- Many other `toast.error('Save failed')`-style one-liners exist throughout the app that weren't in scope for this session (AudienceProfiler, CopywriterTool, BrandDNA, etc). The director's hard gate was limited to the "Something went wrong / An error occurred" phrases + the 5 named flows (brief/ads/store/alert/revenue), all of which are addressed.
+- Legacy `@/components/EmptyState` still exists and is used by a few tool pages; new work should import from `@/components/ui/EmptyState`. Not consolidated to avoid touching out-of-scope tool pages.
+- The homepage / landing / OAuth / vite.config / supabase files were NOT touched per director's hard constraints.
+- Bonus dim (/app/admin empty state) skipped to stay within scope.
+
+### Candid verdict
+- DIM 5 (motion tokens): solid foundation. Single-source-of-truth now exists; consumers respect reduced motion. Not every animation in the codebase was chased (per spec — "leave untouched components alone"). Shopify-bar: pass.
+- DIM 1 (EmptyState): new primitive matches spec pixel-for-pixel (48px padding, 64px icon circle, Syne/DM Sans, min-h-44 gold CTA, 200ms fade-up). Wired into 7 surfaces not 6, but the legacy `@/components/EmptyState` still lives in parallel — small amount of duplication until a future cleanup dim. Shopify-bar: pass on the new component; mild demerit for component duplication.
+- DIM 3 (errors + 404/500): NotFound/ServerError pages match spec and auto-retry logic preserved. Error copy rewrites are friendly + action-specific + include "email support@majorka.io" CTAs. Shopify-bar: pass.

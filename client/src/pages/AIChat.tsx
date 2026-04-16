@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Send, Sparkles, Trash2, Package, X, Search } from "lucide-react";
+import { MessageSquare, Send, Sparkles, Trash2, Package, X, Search } from "lucide-react";
+import { EmptyState } from '@/components/ui/EmptyState';
 import { supabase } from "../lib/supabase";
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -599,13 +600,20 @@ export default function AIChat() {
 
           {/* Empty state */}
           {messages.length === 0 && !loading && (
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, paddingTop: 40 }}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #d4af37, #d4af37)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 0 32px rgba(212,175,55,0.3)" }}>
-                  <Sparkles size={28} color="white" />
-                </div>
-                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "white", marginBottom: 8 }}>How can I help you win today?</div>
-                <div style={{ fontFamily: dm, fontSize: 14, color: "#94A3B8" }}>Ask me anything about products, marketing, or your Shopify store</div>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, paddingTop: 24 }}>
+              <div style={{ width: "100%", maxWidth: 560 }}>
+                <EmptyState
+                  icon={<MessageSquare size={40} strokeWidth={1.75} />}
+                  title="Ask Maya anything"
+                  body="Find a winning product. Price a margin. Write an ad hook. Maya uses Majorka's live data to answer."
+                  primaryCta={{
+                    label: 'Try a suggested prompt',
+                    onClick: () => {
+                      const first = suggestedPrompts[0];
+                      if (first) sendMessage(first);
+                    },
+                  }}
+                />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, width: "100%", maxWidth: 520 }}>
                 {suggestedPrompts.map(prompt => (

@@ -4,9 +4,10 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Heart, Plus, Trash2, X } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { proxyImage } from '@/lib/imageProxy';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ProductList {
   id: string;
@@ -146,18 +147,14 @@ export default function Lists() {
             }}
           >
             {lists.length === 0 ? (
-              <div
-                style={{
-                  gridColumn: '1 / -1',
-                  padding: 48,
-                  textAlign: 'center',
-                  color: '#6b6b6b',
-                  background: '#111',
-                  border: '1px dashed #1f1f1f',
-                  borderRadius: 12,
-                }}
-              >
-                No lists yet. Save a product from the Products page to get started.
+              <div style={{ gridColumn: '1 / -1' }}>
+                <EmptyState
+                  icon={<Heart size={40} strokeWidth={1.75} />}
+                  title="Save your first product"
+                  body="Click the heart on any product to save it to a list. Pet product? Create a list called 🐾 Pet winners."
+                  primaryCta={{ label: 'Browse products', href: '/app/products' }}
+                  secondaryCta={{ label: 'Learn about lists', href: '/academy' }}
+                />
               </div>
             ) : (
               lists.map((list) => (

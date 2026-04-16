@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { MOTION, reducedMotion, cubicBezier } from '@/lib/motionTokens';
 
 interface ShimmerButtonProps {
   children: ReactNode;
@@ -8,6 +9,10 @@ interface ShimmerButtonProps {
 }
 
 export function ShimmerButton({ children, onClick, className = '', disabled }: ShimmerButtonProps) {
+  const transition = reducedMotion()
+    ? 'none'
+    : `transform ${MOTION.duration.fast}ms ${cubicBezier(MOTION.ease.out)}, filter ${MOTION.duration.fast}ms ${cubicBezier(MOTION.ease.out)}`;
+
   return (
     <button
       onClick={onClick}
@@ -23,6 +28,16 @@ export function ShimmerButton({ children, onClick, className = '', disabled }: S
         fontWeight: 500,
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.6 : 1,
+        transition,
+      }}
+      onMouseEnter={(e) => {
+        if (reducedMotion() || disabled) return;
+        e.currentTarget.style.transform = `translateY(${MOTION.lift.y}px)`;
+        e.currentTarget.style.filter = `brightness(${MOTION.lift.brightness})`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.filter = 'brightness(1)';
       }}
     >
       <span style={{ position: 'relative', zIndex: 1 }}>{children}</span>

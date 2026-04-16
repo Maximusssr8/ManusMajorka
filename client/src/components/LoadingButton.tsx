@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { MOTION, reducedMotion, cubicBezier } from '@/lib/motionTokens';
 
 interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
@@ -7,6 +8,10 @@ interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function LoadingButton({ loading, disabled, children, style, ...props }: LoadingButtonProps) {
+  const transition = reducedMotion()
+    ? 'none'
+    : `transform ${MOTION.duration.fast}ms ${cubicBezier(MOTION.ease.out)}, filter ${MOTION.duration.fast}ms ${cubicBezier(MOTION.ease.out)}, opacity ${MOTION.duration.fast}ms ${cubicBezier(MOTION.ease.out)}`;
+
   return (
     <button
       {...props}
@@ -19,6 +24,7 @@ export function LoadingButton({ loading, disabled, children, style, ...props }: 
         minHeight: 44,
         opacity: loading || disabled ? 0.7 : 1,
         cursor: loading || disabled ? 'not-allowed' : 'pointer',
+        transition,
         ...style,
       }}
     >

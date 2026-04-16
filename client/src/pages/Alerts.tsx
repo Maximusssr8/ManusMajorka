@@ -67,7 +67,10 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
     else if (alertType === 'price_drop') config = { threshold: parseFloat(form.threshold), keyword: form.niche || '' };
     else config = { store_domain: form.store_domain, category: form.category };
     const { error } = await supabase.from('user_alerts').insert({ user_id: session.user.id, alert_type: alertType, config, is_active: true });
-    if (error) toast.error('Failed to create alert');
+    if (error) toast.error("Couldn't save that alert. Try again in a moment.", {
+      description: 'If this keeps happening, email support@majorka.io.',
+      duration: 4000,
+    });
     else { toast.success('Alert created!'); setShowCreate(false); loadAlerts(); }
     setSaving(false);
   }
