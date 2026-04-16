@@ -50,6 +50,7 @@ const SettingsProfile = lazy(() => import('./pages/SettingsProfile'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Guarantee = lazy(() => import('./pages/Guarantee'));
+const DocsPlaceholder = lazy(() => import('./pages/DocsPlaceholder'));
 const Storefront = lazy(() => import('./pages/Storefront'));
 const AdminLeads = lazy(() => import('./pages/AdminLeads'));
 const StoreBuilder = lazyWithRetry(() => import('./pages/store-builder/index'));
@@ -182,6 +183,8 @@ function Router() {
             <Route path="/about" component={About} />
             <Route path="/pricing" component={Pricing} />
             <Route path="/guarantee" component={Guarantee} />
+            <Route path="/docs" component={DocsPlaceholder} />
+            <Route path="/changelog" component={DocsPlaceholder} />
             <Route path="/academy" component={PublicAcademy} />
             <Route path="/store-builder" component={StoreBuilder} />
             <Route path="/login" component={SignIn} />
