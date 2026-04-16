@@ -184,10 +184,11 @@ interface DemoProduct {
   sold_count: number;
 }
 
+// Fallback images use known-working AliExpress CDN URLs via proxy
 const FALLBACK_PRODUCTS: DemoProduct[] = [
-  { product_title: 'LED Scalp Massager Pro', image_url: null, winning_score: 94, sold_count: 48210 },
-  { product_title: 'Silicone Pet Grooming Brush', image_url: null, winning_score: 88, sold_count: 31450 },
-  { product_title: 'Mini Dough Press Kit', image_url: null, winning_score: 82, sold_count: 24980 },
+  { product_title: 'LED Scalp Massager Pro', image_url: 'https://ae-pic-a1.aliexpress-media.com/kf/S8acd440c5c6c44c0a87429edbe159813l.jpg', winning_score: 94, sold_count: 48210 },
+  { product_title: 'Silicone Pet Grooming Brush', image_url: 'https://ae-pic-a1.aliexpress-media.com/kf/Se7b36d9849ae41b4b3a8266f92a0cc03l.jpg', winning_score: 88, sold_count: 31450 },
+  { product_title: 'Mini Dough Press Kit', image_url: 'https://ae-pic-a1.aliexpress-media.com/kf/S4de0c2dc9b7c48afbee442660aa4f734q.png', winning_score: 82, sold_count: 24980 },
 ];
 
 function ScoreRow({ product, visible, isTop }: { product: DemoProduct; visible: boolean; isTop?: boolean }) {
@@ -260,9 +261,17 @@ function ScoringVisual() {
         if (cancelled) return;
         const merged: DemoProduct[] = [];
         for (const r of results) {
-          if (Array.isArray(r) && r.length > 0) merged.push(r[0] as DemoProduct);
+          // /api/demo/quick-score returns { ok, product: { title, image, score, orders } }
+          if (r && r.ok && r.product) {
+            merged.push({
+              product_title: r.product.title || r.product.product_title || 'Product',
+              image_url: r.product.image || r.product.image_url || null,
+              winning_score: r.product.score || r.product.winning_score || 0,
+              sold_count: r.product.orders || r.product.sold_count || 0,
+            });
+          }
         }
-        if (merged.length >= 3) setProducts(merged.slice(0, 3));
+        if (merged.length > 0) setProducts(merged.slice(0, 3));
       })
       .catch(() => { /* keep fallback */ });
     return () => { cancelled = true; };
