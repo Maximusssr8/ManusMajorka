@@ -16,9 +16,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.2)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.08)',
+  goldBorder: 'rgba(79,142,247,0.2)',
 };
 
 const syne = "'Syne', sans-serif";
@@ -146,7 +146,7 @@ export default function WinningProductsAustralia() {
             Every product on this list has been <strong style={{ color: C.text }}>verified by Majorka's AI</strong> against live AU marketplace data — TikTok Shop AU, Amazon AU, eBay AU, and AliExpress AU. Revenue estimates, margins, and AU-specific supplier availability are updated weekly.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(212,175,55,0.3)` }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(79,142,247,0.3)` }}>
               Get Live Product Data Free →
             </Link>
             <Link href="/dropshipping-australia" style={{ background: 'transparent', color: C.text, fontFamily: syne, fontWeight: 600, fontSize: 15, padding: '16px 30px', borderRadius: 12, textDecoration: 'none', border: `1px solid ${C.border}` }}>
@@ -183,7 +183,7 @@ export default function WinningProductsAustralia() {
                     <td style={{ padding: '13px 14px', color: '#4ade80' }}>{p.margin}</td>
                     <td style={{ padding: '13px 14px', color: C.text }}>{p.trend}</td>
                     <td style={{ padding: '13px 14px' }}>
-                      <span style={{ background: p.auSpecific === 'No — universal' ? '#F9FAFB' : 'rgba(212,175,55,0.1)', color: p.auSpecific === 'No — universal' ? C.muted : C.gold, fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>
+                      <span style={{ background: p.auSpecific === 'No — universal' ? '#F9FAFB' : 'rgba(79,142,247,0.1)', color: p.auSpecific === 'No — universal' ? C.muted : C.gold, fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>
                         {p.auSpecific === 'No — universal' ? 'Universal' : 'AU-Specific'}
                       </span>
                     </td>
@@ -310,7 +310,7 @@ export default function WinningProductsAustralia() {
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
             Majorka updates its winning products database every 6 hours. Get live access to all 47 products — plus hundreds more — with a free account.
           </p>
-          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(212,175,55,0.35)` }}>
+          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #3B82F6)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(79,142,247,0.35)` }}>
             Get Live Product Data Free →
           </Link>
           <p style={{ color: C.muted, fontSize: 12, marginTop: 14 }}>Free tier · 10 searches/day · No credit card · Cancel anytime</p>

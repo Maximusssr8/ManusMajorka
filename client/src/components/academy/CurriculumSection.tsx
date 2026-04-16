@@ -37,7 +37,7 @@ export function CurriculumSection({ completedLessons, onToggleLesson, locked, sc
           transition={{ duration: 0.55 }}
           className="mb-10"
         >
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#d4af37] mb-3">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7] mb-3">
             The Curriculum · 8 modules · {TOTAL_LESSONS} lessons · {Math.round(TOTAL_DURATION_MINUTES / 60)} hours
           </div>
           <h2
@@ -58,7 +58,7 @@ export function CurriculumSection({ completedLessons, onToggleLesson, locked, sc
               onClick={() => setFilter(f)}
               className={`rounded-full border px-4 py-1.5 text-xs font-mono uppercase tracking-widest transition-all ${
                 filter === f
-                  ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37]'
+                  ? 'border-[#4f8ef7] bg-[#4f8ef7]/10 text-[#4f8ef7]'
                   : 'border-white/[0.08] text-[#9CA3AF] hover:border-white/20 hover:text-[#E0E0E0]'
               }`}
             >

@@ -78,7 +78,7 @@ export function InteractiveDemo() {
           transition={{ duration: 0.55 }}
           className="mb-10 text-center md:mb-14"
         >
-          <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-[#d4af37]">
+          <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7]">
             Live Demo · this is what you'll see inside
           </div>
           <h2
@@ -86,7 +86,7 @@ export function InteractiveDemo() {
             style={{ fontFamily: "'Syne', sans-serif" }}
           >
             The Dashboard That Replaces{' '}
-            <span className="text-[#d4af37]">40 Hours</span> of Research
+            <span className="text-[#4f8ef7]">40 Hours</span> of Research
           </h2>
         </motion.div>
 
@@ -97,9 +97,9 @@ export function InteractiveDemo() {
           transition={{ duration: 0.7 }}
           className="overflow-hidden rounded-2xl border"
           style={{
-            borderColor: 'rgba(212,175,55,0.18)',
-            background: 'linear-gradient(180deg, #111111 0%, #0d0d0d 100%)',
-            boxShadow: '0 40px 100px -30px rgba(212,175,55,0.22)',
+            borderColor: 'rgba(79,142,247,0.18)',
+            background: 'linear-gradient(180deg, #0d1117 0%, #0d0d0d 100%)',
+            boxShadow: '0 40px 100px -30px rgba(79,142,247,0.22)',
           }}
         >
           {/* Top bar mimicking app chrome */}
@@ -146,7 +146,7 @@ export function InteractiveDemo() {
                 <ScoreTile
                   label="Trend Velocity"
                   value={product?.winningScore ?? 87}
-                  color="#d4af37"
+                  color="#4f8ef7"
                 />
                 <ScoreTile label="Opportunity Score" value={73} color="#3B82F6" />
               </div>
@@ -167,7 +167,7 @@ export function InteractiveDemo() {
                   <div className="text-[10px] font-mono uppercase tracking-widest text-[#6B7280]">Market Split</div>
                   <Globe2 size={14} className="text-[#6B7280]" />
                 </div>
-                <MarketBar label="Australia" pct={42} color="#d4af37" />
+                <MarketBar label="Australia" pct={42} color="#4f8ef7" />
                 <MarketBar label="United States" pct={35} color="#3B82F6" />
                 <MarketBar label="United Kingdom" pct={23} color="#10b981" />
               </div>
@@ -183,14 +183,14 @@ export function InteractiveDemo() {
                 <div className="mt-1 text-xs text-[#6B7280]">across the 3-market opportunity</div>
               </div>
 
-              <div className="rounded-xl border border-[#d4af37]/20 bg-gradient-to-br from-[#d4af37]/10 to-transparent p-5">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-[#d4af37]">Recommended Action</div>
+              <div className="rounded-xl border border-[#4f8ef7]/20 bg-gradient-to-br from-[#4f8ef7]/10 to-transparent p-5">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7]">Recommended Action</div>
                 <div className="mt-1.5 text-sm leading-relaxed text-[#E0E0E0]">
-                  Launch AU Meta creative test at A$30/day. Historical ROAS for this velocity band: <span className="font-mono text-[#d4af37]">2.1x</span>.
+                  Launch AU Meta creative test at A$30/day. Historical ROAS for this velocity band: <span className="font-mono text-[#4f8ef7]">2.1x</span>.
                 </div>
                 <a
                   href="/app/products"
-                  className="mt-3 inline-flex items-center gap-1 text-xs font-mono uppercase tracking-widest text-[#d4af37] hover:text-[#e5c158]"
+                  className="mt-3 inline-flex items-center gap-1 text-xs font-mono uppercase tracking-widest text-[#4f8ef7] hover:text-[#6ba3ff]"
                 >
                   Open in Products <ArrowUpRight size={11} />
                 </a>

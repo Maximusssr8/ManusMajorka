@@ -1,7 +1,7 @@
 /**
  * Majorka Design Tokens (CSS) — v2 Apr 2026
  *
- * Gold (#d4af37) + CTA blue (#3B82F6) on near-black (#080808).
+ * Gold (#4f8ef7) + CTA blue (#3B82F6) on near-black (#04060f).
  * Headings: Syne  ·  Body: DM Sans  ·  Numbers: JetBrains Mono.
  *
  * Imported at the top of index.css. All other CSS/components reference
@@ -10,18 +10,18 @@
 
 :root {
   /* Surfaces — flat editorial depth */
-  --bg-page:    #080808;
+  --bg-page:    #04060f;
   --bg-surface: #0c0c0c;
-  --bg-card:    #111111;
+  --bg-card:    #0d1117;
   --bg-elevated:#141414;
   --bg-input:   #0a0a0a;
-  --bg-hover:   rgba(212,175,55,0.04);
+  --bg-hover:   rgba(79,142,247,0.04);
 
   /* Borders */
   --border-subtle:  #141414;
-  --border-normal:  #1a1a1a;
+  --border-normal:  #161b22;
   --border-strong:  #262626;
-  --border-accent:  rgba(212,175,55,0.35);
+  --border-accent:  rgba(79,142,247,0.35);
   --border-cta:     rgba(59,130,246,0.40);
   --border-success: rgba(16,185,129,0.35);
   --border-warning: rgba(245,158,11,0.35);
@@ -34,10 +34,10 @@
   --text-disabled:  #525252;
 
   /* Brand — gold */
-  --accent:         #d4af37;
-  --accent-light:   #e5c158;
-  --accent-bg:      rgba(212,175,55,0.10);
-  --accent-glow:    rgba(212,175,55,0.22);
+  --accent:         #4f8ef7;
+  --accent-light:   #6ba3ff;
+  --accent-bg:      rgba(79,142,247,0.10);
+  --accent-glow:    rgba(79,142,247,0.22);
 
   /* CTA — blue */
   --cta:            #3B82F6;
@@ -73,8 +73,8 @@
   /* Shadows — gold signature */
   --shadow-card:      0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
   --shadow-modal:     0 20px 60px rgba(0,0,0,0.8);
-  --shadow-accent:    0 0 0 1px rgba(212,175,55,0.08), 0 8px 40px -10px rgba(212,175,55,0.15);
-  --shadow-accent-hover: 0 0 0 1px rgba(212,175,55,0.18), 0 14px 44px -10px rgba(212,175,55,0.28);
+  --shadow-accent:    0 0 0 1px rgba(79,142,247,0.08), 0 8px 40px -10px rgba(79,142,247,0.15);
+  --shadow-accent-hover: 0 0 0 1px rgba(79,142,247,0.18), 0 14px 44px -10px rgba(79,142,247,0.28);
   --shadow-cta:       0 0 0 1px rgba(59,130,246,0.12), 0 8px 32px -8px rgba(59,130,246,0.35);
   --shadow-cta-hover: 0 0 0 1px rgba(59,130,246,0.25), 0 12px 40px -8px rgba(59,130,246,0.55);
   --shadow-hover:     0 8px 32px rgba(0,0,0,0.55);
@@ -97,7 +97,7 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(212,175,55,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(79,142,247,0.08) 50%, rgba(255,255,255,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-md);

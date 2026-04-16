@@ -102,7 +102,7 @@ export default function AutomationBuilder() {
   };
 
   const diffColor = (d: string) =>
-    d === 'easy' ? '#d4af37' : d === 'medium' ? '#F59E0B' : '#ff6b6b';
+    d === 'easy' ? '#4f8ef7' : d === 'medium' ? '#F59E0B' : '#ff6b6b';
 
   return (
     <div
@@ -244,8 +244,8 @@ export default function AutomationBuilder() {
                   outputData={result}
                 />
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock size={12} style={{ color: '#d4af37' }} />
-                  <span className="text-xs font-bold" style={{ color: '#d4af37' }}>
+                  <Clock size={12} style={{ color: '#4f8ef7' }} />
+                  <span className="text-xs font-bold" style={{ color: '#4f8ef7' }}>
                     Save {result.totalTimeSaved}
                   </span>
                 </div>
@@ -307,7 +307,7 @@ export default function AutomationBuilder() {
                     >
                       {auto.difficulty}
                     </span>
-                    <span className="text-xs font-mono" style={{ color: '#d4af37' }}>
+                    <span className="text-xs font-mono" style={{ color: '#4f8ef7' }}>
                       {auto.timeSaved}
                     </span>
                   </div>

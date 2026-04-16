@@ -46,7 +46,7 @@ export default function PublicProfitShare() {
           <div style={{ fontSize: 40, marginBottom: 16 }}>📊</div>
           <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, marginBottom: 8 }}>No Profit Data</div>
           <div style={{ color: '#94A3B8', fontSize: 14, marginBottom: 24 }}>This share link is missing pricing data.</div>
-          <a href="https://www.majorka.io/tools/profit-calculator" style={{ color: '#d4af37', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
+          <a href="https://www.majorka.io/tools/profit-calculator" style={{ color: '#4f8ef7', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
             Calculate profit for your own products →
           </a>
         </div>
@@ -58,7 +58,7 @@ export default function PublicProfitShare() {
     <div style={{ minHeight: '100vh', background: '#0A0A0F', color: '#F0EDE8', fontFamily: dm }}>
       {/* Minimal nav */}
       <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <a href="https://www.majorka.io" style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: '#d4af37', textDecoration: 'none' }}>
+        <a href="https://www.majorka.io" style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: '#4f8ef7', textDecoration: 'none' }}>
           Majorka
         </a>
       </div>
@@ -85,7 +85,7 @@ export default function PublicProfitShare() {
             { label: 'Net Margin', value: `${marginPct.toFixed(1)}%`, color: marginPct >= 40 ? '#10B981' : marginPct >= 25 ? '#F59E0B' : '#EF4444' },
             { label: 'Monthly Profit', value: fmtAUD(monthlyProfit), color: monthlyProfit >= 0 ? '#10B981' : '#EF4444' },
             { label: 'Daily Profit', value: fmtAUD(dailyProfit), color: dailyProfit >= 0 ? '#10B981' : '#EF4444' },
-            { label: 'Break-even CPA', value: fmtAUD(breakEvenCPA), color: '#d4af37' },
+            { label: 'Break-even CPA', value: fmtAUD(breakEvenCPA), color: '#4f8ef7' },
             { label: 'ROAS', value: `${roas.toFixed(2)}x`, color: roas >= 2 ? '#10B981' : roas >= 1 ? '#F59E0B' : '#EF4444' },
             { label: 'Units/Day', value: String(units), color: '#94A3B8' },
           ].map(m => (
@@ -117,11 +117,11 @@ export default function PublicProfitShare() {
         {/* CTA */}
         <div style={{ textAlign: 'center' as const }}>
           <a href="https://www.majorka.io/tools/profit-calculator"
-            style={{ display: 'inline-block', padding: '14px 28px', background: '#d4af37', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 700, fontFamily: brico, textDecoration: 'none', transition: 'transform 150ms' }}>
+            style={{ display: 'inline-block', padding: '14px 28px', background: '#4f8ef7', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 700, fontFamily: brico, textDecoration: 'none', transition: 'transform 150ms' }}>
             Calculate profit for your own products →
           </a>
           <div style={{ marginTop: 12, fontSize: 12, color: '#94A3B8' }}>
-            Powered by <a href="https://www.majorka.io" style={{ color: '#d4af37', textDecoration: 'none' }}>Majorka</a>
+            Powered by <a href="https://www.majorka.io" style={{ color: '#4f8ef7', textDecoration: 'none' }}>Majorka</a>
           </div>
         </div>
       </div>

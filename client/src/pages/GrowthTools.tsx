@@ -25,7 +25,7 @@ function CopyBtn({ text, small }: { text: string; small?: boolean }) {
     setTimeout(() => setDone(false), 2000);
   };
   return (
-    <button onClick={copy} style={{ height: small ? 24 : 28, padding: '0 10px', background: done ? '#D1FAE5' : 'rgba(212,175,55,0.08)', color: done ? '#065F46' : '#d4af37', border: 'none', borderRadius: 6, fontSize: small ? 10 : 11, fontWeight: 700, cursor: 'pointer', transition: 'all 150ms', flexShrink: 0 }}>
+    <button onClick={copy} style={{ height: small ? 24 : 28, padding: '0 10px', background: done ? '#D1FAE5' : 'rgba(79,142,247,0.08)', color: done ? '#065F46' : '#4f8ef7', border: 'none', borderRadius: 6, fontSize: small ? 10 : 11, fontWeight: 700, cursor: 'pointer', transition: 'all 150ms', flexShrink: 0 }}>
       {done ? '✓ Copied' : 'Copy'}
     </button>
   );
@@ -93,9 +93,9 @@ function LaunchPack() {
   const hasPack = Object.keys(pack).length > 0;
 
   return (
-    <div style={{ background: '#0d0d10', border: '1.5px solid #d4af37', borderRadius: 16, overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(212,175,55,0.08)' }}>
+    <div style={{ background: '#0d0d10', border: '1.5px solid #4f8ef7', borderRadius: 16, overflow: 'hidden', marginBottom: 24, boxShadow: '0 4px 24px rgba(79,142,247,0.08)' }}>
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #d4af37 0%, #d4af37 100%)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ background: 'linear-gradient(135deg, #4f8ef7 0%, #4f8ef7 100%)', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span style={{ fontSize: 22 }}>🚀</span>
@@ -138,15 +138,15 @@ function LaunchPack() {
             </select>
           </div>
           <button onClick={generate} disabled={loading || !product.trim()}
-            style={{ height: 40, padding: '0 24px', background: loading ? '#9CA3AF' : 'linear-gradient(135deg, #d4af37, #d4af37)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}>
+            style={{ height: 40, padding: '0 24px', background: loading ? '#9CA3AF' : 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}>
             {loading ? `${progress}%…` : '⚡ Generate Pack'}
           </button>
         </div>
 
         {/* Progress bar */}
         {loading && (
-          <div style={{ height: 3, background: 'rgba(212,175,55,0.08)', borderRadius: 99, marginBottom: 16, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #d4af37, #d4af37)', borderRadius: 99, transition: 'width 400ms' }} />
+          <div style={{ height: 3, background: 'rgba(79,142,247,0.08)', borderRadius: 99, marginBottom: 16, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #4f8ef7, #4f8ef7)', borderRadius: 99, transition: 'width 400ms' }} />
           </div>
         )}
 
@@ -156,7 +156,7 @@ function LaunchPack() {
             {sections.map(s => (
               <div key={s.key} style={{ background: '#05070F', border: `1px solid ${pack[s.key] ? '#E0E7FF' : '#F3F4F6'}`, borderRadius: 10, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: pack[s.key] ? '#d4af37' : '#9CA3AF' }}>{s.label}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: pack[s.key] ? '#4f8ef7' : '#9CA3AF' }}>{s.label}</div>
                   {pack[s.key] && <CopyBtn text={pack[s.key]} small />}
                 </div>
                 {pack[s.key] ? (
@@ -223,7 +223,7 @@ function AdCopyTool() {
         <div style={{ display: 'flex', gap: 6 }}>
           {['Meta', 'TikTok', 'Google'].map(p => (
             <button key={p} onClick={() => setPlatform(p)}
-              style={{ flex: 1, height: 32, background: platform === p ? '#d4af37' : '#F5F5F5', color: platform === p ? 'white' : '#374151', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ flex: 1, height: 32, background: platform === p ? '#4f8ef7' : '#F5F5F5', color: platform === p ? 'white' : '#374151', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               {p}
             </button>
           ))}
@@ -231,13 +231,13 @@ function AdCopyTool() {
         <div style={{ display: 'flex', gap: 6 }}>
           {['Urgent', 'Casual', 'Premium'].map(t => (
             <button key={t} onClick={() => setTone(t)}
-              style={{ flex: 1, height: 30, background: tone === t ? 'rgba(212,175,55,0.08)' : '#F9FAFB', color: tone === t ? '#d4af37' : '#6B7280', border: `1px solid ${tone === t ? '#C7D2FE' : '#E5E7EB'}`, borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ flex: 1, height: 30, background: tone === t ? 'rgba(79,142,247,0.08)' : '#F9FAFB', color: tone === t ? '#4f8ef7' : '#6B7280', border: `1px solid ${tone === t ? '#C7D2FE' : '#E5E7EB'}`, borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               {t}
             </button>
           ))}
         </div>
         <button onClick={run} disabled={loading || !product.trim()}
-          style={{ height: 38, background: loading ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+          style={{ height: 38, background: loading ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Ad Copy →'}
         </button>
         <Output text={result} />
@@ -273,7 +273,7 @@ function DescriptionTool() {
           {['US Shoppers (General)','AU Shoppers (General)','Beauty Enthusiasts','Fitness & Health','Pet Owners','Tech Lovers','Home Improvers'].map(a => <option key={a}>{a}</option>)}
         </select>
         <button onClick={run} disabled={loading || !product.trim()}
-          style={{ height: 38, background: loading ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+          style={{ height: 38, background: loading ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Description →'}
         </button>
         <Output text={result} />
@@ -303,13 +303,13 @@ function EmailTool() {
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const }}>
           {(['Abandoned Cart', 'Welcome', 'Win-Back', 'Launch'] as const).map(t => (
             <button key={t} onClick={() => setType(t)}
-              style={{ height: 30, padding: '0 10px', background: type === t ? '#d4af37' : '#F5F5F5', color: type === t ? 'white' : '#374151', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ height: 30, padding: '0 10px', background: type === t ? '#4f8ef7' : '#F5F5F5', color: type === t ? 'white' : '#374151', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               {t}
             </button>
           ))}
         </div>
         <button onClick={run} disabled={loading}
-          style={{ height: 38, background: loading ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+          style={{ height: 38, background: loading ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Email →'}
         </button>
         <Output text={result} />
@@ -340,13 +340,13 @@ function TikTokTool() {
         <div style={{ display: 'flex', gap: 6 }}>
           {['POV', 'Review', 'Demo', 'Unboxing'].map(f => (
             <button key={f} onClick={() => setFormat(f)}
-              style={{ flex: 1, height: 30, background: format === f ? '#d4af37' : '#F5F5F5', color: format === f ? 'white' : '#374151', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ flex: 1, height: 30, background: format === f ? '#4f8ef7' : '#F5F5F5', color: format === f ? 'white' : '#374151', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
               {f}
             </button>
           ))}
         </div>
         <button onClick={run} disabled={loading || !product.trim()}
-          style={{ height: 38, background: loading ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+          style={{ height: 38, background: loading ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Script →'}
         </button>
         <Output text={result} />
@@ -374,7 +374,7 @@ function NameTool() {
         <input value={niche} onChange={e => setNiche(e.target.value)} placeholder="Niche (e.g. pet accessories)"
           style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <button onClick={run} disabled={loading || !niche.trim()}
-          style={{ height: 38, background: loading ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+          style={{ height: 38, background: loading ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Names →'}
         </button>
         <Output text={result} />
@@ -402,7 +402,7 @@ function HashtagTool() {
         <input value={product} onChange={e => setProduct(e.target.value)} placeholder="Product or niche"
           style={{ height: 38, padding: '0 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, fontSize: 13, background: '#05070F', color: '#F8FAFC' }} />
         <button onClick={run} disabled={loading || !product.trim()}
-          style={{ height: 38, background: loading ? '#9CA3AF' : '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
+          style={{ height: 38, background: loading ? '#9CA3AF' : '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
           {loading ? 'Generating…' : 'Generate Hashtags →'}
         </button>
         {result && (
@@ -410,7 +410,7 @@ function HashtagTool() {
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5 }}>
               {result.split(/[\s,\n]+/).filter(h => h.startsWith('#')).map((h, i) => (
                 <button key={i} onClick={() => navigator.clipboard.writeText(h)}
-                  style={{ fontSize: 11, fontWeight: 600, color: '#d4af37', background: 'rgba(212,175,55,0.08)', border: 'none', padding: '3px 8px', borderRadius: 20, cursor: 'pointer' }}>
+                  style={{ fontSize: 11, fontWeight: 600, color: '#4f8ef7', background: 'rgba(79,142,247,0.08)', border: 'none', padding: '3px 8px', borderRadius: 20, cursor: 'pointer' }}>
                   {h}
                 </button>
               ))}

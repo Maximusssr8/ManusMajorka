@@ -11,9 +11,9 @@ const C = {
   text: '#374151',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.10)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.10)',
+  goldBorder: 'rgba(79,142,247,0.25)',
   green: '#22c55e',
 };
 
@@ -148,7 +148,7 @@ export default function StreakWidget() {
               padding: '40px 48px',
               textAlign: 'center',
               maxWidth: 340,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(212,175,55,0.15)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(79,142,247,0.15)',
             }}
             onClick={(e) => e.stopPropagation()}
           >

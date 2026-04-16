@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, TrendingUp, DollarSign, Target, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { EmptyState } from '@/components/ui/EmptyState';
 
 /**
  * Revenue.tsx — Revenue Diary, now server-backed.
@@ -126,7 +125,7 @@ export default function Revenue() {
         const json: { success: boolean; entry: RevenueEntry } = await res.json();
         setEntries((prev) => prev.map((e) => (e.id === optimistic.id ? json.entry : e)));
       } catch (err: unknown) {
-        setSyncError(err instanceof Error ? err.message : "Couldn't save the entry. Check the date format and try again.");
+        setSyncError(err instanceof Error ? err.message : 'save failed');
       }
     }
   }
@@ -172,7 +171,7 @@ export default function Revenue() {
           <button
             onClick={() => setShowAdd(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02] min-h-[44px]"
-            style={{ background: 'linear-gradient(135deg, #d4af37, #d4af37)', boxShadow: '0 4px 16px rgba(212,175,55,0.3)' }}
+            style={{ background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', boxShadow: '0 4px 16px rgba(79,142,247,0.3)' }}
           >
             <Plus size={15} strokeWidth={2.5} />
             Add entry
@@ -182,7 +181,7 @@ export default function Revenue() {
         {showSignInBanner && (
           <div
             className="mb-6 rounded-xl px-4 py-3 text-sm"
-            style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', color: '#c7d2fe' }}
+            style={{ background: 'rgba(79,142,247,0.08)', border: '1px solid rgba(79,142,247,0.2)', color: '#c7d2fe' }}
           >
             {user
               ? `Server sync unavailable${syncError ? ` (${syncError})` : ''} — this diary is saved to this device only.`
@@ -201,7 +200,7 @@ export default function Revenue() {
               bg: totalProfit >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
             },
             { label: 'Ad Spend', value: `A$${totalAdSpend.toLocaleString()}`, Icon: Target, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-            { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#d4af37', bg: 'rgba(212,175,55,0.1)' },
+            { label: 'Avg ROAS', value: `${avgROAS}x`, Icon: TrendingUp, color: '#4f8ef7', bg: 'rgba(79,142,247,0.1)' },
           ].map(({ label, value, Icon, color, bg }) => (
             <div key={label} className="glass-card glass-card--elevated rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
@@ -218,12 +217,25 @@ export default function Revenue() {
         </div>
 
         {entries.length === 0 ? (
-          <EmptyState
-            icon={<TrendingUp size={40} strokeWidth={1.75} />}
-            title="Start tracking your revenue"
-            body="Log daily revenue, ad spend, and orders. We'll surface your margin, ROAS, and break-even trend."
-            primaryCta={{ label: "Add today's entry", onClick: () => setShowAdd(true) }}
-          />
+          <div className="glass-card rounded-2xl p-12 text-center">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.2)' }}
+            >
+              <TrendingUp size={20} className="text-accent" />
+            </div>
+            <p className="text-text font-semibold mb-1">No entries yet</p>
+            <p className="text-sm text-muted mb-5 max-w-sm mx-auto">
+              Log today&apos;s revenue to start tracking your profit journey. Takes 30 seconds.
+            </p>
+            <button
+              onClick={() => setShowAdd(true)}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
+              style={{ background: 'rgba(79,142,247,0.2)', border: '1px solid rgba(79,142,247,0.35)' }}
+            >
+              Add your first entry
+            </button>
+          </div>
         ) : (
           <div className="glass-card rounded-2xl overflow-x-auto">
             <table className="w-full min-w-[700px]">
@@ -316,7 +328,7 @@ export default function Revenue() {
                 onClick={() => void addEntry()}
                 disabled={!form.date || !form.revenue_aud}
                 className="flex-1 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #d4af37, #d4af37)' }}
+                style={{ background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)' }}
               >
                 Add
               </button>

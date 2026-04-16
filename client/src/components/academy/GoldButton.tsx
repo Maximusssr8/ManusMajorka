@@ -8,7 +8,7 @@ interface GoldButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Primary CTA button. Gold (#d4af37) fill, high contrast, lift on hover.
+ * Primary CTA button. Gold (#4f8ef7) fill, high contrast, lift on hover.
  * Renders as <a> when `href` is provided so link semantics are preserved.
  */
 export const GoldButton = forwardRef<HTMLButtonElement, GoldButtonProps>(function GoldButton(
@@ -19,7 +19,7 @@ export const GoldButton = forwardRef<HTMLButtonElement, GoldButtonProps>(functio
   const base =
     'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all tracking-tight';
   const visuals =
-    'bg-[#d4af37] hover:bg-[#e5c158] text-black hover:scale-[1.02] active:scale-[0.99] shadow-[0_10px_40px_-8px_rgba(212,175,55,0.55)]';
+    'bg-[#4f8ef7] hover:bg-[#6ba3ff] text-black hover:scale-[1.02] active:scale-[0.99] shadow-[0_10px_40px_-8px_rgba(79,142,247,0.55)]';
   const classes = `${base} ${visuals} ${sizeClasses} ${className ?? ''}`;
   if (href) {
     return (

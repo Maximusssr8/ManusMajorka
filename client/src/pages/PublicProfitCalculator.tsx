@@ -35,9 +35,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.1)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.1)',
+  goldBorder: 'rgba(79,142,247,0.25)',
   green: '#22c55e',
 };
 
@@ -610,7 +610,7 @@ export default function PublicProfitCalculator() {
             fontWeight: 800,
             fontSize: 17,
             textDecoration: 'none',
-            boxShadow: `0 0 40px rgba(212,175,55,0.3)`,
+            boxShadow: `0 0 40px rgba(79,142,247,0.3)`,
           }}
         >
           Sign Up Free <ArrowRight size={18} />
@@ -626,7 +626,7 @@ export default function PublicProfitCalculator() {
           .profit-calc-grid { grid-template-columns: 1fr !important; }
         }
         input[type="range"] { -webkit-appearance: none; appearance: none; background: #1e1e24; border-radius: 4px; height: 6px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #d4af37; cursor: pointer; border: 2px solid #060608; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #4f8ef7; cursor: pointer; border: 2px solid #060608; }
       `}</style>
     </div>
   );

@@ -66,8 +66,8 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
         textAlign: 'left',
         display: 'flex',
         flexDirection: 'column',
-        background: '#111111',
-        border: `1px solid ${hover ? 'rgba(212,175,55,0.35)' : '#1a1a1a'}`,
+        background: '#0d1117',
+        border: `1px solid ${hover ? 'rgba(79,142,247,0.35)' : '#161b22'}`,
         borderRadius: 14,
         overflow: 'hidden',
         cursor: 'pointer',
@@ -76,7 +76,7 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
           ? 'none'
           : `border-color ${MOTION.duration.normal}ms ${cubicBezier(MOTION.ease.out)}, box-shadow ${MOTION.duration.normal}ms ${cubicBezier(MOTION.ease.out)}, transform ${MOTION.duration.normal}ms ${cubicBezier(MOTION.ease.out)}`,
         boxShadow: hover
-          ? '0 0 0 1px rgba(212,175,55,0.12), 0 14px 40px -12px rgba(212,175,55,0.35)'
+          ? '0 0 0 1px rgba(79,142,247,0.12), 0 14px 40px -12px rgba(79,142,247,0.35)'
           : '0 1px 0 rgba(255,255,255,0.02) inset',
         transform: hover && !reducedMotion() ? `translateY(${MOTION.lift.y}px)` : 'none',
         minHeight: 280,
@@ -88,7 +88,7 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
           position: 'relative',
           width: '100%',
           aspectRatio: '1 / 1',
-          background: '#080808',
+          background: '#04060f',
           overflow: 'hidden',
           flexShrink: 0,
         }}
@@ -132,10 +132,10 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
               fontWeight: 700,
               letterSpacing: '0.04em',
               color: '#0a0a0a',
-              background: '#d4af37',
+              background: '#4f8ef7',
               border: '1px solid #b8941f',
               borderRadius: 6,
-              boxShadow: '0 2px 8px rgba(212,175,55,0.35)',
+              boxShadow: '0 2px 8px rgba(79,142,247,0.35)',
             }}
           >
             AU WAREHOUSE
@@ -346,7 +346,7 @@ function QuickActions({ product, hover }: QuickActionsProps) {
         onClick={onSave}
         active={tracked}
       >
-        <Bookmark size={16} fill={tracked ? '#d4af37' : 'none'} />
+        <Bookmark size={16} fill={tracked ? '#4f8ef7' : 'none'} />
       </QuickButton>
       <QuickButton ariaLabel="Create ad for this product" onClick={onCreateAd}>
         <Megaphone size={16} />
@@ -380,21 +380,21 @@ function QuickButton({ ariaLabel, onClick, active, children }: QuickButtonProps)
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: active ? 'rgba(212,175,55,0.18)' : 'rgba(0,0,0,0.72)',
-        border: `1px solid ${active ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.12)'}`,
+        background: active ? 'rgba(79,142,247,0.18)' : 'rgba(0,0,0,0.72)',
+        border: `1px solid ${active ? 'rgba(79,142,247,0.45)' : 'rgba(255,255,255,0.12)'}`,
         borderRadius: 10,
-        color: active ? '#d4af37' : '#f5f5f5',
+        color: active ? '#4f8ef7' : '#f5f5f5',
         cursor: 'pointer',
         backdropFilter: 'blur(8px)',
         transition: 'background 140ms ease, border 140ms ease, color 140ms ease, transform 120ms ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = active ? 'rgba(212,175,55,0.26)' : 'rgba(0,0,0,0.88)';
-        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.45)';
+        e.currentTarget.style.background = active ? 'rgba(79,142,247,0.26)' : 'rgba(0,0,0,0.88)';
+        e.currentTarget.style.borderColor = 'rgba(79,142,247,0.45)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = active ? 'rgba(212,175,55,0.18)' : 'rgba(0,0,0,0.72)';
-        e.currentTarget.style.borderColor = active ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.12)';
+        e.currentTarget.style.background = active ? 'rgba(79,142,247,0.18)' : 'rgba(0,0,0,0.72)';
+        e.currentTarget.style.borderColor = active ? 'rgba(79,142,247,0.45)' : 'rgba(255,255,255,0.12)';
       }}
     >
       {children}

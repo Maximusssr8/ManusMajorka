@@ -18,9 +18,9 @@ export function TrialCountdown(): ReactElement | null {
   if (daysRemaining === null) return null;
 
   const isUrgent = daysRemaining <= 2;
-  const color = isUrgent ? '#ef4444' : '#d4af37';
-  const bg = isUrgent ? 'rgba(239,68,68,0.08)' : 'rgba(212,175,55,0.08)';
-  const border = isUrgent ? 'rgba(239,68,68,0.3)' : 'rgba(212,175,55,0.3)';
+  const color = isUrgent ? '#ef4444' : '#4f8ef7';
+  const bg = isUrgent ? 'rgba(239,68,68,0.08)' : 'rgba(79,142,247,0.08)';
+  const border = isUrgent ? 'rgba(239,68,68,0.3)' : 'rgba(79,142,247,0.3)';
 
   const labelFull = `${daysRemaining}d ${hoursRemaining ?? 0}h left`;
   const labelShort = `${daysRemaining}d`;
@@ -97,16 +97,16 @@ function UpgradeModal({ onClose, onUpgrade, daysRemaining }: UpgradeModalProps):
           width: '100%',
           maxWidth: 440,
           background: '#111114',
-          border: '1px solid rgba(212,175,55,0.3)',
+          border: '1px solid rgba(79,142,247,0.3)',
           borderRadius: 16,
           padding: 28,
-          boxShadow: '0 0 60px rgba(212,175,55,0.15)',
+          boxShadow: '0 0 60px rgba(79,142,247,0.15)',
           fontFamily: "'DM Sans', system-ui, sans-serif",
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <Zap size={18} strokeWidth={2.5} style={{ color: '#d4af37' }} />
-          <span style={{ fontFamily: mono, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#d4af37' }}>
+          <Zap size={18} strokeWidth={2.5} style={{ color: '#4f8ef7' }} />
+          <span style={{ fontFamily: mono, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4f8ef7' }}>
             Trial \u2014 {daysRemaining} days left
           </span>
         </div>
@@ -128,8 +128,8 @@ function UpgradeModal({ onClose, onUpgrade, daysRemaining }: UpgradeModalProps):
             style={{
               flex: 1,
               height: 44,
-              background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
-              color: '#111111',
+              background: 'linear-gradient(135deg, #4f8ef7 0%, #f4d77a 50%, #4f8ef7 100%)',
+              color: '#0d1117',
               fontWeight: 700,
               fontSize: 14,
               borderRadius: 10,

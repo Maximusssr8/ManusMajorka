@@ -4,7 +4,7 @@
  * Hero: "Find a winning product in 30 days. Or it's free."
  * Sections: How it works · Winning-product definition · Eligibility fine-print ·
  *           How to claim · CTA to /sign-up.
- * Design: landingTokens — bg #080808, gold #d4af37, Syne headings, DM Sans body.
+ * Design: landingTokens — bg #04060f, gold #4f8ef7, Syne headings, DM Sans body.
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
@@ -488,7 +488,7 @@ function CTA() {
           padding: '16px 36px',
           borderRadius: R.button,
           textDecoration: 'none',
-          boxShadow: '0 0 36px rgba(212,175,55,0.35)',
+          boxShadow: '0 0 36px rgba(79,142,247,0.35)',
         }}
       >
         Start Your Free Trial →

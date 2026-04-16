@@ -52,7 +52,7 @@ function timeAgoShort(iso: string | null): string {
 function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
   const c = (cat ?? '').toLowerCase();
   if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
-  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(212,175,55,0.12)', color: '#e5c158' };
+  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(79,142,247,0.12)', color: '#6ba3ff' };
   if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10b981' };
   if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { backgroundColor: 'rgba(236,72,153,0.12)', color: '#f472b6' };
   if (c.includes('hardware') || c.includes('tool'))                           return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#f59e0b' };
@@ -151,7 +151,7 @@ export default function AppHome() {
       numeric: stats?.total ?? null,
       sub: 'Live AliExpress feed',
       Icon: Package,
-      accent: '#d4af37',
+      accent: '#4f8ef7',
       href: '/app/products',
       // Only show a trend pill when we actually have movement — empty
       // weeks shouldn't render a "No change" pill that ages badly
@@ -218,7 +218,7 @@ export default function AppHome() {
     },
     {
       label: 'Newest',
-      chipBg: 'rgba(212,175,55,0.15)', chipFg: '#e5c158',
+      chipBg: 'rgba(79,142,247,0.15)', chipFg: '#6ba3ff',
       href: '/app/products?tab=new',
       product: newestProduct,
     },
@@ -271,7 +271,7 @@ export default function AppHome() {
       <div className="relative z-10 px-4 md:px-8 pt-6 md:pt-8 pb-5">
         <div className="relative">
           {/* Hero mesh gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(212,175,55,0.06)_0%,transparent_60%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(79,142,247,0.06)_0%,transparent_60%)] pointer-events-none" />
           <div className="relative flex items-start justify-between gap-4 flex-wrap">
             <div className="min-w-0 flex-1">
               {/* Greeting + date in a single inline row — Syne 28px hero, smaller caption */}
@@ -306,7 +306,7 @@ export default function AppHome() {
             <a
               href="/app/products"
               onClick={clearFiltersAndGo('/app/products')}
-              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(212,175,55,0.4),0_8px_24px_rgba(212,175,55,0.25)] cursor-pointer"
+              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(79,142,247,0.4),0_8px_24px_rgba(79,142,247,0.25)] cursor-pointer"
             >
               Discover products
               <ArrowRight size={14} strokeWidth={2.25} />

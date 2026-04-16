@@ -31,6 +31,7 @@ export default function NotFound() {
       <div className="text-center w-full max-w-md" style={mountStyle}>
         <div
           style={{
+<<<<<<< HEAD
             fontFamily: "'Syne', system-ui, sans-serif",
             fontWeight: 800,
             fontSize: 'clamp(96px, 22vw, 140px)',
@@ -38,6 +39,10 @@ export default function NotFound() {
             color: '#d4af37',
             letterSpacing: '-0.05em',
             marginBottom: 12,
+=======
+            background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
+            boxShadow: '0 8px 32px rgba(79,142,247,0.25)',
+>>>>>>> origin/app-theme-cobalt
           }}
         >
           404
@@ -74,6 +79,7 @@ export default function NotFound() {
           <button
             onClick={() => setLocation('/')}
             style={{
+<<<<<<< HEAD
               minHeight: 44,
               padding: '0 20px',
               background: '#d4af37',
@@ -96,6 +102,13 @@ export default function NotFound() {
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.filter = 'brightness(1)';
+=======
+              background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
+              color: '#FAFAFA',
+              fontFamily: "'Syne', sans-serif",
+              border: 'none',
+              boxShadow: '0 4px 16px rgba(79,142,247,0.25)',
+>>>>>>> origin/app-theme-cobalt
             }}
           >
             Back to home

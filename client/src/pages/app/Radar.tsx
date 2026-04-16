@@ -51,7 +51,7 @@ function formatRelative(iso: string | null): string {
 function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
   const c = (cat ?? '').toLowerCase();
   if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
-  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(212,175,55,0.12)', color: '#e5c158' };
+  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(79,142,247,0.12)', color: '#6ba3ff' };
   if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10b981' };
   if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { backgroundColor: 'rgba(236,72,153,0.12)', color: '#f472b6' };
   if (c.includes('hardware') || c.includes('tool'))                           return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#f59e0b' };

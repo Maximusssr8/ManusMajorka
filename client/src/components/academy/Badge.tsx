@@ -8,7 +8,7 @@ interface BadgeProps {
 }
 
 const TONES: Record<NonNullable<BadgeProps['tone']>, string> = {
-  gold: 'border-[#d4af37]/30 bg-[#d4af37]/10 text-[#e5c158]',
+  gold: 'border-[#4f8ef7]/30 bg-[#4f8ef7]/10 text-[#6ba3ff]',
   emerald: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
   blue: 'border-blue-400/30 bg-blue-400/10 text-blue-300',
   amber: 'border-amber-400/30 bg-amber-400/10 text-amber-300',

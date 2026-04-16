@@ -177,7 +177,7 @@ function ResultSection({ step }: { step: LaunchKitStep }) {
     <div
       className="rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-400"
       style={{
-        background: '#111111',
+        background: '#0d1117',
         border: '1px solid #F5F5F5',
       }}
     >
@@ -697,7 +697,7 @@ function LaunchKitContent() {
                       key={step.id}
                       className="rounded-2xl px-5 py-4 flex items-center gap-3"
                       style={{
-                        background: '#111111',
+                        background: '#0d1117',
                         border: '1px solid rgba(245,158,11,0.15)',
                       }}
                     >
@@ -726,7 +726,7 @@ function LaunchKitContent() {
                       key={step.id}
                       className="rounded-2xl px-5 py-4 flex items-center gap-3"
                       style={{
-                        background: '#111111',
+                        background: '#0d1117',
                         border: '1px solid rgba(239,68,68,0.2)',
                       }}
                     >

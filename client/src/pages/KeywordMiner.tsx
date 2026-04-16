@@ -62,9 +62,9 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.08)' : '#F9FAFB',
+        background: copied ? 'rgba(79,142,247,0.08)' : '#F9FAFB',
         border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-        color: copied ? 'rgba(212,175,55,1.00)' : '#9CA3AF',
+        color: copied ? 'rgba(79,142,247,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -75,13 +75,13 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
 }
 
 const COMPETITION_COLORS: Record<string, string> = {
-  Low: '#d4af37',
-  Medium: '#d4af37',
+  Low: '#4f8ef7',
+  Medium: '#4f8ef7',
   High: '#e05c7a',
 };
 const INTENT_COLORS: Record<string, string> = {
-  Transactional: '#d4af37',
-  Commercial: '#d4af37',
+  Transactional: '#4f8ef7',
+  Commercial: '#4f8ef7',
   Informational: '#4ab8f5',
   Navigational: '#9c5fff',
 };
@@ -479,9 +479,9 @@ export default function KeywordMiner() {
                           style={{
                             color:
                               kw.opportunity >= 70
-                                ? '#d4af37'
+                                ? '#4f8ef7'
                                 : kw.opportunity >= 50
-                                  ? '#d4af37'
+                                  ? '#4f8ef7'
                                   : '#e05c7a',
                             fontFamily: "'Syne', sans-serif",
                             minWidth: '28px',
@@ -501,13 +501,13 @@ export default function KeywordMiner() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.05)',
-                  border: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(79,142,247,0.05)',
+                  border: '1px solid rgba(79,142,247,0.15)',
                 }}
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                  style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                 >
                   Top Opportunity
                 </div>
@@ -569,7 +569,7 @@ export default function KeywordMiner() {
                         className="text-xs flex items-start gap-1.5"
                         style={{ color: '#94A3B8' }}
                       >
-                        <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
+                        <span style={{ color: '#4f8ef7', flexShrink: 0 }}>→</span>
                         {ag}
                       </div>
                     ))}

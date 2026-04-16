@@ -14,9 +14,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.10)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.10)',
+  goldBorder: 'rgba(79,142,247,0.25)',
   green: '#22c55e',
 };
 

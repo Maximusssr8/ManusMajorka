@@ -25,7 +25,7 @@ export function ProgressRing({ value, max, size = 140, stroke = 10, label, subla
             cx={size / 2}
             cy={size / 2}
             r={r}
-            stroke="rgba(212,175,55,0.1)"
+            stroke="rgba(79,142,247,0.1)"
             strokeWidth={stroke}
             fill="none"
           />
@@ -33,7 +33,7 @@ export function ProgressRing({ value, max, size = 140, stroke = 10, label, subla
             cx={size / 2}
             cy={size / 2}
             r={r}
-            stroke="#d4af37"
+            stroke="#4f8ef7"
             strokeWidth={stroke}
             strokeLinecap="round"
             fill="none"

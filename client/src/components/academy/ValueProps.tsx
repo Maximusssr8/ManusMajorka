@@ -36,18 +36,18 @@ export function ValueProps() {
             whileHover={{ y: -4 }}
             className="rounded-2xl border p-7 transition-colors"
             style={{
-              borderColor: 'rgba(212,175,55,0.08)',
-              background: '#111111',
+              borderColor: 'rgba(79,142,247,0.08)',
+              background: '#0d1117',
             }}
           >
             <div
               className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1px solid rgba(212,175,55,0.25)',
+                background: 'rgba(79,142,247,0.1)',
+                border: '1px solid rgba(79,142,247,0.25)',
               }}
             >
-              <p.icon size={20} className="text-[#d4af37]" strokeWidth={1.75} />
+              <p.icon size={20} className="text-[#4f8ef7]" strokeWidth={1.75} />
             </div>
             <div
               className="mb-2 text-lg font-semibold text-[#E0E0E0]"

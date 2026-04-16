@@ -148,7 +148,7 @@ export function AcademyPage({ publicMode }: AcademyPageProps) {
   return (
     <div
       className="min-h-screen text-[#E0E0E0]"
-      style={{ background: '#080808', fontFamily: "'DM Sans', sans-serif" }}
+      style={{ background: '#04060f', fontFamily: "'DM Sans', sans-serif" }}
     >
       {publicMode ? <PublicTopCTA /> : null}
 
@@ -184,9 +184,9 @@ export function AcademyPage({ publicMode }: AcademyPageProps) {
             <div
               className="pointer-events-auto relative w-full max-w-xl overflow-hidden rounded-2xl border p-5 shadow-2xl"
               style={{
-                borderColor: 'rgba(212,175,55,0.35)',
-                background: 'linear-gradient(180deg, #111111 0%, #0d0d0d 100%)',
-                boxShadow: '0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.25)',
+                borderColor: 'rgba(79,142,247,0.35)',
+                background: 'linear-gradient(180deg, #0d1117 0%, #0d0d0d 100%)',
+                boxShadow: '0 30px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(79,142,247,0.25)',
               }}
             >
               <button
@@ -197,7 +197,7 @@ export function AcademyPage({ publicMode }: AcademyPageProps) {
               >
                 <X size={14} />
               </button>
-              <div className="mb-2 text-[10px] font-mono uppercase tracking-widest text-[#d4af37]">
+              <div className="mb-2 text-[10px] font-mono uppercase tracking-widest text-[#4f8ef7]">
                 Module complete
               </div>
               <p
@@ -220,12 +220,12 @@ export function AcademyPage({ publicMode }: AcademyPageProps) {
 
 function PublicTopCTA() {
   return (
-    <div className="sticky top-0 z-30 border-b border-[#d4af37]/20 backdrop-blur-xl"
+    <div className="sticky top-0 z-30 border-b border-[#4f8ef7]/20 backdrop-blur-xl"
       style={{ background: 'rgba(8,8,8,0.85)' }}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3 md:px-8">
         <a href="/" className="flex items-center gap-2 text-sm font-semibold tracking-tight text-[#E0E0E0]" style={{ fontFamily: "'Syne', sans-serif" }}>
-          <span className="text-[#d4af37]">●</span> Majorka Academy
+          <span className="text-[#4f8ef7]">●</span> Majorka Academy
         </a>
         <div className="flex items-center gap-2">
           <a
@@ -236,7 +236,7 @@ function PublicTopCTA() {
           </a>
           <a
             href="/pricing"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#d4af37] px-3 py-1.5 text-xs font-semibold text-black transition-all hover:bg-[#e5c158]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#4f8ef7] px-3 py-1.5 text-xs font-semibold text-black transition-all hover:bg-[#6ba3ff]"
           >
             Start free trial
             <ArrowRight size={12} />

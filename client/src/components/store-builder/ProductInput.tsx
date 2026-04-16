@@ -28,7 +28,7 @@ const NICHES = [
   'Stationery & Office',
   'General / Mixed Niche',
 ];
-const gold = '#d4af37';
+const gold = '#4f8ef7';
 const syne = "'Syne', sans-serif";
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '12px 14px', borderRadius: 8,
@@ -113,7 +113,7 @@ export default function ProductInput({ onComplete, session, initialProduct, init
         <button onClick={handleGenerate} disabled={loading} style={{
           padding: '14px 24px', borderRadius: 8, border: 'none',
           cursor: loading ? 'not-allowed' : 'pointer',
-          background: loading ? 'rgba(212,175,55,0.3)' : gold,
+          background: loading ? 'rgba(79,142,247,0.3)' : gold,
           color: '#FAFAFA', fontFamily: syne, fontWeight: 700, fontSize: 15,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           opacity: loading ? 0.7 : 1, minHeight: 50,

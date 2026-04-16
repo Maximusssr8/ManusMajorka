@@ -57,7 +57,7 @@ export default function Contact() {
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
-            background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+            background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: display,
           }}>M</div>
@@ -77,8 +77,8 @@ export default function Contact() {
             display: 'inline-block',
             padding: '6px 14px',
             borderRadius: 999,
-            background: 'rgba(212,175,55,0.08)',
-            border: '1px solid rgba(212,175,55,0.2)',
+            background: 'rgba(79,142,247,0.08)',
+            border: '1px solid rgba(79,142,247,0.2)',
             fontSize: 11, fontFamily: mono, color: '#a5b4fc',
             letterSpacing: '0.08em', textTransform: 'uppercase',
             marginBottom: 18,
@@ -199,7 +199,7 @@ export default function Contact() {
                 padding: '14px 28px',
                 borderRadius: 999,
                 border: 'none',
-                background: status === 'submitting' ? 'rgba(212,175,55,0.4)' : '#d4af37',
+                background: status === 'submitting' ? 'rgba(79,142,247,0.4)' : '#4f8ef7',
                 color: '#fff',
                 fontWeight: 600,
                 fontSize: 14,

@@ -342,7 +342,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
           width: '100%',
           maxWidth: 560,
           background: '#0b0b0b',
-          borderLeft: '1px solid #1a1a1a',
+          borderLeft: '1px solid #161b22',
           display: 'flex',
           flexDirection: 'column',
           animation: 'mj-drawer-in 260ms cubic-bezier(0.16,1,0.3,1)',
@@ -355,7 +355,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '14px 16px',
-            borderBottom: '1px solid #1a1a1a',
+            borderBottom: '1px solid #161b22',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -397,7 +397,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                e.currentTarget.style.borderColor = '#1a1a1a';
+                e.currentTarget.style.borderColor = '#161b22';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent';
@@ -420,8 +420,8 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               maxHeight: 360,
               borderRadius: 14,
               overflow: 'hidden',
-              background: '#080808',
-              border: '1px solid #1a1a1a',
+              background: '#04060f',
+              border: '1px solid #161b22',
             }}
           >
             <ProductImage
@@ -456,7 +456,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
                   color: '#a3a3a3',
                   padding: '3px 8px',
                   background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid #1a1a1a',
+                  border: '1px solid #161b22',
                   borderRadius: 6,
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
@@ -475,7 +475,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
                   alignItems: 'center',
                   gap: 4,
                   fontSize: 12,
-                  color: '#d4af37',
+                  color: '#4f8ef7',
                   textDecoration: 'none',
                 }}
               >
@@ -522,8 +522,8 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             <section
               style={{
                 padding: 14,
-                background: '#111111',
-                border: '1px solid #1a1a1a',
+                background: '#0d1117',
+                border: '1px solid #161b22',
                 borderRadius: 12,
                 display: 'flex',
                 flexDirection: 'column',
@@ -560,8 +560,8 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
           <section
             style={{
               padding: 14,
-              background: '#111111',
-              border: '1px solid #1a1a1a',
+              background: '#0d1117',
+              border: '1px solid #161b22',
               borderRadius: 12,
               display: 'flex',
               flexDirection: 'column',
@@ -569,7 +569,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Sparkles size={16} style={{ color: '#d4af37' }} />
+              <Sparkles size={16} style={{ color: '#4f8ef7' }} />
               <span
                 style={{
                   fontFamily: "'Syne', system-ui, sans-serif",
@@ -647,7 +647,7 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
             gap: 8,
             padding: 12,
             paddingBottom: `calc(12px + env(safe-area-inset-bottom))`,
-            borderTop: '1px solid #1a1a1a',
+            borderTop: '1px solid #161b22',
             background: '#0b0b0b',
           }}
         >
@@ -665,15 +665,15 @@ export default function ProductDetailDrawer({ product, onClose }: ProductDetailD
               fontSize: 14,
               fontWeight: 600,
               color: '#0a0a0a',
-              background: '#d4af37',
+              background: '#4f8ef7',
               border: '1px solid #b8941f',
               borderRadius: 10,
               cursor: 'pointer',
               fontFamily: "'DM Sans', system-ui, sans-serif",
               transition: 'background 160ms ease, transform 120ms ease',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = '#e5c158'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = '#d4af37'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#6ba3ff'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#4f8ef7'; }}
           >
             <Store size={16} />
             Add to Store
@@ -732,8 +732,8 @@ function StatCard({ label, value, suffix }: StatCardProps) {
     <div
       style={{
         padding: '10px 12px',
-        background: '#111111',
-        border: '1px solid #1a1a1a',
+        background: '#0d1117',
+        border: '1px solid #161b22',
         borderRadius: 10,
         display: 'flex',
         flexDirection: 'column',

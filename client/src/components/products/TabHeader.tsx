@@ -40,8 +40,8 @@ function TabHeaderImpl({ active, counts, loading, onChange }: TabHeaderProps) {
         display: 'flex',
         gap: 8,
         padding: '4px 4px',
-        background: '#111111',
-        border: '1px solid #1a1a1a',
+        background: '#0d1117',
+        border: '1px solid #161b22',
         borderRadius: 12,
       }}
     >
@@ -64,8 +64,8 @@ function TabHeaderImpl({ active, counts, loading, onChange }: TabHeaderProps) {
               justifyContent: 'flex-start',
               gap: 12,
               padding: '8px 14px',
-              background: isActive ? 'rgba(212,175,55,0.08)' : 'transparent',
-              border: `1px solid ${isActive ? 'rgba(212,175,55,0.35)' : 'transparent'}`,
+              background: isActive ? 'rgba(79,142,247,0.08)' : 'transparent',
+              border: `1px solid ${isActive ? 'rgba(79,142,247,0.35)' : 'transparent'}`,
               borderRadius: 10,
               color: isActive ? '#f5f5f5' : '#a3a3a3',
               cursor: 'pointer',
@@ -83,7 +83,7 @@ function TabHeaderImpl({ active, counts, loading, onChange }: TabHeaderProps) {
             <t.Icon
               size={18}
               strokeWidth={1.75}
-              style={{ color: isActive ? '#d4af37' : '#737373', flexShrink: 0 }}
+              style={{ color: isActive ? '#4f8ef7' : '#737373', flexShrink: 0 }}
             />
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, flex: 1, minWidth: 0 }}>
               <span
@@ -104,9 +104,9 @@ function TabHeaderImpl({ active, counts, loading, onChange }: TabHeaderProps) {
               style={{
                 fontSize: 11,
                 padding: '2px 7px',
-                color: isActive ? '#d4af37' : '#737373',
-                background: isActive ? 'rgba(212,175,55,0.10)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${isActive ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.06)'}`,
+                color: isActive ? '#4f8ef7' : '#737373',
+                background: isActive ? 'rgba(79,142,247,0.10)' : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${isActive ? 'rgba(79,142,247,0.25)' : 'rgba(255,255,255,0.06)'}`,
                 borderRadius: 6,
                 minWidth: 28,
                 textAlign: 'center',

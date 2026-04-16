@@ -45,13 +45,13 @@ export default function UsageCounter({ feature }: UsageCounterProps) {
   const pct = Math.min((used / limit) * 100, 100);
   const atLimit = used >= limit;
   const warning = used >= limit * 0.8 && !atLimit;
-  const barColor = atLimit || warning ? '#ef4444' : '#d4af37';
+  const barColor = atLimit || warning ? '#ef4444' : '#4f8ef7';
 
   return (
     <div
       style={{
-        background: atLimit ? 'rgba(239,68,68,0.04)' : 'rgba(212,175,55,0.04)',
-        border: `1px solid ${atLimit ? 'rgba(239,68,68,0.3)' : 'rgba(212,175,55,0.15)'}`,
+        background: atLimit ? 'rgba(239,68,68,0.04)' : 'rgba(79,142,247,0.04)',
+        border: `1px solid ${atLimit ? 'rgba(239,68,68,0.3)' : 'rgba(79,142,247,0.15)'}`,
         borderRadius: 12,
         padding: '14px 18px',
         marginBottom: 20,
@@ -78,7 +78,7 @@ export default function UsageCounter({ feature }: UsageCounterProps) {
             fontFamily: 'JetBrains Mono, monospace',
             fontSize: 12,
             fontWeight: 700,
-            color: atLimit ? '#ef4444' : '#d4af37',
+            color: atLimit ? '#ef4444' : '#4f8ef7',
           }}
         >
           {used} / {limit}

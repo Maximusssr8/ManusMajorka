@@ -139,13 +139,13 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
           <div
             className="absolute w-16 h-16 rounded-full flex items-center justify-center z-10"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #d4af37)',
-              boxShadow: '0 0 40px rgba(212,175,55,0.5)',
+              background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
+              boxShadow: '0 0 40px rgba(79,142,247,0.5)',
             }}
           >
-            <div className="absolute w-20 h-20 rounded-full border border-yellow-400/20 animate-ping opacity-70" />
+            <div className="absolute w-20 h-20 rounded-full border border-blue-400/20 animate-ping opacity-70" />
             <div
-              className="absolute w-24 h-24 rounded-full border border-yellow-400/10 animate-ping opacity-50"
+              className="absolute w-24 h-24 rounded-full border border-blue-400/10 animate-ping opacity-50"
               style={{ animationDelay: '0.5s' }}
             />
             <div className="w-8 h-8 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
@@ -183,7 +183,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                   className={`absolute rounded-full -inset-1 ${isPulsing ? 'animate-pulse' : ''}`}
                   style={{
                     background:
-                      'radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0) 70%)',
+                      'radial-gradient(circle, rgba(79,142,247,0.25) 0%, rgba(79,142,247,0) 70%)',
                     width: `${item.energy * 0.5 + 40}px`,
                     height: `${item.energy * 0.5 + 40}px`,
                     left: `-${(item.energy * 0.5 + 40 - 40) / 2}px`,
@@ -196,17 +196,17 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                   className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isExpanded ? 'scale-150' : ''} ${isPulsing ? 'animate-pulse' : ''}`}
                   style={{
                     background: isExpanded
-                      ? '#d4af37'
+                      ? '#4f8ef7'
                       : isRelated
-                        ? 'rgba(212,175,55,0.4)'
+                        ? 'rgba(79,142,247,0.4)'
                         : 'rgba(8,10,14,0.9)',
                     borderColor: isExpanded
-                      ? '#d4af37'
+                      ? '#4f8ef7'
                       : isRelated
-                        ? '#d4af37'
-                        : 'rgba(212,175,55,0.4)',
-                    color: isExpanded ? '#FAFAFA' : '#d4af37',
-                    boxShadow: isExpanded ? '0 0 20px rgba(212,175,55,0.5)' : 'none',
+                        ? '#4f8ef7'
+                        : 'rgba(79,142,247,0.4)',
+                    color: isExpanded ? '#FAFAFA' : '#4f8ef7',
+                    boxShadow: isExpanded ? '0 0 20px rgba(79,142,247,0.5)' : 'none',
                   }}
                 >
                   <Icon size={16} />
@@ -216,7 +216,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                 <div
                   className={`absolute top-12 whitespace-nowrap text-xs font-bold tracking-wider transition-all duration-300 ${isExpanded ? 'scale-125' : ''}`}
                   style={{
-                    color: isExpanded ? '#d4af37' : '#374151',
+                    color: isExpanded ? '#4f8ef7' : '#374151',
                     fontFamily: "'Syne', sans-serif",
                     left: '50%',
                     transform: `translateX(-50%) ${isExpanded ? 'scale(1.25)' : ''}`,
@@ -232,13 +232,13 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                     style={{
                       background: 'rgba(8,10,14,0.95)',
                       backdropFilter: 'blur(16px)',
-                      border: '1px solid rgba(212,175,55,0.3)',
-                      boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.1)',
+                      border: '1px solid rgba(79,142,247,0.3)',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(79,142,247,0.1)',
                     }}
                   >
                     <div
                       className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3"
-                      style={{ background: 'rgba(212,175,55,0.5)' }}
+                      style={{ background: 'rgba(79,142,247,0.5)' }}
                     />
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-center">
@@ -274,15 +274,15 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                         <span
                           className="text-xs px-2 py-1 rounded-full"
                           style={{
-                            background: 'rgba(212,175,55,0.1)',
-                            color: '#d4af37',
-                            border: '1px solid rgba(212,175,55,0.2)',
+                            background: 'rgba(79,142,247,0.1)',
+                            color: '#4f8ef7',
+                            border: '1px solid rgba(79,142,247,0.2)',
                           }}
                         >
                           {item.category}
                         </span>
                         <div className="flex items-center gap-1">
-                          <Zap size={10} style={{ color: '#d4af37' }} />
+                          <Zap size={10} style={{ color: '#4f8ef7' }} />
                           <span className="text-xs" style={{ color: '#9CA3AF' }}>
                             {item.energy}%
                           </span>

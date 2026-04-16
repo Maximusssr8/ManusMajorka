@@ -352,7 +352,7 @@ export default function ProjectManager() {
                       onClick={() => toggleTask(key)}
                     >
                       {done ? (
-                        <CheckCircle2 size={14} style={{ color: '#d4af37' }} />
+                        <CheckCircle2 size={14} style={{ color: '#4f8ef7' }} />
                       ) : (
                         <Circle size={14} style={{ color: '#D1D5DB' }} />
                       )}

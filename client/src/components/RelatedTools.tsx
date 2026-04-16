@@ -63,7 +63,7 @@ function getStageColor(toolId: string): string {
   for (const s of stages) {
     if (s.tools.some((t) => t.id === toolId)) return s.color;
   }
-  return '#d4af37';
+  return '#4f8ef7';
 }
 
 interface RelatedToolsProps {

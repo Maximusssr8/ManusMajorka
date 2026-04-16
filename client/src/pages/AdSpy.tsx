@@ -63,7 +63,7 @@ const PLATFORM_STYLES: Record<string, { bg: string; text: string; border: string
 
 const ANGLE_COLORS: Record<string, string> = {
   'Pain Point': '#ef4444',
-  Curiosity: '#d4af37',
+  Curiosity: '#4f8ef7',
   'Social Proof': '#10b981',
   Benefit: '#f59e0b',
   Scarcity: '#f97316',
@@ -205,9 +205,9 @@ function AdCard({
           <span
             className="text-xs font-bold px-2.5 py-0.5 rounded-lg"
             style={{
-              background: 'rgba(212,175,55,0.1)',
-              color: '#d4af37',
-              border: '1px solid rgba(212,175,55,0.25)',
+              background: 'rgba(79,142,247,0.1)',
+              color: '#4f8ef7',
+              border: '1px solid rgba(79,142,247,0.25)',
             }}
           >
             {ad.cta}
@@ -260,8 +260,8 @@ function AdCard({
             onClick={handleCopy}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
             style={{
-              background: copied ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)',
-              border: `1px solid ${copied ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              background: copied ? 'rgba(79,142,247,0.15)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${copied ? 'rgba(79,142,247,0.4)' : 'rgba(255,255,255,0.1)'}`,
               color: copied ? '#A5B4FC' : '#94A3B8',
               cursor: 'pointer',
             }}
@@ -273,9 +273,9 @@ function AdCard({
             onClick={handleAnalyse}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
             style={{
-              background: 'rgba(212,175,55,0.1)',
-              border: '1px solid rgba(212,175,55,0.25)',
-              color: '#d4af37',
+              background: 'rgba(79,142,247,0.1)',
+              border: '1px solid rgba(79,142,247,0.25)',
+              color: '#4f8ef7',
               cursor: 'pointer',
             }}
           >
@@ -489,9 +489,9 @@ function AdSpyContent() {
       {activeProduct && (
         <div
           className="flex items-center gap-3 mx-5 mt-3 px-4 py-2.5 rounded-lg flex-shrink-0"
-          style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.18)' }}
+          style={{ background: 'rgba(79,142,247,0.05)', border: '1px solid rgba(79,142,247,0.18)' }}
         >
-          <Package size={13} style={{ color: '#d4af37' }} />
+          <Package size={13} style={{ color: '#4f8ef7' }} />
           <span className="text-xs flex-1" style={{ color: '#CBD5E1' }}>
             Using:{' '}
             <span className="font-bold" style={{ color: '#CBD5E1' }}>
@@ -506,9 +506,9 @@ function AdSpyContent() {
             }
             className="text-xs font-bold px-2.5 py-1 rounded-lg transition-all"
             style={{
-              background: 'rgba(212,175,55,0.12)',
-              color: '#d4af37',
-              border: '1px solid rgba(212,175,55,0.28)',
+              background: 'rgba(79,142,247,0.12)',
+              color: '#4f8ef7',
+              border: '1px solid rgba(79,142,247,0.28)',
               cursor: 'pointer',
             }}
           >
@@ -542,8 +542,8 @@ function AdSpyContent() {
             className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-extrabold transition-all disabled:opacity-60"
             style={{
               background: (isLoading || cooldown > 0)
-                ? 'rgba(212,175,55,0.3)'
-                : '#d4af37',
+                ? 'rgba(79,142,247,0.3)'
+                : '#4f8ef7',
               color: (isLoading || cooldown > 0) ? '#94A3B8' : '#fff',
               fontFamily: "'Syne', sans-serif",
               cursor: (isLoading || cooldown > 0) ? 'not-allowed' : 'pointer',
@@ -706,7 +706,7 @@ function AdSpyContent() {
                 {['LED strip lights', 'wireless earbuds', 'posture corrector', 'massage gun', 'portable blender'].map(kw => (
                   <button key={kw} onClick={() => { setSearchInput(kw); void doSearch(kw); }}
                     style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 20, fontSize: 13, fontWeight: 500, cursor: 'pointer', color: '#CBD5E1', transition: 'border-color 150ms, color 150ms' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.color = '#A5B4FC'; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#4f8ef7'; e.currentTarget.style.color = '#A5B4FC'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#CBD5E1'; }}>
                     {kw}
                   </button>

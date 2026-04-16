@@ -290,7 +290,7 @@ export default function AnalyticsDecoder() {
                       style={{
                         color:
                           kpi.trend === 'up'
-                            ? '#d4af37'
+                            ? '#4f8ef7'
                             : kpi.trend === 'down'
                               ? '#ff6b6b'
                               : '#F59E0B',
@@ -359,14 +359,14 @@ export default function AnalyticsDecoder() {
             <div
               className="rounded-xl overflow-hidden"
               style={{
-                background: 'rgba(212,175,55,0.06)',
-                border: '1px solid rgba(212,175,55,0.08)',
+                background: 'rgba(79,142,247,0.06)',
+                border: '1px solid rgba(79,142,247,0.08)',
               }}
             >
-              <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(212,175,55,0.08)' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(79,142,247,0.08)' }}>
                 <div
                   className="text-xs font-extrabold uppercase tracking-widest"
-                  style={{ color: '#d4af37', fontFamily: "'Syne', sans-serif" }}
+                  style={{ color: '#4f8ef7', fontFamily: "'Syne', sans-serif" }}
                 >
                   Recommended Actions
                 </div>
@@ -377,13 +377,13 @@ export default function AnalyticsDecoder() {
                   className="flex items-start gap-3 px-4 py-3"
                   style={{
                     borderBottom:
-                      i < result.actions.length - 1 ? '1px solid rgba(212,175,55,0.12)' : 'none',
+                      i < result.actions.length - 1 ? '1px solid rgba(79,142,247,0.12)' : 'none',
                   }}
                 >
                   <ArrowRight
                     size={12}
                     className="mt-0.5 flex-shrink-0"
-                    style={{ color: '#d4af37' }}
+                    style={{ color: '#4f8ef7' }}
                   />
                   <span
                     className="text-xs leading-relaxed"

@@ -463,13 +463,13 @@ export default function AdBriefs() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>{t.description}</div>
               <div style={{
                 fontSize: 11,
-                color: 'rgba(212,175,55,0.85)',
+                color: 'rgba(79,142,247,0.85)',
                 fontStyle: 'italic',
                 paddingTop: 6,
                 borderTop: '1px dashed rgba(255,255,255,0.06)',
                 lineHeight: 1.5,
               }}>
-                <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(212,175,55,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: 6 }}>Example output preview</span>
+                <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(79,142,247,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: 6 }}>Example output preview</span>
                 {t.previewLine}
               </div>
             </button>
@@ -501,7 +501,7 @@ const briefProseCss = `
 }
 .mj-brief-prose h1 { font-size: 20px; }
 .mj-brief-prose h2 { font-size: 17px; }
-.mj-brief-prose h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: #d4af37; }
+.mj-brief-prose h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: #4f8ef7; }
 .mj-brief-prose h4 { font-size: 13px; }
 .mj-brief-prose p { margin: 0 0 10px; color: #9CA3AF; }
 .mj-brief-prose ul,
@@ -510,15 +510,15 @@ const briefProseCss = `
 .mj-brief-prose strong { color: #ffffff; font-weight: 700; }
 .mj-brief-prose em { color: #c4c4c4; }
 .mj-brief-prose code {
-  background: #111111;
-  color: #d4af37;
+  background: #0d1117;
+  color: #4f8ef7;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   padding: 2px 6px;
   border-radius: 4px;
 }
 .mj-brief-prose pre {
-  background: #111111;
+  background: #0d1117;
   border: 1px solid rgba(255,255,255,0.06);
   padding: 12px 14px;
   border-radius: 8px;
@@ -531,7 +531,7 @@ const briefProseCss = `
   color: #e5e5e5;
 }
 .mj-brief-prose blockquote {
-  border-left: 2px solid rgba(212,175,55,0.4);
+  border-left: 2px solid rgba(79,142,247,0.4);
   padding: 4px 0 4px 12px;
   color: #c4c4c4;
   margin: 10px 0;

@@ -14,8 +14,8 @@ export function Sparkline({
   data,
   width = 280,
   height = 64,
-  stroke = '#d4af37',
-  fill = 'rgba(212,175,55,0.12)',
+  stroke = '#4f8ef7',
+  fill = 'rgba(79,142,247,0.12)',
   duration = 1.6,
 }: SparklineProps) {
   const ref = useRef<SVGSVGElement | null>(null);

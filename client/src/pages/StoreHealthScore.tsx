@@ -16,9 +16,9 @@ const C = {
   text: '#0A0A0A',
   secondary: '#6B7280',
   muted: '#9CA3AF',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.10)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#4f8ef7',
+  goldDim: 'rgba(79,142,247,0.10)',
+  goldBorder: 'rgba(79,142,247,0.25)',
   green: '#22c55e',
   amber: '#f59e0b',
   red: '#ef4444',
@@ -165,7 +165,7 @@ function LoadingAnimation({ storeUrl }: { storeUrl: string }) {
                   style={{
                     background: done
                       ? `linear-gradient(90deg, ${C.gold}, #f0c84a)`
-                      : 'rgba(212,175,55,0.4)',
+                      : 'rgba(79,142,247,0.4)',
                     height: '100%',
                     width: `${pct}%`,
                     borderRadius: 6,
@@ -673,7 +673,7 @@ export default function StoreHealthScore() {
                   style={{
                     background: storeUrl.trim()
                       ? `linear-gradient(135deg, ${C.gold}, #3B82F6)`
-                      : 'rgba(212,175,55,0.2)',
+                      : 'rgba(79,142,247,0.2)',
                     color: storeUrl.trim() ? '#000' : C.muted,
                     border: 'none',
                     borderRadius: 12,

@@ -96,13 +96,13 @@ export function StickyTrialBar({ hideOnRoutes = ['/sign-up', '/signup', '/sign-i
           zIndex: 80,
           width: '100%',
           minHeight: 40,
-          background: '#111111',
-          borderBottom: '1px solid #d4af37',
+          background: '#0d1117',
+          borderBottom: '1px solid #4f8ef7',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 12px',
-          boxShadow: '0 1px 0 rgba(212,175,55,0.25), 0 0 24px -12px rgba(212,175,55,0.35)',
+          boxShadow: '0 1px 0 rgba(79,142,247,0.25), 0 0 24px -12px rgba(79,142,247,0.35)',
         }}
       >
         <div style={{ width: 32, flexShrink: 0 }} aria-hidden="true" />
@@ -129,15 +129,15 @@ export function StickyTrialBar({ hideOnRoutes = ['/sign-up', '/signup', '/sign-i
               gap: 6,
               height: 28,
               padding: '0 12px',
-              background: 'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
-              color: '#111111',
+              background: 'linear-gradient(135deg, #4f8ef7 0%, #f4d77a 50%, #4f8ef7 100%)',
+              color: '#0d1117',
               fontFamily: "'DM Sans', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 12,
               letterSpacing: '0.01em',
               borderRadius: 999,
               textDecoration: 'none',
-              border: '1px solid rgba(212,175,55,0.6)',
+              border: '1px solid rgba(79,142,247,0.6)',
               whiteSpace: 'nowrap',
             }}
           >

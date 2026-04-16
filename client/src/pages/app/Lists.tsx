@@ -4,10 +4,9 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { Heart, Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { proxyImage } from '@/lib/imageProxy';
-import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ProductList {
   id: string;
@@ -102,7 +101,7 @@ export default function Lists() {
   );
 
   return (
-    <div style={{ padding: '32px 24px', minHeight: '100vh', background: '#080808' }}>
+    <div style={{ padding: '32px 24px', minHeight: '100vh', background: '#04060f' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
@@ -120,8 +119,8 @@ export default function Lists() {
               alignItems: 'center',
               gap: 8,
               padding: '10px 16px',
-              background: '#d4af37',
-              color: '#080808',
+              background: '#4f8ef7',
+              color: '#04060f',
               border: 'none',
               borderRadius: 10,
               fontWeight: 700,
@@ -147,14 +146,18 @@ export default function Lists() {
             }}
           >
             {lists.length === 0 ? (
-              <div style={{ gridColumn: '1 / -1' }}>
-                <EmptyState
-                  icon={<Heart size={40} strokeWidth={1.75} />}
-                  title="Save your first product"
-                  body="Click the heart on any product to save it to a list. Pet product? Create a list called 🐾 Pet winners."
-                  primaryCta={{ label: 'Browse products', href: '/app/products' }}
-                  secondaryCta={{ label: 'Learn about lists', href: '/academy' }}
-                />
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  padding: 48,
+                  textAlign: 'center',
+                  color: '#6b6b6b',
+                  background: '#111',
+                  border: '1px dashed #0d1117',
+                  borderRadius: 12,
+                }}
+              >
+                No lists yet. Save a product from the Products page to get started.
               </div>
             ) : (
               lists.map((list) => (
@@ -164,15 +167,15 @@ export default function Lists() {
                   style={{
                     textAlign: 'left',
                     background: '#111',
-                    border: '1px solid #1f1f1f',
+                    border: '1px solid #0d1117',
                     borderRadius: 14,
                     padding: 16,
                     cursor: 'pointer',
                     color: '#f5f5f5',
                     transition: 'border-color 160ms',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#1f1f1f')}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(79,142,247,0.3)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#0d1117')}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -241,7 +244,7 @@ export default function Lists() {
               padding: '12px 14px',
               fontSize: 16, // >=16px to avoid iOS zoom
               background: '#0a0a0a',
-              border: '1px solid #1f1f1f',
+              border: '1px solid #0d1117',
               borderRadius: 8,
               color: '#f5f5f5',
               outline: 'none',
@@ -259,8 +262,8 @@ export default function Lists() {
                   height: 44,
                   minWidth: 44,
                   fontSize: 20,
-                  background: newEmoji === e ? 'rgba(212,175,55,0.15)' : '#0a0a0a',
-                  border: `1px solid ${newEmoji === e ? '#d4af37' : '#1f1f1f'}`,
+                  background: newEmoji === e ? 'rgba(79,142,247,0.15)' : '#0a0a0a',
+                  border: `1px solid ${newEmoji === e ? '#4f8ef7' : '#0d1117'}`,
                   borderRadius: 8,
                   cursor: 'pointer',
                 }}
@@ -276,7 +279,7 @@ export default function Lists() {
                 padding: '10px 16px',
                 background: 'transparent',
                 color: '#9a9a9a',
-                border: '1px solid #1f1f1f',
+                border: '1px solid #0d1117',
                 borderRadius: 8,
                 cursor: 'pointer',
                 minHeight: 44,
@@ -289,8 +292,8 @@ export default function Lists() {
               disabled={!newName.trim()}
               style={{
                 padding: '10px 16px',
-                background: '#d4af37',
-                color: '#080808',
+                background: '#4f8ef7',
+                color: '#04060f',
                 border: 'none',
                 borderRadius: 8,
                 fontWeight: 700,
@@ -352,7 +355,7 @@ export default function Lists() {
                       style={{
                         textAlign: 'left',
                         background: '#0a0a0a',
-                        border: '1px solid #1f1f1f',
+                        border: '1px solid #0d1117',
                         borderRadius: 10,
                         padding: 8,
                         cursor: 'pointer',
@@ -372,7 +375,7 @@ export default function Lists() {
                         {title}
                       </div>
                       {price != null && (
-                        <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700 }}>
+                        <div style={{ color: '#4f8ef7', fontSize: 12, fontWeight: 700 }}>
                           ${Number(price).toFixed(2)}
                         </div>
                       )}
@@ -401,7 +404,7 @@ export default function Lists() {
                 padding: '10px 16px',
                 background: 'transparent',
                 color: '#9a9a9a',
-                border: '1px solid #1f1f1f',
+                border: '1px solid #0d1117',
                 borderRadius: 8,
                 cursor: 'pointer',
                 minHeight: 44,
@@ -414,7 +417,7 @@ export default function Lists() {
               style={{
                 padding: '10px 16px',
                 background: '#f97316',
-                color: '#080808',
+                color: '#04060f',
                 border: 'none',
                 borderRadius: 8,
                 fontWeight: 700,
@@ -450,7 +453,7 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
         onClick={(e) => e.stopPropagation()}
         style={{
           background: '#111',
-          border: '1px solid #1f1f1f',
+          border: '1px solid #0d1117',
           borderRadius: 14,
           padding: 24,
           maxWidth: 720,

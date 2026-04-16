@@ -35,7 +35,7 @@ export function RegionSelector() {
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             height: 34, padding: '0 10px',
-            background: open ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)',
+            background: open ? 'rgba(79,142,247,0.15)' : 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.12)',
             borderRadius: 8, cursor: 'pointer',
             fontSize: 12, fontWeight: 600, color: '#CBD5E1',
@@ -64,10 +64,10 @@ export function RegionSelector() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   width: '100%', padding: '8px 14px',
-                  background: regionCode === r.code ? 'rgba(212,175,55,0.15)' : 'transparent',
+                  background: regionCode === r.code ? 'rgba(79,142,247,0.15)' : 'transparent',
                   border: 'none', cursor: 'pointer', textAlign: 'left' as const,
                   transition: 'background 100ms',
-                  borderLeft: regionCode === r.code ? '3px solid #d4af37' : '3px solid transparent',
+                  borderLeft: regionCode === r.code ? '3px solid #4f8ef7' : '3px solid transparent',
                 }}
                 onMouseEnter={e => { if (regionCode !== r.code) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
                 onMouseLeave={e => { if (regionCode !== r.code) e.currentTarget.style.background = 'transparent'; }}
@@ -77,7 +77,7 @@ export function RegionSelector() {
                   <div style={{ fontSize: 13, fontWeight: 600, color: regionCode === r.code ? '#A5B4FC' : '#E2E8F0' }}>{r.name}</div>
                   <div style={{ fontSize: 10, color: '#64748B' }}>{r.currency} · ~{r.avg_shipping_days}d shipping</div>
                 </div>
-                {regionCode === r.code && <span style={{ marginLeft: 'auto', color: '#d4af37', fontSize: 14 }}>&#10003;</span>}
+                {regionCode === r.code && <span style={{ marginLeft: 'auto', color: '#4f8ef7', fontSize: 14 }}>&#10003;</span>}
               </button>
             ))}
           </div>

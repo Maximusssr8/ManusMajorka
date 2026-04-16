@@ -11,28 +11,28 @@ const badgeVariants = cva(
       variant: {
         // Default — gold (brand)
         default:
-          'border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.10)] text-[#d4af37]',
+          'border-[rgba(79,142,247,0.3)] bg-[rgba(79,142,247,0.10)] text-[#4f8ef7]',
         // Gold alias
         gold:
-          'border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.10)] text-[#d4af37]',
+          'border-[rgba(79,142,247,0.3)] bg-[rgba(79,142,247,0.10)] text-[#4f8ef7]',
         // Blue CTA badge
         blue:
           'border-[rgba(59,130,246,0.3)] bg-[rgba(59,130,246,0.10)] text-[#3B82F6]',
         // Muted
         muted:
-          'border-[#1a1a1a] bg-[#141414] text-[#a3a3a3]',
+          'border-[#161b22] bg-[#141414] text-[#a3a3a3]',
         // Success emerald
         success:
           'border-[rgba(16,185,129,0.3)] bg-[rgba(16,185,129,0.10)] text-[#10b981]',
         // Secondary — legacy
         secondary:
-          'border-[#1a1a1a] bg-[#141414] text-[#a3a3a3]',
+          'border-[#161b22] bg-[#141414] text-[#a3a3a3]',
         // Destructive
         destructive:
           'border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.10)] text-[#ef4444]',
         // Outline
         outline:
-          'border-[#1a1a1a] bg-transparent text-[#e5e5e5]',
+          'border-[#161b22] bg-transparent text-[#e5e5e5]',
       },
     },
     defaultVariants: {

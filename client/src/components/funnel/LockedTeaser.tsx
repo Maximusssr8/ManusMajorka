@@ -110,9 +110,9 @@ export function LockedTeaser({ feature, tier = 'scale', children, headline }: Lo
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: '50%',
-            background: 'rgba(212,175,55,0.12)',
-            border: '1px solid rgba(212,175,55,0.4)',
-            color: '#d4af37',
+            background: 'rgba(79,142,247,0.12)',
+            border: '1px solid rgba(79,142,247,0.4)',
+            color: '#4f8ef7',
           }}
         >
           <Lock size={18} strokeWidth={2.5} />
@@ -139,14 +139,14 @@ export function LockedTeaser({ feature, tier = 'scale', children, headline }: Lo
             minHeight: 44,
             padding: '0 20px',
             background:
-              'linear-gradient(135deg, #d4af37 0%, #f4d77a 50%, #d4af37 100%)',
-            color: '#111111',
+              'linear-gradient(135deg, #4f8ef7 0%, #f4d77a 50%, #4f8ef7 100%)',
+            color: '#0d1117',
             fontFamily: "'DM Sans', system-ui, sans-serif",
             fontWeight: 700,
             fontSize: 14,
             borderRadius: 999,
             textDecoration: 'none',
-            boxShadow: '0 8px 24px -8px rgba(212,175,55,0.5)',
+            boxShadow: '0 8px 24px -8px rgba(79,142,247,0.5)',
           }}
         >
           Upgrade to {tierLabel} &rarr;

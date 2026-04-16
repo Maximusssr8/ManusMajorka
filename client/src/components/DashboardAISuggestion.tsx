@@ -36,7 +36,7 @@ const ICON_MAP = {
 };
 
 const COLOR_MAP = {
-  zap: '#d4af37',
+  zap: '#4f8ef7',
   trending: '#22c55e',
   chart: '#4ab8f5',
 };
@@ -48,7 +48,7 @@ const FALLBACK_CARDS: ActionCard[] = [
     context: 'Start with AI product discovery',
     action: 'Discover Now',
     path: '/app/product-discovery',
-    color: '#d4af37',
+    color: '#4f8ef7',
   },
   {
     icon: 'trending',
@@ -190,9 +190,9 @@ export function DashboardAISuggestion({ userProfile }: Props) {
     <div className="col-span-full" style={{ marginBottom: 24 }}>
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <Bot size={13} style={{ color: '#d4af37', flexShrink: 0 }} />
+        <Bot size={13} style={{ color: '#4f8ef7', flexShrink: 0 }} />
         <span style={{
-          fontSize: 11, color: '#d4af37', fontWeight: 700,
+          fontSize: 11, color: '#4f8ef7', fontWeight: 700,
           textTransform: 'uppercase', letterSpacing: '0.08em',
           fontFamily: "'Syne', sans-serif",
         }}>
@@ -211,7 +211,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
               display: 'flex', alignItems: 'center',
               transition: 'color 150ms ease',
             }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#d4af37')}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#4f8ef7')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF')}
           >
             <RefreshCw size={12} />

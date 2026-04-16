@@ -239,7 +239,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
               className="text-lg font-extrabold flex items-center gap-2"
               style={{ fontFamily: "'Syne', sans-serif", color: '#F8FAFC' }}
             >
-              <Smartphone size={18} style={{ color: '#d4af37' }} />
+              <Smartphone size={18} style={{ color: '#4f8ef7' }} />
               TikTok Slides
             </h1>
             <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -290,9 +290,9 @@ Return ONLY the updated JSON. Same structure, better content.`,
                   className="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all"
                   style={{
                     background:
-                      hookStyle === h ? 'rgba(212,175,55,0.12)' : '#FAFAFA',
-                    border: `1.5px solid ${hookStyle === h ? 'rgba(212,175,55,0.4)' : '#F9FAFB'}`,
-                    color: hookStyle === h ? '#d4af37' : '#6B7280',
+                      hookStyle === h ? 'rgba(79,142,247,0.12)' : '#FAFAFA',
+                    border: `1.5px solid ${hookStyle === h ? 'rgba(79,142,247,0.4)' : '#F9FAFB'}`,
+                    color: hookStyle === h ? '#4f8ef7' : '#6B7280',
                     cursor: 'pointer',
                   }}
                 >
@@ -313,9 +313,9 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
                     style={{
                       background:
-                        slideCount === c ? 'rgba(212,175,55,0.12)' : '#FAFAFA',
-                      border: `1.5px solid ${slideCount === c ? 'rgba(212,175,55,0.4)' : '#F9FAFB'}`,
-                      color: slideCount === c ? '#d4af37' : '#6B7280',
+                        slideCount === c ? 'rgba(79,142,247,0.12)' : '#FAFAFA',
+                      border: `1.5px solid ${slideCount === c ? 'rgba(79,142,247,0.4)' : '#F9FAFB'}`,
+                      color: slideCount === c ? '#4f8ef7' : '#6B7280',
                       cursor: 'pointer',
                     }}
                   >
@@ -346,7 +346,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
             disabled={generating || !productName.trim()}
             className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #d4af37)',
+              background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)',
               color: '#FAFAFA',
               fontFamily: "'Syne', sans-serif",
               cursor: generating ? 'wait' : 'pointer',
@@ -373,9 +373,9 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 onClick={handleCopyAll}
                 className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
                 style={{
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.2)',
-                  color: '#d4af37',
+                  background: 'rgba(79,142,247,0.08)',
+                  border: '1px solid rgba(79,142,247,0.2)',
+                  color: '#4f8ef7',
                   cursor: 'pointer',
                   fontFamily: "'Syne', sans-serif",
                 }}
@@ -520,13 +520,13 @@ Return ONLY the updated JSON. Same structure, better content.`,
                           result.slides[currentSlide]?.type === 'hook'
                             ? 'rgba(239,68,68,0.2)'
                             : result.slides[currentSlide]?.type === 'cta'
-                              ? 'rgba(212,175,55,0.2)'
+                              ? 'rgba(79,142,247,0.2)'
                               : '#F5F5F5',
                         color:
                           result.slides[currentSlide]?.type === 'hook'
                             ? '#ef4444'
                             : result.slides[currentSlide]?.type === 'cta'
-                              ? '#d4af37'
+                              ? '#4f8ef7'
                               : '#6B7280',
                         fontSize: 9,
                         fontFamily: "'Syne', sans-serif",
@@ -583,7 +583,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                           style={{
                             width: i === currentSlide ? 16 : 6,
                             height: 6,
-                            background: i === currentSlide ? '#d4af37' : '#D1D5DB',
+                            background: i === currentSlide ? '#4f8ef7' : '#D1D5DB',
                             cursor: 'pointer',
                             border: 'none',
                           }}
@@ -721,11 +721,11 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 <div
                   className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
                   style={{
-                    background: 'rgba(212,175,55,0.08)',
-                    border: '1px solid rgba(212,175,55,0.15)',
+                    background: 'rgba(79,142,247,0.08)',
+                    border: '1px solid rgba(79,142,247,0.15)',
                   }}
                 >
-                  <Smartphone size={28} style={{ color: '#d4af37' }} />
+                  <Smartphone size={28} style={{ color: '#4f8ef7' }} />
                 </div>
                 <h2
                   className="text-base font-extrabold mb-2"

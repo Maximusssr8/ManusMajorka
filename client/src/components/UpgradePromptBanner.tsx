@@ -32,8 +32,8 @@ export default function UpgradePromptBanner() {
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12,
-        background: 'rgba(212,175,55,0.06)',
-        border: '1px solid rgba(212,175,55,0.18)',
+        background: 'rgba(79,142,247,0.06)',
+        border: '1px solid rgba(79,142,247,0.18)',
         borderRadius: 10,
         padding: '10px 14px',
         marginBottom: 16,
@@ -41,7 +41,7 @@ export default function UpgradePromptBanner() {
       }}
     >
       <span style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.5, flex: 1, minWidth: 200 }}>
-        ⚡ <strong style={{ color: '#d4af37' }}>Only {remaining} searches left today.</strong>{' '}
+        ⚡ <strong style={{ color: '#4f8ef7' }}>Only {remaining} searches left today.</strong>{' '}
         Pro users found <strong style={{ color: '#F8FAFC' }}>47 winning products</strong> today.
       </span>
 
@@ -49,7 +49,7 @@ export default function UpgradePromptBanner() {
         <button
           onClick={() => setLocation('/pricing')}
           style={{
-            background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
+            background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)',
             color: '#FFFFFF',
             border: 'none',
             borderRadius: 8,

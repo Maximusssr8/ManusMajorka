@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BarChart2, TrendingUp, Package, Star, Sparkles, FileText, Megaphone, Bookmark } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-const CATEGORY_COLOURS = ['#d4af37','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#d4af37','#ef4444','#84cc16','#06b6d4','#d4af37','#78716c','#0ea5e9','#d946ef'];
+const CATEGORY_COLOURS = ['#4f8ef7','#10b981','#f59e0b','#f97316','#3b82f6','#ec4899','#14b8a6','#4f8ef7','#ef4444','#84cc16','#06b6d4','#4f8ef7','#78716c','#0ea5e9','#d946ef'];
 
 interface MyActivity {
   briefs: number;
@@ -115,10 +115,10 @@ export default function Analytics() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
         {[
-          { label: 'Total Products', value: loading ? '—' : (overview?.total || 0).toLocaleString(), icon: Package, color: '#d4af37', bg: 'rgba(212,175,55,0.12)', trend: 'Tracked in database' },
+          { label: 'Total Products', value: loading ? '—' : (overview?.total || 0).toLocaleString(), icon: Package, color: '#4f8ef7', bg: 'rgba(79,142,247,0.12)', trend: 'Tracked in database' },
           { label: 'Score 90+', value: loading ? '—' : (overview?.score90 || 0).toLocaleString(), icon: Star, color: '#10b981', bg: 'rgba(16,185,129,0.12)', trend: `${elitePct}% of database` },
           { label: 'New This Week', value: loading ? '—' : (overview?.newThisWeek || 0).toLocaleString(), icon: TrendingUp, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', trend: 'Added last 7 days' },
-          { label: 'Categories', value: loading ? '—' : String(categories.length), icon: BarChart2, color: '#e5c158', bg: 'rgba(229,193,88,0.12)', trend: 'Across the database' },
+          { label: 'Categories', value: loading ? '—' : String(categories.length), icon: BarChart2, color: '#6ba3ff', bg: 'rgba(229,193,88,0.12)', trend: 'Across the database' },
         ].map(kpi => (
           <div key={kpi.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
@@ -145,10 +145,10 @@ export default function Analytics() {
           ].map(t => (
             <div key={t.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <t.icon size={13} color="#d4af37" />
+                <t.icon size={13} color="#4f8ef7" />
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.label}</span>
               </div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#d4af37', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '-0.01em' }}>{t.value}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#4f8ef7', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', letterSpacing: '-0.01em' }}>{t.value}</div>
             </div>
           ))}
         </div>
@@ -163,8 +163,8 @@ export default function Analytics() {
             disabled={recategorising}
             style={{
               padding: '6px 12px', borderRadius: 8,
-              background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)',
-              color: '#d4af37', fontSize: 11, fontWeight: 600, cursor: recategorising ? 'wait' : 'pointer',
+              background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.3)',
+              color: '#4f8ef7', fontSize: 11, fontWeight: 600, cursor: recategorising ? 'wait' : 'pointer',
             }}
           >{recategorising ? 'Re-categorising…' : 'Re-categorise'}</button>
         </div>

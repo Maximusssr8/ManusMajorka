@@ -13,12 +13,12 @@ const mono = "'DM Mono', 'Fira Code', monospace";
 
 const STYLES = `
 @keyframes live-glow {
-  0%, 100% { box-shadow: 0 0 40px rgba(212,175,55,0.12), 0 0 80px rgba(212,175,55,0.04); }
-  50%       { box-shadow: 0 0 60px rgba(212,175,55,0.22), 0 0 120px rgba(212,175,55,0.08); }
+  0%, 100% { box-shadow: 0 0 40px rgba(79,142,247,0.12), 0 0 80px rgba(79,142,247,0.04); }
+  50%       { box-shadow: 0 0 60px rgba(79,142,247,0.22), 0 0 120px rgba(79,142,247,0.08); }
 }
 @keyframes live-glow-success {
-  0%, 100% { box-shadow: 0 0 60px rgba(212,175,55,0.3), 0 0 100px rgba(212,175,55,0.12); }
-  50%       { box-shadow: 0 0 90px rgba(212,175,55,0.45), 0 0 150px rgba(212,175,55,0.2); }
+  0%, 100% { box-shadow: 0 0 60px rgba(79,142,247,0.3), 0 0 100px rgba(79,142,247,0.12); }
+  50%       { box-shadow: 0 0 90px rgba(79,142,247,0.45), 0 0 150px rgba(79,142,247,0.2); }
 }
 @keyframes thinking-dot {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
@@ -49,19 +49,19 @@ const STYLES = `
 }
 .live-dot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: #d4af37;
+  background: #4f8ef7;
   animation: thinking-dot 1.4s ease-in-out infinite;
 }
 .live-dot:nth-child(2) { animation-delay: 0.16s; }
 .live-dot:nth-child(3) { animation-delay: 0.32s; }
 .live-cursor {
   display: inline-block; width: 2px; height: 14px;
-  background: #d4af37; border-radius: 1px;
+  background: #4f8ef7; border-radius: 1px;
   vertical-align: middle; margin-left: 2px;
   animation: cursor-blink 0.7s step-end infinite;
 }
 .widget-shimmer-cta {
-  background: linear-gradient(90deg, #3B82F6 0%, #d4af37 25%, #A5B4FC 50%, #d4af37 75%, #3B82F6 100%);
+  background: linear-gradient(90deg, #3B82F6 0%, #4f8ef7 25%, #A5B4FC 50%, #4f8ef7 75%, #3B82F6 100%);
   background-size: 200% 100%;
   animation: shimmer-cta 3s linear infinite;
 }
@@ -126,7 +126,7 @@ const TABS: TabConfig[] = [
     chips: ['buy $8 sell $49', 'buy $12 sell $69', 'buy $5 sell $29', 'buy $20 sell $99'],
     placeholder: 'Try: buy $8 sell $49 AU',
     toolName: 'profit-calculator',
-    accent: '#d4af37',
+    accent: '#4f8ef7',
     subLabel: 'Validate margins — instant AUD numbers',
   },
   {
@@ -272,12 +272,12 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
 
   const rows = [
     { label: 'Buy Price', value: `$${buy.toFixed(2)}`, color: '#6B7280' },
-    { label: 'Sell Price', value: `$${sell.toFixed(2)}`, color: '#d4af37' },
-    { label: 'Gross Profit', value: `$${grossProfit.toFixed(2)}`, color: '#d4af37' },
+    { label: 'Sell Price', value: `$${sell.toFixed(2)}`, color: '#4f8ef7' },
+    { label: 'Gross Profit', value: `$${grossProfit.toFixed(2)}`, color: '#4f8ef7' },
     { label: 'Est. AU Shipping', value: '-$9.90', color: '#6B7280' },
     { label: 'Platform Fees', value: `-$${(sell * 0.035).toFixed(2)}`, color: '#6B7280' },
     { label: 'Net Profit', value: `$${netProfit.toFixed(2)}`, color: netProfit > 0 ? '#22c55e' : '#ef4444' },
-    { label: 'Break-even CPA', value: `$${breakEvenCpa.toFixed(2)}`, color: '#d4af37' },
+    { label: 'Break-even CPA', value: `$${breakEvenCpa.toFixed(2)}`, color: '#4f8ef7' },
   ];
 
   return (
@@ -292,7 +292,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
-            style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#d4af37' }}
+            style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#4f8ef7' }}
           >
             {grossMargin.toFixed(1)}%
           </motion.span>
@@ -330,7 +330,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
               alignItems: 'center',
               padding: '9px 14px',
               borderBottom: i < rows.length - 1 ? '1px solid #F9FAFB' : 'none',
-              background: i === rows.length - 2 ? 'rgba(212,175,55,0.04)' : 'transparent',
+              background: i === rows.length - 2 ? 'rgba(79,142,247,0.04)' : 'transparent',
             }}
           >
             <span style={{ fontFamily: dm, fontSize: 12, color: '#9CA3AF' }}>{row.label}</span>
@@ -393,10 +393,10 @@ function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; strea
                     initial={{ width: 0 }}
                     animate={{ width: `${card.score}%` }}
                     transition={{ duration: 0.6, ease: 'easeOut', delay: i * 0.1 }}
-                    style={{ height: '100%', background: card.score >= 80 ? '#22c55e' : '#d4af37', borderRadius: 2 }}
+                    style={{ height: '100%', background: card.score >= 80 ? '#22c55e' : '#4f8ef7', borderRadius: 2 }}
                   />
                 </div>
-                <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: card.score >= 80 ? '#22c55e' : '#d4af37', minWidth: 32, textAlign: 'right' }}>
+                <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: card.score >= 80 ? '#22c55e' : '#4f8ef7', minWidth: 32, textAlign: 'right' }}>
                   {card.score}
                 </span>
               </div>
@@ -424,7 +424,7 @@ function AdDisplay({ card }: { card: AdCard }) {
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid #E5E7EB' }}>
-          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37, #3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#FFFFFF', flexShrink: 0 }}>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#FFFFFF', flexShrink: 0 }}>
             M
           </div>
           <div>
@@ -456,7 +456,7 @@ function AdDisplay({ card }: { card: AdCard }) {
             <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: '#0A0A0A' }}>Majorka AI</div>
           </div>
           <div style={{
-            background: 'linear-gradient(135deg, #d4af37, #3B82F6)',
+            background: 'linear-gradient(135deg, #4f8ef7, #3B82F6)',
             color: '#FFFFFF',
             borderRadius: 6,
             padding: '8px 16px',
@@ -482,7 +482,7 @@ function renderInline(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*|\$[\d,.]+%?|[\d.]+%)/g);
   return parts.map((p, i) => {
     if (p.startsWith('**') && p.endsWith('**')) return <strong key={i} style={{ color: '#0A0A0A', fontWeight: 700 }}>{p.replace(/\*\*/g, '')}</strong>;
-    if (/^\$[\d,.]+/.test(p) || /^[\d.]+%$/.test(p)) return <span key={i} style={{ color: '#d4af37', fontWeight: 700, fontFamily: mono }}>{p}</span>;
+    if (/^\$[\d,.]+/.test(p) || /^[\d.]+%$/.test(p)) return <span key={i} style={{ color: '#4f8ef7', fontWeight: 700, fontFamily: mono }}>{p}</span>;
     return <span key={i}>{p}</span>;
   });
 }
@@ -495,7 +495,7 @@ function StreamingText({ text, streaming }: { text: string; streaming: boolean }
         if (!line) return <div key={i} style={{ height: 4 }} />;
         if (line.startsWith('## ') || line.startsWith('# ')) {
           return (
-            <div key={i} style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#d4af37', margin: '12px 0 5px', lineHeight: 1.3 }}>
+            <div key={i} style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#4f8ef7', margin: '12px 0 5px', lineHeight: 1.3 }}>
               {line.replace(/^#+\s*/, '')}
             </div>
           );
@@ -503,7 +503,7 @@ function StreamingText({ text, streaming }: { text: string; streaming: boolean }
         if (line.startsWith('- ') || line.startsWith('• ') || line.startsWith('→')) {
           return (
             <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 3 }}>
-              <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
+              <span style={{ color: '#4f8ef7', flexShrink: 0 }}>→</span>
               <span style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.65 }}>{renderInline(line.replace(/^[-•→]\s*/, ''))}</span>
             </div>
           );
@@ -683,7 +683,7 @@ export default function LiveDemoWidget() {
       <div
         style={{
           background: 'rgba(8,10,14,0.97)',
-          border: '1px solid rgba(212,175,55,0.28)',
+          border: '1px solid rgba(79,142,247,0.28)',
           borderRadius: 20,
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -697,20 +697,20 @@ export default function LiveDemoWidget() {
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'repeating-linear-gradient(0deg, #FAFAFA 0px, #FAFAFA 1px, transparent 1px, transparent 4px)' }} />
 
         {/* ── Top bar ── */}
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', background: 'rgba(0,0,0,0.45)', borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', background: 'rgba(0,0,0,0.45)', borderBottom: '1px solid rgba(79,142,247,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ display: 'flex', gap: 5 }}>
               <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
               <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
               <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#27c93f' }} />
             </div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 11, color: '#d4af37', letterSpacing: '0.08em', marginLeft: 6 }}>✦ Majorka AI</span>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 11, color: '#4f8ef7', letterSpacing: '0.08em', marginLeft: 6 }}>✦ Majorka AI</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {usesLeft > 0 ? (
               <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: dm }}>{usesLeft} free today</span>
             ) : (
-              <span style={{ fontSize: 11, color: '#d4af37', fontFamily: dm }}>Sign up for unlimited</span>
+              <span style={{ fontSize: 11, color: '#4f8ef7', fontFamily: dm }}>Sign up for unlimited</span>
             )}
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', animation: 'pulse-live 2s ease-in-out infinite' }} />
           </div>
@@ -731,7 +731,7 @@ export default function LiveDemoWidget() {
                   justifyContent: 'center',
                   gap: 6,
                   padding: '11px 8px',
-                  background: active ? 'rgba(212,175,55,0.05)' : 'transparent',
+                  background: active ? 'rgba(79,142,247,0.05)' : 'transparent',
                   border: 'none',
                   borderBottom: active ? `2px solid ${t.accent}` : '2px solid transparent',
                   cursor: 'pointer',
@@ -849,7 +849,7 @@ export default function LiveDemoWidget() {
           {hasResult && !thinking && !streaming && (
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={handleReset} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: 11, fontFamily: dm, padding: '2px 6px', transition: 'color 0.15s' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#d4af37')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#4f8ef7')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = '#3f3f46')}>
                 ↺ new query
               </button>
@@ -868,7 +868,7 @@ export default function LiveDemoWidget() {
             style={{
               flex: 1,
               background: '#F9FAFB',
-              border: '1px solid rgba(212,175,55,0.14)',
+              border: '1px solid rgba(79,142,247,0.14)',
               borderRadius: 10,
               padding: '10px 14px',
               fontSize: 13,
@@ -879,7 +879,7 @@ export default function LiveDemoWidget() {
               transition: 'border-color 0.15s',
             }}
             onFocus={(e) => (e.target.style.borderColor = `${tab.accent}60`)}
-            onBlur={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.14)')}
+            onBlur={(e) => (e.target.style.borderColor = 'rgba(79,142,247,0.14)')}
           />
           <button
             onClick={() => handleSend()}
@@ -913,7 +913,7 @@ export default function LiveDemoWidget() {
               exit={{ opacity: 0 }}
               style={{ position: 'absolute', inset: 0, zIndex: 10, background: 'rgba(8,10,14,0.93)', backdropFilter: 'blur(8px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: 32, textAlign: 'center' }}
             >
-              <Lock size={30} color="#d4af37" />
+              <Lock size={30} color="#4f8ef7" />
               <div>
                 <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#FFFFFF', marginBottom: 8 }}>You've seen what Maya can do</h3>
                 <p style={{ fontFamily: dm, fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 340 }}>Sign up free for unlimited queries, all 3 tools, and full access to the AI OS.</p>
@@ -921,7 +921,7 @@ export default function LiveDemoWidget() {
               <Link
                 href="/sign-in"
                 className="widget-shimmer-cta"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#FFFFFF', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none', minHeight: 52, boxShadow: '0 0 32px rgba(212,175,55,0.3)' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#FFFFFF', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none', minHeight: 52, boxShadow: '0 0 32px rgba(79,142,247,0.3)' }}
               >
                 Start Free — No Credit Card →
               </Link>
@@ -938,7 +938,7 @@ export default function LiveDemoWidget() {
         <span style={{ fontSize: 11, color: '#6B7280', fontFamily: dm }}>Try free — no signup required</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <div style={{ width: 13, height: 13, borderRadius: 3, background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 7, color: '#d4af37', fontWeight: 800 }}>A</span>
+            <span style={{ fontSize: 7, color: '#4f8ef7', fontWeight: 800 }}>A</span>
           </div>
           <span style={{ fontSize: 11, color: '#6B7280', fontFamily: dm }}>Powered by Majorka AI</span>
         </div>

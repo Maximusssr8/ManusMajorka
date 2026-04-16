@@ -92,9 +92,9 @@ const PLATFORMS = ['Shopify', 'WooCommerce', 'eBay AU', 'Amazon', 'Other'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const GOLD = '#d4af37';
-const GOLD_DIM = 'rgba(212,175,55,0.18)';
-const GOLD_BORDER = 'rgba(212,175,55,0.4)';
+const GOLD = '#4f8ef7';
+const GOLD_DIM = 'rgba(79,142,247,0.18)';
+const GOLD_BORDER = 'rgba(79,142,247,0.4)';
 const DIM_BG = '#FAFAFA';
 const DIM_BORDER = '#F5F5F5';
 
@@ -123,7 +123,7 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
                 background: active
                   ? GOLD
                   : done
-                    ? 'rgba(212,175,55,0.5)'
+                    ? 'rgba(79,142,247,0.5)'
                     : '#D1D5DB',
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -360,7 +360,7 @@ export default function Onboarding() {
       style={{
         background: '#05070F',
         backgroundImage:
-          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 70%)',
+          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(79,142,247,0.06) 0%, transparent 70%)',
       }}
     >
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
@@ -413,7 +413,7 @@ export default function Onboarding() {
         >
           <motion.div
             className="h-full"
-            style={{ background: `linear-gradient(90deg, ${GOLD}, #d4af37)` }}
+            style={{ background: `linear-gradient(90deg, ${GOLD}, #4f8ef7)` }}
             animate={{ width: `${((typeof step === 'number' ? step : 5) / 5) * 100}%` }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           />
@@ -983,7 +983,7 @@ export default function Onboarding() {
                       fontFamily: "'Syne', sans-serif",
                       cursor: storeType ? 'pointer' : 'not-allowed',
                       border: 'none',
-                      boxShadow: storeType ? '0 8px 24px rgba(212,175,55,0.2)' : 'none',
+                      boxShadow: storeType ? '0 8px 24px rgba(79,142,247,0.2)' : 'none',
                     }}
                   >
                     Finish Setup <ChevronRight size={15} />
@@ -1034,7 +1034,7 @@ export default function Onboarding() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   style={{
-                    background: 'rgba(212,175,55,0.05)',
+                    background: 'rgba(79,142,247,0.05)',
                     border: `1.5px solid ${GOLD_BORDER}`,
                     borderRadius: 16,
                     padding: '20px 24px',
@@ -1101,7 +1101,7 @@ export default function Onboarding() {
                       fontFamily: "'Syne', sans-serif",
                       cursor: 'pointer',
                       border: 'none',
-                      boxShadow: '0 8px 32px rgba(212,175,55,0.25)',
+                      boxShadow: '0 8px 32px rgba(79,142,247,0.25)',
                     }}
                   >
                     Go to Dashboard <ArrowRight size={15} />

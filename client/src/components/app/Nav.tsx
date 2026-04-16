@@ -90,8 +90,8 @@ export function Nav({ onNavigate }: NavProps = {}) {
       aria-label="Main navigation"
       className="relative w-[220px] h-full border-r flex flex-col shrink-0 font-body overflow-hidden"
       style={{
-        background: '#080808',
-        borderColor: '#1a1a1a',
+        background: '#04060f',
+        borderColor: '#161b22',
       }}
     >
       {/* Top ambient gold mesh */}
@@ -99,11 +99,11 @@ export function Nav({ onNavigate }: NavProps = {}) {
         className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 80% 60% at 30% 0%, rgba(212,175,55,0.08) 0%, transparent 70%)',
+            'radial-gradient(ellipse 80% 60% at 30% 0%, rgba(79,142,247,0.08) 0%, transparent 70%)',
         }}
       />
       {/* Hairline gold inner glow */}
-      <div className="absolute inset-y-0 right-0 w-px pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent, rgba(212,175,55,0.22), transparent)' }} />
+      <div className="absolute inset-y-0 right-0 w-px pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent, rgba(79,142,247,0.22), transparent)' }} />
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Logo + wordmark — uses shared MajorkaLogo lockup */}
@@ -136,7 +136,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
         <div className="mx-2 mb-2">
           <div
             className="flex items-center gap-2 px-3 py-2 rounded-lg"
-            style={{ background: '#0a0a0a', border: '1px solid #1a1a1a' }}
+            style={{ background: '#0a0a0a', border: '1px solid #161b22' }}
           >
             <Search size={13} style={{ color: '#737373' }} className="shrink-0" strokeWidth={1.75} />
             <input
@@ -192,12 +192,12 @@ export function Nav({ onNavigate }: NavProps = {}) {
                       style={
                         active
                           ? {
-                              background: 'rgba(212,175,55,0.06)',
-                              borderLeft: '2px solid #d4af37',
-                              color: '#d4af37',
+                              background: 'rgba(79,142,247,0.06)',
+                              borderLeft: '2px solid #4f8ef7',
+                              color: '#4f8ef7',
                               fontWeight: 600,
                               boxShadow:
-                                '0 0 0 1px rgba(212,175,55,0.08), 0 6px 24px -10px rgba(59,130,246,0.25), inset 0 0 20px rgba(212,175,55,0.05)',
+                                '0 0 0 1px rgba(79,142,247,0.08), 0 6px 24px -10px rgba(59,130,246,0.25), inset 0 0 20px rgba(79,142,247,0.05)',
                             }
                           : item.soon
                             ? { color: '#525252', cursor: 'not-allowed', borderLeft: '2px solid transparent' }
@@ -205,7 +205,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
                       }
                       onMouseEnter={(e) => {
                         if (!active && !item.soon) {
-                          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(212,175,55,0.04)';
+                          (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(79,142,247,0.04)';
                           (e.currentTarget as HTMLAnchorElement).style.color = '#e5e5e5';
                         }
                       }}
@@ -234,9 +234,9 @@ export function Nav({ onNavigate }: NavProps = {}) {
                         <span
                           className="text-[10px] px-1.5 py-0.5 rounded shrink-0"
                           style={{
-                            background: 'rgba(212,175,55,0.12)',
-                            border: '1px solid rgba(212,175,55,0.3)',
-                            color: '#e5c158',
+                            background: 'rgba(79,142,247,0.12)',
+                            border: '1px solid rgba(79,142,247,0.3)',
+                            color: '#6ba3ff',
                           }}
                         >
                           Soon
@@ -253,13 +253,13 @@ export function Nav({ onNavigate }: NavProps = {}) {
         {/* User row */}
         <div
           className="px-3 py-3 flex items-center gap-2.5 shrink-0"
-          style={{ borderTop: '1px solid #1a1a1a' }}
+          style={{ borderTop: '1px solid #161b22' }}
         >
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #e5c158)',
-              color: '#080808',
+              background: 'linear-gradient(135deg, #4f8ef7, #6ba3ff)',
+              color: '#04060f',
             }}
           >
             {initial}
@@ -269,9 +269,9 @@ export function Nav({ onNavigate }: NavProps = {}) {
             <span
               className="text-[9px] px-1.5 py-0.5 rounded font-bold shrink-0"
               style={{
-                background: 'rgba(212,175,55,0.14)',
-                color: '#d4af37',
-                border: '1px solid rgba(212,175,55,0.3)',
+                background: 'rgba(79,142,247,0.14)',
+                color: '#4f8ef7',
+                border: '1px solid rgba(79,142,247,0.3)',
               }}
             >
               {isPro ? 'SCALE' : 'BUILDER'}
@@ -283,7 +283,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
             aria-label="Settings"
             className="transition-colors cursor-pointer shrink-0 flex items-center no-underline"
             style={{ color: '#737373' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = '#d4af37')}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = '#4f8ef7')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = '#737373')}
           >
             <Settings size={14} strokeWidth={1.75} />
@@ -304,11 +304,11 @@ export function Nav({ onNavigate }: NavProps = {}) {
           >
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: 'rgba(212,175,55,0.10)', border: '1px solid rgba(212,175,55,0.25)' }}
+              style={{ background: 'rgba(79,142,247,0.10)', border: '1px solid rgba(79,142,247,0.25)' }}
             >
               {(() => {
                 const Icon = comingSoonItem.icon;
-                return <Icon size={20} style={{ color: '#d4af37' }} strokeWidth={2} />;
+                return <Icon size={20} style={{ color: '#4f8ef7' }} strokeWidth={2} />;
               })()}
             </div>
             <h2
@@ -323,7 +323,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
                 : `${comingSoonItem.label} is in active development and will land in the next release. We'll notify all users when it's live.`}
             </p>
             <div className="flex items-center gap-2 text-[11px] mb-6" style={{ color: '#737373' }}>
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#d4af37' }} />
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#4f8ef7' }} />
               <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>In development · ETA next update</span>
             </div>
             <button

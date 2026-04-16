@@ -208,13 +208,13 @@ function MiniSparkline({ data, width = 120, height = 32, positive }: { data: num
 }
 
 const TAG_STYLE: Record<string, { color: string; bg: string }> = {
-  'VIRAL':           { color: '#d4af37', bg: '#F3E8FF' },
+  'VIRAL':           { color: '#4f8ef7', bg: '#F3E8FF' },
   'HIGH MARGIN':     { color: '#059669', bg: '#ECFDF5' },
   'AU DEMAND':       { color: '#D97706', bg: '#FEF3C7' },
-  'AU BEST SELLERS': { color: '#d4af37', bg: 'rgba(212,175,55,0.08)' },
+  'AU BEST SELLERS': { color: '#4f8ef7', bg: 'rgba(79,142,247,0.08)' },
   'TRENDING':        { color: '#9CA3AF', bg: 'rgba(255,255,255,0.06)' },
   'IN THE NEWS':     { color: '#D97706', bg: '#FEF3C7' },
-  'TIKTOK':          { color: '#d4af37', bg: '#F3E8FF' },
+  'TIKTOK':          { color: '#4f8ef7', bg: '#F3E8FF' },
   'AE CHOICE':       { color: '#ff6a00', bg: 'rgba(255,106,0,0.12)' },
 };
 
@@ -222,7 +222,7 @@ function ScoreBadge({ score }: { score: number }) {
   const tier = score >= 80
     ? { bg: 'rgba(52,211,153,0.08)', color: '#34d399', border: 'rgba(52,211,153,0.2)', prefix: '🔥 ' }
     : score >= 60
-    ? { bg: 'rgba(212,175,55,0.08)', color: '#e5c158', border: 'rgba(212,175,55,0.2)', prefix: '' }
+    ? { bg: 'rgba(79,142,247,0.08)', color: '#6ba3ff', border: 'rgba(79,142,247,0.2)', prefix: '' }
     : score >= 40
     ? { bg: 'rgba(245,158,11,0.08)', color: '#F59E0B', border: 'rgba(245,158,11,0.2)', prefix: '' }
     : { bg: 'rgba(255,255,255,0.04)', color: '#9CA3AF', border: 'rgba(255,255,255,0.1)', prefix: '' };
@@ -243,7 +243,7 @@ function QualityTierBadge({ tier, score }: { tier?: string; score?: number }) {
     viral:    { label: 'Viral',    bg: 'rgba(239,68,68,0.12)',    color: '#EF4444', border: 'rgba(239,68,68,0.3)' },
     winning:  { label: 'Winning',  bg: 'rgba(34,197,94,0.1)',     color: '#22C55E', border: 'rgba(34,197,94,0.25)' },
     rising:   { label: 'Rising',   bg: 'rgba(245,158,11,0.1)',    color: '#F59E0B', border: 'rgba(245,158,11,0.25)' },
-    emerging: { label: 'Emerging', bg: 'rgba(212,175,55,0.1)',    color: '#e5c158', border: 'rgba(212,175,55,0.2)' },
+    emerging: { label: 'Emerging', bg: 'rgba(79,142,247,0.1)',    color: '#6ba3ff', border: 'rgba(79,142,247,0.2)' },
   };
   const c = config[effective as string] || config.emerging;
   return (
@@ -260,7 +260,7 @@ function TrendVelocityBadge({ orders }: { orders: number }) {
     </span>
   );
   if (orders >= 2000) return (
-    <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(212,175,55,0.15)', color: '#e5c158', border: '1px solid rgba(212,175,55,0.3)', whiteSpace: 'nowrap' as const, letterSpacing: '0.05em' }}>
+    <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(79,142,247,0.15)', color: '#6ba3ff', border: '1px solid rgba(79,142,247,0.3)', whiteSpace: 'nowrap' as const, letterSpacing: '0.05em' }}>
       RISING
     </span>
   );
@@ -304,7 +304,7 @@ function SupplierDropdown({ product }: { product: Product }) {
           {links.map(l => (
             <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
               style={{ display: 'block', padding: '8px 14px', fontSize: 13, color: '#e4e4e7', textDecoration: 'none' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,175,55,0.1)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(79,142,247,0.1)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
               {l.label}
             </a>
@@ -628,15 +628,15 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   // Sort indicator
   const SortIcon = ({ col }: { col: string }) => {
     if (sortBy !== col) return <span style={{ color: '#D1D5DB', fontSize: 10, marginLeft: 3 }}>&#8597;</span>;
-    return <span style={{ color: '#d4af37', fontSize: 10, marginLeft: 3 }}>{sortDir === 'desc' ? '\u2193' : '\u2191'}</span>;
+    return <span style={{ color: '#4f8ef7', fontSize: 10, marginLeft: 3 }}>{sortDir === 'desc' ? '\u2193' : '\u2191'}</span>;
   };
 
   const thStyle = (col: string, width: number, align: 'left' | 'center' | 'right' = 'left'): React.CSSProperties => ({
     width, minWidth: width, padding: '0 12px', fontSize: 11, fontWeight: 700,
-    color: sortBy === col ? '#d4af37' : '#9CA3AF',
+    color: sortBy === col ? '#4f8ef7' : '#9CA3AF',
     textTransform: 'uppercase' as const, letterSpacing: '0.06em', cursor: 'pointer',
     textAlign: align, userSelect: 'none', whiteSpace: 'nowrap' as const,
-    borderBottom: `2px solid ${sortBy === col ? '#d4af37' : 'rgba(255,255,255,0.06)'}`,
+    borderBottom: `2px solid ${sortBy === col ? '#4f8ef7' : 'rgba(255,255,255,0.06)'}`,
     paddingBottom: 10, transition: 'color 150ms',
   });
 
@@ -663,7 +663,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               </ShimmerButton>
             )}
             <button onClick={handleRefresh} disabled={refreshing}
-              style={{ height: isMobile ? 32 : 36, padding: isMobile ? '0 10px' : '0 16px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ height: isMobile ? 32 : 36, padding: isMobile ? '0 10px' : '0 16px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ display: 'inline-block', animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>{'\u21BB'}</span>
               {isMobile ? '' : (refreshing ? 'Refreshing...' : 'Refresh')}
             </button>
@@ -706,7 +706,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               placeholder="Search products..."
               className="dark-input"
               style={{ height: 36, paddingLeft: 32, paddingRight: 12, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 13, outline: 'none', background: 'rgba(255,255,255,0.06)', color: '#e4e4e7', width: 200, minWidth: 150 }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#d4af37'; }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#4f8ef7'; }}
               onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
           </div>
 
@@ -730,7 +730,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
           {/* 500+ orders toggle */}
           <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#94A3B8', cursor: 'pointer' }}>
-            <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)} style={{ accentColor: '#d4af37', width: 14, height: 14 }} />
+            <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)} style={{ accentColor: '#4f8ef7', width: 14, height: 14 }} />
             500+ orders only
           </label>
 
@@ -798,7 +798,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <div className="tab-scroll-container" style={{ display: 'flex', gap: 0, borderBottom: '2px solid rgba(255,255,255,0.06)', marginBottom: 0, overflowX: 'auto' as const, WebkitOverflowScrolling: 'touch' as const, scrollbarWidth: 'none' as const, msOverflowStyle: 'none' as const }}>
             {TAB_FILTERS.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
-                style={{ height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500, color: activeTab === t.id ? '#d4af37' : '#9CA3AF', borderBottom: activeTab === t.id ? '3px solid #d4af37' : '3px solid transparent', whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120 }}>
+                style={{ height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500, color: activeTab === t.id ? '#4f8ef7' : '#9CA3AF', borderBottom: activeTab === t.id ? '3px solid #4f8ef7' : '3px solid transparent', whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120 }}>
                 {t.label}
               </button>
             ))}
@@ -816,16 +816,16 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginBottom: 16 }}>
             <button onClick={() => setViewMode('list')} style={{
               padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
-              background: viewMode === 'list' ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
-              color: viewMode === 'list' ? '#e5c158' : 'rgba(255,255,255,0.4)',
-              border: viewMode === 'list' ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.06)',
+              background: viewMode === 'list' ? 'rgba(79,142,247,0.15)' : 'rgba(255,255,255,0.04)',
+              color: viewMode === 'list' ? '#6ba3ff' : 'rgba(255,255,255,0.4)',
+              border: viewMode === 'list' ? '1px solid rgba(79,142,247,0.3)' : '1px solid rgba(255,255,255,0.06)',
               cursor: 'pointer',
             }}>≡ List</button>
             <button onClick={() => setViewMode('grid')} style={{
               padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
-              background: viewMode === 'grid' ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
-              color: viewMode === 'grid' ? '#e5c158' : 'rgba(255,255,255,0.4)',
-              border: viewMode === 'grid' ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.06)',
+              background: viewMode === 'grid' ? 'rgba(79,142,247,0.15)' : 'rgba(255,255,255,0.04)',
+              color: viewMode === 'grid' ? '#6ba3ff' : 'rgba(255,255,255,0.4)',
+              border: viewMode === 'grid' ? '1px solid rgba(79,142,247,0.3)' : '1px solid rgba(255,255,255,0.06)',
               cursor: 'pointer',
             }}>⊞ Grid</button>
           </div>
@@ -833,12 +833,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         
         {/* Blur gate banner */}
         {!canSeeFinancials && !isAdmin && (
-          <div style={{background:'linear-gradient(135deg,rgba(212,175,55,0.08),#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
+          <div style={{background:'linear-gradient(135deg,rgba(79,142,247,0.08),#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
             <div>
               <div style={{fontFamily: "'DM Sans', system-ui, sans-serif",fontWeight:800,fontSize:15,color:'#E2E8F0'}}>Showing 10 of {filteredProducts.length} products</div>
               <div style={{fontSize:13,color:'#4B5563',marginTop:2}}>Unlock full database, margins, and revenue data on Builder plan</div>
             </div>
-            <button onClick={()=>setShowUpgrade(true)} style={{padding:'10px 20px',background:'#d4af37',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily: "'DM Sans', system-ui, sans-serif",whiteSpace:'nowrap' as const}}>
+            <button onClick={()=>setShowUpgrade(true)} style={{padding:'10px 20px',background:'#4f8ef7',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily: "'DM Sans', system-ui, sans-serif",whiteSpace:'nowrap' as const}}>
               Unlock All {filteredProducts.length} →
             </button>
           </div>
@@ -856,7 +856,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLElement;
-                    el.style.borderColor = 'rgba(212,175,55,0.3)';
+                    el.style.borderColor = 'rgba(79,142,247,0.3)';
                     el.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
                   }}
                   onMouseLeave={e => {
@@ -886,7 +886,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       <div style={{
                         height: '100%', borderRadius: 3,
                         width: `${p.winning_score || 0}%`,
-                        background: (p.winning_score || 0) >= 80 ? '#10B981' : (p.winning_score || 0) >= 60 ? '#F59E0B' : '#d4af37',
+                        background: (p.winning_score || 0) >= 80 ? '#10B981' : (p.winning_score || 0) >= 60 ? '#F59E0B' : '#4f8ef7',
                       }} />
                     </div>
                     <div style={{ marginTop: 4, fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.winning_score}/100</div>
@@ -912,7 +912,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     No results for &ldquo;{search}&rdquo;
                   </div>
                   <div style={{ fontSize: 13, marginBottom: 20, lineHeight: 1.6 }}>
-                    Try searching: <span style={{ color: '#d4af37' }}>dog harness</span> · <span style={{ color: '#d4af37' }}>gua sha</span> · <span style={{ color: '#d4af37' }}>fridge organiser</span> · <span style={{ color: '#d4af37' }}>resistance bands</span> · <span style={{ color: '#d4af37' }}>cold brew</span>
+                    Try searching: <span style={{ color: '#4f8ef7' }}>dog harness</span> · <span style={{ color: '#4f8ef7' }}>gua sha</span> · <span style={{ color: '#4f8ef7' }}>fridge organiser</span> · <span style={{ color: '#4f8ef7' }}>resistance bands</span> · <span style={{ color: '#4f8ef7' }}>cold brew</span>
                   </div>
                   <div style={{ fontSize: 13, color: '#9CA3AF' }}>
                     Or browse by category using the tabs above ↑
@@ -927,7 +927,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               displayProducts.slice(0, mobileDisplayCount).map((product, idx) => {
                 const isBlurred = !canSeeFinancials && !isAdmin && idx >= 10;
                 const score = product.winning_score ?? product.signal_score ?? 0;
-                const scoreColor = score >= 80 ? '#22C55E' : score >= 60 ? '#F59E0B' : score >= 40 ? '#d4af37' : '#9CA3AF';
+                const scoreColor = score >= 80 ? '#22C55E' : score >= 60 ? '#F59E0B' : score >= 40 ? '#4f8ef7' : '#9CA3AF';
                 const revenue = getProductRevenue(product);
                 const margin = getProductMargin(product);
                 const price = getProductPrice(product);
@@ -937,8 +937,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   viral:    { label: '🔥 Viral',    color: '#EF4444' },
                   winning:  { label: '🟢 Winning',  color: '#22C55E' },
                   rising:   { label: '🟡 Rising',   color: '#F59E0B' },
-                  emerging: { label: '🔵 Emerging', color: '#e5c158' },
-                }[tier as string] || { label: '🔵 Emerging', color: '#e5c158' };
+                  emerging: { label: '🔵 Emerging', color: '#6ba3ff' },
+                }[tier as string] || { label: '🔵 Emerging', color: '#6ba3ff' };
 
                 return (
                   <div
@@ -948,14 +948,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     style={{
                       background: '#111114',
                       borderRadius: 12,
-                      border: `1px solid ${detailProduct?.id === product.id ? '#d4af37' : 'rgba(255,255,255,0.08)'}`,
+                      border: `1px solid ${detailProduct?.id === product.id ? '#4f8ef7' : 'rgba(255,255,255,0.08)'}`,
                       padding: 14,
                       marginBottom: 10,
                       cursor: isBlurred ? 'default' : 'pointer',
                       filter: isBlurred ? 'blur(4px)' : 'none',
                       userSelect: isBlurred ? 'none' as const : 'auto' as const,
                       WebkitUserSelect: isBlurred ? 'none' as const : 'auto' as const,
-                      boxShadow: detailProduct?.id === product.id ? '0 0 0 2px #d4af37' : '0 1px 3px rgba(0,0,0,0.04)',
+                      boxShadow: detailProduct?.id === product.id ? '0 0 0 2px #4f8ef7' : '0 1px 3px rgba(0,0,0,0.04)',
                       transition: 'box-shadow 150ms',
                       position: 'relative' as const,
                       overflow: 'hidden' as const,
@@ -968,7 +968,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         checked={selectedIds.has(String(product.id || idx))}
                         onChange={() => toggleSelect(String(product.id || idx))}
                         onClick={e => e.stopPropagation()}
-                        style={{ position: 'absolute', top: 12, right: 12, width: 14, height: 14, accentColor: '#d4af37', cursor: 'pointer', zIndex: 2 }}
+                        style={{ position: 'absolute', top: 12, right: 12, width: 14, height: 14, accentColor: '#4f8ef7', cursor: 'pointer', zIndex: 2 }}
                       />
                     )}
                     {/* Top row: image + title + score */}
@@ -985,7 +985,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         </div>
                         <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' as const }}>
                           {product.category && (
-                            <span style={{ fontSize: 10, fontWeight: 600, color: '#d4af37', background: 'rgba(212,175,55,0.08)', borderRadius: 4, padding: '2px 6px' }}>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: '#4f8ef7', background: 'rgba(79,142,247,0.08)', borderRadius: 4, padding: '2px 6px' }}>
                               {product.category}
                             </span>
                           )}
@@ -999,7 +999,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     {/* Source + TikTok badges */}
                     <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' as const }}>
                       {product.data_source === 'cj_api' ? (
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(212,175,55,0.1)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.2)' }}>CJ ✅</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(79,142,247,0.1)', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.2)' }}>CJ ✅</span>
                       ) : (product.data_source === 'aliexpress' || product.aliexpress_url) ? (
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(255,106,0,0.1)', color: '#EA580C' }}>AE{product.link_status === 'verified' ? ' ✓' : ''}</span>
                       ) : null}
@@ -1010,7 +1010,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)' }}>🔥 VIRAL</span>
                       )}
                       {product.tiktok_potential === 'high' && (
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(212,175,55,0.1)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.2)' }}>⚡ TikTok+</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(79,142,247,0.1)', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.2)' }}>⚡ TikTok+</span>
                       )}
                       <TrendVelocityBadge orders={product.real_orders_count || 0} />
                     </div>
@@ -1056,7 +1056,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
                         onClick={e => { e.stopPropagation(); if (!isBlurred) setDetailProduct(product); }}
-                        style={{ flex: 1, height: 36, background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                        style={{ flex: 1, height: 36, background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                       >
                         View Details →
                       </button>
@@ -1081,7 +1081,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             {displayProducts.length > mobileDisplayCount && (
               <button
                 onClick={() => setMobileDisplayCount(c => c + 20)}
-                style={{ width: '100%', height: 44, background: '#111114', color: '#d4af37', border: '2px solid #d4af37', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}
+                style={{ width: '100%', height: 44, background: '#111114', color: '#4f8ef7', border: '2px solid #4f8ef7', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}
               >
                 Load More ({displayProducts.length - mobileDisplayCount} remaining)
               </button>
@@ -1187,7 +1187,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           No results for &ldquo;{search}&rdquo;
                         </div>
                         <div style={{ fontSize: 13, marginBottom: 20, lineHeight: 1.6, color: '#94A3B8' }}>
-                          Try searching: <span style={{ color: '#d4af37' }}>dog harness</span> · <span style={{ color: '#d4af37' }}>gua sha</span> · <span style={{ color: '#d4af37' }}>fridge organiser</span> · <span style={{ color: '#d4af37' }}>resistance bands</span> · <span style={{ color: '#d4af37' }}>cold brew</span>
+                          Try searching: <span style={{ color: '#4f8ef7' }}>dog harness</span> · <span style={{ color: '#4f8ef7' }}>gua sha</span> · <span style={{ color: '#4f8ef7' }}>fridge organiser</span> · <span style={{ color: '#4f8ef7' }}>resistance bands</span> · <span style={{ color: '#4f8ef7' }}>cold brew</span>
                         </div>
                         <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>
                           Or browse by category using the tabs above ↑
@@ -1201,7 +1201,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       </>
                     )}
                     <button onClick={() => { setSearchInput(''); setOpportunityFilter('All'); setNiche('All Niches'); setVerifiedOnly(false); }}
-                      style={{ height: 38, padding: '0 20px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                      style={{ height: 38, padding: '0 20px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                       Clear All Filters
                     </button>
                   </td>
@@ -1239,12 +1239,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           borderBottom: '1px solid rgba(255,255,255,0.05)',
                           cursor: 'pointer',
                           transition: 'background 120ms',
-                          background: isSelected ? 'rgba(212,175,55,0.08)' : 'transparent',
-                          borderColor: isSelected ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)',
+                          background: isSelected ? 'rgba(79,142,247,0.08)' : 'transparent',
+                          borderColor: isSelected ? 'rgba(79,142,247,0.2)' : 'rgba(255,255,255,0.05)',
                           animation: `fadeInRow 0.3s ease ${idx * 0.03}s both`,
                         }}
                         onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? 'rgba(212,175,55,0.08)' : 'transparent'; }}
+                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isSelected ? 'rgba(79,142,247,0.08)' : 'transparent'; }}
                       >
                         {/* Checkbox */}
                         <td style={{ width: 36, paddingLeft: 12, verticalAlign: 'middle' }}>
@@ -1253,7 +1253,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                             checked={selectedIds.has(String(p.id || idx))}
                             onChange={() => toggleSelect(String(p.id || idx))}
                             onClick={e => e.stopPropagation()}
-                            style={{ width: 14, height: 14, accentColor: '#d4af37', cursor: 'pointer' }}
+                            style={{ width: 14, height: 14, accentColor: '#4f8ef7', cursor: 'pointer' }}
                           />
                         </td>
                         {/* # */}
@@ -1366,7 +1366,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <td style={tdStyle('center')}>
                           <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2 }}>
                             {(p as any).data_source === 'cj_api' ? (
-                              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}>CJ ✅</span>
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(79,142,247,0.1)', color: '#4f8ef7' }}>CJ ✅</span>
                             ) : ((p as any).data_source === 'aliexpress' || p.aliexpress_url) ? (
                               <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(255,106,0,0.1)', color: '#EA580C' }}>AE{(p as any).link_status === 'verified' ? ' ✓' : ''}</span>
                             ) : (
@@ -1376,7 +1376,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>🔥 VIRAL</span>
                             )}
                             {(p as any).tiktok_potential === 'high' && (
-                              <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}>⚡ TikTok+</span>
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(79,142,247,0.1)', color: '#4f8ef7' }}>⚡ TikTok+</span>
                             )}
                           </div>
                         </td>
@@ -1426,7 +1426,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           <a
                             href={`/app/creators?niche=${encodeURIComponent(p.category || p.niche || 'general')}`}
                             onClick={e => { e.stopPropagation(); }}
-                            style={{ fontSize: 11, color: '#d4af37', textDecoration: 'none', fontWeight: 600, padding: '3px 8px', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 6, background: 'rgba(212,175,55,0.08)', whiteSpace: 'nowrap' as const, display: 'inline-block' }}
+                            style={{ fontSize: 11, color: '#4f8ef7', textDecoration: 'none', fontWeight: 600, padding: '3px 8px', border: '1px solid rgba(79,142,247,0.2)', borderRadius: 6, background: 'rgba(79,142,247,0.08)', whiteSpace: 'nowrap' as const, display: 'inline-block' }}
                           >
                             Find →
                           </a>
@@ -1448,7 +1448,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               <button
                                 title="View product details"
                                 onClick={e => { e.stopPropagation(); setDetailProduct(p); }}
-                                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(212,175,55,0.1)', color: '#e5c158', border: 'none', cursor: 'pointer', fontSize: 13 }}>↗</button>
+                                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(79,142,247,0.1)', color: '#6ba3ff', border: 'none', cursor: 'pointer', fontSize: 13 }}>↗</button>
                               <button title="Save" onClick={() => toast.success('Product saved!')} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 13 }}>♡</button>
                               <button title="Build Store" onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`)} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>⚡</button>
                             </div>
@@ -1472,7 +1472,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 }}>
                                   <div style={{ width: 150, fontSize: 12, color: '#e4e4e7' }}>{label}</div>
                                   <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: `${((v || 0) / max) * 100}%`, background: '#d4af37', borderRadius: 3, transition: 'width 600ms ease' }} />
+                                    <div style={{ height: '100%', width: `${((v || 0) / max) * 100}%`, background: '#4f8ef7', borderRadius: 3, transition: 'width 600ms ease' }} />
                                   </div>
                                   <div style={{ width: 42, fontSize: 11, color: '#9CA3AF', textAlign: 'right' as const }}>{v}/{max}</div>
                                 </div>
@@ -1502,7 +1502,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <button
             onClick={() => { const next = offset + 50; setOffset(next); loadProducts(next, true); }}
-            style={{ padding: '10px 32px', background: '#d4af37', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', system-ui, sans-serif" }}
+            style={{ padding: '10px 32px', background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', system-ui, sans-serif" }}
           >
             Load More ({totalCount - allProducts.length} remaining)
           </button>
@@ -1541,12 +1541,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <button
             onClick={() => setShowCompare(true)}
             style={{
-              background: '#d4af37', color: 'white', border: 'none',
+              background: '#4f8ef7', color: 'white', border: 'none',
               borderRadius: 8, padding: '6px 16px', fontSize: 13,
               fontWeight: 600, cursor: 'pointer',
             }}
             onMouseEnter={e => (e.currentTarget.style.background = '#5558E8')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#d4af37')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#4f8ef7')}
           >
             Compare →
           </button>
@@ -1607,7 +1607,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       href={getSupplierUrl(p)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ display: 'block', marginTop: 12, textAlign: 'center', padding: '8px', background: 'rgba(212,175,55,0.1)', color: '#e5c158', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', border: '1px solid rgba(212,175,55,0.2)' }}
+                      style={{ display: 'block', marginTop: 12, textAlign: 'center', padding: '8px', background: 'rgba(79,142,247,0.1)', color: '#6ba3ff', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none', border: '1px solid rgba(79,142,247,0.2)' }}
                     >
                       View on AliExpress →
                     </a>
@@ -1644,8 +1644,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           background: rgba(255,255,255,0.04);
         }
         .products-table tbody tr.row-selected {
-          background: rgba(212,175,55,0.08);
-          border-color: rgba(212,175,55,0.2);
+          background: rgba(79,142,247,0.08);
+          border-color: rgba(79,142,247,0.2);
         }
         .products-table .row-checkbox {
           opacity: 0;
@@ -1670,7 +1670,7 @@ function SupplierFinder({ productName }: { productName: string }) {
     { label: 'Alibaba', icon: '🏭', desc: 'Bulk / wholesale', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be', url: `https://www.alibaba.com/trade/search?SearchText=${enc}&shipToCountry=AU&sortType=BEST_MATCH` },
     { label: 'CJ Dropship', icon: '📦', desc: 'No MOQ dropship', color: '#059669', bg: '#F0FDF4', border: '#BBF7D0', url: `https://cjdropshipping.com/search.html?q=${enc}` },
     { label: 'DHgate', icon: '🔧', desc: 'Low MOQ wholesale', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', url: `https://www.dhgate.com/wholesale/search.do?searchkey=${enc}&pt=Home` },
-    { label: 'Temu', icon: '🏷️', desc: 'Ultra-low prices', color: '#d4af37', bg: '#F5F3FF', border: '#e5c158', url: `https://www.temu.com/search_result.html?search_key=${enc}` },
+    { label: 'Temu', icon: '🏷️', desc: 'Ultra-low prices', color: '#4f8ef7', bg: '#F5F3FF', border: '#6ba3ff', url: `https://www.temu.com/search_result.html?search_key=${enc}` },
     { label: 'Made-in-China', icon: '🏗️', desc: 'Factory direct', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', url: `https://www.made-in-china.com/multi-search/q-${enc.replace(/%20/g, '+')}.html` },
   ];
   return (
@@ -1757,7 +1757,7 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
               onClick={e => { e.stopPropagation(); handleCopy(audience); }}
               title="Click to copy for Meta Ads Manager"
               style={{
-                background: isCopied ? '#DCFCE7' : 'rgba(212,175,55,0.08)',
+                background: isCopied ? '#DCFCE7' : 'rgba(79,142,247,0.08)',
                 border: '1px solid #C7D2FE',
                 borderRadius: 20,
                 padding: '6px 12px',
@@ -1771,7 +1771,7 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
                 transition: 'background 200ms',
               }}
             >
-              <Copy size={11} style={{ color: '#d4af37' }} />
+              <Copy size={11} style={{ color: '#4f8ef7' }} />
               {audience}
             </button>
           );
@@ -1780,7 +1780,7 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
         <button
           onClick={e => { e.stopPropagation(); setLocation(`/app/ads-studio?product=${encodeURIComponent(productTitle)}&category=${encodeURIComponent(category)}&audience=${encodeURIComponent(audiences[0] || '')}`); }}
-          style={{ background: 'linear-gradient(135deg, #d4af37, #d4af37)', color: 'white', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, border: 'none' }}
+          style={{ background: 'linear-gradient(135deg, #4f8ef7, #4f8ef7)', color: 'white', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, border: 'none' }}
         >
           <Megaphone size={15} />
           Generate Ad →
@@ -1886,7 +1886,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
     <div>
       <div style={{ fontSize: 10, color: 'var(--cell-text, #4B5563)', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, height: 36, overflow: 'hidden' }}>
-        <span style={{ padding: '0 8px', fontSize: 12, color: '#d4af37', fontWeight: 700, flexShrink: 0 }}>{prefix}</span>
+        <span style={{ padding: '0 8px', fontSize: 12, color: '#4f8ef7', fontWeight: 700, flexShrink: 0 }}>{prefix}</span>
         <input type="number" min={0} step={step} value={val}
           onChange={e => set(parseFloat(e.target.value) || 0)}
           style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: 'var(--input-text, #111827)', fontFamily: "'DM Sans', system-ui, sans-serif", background: 'transparent', padding: '0 6px 0 0', minWidth: 0 }}
@@ -1905,24 +1905,24 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
   );
 
   return (
-    <div style={{ marginBottom: 20, background: isDark ? 'rgba(212,175,55,0.06)' : '#F0F4FF', border: `1px solid ${isDark ? 'rgba(212,175,55,0.2)' : '#C7D2FE'}`, borderRadius: 16, overflow: 'hidden' as const }}>
+    <div style={{ marginBottom: 20, background: isDark ? 'rgba(79,142,247,0.06)' : '#F0F4FF', border: `1px solid ${isDark ? 'rgba(79,142,247,0.2)' : '#C7D2FE'}`, borderRadius: 16, overflow: 'hidden' as const }}>
       {/* Collapsible header */}
       <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
         <div>
           <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 800, fontSize: 14, color: isDark ? '#C7D2FE' : '#1E1B4B' }}>💰 Profit Analysis</div>
-          <div style={{ fontSize: 11, color: '#d4af37', marginTop: 1 }}>Auto-filled from product · all values editable</div>
+          <div style={{ fontSize: 11, color: '#4f8ef7', marginTop: 1 }}>Auto-filled from product · all values editable</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: viableConfig.bg, border: `1px solid ${viableConfig.border}`, borderRadius: 999, padding: '4px 10px' }}>
             <div style={{ width: 5, height: 5, borderRadius: '50%', background: viableConfig.color }} />
             <span style={{ fontSize: 10, fontWeight: 800, color: viableConfig.color }}>{viableConfig.label}</span>
           </div>
-          <span style={{ fontSize: 16, color: '#d4af37', fontWeight: 700, transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s' }}>⌃</span>
+          <span style={{ fontSize: 16, color: '#4f8ef7', fontWeight: 700, transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s' }}>⌃</span>
         </div>
       </button>
 
       {open && (
-        <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${isDark ? 'rgba(212,175,55,0.2)' : '#C7D2FE'}` }}>
+        <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${isDark ? 'rgba(79,142,247,0.2)' : '#C7D2FE'}` }}>
 
           {/* Inputs — 4 fields in 2×2 grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14, marginBottom: 10 }}>
@@ -1936,17 +1936,17 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.04em' }}>Return Rate</span>
-              <span style={{ fontSize: 11, color: '#d4af37', fontWeight: 700 }}>{returnRate}%</span>
+              <span style={{ fontSize: 11, color: '#4f8ef7', fontWeight: 700 }}>{returnRate}%</span>
             </div>
             <input type="range" min={0} max={25} step={1} value={returnRate} onChange={e => setReturnRate(+e.target.value)}
-              style={{ width: '100%', accentColor: '#d4af37' }} />
+              style={{ width: '100%', accentColor: '#4f8ef7' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#9CA3AF' }}>
               <span>0%</span><span>Category default: {getReturnRateDefault(category)}%</span><span>25%</span>
             </div>
           </div>
 
           {/* Auto-calculated fixed costs */}
-          <div style={{ background: 'rgba(212,175,55,0.06)', borderRadius: 8, padding: '8px 12px', marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, fontSize: 10, color: '#CBD5E1' }}>
+          <div style={{ background: 'rgba(79,142,247,0.06)', borderRadius: 8, padding: '8px 12px', marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, fontSize: 10, color: '#CBD5E1' }}>
             <div><span style={{ color: '#9CA3AF' }}>Shipping</span><br /><strong>${shipping.toFixed(2)}</strong></div>
             <div><span style={{ color: '#9CA3AF' }}>Shopify fee</span><br /><strong>{PLATFORM_FEE}% = ${platformCost.toFixed(2)}</strong></div>
             <div><span style={{ color: '#9CA3AF' }}>Stripe fee</span><br /><strong>{PAYMENT_FEE}% = ${paymentCost.toFixed(2)}</strong></div>
@@ -1955,19 +1955,19 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           {/* 5 key metrics */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
             {metric('Net Margin',      `${Math.max(-99, grossMargin).toFixed(1)}%`, viableConfig.color, viableConfig.bg)}
-            {metric('Monthly Profit',  fmtAUD(monthlyProfit),    '#d4af37', 'rgba(212,175,55,0.08)')}
-            {metric('Daily Profit',    fmtAUD(dailyProfit),       '#d4af37', '#F3E8FF')}
+            {metric('Monthly Profit',  fmtAUD(monthlyProfit),    '#4f8ef7', 'rgba(79,142,247,0.08)')}
+            {metric('Daily Profit',    fmtAUD(dailyProfit),       '#4f8ef7', '#F3E8FF')}
             {metric('Break-even CPA',  `$${breakEvenCPA > 0 ? breakEvenCPA.toFixed(2) : '—'}`, '#0891B2', '#ECFEFF')}
           </div>
-          <div style={{ background: isDark ? 'rgba(212,175,55,0.08)' : 'rgba(212,175,55,0.08)', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
-            <div style={{ fontSize: 9, color: '#d4af37', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
+          <div style={{ background: isDark ? 'rgba(79,142,247,0.08)' : 'rgba(79,142,247,0.08)', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
+            <div style={{ fontSize: 9, color: '#4f8ef7', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
             <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
             <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
           </div>
 
           {/* What this means */}
           <div style={{ background: isDark ? 'var(--card-bg, #111114)' : 'white', border: `1px solid ${isDark ? 'var(--border-color, #1E293B)' : '#E0E7FF'}`, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#d4af37', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>💡 What This Means</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#4f8ef7', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>💡 What This Means</div>
             <div style={{ fontSize: 12, color: 'var(--cell-text, #374151)', lineHeight: 1.6 }}>{insight}</div>
           </div>
 
@@ -1993,7 +1993,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setLocation(`/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}`)}
-              style={{ flex: 1, height: 40, background: '#d4af37', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+              style={{ flex: 1, height: 40, background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
               Open Full Calculator →
             </button>
             <button onClick={handleShare}
@@ -2045,7 +2045,7 @@ function LaunchChecklist({ productId, setLocation }: { productId: string; setLoc
       </div>
       {/* Progress bar */}
       <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginBottom: 14, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${progress}%`, background: '#d4af37', borderRadius: 2, transition: 'width 0.3s ease' }} />
+        <div style={{ height: '100%', width: `${progress}%`, background: '#4f8ef7', borderRadius: 2, transition: 'width 0.3s ease' }} />
       </div>
       {LAUNCH_STEPS.map(step => (
         <div
@@ -2055,8 +2055,8 @@ function LaunchChecklist({ productId, setLocation }: { productId: string; setLoc
         >
           <div style={{
             width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-            background: checked.has(step.id) ? '#d4af37' : 'transparent',
-            border: `1.5px solid ${checked.has(step.id) ? '#d4af37' : 'rgba(255,255,255,0.2)'}`,
+            background: checked.has(step.id) ? '#4f8ef7' : 'transparent',
+            border: `1.5px solid ${checked.has(step.id) ? '#4f8ef7' : 'rgba(255,255,255,0.2)'}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'all 0.15s',
           }}>
@@ -2073,7 +2073,7 @@ function LaunchChecklist({ productId, setLocation }: { productId: string; setLoc
           </span>
           <button
             onClick={e => { e.stopPropagation(); setLocation(step.link); }}
-            style={{ fontSize: 10, color: '#d4af37', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px', borderRadius: 4, opacity: 0.7 }}
+            style={{ fontSize: 10, color: '#4f8ef7', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px', borderRadius: 4, opacity: 0.7 }}
             onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
             onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
           >
@@ -2184,12 +2184,12 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>
             {p.niche || p.category}
             {orders > 0 && <> &middot; <span style={hasRealData ? { color: '#22C55E', fontWeight: 600 } : {}}>{orders.toLocaleString()} {hasRealData ? 'real' : 'AE'} orders</span></>}
-            {p.data_source === 'cj_api' && <> &middot; <span style={{ color: '#d4af37', fontWeight: 600 }}>CJ ✅</span></>}
+            {p.data_source === 'cj_api' && <> &middot; <span style={{ color: '#4f8ef7', fontWeight: 600 }}>CJ ✅</span></>}
             {p.link_status === 'verified' && <> &middot; <span style={{ color: '#22C55E' }}>Verified ✓</span></>}
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center', marginBottom: 16 }}>
             <QualityTierBadge tier={p.quality_tier} score={p.signal_score || score} />
-            {(p.signal_score != null && p.signal_score > 0) && <span style={{ fontSize: 11, fontWeight: 700, color: '#d4af37', background: 'rgba(212,175,55,0.08)', padding: '2px 7px', borderRadius: 5 }}>Signal: {p.signal_score}</span>}
+            {(p.signal_score != null && p.signal_score > 0) && <span style={{ fontSize: 11, fontWeight: 700, color: '#4f8ef7', background: 'rgba(79,142,247,0.08)', padding: '2px 7px', borderRadius: 5 }}>Signal: {p.signal_score}</span>}
             <SourceBadges sources={p.data_sources} isChoice={p.tags?.includes('aliexpress_choice')} />
           </div>
 
@@ -2233,7 +2233,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             </div>
             {supplierLink && (
               <a href={supplierLink} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 10, fontSize: 12, fontWeight: 700, color: '#d4af37', textDecoration: 'none', padding: '6px 12px', background: 'rgba(212,175,55,0.08)', borderRadius: 6, border: '1px solid rgba(212,175,55,0.2)' }}>
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 10, fontSize: 12, fontWeight: 700, color: '#4f8ef7', textDecoration: 'none', padding: '6px 12px', background: 'rgba(79,142,247,0.08)', borderRadius: 6, border: '1px solid rgba(79,142,247,0.2)' }}>
                 View on {p.data_source === 'cj_api' ? 'CJ' : 'AliExpress'} →
               </a>
             )}
@@ -2285,7 +2285,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   )}
                   {listingUrl && (
                     <a href={listingUrl} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4, fontSize: 12, fontWeight: 700, color: '#d4af37', textDecoration: 'none' }}>
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4, fontSize: 12, fontWeight: 700, color: '#4f8ef7', textDecoration: 'none' }}>
                       View listing →
                     </a>
                   )}
@@ -2356,7 +2356,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
                     <div style={{ width: 135, fontSize: 11, color: '#e4e4e7' }}>{label}</div>
                     <div style={{ flex: 1, height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${(v / max) * 100}%`, background: '#d4af37', borderRadius: 3, transition: 'width 0.6s ease' }} />
+                      <div style={{ height: '100%', width: `${(v / max) * 100}%`, background: '#4f8ef7', borderRadius: 3, transition: 'width 0.6s ease' }} />
                     </div>
                     <div style={{ width: 36, fontSize: 10, color: '#9CA3AF', textAlign: 'right' as const }}>{v}/{max}</div>
                   </div>
@@ -2371,17 +2371,17 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               {p.why_trending ? (
                 <p style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>{p.why_trending}</p>
               ) : briefLoading ? (
-                <div style={{ borderLeft: '3px solid #d4af37', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
-                  <h4 style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#d4af37', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+                <div style={{ borderLeft: '3px solid #4f8ef7', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
+                  <h4 style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#4f8ef7', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
                     {[1, 2, 3].map(i => (
-                      <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, rgba(212,175,55,0.08) 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
+                      <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, rgba(79,142,247,0.08) 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
                     ))}
                   </div>
                 </div>
               ) : trendBrief ? (
-                <div style={{ borderLeft: '3px solid #d4af37', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
-                  <h4 style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#d4af37', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+                <div style={{ borderLeft: '3px solid #4f8ef7', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
+                  <h4 style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#4f8ef7', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
                   <p style={{ fontFamily: dm, fontSize: 13, color: '#CBD5E1', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
                 </div>
               ) : null}
@@ -2440,7 +2440,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             }
             return (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#d4af37', fontWeight: 700, marginBottom: 10 }}>🎯 Creator Types to Target</div>
+                <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: 13, color: '#4f8ef7', fontWeight: 700, marginBottom: 10 }}>🎯 Creator Types to Target</div>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 7 }}>
                   {archetypes.map(({ type, desc, search }) => (
                     <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: '#131929', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }}>
@@ -2449,14 +2449,14 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                         <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{desc}</div>
                       </div>
                       <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(search)}`} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 11, color: '#d4af37', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '4px 10px', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 6, background: 'rgba(212,175,55,0.1)', whiteSpace: 'nowrap' as const }}>
+                        style={{ fontSize: 11, color: '#4f8ef7', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '4px 10px', border: '1px solid rgba(79,142,247,0.3)', borderRadius: 6, background: 'rgba(79,142,247,0.1)', whiteSpace: 'nowrap' as const }}>
                         Search TikTok →
                       </a>
                     </div>
                   ))}
                 </div>
                 <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(pName + ' review')}`} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: '#d4af37', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: 'rgba(212,175,55,0.08)', borderRadius: 8, border: '1px solid #C7D2FE' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: '#4f8ef7', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: 'rgba(79,142,247,0.08)', borderRadius: 8, border: '1px solid #C7D2FE' }}>
                   <span>🔍</span>
                   <span>Search all TikTok content for this product</span>
                   <span style={{ marginLeft: 'auto' }}>→</span>
@@ -2470,7 +2470,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             <div style={{ fontSize: 11, fontWeight: 700, color: '#f4f4f5', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>AI Market Analysis</div>
             {!aiAnalysis ? (
               <button onClick={runAnalysis} disabled={analyzing}
-                style={{ width: '100%', height: 42, background: 'rgba(212,175,55,0.08)', color: '#d4af37', border: '1px solid #C7D2FE', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                style={{ width: '100%', height: 42, background: 'rgba(79,142,247,0.08)', color: '#4f8ef7', border: '1px solid #C7D2FE', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 {analyzing ? 'Analysing...' : 'Generate AU Market Analysis'}
               </button>
             ) : (
@@ -2501,7 +2501,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(p.niche || p.category || '')}`)}
-              style={{ width: '100%', height: 46, background: '#d4af37', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+              style={{ width: '100%', height: 46, background: '#4f8ef7', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
               Build Store for This Product →
             </button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -2528,14 +2528,14 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   }));
                   setLocation('/app/ads-manager');
                 }}
-                style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#d4af37,#d4af37)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne',sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8 }}
+                style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#4f8ef7,#4f8ef7)', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne',sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8 }}
               >
                 🚀 Launch Ad Campaign →
               </button>
             ) : (
               <button
                 onClick={() => setShowUpgradeDrawer(true)}
-                style={{ width: '100%', padding: '14px', background: 'rgba(212,175,55,0.15)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne',sans-serif", marginTop: 8 }}
+                style={{ width: '100%', padding: '14px', background: 'rgba(79,142,247,0.15)', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.3)', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: "'Syne',sans-serif", marginTop: 8 }}
               >
                 🔒 Launch Ad Campaign (Scale)
               </button>
