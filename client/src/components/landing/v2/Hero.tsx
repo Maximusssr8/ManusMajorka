@@ -102,7 +102,7 @@ const HERO_CSS = `
   100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
 }
 .mj-hero-scroll-feed {
-  animation: mjScrollUp 40s linear infinite;
+  animation: mjScrollUp 60s linear infinite;
 }
 .mj-hero-scroll-feed:hover {
   animation-play-state: paused;
@@ -134,17 +134,19 @@ const HERO_CSS = `
   transform: scale(1.02);
   box-shadow: 0 0 40px rgba(79,142,247,0.3);
 }
+.mj-hero-mobile-cards { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .mj-hero-scroll-feed { animation: none !important; }
 }
 @media (max-width: 768px) {
   .mj-hero-split { grid-template-columns: 1fr !important; }
   .mj-hero-left { padding: 100px 20px 32px !important; text-align: center; align-items: center; }
-  .mj-hero-h1 { font-size: 40px !important; }
+  .mj-hero-h1 { font-size: 36px !important; }
   .mj-hero-scroll-feed { animation: none !important; }
-  .mj-hero-feed-col { max-height: 360px; }
+  .mj-hero-feed-col { display: none !important; }
   .mj-hero-feed-col::before, .mj-hero-feed-col::after { display: none; }
   .mj-hero-stat-pills { justify-content: center; }
+  .mj-hero-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; padding: 0 20px; margin-top: 24px; }
 }
 `;
 
@@ -152,19 +154,26 @@ const HERO_CSS = `
 
 function ProductCard({ product }: { product: HeroProduct }) {
   const revenue = formatRevenue(product.orders, product.price);
+  const [hovered, setHovered] = useState(false);
 
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: '#0d1117',
         border: '1px solid #161b22',
+        borderLeft: hovered ? '3px solid #4f8ef7' : '1px solid #161b22',
         borderRadius: 12,
         padding: 16,
-        marginBottom: 16,
+        paddingLeft: hovered ? 13 : 16,
+        marginBottom: 0,
+        borderBottom: '1px solid #0d1520',
         display: 'flex',
         flexDirection: 'row',
         gap: 14,
         alignItems: 'center',
+        transition: 'border-left 150ms ease, padding-left 150ms ease',
       }}
     >
       {/* Image */}
@@ -212,7 +221,7 @@ function ProductCard({ product }: { product: HeroProduct }) {
         >
           {truncate(product.title, 35)}
         </div>
-        <div style={{ fontFamily: F.body, fontSize: 11, color: '#6b7280' }}>
+        <div style={{ fontFamily: F.body, fontSize: 11, color: '#6b7280', background: 'rgba(255,255,255,0.04)', borderRadius: 4, padding: '1px 6px', display: 'inline-block' }}>
           {product.category}
         </div>
       </div>
@@ -266,7 +275,7 @@ function ProductCard({ product }: { product: HeroProduct }) {
           </span>
         ) : null}
         {revenue && (
-          <span style={{ fontFamily: F.mono, fontSize: 11, color: '#10b981' }}>
+          <span style={{ fontFamily: F.mono, fontSize: 13, fontWeight: 600, color: '#10b981' }}>
             {revenue}
           </span>
         )}
@@ -375,7 +384,7 @@ export function Hero() {
           className="mj-hero-h1"
           style={{
             fontFamily: F.display,
-            fontSize: 64,
+            fontSize: 52,
             fontWeight: 800,
             lineHeight: 1.05,
             letterSpacing: '-0.03em',
@@ -399,6 +408,47 @@ export function Hero() {
         >
           Majorka scores millions of AliExpress products by real order velocity. You see winners first.
         </p>
+
+        {/* Social proof strip */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <div style={{ display: 'flex' }}>
+            {['J', 'S', 'R'].map((initial, i) => (
+              <div key={initial} style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: ['rgba(79,142,247,0.2)', 'rgba(16,185,129,0.2)', 'rgba(245,158,11,0.2)'][i],
+                color: ['#4f8ef7', '#10b981', '#f59e0b'][i],
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 700, fontFamily: F.body,
+                marginLeft: i > 0 ? -6 : 0,
+                border: '2px solid #04060f',
+                position: 'relative' as const, zIndex: 3 - i,
+              }}>{initial}</div>
+            ))}
+          </div>
+          <span style={{ fontFamily: F.body, fontSize: 13, color: '#6b7280' }}>
+            287 dropshippers earning $5k–$52k/mo
+          </span>
+        </div>
+
+        {/* Stat pills */}
+        <div className="mj-hero-stat-pills" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+          {['50M+ products', '6hr refresh', 'AU/US/UK'].map((label) => (
+            <span
+              key={label}
+              style={{
+                background: 'rgba(79,142,247,0.06)',
+                border: '1px solid rgba(79,142,247,0.15)',
+                borderRadius: 999,
+                padding: '4px 10px',
+                fontFamily: F.body,
+                fontSize: 11,
+                color: '#8b949e',
+              }}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
 
         {/* CTA */}
         <Link
@@ -432,29 +482,16 @@ export function Hero() {
             fontFamily: F.body,
             fontSize: 13,
             color: '#4b5563',
-            margin: '0 0 24px 0',
+            margin: '0 0 0 0',
           }}
         >
           {'\u2713'} No credit card {'\u00B7'} {'\u2713'} Cancel anytime {'\u00B7'} {'\u2713'} 30-day guarantee
         </p>
 
-        {/* Stat pills */}
-        <div className="mj-hero-stat-pills" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          {['50M+ products', '6hr refresh', 'AU/US/UK'].map((label) => (
-            <span
-              key={label}
-              style={{
-                background: 'rgba(79,142,247,0.06)',
-                border: '1px solid rgba(79,142,247,0.15)',
-                borderRadius: 999,
-                padding: '6px 14px',
-                fontFamily: F.body,
-                fontSize: 12,
-                color: '#8b949e',
-              }}
-            >
-              {label}
-            </span>
+        {/* Mobile cards — visible only ≤768px */}
+        <div className="mj-hero-mobile-cards">
+          {products.slice(0, 3).map((p) => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </div>
@@ -468,6 +505,9 @@ export function Hero() {
           zIndex: 5,
           display: 'flex',
           alignItems: 'center',
+          background: '#060810',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
         }}
       >
         {products.length > 0 && (
