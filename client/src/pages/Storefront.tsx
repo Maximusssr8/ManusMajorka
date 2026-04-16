@@ -54,7 +54,7 @@ interface StoreData {
 
 function MetaPixel({ pixelId }: { pixelId: string }) {
   useEffect(() => {
-    if (!pixelId || (window as Record<string, unknown>).fbq) return;
+    if (!pixelId || (window as unknown as Record<string, unknown>).fbq) return;
     const safePixelId = pixelId.replace(/[^0-9]/g, '');
     if (!safePixelId) return;
     const script = document.createElement('script');
