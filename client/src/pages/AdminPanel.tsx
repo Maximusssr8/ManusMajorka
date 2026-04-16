@@ -106,7 +106,7 @@ function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, React.CSSProperties> = {
     starter: { background: 'rgba(113,113,122,0.2)', color: '#94A3B8' },
     builder: { background: 'rgba(79,142,247,0.15)', color: '#4f8ef7' },
-    scale: { background: 'rgba(124,90,245,0.2)', color: '#a78bfa' },
+    scale: { background: '#4f8ef7,0.2)', color: '#4f8ef7' },
     pro: { background: 'rgba(79,142,247,0.30)', color: '#4f8ef7' },
   };
   const s = styles[plan] ?? styles.starter;

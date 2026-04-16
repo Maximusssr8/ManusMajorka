@@ -48,7 +48,7 @@ const MARKETS = ['Australia', 'United States', 'United Kingdom', 'Global'];
 const TONES = ['Professional', 'Fun & Casual', 'Luxury', 'Minimal'];
 
 const COLOR_SWATCHES = [
-  { color: '#4f8ef7', label: 'Gold' },
+  { color: '#4f8ef7', label: 'Cobalt' },
   { color: '#3B82F6', label: 'Blue' },
   { color: '#f43f5e', label: 'Rose' },
   { color: '#10b981', label: 'Emerald' },

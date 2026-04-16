@@ -56,7 +56,7 @@ function CompetitorQuickActions({ query }: { query: string }) {
   const niche = encodeURIComponent(query.split(/\s+/).slice(0, 3).join(' '));
   const actions = [
     { label: 'Find Winning Products', path: `/app/winning-products`, color: '#ef4444' },
-    { label: 'Generate Ads', path: `/app/meta-ads?category=${niche}`, color: '#a78bfa' },
+    { label: 'Generate Ads', path: `/app/meta-ads?category=${niche}`, color: '#4f8ef7' },
     { label: 'Build Competing Store', path: `/app/website-generator?niche=${niche}`, color: '#34d399' },
     { label: 'Find Creators', path: `/app/creators`, color: '#38bdf8' },
     { label: 'Check Market Saturation', path: `/app/saturation-checker`, color: '#f59e0b' },

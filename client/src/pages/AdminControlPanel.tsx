@@ -436,7 +436,7 @@ function HealthTab() {
               alert('Error: ' + e.message);
             }
           }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#a78bfa', border: '1px solid #3b1f6b', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.3)', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
         >
           🗃️ User Tables
         </button>
