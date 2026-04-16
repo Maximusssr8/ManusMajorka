@@ -280,7 +280,15 @@ function ProductCard({ product, index, mounted }: ProductCardProps) {
               alt=""
               loading="eager"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              onError={(e) => {
+                // Proxy failed — try direct URL as fallback (may 403 but worth trying)
+                const img = e.currentTarget as HTMLImageElement;
+                if (img.src !== product.image && product.image) {
+                  img.src = product.image;
+                } else {
+                  img.style.display = 'none';
+                }
+              }}
             />
           )}
         </div>
@@ -493,7 +501,7 @@ export function Hero() {
       </div>
 
       {/* ── Product feed grid ── */}
-      <div className="mj-hero-feed" style={{ position: 'absolute', inset: 0, zIndex: 5, padding: '200px 48px 120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="mj-hero-feed" style={{ position: 'absolute', inset: 0, zIndex: 5, padding: '140px 48px 100px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
         <div
           className="mj-hero-grid"
           style={{
