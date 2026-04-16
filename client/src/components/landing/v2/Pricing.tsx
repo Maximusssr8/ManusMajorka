@@ -76,7 +76,7 @@ export function Pricing() {
             margin: '0 0 12px',
           }}
         >
-          One subscription. Everything you need.
+          One plan. Product intel, AI ads, and store builder included.
         </h2>
 
         {/* Value anchor */}

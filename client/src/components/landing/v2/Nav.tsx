@@ -149,6 +149,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
             <button
               type="button"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
               onClick={() => setMenuOpen((v) => !v)}
               style={{
                 minWidth: 44,

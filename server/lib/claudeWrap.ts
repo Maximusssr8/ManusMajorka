@@ -35,6 +35,37 @@ const PRICING: Record<string, { input: number; output: number }> = {
   [SONNET_MODEL]: { input: 0.000003,   output: 0.000015   },
 };
 
+/* ── Monthly spend ceiling ─────────────────────────────────────── */
+
+const MONTHLY_CEILING_USD = 200;
+
+let _monthlySpendCache: { total: number; checkedAt: number } = { total: 0, checkedAt: 0 };
+const CACHE_TTL = 60_000; // re-check every 60s
+
+async function getMonthlySpend(sb: ReturnType<typeof createClient>): Promise<number> {
+  const now = Date.now();
+  if (now - _monthlySpendCache.checkedAt < CACHE_TTL) return _monthlySpendCache.total;
+
+  try {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data } = await (sb.from('api_cost_log') as any)
+      .select('estimated_cost_usd')
+      .gte('created_at', startOfMonth.toISOString());
+
+    const total = (data || []).reduce((sum: number, r: { estimated_cost_usd?: number }) => sum + (Number(r.estimated_cost_usd) || 0), 0);
+    _monthlySpendCache = { total, checkedAt: now };
+    return total;
+  } catch {
+    return _monthlySpendCache.total; // on error, use stale cache
+  }
+}
+
+/* ── Anthropic client singleton ────────────────────────────────── */
+
 let _client: Anthropic | null = null;
 function getClient(): Anthropic {
   if (!_client) {
@@ -163,6 +194,16 @@ export async function callClaude(opts: CallClaudeOptions): Promise<Anthropic.Mes
   const model = pickModel(opts);
   const max_tokens = pickMaxTokens(opts);
   const system = buildSystem(opts.system);
+
+  // Monthly spend ceiling — soft check (cached, re-queries every 60s).
+  const sb = getSupabase();
+  if (sb) {
+    const monthlySpend = await getMonthlySpend(sb);
+    if (monthlySpend >= MONTHLY_CEILING_USD) {
+      console.warn(`[claudeWrap] Monthly ceiling hit: $${monthlySpend.toFixed(2)} >= $${MONTHLY_CEILING_USD}`);
+      throw new Error('Monthly AI budget reached. Try again next month or contact support.');
+    }
+  }
 
   // Build passthrough body; only include defined fields so Anthropic SDK
   // doesn't see stray `undefined` props.

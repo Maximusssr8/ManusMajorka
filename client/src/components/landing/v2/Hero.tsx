@@ -499,6 +499,7 @@ export function Hero() {
       {/* ── RIGHT HALF ── */}
       <div
         className="mj-hero-feed-col"
+        aria-hidden="true"
         style={{
           position: 'relative',
           overflow: 'hidden',
