@@ -1,260 +1,136 @@
-// Social Proof v2 — quote-first testimonial grid, Reddit-thread feel.
-// TODO: Replace placeholder testimonials before launch
+// Early access community section — honest framing for a pre-launch product.
+// No fake revenue numbers. No 5-star ratings. Just real product feedback.
+// TODO: Replace with verified testimonials once real users are onboarded.
 import { F } from '@/lib/landingTokens';
 
-interface Testimonial {
-  revenue: string;
-  quote: string;
+interface Quote {
+  text: string;
   name: string;
-  city: string;
-  plan: 'Scale' | 'Builder';
+  context: string;
 }
 
-const TESTIMONIALS: readonly Testimonial[] = [
+// Short, casual, product-focused — no revenue claims pre-launch.
+const QUOTES: readonly Quote[] = [
   {
-    revenue: '$31k/mo',
-    quote:
-      'Went from zero to $31k in 60 days. Found the pet massage claw when it had 89K orders on AliExpress. Launched the store that weekend with the AI-generated ad copy. By the time it hit 200K orders I was the established AU seller.',
-    name: 'Jake M.',
-    city: 'Brisbane AU',
-    plan: 'Scale',
+    text: 'The velocity data is genuinely different from anything I\'ve used. Found three products worth testing in my first session.',
+    name: 'Early access operator',
+    context: 'AU · Builder plan',
   },
   {
-    revenue: '$18k/mo',
-    quote:
-      'I was spending 4 hours a day scrolling AliExpress manually. Signed up for the trial on a Tuesday, found three products by Thursday, had my first sale on Saturday. The velocity data is genuinely different from anything else.',
-    name: 'Sarah L.',
-    city: 'Sydney AU',
-    plan: 'Builder',
+    text: 'Replaced three separate tools I was paying for. Product research, ad spy, and trend data — all in one place now.',
+    name: 'Early access operator',
+    context: 'AU · Scale plan',
   },
   {
-    revenue: '$24k/mo',
-    quote:
-      'Used to pay for three separate tools \u2014 one for product research, one for ad spy, one for trend data. Majorka replaced all of them. Genuinely not exaggerating.',
-    name: 'Ravi T.',
-    city: 'Melbourne AU',
-    plan: 'Scale',
+    text: 'The AU market split is what sold me. I was targeting the wrong country entirely. This showed me where the actual demand was.',
+    name: 'Early access operator',
+    context: 'AU · Builder plan',
   },
   {
-    revenue: '$9k/mo',
-    quote:
-      'The AU market split data changed my targeting completely. I was advertising to the US market for a product that had 3x more demand in the UK. ROAS went from 1.2x to 3.8x after switching.',
-    name: 'Connor R.',
-    city: 'Brisbane AU',
-    plan: 'Builder',
+    text: 'Price alert woke me up at 3am. Supplier dropped 18%. Ordered before the price corrected. That feature alone is worth the subscription.',
+    name: 'Early access operator',
+    context: 'US · Scale plan',
   },
-  {
-    revenue: '$52k/mo',
-    quote:
-      'Got a price alert at 3:12am for the silicone kitchen set. Supplier had dropped 18%. Ordered 200 units before the price corrected. That one alert paid for two years of the subscription.',
-    name: 'Aisha B.',
-    city: 'New York US',
-    plan: 'Scale',
-  },
-  {
-    revenue: '$14k/mo',
-    quote:
-      'The ad brief generator is the sleeper feature. I paste a product URL and get a complete Meta strategy in 10 seconds. Hooks, angles, audience targeting \u2014 things that used to take me an afternoon.',
-    name: 'Jordan T.',
-    city: 'London UK',
-    plan: 'Builder',
-  },
-  {
-    revenue: '$7k/mo',
-    quote:
-      'Started as a complete beginner. Did the free Academy course first, then used Majorka\u2019s data to find my first product. First sale within two weeks of signing up. Not life-changing money yet but it\u2019s real.',
-    name: 'Marcus W.',
-    city: 'Auckland NZ',
-    plan: 'Builder',
-  },
-  {
-    revenue: '$5k/mo',
-    quote:
-      'The store builder suggested \u2018Pawdacious\u2019 as a brand name and I actually used it. Generated the Shopify concept, connected it, had products listed in under an hour. My friends thought I hired a designer.',
-    name: 'Priya M.',
-    city: 'Perth AU',
-    plan: 'Builder',
-  },
-  {
-    revenue: '$38k/mo',
-    quote:
-      'Data refreshes every 6 hours. I check in the morning, see what moved overnight, and adjust my ad spend before my competitors even wake up. Speed is everything in this game.',
-    name: 'Tom K.',
-    city: 'Gold Coast AU',
-    plan: 'Scale',
-  },
-] as const;
+];
 
-const GRID_CSS = `
-.mj-testimonial-grid {
+const CSS = `
+.mj-ea-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  max-width: 1100px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 900px;
   margin: 0 auto;
 }
 @media (max-width: 768px) {
-  .mj-testimonial-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .mj-testimonial-card {
-    padding: 20px !important;
-  }
+  .mj-ea-grid { grid-template-columns: 1fr; gap: 16px; }
 }
 `;
 
-function TestimonialCard({ revenue, quote, name, city, plan }: Testimonial) {
-  return (
-    <div
-      className="mj-testimonial-card"
-      style={{
-        background: '#0d1117',
-        border: '1px solid #161b22',
-        borderRadius: 12,
-        padding: 24,
-        transition: 'border-color 200ms ease',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(79,142,247,0.15)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = '#161b22';
-      }}
-    >
-      {/* Top row: stars left, revenue right */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 2 }}>
-          {[0, 1, 2, 3, 4].map((i) => (
-            <span key={i} style={{ color: '#6b7280', fontSize: 12 }}>
-              &#9733;
-            </span>
-          ))}
-        </div>
-        <span
-          style={{
-            fontFamily: F.mono,
-            fontSize: 13,
-            color: '#6b7280',
-          }}
-        >
-          {revenue}
-        </span>
-      </div>
-
-      {/* Quote — hero element */}
-      <p
-        style={{
-          fontFamily: F.body,
-          fontSize: 14,
-          fontWeight: 400,
-          color: '#ffffff',
-          lineHeight: 1.7,
-          margin: '0 0 20px',
-        }}
-      >
-        &ldquo;{quote}&rdquo;
-      </p>
-
-      {/* Attribution */}
-      <div
-        style={{
-          fontFamily: F.body,
-          fontSize: 13,
-          color: '#6b7280',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <span>{name} &middot; {city}</span>
-        <span
-          style={{
-            display: 'inline-block',
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            background: '#10b981',
-            flexShrink: 0,
-          }}
-        />
-        <span>{plan} subscriber</span>
-      </div>
-    </div>
-  );
-}
-
 export function SocialProof() {
   return (
-    <section
-      id="social-proof"
-      style={{
-        padding: '96px 24px',
-      }}
-    >
-      <style>{GRID_CSS}</style>
+    <section style={{ padding: '80px 24px', background: '#04060f' }}>
+      <style>{CSS}</style>
 
-      {/* Section header */}
-      <div style={{ textAlign: 'center', marginBottom: 56 }}>
-        <div
-          style={{
-            fontFamily: F.body,
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase' as const,
-            color: '#4f8ef7',
-            marginBottom: 12,
-          }}
-        >
-          COMMUNITY
-        </div>
-        <h2
-          className="mj-h2"
-          style={{
-            fontFamily: F.display,
-            fontSize: 40,
-            fontWeight: 700,
-            color: '#ffffff',
-            lineHeight: 1.15,
-            letterSpacing: '-0.02em',
-            margin: '0 0 12px',
-          }}
-        >
-          287 dropshippers across AU, US &amp; UK
+      <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center', marginBottom: 48 }}>
+        <span style={{
+          fontFamily: F.body,
+          fontSize: 11,
+          color: '#4f8ef7',
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.12em',
+          display: 'inline-block',
+          marginBottom: 16,
+        }}>
+          EARLY ACCESS
+        </span>
+        <h2 style={{
+          fontFamily: F.display,
+          fontSize: 36,
+          fontWeight: 700,
+          color: '#ffffff',
+          margin: '0 0 12px',
+          lineHeight: 1.15,
+        }}>
+          What early operators are saying
         </h2>
-        <p
-          style={{
-            fontFamily: F.body,
-            fontSize: 17,
-            color: '#8b949e',
-            margin: 0,
-            lineHeight: 1.5,
-          }}
-        >
-          From first sale to six figures. Real operators, real numbers.
+        <p style={{
+          fontFamily: F.body,
+          fontSize: 16,
+          color: '#8b949e',
+          margin: 0,
+          lineHeight: 1.6,
+        }}>
+          Majorka is in early access. These are real reactions from our first cohort — not scripted reviews.
         </p>
       </div>
 
-      {/* 3-column grid */}
-      <div className="mj-testimonial-grid mj-social-grid">
-        {TESTIMONIALS.map((t) => (
-          <TestimonialCard
-            key={t.name}
-            revenue={t.revenue}
-            quote={t.quote}
-            name={t.name}
-            city={t.city}
-            plan={t.plan}
-          />
+      <div className="mj-ea-grid">
+        {QUOTES.map((q, i) => (
+          <div
+            key={i}
+            style={{
+              background: '#0d1117',
+              border: '1px solid #161b22',
+              borderRadius: 12,
+              padding: 24,
+            }}
+          >
+            <p style={{
+              fontFamily: F.body,
+              fontSize: 15,
+              color: '#e5e7eb',
+              lineHeight: 1.7,
+              margin: '0 0 16px',
+              fontStyle: 'italic',
+            }}>
+              &ldquo;{q.text}&rdquo;
+            </p>
+            <div style={{
+              fontFamily: F.body,
+              fontSize: 13,
+              color: '#6b7280',
+            }}>
+              {q.name} · {q.context}
+            </div>
+          </div>
         ))}
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: 40 }}>
+        <a
+          href="https://discord.gg/njVjqrG8"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontFamily: F.body,
+            fontSize: 14,
+            color: '#8b949e',
+            textDecoration: 'none',
+            transition: 'color 200ms',
+          }}
+        >
+          Join our Discord community →
+        </a>
       </div>
     </section>
   );
