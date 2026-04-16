@@ -1,65 +1,90 @@
-import { ArrowLeft, RotateCcw, Shield, ShoppingBag, X, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { useLocation, useParams } from 'wouter';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'wouter';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  ShoppingBag, Shield, RotateCcw, Truck, Star, Check, ChevronDown, ChevronUp,
+  Mail, ExternalLink,
+} from 'lucide-react';
+
+/* ────────────────────────────────────────────────────────────────
+ * Public Storefront — renders at /store/:slug
+ * Fetches store data from API, applies the chosen template style,
+ * supports Stripe Checkout for payment.
+ * ──────────────────────────────────────────────────────────────── */
+
+interface StoreProduct {
+  id: string;
+  productId: string;
+  price: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  published: boolean;
+  image_url?: string | null;
+  stripePriceId?: string | null;
+  product?: {
+    name: string;
+    description?: string;
+    image_url?: string | null;
+  };
+}
+
+interface GeneratedCopy {
+  tagline?: string;
+  hero_headline?: string;
+  hero_subheading?: string;
+  hero_cta?: string;
+  about_text?: string;
+  trust_badges?: string[];
+  faq?: Array<{ question: string; answer: string }>;
+}
 
 interface StoreData {
   store: {
     id: string;
     storeName: string;
     storeSlug: string;
-    logoUrl?: string;
-    metaPixelId?: string;
     brandColorPrimary?: string;
+    stripePublishableKey?: string | null;
+    generatedCopy?: GeneratedCopy;
+    template?: string;
+    niche?: string;
   };
-  products: Array<{
-    id: string;
-    productId: string;
-    price: string;
-    comparePrice?: string;
-    seoTitle?: string;
-    seoDescription?: string;
-    published: boolean;
-    product?: {
-      name: string;
-      description?: string;
-      niche?: string;
-    };
-  }>;
+  products: StoreProduct[];
 }
 
 function MetaPixel({ pixelId }: { pixelId: string }) {
   useEffect(() => {
-    if (!pixelId || (window as any).fbq) return;
-    // Safe approach: load fbevents.js via src (no innerHTML), then init with sanitized pixelId
-    const safePixelId = pixelId.replace(/[^0-9]/g, ''); // strip non-numeric chars
+    if (!pixelId || (window as Record<string, unknown>).fbq) return;
+    const safePixelId = pixelId.replace(/[^0-9]/g, '');
     if (!safePixelId) return;
     const script = document.createElement('script');
     script.async = true;
     script.src = 'https://connect.facebook.net/en_US/fbevents.js';
     document.head.appendChild(script);
     script.onload = () => {
-      if ((window as any).fbq) {
-        (window as any).fbq('init', safePixelId);
-        (window as any).fbq('track', 'PageView');
+      const fbq = (window as Record<string, unknown>).fbq as ((...args: unknown[]) => void) | undefined;
+      if (fbq) {
+        fbq('init', safePixelId);
+        fbq('track', 'PageView');
       }
     };
   }, [pixelId]);
   return null;
 }
 
+// Proxy images through Majorka's image proxy to avoid CORS
+function proxyImage(url: string | null | undefined): string {
+  if (!url) return '';
+  if (url.startsWith('/api/')) return url;
+  return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+}
+
 export default function Storefront() {
   const { slug } = useParams<{ slug: string }>();
-  const [, navigate] = useLocation();
   const [data, setData] = useState<StoreData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [checkoutForm, setCheckoutForm] = useState({ name: '', email: '', address: '' });
-  const [ordering, setOrdering] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number[]>([]);
+  const [successMessage, setSuccessMessage] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -70,230 +95,444 @@ export default function Storefront() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const trackEvent = (event: string, params?: any) => {
-    if ((window as any).fbq) (window as any).fbq('track', event, params);
-  };
-
-  const handleBuyNow = (sfProduct: any) => {
-    setSelectedProduct(sfProduct);
-    setShowCheckout(true);
-    trackEvent('InitiateCheckout', { value: parseFloat(sfProduct.price || '0'), currency: 'AUD' });
-  };
-
-  const handleOrder = async () => {
-    if (!checkoutForm.name || !checkoutForm.email) {
-      toast.error('Name and email are required');
-      return;
+  // Check for Stripe success redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      setSuccessMessage(true);
+      window.history.replaceState({}, '', window.location.pathname);
     }
-    setOrdering(true);
-    try {
-      const res = await fetch('/api/store/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          store_id: data?.store.id,
-          storefront_product_id: selectedProduct?.id,
-          price: parseFloat(selectedProduct?.price || '0'),
-          customer: {
-            name: checkoutForm.name,
-            email: checkoutForm.email,
-            address: checkoutForm.address,
-          },
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Checkout failed');
-      trackEvent('Purchase', {
-        value: parseFloat(selectedProduct?.price || '0'),
-        currency: 'AUD',
-        content_ids: [selectedProduct?.productId],
-      });
-      toast.success('Order placed! Check your email.');
-      setShowCheckout(false);
-      setSelectedProduct(null);
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setOrdering(false);
-    }
-  };
+  }, []);
 
-  if (loading)
+  const handleBuyNow = useCallback(async (product: StoreProduct) => {
+    const stripeKey = data?.store.stripePublishableKey;
+    const priceId = product.stripePriceId;
+
+    if (stripeKey && priceId) {
+      // Stripe Checkout — use the store OWNER's Stripe key
+      try {
+        const stripe = await loadStripe(stripeKey);
+        if (!stripe) return;
+        const { error } = await stripe.redirectToCheckout({
+          lineItems: [{ price: priceId, quantity: 1 }],
+          mode: 'payment',
+          successUrl: `${window.location.origin}/store/${slug}?success=true`,
+          cancelUrl: `${window.location.origin}/store/${slug}`,
+        });
+        if (error) {
+          // Fallback to contact
+          window.location.href = `mailto:?subject=Order%20inquiry%20-%20${encodeURIComponent(product.product?.name || 'Product')}`;
+        }
+      } catch {
+        window.location.href = `mailto:?subject=Order%20inquiry%20-%20${encodeURIComponent(product.product?.name || 'Product')}`;
+      }
+    } else {
+      // No Stripe — mailto fallback
+      window.location.href = `mailto:?subject=I%27d%20like%20to%20order%20${encodeURIComponent(product.product?.name || 'Product')}&body=Hi%2C%20I%27m%20interested%20in%20${encodeURIComponent(product.product?.name || 'this product')}%20(%24${product.price}%20AUD).%20Please%20send%20me%20payment%20details.`;
+    }
+  }, [data, slug]);
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
     );
+  }
 
-  if (!data)
+  if (!data) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-        <h1 className="text-3xl font-bold mb-4">Store not found</h1>
+        <ShoppingBag className="w-12 h-12 text-neutral-600 mb-4" />
+        <h1 className="text-3xl font-bold mb-2">Store not found</h1>
         <p className="text-neutral-400">This store doesn't exist or has been deactivated.</p>
       </div>
     );
+  }
 
   const { store, products } = data;
   const accent = store.brandColorPrimary || '#4f8ef7';
+  const copy = store.generatedCopy || {};
+  const template = store.template || 'bold';
+  const hasStripe = Boolean(store.stripePublishableKey);
+
+  // Template-driven colour choices
+  const isLight = ['minimal', 'clean', 'warm', 'high-energy', 'magazine'].includes(template);
+  const bg = isLight ? '#faf9f7' : '#09090b';
+  const textPrimary = isLight ? '#0c0a09' : '#fafafa';
+  const textSecondary = isLight ? '#78716c' : 'rgba(255,255,255,0.5)';
+  const textMuted = isLight ? '#a8a29e' : 'rgba(255,255,255,0.3)';
+  const borderColor = isLight ? '#e7e5e4' : 'rgba(255,255,255,0.08)';
+  const surfaceColor = isLight ? '#ffffff' : 'rgba(255,255,255,0.04)';
+  const cardBg = isLight ? '#fff' : 'rgba(255,255,255,0.03)';
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {store.metaPixelId && <MetaPixel pixelId={store.metaPixelId} />}
+    <div style={{ minHeight: '100vh', background: bg, color: textPrimary, fontFamily: "'DM Sans', sans-serif" }}>
+      {/* Success banner */}
+      {successMessage && (
+        <div
+          style={{
+            background: '#10b981',
+            color: '#fff',
+            textAlign: 'center',
+            padding: '12px 16px',
+            fontSize: 14,
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+          }}
+        >
+          <Check size={16} /> Order placed successfully! Thank you for your purchase.
+        </div>
+      )}
 
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-5">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight">{store.storeName}</h1>
-          <ShoppingBag className="w-6 h-6 text-neutral-400" />
+      <header
+        style={{
+          borderBottom: `1px solid ${borderColor}`,
+          padding: '18px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          maxWidth: 1200,
+          margin: '0 auto',
+        }}
+      >
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: accent, letterSpacing: '-0.02em' }}>
+          {store.storeName}
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <nav style={{ display: 'flex', gap: 20, fontSize: 13, color: textSecondary }}>
+            <a href="#products" style={{ textDecoration: 'none', color: 'inherit' }}>Shop</a>
+            {copy.about_text && <a href="#about" style={{ textDecoration: 'none', color: 'inherit' }}>About</a>}
+            {copy.faq && copy.faq.length > 0 && <a href="#faq" style={{ textDecoration: 'none', color: 'inherit' }}>FAQ</a>}
+          </nav>
+          <ShoppingBag size={18} color={textMuted} />
         </div>
       </header>
 
       {/* Hero */}
-      <div className="py-16 px-6 text-center border-b border-white/5">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{store.storeName}</h2>
-          <p className="text-neutral-400 text-lg">Premium products, delivered.</p>
-        </div>
-      </div>
-
-      {/* Products */}
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        {products.length === 0 ? (
-          <div className="text-center py-20 text-neutral-500">No products published yet.</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((sfp) => (
-              <div
-                key={sfp.id}
-                className="group bg-[#0D1424] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-all"
-              >
-                {/* Product image placeholder */}
-                <div className="aspect-square bg-[#111B2E] flex items-center justify-center">
-                  <ShoppingBag className="w-16 h-16 text-neutral-700" />
-                </div>
-                <div className="p-5">
-                  <h3 className="text-slate-100 font-semibold text-lg mb-1 line-clamp-2">
-                    {sfp.product?.name || 'Product'}
-                  </h3>
-                  {sfp.product?.description && (
-                    <p className="text-neutral-500 text-sm mb-3 line-clamp-2">
-                      {sfp.product.description}
-                    </p>
-                  )}
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-2xl font-bold text-slate-100">${sfp.price || '—'}</span>
-                    {sfp.comparePrice && (
-                      <span className="text-neutral-500 line-through text-sm">
-                        ${sfp.comparePrice}
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    className="w-full font-semibold"
-                    style={{ backgroundColor: accent }}
-                    onClick={() => {
-                      handleBuyNow(sfp);
-                      trackEvent('ViewContent', {
-                        value: parseFloat(sfp.price || '0'),
-                        currency: 'AUD',
-                        content_ids: [sfp.productId],
-                      });
-                    }}
-                  >
-                    Buy Now
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+      <section
+        style={{
+          padding: '80px 24px',
+          textAlign: 'center',
+          maxWidth: 720,
+          margin: '0 auto',
+        }}
+      >
+        {copy.tagline && (
+          <p
+            style={{
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.2em',
+              color: accent,
+              fontWeight: 700,
+              marginBottom: 14,
+            }}
+          >
+            {copy.tagline}
+          </p>
         )}
-      </main>
+        <h2
+          style={{
+            fontSize: 'clamp(32px, 5vw, 52px)',
+            fontWeight: 800,
+            lineHeight: 1.1,
+            marginBottom: 16,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          {copy.hero_headline || `Welcome to ${store.storeName}`}
+        </h2>
+        <p style={{ fontSize: 17, color: textSecondary, lineHeight: 1.6, marginBottom: 32, maxWidth: 540, margin: '0 auto 32px' }}>
+          {copy.hero_subheading || 'Premium products curated for quality and value.'}
+        </p>
+        <a
+          href="#products"
+          style={{
+            display: 'inline-block',
+            background: accent,
+            color: '#fff',
+            padding: '14px 40px',
+            borderRadius: 10,
+            fontSize: 15,
+            fontWeight: 700,
+            textDecoration: 'none',
+            boxShadow: `0 8px 30px -8px ${accent}60`,
+          }}
+        >
+          {copy.hero_cta || 'Shop Now'}
+        </a>
+      </section>
 
       {/* Trust badges */}
-      <div className="border-t border-white/5 py-8 px-6">
-        <div className="max-w-3xl mx-auto grid grid-cols-3 gap-6 text-center">
+      {copy.trust_badges && copy.trust_badges.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 28,
+            padding: '14px 16px',
+            borderTop: `1px solid ${borderColor}`,
+            borderBottom: `1px solid ${borderColor}`,
+            flexWrap: 'wrap',
+          }}
+        >
+          {copy.trust_badges.map((badge, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: textSecondary }}>
+              {i === 0 && <Shield size={13} />}
+              {i === 1 && <Truck size={13} />}
+              {i === 2 && <RotateCcw size={13} />}
+              {i === 3 && <Star size={13} />}
+              {badge}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Products */}
+      <section id="products" style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px' }}>
+        <h3 style={{ textAlign: 'center', fontSize: 26, fontWeight: 800, marginBottom: 36, letterSpacing: '-0.02em' }}>
+          Featured Products
+        </h3>
+        {products.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 0', color: textMuted, fontSize: 15 }}>
+            No products published yet.
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: 20,
+            }}
+          >
+            {products.map((p) => {
+              const imageUrl = p.image_url || p.product?.image_url;
+              return (
+                <div
+                  key={p.id}
+                  style={{
+                    background: cardBg,
+                    border: `1px solid ${borderColor}`,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    transition: 'border-color 200ms, transform 200ms',
+                  }}
+                >
+                  {/* Product image */}
+                  <div
+                    style={{
+                      aspectRatio: '1',
+                      background: surfaceColor,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={proxyImage(imageUrl)}
+                        alt={p.product?.name || 'Product'}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <ShoppingBag size={40} color={textMuted} />
+                    )}
+                  </div>
+
+                  <div style={{ padding: 18 }}>
+                    {/* Stars */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 8 }}>
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <Star key={si} size={12} fill={accent} color={accent} />
+                      ))}
+                    </div>
+
+                    <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6, lineHeight: 1.3 }}>
+                      {p.seoTitle || p.product?.name || 'Product'}
+                    </h4>
+
+                    {(p.seoDescription || p.product?.description) && (
+                      <p style={{ fontSize: 13, color: textSecondary, marginBottom: 12, lineHeight: 1.5 }}>
+                        {(p.seoDescription || p.product?.description || '').slice(0, 100)}
+                        {(p.seoDescription || p.product?.description || '').length > 100 ? '...' : ''}
+                      </p>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 22, fontWeight: 800 }}>
+                        ${parseFloat(p.price || '0').toFixed(2)}
+                      </span>
+                      <button
+                        onClick={() => handleBuyNow(p)}
+                        style={{
+                          background: accent,
+                          color: '#fff',
+                          border: 'none',
+                          padding: '10px 22px',
+                          borderRadius: 8,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        {hasStripe ? 'Buy Now' : (
+                          <>
+                            <Mail size={13} /> Contact Seller
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {hasStripe && !p.stripePriceId && (
+                      <div style={{ marginTop: 8, fontSize: 11, color: textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Mail size={10} /> Payment link — contact seller
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* About */}
+      {copy.about_text && (
+        <section
+          id="about"
+          style={{
+            borderTop: `1px solid ${borderColor}`,
+            background: surfaceColor,
+          }}
+        >
+          <div style={{ maxWidth: 640, margin: '0 auto', padding: '56px 24px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 16 }}>About {store.storeName}</h3>
+            <p style={{ fontSize: 15, color: textSecondary, lineHeight: 1.75 }}>{copy.about_text}</p>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      {copy.faq && copy.faq.length > 0 && (
+        <section id="faq" style={{ maxWidth: 640, margin: '0 auto', padding: '56px 24px' }}>
+          <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, textAlign: 'center' }}>
+            Frequently Asked Questions
+          </h3>
+          {copy.faq.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                borderBottom: `1px solid ${borderColor}`,
+                padding: '16px 0',
+              }}
+            >
+              <button
+                onClick={() =>
+                  setExpandedFaq((prev) =>
+                    prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]
+                  )
+                }
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  color: textPrimary,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  textAlign: 'left',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                {item.question}
+                {expandedFaq.includes(i) ? (
+                  <ChevronUp size={16} color={textMuted} />
+                ) : (
+                  <ChevronDown size={16} color={textMuted} />
+                )}
+              </button>
+              {expandedFaq.includes(i) && (
+                <p style={{ fontSize: 13, color: textSecondary, marginTop: 10, lineHeight: 1.65 }}>
+                  {item.answer}
+                </p>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* Trust footer */}
+      <div
+        style={{
+          borderTop: `1px solid ${borderColor}`,
+          padding: '28px 24px',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 600,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 16,
+            textAlign: 'center',
+          }}
+        >
           {[
             { icon: Shield, label: 'Secure Checkout' },
-            { icon: RotateCcw, label: 'Free Returns' },
-            { icon: Zap, label: 'Fast Shipping' },
+            { icon: RotateCcw, label: 'Easy Returns' },
+            { icon: Truck, label: 'Fast Shipping' },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex flex-col items-center gap-2">
-              <Icon className="w-6 h-6 text-neutral-400" />
-              <span className="text-neutral-400 text-sm">{label}</span>
+            <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+              <Icon size={18} color={textMuted} />
+              <span style={{ color: textMuted, fontSize: 12 }}>{label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Checkout modal */}
-      {showCheckout && selectedProduct && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-[#0D1424] border border-white/[0.08] rounded-2xl w-full max-w-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-slate-100 font-bold text-xl">Complete Order</h3>
-              <button
-                onClick={() => setShowCheckout(false)}
-                className="text-gray-400 hover:text-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="bg-[#111B2E] rounded-xl p-4 mb-6">
-              <p className="text-slate-100 font-medium">{selectedProduct.product?.name}</p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-bold">${selectedProduct.price}</span>
-                {selectedProduct.comparePrice && (
-                  <span className="text-neutral-500 line-through text-sm">
-                    ${selectedProduct.comparePrice}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <Label className="text-slate-300 mb-1 block text-sm">Full Name *</Label>
-                <Input
-                  value={checkoutForm.name}
-                  onChange={(e) => setCheckoutForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="John Smith"
-                  className="bg-[#0D1424] border-white/[0.08] text-slate-100"
-                />
-              </div>
-              <div>
-                <Label className="text-slate-300 mb-1 block text-sm">Email *</Label>
-                <Input
-                  value={checkoutForm.email}
-                  onChange={(e) => setCheckoutForm((f) => ({ ...f, email: e.target.value }))}
-                  type="email"
-                  placeholder="john@example.com"
-                  className="bg-[#0D1424] border-white/[0.08] text-slate-100"
-                />
-              </div>
-              <div>
-                <Label className="text-slate-300 mb-1 block text-sm">Shipping Address</Label>
-                <Input
-                  value={checkoutForm.address}
-                  onChange={(e) => setCheckoutForm((f) => ({ ...f, address: e.target.value }))}
-                  placeholder="123 Main St, Sydney NSW 2000"
-                  className="bg-[#0D1424] border-white/[0.08] text-slate-100"
-                />
-              </div>
-              <Button
-                className="w-full py-3 font-semibold text-base"
-                style={{ backgroundColor: accent }}
-                onClick={handleOrder}
-                disabled={ordering}
-              >
-                {ordering ? 'Processing...' : `Pay $${selectedProduct.price} AUD`}
-              </Button>
-              <div className="flex items-center justify-center gap-2 text-neutral-600 text-xs">
-                <Shield className="w-3 h-3" />
-                Secured by Majorka Checkout
-              </div>
-            </div>
-          </div>
+      {/* Footer */}
+      <footer
+        style={{
+          textAlign: 'center',
+          padding: '20px 16px',
+          borderTop: `1px solid ${borderColor}`,
+          fontSize: 11,
+          color: textMuted,
+        }}
+      >
+        <div style={{ marginBottom: 8 }}>
+          &copy; 2026 {store.storeName}. All rights reserved.
         </div>
-      )}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, fontSize: 10 }}>
+          <span>Privacy Policy</span>
+          <span>Terms of Service</span>
+          <a
+            href="https://majorka.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: accent, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}
+          >
+            Powered by Majorka <ExternalLink size={8} />
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -14,6 +14,9 @@ import {
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import EditableField from '@/components/store-builder/EditableField';
+import { CleanTemplate, BoldTemplate, MagazineTemplate } from '@/components/store-builder/templates';
+import type { StoreProduct } from '@/components/store-builder/templates';
 
 /* ────────────────────────────────────────────────────────────────
  * Store Builder — Deerflow/Minea-inspired two-panel wizard
@@ -57,12 +60,9 @@ const COLOR_SWATCHES = [
 ];
 
 const TEMPLATES = [
-  { id: 'minimal',     name: 'Minimal',     style: 'White · Premium spacing',       bestFor: ['Beauty', 'Fashion', 'Jewellery'],  bg: '#ffffff', preview: { bg: '#fff',     text: '#0a0a0a', btn: '#0a0a0a' } },
-  { id: 'bold',        name: 'Bold',        style: 'Dark · High contrast',          bestFor: ['Fitness', 'Electronics'],           bg: '#09090b', preview: { bg: '#09090b', text: '#fff',    btn: '#4f8ef7' } },
-  { id: 'luxury',      name: 'Luxury',      style: 'Black · Gold accents',          bestFor: ['Premium', 'Watches'],               bg: '#04060f', preview: { bg: '#04060f', text: '#4f8ef7', btn: '#4f8ef7' } },
-  { id: 'warm',        name: 'Warm',        style: 'Cream · Earthy tones',          bestFor: ['Pet', 'Baby', 'Eco'],               bg: '#fdf6ec', preview: { bg: '#fdf6ec', text: '#1c1917', btn: '#b45309' } },
-  { id: 'clean',       name: 'Clean',       style: 'Light grey · Systematic',       bestFor: ['Electronics', 'Tools'],             bg: '#f8fafc', preview: { bg: '#f8fafc', text: '#0f172a', btn: '#0f172a' } },
-  { id: 'high-energy', name: 'High Energy', style: 'Bright · Sale-focused',         bestFor: ['General', 'Impulse buys'],          bg: '#fff7ed', preview: { bg: '#fff7ed', text: '#1c1917', btn: '#dc2626' } },
+  { id: 'clean',       name: 'Clean',       style: 'White · Minimalist · Single column', bestFor: ['Beauty', 'Fashion', 'Jewellery'],  bg: '#ffffff', preview: { bg: '#fff',     text: '#0a0a0a', btn: '#0a0a0a' } },
+  { id: 'bold',        name: 'Bold',        style: 'Dark · Full-width hero · Grid',      bestFor: ['Fitness', 'Electronics'],           bg: '#09090b', preview: { bg: '#09090b', text: '#fff',    btn: '#4f8ef7' } },
+  { id: 'magazine',    name: 'Magazine',     style: 'Editorial · Large images · Story',   bestFor: ['Premium', 'Lifestyle'],             bg: '#faf9f7', preview: { bg: '#faf9f7', text: '#1c1917', btn: '#b45309' } },
 ];
 
 const REVIEW_TEMPLATES = [
@@ -403,6 +403,9 @@ export default function StoreBuilder() {
   const [publishing, setPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<{ success: boolean; liveUrl?: string; storeId?: string } | null>(null);
 
+  // Stripe (store owner's key for receiving payments)
+  const [stripePublishableKey, setStripePublishableKey] = useState('');
+
   // Shopify
   const [shopifyStatus, setShopifyStatus] = useState<{ connected: boolean; shop?: string }>({ connected: false });
   const [shopifyDomain, setShopifyDomain] = useState('');
@@ -555,6 +558,31 @@ export default function StoreBuilder() {
     setTimeout(() => setGenerating(false), 600);
   };
 
+  // ── Regenerate a single field via AI ────────────────────────────
+  const regenerateField = async (field: string): Promise<void> => {
+    const currentValue = generatedCopy ? (generatedCopy as Record<string, unknown>)[field] as string : '';
+    try {
+      const res = await fetch('/api/store-builder/regenerate-field', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          field,
+          currentValue,
+          storeName,
+          niche,
+          tone,
+        }),
+      });
+      const data = await res.json();
+      if (data.value) {
+        setGeneratedCopy((prev) => prev ? { ...prev, [field]: data.value } : { [field]: data.value });
+        toast.success(`${field.replace(/_/g, ' ')} regenerated`);
+      }
+    } catch {
+      toast.error('Regeneration failed');
+    }
+  };
+
   // ── Subdomain availability ────────────────────────────────────
   const checkSubdomain = async (slug: string) => {
     if (!slug || slug.length < 3) { setSubdomainAvailable(null); return; }
@@ -592,6 +620,7 @@ export default function StoreBuilder() {
             image_url: p.image_url, category: (p as WinningProduct).category,
           })),
           generatedCopy, subdomain, customDomain, mode: 'ai',
+          stripePublishableKey: stripePublishableKey || undefined,
         }),
       });
       const data = await res.json();
@@ -984,12 +1013,12 @@ export default function StoreBuilder() {
                       </div>
                     )}
 
-                    {/* STEP 3: BRANDING */}
+                    {/* STEP 3: BRANDING — editable AI copy + template + colour */}
                     {stepId === 'branding' && (
                       <div>
                         <div className="mb-1 text-xs uppercase tracking-widest" style={{ color: ACCENT, letterSpacing: '0.15em' }}>Step 3 of 4</div>
-                        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Brand & template</h2>
-                        <p className="mb-6" style={{ color: TEXT_BODY, fontSize: 14 }}>Pick a template and accent colour. Preview updates live.</p>
+                        <h2 className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em' }}>Brand & copy</h2>
+                        <p className="mb-6" style={{ color: TEXT_BODY, fontSize: 14 }}>AI generated your store copy. Edit any field or regenerate it.</p>
 
                         {generating && (
                           <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'rgba(79,142,247,0.06)', border: '1px solid rgba(79,142,247,0.2)', borderRadius: 12 }}>
@@ -1003,8 +1032,58 @@ export default function StoreBuilder() {
                           </div>
                         )}
 
+                        {/* Editable AI-generated fields */}
+                        {generatedCopy && !generating && (
+                          <div className="mb-6">
+                            <EditableField
+                              label="Tagline"
+                              value={generatedCopy.tagline || ''}
+                              onChange={(v) => setGeneratedCopy(prev => prev ? { ...prev, tagline: v } : { tagline: v })}
+                              onRegenerate={() => regenerateField('tagline')}
+                              placeholder="Short brand tagline"
+                            />
+                            <EditableField
+                              label="Hero Headline"
+                              value={generatedCopy.hero_headline || ''}
+                              onChange={(v) => setGeneratedCopy(prev => prev ? { ...prev, hero_headline: v } : { hero_headline: v })}
+                              onRegenerate={() => regenerateField('hero_headline')}
+                              placeholder="Main headline for your store"
+                            />
+                            <EditableField
+                              label="Hero Subheading"
+                              value={generatedCopy.hero_subheading || ''}
+                              onChange={(v) => setGeneratedCopy(prev => prev ? { ...prev, hero_subheading: v } : { hero_subheading: v })}
+                              onRegenerate={() => regenerateField('hero_subheading')}
+                              multiline
+                              placeholder="Benefit-focused description"
+                            />
+                            <EditableField
+                              label="Call to Action"
+                              value={generatedCopy.hero_cta || ''}
+                              onChange={(v) => setGeneratedCopy(prev => prev ? { ...prev, hero_cta: v } : { hero_cta: v })}
+                              placeholder="Button text"
+                            />
+                            <EditableField
+                              label="About Section"
+                              value={generatedCopy.about_text || ''}
+                              onChange={(v) => setGeneratedCopy(prev => prev ? { ...prev, about_text: v } : { about_text: v })}
+                              onRegenerate={() => regenerateField('about_text')}
+                              multiline
+                              placeholder="Brand story for the About section"
+                            />
+                            <button
+                              onClick={generateCopy}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold mt-2"
+                              style={{ color: TEXT_BODY }}
+                            >
+                              <RefreshCw size={12} /> Regenerate all copy
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Template selection */}
                         <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Template</label>
-                        <div className="grid gap-3 mb-6" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                        <div className="grid gap-3 mb-6" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
                           {TEMPLATES.map(tpl => (
                             <button
                               key={tpl.id}
@@ -1023,19 +1102,20 @@ export default function StoreBuilder() {
                                   {[1, 2, 3].map(i => <div key={i} style={{ flex: 1, height: 22, background: tpl.preview.text, opacity: 0.1, borderRadius: 3 }} />)}
                                 </div>
                               </div>
-                              <div className="p-3">
-                                <div className="flex items-center justify-between mb-1">
-                                  <div style={{ fontFamily: FONT_DISPLAY, fontSize: 13, fontWeight: 700 }}>{tpl.name}</div>
-                                  {selectedTemplate === tpl.id && <Check size={13} color={ACCENT} />}
+                              <div className="p-2.5">
+                                <div className="flex items-center justify-between mb-0.5">
+                                  <div style={{ fontFamily: FONT_DISPLAY, fontSize: 12, fontWeight: 700 }}>{tpl.name}</div>
+                                  {selectedTemplate === tpl.id && <Check size={12} color={ACCENT} />}
                                 </div>
-                                <div className="text-[10px]" style={{ color: TEXT_MUTED }}>{tpl.style}</div>
+                                <div className="text-[9px]" style={{ color: TEXT_MUTED }}>{tpl.style}</div>
                               </div>
                             </button>
                           ))}
                         </div>
 
+                        {/* Accent colour */}
                         <label className="block mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Accent colour</label>
-                        <div className="flex items-center gap-2 mb-6">
+                        <div className="flex items-center gap-2 mb-4">
                           {COLOR_SWATCHES.map(s => (
                             <button
                               key={s.color}
@@ -1051,16 +1131,6 @@ export default function StoreBuilder() {
                           ))}
                           <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-8 h-8 cursor-pointer bg-transparent border-0" />
                         </div>
-
-                        {generatedCopy && !generating && (
-                          <button
-                            onClick={generateCopy}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold"
-                            style={{ color: TEXT_BODY }}
-                          >
-                            <RefreshCw size={12} /> Regenerate copy
-                          </button>
-                        )}
                       </div>
                     )}
 
@@ -1118,6 +1188,37 @@ export default function StoreBuilder() {
                               {checkingSubdomain ? 'Checking…' : subdomainAvailable === true ? <><Check size={12} /> Available</> : subdomainAvailable === false ? 'Already taken' : ''}
                             </div>
                           )}
+                        </div>
+
+                        {/* Stripe payment setup */}
+                        <div className="mb-5 p-5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14 }}>
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-lg" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)' }}>
+                              <DollarSign size={14} color="#6366f1" />
+                            </div>
+                            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 15, fontWeight: 700, color: TEXT_PRIMARY }}>Accept payments</div>
+                            <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', letterSpacing: '0.08em' }}>Optional</span>
+                          </div>
+                          <p className="mb-3" style={{ color: TEXT_BODY, fontSize: 12, lineHeight: 1.5 }}>
+                            Connect your Stripe account to accept payments directly. Buyers pay you — Majorka never touches the funds.
+                          </p>
+                          <div className="mb-2">
+                            <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: TEXT_BODY, letterSpacing: '0.08em' }}>Stripe Publishable Key</label>
+                            <input
+                              value={stripePublishableKey}
+                              onChange={e => setStripePublishableKey(e.target.value)}
+                              placeholder="pk_live_..."
+                              className="sb-input"
+                              style={{ fontFamily: 'monospace', fontSize: 12 }}
+                            />
+                          </div>
+                          <div className="text-[11px]" style={{ color: TEXT_MUTED }}>
+                            Get your key from{' '}
+                            <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>
+                              dashboard.stripe.com → Developers → API Keys
+                            </a>
+                            . Without this, products show a "Contact Seller" button instead.
+                          </div>
                         </div>
 
                         <div className="mb-2">
@@ -1237,16 +1338,46 @@ export default function StoreBuilder() {
                           <div className="mb-2" style={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700 }}>Preview will appear here</div>
                           <div style={{ color: TEXT_BODY, fontSize: 13, maxWidth: 320 }}>Select products to see your storefront come to life.</div>
                         </div>
-                      ) : (
-                        <StorePreview
-                          copy={generatedCopy}
-                          template={TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[1]}
-                          products={selectedProducts}
-                          storeName={storeName}
-                          primaryColor={primaryColor}
-                          isMobilePreview={isMobilePreview}
-                        />
-                      )}
+                      ) : (() => {
+                        const templateProducts: StoreProduct[] = selectedProducts.map(p => {
+                          const copyProduct = generatedCopy?.products?.find(cp => String(cp.id) === String(p.id));
+                          return {
+                            name: copyProduct?.seo_title || p.product_title || 'Product',
+                            description: copyProduct?.description || `Premium quality ${(niche || 'product').toLowerCase()}.`,
+                            price: p.price_aud || 49.95,
+                            image: p.image_url || '',
+                          };
+                        });
+                        const templateProps = {
+                          storeName: storeName || 'Your Store',
+                          tagline: generatedCopy?.tagline || '',
+                          heroHeadline: generatedCopy?.hero_headline || `Welcome to ${storeName || 'Your Store'}`,
+                          heroSubheadline: generatedCopy?.hero_subheading || 'Premium products curated for quality and value.',
+                          aboutText: generatedCopy?.about_text || '',
+                          colorPrimary: primaryColor,
+                          colorSecondary: primaryColor,
+                          products: templateProducts,
+                          isPreview: true,
+                        };
+                        const tplId = selectedTemplate;
+                        return (
+                          <div style={{ maxWidth: isMobilePreview ? 375 : '100%', margin: '0 auto' }}>
+                            {tplId === 'clean' && <CleanTemplate {...templateProps} />}
+                            {tplId === 'bold' && <BoldTemplate {...templateProps} />}
+                            {tplId === 'magazine' && <MagazineTemplate {...templateProps} />}
+                            {!['clean', 'bold', 'magazine'].includes(tplId) && (
+                              <StorePreview
+                                copy={generatedCopy}
+                                template={TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[0]}
+                                products={selectedProducts}
+                                storeName={storeName}
+                                primaryColor={primaryColor}
+                                isMobilePreview={isMobilePreview}
+                              />
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>

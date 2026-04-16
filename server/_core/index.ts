@@ -270,6 +270,61 @@ async function startServer() {
   app.use(cookieParser());
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
+  // Public storefront data — forwards to store-builder/storefront/:slug
+  app.get('/api/store/:slug', (req, res, next) => {
+    req.url = `/api/store-builder/storefront/${req.params.slug}`;
+    next('route');
+  });
+  // Direct forwarding for /api/store/:slug
+  app.get('/api/store/:slug', async (req, res) => {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (!url || !key) return res.status(500).json({ error: 'Config error' });
+      const supabase = createClient(url, key);
+      const { data, error } = await supabase
+        .from('generated_stores')
+        .select('*')
+        .eq('subdomain', req.params.slug)
+        .eq('published', true)
+        .single();
+      if (error || !data) return res.status(404).json({ error: 'Store not found' });
+      res.json({
+        store: {
+          id: data.id,
+          storeName: data.store_name,
+          storeSlug: data.subdomain,
+          brandColorPrimary: data.primary_color || '#4f8ef7',
+          stripePublishableKey: data.stripe_publishable_key || null,
+          generatedCopy: data.generated_copy || {},
+          template: data.template,
+          niche: data.niche,
+        },
+        products: (data.selected_products || []).map((p: Record<string, unknown>, i: number) => ({
+          id: String(p.id || i),
+          productId: String(p.id || i),
+          price: String(p.price_aud || 0),
+          seoTitle: ((data.generated_copy as Record<string, unknown>)?.products as Array<Record<string, unknown>>)
+            ?.find((cp: Record<string, unknown>) => String(cp.id) === String(p.id))?.seo_title || p.product_title || 'Product',
+          seoDescription: ((data.generated_copy as Record<string, unknown>)?.products as Array<Record<string, unknown>>)
+            ?.find((cp: Record<string, unknown>) => String(cp.id) === String(p.id))?.description || '',
+          published: true,
+          image_url: p.image_url || null,
+          stripePriceId: p.stripe_price_id || null,
+          product: {
+            name: p.product_title || 'Product',
+            description: ((data.generated_copy as Record<string, unknown>)?.products as Array<Record<string, unknown>>)
+              ?.find((cp: Record<string, unknown>) => String(cp.id) === String(p.id))?.description || '',
+            image_url: p.image_url || null,
+          },
+        })),
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: msg });
+    }
+  });
   app.use('/api/apify', apifyRouter);
   // Majorka ai router (chat, generate, image, store concept, meta ad variants)
   const aiRouter = (await import('../routes/ai')).default;

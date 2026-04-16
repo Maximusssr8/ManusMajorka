@@ -152,12 +152,21 @@ const HERO_CSS = `
     grid-template-columns: 1fr !important;
     height: auto !important;
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 100px 20px 60px !important;
   }
   .mj-hero-minimal-left {
     text-align: center !important;
     align-items: center !important;
+    padding: 0 !important;
     margin-bottom: 32px !important;
+  }
+  .mj-hero-minimal-left h1 {
+    font-size: clamp(32px, 8vw, 44px) !important;
+  }
+  .mj-hero-minimal-left p {
+    font-size: 16px !important;
+    max-width: 100% !important;
   }
   .mj-hero-demo-wrap {
     display: none !important;

@@ -642,8 +642,9 @@ export default function Pricing() {
 
       <style>{`
         @media (max-width: 640px) {
-          .pricing-hero-title { font-size: 28px !important; line-height: 1.2 !important; }
+          .pricing-hero-title { font-size: 28px !important; line-height: 1.2 !important; letter-spacing: -0.5px !important; }
           .pricing-hero-sub { font-size: 15px !important; }
+          .pricing-hero-badge { max-width: 100% !important; white-space: normal !important; text-align: center !important; }
           .pricing-cards-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
           .pricing-section { padding: 48px 16px !important; }
           .pricing-cta-btn { width: 100% !important; }
@@ -654,6 +655,7 @@ export default function Pricing() {
           .pricing-toggle { flex-direction: column !important; gap: 8px !important; }
           .pricing-calc-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
           .pricing-bottom-cta { padding: 48px 16px !important; }
+          .pricing-nav-brand { font-size: 14px !important; }
         }
       `}</style>
 
@@ -713,7 +715,7 @@ export default function Pricing() {
             >
               M
             </div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#E0E0E0' }}>MAJORKA</span>
+            <span className="pricing-nav-brand" style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#E0E0E0' }}>MAJORKA</span>
           </div>
         </div>
       </nav>
@@ -721,6 +723,7 @@ export default function Pricing() {
       {/* ── HERO ── */}
       <section className="pricing-section" style={{ padding: '80px 24px 56px', textAlign: 'center' }}>
         <div
+          className="pricing-hero-badge"
           style={{
             display: 'inline-block',
             background: C.goldDim,
@@ -732,6 +735,7 @@ export default function Pricing() {
             color: C.gold,
             marginBottom: 24,
             letterSpacing: '0.05em',
+            maxWidth: '100%',
           }}
         >
           Simple Pricing &middot; Prices in AUD &middot; Global access included

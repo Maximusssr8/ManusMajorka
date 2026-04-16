@@ -461,12 +461,13 @@ router.post('/publish', requireAuth, async (req, res) => {
     const {
       storeName, niche, targetMarket, tone, primaryColor,
       templateId, selectedProducts, generatedCopy, subdomain,
-      customDomain, mode,
+      customDomain, mode, stripePublishableKey,
     } = req.body as {
       storeName?: string; niche?: string; targetMarket?: string;
       tone?: string; primaryColor?: string; templateId?: string;
       selectedProducts?: unknown[]; generatedCopy?: Record<string, unknown>;
       subdomain?: string; customDomain?: string; mode?: string;
+      stripePublishableKey?: string;
     };
 
     if (!storeName) return res.status(400).json({ error: 'storeName required' });
@@ -525,6 +526,7 @@ router.post('/publish', requireAuth, async (req, res) => {
         custom_domain: customDomain || null,
         mode: mode || 'ai',
         published: true,
+        stripe_publishable_key: stripePublishableKey || null,
       })
       .select('id, subdomain')
       .single();
@@ -539,6 +541,131 @@ router.post('/publish', requireAuth, async (req, res) => {
       storeId: store?.id,
       liveUrl: `https://majorka.io/store/${subdomain}`,
     });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── GET /api/store-builder/storefront/:slug — public store data ──
+router.get('/storefront/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    if (!slug) return res.status(400).json({ error: 'slug required' });
+
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from('generated_stores')
+      .select('*')
+      .eq('subdomain', slug)
+      .eq('published', true)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    // Return store data for the public storefront
+    res.json({
+      store: {
+        id: data.id,
+        storeName: data.store_name,
+        slug: data.subdomain,
+        niche: data.niche,
+        template: data.template,
+        primaryColor: data.primary_color || '#4f8ef7',
+        stripePublishableKey: data.stripe_publishable_key || null,
+        generatedCopy: data.generated_copy || {},
+        selectedProducts: data.selected_products || [],
+        tone: data.tone,
+      },
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── POST /api/store-builder/regenerate-field — AI regenerate single field ──
+router.post('/regenerate-field', requireAuth, claudeRateLimit, async (req, res) => {
+  try {
+    const { rateLimit } = await import('../lib/rate-limit');
+    const userId = req.user?.userId || 'anon';
+    const rl = rateLimit(`store-regen:${userId}`, 30, 60 * 60 * 1000);
+    if (!rl.allowed) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
+    }
+
+    const { field, currentValue, storeName, niche, tone } = req.body as {
+      field: string;
+      currentValue?: string;
+      storeName?: string;
+      niche?: string;
+      tone?: string;
+    };
+
+    if (!field) return res.status(400).json({ error: 'field is required' });
+
+    const fieldDescriptions: Record<string, string> = {
+      tagline: 'a store tagline (8 words max)',
+      hero_headline: 'a hero headline (10 words max)',
+      hero_subheading: 'a hero subheading (20 words max, benefit-focused)',
+      hero_cta: 'a call-to-action button text (4 words max)',
+      about_text: 'an about section (40 words about the store)',
+    };
+
+    const desc = fieldDescriptions[field] || `the ${field} field`;
+    const prompt = `Generate ${desc} for a ${tone || 'Professional'} ${niche || 'general'} store called "${storeName || 'My Store'}".
+${currentValue ? `The current version is: "${currentValue}". Generate a different, better alternative.` : ''}
+Return ONLY the text, no quotes, no explanation.`;
+
+    const msg = await callClaude({
+      feature: 'store_generation',
+      userId,
+      maxTokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const text = (msg.content[0] as { type: string; text: string }).text.trim();
+    res.json({ value: text });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── PUT /api/store-builder/update/:slug — update store ──
+router.put('/update/:slug', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user!.userId;
+    const { slug } = req.params;
+    const supabase = getSupabaseAdmin();
+
+    const updates: Record<string, unknown> = {};
+    const allowed = [
+      'store_name', 'niche', 'target_market', 'tone', 'primary_color',
+      'template', 'selected_products', 'generated_copy', 'stripe_publishable_key',
+      'published',
+    ];
+
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) {
+        updates[key] = req.body[key];
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('generated_stores')
+      .update(updates)
+      .eq('subdomain', slug)
+      .eq('user_id', userId)
+      .select('id, subdomain')
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    if (!data) return res.status(404).json({ error: 'Store not found' });
+
+    res.json({ success: true, storeId: data.id });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     res.status(500).json({ error: msg });
