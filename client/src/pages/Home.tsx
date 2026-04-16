@@ -19,12 +19,16 @@ import { LaunchBar, LAUNCH_BAR_HEIGHT } from '@/components/landing/v2/LaunchBar'
 import { Nav } from '@/components/landing/v2/Nav';
 import { Hero } from '@/components/landing/v2/Hero';
 import { MomentumTicker } from '@/components/landing/v2/MomentumTicker';
+import { DataFlow } from '@/components/landing/v2/DataFlow';
 import { StatsBar } from '@/components/landing/v2/StatsBar';
+import { PipelineStatus } from '@/components/landing/v2/PipelineStatus';
 import { FeatureTabs } from '@/components/landing/v2/FeatureTabs';
+import { ProductScorer } from '@/components/landing/v2/ProductScorer';
 import { ComparisonTable } from '@/components/landing/v2/ComparisonTable';
 import { SocialProof } from '@/components/landing/v2/SocialProof';
 import { ApiStrip } from '@/components/landing/v2/ApiStrip';
 import { Pricing } from '@/components/landing/v2/Pricing';
+import { ROICalculator } from '@/components/landing/v2/ROICalculator';
 import { FAQ } from '@/components/landing/v2/FAQ';
 import { Footer } from '@/components/landing/v2/Footer';
 
@@ -139,17 +143,26 @@ export default function Home() {
         {/* [1] Hero */}
         <Hero />
 
-        {/* [1.5] Momentum Ticker */}
+        {/* [1.5] Animated Data Flow — how Majorka works */}
+        <DataFlow />
+
+        {/* [1.6] Momentum Ticker */}
         <MomentumTicker />
 
         {/* [2] Stats Bar */}
         <StatsBar />
+
+        {/* [2.1] Pipeline Status — live trust strip */}
+        <PipelineStatus />
 
         {/* [2.5] API Strip */}
         <ApiStrip />
 
         {/* [3] Product Feature Tabs */}
         <FeatureTabs />
+
+        {/* [3.5] Interactive Product Scorer — paste any AliExpress URL */}
+        <ProductScorer />
 
         {/* [4] Comparison Table */}
         <ComparisonTable />
@@ -159,6 +172,9 @@ export default function Home() {
 
         {/* [6] Pricing */}
         <Pricing />
+
+        {/* [6.5] ROI Calculator — make the subscription feel trivial */}
+        <ROICalculator />
 
         {/* [7] FAQ */}
         <FAQ />
