@@ -274,7 +274,7 @@ function Router() {
             <Route path="/app">{() => <ProtectedRoute><NewAppShell><NewHome /></NewAppShell></ProtectedRoute>}</Route>
             <Route path="/app/legacy">{() => <ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/settings">{() => <ProtectedRoute><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
-            <Route path="/app/ai">{() => <ProtectedRoute><NewAppShell><ComingSoon page="AI Tools" /></NewAppShell></ProtectedRoute>}</Route>
+            <Route path="/app/ai">{() => { window.location.replace('/app/ai-chat'); return null; }}</Route>
 
             {/* Redirects for consolidated pages */}
             <Route path="/app/analytics">{() => <ProtectedRoute><NewAppShell><NewAnalytics /></NewAppShell></ProtectedRoute>}</Route>

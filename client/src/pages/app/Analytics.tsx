@@ -120,7 +120,7 @@ export default function Analytics() {
           { label: 'New This Week', value: loading ? '—' : (overview?.newThisWeek || 0).toLocaleString(), icon: TrendingUp, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', trend: 'Added last 7 days' },
           { label: 'Categories', value: loading ? '—' : String(categories.length), icon: BarChart2, color: '#6ba3ff', bg: 'rgba(229,193,88,0.12)', trend: 'Across the database' },
         ].map(kpi => (
-          <div key={kpi.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20 }}>
+          <div key={kpi.label} style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <div style={{ width: 36, height: 36, borderRadius: 9, background: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <kpi.icon size={16} color={kpi.color} />
@@ -143,7 +143,7 @@ export default function Analytics() {
             { label: 'Products Saved', value: activity?.saves ?? 0, icon: Bookmark },
             ...(activity?.topCategory ? [{ label: 'Top Category', value: activity.topCategory, icon: Sparkles }] : []),
           ].map(t => (
-            <div key={t.label} style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 14 }}>
+            <div key={t.label} style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 14 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <t.icon size={13} color="#4f8ef7" />
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t.label}</span>
@@ -154,7 +154,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
+      <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24, marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff' }}>Products by category</div>
           {/* Fix 6 — Re-categorise button (admin token gated). */}
@@ -188,15 +188,24 @@ export default function Analytics() {
         )}
       </div>
 
-      <div style={{ background: '#1a2035', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff', marginBottom: 20 }}>Score distribution</div>
+      <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#f0f4ff' }}>Score distribution</div>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Elite tier from live data · other tiers estimated</span>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
-          {[
-            { range: '90–100', label: 'Elite', pct: elitePct, color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-            { range: '75–89', label: 'Strong', pct: 24, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-            { range: '50–74', label: 'Moderate', pct: 33, color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
-            { range: '<50', label: 'Low', pct: overview ? 100 - elitePct - 24 - 33 : 10, color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-          ].map(tier => (
+          {(() => {
+            const remaining = Math.max(100 - elitePct, 0);
+            const strongPct = Math.round(remaining * 0.28);
+            const moderatePct = Math.round(remaining * 0.38);
+            const lowPct = Math.max(remaining - strongPct - moderatePct, 0);
+            return [
+              { range: '90–100', label: 'Elite', pct: elitePct, color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+              { range: '75–89', label: 'Strong', pct: strongPct, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+              { range: '50–74', label: 'Moderate', pct: moderatePct, color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
+              { range: '<50', label: 'Low', pct: lowPct, color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+            ];
+          })().map(tier => (
             <div key={tier.range} style={{ background: tier.bg, border: `1px solid ${tier.color}30`, borderRadius: 10, padding: 16, textAlign: 'center' }}>
               <div style={{ fontSize: 22, fontWeight: 800, color: tier.color, marginBottom: 4 }}>{tier.pct}%</div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>{tier.range}</div>
