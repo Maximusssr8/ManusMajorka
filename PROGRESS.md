@@ -831,6 +831,42 @@ Prod bundle `index-shkR94xk.js` live on https://www.majorka.io after `2f2fef4`.
 - b9de8af  feat(landing-delta-5): city marquee between hero and social proof bar
 (Delta 3 = 6s auto-cycle cadence; landed inline with Delta 2 per spec.)
 
+## hero-surgery — single message architecture
+
+Base: origin/main (6ed0ea8). Branch: hero-surgery.
+
+### Copy options considered
+Eyebrow:
+- `AU-native product intelligence` — accurate, slightly abstract
+- `Live AliExpress order velocity` — concrete, data-first ✅ CHOSEN
+- `Built for AU/US/UK operators` — audience-first, ok but less sharp
+
+H1 (4-word, single line at 72px/1280 viewport fits cleanly):
+- `Find winning products first.` ✅ CHOSEN — gold underline on `first`
+- `Winning products. Before they peak.` — strong but two-sentence fragment
+- `The shortlist that actually sells.` — good, less direct verb
+
+Sub (19 words):
+- `Real AliExpress order velocity, scored for AU, US and UK operators. See the few thousand products actually worth shipping.`
+
+### What changed
+- Hero rewritten: eyebrow → H1 (SVG gold underline on `first`, pathLength 0→1 800ms/200ms delay) → sub → 2 CTAs (Start Free Trial gold → /sign-up · Watch demo ↓ smooth-scrolls to #live-demo) → ONE framed dashboard mockup (browser chrome + sidebar + KPI row + 5 product rows).
+- Static SVG/HTML mockup built in JSX (HeroProductMockup): row 1 has highlighted border + pulse-glow score + drawn sparkline. All other decoration off. prefers-reduced-motion disables both.
+- Removed from hero zone: ParticleFieldReactive (import + render), KineticHeadline (import + render), ScrollChevron, Typewriter-in-hero, CountUp-in-hero, hero stats row, guarantee pill, trust-checkmarks row.
+- CityMarquee render removed from root (component kept in file; unreferenced; TypeScript permits).
+- QuickScoreHero extracted out of Hero and placed in a dedicated `<section id="live-demo">` immediately below Hero — the Ghost CTA target.
+- FilmGrain canvas opacity 0.6 → 0.4 (effective alpha ~0.015).
+- TickerBar, StickyLaunchBar, Nav, ChapterMorph, LiveDemo, API Explorer, LiveActivityTicker untouched.
+
+### Hero breathing room (as specified)
+- hero padding: 120px top / 96px bottom desktop · 96px / 64px mobile
+- eyebrow → H1: 24px · H1 → sub: 24px · sub → CTAs: 32px · CTAs → visual: 64px desktop / 48px mobile
+
+### Gates
+- pnpm check: 0 errors
+- pnpm build: 0 errors · no new vendor chunks (react-vendor, supabase-vendor, posthog-vendor unchanged)
+- Home.tsx 2266 → 2528 lines (HeroProductMockup static JSX added inline)
+
 ### Deferred / notes for merge coordinator
 - /api/demo/quick-score returns 503 { ok:false, reason:"db_unavailable" } on the preview because SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set on this preview project. Both will be present on prod — endpoint returns real DB-backed JSON there.
 - Old localStorage key `majorka_spots_taken` is no longer read (replaced by `majorka_launch_spots_v2`). Intentional clean reset.

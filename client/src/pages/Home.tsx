@@ -15,12 +15,10 @@ import { SEO } from '@/components/SEO';
 import { LT, F, S, R, SHADOW, MAX } from '@/lib/landingTokens';
 import {
   CountUp, Typewriter, SparklineDraw,
-  MarketSplitBars, ScrollChevron, FadeUp, usePrefersReducedMotion,
+  MarketSplitBars, FadeUp, usePrefersReducedMotion,
 } from '@/components/landing/primitives';
-import { ParticleFieldReactive } from '@/components/landing/wow/ParticleFieldReactive';
 import { FilmGrain } from '@/components/landing/wow/FilmGrain';
 import { TickerBar } from '@/components/landing/wow/TickerBar';
-import { KineticHeadline } from '@/components/landing/wow/KineticHeadline';
 import { QuickScoreHero } from '@/components/landing/wow/QuickScoreHero';
 import { ChapterMorph } from '@/components/landing/wow/ChapterMorph';
 import { CommandPalettePreview } from '@/components/landing/wow/CommandPalettePreview';
@@ -528,174 +526,438 @@ function Nav({ topOffset }: { topOffset: number }) {
   );
 }
 
-// ── Hero ────────────────────────────────────────────────────────────────────
-// Live interactive scorer (QuickScoreHero) is the primary signal.
-// Legacy hardcoded HERO_PRODUCTS dashboard mockup removed in polish pass —
-// see git history for the original cycling mock.
-function Hero({ tickerUrl }: { tickerUrl?: string | null }) {
+// ── Hero (surgery: single message architecture) ─────────────────────────────
+// One eyebrow · one H1 (gold underline on "first") · one sub · two CTAs · one
+// framed dashboard mockup. No particle field, no kinetic cycling, no decor.
+// Reference: Codex / Deerflow — massive whitespace, one focal point.
+
+function HeroProductMockup() {
   const reduced = useReducedMotion();
-  const { stats } = useLandingData();
-  const trackedCount = stats?.total ?? 0;
+  // Five static mockup rows. Only row 1 has the pulse glow + drawn sparkline.
+  const rows: Array<{ title: string; sold: string; score: number; highlight?: boolean }> = [
+    { title: 'LED Scalp Massager Pro — Waterproof',        sold: '231K', score: 97, highlight: true },
+    { title: 'Magnetic Phone Mount (MagSafe Compatible)',  sold: '184K', score: 93 },
+    { title: 'Pet Hair Remover Roller — Self-Cleaning',    sold: '156K', score: 89 },
+    { title: 'Portable Neck Fan — Bladeless USB-C',        sold: '142K', score: 86 },
+    { title: 'Silicone Food Storage Bags (Set of 6)',      sold: '118K', score: 82 },
+  ];
+
+  const scoreColor = (s: number) => (s >= 90 ? LT.success : LT.gold);
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        width: '100%',
+        maxWidth: 960,
+        margin: '0 auto',
+        background: LT.bgElevated,
+        border: `1px solid ${LT.border}`,
+        borderRadius: 14,
+        boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.06)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Top chrome */}
+      <div style={{
+        height: 36,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 14px',
+        background: '#0a0a0a',
+        borderBottom: `1px solid ${LT.border}`,
+      }}>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
+          <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ffbd2e' }} />
+          <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
+        </div>
+        <div style={{
+          flex: 1,
+          textAlign: 'center',
+          fontFamily: F.mono,
+          fontSize: 11,
+          color: '#52525b',
+          letterSpacing: '0.02em',
+        }}>
+          majorka.io/app — Today's scored shortlist
+        </div>
+        <div style={{ width: 54 }} />
+      </div>
+
+      {/* Inner canvas: sidebar + main */}
+      <div style={{ display: 'flex', minHeight: 420, background: LT.bg }}>
+        {/* Sidebar */}
+        <div style={{
+          width: 180,
+          flexShrink: 0,
+          borderRight: `1px solid ${LT.border}`,
+          padding: '18px 14px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+        }}>
+          <div style={{
+            fontFamily: F.display, fontWeight: 700, fontSize: 15, color: LT.text,
+            letterSpacing: '-0.01em',
+          }}>Majorka</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+            {[
+              { label: 'Dashboard', active: false },
+              { label: 'Products',  active: true  },
+              { label: 'Alerts',    active: false },
+              { label: 'Academy',   active: false },
+            ].map((item) => (
+              <div key={item.label} style={{
+                padding: '8px 10px',
+                borderRadius: 6,
+                fontFamily: F.body,
+                fontSize: 12,
+                fontWeight: item.active ? 600 : 400,
+                color: item.active ? LT.gold : LT.textMute,
+                background: item.active ? LT.goldTint : 'transparent',
+              }}>{item.label}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main */}
+        <div style={{ flex: 1, padding: 20, minWidth: 0 }}>
+          {/* KPI row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 10,
+            marginBottom: 16,
+          }}>
+            {[
+              { label: 'Tracked',         value: '4,155'  },
+              { label: 'Top score',       value: '99'     },
+              { label: 'Orders today',    value: '362K'   },
+            ].map((kpi) => (
+              <div key={kpi.label} style={{
+                padding: '10px 12px',
+                background: LT.bgCard,
+                border: `1px solid ${LT.border}`,
+                borderRadius: 8,
+              }}>
+                <div style={{
+                  fontFamily: F.body, fontSize: 10, color: LT.textDim,
+                  letterSpacing: '0.08em', textTransform: 'uppercase',
+                }}>{kpi.label}</div>
+                <div style={{
+                  fontFamily: F.mono, fontSize: 18, fontWeight: 600, color: LT.gold,
+                  marginTop: 2, lineHeight: 1.1,
+                }}>{kpi.value}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {rows.map((row, i) => (
+              <div
+                key={row.title}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '40px 1fr 64px 42px 60px',
+                  gap: 10,
+                  alignItems: 'center',
+                  padding: '8px 10px',
+                  background: row.highlight ? 'rgba(212,175,55,0.04)' : LT.bgCard,
+                  border: `1px solid ${row.highlight ? 'rgba(212,175,55,0.28)' : LT.border}`,
+                  borderRadius: 8,
+                }}
+              >
+                <div style={{
+                  width: 40, height: 40, borderRadius: 6,
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.25), rgba(212,175,55,0.05))',
+                  border: '1px solid rgba(212,175,55,0.18)',
+                }} />
+                <div style={{
+                  fontFamily: F.body, fontSize: 12, color: LT.text,
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  maxWidth: '100%',
+                }}>{row.title}</div>
+                <div style={{
+                  fontFamily: F.mono, fontSize: 12, fontWeight: 600, color: LT.gold,
+                  textAlign: 'right',
+                }}>{row.sold}</div>
+                <div style={{
+                  fontFamily: F.mono, fontSize: 11, fontWeight: 600,
+                  color: scoreColor(row.score),
+                  background: row.score >= 90 ? 'rgba(34,197,94,0.12)' : LT.goldTint,
+                  border: `1px solid ${row.score >= 90 ? 'rgba(34,197,94,0.28)' : 'rgba(212,175,55,0.28)'}`,
+                  borderRadius: 100,
+                  padding: '3px 0',
+                  textAlign: 'center',
+                  animation: (row.highlight && !reduced) ? 'mjHeroScoreGlow 3s ease-in-out infinite' : undefined,
+                }}>{row.score}</div>
+                {/* Sparkline */}
+                <svg viewBox="0 0 60 20" width="60" height="20" style={{ overflow: 'visible' }}>
+                  <path
+                    d={
+                      i === 0 ? 'M0,16 L10,14 L20,12 L30,9 L40,7 L50,4 L60,2'
+                      : i === 1 ? 'M0,14 L10,13 L20,11 L30,10 L40,8 L50,7 L60,6'
+                      : i === 2 ? 'M0,12 L10,13 L20,11 L30,12 L40,10 L50,9 L60,8'
+                      : i === 3 ? 'M0,10 L10,11 L20,9 L30,11 L40,10 L50,12 L60,11'
+                      : 'M0,8 L10,10 L20,9 L30,11 L40,10 L50,12 L60,13'
+                    }
+                    stroke={scoreColor(row.score)}
+                    strokeWidth="1.5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={
+                      (row.highlight && !reduced)
+                        ? { strokeDasharray: 200, strokeDashoffset: 200, animation: 'mjHeroSparkDraw 1.2s ease-out forwards' }
+                        : undefined
+                    }
+                  />
+                </svg>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Hero() {
+  const reduced = useReducedMotion();
+
+  const scrollToDemo = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const el = document.getElementById('live-demo');
+    if (el) {
+      el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <section style={{
       position: 'relative',
-      minHeight: '100vh',
-      padding: `${S.xxl + 40}px ${S.md}px ${S.xxl}px`,
+      padding: `120px ${S.md}px 96px`,
       overflow: 'hidden',
-      background: `radial-gradient(ellipse at 30% 20%, rgba(212,175,55,0.08), transparent 60%), ${LT.bg}`,
-    }}>
-      <ParticleFieldReactive />
+      background: LT.bg,
+    }} className="mj-hero-surgery">
+      <style>{`
+        @keyframes mjHeroUnderline {
+          from { stroke-dashoffset: 240; }
+          to   { stroke-dashoffset: 0; }
+        }
+        @keyframes mjHeroScoreGlow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+          50%      { box-shadow: 0 0 18px rgba(34,197,94,0.45); }
+        }
+        @keyframes mjHeroSparkDraw {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes mjHeroChevron {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(4px); }
+        }
+        @media (max-width: 900px) {
+          .mj-hero-surgery { padding: 96px 20px 64px !important; }
+          .mj-hero-h1      { font-size: 42px !important; }
+          .mj-hero-ctas    { flex-direction: column !important; align-items: stretch !important; }
+          .mj-hero-ctas > a { width: 100% !important; }
+          .mj-hero-visual-wrap { margin-top: 48px !important; }
+        }
+      `}</style>
 
       <div style={{
         position: 'relative', zIndex: 1,
         maxWidth: MAX, margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: '1.1fr 1fr',
-        gap: S.xl,
-        alignItems: 'center',
-      }} className="mj-grid-two">
-        {/* LEFT: text */}
-        <div>
-          <motion.div
-            initial={reduced ? false : { y: 10, opacity: 0 }}
-            animate={reduced ? undefined : { y: 0, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '6px 14px', borderRadius: R.badge,
-              background: LT.goldTint, border: `1px solid ${LT.goldTint}`,
-              color: LT.gold,
-              fontFamily: F.body, fontSize: 12, fontWeight: 600,
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              marginBottom: S.md,
-            }}
-          >
-            <span style={{
-              width: 6, height: 6, borderRadius: '50%', background: LT.gold,
-              animation: reduced ? undefined : 'mjLivePulse 1.8s ease-in-out infinite',
-            }} />
-            AI product intelligence · AU first
-          </motion.div>
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        textAlign: 'center',
+      }}>
+        {/* 1. Eyebrow pill */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 6 }}
+          animate={reduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+          style={{
+            display: 'inline-flex', alignItems: 'center',
+            padding: '4px 12px',
+            borderRadius: R.badge,
+            background: 'rgba(212,175,55,0.08)',
+            border: '1px solid rgba(212,175,55,0.35)',
+            color: LT.gold,
+            fontFamily: F.body, fontSize: 11, fontWeight: 600,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+          }}
+        >
+          Live AliExpress order velocity
+        </motion.div>
 
-          <div style={{ margin: `0 0 ${S.md}px` }}>
-            <KineticHeadline
-              lines={['Find winning products', 'before anyone else.']}
-              fontSize={72}
-              fontSizeMobile={44}
-              lineHeight={1.0}
-            />
-          </div>
+        {/* 2. H1 — single line, gold underline on "first" */}
+        <motion.h1
+          className="mj-hero-h1"
+          initial={reduced ? false : { opacity: 0, y: 10 }}
+          animate={reduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          style={{
+            fontFamily: F.display,
+            fontWeight: 800,
+            fontSize: 72,
+            lineHeight: 1.0,
+            letterSpacing: '-0.02em',
+            color: LT.text,
+            margin: `24px 0 0`,
+            maxWidth: 900,
+          }}
+        >
+          Find winning products{' '}
+          <span style={{ position: 'relative', display: 'inline-block', whiteSpace: 'nowrap' }}>
+            first
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 220 18"
+              preserveAspectRatio="none"
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: -10,
+                width: '100%',
+                height: 14,
+                overflow: 'visible',
+                pointerEvents: 'none',
+              }}
+            >
+              <path
+                d="M4,11 C60,3 160,3 216,10"
+                stroke={LT.gold}
+                strokeWidth="4"
+                strokeLinecap="round"
+                fill="none"
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        strokeDasharray: 240,
+                        strokeDashoffset: 240,
+                        animation: 'mjHeroUnderline 800ms ease-out 200ms forwards',
+                      }
+                }
+              />
+            </svg>
+          </span>
+          <span aria-hidden="true">.</span>
+        </motion.h1>
 
-          <motion.div
-            initial={reduced ? false : { y: 15, opacity: 0 }}
-            animate={reduced ? undefined : { y: 0, opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
-            style={{ marginBottom: S.md }}
-          >
-            <Sub>
-              We search tens of millions of AliExpress listings. You see the few thousand worth shipping — ranked by order velocity across AU, US and UK, refreshed every 6 hours.
-            </Sub>
-          </motion.div>
+        {/* 3. Sub */}
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={reduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          style={{
+            fontFamily: F.body,
+            fontWeight: 400,
+            fontSize: 20,
+            lineHeight: 1.6,
+            color: '#a0a0a0',
+            margin: `24px 0 0`,
+            maxWidth: 560,
+          }}
+        >
+          Real AliExpress order velocity, scored for AU, US and UK operators. See the few thousand products actually worth shipping.
+        </motion.p>
 
-          {/* Hero stats */}
-          <motion.div
-            initial={reduced ? false : { opacity: 0 }}
-            animate={reduced ? undefined : { opacity: 1 }}
-            transition={{ delay: 1.35, duration: 0.5 }}
-            style={{
-              display: 'flex', gap: S.lg, flexWrap: 'wrap',
-              fontFamily: F.body, fontSize: 13, color: LT.textMute,
-              margin: `0 0 ${S.md}px`,
-            }}
-          >
-            <span>
-              <span style={{ fontFamily: F.mono, color: LT.gold, fontWeight: 600 }}>
-                60M+
-              </span>{' '}AliExpress listings sourced
-            </span>
-            <span>
-              <span style={{ fontFamily: F.mono, color: LT.gold, fontWeight: 600 }}>
-                {trackedCount > 0 ? <CountUp to={trackedCount} duration={1500} /> : '3,700'}+
-              </span>{' '}scored &amp; ranked
-            </span>
-            <span>
-              <Typewriter text="Refreshed every 6 hours" startDelay={1500} speed={40} />
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={reduced ? false : { y: 15, opacity: 0 }}
-            animate={reduced ? undefined : { y: 0, opacity: 1 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-            style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: S.md }}
-          >
-            <CtaPrimary href="/sign-up" pulse>Start 7-day free trial →</CtaPrimary>
-            <CtaGhost href="#how">See how it works</CtaGhost>
-          </motion.div>
-
-          <motion.a
-            href="/guarantee"
-            initial={reduced ? false : { opacity: 0 }}
-            animate={reduced ? undefined : { opacity: 1 }}
-            transition={{ delay: 1.65, duration: 0.5 }}
+        {/* 4. CTAs */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 8 }}
+          animate={reduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mj-hero-ctas"
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 16,
+            marginTop: 32,
+            alignItems: 'center',
+          }}
+        >
+          <Link
+            href="/sign-up"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: 8,
-              fontFamily: F.body,
-              fontSize: 13,
-              fontWeight: 500,
-              color: LT.gold,
+              minHeight: 52,
+              padding: '0 32px',
+              background: LT.gold,
+              color: '#080808',
+              fontFamily: F.display,
+              fontWeight: 700,
+              fontSize: 16,
+              borderRadius: 12,
               textDecoration: 'none',
-              padding: '8px 14px',
-              background: LT.goldTint,
-              border: `1px solid ${LT.goldTint}`,
-              borderRadius: R.badge,
-              marginBottom: S.sm,
-              lineHeight: 1,
-              transition: 'border-color 150ms ease',
+              boxShadow: '0 0 30px rgba(212,175,55,0.3)',
+              transition: 'transform 150ms ease',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = LT.gold; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = LT.goldTint; }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
           >
-            <ShieldCheck size={14} />
-            30-day money-back guarantee — read the promise
-          </motion.a>
-
-          <motion.div
-            initial={reduced ? false : { opacity: 0 }}
-            animate={reduced ? undefined : { opacity: 1 }}
-            transition={{ delay: 1.8, duration: 0.5 }}
+            Start Free Trial →
+          </Link>
+          <a
+            href="#live-demo"
+            onClick={scrollToDemo}
             style={{
-              display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
-              fontFamily: F.body, fontSize: 12, color: LT.textDim,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              minHeight: 52,
+              padding: '0 8px',
+              background: 'transparent',
+              border: 'none',
+              color: LT.textMute,
+              fontFamily: F.body,
+              fontWeight: 500,
+              fontSize: 15,
+              textDecoration: 'none',
+              cursor: 'pointer',
+              transition: 'color 150ms ease',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = LT.text; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = LT.textMute; }}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Check size={14} color={LT.success} /> No credit card required
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Check size={14} color={LT.success} /> Cancel anytime
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <Check size={14} color={LT.success} /> 30-day guarantee
-            </span>
-          </motion.div>
-        </div>
+            Watch demo{' '}
+            <ChevronDown
+              size={16}
+              style={{
+                animation: reduced ? undefined : 'mjHeroChevron 2s ease-in-out infinite',
+              }}
+            />
+          </a>
+        </motion.div>
 
-        {/* RIGHT: public interactive quick-score. */}
+        {/* 5. Framed product visual */}
         <motion.div
-          initial={reduced ? false : { opacity: 0, scale: 0.96 }}
-          animate={reduced ? undefined : { opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6, duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
-          style={{ willChange: 'transform' }}
+          className="mj-hero-visual-wrap"
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          animate={reduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+          style={{
+            width: '100%',
+            marginTop: 64,
+          }}
         >
-          <QuickScoreHero externalUrl={tickerUrl ?? null} />
+          <HeroProductMockup />
         </motion.div>
       </div>
+    </section>
+  );
+}
 
-      <ScrollChevron />
+function LiveDemoAnchor({ tickerUrl }: { tickerUrl?: string | null }) {
+  return (
+    <section id="live-demo" style={{ padding: `${S.xxl}px ${S.md}px 0`, maxWidth: MAX, margin: '0 auto' }}>
+      <QuickScoreHero externalUrl={tickerUrl ?? null} />
     </section>
   );
 }
@@ -2239,8 +2501,8 @@ export default function Home() {
       <Nav topOffset={topOffset} />
       <div style={{ paddingTop: topOffset + 64 }} />
 
-      <Hero tickerUrl={tickerUrl} />
-      <CityMarquee />
+      <Hero />
+      <LiveDemoAnchor tickerUrl={tickerUrl} />
       <MicroOrderTicker />
       <SocialProofBar />
       <ChapterMorph />
