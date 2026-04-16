@@ -364,7 +364,7 @@ router.post('/score', async (req: Request, res: Response) => {
       const scraped = await scrapeProductData(url);
       const intelligence = await analyzeProduct(scraped);
       ok(res, {
-        score: intelligence.overallScore || null,
+        score: (intelligence as unknown as Record<string, unknown>).overallScore ?? null,
         product: { ...scraped, intelligence },
         source: 'live_analysis',
       });
