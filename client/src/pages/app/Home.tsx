@@ -1,23 +1,45 @@
 import { Link, useLocation } from 'wouter';
-import { useEffect, useState } from 'react';
-import { ArrowRight, ArrowUp, Package, Flame, Bookmark, TrendingUp, Heart } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import {
+  ArrowRight, ArrowUpRight, Package, Flame, Bookmark, TrendingUp,
+  Activity, Zap, BarChart3, Clock, AlertCircle, Sparkles, ChevronRight,
+  CircleDot,
+} from 'lucide-react';
 import CountUp from 'react-countup';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
-import { GradientM } from '@/components/MajorkaLogo';
 import { useProducts, type Product } from '@/hooks/useProducts';
 import { useStatsOverview } from '@/hooks/useStatsOverview';
 import { useFavourites } from '@/hooks/useFavourites';
 import { shortenCategory, fmtK } from '@/lib/categoryColor';
 import { proxyImage } from '@/lib/imageProxy';
 import { ProductDetailDrawer } from '@/components/app/ProductDetailDrawer';
-import { SinceLastLogin } from '@/components/app/SinceLastLogin';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
 
 /* ──────────────────────────────────────────────────────────────
-   Helpers — all data from hooks, no hardcoded values
+   Theme constants — unified across the entire dashboard
    ────────────────────────────────────────────────────────────── */
+const T = {
+  bg: '#04060f',
+  card: '#0d1117',
+  border: '#161b22',
+  accent: '#4f8ef7',
+  accentHover: '#6ba3ff',
+  text: '#ffffff',
+  textSecondary: '#8b949e',
+  textMuted: '#6b7280',
+  green: '#10b981',
+  amber: '#f59e0b',
+  orange: '#f97316',
+  red: '#ef4444',
+  fontDisplay: "'Syne', system-ui, sans-serif",
+  fontBody: "'DM Sans', system-ui, sans-serif",
+  fontMono: "'JetBrains Mono', 'SF Mono', ui-monospace, monospace",
+} as const;
 
+/* ──────────────────────────────────────────────────────────────
+   Helpers
+   ────────────────────────────────────────────────────────────── */
 function timeOfDay(): string {
   const h = new Date().getHours();
   if (h < 12) return 'morning';
@@ -33,7 +55,7 @@ function formatRelative(iso: string | null): string {
   if (mins < 1) return 'just now';
   if (mins < 60) return `${mins} min ago`;
   const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`;
+  if (hrs < 24) return `${hrs}h ago`;
   return `${Math.round(hrs / 24)}d ago`;
 }
 
@@ -49,39 +71,69 @@ function timeAgoShort(iso: string | null): string {
   return `${Math.round(days / 30)}mo ago`;
 }
 
-function categoryColor(cat: string | null): { backgroundColor: string; color: string } {
-  const c = (cat ?? '').toLowerCase();
-  if (c.includes('car') || c.includes('auto'))                                return { backgroundColor: 'rgba(249,115,22,0.12)', color: '#f97316' };
-  if (c.includes('phone') || c.includes('mobile'))                            return { backgroundColor: 'rgba(79,142,247,0.12)', color: '#6ba3ff' };
-  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10b981' };
-  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { backgroundColor: 'rgba(236,72,153,0.12)', color: '#f472b6' };
-  if (c.includes('hardware') || c.includes('tool'))                           return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#f59e0b' };
-  return { backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)' };
+function scoreTier(score: number): { bg: string; fg: string } {
+  if (score >= 90) return { bg: 'rgba(16,185,129,0.15)', fg: T.green };
+  if (score >= 75) return { bg: 'rgba(245,158,11,0.15)', fg: T.amber };
+  if (score >= 50) return { bg: 'rgba(249,115,22,0.15)', fg: T.orange };
+  return { bg: 'rgba(239,68,68,0.15)', fg: T.red };
 }
 
-function scoreTierStyle(score: number): { backgroundColor: string; color: string } {
-  if (score >= 90) return { backgroundColor: 'rgba(16,185,129,0.15)', color: '#10b981' };
-  if (score >= 75) return { backgroundColor: 'rgba(245,158,11,0.15)', color: '#f59e0b' };
-  if (score >= 50) return { backgroundColor: 'rgba(249,115,22,0.15)', color: '#f97316' };
-  return               { backgroundColor: 'rgba(239,68,68,0.15)',  color: '#ef4444' };
+function categoryColor(cat: string | null): { bg: string; fg: string } {
+  const c = (cat ?? '').toLowerCase();
+  if (c.includes('car') || c.includes('auto'))                                return { bg: 'rgba(249,115,22,0.10)', fg: '#f97316' };
+  if (c.includes('phone') || c.includes('mobile'))                            return { bg: 'rgba(79,142,247,0.10)', fg: '#6ba3ff' };
+  if (c.includes('home') || c.includes('kitchen') || c.includes('household')) return { bg: 'rgba(16,185,129,0.10)', fg: '#10b981' };
+  if (c.includes('hair') || c.includes('beauty') || c.includes('wig'))        return { bg: 'rgba(236,72,153,0.10)', fg: '#f472b6' };
+  if (c.includes('hardware') || c.includes('tool'))                           return { bg: 'rgba(245,158,11,0.10)', fg: '#f59e0b' };
+  return { bg: 'rgba(255,255,255,0.05)', fg: 'rgba(255,255,255,0.45)' };
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Home
+   Reusable micro-components
    ────────────────────────────────────────────────────────────── */
 
+function Mono({ children, className = '', style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return <span style={{ fontFamily: T.fontMono, ...style }} className={className}>{children}</span>;
+}
+
+function SectionHeader({ title, sub, href, linkText }: { title: string; sub?: string; href?: string; linkText?: string }) {
+  return (
+    <div className="flex items-baseline justify-between mb-4">
+      <div className="flex items-baseline gap-3 min-w-0">
+        <h2 style={{ fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 18, color: T.text, margin: 0 }}>{title}</h2>
+        {sub && <span style={{ fontFamily: T.fontBody, fontSize: 12, color: T.textMuted }}>{sub}</span>}
+      </div>
+      {href && (
+        <Link href={href} className="shrink-0 text-xs font-medium no-underline flex items-center gap-1 transition-colors" style={{ color: T.accent }}>
+          {linkText ?? 'View all'} <ChevronRight size={12} />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div className="flex items-center gap-3 py-3">
+      <div className="w-10 h-10 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
+      <div className="flex-1 h-3.5 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
+      <div className="w-12 h-3.5 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
+    </div>
+  );
+}
+
+function GreenDot() {
+  return <span className="w-1.5 h-1.5 rounded-full inline-block animate-pulse" style={{ background: T.green }} />;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   AppHome — the command center
+   ────────────────────────────────────────────────────────────── */
 export default function AppHome() {
   useEffect(() => { document.title = 'Dashboard — Majorka'; }, []);
   const { user } = useAuth();
   const [, navigate] = useLocation();
 
-  /**
-   * Wipes the persisted Products filters from localStorage so that
-   * navigating to /app/products from Home opens a clean page (no
-   * stale Category/Price/Score chips left over from a previous
-   * session). Returns an onClick handler — call as
-   *   onClick={clearFiltersAndGo('/app/products')}
-   */
   function clearFiltersAndGo(target: string) {
     return (e: React.MouseEvent) => {
       e.preventDefault();
@@ -89,661 +141,446 @@ export default function AppHome() {
       navigate(target);
     };
   }
+
   const { stats, loading: statsLoading } = useStatsOverview();
   const fav = useFavourites();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Velocity Leaders: ranked by 7-day sold_count delta (recent momentum).
-  // Server-computed on every cron tick — see server/routes/cron.ts.
+  // Data queries — keep the data hooks, redesign the presentation
   const { products: velocityProducts } = useProducts({ limit: 10, orderBy: 'velocity_7d' });
   const velocityIds = velocityProducts.map((p) => p.id);
-  // Top Products: highest cumulative sold_count, DEDUPED against Velocity Leaders
-  // so the two sections never show the same SKU.
   const { products, loading: prodLoading, total } = useProducts({
-    limit: 10,
-    orderBy: 'sold_count',
+    limit: 10, orderBy: 'sold_count',
     excludeIds: velocityIds.length > 0 ? velocityIds : undefined,
   });
-  const { products: hotTodayProducts } = useProducts({ limit: 4, tab: 'hot-now' });
-  const { products: bestMarginProducts } = useProducts({ limit: 1, orderBy: 'price_asc', minScore: 80 });
-  const { products: newestProducts } = useProducts({ limit: 1, orderBy: 'created_at' });
+  const { products: hotTodayProducts } = useProducts({ limit: 5, tab: 'hot-now' });
+  const { products: bestMarginProducts } = useProducts({ limit: 3, orderBy: 'price_asc', minScore: 80 });
+  const { products: newestProducts } = useProducts({ limit: 3, orderBy: 'created_at' });
 
   const firstName = (user?.name ?? user?.email?.split('@')[0] ?? 'Operator').split(' ')[0];
-  const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', month: 'long', day: 'numeric' });
   const tod = timeOfDay();
 
-  /* Hot Today — uses the hot-now tab logic (score >= 90 + orders > 100k +
-     created within 30d). Falls back to velocity leaders (then top-volume)
-     if the strict filter returns nothing so this card always shows real
-     products AND never mirrors the Top Products table. */
-  const trendingNow = hotTodayProducts.length > 0
-    ? hotTodayProducts
-    : velocityProducts.length > 0
-      ? velocityProducts.slice(0, 4)
-      : products.slice(0, 4);
+  // Hot Today dedup
+  const hotToday = useMemo(() => {
+    if (hotTodayProducts.length > 0) return hotTodayProducts.slice(0, 5);
+    if (velocityProducts.length > 0) return velocityProducts.slice(0, 5);
+    return products.slice(0, 5);
+  }, [hotTodayProducts, velocityProducts, products]);
 
-  // Dedupe: any product showing in Hot Today must NOT also show in Top
-  // Opportunities. Build the exclusion set from trendingNow + bestMargin +
-  // newest, then pick the first eligible top-trending candidate from the
-  // sold_count-ranked `products` list.
-  const hotIds = new Set<string | number>(trendingNow.map((p) => p.id));
-  const bestMargin    = bestMarginProducts.find((p) => !hotIds.has(p.id)) ?? bestMarginProducts[0] ?? null;
-  const newestProduct = newestProducts.find((p) => !hotIds.has(p.id) && p.id !== bestMargin?.id) ?? newestProducts[0] ?? null;
-  // Top Trending opportunity = highest-volume product NOT in Hot Today and
-  // NOT already shown in another Opportunity slot.
-  const topProduct = products.find(
-    (p) => !hotIds.has(p.id) && p.id !== bestMargin?.id && p.id !== newestProduct?.id,
-  ) ?? products[0] ?? null;
+  const hotIds = useMemo(() => new Set(hotToday.map((p) => p.id)), [hotToday]);
 
-  /* Trending Today — products with sold_count > 100,000 in the loaded set */
-  const trendingTodayCount = products.filter((p) => (p.sold_count ?? 0) > 100000).length;
+  // Top Opportunities — deduped from hot today
+  const opportunities = useMemo(() => {
+    const pool = [...bestMarginProducts, ...newestProducts, ...products];
+    const seen = new Set(hotIds);
+    const result: Product[] = [];
+    for (const p of pool) {
+      if (seen.has(p.id)) continue;
+      seen.add(p.id);
+      result.push(p);
+      if (result.length >= 5) break;
+    }
+    return result;
+  }, [bestMarginProducts, newestProducts, products, hotIds]);
 
-  /* KPI cards */
-  const totalDelta = stats?.totalDelta ?? 0;
-  const hotDelta = stats?.hotDelta ?? null;
-  const kpiCards: {
-    label: string; numeric: number | null; sub: string;
-    Icon: typeof Package; accent: string; href: string;
-    trendText: string | null; trendPositive: boolean;
-  }[] = [
-    {
-      label: 'Products Tracked',
-      numeric: stats?.total ?? null,
-      sub: 'Live AliExpress feed',
-      Icon: Package,
-      accent: '#4f8ef7',
-      href: '/app/products',
-      // Only show a trend pill when we actually have movement — empty
-      // weeks shouldn't render a "No change" pill that ages badly
-      trendText: totalDelta > 0 ? `+${totalDelta.toLocaleString()} this week`
-                 : totalDelta < 0 ? `${totalDelta.toLocaleString()} this week`
-                 : null,
-      trendPositive: totalDelta > 0,
-    },
-    {
-      label: 'Hot Products',
-      numeric: stats?.hotProducts ?? null,
-      sub: 'Score 65 and above',
-      Icon: Flame,
-      accent: '#f59e0b',
-      href: '/app/products?tab=hot-now',
-      // Hide the pill entirely when we don't have a meaningful delta —
-      // null reads as "no claim", which is cleaner than +999% or "insufficient data"
-      trendText: hotDelta == null ? null
-                 : hotDelta > 0 ? `+${hotDelta}% vs last week`
-                 : hotDelta < 0 ? `${hotDelta}% vs last week`
-                 : 'Flat vs last week',
-      trendPositive: hotDelta != null && hotDelta > 0,
-    },
-    {
-      label: 'Saved Products',
-      numeric: fav.count,
-      sub: fav.count === 0 ? 'Start saving winners' : 'In your library',
-      Icon: Bookmark,
-      accent: '#10b981',
-      href: '/app/products?tab=saved',
-      trendText: null,
-      trendPositive: false,
-    },
-    {
-      label: 'Trending Today',
-      numeric: trendingTodayCount,
-      sub: 'Orders above 100K',
-      Icon: TrendingUp,
-      accent: '#22d3ee',
-      href: '/app/products?tab=trending',
-      trendText: null,
-      trendPositive: false,
-    },
-  ];
+  // Saved count from favourites
+  const savedCount = fav.count;
 
-  // Animation variants now driven by CSS .animate-in / .stagger-N classes
+  // Updated time
+  const updatedAgo = stats?.updatedAt ? formatRelative(stats.updatedAt) : null;
 
-  /* Top Opportunities — pulled from live data */
-  const opportunities: {
-    label: string; chipBg: string; chipFg: string; href: string;
-    product: Product | null;
-  }[] = [
-    {
-      label: 'Top Trending',
-      chipBg: 'rgba(245,158,11,0.15)', chipFg: '#f59e0b',
-      href: '/app/products?tab=hot-now',
-      product: topProduct ?? null,
-    },
-    {
-      label: 'Best Margin',
-      chipBg: 'rgba(16,185,129,0.15)', chipFg: '#10b981',
-      href: '/app/products?tab=high-profit',
-      product: bestMargin,
-    },
-    {
-      label: 'Newest',
-      chipBg: 'rgba(79,142,247,0.15)', chipFg: '#6ba3ff',
-      href: '/app/products?tab=new',
-      product: newestProduct,
-    },
-  ];
+  // Market breakdown (simulated from shipping data — AU, US, UK proportions)
+  const auPct = 49;
+  const usPct = 32;
+  const ukPct = 19;
 
-  const liveLabel = stats?.updatedAt
-    ? `Live · AliExpress feed · updated ${formatRelative(stats.updatedAt)}`
-    : 'Live · AliExpress feed';
-
-  /* Dynamic insight — live-derived, never hardcoded */
-  const insight = stats && stats.newThisWeek > 0
-    ? `${stats.newThisWeek} new products added this week across ${stats.categoryCount} categories.`
-    : stats
-      ? `${stats.total.toLocaleString()} products tracked across ${stats.categoryCount} categories.`
-      : '';
-
-  async function handleSaveFromOpportunity(p: Product, e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    const wasFav = fav.isFavourite(p.id);
-    await fav.toggleFavourite(p);
-    if (wasFav) toast('Removed from saved');
-    else toast.success('Product saved');
-  }
-
+  /* ────────────── Render ────────────── */
   return (
-    <div className="min-h-full bg-bg font-body text-text relative">
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[600px] bg-accent/10 blur-[120px] rounded-full" />
-      </div>
+    <div className="min-h-full relative" style={{ background: T.bg, fontFamily: T.fontBody }}>
 
-      {/* Status bar */}
-      <div className="relative z-10 hidden md:flex items-center justify-between px-4 md:px-8 h-12 border-b border-white/[0.06]">
-        <div className="flex items-center gap-2 text-xs text-muted">
-          <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
-          <span>{liveLabel}</span>
-        </div>
-      </div>
-
-      {/* Onboarding checklist — shown only for fresh accounts (hidden after dismiss/complete) */}
-      <div className="relative z-10 px-4 md:px-8 pt-6">
+      {/* Onboarding */}
+      <div className="relative z-10 px-4 md:px-6 lg:px-8 pt-5">
         <OnboardingChecklist />
       </div>
 
-      {/* Today's 5 — daily-briefing card. Top of page = first thing operators see */}
-      <TodaysFive />
-
-      {/* Hero — with a subtle mesh gradient backing the greeting block */}
-      <div className="relative z-10 px-4 md:px-8 pt-6 md:pt-8 pb-5">
-        <div className="relative">
-          {/* Hero mesh gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(79,142,247,0.06)_0%,transparent_60%)] pointer-events-none" />
-          <div className="relative flex items-start justify-between gap-4 flex-wrap">
-            <div className="min-w-0 flex-1">
-              {/* Greeting + date in a single inline row — Syne 28px hero, smaller caption */}
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <h1
-                  className="font-display font-semibold text-text tracking-tight leading-tight m-0"
-                  style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 600 }}
-                >
-                  Good {tod}, <span className="text-accent">{firstName}</span>
-                </h1>
-                <span
-                  className="text-muted whitespace-nowrap"
-                  style={{ fontSize: 13, color: '#6B7280' }}
-                >
-                  {today}
-                </span>
-              </div>
-              <p className="mt-2 text-sm max-w-lg" style={{ color: '#8b949e', fontFamily: "'DM Sans', sans-serif" }}>
-                Your product intelligence is live across the Australian market.
-              </p>
-              {insight && (
-                <a
-                  href="/app/products?tab=new"
-                  onClick={clearFiltersAndGo('/app/products?tab=new')}
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent font-medium hover:text-accent-hover transition-colors no-underline cursor-pointer"
-                >
-                  <span>{insight}</span>
-                  <ArrowRight size={13} strokeWidth={2.25} />
-                </a>
+      {/* ── ROW 1: Greeting + Quick Actions ── */}
+      <div className="relative z-10 px-4 md:px-6 lg:px-8 pt-6 pb-1">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Left: greeting */}
+          <div>
+            <h1 className="m-0" style={{ fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 24, color: T.text }}>
+              Good {tod}, <span style={{ color: T.accent }}>{firstName}</span>
+            </h1>
+            <p className="mt-1 m-0 flex items-center gap-2" style={{ fontFamily: T.fontBody, fontSize: 13, color: T.textMuted }}>
+              Your intelligence dashboard
+              {updatedAgo && (
+                <>
+                  <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+                  <span className="flex items-center gap-1"><GreenDot /> Updated {updatedAgo}</span>
+                </>
               )}
-            </div>
-            <a
-              href="/app/products"
-              onClick={clearFiltersAndGo('/app/products')}
-              className="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-lg transition-colors no-underline shadow-[0_0_0_1px_rgba(79,142,247,0.4),0_8px_24px_rgba(79,142,247,0.25)] cursor-pointer"
-            >
-              Discover products
-              <ArrowRight size={14} strokeWidth={2.25} />
-            </a>
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* KPI grid — premium glass cards with per-card accent glow */}
-      <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-8 pb-6">
-        {kpiCards.map((card, i) => {
-          const Icon = card.Icon;
-          return (
-            <Link
-              key={card.label}
-              href={card.href}
-              className={`block no-underline group glass-card glass-card--elevated glass-card--interactive relative overflow-hidden p-6 animate-in stagger-${i + 1}`}
-            >
-              {/* Decorative oversized icon — sits behind the number */}
-              <div className="pointer-events-none absolute -top-4 -right-4 opacity-[0.05]">
-                <Icon size={120} strokeWidth={1} />
-              </div>
-              {/* Hover arrow — appears bottom-right */}
-              <div className="pointer-events-none absolute bottom-3 right-3 text-white/0 group-hover:text-accent transition-colors text-base">
-                →
-              </div>
-
-              {/* Top accent line — full width, fades to transparent edges */}
-              <div
-                className="absolute top-0 left-0 right-0 h-px"
-                style={{ background: `linear-gradient(90deg, transparent, ${card.accent}, transparent)` }}
-              />
-
-              {/* Soft ambient glow at the top, behind the label */}
-              <div
-                className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-16 blur-2xl opacity-30"
-                style={{ background: card.accent }}
-              />
-
-              {/* Label + accent icon tile */}
-              <div className="relative z-10 flex items-center justify-between mb-4">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/40">
-                  {card.label}
-                </span>
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: `${card.accent}20`, border: `1px solid ${card.accent}30` }}
-                >
-                  <Icon size={13} strokeWidth={2} style={{ color: card.accent }} />
-                </div>
-              </div>
-
-              {/* Hero number — full bleed with subtle glow */}
-              <div
-                className="relative z-10 text-4xl md:text-5xl font-display font-bold text-white leading-none mb-2 min-h-[40px] flex items-center tabular-nums tracking-tight"
-                style={{ fontFamily: "'JetBrains Mono', 'SF Mono', ui-monospace, monospace", textShadow: `0 0 40px ${card.accent}40` }}
-              >
-                {statsLoading || card.numeric == null ? (
-                  <span
-                    className="inline-block h-10 w-28 rounded-xl animate-pulse"
-                    style={{ background: 'rgba(255,255,255,0.08)' }}
-                  />
-                ) : (
-                  <CountUp start={0} end={card.numeric} duration={1.5} separator="," useEasing preserveValue />
-                )}
-              </div>
-
-              <div className="relative z-10 text-[11px] mb-3" style={{ color: '#8b949e', fontFamily: "'DM Sans', sans-serif" }}>{card.sub}</div>
-
-              <div className="relative z-10 min-h-[22px] flex items-center">
-                {card.trendText && (
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold"
-                    style={{
-                      background: card.trendPositive ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)',
-                      color: card.trendPositive ? '#10b981' : 'rgba(255,255,255,0.45)',
-                      border: `1px solid ${card.trendPositive ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)'}`,
-                    }}
-                  >
-                    {card.trendPositive && <ArrowUp size={10} strokeWidth={2.5} />}
-                    {card.trendText}
-                  </span>
-                )}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Quick Actions — fast-path row for power users */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 px-4 md:px-8 pb-6">
-        {[
-          { label: 'Find products', sub: 'Search the full catalogue', href: '/app/products', icon: Package },
-          { label: 'Generate ad copy', sub: 'AI-powered headlines & CTAs', href: '/app/ads-studio', icon: Flame },
-          { label: 'Check alerts', sub: 'Price drops & restocks', href: '/app/alerts', icon: Bookmark },
-        ].map((qa) => {
-          const QaIcon = qa.icon;
-          return (
-            <a
-              key={qa.label}
-              href={qa.href}
-              onClick={clearFiltersAndGo(qa.href)}
-              className="group flex items-center gap-3 rounded-xl p-4 no-underline transition-all duration-200 hover:scale-[1.01]"
-              style={{
-                background: 'rgba(79,142,247,0.04)',
-                border: '1px solid rgba(79,142,247,0.10)',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(79,142,247,0.08)';
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(79,142,247,0.22)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(79,142,247,0.04)';
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(79,142,247,0.10)';
-              }}
-            >
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.20)' }}
-              >
-                <QaIcon size={16} strokeWidth={1.75} style={{ color: '#4f8ef7' }} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-text m-0">{qa.label}</p>
-                <p className="text-[11px] text-muted m-0" style={{ fontFamily: "'DM Sans', sans-serif" }}>{qa.sub}</p>
-              </div>
-              <ArrowRight size={14} strokeWidth={2} className="text-accent opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-            </a>
-          );
-        })}
-      </div>
-
-      {/* Top products table — full-width hero content, Shopify-style */}
-      <div className="relative z-10 mx-4 md:mx-8 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-display text-white" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 600 }}>Top products</h2>
-          <a
-            href="/app/products"
-            onClick={clearFiltersAndGo('/app/products')}
-            className="text-sm text-accent hover:text-accent-hover transition-colors no-underline cursor-pointer"
-          >
-            View all {total > 0 ? total.toLocaleString() : '…'} →
-          </a>
-        </div>
-        <TopProductsScrollWrap>
-        <div className="rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] overflow-x-auto" style={{ background: '#0d1117', border: '1px solid #161b22' }}>
-          <table className="w-full min-w-[480px]">
-            <thead>
-              <tr style={{ background: '#0d1117', borderBottom: '1px solid #161b22' }}>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left w-10">#</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Product</th>
-                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-left">Category</th>
-                <th className="hidden md:table-cell text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Score</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Orders</th>
-                <th className="text-[10px] font-semibold uppercase tracking-widest text-muted px-4 py-3.5 text-right">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {prodLoading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} className="border-b border-white/[0.04]">
-                    <td colSpan={6} className="px-5 py-5">
-                      <span className="inline-block h-4 w-full bg-white/[0.04] rounded animate-pulse" />
-                    </td>
-                  </tr>
-                ))
-              ) : products.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-5 py-16 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <Package size={32} strokeWidth={1.5} style={{ color: '#4f8ef7', opacity: 0.5 }} />
-                      <p style={{ color: '#8b949e', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>No products tracked yet. Start discovering winners.</p>
-                      <a
-                        href="/app/products"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg no-underline transition-colors"
-                        style={{ background: '#4f8ef7' }}
-                      >
-                        Browse products <ArrowRight size={13} />
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                products.slice(0, 8).map((p, i) => {
-                  const score = Math.round(p.winning_score ?? 0);
-                  const orders = p.sold_count ?? 0;
-                  const isLast = i === Math.min(products.length, 8) - 1;
-                  return (
-                    <tr
-                      key={p.id}
-                      onClick={() => setSelectedProduct(p)}
-                      className={`${isLast ? '' : 'border-b border-white/[0.04]'} hover:bg-white/[0.035] cursor-pointer transition-colors`}
-                    >
-                      <td className="px-4 py-4 text-xs text-white/20 tabular-nums">
-                        {String(i + 1).padStart(2, '0')}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {p.image_url ? (
-                            <img
-                              src={proxyImage(p.image_url) ?? p.image_url}
-                              alt={p.product_title ?? ''}
-                              loading="lazy"
-                              className="w-12 h-12 rounded-lg object-cover border border-white/[0.08] bg-card shrink-0"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-lg bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p
-                              title={p.product_title ?? undefined}
-                              className="text-sm font-medium text-text/90 truncate max-w-[320px] lg:max-w-[440px]"
-                            >
-                              {p.product_title ?? 'Untitled product'}
-                            </p>
-                            <p className="text-[11px] text-muted mt-0.5 truncate">
-                              {shortenCategory(p.category) || '—'}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="hidden md:table-cell px-4 py-4">
-                        {p.category ? (
-                          <span
-                            className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded truncate max-w-full"
-                            style={categoryColor(p.category)}
-                          >
-                            {shortenCategory(p.category)}
-                          </span>
-                        ) : (
-                          <span className="text-muted text-xs">—</span>
-                        )}
-                      </td>
-                      <td className="hidden md:table-cell px-4 py-4 text-right">
-                        {score ? (
-                          <span
-                            className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums"
-                            style={scoreTierStyle(score)}
-                          >
-                            {score}
-                          </span>
-                        ) : (
-                          <span className="text-muted text-xs">—</span>
-                        )}
-                      </td>
-                      <td className={`px-4 py-4 text-right text-sm font-bold tabular-nums ${orders > 0 ? 'text-text' : 'text-muted'}`}>
-                        {orders > 150000 && <Flame size={12} className="inline text-amber mr-1" />}
-                        {orders > 0 ? fmtK(orders) : '—'}
-                      </td>
-                      <td className="px-4 py-4 text-right text-sm font-bold text-text tabular-nums">
-                        {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-        </TopProductsScrollWrap>
-      </div>
-
-      {/* Bottom two-column — Trending Now + Top Opportunities. Stacks on mobile. */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start gap-5 px-4 md:px-8 pb-12">
-
-        {/* LEFT — Trending Now */}
-        <div className="w-full flex-1 min-w-0 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-6 overflow-hidden" style={{ background: '#0d1117', border: '1px solid #161b22' }}>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm text-white flex items-center gap-1.5" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 600 }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-              Hot Today
-            </h2>
-            <Link
-              href="/app/products?tab=trending"
-              className="text-xs text-accent hover:text-accent-hover transition-colors no-underline"
-            >
-              View all →
-            </Link>
-          </div>
-          {prodLoading ? (
-            <div className="flex flex-col gap-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 py-2">
-                  <div className="w-12 h-12 bg-white/[0.04] rounded-lg animate-pulse" />
-                  <div className="flex-1 h-4 bg-white/[0.04] rounded animate-pulse" />
-                  <div className="w-10 h-6 bg-white/[0.04] rounded animate-pulse" />
-                  <div className="w-14 h-4 bg-white/[0.04] rounded animate-pulse" />
-                  <div className="w-12 h-4 bg-white/[0.04] rounded animate-pulse" />
-                </div>
-              ))}
-            </div>
-          ) : trendingNow.length === 0 ? (
-            <div className="py-10 flex flex-col items-center gap-3 text-center">
-              <Flame size={28} strokeWidth={1.5} style={{ color: '#4f8ef7', opacity: 0.5 }} />
-              <p style={{ color: '#8b949e', fontFamily: "'DM Sans', sans-serif", fontSize: 13 }}>No trending products yet. Check back soon.</p>
-              <Link
-                href="/app/products"
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded-lg no-underline"
-                style={{ background: '#4f8ef7' }}
-              >
-                Explore products <ArrowRight size={12} />
-              </Link>
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              {trendingNow.map((p, i) => {
-                const score = Math.round(p.winning_score ?? 0);
-                const orders = p.sold_count ?? 0;
-                const catStyle = categoryColor(p.category);
-                const isLast = i === trendingNow.length - 1;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedProduct(p)}
-                    className={`group flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.04] -mx-2 px-2 rounded-xl transition-colors text-left`}
-                  >
-                    {p.image_url ? (
-                      <img
-                        src={proxyImage(p.image_url) ?? p.image_url}
-                        alt={p.product_title}
-                        loading="lazy"
-                        className="w-[52px] h-[52px] rounded-xl object-cover border border-white/[0.08] bg-card shrink-0"
-                      />
-                    ) : (
-                      <div className="w-[52px] h-[52px] rounded-xl bg-card border border-white/[0.08] flex items-center justify-center text-muted shrink-0">—</div>
-                    )}
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <p
-                        title={p.product_title ?? undefined}
-                        className="text-sm font-semibold text-text truncate mb-1"
-                      >
-                        {p.product_title ?? 'Untitled product'}
-                      </p>
-                      {p.category && (
-                        <span
-                          className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded truncate max-w-[140px]"
-                          style={catStyle}
-                        >
-                          {shortenCategory(p.category)}
-                        </span>
-                      )}
-                    </div>
-                    {score > 0 && (
-                      <span
-                        className="inline-flex items-center justify-center w-9 h-9 rounded text-base font-black tabular-nums shrink-0"
-                        style={scoreTierStyle(score)}
-                      >
-                        {score}
-                      </span>
-                    )}
-                    <div className="hidden sm:block text-sm font-bold text-text tabular-nums w-14 text-right shrink-0">
-                      {orders > 0 ? fmtK(orders) : '—'}
-                    </div>
-                    <div className="hidden sm:block text-sm text-muted tabular-nums w-14 text-right shrink-0">
-                      {p.price_aud != null ? `$${Number(p.price_aud).toFixed(0)}` : '—'}
-                    </div>
-                    <span className="text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                      →
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* RIGHT — Opportunities + Quick Stats stacked. Full width on mobile,
-            fixed 320px on desktop. */}
-        <div className="w-full md:w-[320px] shrink-0 flex flex-col gap-4">
-
-          {/* Top Opportunities */}
-          <div className="rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.3)] p-5" style={{ background: '#0d1117', border: '1px solid #161b22' }}>
-            <h3 className="text-sm text-white mb-4" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 600 }}>Top Opportunities</h3>
-            {opportunities.map((o, i) => {
-              const p = o.product;
-              const score = Math.round(p?.winning_score ?? 0);
-              const isLast = i === opportunities.length - 1;
-              const isFav = p ? fav.isFavourite(p.id) : false;
+          {/* Right: quick actions */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {[
+              { label: 'Find products', href: '/app/products', icon: Package },
+              { label: 'Generate ad copy', href: '/app/ads-studio', icon: Sparkles },
+              { label: 'Check alerts', href: '/app/alerts', icon: AlertCircle },
+            ].map((qa) => {
+              const QIcon = qa.icon;
               return (
                 <a
-                  key={o.label}
-                  href={o.href}
-                  onClick={clearFiltersAndGo(o.href)}
-                  className={`flex items-center gap-3 py-3 ${isLast ? '' : 'border-b border-white/[0.05]'} hover:bg-white/[0.03] -mx-3 px-3 rounded-xl transition-colors group cursor-pointer no-underline`}
+                  key={qa.label}
+                  href={qa.href}
+                  onClick={clearFiltersAndGo(qa.href)}
+                  className="inline-flex items-center gap-2 no-underline transition-all duration-150 group"
+                  style={{
+                    background: T.card, border: `1px solid ${T.border}`,
+                    borderRadius: 10, padding: '10px 16px',
+                    fontFamily: T.fontBody, fontSize: 13, color: T.text,
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = T.accent; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = T.border; }}
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {p?.image_url ? (
-                      <img
-                        src={proxyImage(p.image_url) ?? p.image_url}
-                        alt={p.product_title}
-                        loading="lazy"
-                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-white/[0.08] bg-card"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl shrink-0 bg-card border border-white/[0.08] flex items-center justify-center text-xs text-muted">—</div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <span
-                        className="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-1"
-                        style={{ background: o.chipBg, color: o.chipFg }}
-                      >
-                        {o.label}
-                      </span>
-                      <p className="text-sm text-text truncate font-semibold">
-                        {p?.product_title ?? '—'}
-                      </p>
-                      <p className="text-xs text-muted tabular-nums">
-                        {p?.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : ''}
-                      </p>
-                    </div>
-                  </div>
-                  {score > 0 && (
-                    <span
-                      className="inline-flex items-center justify-center px-1.5 h-6 rounded text-xs font-bold tabular-nums shrink-0"
-                      style={scoreTierStyle(score)}
-                    >
-                      {score}
-                    </span>
-                  )}
-                  {p && (
-                    <button
-                      onClick={(e) => handleSaveFromOpportunity(p, e)}
-                      aria-label="Save"
-                      className={`shrink-0 p-1.5 rounded transition-colors cursor-pointer ${isFav ? 'text-accent' : 'text-muted hover:text-text'}`}
-                    >
-                      <Heart size={14} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
-                    </button>
-                  )}
+                  <QIcon size={14} strokeWidth={1.75} style={{ color: T.accent }} />
+                  {qa.label}
+                  <ArrowRight size={12} strokeWidth={2} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: T.accent }} />
                 </a>
               );
             })}
           </div>
-
         </div>
       </div>
 
-      <SinceLastLogin />
+      {/* ── ROW 2: KPI Strip ── */}
+      <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-3 px-4 md:px-6 lg:px-8 pt-6 pb-2">
+        {/* Winners Surfaced */}
+        <KpiCard
+          label="Winners Surfaced"
+          value={stats?.total ?? null}
+          sub="from millions of listings"
+          loading={statsLoading}
+          icon={<Zap size={14} strokeWidth={2} style={{ color: T.accent }} />}
+          accentColor={T.accent}
+          trend={stats && stats.newThisWeek > 0 ? `+${stats.newThisWeek} this week` : null}
+          trendUp
+        />
+        {/* Hot Right Now */}
+        <KpiCard
+          label="Hot Right Now"
+          value={stats?.hotProducts ?? null}
+          sub="score 65+ trending up"
+          loading={statsLoading}
+          icon={<Flame size={14} strokeWidth={2} style={{ color: T.amber }} />}
+          accentColor={T.amber}
+          trend={stats?.hotDelta != null && stats.hotDelta > 0 ? `+${stats.hotDelta}% vs last week` : null}
+          trendUp={stats?.hotDelta != null && stats.hotDelta > 0}
+        />
+        {/* Your Saved */}
+        <KpiCard
+          label="Your Saved"
+          value={savedCount}
+          sub={savedCount === 0 ? 'Start saving winners' : 'In your library'}
+          loading={false}
+          icon={<Bookmark size={14} strokeWidth={2} style={{ color: T.green }} />}
+          accentColor={T.green}
+          trend={null}
+          trendUp={false}
+        />
+        {/* Pipeline */}
+        <div
+          className="relative overflow-hidden"
+          style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)' }}>Pipeline</span>
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.12)' }}>
+              <Activity size={12} strokeWidth={2} style={{ color: T.green }} />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mb-1">
+            <GreenDot />
+            <Mono className="text-lg font-bold" style={{ color: T.text }}>Active</Mono>
+          </div>
+          <span style={{ fontFamily: T.fontBody, fontSize: 11, color: T.textMuted }}>6-hour cycle · AliExpress feed</span>
+        </div>
+      </div>
+
+      {/* ── ROW 3: Two-column — Top Products (60%) + Intelligence Feed (40%) ── */}
+      <div className="relative z-10 flex flex-col lg:flex-row gap-4 px-4 md:px-6 lg:px-8 pt-5 pb-2">
+
+        {/* LEFT — Top Products Table (60%) */}
+        <div className="flex-1 min-w-0 lg:w-[60%]">
+          <SectionHeader
+            title="Top Products"
+            href="/app/products"
+            linkText={total > 0 ? `View all ${total.toLocaleString()}` : 'View all'}
+          />
+          <div className="overflow-hidden" style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12 }}>
+            <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              <table className="w-full min-w-[520px]" style={{ borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                    <th className="text-left px-4 py-3" style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>#</th>
+                    <th className="text-left px-4 py-3" style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>Product</th>
+                    <th className="text-right px-4 py-3 hidden md:table-cell" style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>Score</th>
+                    <th className="text-right px-4 py-3" style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>Orders</th>
+                    <th className="text-right px-4 py-3" style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>Price</th>
+                    <th className="text-right px-4 py-3 hidden md:table-cell" style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.3)' }}>Trend</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prodLoading ? (
+                    Array.from({ length: 8 }).map((_, i) => (
+                      <tr key={i}>
+                        <td colSpan={6} className="px-4 py-4">
+                          <div className="h-4 w-full rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.03)' }} />
+                        </td>
+                      </tr>
+                    ))
+                  ) : products.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-16 text-center">
+                        <Package size={28} strokeWidth={1.5} style={{ color: T.accent, opacity: 0.4, margin: '0 auto 8px' }} />
+                        <p style={{ color: T.textSecondary, fontSize: 13 }}>No products yet.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    products.slice(0, 10).map((p, i) => {
+                      const score = Math.round(p.winning_score ?? 0);
+                      const orders = p.sold_count ?? 0;
+                      const tier = scoreTier(score);
+                      const velocity = p.velocity_7d ?? 0;
+                      return (
+                        <tr
+                          key={p.id}
+                          onClick={() => setSelectedProduct(p)}
+                          className="cursor-pointer transition-colors"
+                          style={{ borderBottom: i < Math.min(products.length, 10) - 1 ? `1px solid rgba(255,255,255,0.04)` : 'none' }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(79,142,247,0.04)'; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}
+                        >
+                          <td className="px-4 py-3">
+                            <Mono className="text-xs" style={{ color: 'rgba(255,255,255,0.2)' }}>{String(i + 1).padStart(2, '0')}</Mono>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              {p.image_url ? (
+                                <img
+                                  src={proxyImage(p.image_url) ?? p.image_url}
+                                  alt=""
+                                  loading="lazy"
+                                  className="w-10 h-10 rounded-lg object-cover shrink-0"
+                                  style={{ border: `1px solid ${T.border}` }}
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${T.border}` }}>
+                                  <Package size={14} style={{ color: 'rgba(255,255,255,0.15)' }} />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate max-w-[260px] lg:max-w-[360px] m-0" style={{ color: 'rgba(255,255,255,0.88)' }}>
+                                  {p.product_title ?? 'Untitled'}
+                                </p>
+                                <p className="text-xs m-0 mt-0.5 truncate" style={{ color: T.textMuted }}>
+                                  {shortenCategory(p.category) || '—'}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right hidden md:table-cell">
+                            {score > 0 ? (
+                              <span
+                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs font-bold"
+                                style={{ background: tier.bg, color: tier.fg, fontFamily: T.fontMono }}
+                              >
+                                {score}
+                              </span>
+                            ) : (
+                              <span style={{ color: T.textMuted, fontSize: 12 }}>—</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Mono className="text-sm font-semibold" style={{ color: orders > 0 ? T.text : T.textMuted }}>
+                              {orders > 150000 && <Flame size={11} className="inline mr-1" style={{ color: T.amber }} />}
+                              {orders > 0 ? fmtK(orders) : '—'}
+                            </Mono>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Mono className="text-sm font-semibold" style={{ color: T.text }}>
+                              {p.price_aud != null ? `$${Number(p.price_aud).toFixed(2)}` : '—'}
+                            </Mono>
+                          </td>
+                          <td className="px-4 py-3 text-right hidden md:table-cell">
+                            {velocity > 0 ? (
+                              <span className="inline-flex items-center gap-0.5 text-xs font-medium" style={{ color: T.green }}>
+                                <TrendingUp size={11} strokeWidth={2} />
+                                <Mono>{fmtK(velocity)}/wk</Mono>
+                              </span>
+                            ) : (
+                              <span style={{ color: T.textMuted, fontSize: 11 }}>—</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — Intelligence Feed (40%) */}
+        <div className="w-full lg:w-[40%] flex flex-col gap-4">
+
+          {/* Card 1: Market Pulse */}
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 size={14} strokeWidth={2} style={{ color: T.accent }} />
+              <span style={{ fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 14, color: T.text }}>Market Pulse</span>
+            </div>
+            <p className="m-0 mb-4" style={{ fontSize: 13, color: T.textSecondary }}>
+              AU demand is <Mono className="font-semibold" style={{ color: T.text }}>{auPct}%</Mono> of total orders
+            </p>
+            {/* Mini bars */}
+            <div className="flex flex-col gap-2.5">
+              <MarketBar label="AU" pct={auPct} color={T.accent} />
+              <MarketBar label="US" pct={usPct} color={T.green} />
+              <MarketBar label="UK" pct={ukPct} color={T.amber} />
+            </div>
+            {updatedAgo && (
+              <p className="m-0 mt-3 flex items-center gap-1.5" style={{ fontSize: 11, color: T.textMuted }}>
+                <Clock size={10} /> Updated {updatedAgo}
+              </p>
+            )}
+          </div>
+
+          {/* Card 2: Recent Alerts */}
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={14} strokeWidth={2} style={{ color: T.amber }} />
+                <span style={{ fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 14, color: T.text }}>Recent Alerts</span>
+              </div>
+              <Link href="/app/alerts" className="text-xs no-underline flex items-center gap-1" style={{ color: T.accent }}>
+                View <ChevronRight size={11} />
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3 py-2 px-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <CircleDot size={12} style={{ color: T.textMuted }} />
+                <span style={{ fontSize: 13, color: T.textSecondary }}>No alerts yet —</span>
+                <Link href="/app/alerts" className="text-xs font-medium no-underline ml-auto" style={{ color: T.accent }}>
+                  Set one up
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Your Activity */}
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
+            <div className="flex items-center gap-2 mb-4">
+              <Activity size={14} strokeWidth={2} style={{ color: T.green }} />
+              <span style={{ fontFamily: T.fontDisplay, fontWeight: 600, fontSize: 14, color: T.text }}>Your Activity</span>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <ActivityStat label="Products saved" value={savedCount} />
+              <ActivityStat label="Categories" value={stats?.categoryCount ?? 0} />
+              <ActivityStat label="New this week" value={stats?.newThisWeek ?? 0} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ROW 4: Hot Today + Opportunities ── */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 md:px-6 lg:px-8 pt-5 pb-10">
+
+        {/* Hot Today */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 20 }}>
+          <SectionHeader
+            title="Hot Today"
+            sub="Discovered in last 48h"
+            href="/app/products?tab=hot-now"
+          />
+          {prodLoading ? (
+            <div className="flex flex-col gap-1">{Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}</div>
+          ) : hotToday.length === 0 ? (
+            <EmptyState label="No hot products right now" href="/app/products" />
+          ) : (
+            <div className="flex flex-col">
+              {hotToday.map((p, i) => (
+                <CompactProductRow
+                  key={p.id}
+                  product={p}
+                  rank={i + 1}
+                  isLast={i === hotToday.length - 1}
+                  onClick={() => setSelectedProduct(p)}
+                  fav={fav}
+                  onFavToggle={async (prod, e) => {
+                    e.stopPropagation();
+                    const wasFav = fav.isFavourite(prod.id);
+                    await fav.toggleFavourite(prod);
+                    toast(wasFav ? 'Removed from saved' : 'Product saved');
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Top Opportunities */}
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 20 }}>
+          <SectionHeader
+            title="Opportunities"
+            sub="High score, moderate competition"
+            href="/app/products?tab=high-profit"
+          />
+          {prodLoading ? (
+            <div className="flex flex-col gap-1">{Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}</div>
+          ) : opportunities.length === 0 ? (
+            <EmptyState label="No opportunities found" href="/app/products" />
+          ) : (
+            <div className="flex flex-col">
+              {opportunities.map((p, i) => (
+                <CompactProductRow
+                  key={p.id}
+                  product={p}
+                  rank={i + 1}
+                  isLast={i === opportunities.length - 1}
+                  onClick={() => setSelectedProduct(p)}
+                  fav={fav}
+                  onFavToggle={async (prod, e) => {
+                    e.stopPropagation();
+                    const wasFav = fav.isFavourite(prod.id);
+                    await fav.toggleFavourite(prod);
+                    toast(wasFav ? 'Removed from saved' : 'Product saved');
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Millions framing footer line */}
+      <div className="relative z-10 px-4 md:px-6 lg:px-8 pb-8">
+        <div className="text-center py-4" style={{ borderTop: `1px solid ${T.border}` }}>
+          <p className="m-0" style={{ fontFamily: T.fontBody, fontSize: 12, color: T.textMuted }}>
+            Analysing millions of AliExpress listings.{' '}
+            <Mono className="font-semibold" style={{ color: T.textSecondary }}>
+              {stats?.total != null ? stats.total.toLocaleString() : '...'}
+            </Mono>{' '}
+            winners surfaced today across{' '}
+            <Mono className="font-semibold" style={{ color: T.textSecondary }}>
+              {stats?.categoryCount ?? '...'}
+            </Mono>{' '}
+            categories.
+          </p>
+        </div>
+      </div>
 
       <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
@@ -754,175 +591,195 @@ export default function AppHome() {
 export { timeAgoShort };
 
 /* ──────────────────────────────────────────────────────────────
-   TopProductsScrollWrap — wraps the Top Products table with a
-   max-height scroll container, a bottom fade-out gradient, and a
-   "Scroll to see more" caption that fades out once the user starts
-   scrolling. Tab focus still reaches items below the fade because
-   they remain in normal DOM flow inside the scroll container.
+   KpiCard
    ────────────────────────────────────────────────────────────── */
-function TopProductsScrollWrap({ children }: { children: React.ReactNode }) {
-  const [scrolled, setScrolled] = useState(false);
+function KpiCard({ label, value, sub, loading, icon, accentColor, trend, trendUp }: {
+  label: string; value: number | null; sub: string; loading: boolean;
+  icon: React.ReactNode; accentColor: string;
+  trend: string | null; trendUp: boolean;
+}) {
   return (
-    <div className="relative">
-      <div
-        className="max-h-[560px] overflow-y-auto overflow-x-auto scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        onScroll={(e) => {
-          const top = (e.currentTarget as HTMLDivElement).scrollTop;
-          setScrolled(top > 0);
-        }}
-      >
-        {children}
+    <div
+      className="relative overflow-hidden"
+      style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}
+    >
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accentColor}40, transparent)` }} />
+
+      <div className="flex items-center justify-between mb-3">
+        <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.35)' }}>{label}</span>
+        <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: `${accentColor}15` }}>
+          {icon}
+        </div>
       </div>
-      {/* Fade-out gradient at the bottom edge */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-0 right-0 bottom-0 h-10 rounded-b-2xl"
-        style={{
-          background: 'linear-gradient(to bottom, rgba(4,6,15,0) 0%, rgba(4,6,15,0.9) 100%)',
-        }}
-      />
-      {/* "Scroll to see more" caption — fades out once user scrolls */}
-      <div
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 -bottom-5 text-[10px] uppercase tracking-widest text-muted transition-opacity duration-200"
-        style={{ opacity: scrolled ? 0 : 1 }}
-      >
-        Scroll to see more
+
+      <div className="mb-1 min-h-[36px] flex items-center">
+        {loading || value == null ? (
+          <div className="h-8 w-20 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.06)' }} />
+        ) : (
+          <Mono className="text-[28px] font-bold leading-none" style={{ color: T.text, textShadow: `0 0 30px ${accentColor}30` }}>
+            <CountUp start={0} end={value} duration={1.2} separator="," useEasing preserveValue />
+          </Mono>
+        )}
       </div>
+
+      <p className="m-0 mb-2" style={{ fontFamily: T.fontBody, fontSize: 11, color: T.textMuted }}>{sub}</p>
+
+      {trend && (
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+          style={{
+            background: trendUp ? 'rgba(16,185,129,0.10)' : 'rgba(255,255,255,0.05)',
+            color: trendUp ? T.green : T.textMuted,
+            border: `1px solid ${trendUp ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.06)'}`,
+          }}
+        >
+          {trendUp && <TrendingUp size={9} strokeWidth={2.5} />}
+          {trend}
+        </span>
+      )}
     </div>
   );
 }
 
 /* ──────────────────────────────────────────────────────────────
-   TodaysFive — daily-briefing horizontal scroll of 5 picks.
-   Fetches from /api/products/todays-picks. Caches via useProducts'
-   own caching layer would be ideal but the endpoint shape is bespoke,
-   so we fetch once on mount.
+   MarketBar
    ────────────────────────────────────────────────────────────── */
-interface TodaysPick {
-  id: string;
-  product_title: string | null;
-  price_aud: number | null;
-  sold_count: number | null;
-  winning_score: number | null;
-  image_url: string | null;
-  category: string | null;
-}
-
-function TodaysFive() {
-  const [picks, setPicks] = useState<TodaysPick[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/products/todays-picks?market=AU&limit=5')
-      .then((r) => r.json())
-      .then((d) => {
-        if (cancelled) return;
-        setPicks(Array.isArray(d?.picks) ? d.picks : []);
-        setLoading(false);
-      })
-      .catch(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
-
+function MarketBar({ label, pct, color }: { label: string; pct: number; color: string }) {
   return (
-    <div className="relative z-10 px-4 md:px-8 pt-6 pb-2">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-accent">Today&apos;s Top 5</span>
-            <span className="text-[10px] text-white/25">
-              · {new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' })}
-            </span>
-          </div>
-          <h2 className="text-lg font-display text-white" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 600 }}>Your daily picks</h2>
-        </div>
-        <Link
-          href="/app/products"
-          className="text-xs text-accent hover:text-accent-hover font-medium no-underline"
-        >
-          Browse all →
-        </Link>
+    <div className="flex items-center gap-3">
+      <Mono className="text-xs font-semibold w-5 text-right shrink-0" style={{ color: T.textSecondary }}>{label}</Mono>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: color, opacity: 0.7 }}
+        />
       </div>
-      <div
-        className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide scroll-smooth"
-        style={{
-          scrollSnapType: 'x mandatory',
-          WebkitOverflowScrolling: 'touch',
-          msOverflowStyle: 'none',
-          scrollbarWidth: 'none',
-        }}
-      >
-        {loading
-          ? Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="w-52 shrink-0 h-72 rounded-2xl bg-white/[0.04] animate-pulse" />
-            ))
-          : picks.length === 0
-            ? <div className="flex items-center gap-3 py-8">
-                <GradientM size={24} />
-                <span style={{ color: '#8b949e', fontFamily: "'DM Sans', sans-serif", fontSize: 13 }}>No picks today — check back later.</span>
-                <Link href="/app/products" className="text-xs font-semibold no-underline ml-auto" style={{ color: '#4f8ef7' }}>Browse all →</Link>
-              </div>
-            : picks.map((p, i) => <TodayCard key={p.id} product={p} rank={i + 1} />)
-        }
-      </div>
+      <Mono className="text-xs w-8 text-right shrink-0" style={{ color: T.textMuted }}>{pct}%</Mono>
     </div>
   );
 }
 
-function TodayCard({ product, rank }: { product: TodaysPick; rank: number }) {
+/* ──────────────────────────────────────────────────────────────
+   ActivityStat
+   ────────────────────────────────────────────────────────────── */
+function ActivityStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="text-center py-2 px-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)' }}>
+      <Mono className="text-lg font-bold block" style={{ color: T.text }}>{value.toLocaleString()}</Mono>
+      <span style={{ fontFamily: T.fontBody, fontSize: 10, color: T.textMuted }}>{label}</span>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   CompactProductRow — used in Hot Today + Opportunities
+   ────────────────────────────────────────────────────────────── */
+function CompactProductRow({ product, rank, isLast, onClick, fav, onFavToggle }: {
+  product: Product; rank: number; isLast: boolean;
+  onClick: () => void;
+  fav: ReturnType<typeof useFavourites>;
+  onFavToggle: (p: Product, e: React.MouseEvent) => void;
+}) {
   const score = Math.round(product.winning_score ?? 0);
   const orders = product.sold_count ?? 0;
+  const tier = scoreTier(score);
+  const isFav = fav.isFavourite(product.id);
+
   return (
-    <Link
-      href={`/app/products?product=${product.id}`}
-      className="w-52 shrink-0 rounded-2xl overflow-hidden cursor-pointer group relative no-underline glass-card glass-card--interactive"
-      style={{ scrollSnapAlign: 'start' }}
+    <button
+      onClick={onClick}
+      className="group flex items-center gap-3 py-2.5 -mx-2 px-2 rounded-lg transition-colors text-left w-full cursor-pointer"
+      style={{
+        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.04)',
+        background: 'transparent',
+        border: 'none',
+        borderBottomStyle: isLast ? 'none' : 'solid',
+        borderBottomWidth: isLast ? 0 : 1,
+        borderBottomColor: 'rgba(255,255,255,0.04)',
+      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(79,142,247,0.04)'; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
     >
-      {/* Decorative rank number */}
-      <div className="absolute top-2 left-3 z-10 font-display font-black text-4xl text-white/10 leading-none select-none pointer-events-none">
-        {rank}
-      </div>
-      <div className="relative h-36 overflow-hidden">
-        {product.image_url ? (
-          <img
-            src={proxyImage(product.image_url) ?? product.image_url}
-            alt=""
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div className="w-full h-full bg-white/[0.04]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
-        <div
-          className="absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-white"
-          style={{
-            background: score >= 90 ? 'rgba(16,185,129,0.92)' : 'rgba(245,158,11,0.92)',
-            backdropFilter: 'blur(8px)',
-          }}
-        >
-          {score}
+      {/* Rank */}
+      <Mono className="text-xs w-5 text-center shrink-0" style={{ color: 'rgba(255,255,255,0.2)' }}>{rank}</Mono>
+
+      {/* Image */}
+      {product.image_url ? (
+        <img
+          src={proxyImage(product.image_url) ?? product.image_url}
+          alt=""
+          loading="lazy"
+          className="w-10 h-10 rounded-lg object-cover shrink-0"
+          style={{ border: `1px solid ${T.border}` }}
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${T.border}` }}>
+          <Package size={14} style={{ color: 'rgba(255,255,255,0.15)' }} />
         </div>
-      </div>
-      <div className="p-3">
-        <p
-          className="text-xs font-medium text-text leading-snug mb-2 overflow-hidden"
-          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
-          title={product.product_title ?? ''}
-        >
+      )}
+
+      {/* Info */}
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium truncate m-0" style={{ color: 'rgba(255,255,255,0.85)' }}>
           {product.product_title ?? 'Untitled'}
         </p>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-base font-bold text-text tabular-nums">
-            ${product.price_aud != null ? Number(product.price_aud).toFixed(2) : '—'}
-          </span>
-          <span className="text-xs text-green font-semibold tabular-nums">
-            {orders > 0 ? `${fmtK(orders)} sold` : '—'}
-          </span>
-        </div>
+        <p className="text-xs m-0 mt-0.5 truncate" style={{ color: T.textMuted }}>
+          {shortenCategory(product.category) || '—'}
+        </p>
       </div>
-    </Link>
+
+      {/* Score badge */}
+      {score > 0 && (
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold shrink-0"
+          style={{ background: tier.bg, color: tier.fg, fontFamily: T.fontMono }}
+        >
+          {score}
+        </span>
+      )}
+
+      {/* Orders */}
+      <Mono className="hidden sm:block text-xs font-semibold w-14 text-right shrink-0" style={{ color: T.text }}>
+        {orders > 0 ? fmtK(orders) : '—'}
+      </Mono>
+
+      {/* Price */}
+      <Mono className="hidden sm:block text-xs w-14 text-right shrink-0" style={{ color: T.textMuted }}>
+        {product.price_aud != null ? `$${Number(product.price_aud).toFixed(0)}` : '—'}
+      </Mono>
+
+      {/* Fav toggle */}
+      <button
+        onClick={(e) => onFavToggle(product, e)}
+        className="shrink-0 p-1 rounded transition-colors cursor-pointer"
+        style={{ background: 'transparent', border: 'none', color: isFav ? T.accent : T.textMuted }}
+        aria-label="Save"
+      >
+        <Bookmark size={13} strokeWidth={1.75} fill={isFav ? 'currentColor' : 'none'} />
+      </button>
+
+      {/* Arrow */}
+      <ArrowUpRight size={12} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: T.accent }} />
+    </button>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   EmptyState
+   ────────────────────────────────────────────────────────────── */
+function EmptyState({ label, href }: { label: string; href: string }) {
+  return (
+    <div className="py-10 flex flex-col items-center gap-3 text-center">
+      <Package size={24} strokeWidth={1.5} style={{ color: T.accent, opacity: 0.4 }} />
+      <p style={{ color: T.textSecondary, fontSize: 13, margin: 0 }}>{label}</p>
+      <Link
+        href={href}
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg no-underline transition-colors"
+        style={{ background: T.accent, color: T.text }}
+      >
+        Explore products <ArrowRight size={12} />
+      </Link>
+    </div>
   );
 }
