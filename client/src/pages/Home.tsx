@@ -1,12 +1,18 @@
-// Majorka — Landing Page v2
-// Cobalt-blue (#4f8ef7) SaaS feel. Codex/Linear grade.
-// Design tokens: /client/src/lib/landingTokens.ts (single source of truth).
-// 9 sections: [0] Nav, [1] Hero, [2] Stats, [3] Features, [4] Compare,
-//             [5] Social Proof, [6] Pricing, [7] FAQ, [8] Footer.
+// Majorka — Landing Page v2 (Academy-inspired redesign)
+//
+// Academy design patterns applied across all landing sections:
+// - Monospace eyebrows: font-mono, 10px, uppercase, 0.12em tracking, cobalt
+// - Two-tone headings: Syne bold, #E0E0E0 primary + #9CA3AF or #4f8ef7 secondary
+// - Cards: bg #0d1117, border rgba(79,142,247,0.08), rounded-2xl (16px), p-6/p-7
+// - Section rhythm: py-20 (80px) consistent padding, border-t border-white/5
+// - Body text: DM Sans, 14-16px, #9CA3AF, leading-relaxed
+// - CTAs: GoldButton (cobalt fill, black text, glow shadow) + GhostButton (glass)
+// - Color: cobalt #4f8ef7 used sparingly — eyebrows, CTAs, accents only
+// - Max width: 1152px (max-w-6xl equivalent) with 20px side padding
 
 import { useEffect, useState } from 'react';
 import { SEO } from '@/components/SEO';
-import { LT, F, MAX } from '@/lib/landingTokens';
+import { LT, F } from '@/lib/landingTokens';
 
 // v2 section components
 import { LaunchBar, LAUNCH_BAR_HEIGHT } from '@/components/landing/v2/LaunchBar';
@@ -22,26 +28,26 @@ import { Pricing } from '@/components/landing/v2/Pricing';
 import { FAQ } from '@/components/landing/v2/FAQ';
 import { Footer } from '@/components/landing/v2/Footer';
 
-// ── Global CSS — responsive, safety net, hover states ────────────────────────
+// ── Global CSS — Academy-inspired ───────────────────────────────────────────
 const GLOBAL_CSS = `
 *, *::before, *::after { box-sizing: border-box; }
-html, body { background: ${LT.bg}; margin: 0; padding: 0; }
-body { font-family: ${F.body}; color: ${LT.text}; -webkit-font-smoothing: antialiased; }
-::selection { background: ${LT.cobaltTint}; color: #fff; }
+html, body { background: #04060f; margin: 0; padding: 0; }
+body { font-family: ${F.body}; color: #E0E0E0; -webkit-font-smoothing: antialiased; }
+::selection { background: rgba(79,142,247,0.15); color: #fff; }
 
 /* Safety: never hide section content */
 [data-majorka-landing] section { opacity: 1 !important; }
 
-/* Button hover states */
+/* Button hover states — Academy GoldButton/GhostButton patterns */
 .mj-cta-primary:hover { transform: scale(1.02); filter: brightness(1.05); }
-.mj-cta-ghost:hover { border-color: rgba(255,255,255,0.5) !important; }
+.mj-cta-ghost:hover { border-color: rgba(255,255,255,0.25) !important; background: rgba(255,255,255,0.06) !important; }
 
-/* Card hover */
-.mj-testimonial-card:hover { border-color: rgba(79,142,247,0.15) !important; }
+/* Card hover — Academy ValueProps hover */
+.mj-testimonial-card:hover { border-color: rgba(79,142,247,0.18) !important; }
 
 /* Footer hovers */
-.mj-footer-social:hover { color: ${LT.cobalt} !important; }
-.mj-footer-link:hover { color: ${LT.text} !important; }
+.mj-footer-social:hover { color: #4f8ef7 !important; }
+.mj-footer-link:hover { color: #E0E0E0 !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -57,7 +63,7 @@ button { font-family: inherit; }
 /* Desktop defaults */
 .mj-nav-mobile { display: none !important; }
 
-/* ── Mobile ≤900px ──────────────────────────────────────────────────────── */
+/* ── Mobile <=900px ──────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .mj-nav-links { display: none !important; }
   .mj-nav-cta-desk { display: none !important; }
@@ -69,15 +75,15 @@ button { font-family: inherit; }
   .mj-footer-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
 }
 
-/* ── Mobile ≤768px ──────────────────────────────────────────────────────── */
+/* ── Mobile <=768px ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .mj-hero-h1 { font-size: 44px !important; }
+  .mj-hero-h1 { font-size: 36px !important; }
   .mj-hero-mockup { transform: none !important; }
   .mj-hero-mockup-wrap { perspective: none !important; }
   .mj-hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
   .mj-hero-grid > :nth-child(3) { display: none !important; }
   .mj-stats-row { grid-template-columns: repeat(2, 1fr) !important; }
-  .mj-stats-cell { border-right: none !important; border-bottom: 1px solid ${LT.border} !important; }
+  .mj-stats-cell { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
   .mj-feature-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
   .mj-feature-tablist {
     flex-direction: row !important;
@@ -91,12 +97,12 @@ button { font-family: inherit; }
     flex-shrink: 0 !important;
   }
   .mj-feature-tablist button[aria-selected='true'] {
-    border-bottom-color: ${LT.cobalt} !important;
+    border-bottom-color: #4f8ef7 !important;
     border-left-color: transparent !important;
   }
 }
 
-/* ── Narrow mobile ≤420px ───────────────────────────────────────────────── */
+/* ── Narrow mobile <=420px ───────────────────────────────────────────────── */
 @media (max-width: 420px) {
   body { font-size: 14px; }
   .mj-footer-grid { grid-template-columns: 1fr !important; }
@@ -119,9 +125,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div data-majorka-landing="" style={{ minHeight: '100vh', background: LT.bg }}>
+    <div data-majorka-landing="" style={{ minHeight: '100vh', background: '#04060f' }}>
       <SEO
-        title="Majorka — Find winning dropshipping products before they peak | AU · US · UK"
+        title="Majorka \u2014 Find winning dropshipping products before they peak | AU \u00B7 US \u00B7 UK"
         description="AI product intelligence for AU, US and UK dropshippers. Millions of products scored for demand, margin, and market fit. Early access now open."
       />
       <style>{GLOBAL_CSS}</style>

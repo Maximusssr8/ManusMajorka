@@ -1,7 +1,8 @@
-// Footer v2 — Resend/Linear style, 4-column, cobalt accents.
+// Footer v2 — Academy-style: monospace column heads, Syne brand, DM Sans links,
+// restrained cobalt accents.
 import { Link } from 'wouter';
 import { GradientM } from '@/components/MajorkaLogo';
-import { LT, F, MAX } from '@/lib/landingTokens';
+import { F } from '@/lib/landingTokens';
 
 const FOOTER_CSS = `
 .mj-footer-grid {
@@ -9,9 +10,9 @@ const FOOTER_CSS = `
   grid-template-columns: repeat(4, 1fr);
   gap: 48px;
 }
-.mj-footer-link { color: #6b7280; text-decoration: none; transition: color 150ms ease; }
-.mj-footer-link:hover { color: #ffffff; }
-.mj-footer-social { color: #6b7280; transition: color 150ms ease; display: inline-flex; align-items: center; }
+.mj-footer-link { color: #6B7280; text-decoration: none; transition: color 150ms ease; }
+.mj-footer-link:hover { color: #E0E0E0; }
+.mj-footer-social { color: #6B7280; transition: color 150ms ease; display: inline-flex; align-items: center; }
 .mj-footer-social:hover { color: #4f8ef7; }
 @media (max-width: 1024px) {
   .mj-footer-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
@@ -86,10 +87,10 @@ function LinkColumn({ heading, links }: { heading: string; links: Array<{ label:
   return (
     <div>
       <div style={{
-        fontFamily: F.body,
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: '0.08em',
+        fontFamily: F.mono,
+        fontSize: 10,
+        fontWeight: 500,
+        letterSpacing: '0.12em',
         textTransform: 'uppercase',
         color: '#4f8ef7',
         marginBottom: 16,
@@ -112,12 +113,12 @@ export function Footer() {
     <footer
       style={{
         background: '#04060f',
-        borderTop: '1px solid #161b22',
-        padding: '64px 24px',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        padding: '64px 20px',
       }}
     >
       <style>{FOOTER_CSS}</style>
-      <div className="mj-footer-grid" style={{ maxWidth: MAX, margin: '0 auto' }}>
+      <div className="mj-footer-grid" style={{ maxWidth: 1152, margin: '0 auto' }}>
         {/* Brand */}
         <div>
           <div style={{
@@ -128,16 +129,16 @@ export function Footer() {
           }}>
             <GradientM size={28} />
             <span style={{
-              fontFamily: F.display,
-              fontSize: 24,
+              fontFamily: "'Syne', sans-serif",
+              fontSize: 22,
               fontWeight: 700,
-              color: '#ffffff',
+              color: '#E0E0E0',
               letterSpacing: '-0.02em',
             }}>
               Majorka
             </span>
           </div>
-          <p style={{ fontFamily: F.body, fontSize: 14, lineHeight: 1.6, color: '#8b949e', margin: '0 0 20px' }}>
+          <p style={{ fontFamily: F.body, fontSize: 14, lineHeight: 1.6, color: '#9CA3AF', margin: '0 0 20px' }}>
             Product intelligence for AU/US/UK dropshippers.
           </p>
           <div style={{ display: 'flex', gap: 16 }}>
@@ -167,22 +168,23 @@ export function Footer() {
       {/* Bottom bar */}
       <div
         style={{
-          maxWidth: MAX,
+          maxWidth: 1152,
           margin: '48px auto 0',
           paddingTop: 20,
-          borderTop: '1px solid #161b22',
+          borderTop: '1px solid rgba(255,255,255,0.05)',
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 16,
-          fontFamily: F.body,
-          fontSize: 13,
-          color: '#8b949e',
+          fontFamily: F.mono,
+          fontSize: 11,
+          color: '#6B7280',
+          letterSpacing: '0.04em',
         }}
       >
         <span>&copy; 2026 Majorka Pty Ltd</span>
-        <span>Built in Australia 🇦🇺</span>
+        <span>Built in Australia</span>
       </div>
     </footer>
   );

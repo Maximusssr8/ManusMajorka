@@ -1,7 +1,9 @@
-// API Strip — code block showcase section.
+// API Strip — Academy-style: monospace eyebrow, Syne heading, dark card,
+// cobalt accents, clean code block.
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { LT, F } from '@/lib/landingTokens';
+import { F } from '@/lib/landingTokens';
+import { Eyebrow } from './shared';
 
 const API_CSS = `
 @media (max-width: 768px) {
@@ -16,7 +18,7 @@ const CODE_TEXT = `GET /api/v1/products?score_min=80&market=AU
   "products": [
     {
       "id": "prod_8xK2m",
-      "title": "LED Pet Collar — Rechargeable",
+      "title": "LED Pet Collar \u2014 Rechargeable",
       "score": 94,
       "orders_30d": 12_847,
       "trend": "rising",
@@ -34,15 +36,15 @@ function CodeLine({ num, children }: { num: number; children: React.ReactNode })
       <span style={{ width: 32, textAlign: 'right', paddingRight: 12, color: '#3f3f46', fontFamily: F.mono, fontSize: 12, userSelect: 'none', flexShrink: 0 }}>
         {num}
       </span>
-      <span style={{ fontFamily: F.mono, fontSize: 13 }}>{children}</span>
+      <span style={{ fontFamily: F.mono, fontSize: 12 }}>{children}</span>
     </div>
   );
 }
 
 function SyntaxCode() {
-  const cobalt = LT.cobalt;
-  const white = '#fff';
-  const muted = LT.textMute;
+  const cobalt = '#4f8ef7';
+  const white = '#E0E0E0';
+  const muted = '#9CA3AF';
   const dim = '#52525b';
 
   return (
@@ -74,7 +76,7 @@ function SyntaxCode() {
       <CodeLine num={8}>
         {'      '}<span style={{ color: cobalt }}>&quot;title&quot;</span>
         <span style={{ color: dim }}>: </span>
-        <span style={{ color: muted }}>&quot;LED Pet Collar — Rechargeable&quot;</span>
+        <span style={{ color: muted }}>&quot;LED Pet Collar \u2014 Rechargeable&quot;</span>
         <span style={{ color: dim }}>,</span>
       </CodeLine>
       <CodeLine num={9}>
@@ -152,17 +154,17 @@ export function ApiStrip() {
     <section
       style={{
         width: '100%',
-        background: LT.bgCard,
-        borderTop: `1px solid ${LT.border}`,
-        borderBottom: `1px solid ${LT.border}`,
-        padding: '80px 24px',
+        background: '#0d1117',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        padding: '80px 20px',
       }}
     >
       <style>{API_CSS}</style>
       <div
         className="mj-api-grid"
         style={{
-          maxWidth: 1120,
+          maxWidth: 1152,
           margin: '0 auto',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -170,34 +172,24 @@ export function ApiStrip() {
           alignItems: 'center',
         }}
       >
-        {/* Left — copy */}
+        {/* Left -- copy */}
         <div>
-          <div style={{
-            fontFamily: F.body,
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: LT.cobalt,
-            marginBottom: 16,
-          }}>
-            MAJORKA API
-          </div>
+          <Eyebrow>Majorka API</Eyebrow>
           <h3 style={{
-            fontFamily: F.display,
+            fontFamily: "'Syne', sans-serif",
             fontSize: 22,
             fontWeight: 600,
             lineHeight: 1.25,
-            color: LT.text,
+            color: '#E0E0E0',
             margin: '0 0 16px',
           }}>
             Plug winning products<br />directly into your stack.
           </h3>
           <p style={{
             fontFamily: F.body,
-            fontSize: 17,
-            lineHeight: 1.6,
-            color: LT.textMute,
+            fontSize: 16,
+            lineHeight: 1.65,
+            color: '#9CA3AF',
             margin: '0 0 28px',
             maxWidth: 440,
           }}>
@@ -211,27 +203,28 @@ export function ApiStrip() {
               alignItems: 'center',
               justifyContent: 'center',
               padding: '12px 24px',
-              background: 'transparent',
-              color: LT.cobalt,
-              fontFamily: F.body,
-              fontWeight: 600,
-              fontSize: 15,
-              border: `1px solid ${LT.cobalt}`,
+              background: 'rgba(255,255,255,0.04)',
+              color: '#4f8ef7',
+              fontFamily: F.mono,
+              fontWeight: 500,
+              fontSize: 13,
+              border: '1px solid rgba(79,142,247,0.25)',
               borderRadius: 12,
               textDecoration: 'none',
-              transition: 'background 150ms ease',
+              letterSpacing: '0.02em',
+              transition: 'background 150ms ease, border-color 150ms ease',
             }}
           >
-            View API docs &rarr;
+            View API docs {'\u2192'}
           </Link>
         </div>
 
-        {/* Right — code block */}
+        {/* Right -- code block */}
         <div style={{ position: 'relative' }}>
           <div style={{
             background: '#080c14',
-            border: `1px solid ${LT.border}`,
-            borderRadius: 12,
+            border: '1px solid rgba(79,142,247,0.08)',
+            borderRadius: 16,
             padding: 20,
             overflowX: 'auto',
           }}>
@@ -244,9 +237,9 @@ export function ApiStrip() {
                 right: 12,
                 background: 'transparent',
                 border: 'none',
-                color: copied ? LT.cobalt : LT.textMute,
+                color: copied ? '#4f8ef7' : '#6B7280',
                 fontFamily: F.mono,
-                fontSize: 12,
+                fontSize: 11,
                 cursor: 'pointer',
                 padding: '4px 8px',
                 borderRadius: 6,
