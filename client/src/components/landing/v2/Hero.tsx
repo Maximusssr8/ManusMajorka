@@ -648,21 +648,37 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
           }}
         >
           {(briefText || isReduced) && (
-            <pre
+            <div
               style={{
                 fontFamily: F.mono,
                 fontSize: 11,
                 color: '#a3a3a3',
                 lineHeight: 1.6,
                 margin: 0,
-                whiteSpace: 'pre-wrap',
               }}
             >
-              {isReduced ? BRIEF_LINES.join('\n') : briefText}
+              {(isReduced ? BRIEF_LINES : briefText.split('\n')).map((line, idx) => (
+                <div key={idx} style={{ position: 'relative' }}>
+                  <span>{line}</span>
+                  {/* Cobalt underline that draws left-to-right */}
+                  {!isReduced && phase === 6 && idx < briefLineCount && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        height: 1,
+                        background: 'linear-gradient(to right, #4f8ef7, transparent)',
+                        animation: 'mjBriefUnderline 0.4s ease forwards',
+                      }}
+                    />
+                  )}
+                </div>
+              ))}
               {!isReduced && phase === 6 && (
                 <span style={{ opacity: 0.6, animation: 'mjPulse 0.8s infinite' }}>|</span>
               )}
-            </pre>
+            </div>
           )}
         </div>
 
@@ -677,7 +693,7 @@ function AnimatedDemo({ product }: { product: DemoProduct }) {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              animation: isReduced ? 'none' : 'mjSlideIn 0.4s ease forwards',
+              animation: isReduced ? 'none' : 'mjSlideInBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
             }}
           >
             <span style={{ fontSize: 14 }}>{'\u2713'}</span>
@@ -774,7 +790,7 @@ export function Hero() {
         overflow: 'hidden',
         position: 'relative',
         display: 'grid',
-        gridTemplateColumns: '55% 45%',
+        gridTemplateColumns: '45% 55%',
         alignItems: 'center',
       }}
     >
@@ -868,6 +884,15 @@ export function Hero() {
             {liveCount} dropshippers found a winner in the last hour
           </span>
         </div>
+        <p style={{
+          fontFamily: F.body,
+          fontSize: 13,
+          color: '#4b5563',
+          margin: '8px 0 0',
+          lineHeight: 1.5,
+        }}>
+          Analyses 50M+ listings. Surfaces the top 4,155.
+        </p>
 
         {/* Mobile static card */}
         <MobileStaticCard product={product} />
