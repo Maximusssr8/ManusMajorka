@@ -1225,17 +1225,7 @@ html { scroll-behavior: smooth; }
   /* Tables: horizontal scroll at 390px */
   table { overflow-x: auto; }
 
-  /* Pricing standalone: savings calculator grid stacks on mobile */
-  .pricing-calc-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Pricing standalone: comparison table horizontal scroll hint */
-  .pricing-comparison-table {
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Landing pricing H2: cap at 28px on mobile */
+  /* Landing H2: cap at 28px on mobile */
   .mj-h2 {
     font-size: 28px !important;
   }

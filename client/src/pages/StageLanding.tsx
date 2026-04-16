@@ -16,7 +16,7 @@ export default function StageLanding({ stage }: Props) {
       style={{
         background: '#05070F',
         scrollbarWidth: 'thin',
-        scrollbarColor: '#F0F0F0 transparent',
+        scrollbarColor: '#2a2f3a transparent',
       }}
     >
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -67,8 +67,8 @@ export default function StageLanding({ stage }: Props) {
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = '#E5E7EB';
-                el.style.background = '#FAFAFA';
+                el.style.borderColor = 'rgba(255,255,255,0.08)';
+                el.style.background = '#05070F';
                 el.style.transform = 'none';
                 el.style.boxShadow = 'none';
               }}

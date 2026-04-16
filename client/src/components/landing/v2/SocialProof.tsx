@@ -63,7 +63,7 @@ export function SocialProof() {
         }}>
           EARLY ACCESS
         </span>
-        <h2 style={{
+        <h2 className="mj-h2" style={{
           fontFamily: F.display,
           fontSize: 36,
           fontWeight: 700,

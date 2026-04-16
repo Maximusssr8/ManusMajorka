@@ -525,7 +525,7 @@ export function FeatureTabs() {
         }}>
           The Toolkit {'\u00B7'} 4 tools {'\u00B7'} 1 subscription
         </div>
-        <h2 style={{
+        <h2 className="mj-h2" style={{
           fontFamily: F.display, fontSize: 40, fontWeight: 700,
           lineHeight: 1.15, letterSpacing: '-0.02em',
           color: '#ffffff', margin: '0 0 12px 0',
