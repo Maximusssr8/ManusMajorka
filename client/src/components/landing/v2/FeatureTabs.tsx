@@ -73,7 +73,7 @@ function useCountUp(target: number, visible: boolean, duration = 1200): number {
 }
 
 const SECTION_CSS = `
-.mj-feat-row { display: flex; align-items: center; gap: 64px; min-height: 55vh; }
+.mj-feat-row { display: flex; align-items: center; gap: 32px; min-height: auto; padding: 32px 0; }
 .mj-feat-row--reverse { flex-direction: row-reverse; }
 .mj-feat-text { max-width: 420px; flex-shrink: 0; }
 .mj-feat-visual { flex: 1; min-width: 0; }
@@ -517,12 +517,12 @@ export function FeatureTabs() {
   return (
     <section
       id="features"
-      style={{ padding: '80px 20px', maxWidth: 1152, margin: '0 auto' }}
+      style={{ padding: '48px 20px', maxWidth: 1152, margin: '0 auto' }}
     >
       <style>{SECTION_CSS}</style>
 
       {/* Section header -- Academy-style monospace eyebrow + two-tone heading */}
-      <div style={{ marginBottom: 64 }}>
+      <div style={{ marginBottom: 32 }}>
         <Eyebrow>The Toolkit {'\u00B7'} 4 tools {'\u00B7'} 1 subscription</Eyebrow>
         <H2>
           Stop researching.
