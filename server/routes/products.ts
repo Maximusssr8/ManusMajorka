@@ -2101,13 +2101,39 @@ router.get('/trending', async (req: Request, res: Response) => {
       return res.status(500).json({ error: error.message });
     }
 
-    const products = data ?? [];
+    let products = data ?? [];
+    let usedFallback = false;
+
+    // Fallback: if velocity_7d is unpopulated (entire table is NULL or 0 on that column),
+    // the primary query returns empty. Re-query sorted by sold_count so the Trending tab
+    // still shows something useful instead of "0 shown".
+    if (products.length === 0) {
+      const fb = applyTabFilters(
+        sb.from('winning_products').select('*').gt('sold_count', 0),
+        filters,
+      )
+        .order('sold_count', { ascending: false, nullsFirst: false })
+        .limit(TAB_LIMIT);
+      const fallback = await fb;
+      if (!fallback.error && Array.isArray(fallback.data) && fallback.data.length > 0) {
+        products = fallback.data;
+        usedFallback = true;
+      }
+    }
+
+    // Defensive logging — keeps future filter failures grep-able in Vercel logs
+    console.info(`[products/trending] returned ${products.length} rows`, {
+      filters,
+      usedFallback,
+    });
+
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
       count: products.length,
       tab: 'trending',
       insufficientData: products.length === 0,
+      meta: usedFallback ? { fallback: 'sold_count' } : undefined,
     });
   } catch (err: unknown) {
     console.error('[products/trending]', err);

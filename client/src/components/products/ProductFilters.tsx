@@ -36,7 +36,9 @@ export const DEFAULT_FILTERS: ProductFilterState = {
   auWarehouseOnly: false,
 };
 
-const STORAGE_KEY = 'majorka_product_filters_v2';
+// v3 — bumped to invalidate any stale `auWarehouseOnly: true` that would
+// filter out 100% of products until the pipeline populates au_warehouse_available.
+const STORAGE_KEY = 'majorka_product_filters_v3';
 
 // 20 backfill categories from scripts/backfill-products.ts
 export const BACKFILL_CATEGORIES: ReadonlyArray<string> = [
@@ -197,24 +199,10 @@ export function ProductFilters({ onChange, categories, initial }: ProductFilters
         ))}
       </div>
 
-      {/* AU Warehouse — gold pill toggle */}
-      <label
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors"
-        style={{
-          background: state.auWarehouseOnly ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
-          borderColor: state.auWarehouseOnly ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.08)',
-          color: state.auWarehouseOnly ? '#d4af37' : 'rgba(255,255,255,0.6)',
-        }}
-      >
-        <input
-          type="checkbox"
-          checked={!!state.auWarehouseOnly}
-          onChange={(e) => setState((s) => ({ ...s, auWarehouseOnly: e.target.checked }))}
-          className="accent-amber-500"
-          style={{ width: 14, height: 14 }}
-        />
-        <span className="text-xs font-medium">AU Warehouse only</span>
-      </label>
+      {/* AU Warehouse toggle — hidden until pipeline populates au_warehouse_available.
+          Currently 0/4,155 products have that flag set, so rendering the toggle
+          produces a "0 shown" bug the moment a user clicks it.
+          TODO: re-enable when au_warehouse data is populated by the pipeline. */}
 
       <div className="flex-1 min-w-[8px]" />
 
