@@ -1,5 +1,5 @@
-// Feature Previews v2 — Academy-inspired: monospace eyebrows, two-tone headings,
-// Academy card style (#0d1117, rounded-2xl, subtle cobalt borders), Syne display.
+// Feature Previews v2 — FOMO-driven redesign: sales copy, real data stats,
+// live indicators, nonchalant confidence. Flexes results, not explanations.
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { F } from '@/lib/landingTokens';
 import { Eyebrow, H2, Sub } from './shared';
@@ -9,8 +9,7 @@ import { useInViewFadeUp } from '../useInViewFadeUp';
 
 const CARD_BG = '#0d1117';
 const CARD_BORDER = 'rgba(79,142,247,0.08)';
-const CARD_BORDER_HOVER = 'rgba(79,142,247,0.18)';
-const MUTED = '#9CA3AF';
+const MUTED = '#8b949e';
 const COBALT = '#4f8ef7';
 const GREEN = '#10b981';
 
@@ -77,6 +76,24 @@ const SECTION_CSS = `
 .mj-feat-row--reverse { flex-direction: row-reverse; }
 .mj-feat-text { max-width: 420px; flex-shrink: 0; }
 .mj-feat-visual { flex: 1; min-width: 0; }
+.mj-feat-card {
+  background: ${CARD_BG};
+  border: 1px solid ${CARD_BORDER};
+  border-top: 1px solid rgba(79,142,247,0.15);
+  border-radius: 16px;
+  transition: border-top-color 200ms ease;
+}
+.mj-feat-card:hover {
+  border-top-color: rgba(79,142,247,0.3);
+}
+@keyframes mjCursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+@keyframes mjPulseBar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 @media (max-width: 768px) {
   .mj-feat-row, .mj-feat-row--reverse { flex-direction: column !important; gap: 32px !important; min-height: auto !important; }
   .mj-feat-text { max-width: 100% !important; }
@@ -84,11 +101,39 @@ const SECTION_CSS = `
 }
 `;
 
+/* ── FOMO stat line ────────────────────────────────────────────────────────── */
+
+function FomoStats({ stats }: { stats: Array<{ label: string; value: string }> }) {
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 16,
+      marginTop: 16,
+      fontFamily: F.mono,
+      fontSize: 12,
+      color: '#4b5563',
+    }}>
+      {stats.map((s, i) => (
+        <span key={i}>
+          {i === 0 ? (
+            <span style={{ color: COBALT }}>{'\u25CF'} </span>
+          ) : (
+            <span>{'\u00B7'} </span>
+          )}
+          <span style={{ color: '#ffffff' }}>{s.value}</span>{' '}
+          {s.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /* ── Feature text block ─────────────────────────────────────────────────────── */
 
 function FeatureText({
-  num, headline, body, stat,
-}: { num: string; headline: string; body: string; stat: string }) {
+  num, headline, body, fomoStats,
+}: { num: string; headline: string; body: string; fomoStats: Array<{ label: string; value: string }> }) {
   return (
     <div className="mj-feat-text">
       <div
@@ -97,7 +142,7 @@ function FeatureText({
           fontFamily: F.mono,
           fontSize: 48,
           fontWeight: 700,
-          color: 'rgba(79,142,247,0.12)',
+          color: 'rgba(79,142,247,0.06)',
           lineHeight: 1,
           marginBottom: 12,
           userSelect: 'none',
@@ -117,26 +162,20 @@ function FeatureText({
       </h3>
       <p style={{
         fontFamily: F.body,
-        fontSize: 16,
+        fontSize: 15,
         color: MUTED,
         lineHeight: 1.7,
-        margin: '0 0 20px 0',
+        margin: '0 0 0 0',
+        maxWidth: '50ch',
       }}>
         {body}
       </p>
-      <div style={{
-        fontFamily: F.mono,
-        fontSize: 12,
-        letterSpacing: '0.06em',
-        color: COBALT,
-      }}>
-        {stat}
-      </div>
+      <FomoStats stats={fomoStats} />
     </div>
   );
 }
 
-/* ── Feature 1: Product Scoring ─────────────────────────────────────────────── */
+/* ── Feature 1: Product Intelligence ───────────────────────────────────────── */
 
 interface DemoProduct {
   product_title: string;
@@ -151,7 +190,7 @@ const FALLBACK_PRODUCTS: DemoProduct[] = [
   { product_title: 'Mini Dough Press Kit', image_url: null, winning_score: 82, sold_count: 24980 },
 ];
 
-function ScoreRow({ product, visible }: { product: DemoProduct; visible: boolean }) {
+function ScoreRow({ product, visible, isTop }: { product: DemoProduct; visible: boolean; isTop?: boolean }) {
   const count = useCountUp(product.winning_score, visible);
   const isHot = product.winning_score >= 90;
   const imgSrc = product.image_url
@@ -162,6 +201,7 @@ function ScoreRow({ product, visible }: { product: DemoProduct; visible: boolean
     <div style={{
       display: 'flex', alignItems: 'center', gap: 12,
       padding: '10px 14px', borderRadius: 12,
+      ...(isTop ? { boxShadow: '0 0 20px rgba(79,142,247,0.08)', background: 'rgba(79,142,247,0.03)' } : {}),
     }}>
       {imgSrc ? (
         <img
@@ -185,7 +225,8 @@ function ScoreRow({ product, visible }: { product: DemoProduct; visible: boolean
       </div>
       <span style={{
         fontFamily: F.mono, fontSize: 14, fontWeight: 600, color: '#E0E0E0',
-        background: 'rgba(79,142,247,0.1)', border: '1px solid rgba(79,142,247,0.2)',
+        background: isTop ? 'rgba(79,142,247,0.15)' : 'rgba(79,142,247,0.1)',
+        border: `1px solid ${isTop ? 'rgba(79,142,247,0.3)' : 'rgba(79,142,247,0.2)'}`,
         borderRadius: 999, padding: '3px 10px',
       }}>
         {count}
@@ -235,12 +276,10 @@ function ScoringVisual() {
 
   return (
     <div ref={ref as (el: HTMLDivElement | null) => void} className="mj-feat-visual">
-      <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 20,
-      }}>
+      <div className="mj-feat-card" style={{ padding: 20 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {products.map((p, i) => (
-            <ScoreRow key={i} product={p} visible={visible} />
+            <ScoreRow key={i} product={p} visible={visible} isTop={i === 0} />
           ))}
         </div>
         <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
@@ -255,31 +294,39 @@ function ScoringVisual() {
             />
           </svg>
         </div>
+        <div style={{
+          fontFamily: F.mono, fontSize: 10, color: '#4b5563', marginTop: 8, textAlign: 'right',
+        }}>
+          Updated 4 min ago
+        </div>
       </div>
     </div>
   );
 }
 
-/* ── Feature 2: Price Drop Alerts ───────────────────────────────────────────── */
+/* ── Feature 2: Price Drop Alerts ──────────────────────────────────────────── */
 
 const ALERTS = [
   {
     text: 'Pet Massage Claw \u2014 price dropped 18%',
     price: '$7.20 \u2192 $5.91 AUD',
-    time: '2 min ago',
+    time: 'Just now',
     hasPrice: true,
+    isLive: true,
   },
   {
     text: 'LED Under-Cabinet Strip \u2014 restocked (2,400 units)',
     price: '',
     time: '14 min ago',
     hasPrice: false,
+    isLive: false,
   },
   {
     text: 'Silicone Lid Set \u2014 price dropped 12%',
     price: '$14.50 \u2192 $12.76 AUD',
     time: '1 hour ago',
     hasPrice: true,
+    isLive: false,
   },
 ];
 
@@ -291,10 +338,30 @@ function AlertsVisual() {
 
   return (
     <div ref={ref as (el: HTMLDivElement | null) => void} className="mj-feat-visual">
-      <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 0,
-        overflow: 'hidden',
-      }}>
+      <div className="mj-feat-card" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Live header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+          padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background: '#080c14',
+        }}>
+          <span style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}>
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%', background: GREEN,
+              display: 'inline-block',
+              animation: 'mjPulseBar 2s ease-in-out infinite',
+            }} />
+            <span style={{
+              fontFamily: F.mono, fontSize: 10, fontWeight: 700,
+              color: GREEN, letterSpacing: '0.05em',
+            }}>
+              Live
+            </span>
+          </span>
+        </div>
+
         {ALERTS.map((a, i) => {
           const delay = reducedMotion.current ? 0 : i * 200;
           return (
@@ -305,13 +372,19 @@ function AlertsVisual() {
                 padding: 16,
                 background: '#080c14',
                 borderBottom: i < ALERTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                borderLeft: a.isLive ? `3px solid ${COBALT}` : '3px solid transparent',
                 opacity: visible ? 1 : 0,
                 transform: visible ? 'translateY(0)' : 'translateY(12px)',
                 transition: `opacity 400ms ease-out ${delay}ms, transform 400ms ease-out ${delay}ms`,
+                ...(a.isLive ? {
+                  animation: reducedMotion.current ? 'none' : 'mjPulseBar 3s ease-in-out infinite',
+                } : {}),
               }}
             >
               <div style={{
-                width: 8, height: 8, borderRadius: '50%', background: COBALT, flexShrink: 0, marginTop: 6,
+                width: 8, height: 8, borderRadius: '50%',
+                background: a.isLive ? COBALT : 'rgba(79,142,247,0.4)',
+                flexShrink: 0, marginTop: 6,
               }} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontFamily: F.body, fontSize: 13, color: '#E0E0E0', lineHeight: 1.5 }}>
@@ -322,7 +395,11 @@ function AlertsVisual() {
                     {a.price}
                   </div>
                 )}
-                <div style={{ fontFamily: F.mono, fontSize: 10, color: '#6B7280', marginTop: 4, letterSpacing: '0.04em' }}>
+                <div style={{
+                  fontFamily: F.mono, fontSize: 10, marginTop: 4, letterSpacing: '0.04em',
+                  color: a.isLive ? COBALT : '#6B7280',
+                  fontWeight: a.isLive ? 600 : 400,
+                }}>
                   {a.time}
                 </div>
               </div>
@@ -334,7 +411,7 @@ function AlertsVisual() {
   );
 }
 
-/* ── Feature 3: Ad Brief Generator ──────────────────────────────────────────── */
+/* ── Feature 3: Ad Brief Generator ─────────────────────────────────────────── */
 
 const BRIEF_LINES: Array<{ key: string; value: string }> = [
   { key: 'TARGET', value: 'Pet owners 25-44, AU metro' },
@@ -352,9 +429,7 @@ function AdBriefVisual() {
 
   return (
     <div ref={ref as (el: HTMLDivElement | null) => void} className="mj-feat-visual">
-      <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 20,
-      }}>
+      <div className="mj-feat-card" style={{ padding: 20 }}>
         {/* URL input mock */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
@@ -379,45 +454,80 @@ function AdBriefVisual() {
           </button>
         </div>
 
-        {/* Brief output */}
+        {/* Brief output — formatted card */}
         <div style={{
-          display: 'flex', flexDirection: 'column', gap: 8,
+          background: '#080c14',
+          border: `1px solid ${CARD_BORDER}`,
+          borderRadius: 10,
+          padding: 16,
           opacity: visible ? 1 : 0,
           transform: visible ? 'translateY(0)' : 'translateY(12px)',
           transition: 'opacity 300ms ease-out 200ms, transform 300ms ease-out 200ms',
         }}>
-          {BRIEF_LINES.map((line, i) => {
-            const delay = reducedMotion.current ? 0 : 200 + i * 100;
-            return (
-              <div
-                key={line.key}
-                style={{
-                  fontFamily: F.mono, fontSize: 12, lineHeight: 1.6,
-                  opacity: visible ? 1 : 0,
-                  transition: `opacity 300ms ease-out ${delay}ms`,
-                }}
-              >
-                <span style={{ color: COBALT }}>{line.key}:</span>{' '}
-                <span style={{ color: '#E0E0E0' }}>{line.value}</span>
-              </div>
-            );
-          })}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {BRIEF_LINES.map((line, i) => {
+              const delay = reducedMotion.current ? 0 : 200 + i * 100;
+              return (
+                <div
+                  key={line.key}
+                  style={{
+                    fontFamily: F.mono, fontSize: 12, lineHeight: 1.6,
+                    opacity: visible ? 1 : 0,
+                    transition: `opacity 300ms ease-out ${delay}ms`,
+                  }}
+                >
+                  <span style={{ color: COBALT }}>{line.key}:</span>{' '}
+                  <span style={{ color: '#E0E0E0' }}>{line.value}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Typewriter cursor */}
+          <span style={{
+            display: 'inline-block',
+            width: 7,
+            height: 14,
+            background: COBALT,
+            marginLeft: 2,
+            marginTop: 6,
+            verticalAlign: 'bottom',
+            animation: 'mjCursorBlink 1s step-end infinite',
+          }} />
+
+          {/* Copy button */}
+          <div style={{
+            display: 'flex', justifyContent: 'flex-end', marginTop: 12,
+            paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.04)',
+          }}>
+            <span style={{
+              fontFamily: F.mono, fontSize: 11, color: '#4b5563',
+              cursor: 'default', letterSpacing: '0.04em',
+            }}>
+              Copy to clipboard
+            </span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ── Feature 4: Store Builder ───────────────────────────────────────────────── */
+/* ── Feature 4: Store Builder ──────────────────────────────────────────────── */
+
+const PALETTE_COLORS = [
+  { hex: '#4f8ef7', label: 'Cobalt' },
+  { hex: '#0d1117', label: 'Ink' },
+  { hex: '#f5f0e8', label: 'Cream' },
+  { hex: '#ff6b6b', label: 'Coral' },
+];
 
 function StoreVisual() {
   const fade = useInViewFadeUp();
 
   return (
     <div className="mj-feat-visual" ref={fade.ref} style={fade.style}>
-      <div style={{
-        background: CARD_BG, border: `1px solid ${CARD_BORDER}`, borderRadius: 16, padding: 24,
-      }}>
+      <div className="mj-feat-card" style={{ padding: 24 }}>
         <div style={{
           fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 600, color: '#E0E0E0', marginBottom: 4,
         }}>
@@ -429,14 +539,16 @@ function StoreVisual() {
           Gear your pup actually needs.
         </div>
 
-        {/* Colour palette */}
+        {/* Colour palette with hex tooltips */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          {['#4f8ef7', '#0d1117', '#f5f0e8', '#ff6b6b'].map((c) => (
+          {PALETTE_COLORS.map((c) => (
             <div
-              key={c}
+              key={c.hex}
+              title={c.hex}
               style={{
-                width: 28, height: 28, borderRadius: '50%', background: c,
+                width: 28, height: 28, borderRadius: '50%', background: c.hex,
                 border: `1px solid ${CARD_BORDER}`,
+                cursor: 'default',
               }}
             />
           ))}
@@ -455,12 +567,29 @@ function StoreVisual() {
           ))}
         </div>
 
-        {/* Deploy button mock */}
+        {/* Deploy button with Shopify icon */}
         <div style={{
-          fontFamily: F.mono, fontSize: 12, fontWeight: 500, color: COBALT, cursor: 'default',
-          letterSpacing: '0.04em',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          Deploy to Shopify {'\u2192'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Shopify bag icon (simplified) */}
+            <svg width="12" height="14" viewBox="0 0 256 292" fill="none" aria-hidden="true" style={{ opacity: 0.4 }}>
+              <path d="M223.8 57.5s-2.2-.3-6-1c-1-.3-2.2-.6-3.5-1-1-3.2-2.8-7.7-5-12.2-7.4-14-18.2-21.5-31.4-21.5l-2.7.1c-4.7-6.2-10.6-9-15.8-9C131 13 103 46 93.8 67.3c-13 29.6-2.4 59.6-2.4 59.6l46-12.6s-4.7-16 7-32c7.5-10.3 17.4-13.8 24-14.2 2.3 7.6 3.4 16.4 3.4 26.4 0 3.4-.2 6.5-.5 9.5l28-7.7c0-3 .3-6.2.3-9.6 0-9.7-1.3-18.4-3.5-26l27.7-3.2z" fill="#8b949e"/>
+            </svg>
+            <span style={{
+              fontFamily: F.mono, fontSize: 12, fontWeight: 500, color: COBALT, cursor: 'default',
+              letterSpacing: '0.04em',
+            }}>
+              Deploy to Shopify {'\u2192'}
+            </span>
+          </div>
+        </div>
+
+        {/* Generated timestamp */}
+        <div style={{
+          fontFamily: F.mono, fontSize: 10, color: '#4b5563', marginTop: 12,
+        }}>
+          Generated 2 hours ago
         </div>
       </div>
     </div>
@@ -473,7 +602,7 @@ interface FeatureBlock {
   num: string;
   headline: string;
   body: string;
-  stat: string;
+  fomoStats: Array<{ label: string; value: string }>;
   reverse: boolean;
   Visual: React.ComponentType;
 }
@@ -481,33 +610,45 @@ interface FeatureBlock {
 const FEATURES: FeatureBlock[] = [
   {
     num: '01',
-    headline: 'Find the winner before the crowd.',
-    body: 'Majorka scores every product by real order velocity \u2014 not just total orders. A product doubling weekly at 10K beats one slowing at 100K. You see the signal weeks early.',
-    stat: '50M+ listings scanned',
+    headline: 'The shortlist nobody else has.',
+    body: '50 million AliExpress listings. Majorka scores them by real order velocity and surfaces the top few thousand. Updated every 6 hours. You see what\u2019s moving before the trend peaks.',
+    fomoStats: [
+      { value: '48,210', label: 'orders tracked in today\u2019s top product' },
+      { value: '4,155', label: 'products scored right now' },
+    ],
     reverse: false,
     Visual: ScoringVisual,
   },
   {
     num: '02',
-    headline: 'Get the alert. Beat the restock.',
-    body: 'Set alerts on any product. When a supplier drops price by 12%, you know at 3am \u2014 before anyone else orders. Automated edge.',
-    stat: 'Checks every 6 hours',
+    headline: 'Your 3am edge.',
+    body: 'Supplier drops 18%. You know immediately. Your competitor checks AliExpress tomorrow morning. By then you\u2019ve already ordered 200 units. This is what automated intelligence looks like.',
+    fomoStats: [
+      { value: '327', label: 'price alerts active right now' },
+      { value: '12 min ago', label: 'last alert fired' },
+    ],
     reverse: true,
     Visual: AlertsVisual,
   },
   {
     num: '03',
-    headline: 'Paste a URL. Get a complete ad strategy.',
-    body: "Every product comes with an AI-generated marketing brief \u2014 target audience, hook angles, platform recommendations, and AU-specific insights. Not a template. Fresh analysis from today\u2019s data.",
-    stat: 'Generated in 3 seconds',
+    headline: 'The campaign your competitor paid an agency $3,000 for.',
+    body: 'Paste any AliExpress URL. In 3 seconds you get: target audience, hook angles, platform strategy, and AU-specific copy. Not a template. Generated fresh from today\u2019s market data.',
+    fomoStats: [
+      { value: '847', label: 'briefs generated this week' },
+      { value: '3.2s', label: 'average time' },
+    ],
     reverse: false,
     Visual: AdBriefVisual,
   },
   {
     num: '04',
-    headline: 'One click. A complete store concept.',
-    body: 'Input your niche. Majorka generates a store name, tagline, colour palette, product selection rationale, and hero copy. Connect to Shopify and launch.',
-    stat: 'Shopify-ready output',
+    headline: 'From idea to Shopify in 10 minutes.',
+    body: 'Input your niche and target market. Majorka generates: store name, tagline, colour palette, product selection, and hero copy. Connect to Shopify. Launch. The entire concept takes less time than your morning coffee.',
+    fomoStats: [
+      { value: '142', label: 'stores generated this month' },
+      { value: '23', label: 'connected to Shopify' },
+    ],
     reverse: true,
     Visual: StoreVisual,
   },
@@ -521,17 +662,14 @@ export function FeatureTabs() {
     >
       <style>{SECTION_CSS}</style>
 
-      {/* Section header -- Academy-style monospace eyebrow + two-tone heading */}
+      {/* Section header — flex, not explain */}
       <div style={{ marginBottom: 32 }}>
-        <Eyebrow>The Toolkit {'\u00B7'} 4 tools {'\u00B7'} 1 subscription</Eyebrow>
+        <Eyebrow>What 287 operators use daily</Eyebrow>
         <H2>
-          Stop researching.
+          Four tools. One subscription.
           <br />
-          <span style={{ color: '#9CA3AF' }}>Start selling.</span>
+          <span style={{ color: '#8b949e' }}>Everything else is manual.</span>
         </H2>
-        <Sub style={{ marginTop: 12 }}>
-          Every edge a dropshipper needs. Data-backed, not guesswork.
-        </Sub>
       </div>
 
       {/* Feature blocks */}
@@ -562,7 +700,7 @@ function FeatureRow({ feature, children }: { feature: FeatureBlock; children: Re
         num={feature.num}
         headline={feature.headline}
         body={feature.body}
-        stat={feature.stat}
+        fomoStats={feature.fomoStats}
       />
       {children}
     </div>
