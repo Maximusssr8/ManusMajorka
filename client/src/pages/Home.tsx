@@ -4,7 +4,7 @@
 // Design tokens: see /client/src/lib/landingTokens.ts
 // Primitives: see /client/src/components/landing/primitives
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
@@ -24,6 +24,9 @@ import { KineticHeadline } from '@/components/landing/wow/KineticHeadline';
 import { QuickScoreHero } from '@/components/landing/wow/QuickScoreHero';
 import { ChapterMorph } from '@/components/landing/wow/ChapterMorph';
 import { CommandPalettePreview } from '@/components/landing/wow/CommandPalettePreview';
+// Lazy-load the API Explorer — it's heavy-ish (typewriter + tokeniser) and
+// below the fold. Keeps LCP clean.
+const ApiExplorer = lazy(() => import('@/components/landing/wow/ApiExplorer'));
 import { useLandingData, type LandingProduct } from '@/lib/useLandingData';
 import {
   MicroOrderTicker, MicroSparklineRow, MicroMarketPulse,
@@ -2250,6 +2253,9 @@ export default function Home() {
       <MicroMarketPulse />
       <FeaturesSection />
       <MicroCategoryLeaders />
+      <Suspense fallback={<div style={{ minHeight: 400 }} aria-hidden />}>
+        <ApiExplorer />
+      </Suspense>
       <AcademySection />
       <MicroSignalCard />
       <Testimonials />
