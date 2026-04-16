@@ -69,7 +69,6 @@ export function EmptyState({ icon, title, body, primaryCta, secondaryCta }: Empt
   };
 
   return (
-<<<<<<< HEAD
     <div
       role="status"
       style={{
@@ -102,50 +101,6 @@ export function EmptyState({ icon, title, body, primaryCta, secondaryCta }: Empt
         aria-hidden
       >
         {icon}
-=======
-    <div className="flex-1 flex items-center justify-center p-8">
-      <div className="text-center max-w-sm flex flex-col items-center gap-4">
-        <div
-          className="flex items-center justify-center rounded-2xl relative"
-          style={{
-            width: 72,
-            height: 72,
-            background: 'rgba(79,142,247,0.06)',
-            border: '1px solid rgba(79,142,247,0.14)',
-            boxShadow: '0 0 40px -10px rgba(79,142,247,0.18)',
-          }}
-        >
-          <Icon size={48} strokeWidth={1.5} style={{ color: '#4f8ef7' }} />
-        </div>
-        <h3
-          style={{
-            fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 700,
-            fontSize: 20,
-            letterSpacing: '-0.01em',
-            color: '#e5e5e5',
-            margin: 0,
-          }}
-        >
-          {title}
-        </h3>
-        <p
-          style={{
-            fontFamily: "'DM Sans', system-ui, sans-serif",
-            fontSize: 14,
-            color: '#737373',
-            lineHeight: 1.6,
-            margin: 0,
-          }}
-        >
-          {description}
-        </p>
-        {ctaLabel && onCta && (
-          <button type="button" onClick={onCta} className="mj-btn-gold">
-            {ctaLabel}
-          </button>
-        )}
->>>>>>> origin/app-theme-cobalt
       </div>
 
       <h3

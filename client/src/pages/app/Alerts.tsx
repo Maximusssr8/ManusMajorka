@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'wouter';
 import { Bell, Plus, Package, X, Tag } from 'lucide-react';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useNicheStats } from '@/hooks/useNicheStats';
 import { useTracking, TRACK_LIMIT_BUILDER } from '@/hooks/useTracking';
@@ -590,14 +589,6 @@ export default function Alerts() {
             fontSize: 13,
           }}>Loading your alerts…</div>
         ) : alerts.length === 0 ? (
-<<<<<<< HEAD
-          <EmptyState
-            icon={<Bell size={40} strokeWidth={1.75} />}
-            title="No alerts yet"
-            body="Track a product's price, score, or order velocity. We'll email you the moment it changes."
-            primaryCta={{ label: 'Create your first alert', onClick: scrollToForm }}
-          />
-=======
           <div style={{
             background: C.raised,
             border: '1px dashed rgba(255,255,255,0.1)',
@@ -641,7 +632,6 @@ export default function Alerts() {
               }}
             >Create your first alert →</button>
           </div>
->>>>>>> origin/app-theme-cobalt
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             {alerts.map((a) => {

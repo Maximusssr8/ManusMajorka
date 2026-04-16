@@ -26,9 +26,7 @@ export class RouteErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-<<<<<<< HEAD
       return <ServerError onRetry={this.retry} />;
-=======
       return (
         <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
           <p className="text-muted-foreground text-sm">Something went wrong loading this page.</p>
@@ -37,7 +35,6 @@ export class RouteErrorBoundary extends React.Component<Props, State> {
           </button>
         </div>
       );
->>>>>>> origin/app-theme-cobalt
     }
     return this.props.children;
   }
