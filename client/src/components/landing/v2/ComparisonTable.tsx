@@ -91,8 +91,8 @@ function TimelineCard({
   const cardStyle: CSSProperties = {
     background: LT.bgCard,
     border: `1px solid ${LT.border}`,
-    borderRadius: 16,
-    padding: 32,
+    borderRadius: 12,
+    padding: 24,
     opacity: 0,
     transform: 'translateY(16px)',
     transition: 'opacity 400ms ease, transform 400ms ease',
@@ -193,7 +193,7 @@ export function ComparisonTable() {
   const closerRef = useFadeUp<HTMLDivElement>();
 
   return (
-    <Section id="compare" style={{ background: LT.bg, padding: '96px 24px' }}>
+    <Section id="compare" style={{ background: LT.bg, padding: '80px 24px' }}>
       {/* header */}
       <div style={{ textAlign: 'center', marginBottom: 48 }}>
         <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>

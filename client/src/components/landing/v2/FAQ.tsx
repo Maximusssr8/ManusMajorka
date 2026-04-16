@@ -59,7 +59,7 @@ function AccordionItem({ q, a, open, onToggle }: { q: string; a: string; open: b
         <span
           style={{
             fontFamily: F.display,
-            fontSize: 19,
+            fontSize: 22,
             fontWeight: 600,
             color: LT.text,
             lineHeight: 1.3,
@@ -95,7 +95,7 @@ function AccordionItem({ q, a, open, onToggle }: { q: string; a: string; open: b
         <p
           style={{
             fontFamily: F.body,
-            fontSize: 16,
+            fontSize: 17,
             lineHeight: 1.7,
             color: LT.textMute,
             margin: '12px 0 0',
@@ -114,7 +114,7 @@ export function FAQ() {
   const fadeUp = useInViewFadeUp();
 
   return (
-    <Section id="faq">
+    <Section id="faq" style={{ padding: '64px 24px' }}>
       <div ref={fadeUp.ref} style={{ ...fadeUp.style, maxWidth: 800, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>

@@ -57,7 +57,7 @@ export function Pricing() {
           fontFamily: F.body,
           fontSize: 11,
           fontWeight: 600,
-          letterSpacing: '0.1em',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
           color: '#4f8ef7',
           marginBottom: 16,
@@ -169,7 +169,7 @@ export function Pricing() {
                 flexWrap: 'wrap',
                 gap: 8,
                 fontFamily: F.body,
-                fontSize: 16,
+                fontSize: 14,
                 color: '#8b949e',
               }}
             >

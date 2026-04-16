@@ -1,5 +1,6 @@
 // Footer v2 — Resend/Linear style, 4-column, cobalt accents.
 import { Link } from 'wouter';
+import { GradientM } from '@/components/MajorkaLogo';
 import { LT, F, MAX } from '@/lib/landingTokens';
 
 const FOOTER_CSS = `
@@ -120,14 +121,21 @@ export function Footer() {
         {/* Brand */}
         <div>
           <div style={{
-            fontFamily: F.display,
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#ffffff',
-            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
             marginBottom: 12,
           }}>
-            Majorka
+            <GradientM size={28} />
+            <span style={{
+              fontFamily: F.display,
+              fontSize: 24,
+              fontWeight: 700,
+              color: '#ffffff',
+              letterSpacing: '-0.02em',
+            }}>
+              Majorka
+            </span>
           </div>
           <p style={{ fontFamily: F.body, fontSize: 14, lineHeight: 1.6, color: '#8b949e', margin: '0 0 20px' }}>
             Product intelligence for AU/US/UK dropshippers.

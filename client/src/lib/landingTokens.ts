@@ -48,7 +48,7 @@ export const S = {
 } as const;
 
 export const R = {
-  card: 16,
+  card: 12,
   button: 12,
   badge: 100,
   image: 12,

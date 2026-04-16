@@ -176,7 +176,7 @@ export function ApiStrip() {
             fontFamily: F.body,
             fontSize: 11,
             fontWeight: 600,
-            letterSpacing: '0.1em',
+            letterSpacing: '0.08em',
             textTransform: 'uppercase',
             color: LT.cobalt,
             marginBottom: 16,
@@ -185,9 +185,9 @@ export function ApiStrip() {
           </div>
           <h3 style={{
             fontFamily: F.display,
-            fontSize: 32,
+            fontSize: 22,
             fontWeight: 600,
-            lineHeight: 1.2,
+            lineHeight: 1.25,
             color: LT.text,
             margin: '0 0 16px',
           }}>

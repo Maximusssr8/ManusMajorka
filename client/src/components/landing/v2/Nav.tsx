@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Menu, X } from 'lucide-react';
+import { GradientM } from '@/components/MajorkaLogo';
 import { LT, F, MAX } from '@/lib/landingTokens';
 
 const NAV_CSS = `
@@ -62,19 +63,28 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
             justifyContent: 'space-between',
           }}
         >
-          {/* Wordmark */}
+          {/* Logo + Wordmark */}
           <Link
             href="/"
             style={{
               textDecoration: 'none',
-              fontFamily: F.display,
-              fontSize: 20,
-              fontWeight: 700,
-              color: '#ffffff',
-              letterSpacing: '-0.02em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
             }}
           >
-            Majorka
+            <GradientM size={28} />
+            <span
+              style={{
+                fontFamily: F.display,
+                fontSize: 20,
+                fontWeight: 700,
+                color: '#ffffff',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Majorka
+            </span>
           </Link>
 
           {/* Center links (desktop) */}

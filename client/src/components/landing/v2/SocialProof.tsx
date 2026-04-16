@@ -111,12 +111,12 @@ function TestimonialCard({ revenue, quote, name, city, plan }: Testimonial) {
       style={{
         background: '#0d1117',
         border: '1px solid #161b22',
-        borderRadius: 14,
-        padding: 28,
+        borderRadius: 12,
+        padding: 24,
         transition: 'border-color 200ms ease',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.08)';
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(79,142,247,0.15)';
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLDivElement).style.borderColor = '#161b22';
@@ -153,7 +153,7 @@ function TestimonialCard({ revenue, quote, name, city, plan }: Testimonial) {
       <p
         style={{
           fontFamily: F.body,
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: 400,
           color: '#ffffff',
           lineHeight: 1.7,
@@ -208,7 +208,7 @@ export function SocialProof() {
             fontFamily: F.body,
             fontSize: 11,
             fontWeight: 600,
-            letterSpacing: '0.1em',
+            letterSpacing: '0.08em',
             textTransform: 'uppercase' as const,
             color: '#4f8ef7',
             marginBottom: 12,
@@ -217,12 +217,14 @@ export function SocialProof() {
           COMMUNITY
         </div>
         <h2
+          className="mj-h2"
           style={{
             fontFamily: F.display,
-            fontSize: 36,
+            fontSize: 40,
             fontWeight: 700,
             color: '#ffffff',
-            lineHeight: 1.2,
+            lineHeight: 1.15,
+            letterSpacing: '-0.02em',
             margin: '0 0 12px',
           }}
         >

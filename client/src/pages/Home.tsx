@@ -37,7 +37,7 @@ body { font-family: ${F.body}; color: ${LT.text}; -webkit-font-smoothing: antial
 .mj-cta-ghost:hover { border-color: rgba(255,255,255,0.5) !important; }
 
 /* Card hover */
-.mj-testimonial-card:hover { border-color: rgba(79,142,247,0.4) !important; }
+.mj-testimonial-card:hover { border-color: rgba(79,142,247,0.15) !important; }
 
 /* Footer hovers */
 .mj-footer-social:hover { color: ${LT.cobalt} !important; }

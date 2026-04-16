@@ -145,7 +145,6 @@ const HERO_CSS = `
   .mj-hero-scroll-feed { animation: none !important; }
   .mj-hero-feed-col { display: none !important; }
   .mj-hero-feed-col::before, .mj-hero-feed-col::after { display: none; }
-  .mj-hero-stat-pills { justify-content: center; }
   .mj-hero-mobile-cards { display: flex !important; flex-direction: column; gap: 12px; padding: 0 20px; margin-top: 24px; }
 }
 `;
@@ -399,56 +398,15 @@ export function Hero() {
         <p
           style={{
             fontFamily: F.body,
-            fontSize: 18,
+            fontSize: 17,
             color: '#8b949e',
-            lineHeight: 1.6,
+            lineHeight: 1.7,
             maxWidth: 440,
             margin: '0 0 32px 0',
           }}
         >
           Majorka scores millions of AliExpress products by real order velocity. You see winners first.
         </p>
-
-        {/* Social proof strip */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-          <div style={{ display: 'flex' }}>
-            {['J', 'S', 'R'].map((initial, i) => (
-              <div key={initial} style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: ['rgba(79,142,247,0.2)', 'rgba(16,185,129,0.2)', 'rgba(245,158,11,0.2)'][i],
-                color: ['#4f8ef7', '#10b981', '#f59e0b'][i],
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700, fontFamily: F.body,
-                marginLeft: i > 0 ? -6 : 0,
-                border: '2px solid #04060f',
-                position: 'relative' as const, zIndex: 3 - i,
-              }}>{initial}</div>
-            ))}
-          </div>
-          <span style={{ fontFamily: F.body, fontSize: 13, color: '#6b7280' }}>
-            287 dropshippers earning $5k–$52k/mo
-          </span>
-        </div>
-
-        {/* Stat pills */}
-        <div className="mj-hero-stat-pills" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
-          {['50M+ products', '6hr refresh', 'AU/US/UK'].map((label) => (
-            <span
-              key={label}
-              style={{
-                background: 'rgba(79,142,247,0.06)',
-                border: '1px solid rgba(79,142,247,0.15)',
-                borderRadius: 999,
-                padding: '4px 10px',
-                fontFamily: F.body,
-                fontSize: 11,
-                color: '#8b949e',
-              }}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
 
         {/* CTA */}
         <Link

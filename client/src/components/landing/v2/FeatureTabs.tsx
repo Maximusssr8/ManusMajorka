@@ -104,7 +104,7 @@ function FeatureText({
       </div>
       <h3 style={{
         fontFamily: F.display,
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: 600,
         color: '#ffffff',
         lineHeight: 1.25,
@@ -114,7 +114,7 @@ function FeatureText({
       </h3>
       <p style={{
         fontFamily: F.body,
-        fontSize: 16,
+        fontSize: 17,
         color: MUTED,
         lineHeight: 1.7,
         margin: '0 0 20px 0',
