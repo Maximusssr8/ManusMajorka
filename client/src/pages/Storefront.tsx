@@ -62,7 +62,7 @@ function MetaPixel({ pixelId }: { pixelId: string }) {
     script.src = 'https://connect.facebook.net/en_US/fbevents.js';
     document.head.appendChild(script);
     script.onload = () => {
-      const fbq = (window as Record<string, unknown>).fbq as ((...args: unknown[]) => void) | undefined;
+      const fbq = (window as unknown as Record<string, unknown>).fbq as ((...args: unknown[]) => void) | undefined;
       if (fbq) {
         fbq('init', safePixelId);
         fbq('track', 'PageView');
