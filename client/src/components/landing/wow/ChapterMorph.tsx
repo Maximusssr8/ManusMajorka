@@ -28,12 +28,16 @@ export function ChapterMorph() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
 
   // Map scroll progress [0..1] to opacity per chapter with smooth crossfades.
+  // Every transition overlaps by >=0.03 so there are zero black frames between chapters.
   // Hooks called unconditionally (one per chapter) — length is fixed at 4.
-  const fade0 = useTransform(scrollYProgress, [0, 0.125, 0.25], [1, 1, 0]);
-  const fade1 = useTransform(scrollYProgress, [0.15, 0.375, 0.5], [0, 1, 0]);
-  const fade2 = useTransform(scrollYProgress, [0.45, 0.625, 0.75], [0, 1, 0]);
-  const fade3 = useTransform(scrollYProgress, [0.7, 0.875, 1], [0, 1, 1]);
+  const fade0 = useTransform(scrollYProgress, [0, 0.18, 0.26], [1, 1, 0]);
+  const fade1 = useTransform(scrollYProgress, [0.23, 0.38, 0.51], [0, 1, 0]);
+  const fade2 = useTransform(scrollYProgress, [0.48, 0.63, 0.76], [0, 1, 0]);
+  const fade3 = useTransform(scrollYProgress, [0.73, 0.88, 1], [0, 1, 1]);
   const fades = [fade0, fade1, fade2, fade3];
+
+  // Scroll hint visibility: pulse gold while inside chapters 0–2, fade out once user is deep in chapter 3.
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.05, 0.72, 0.82], [0, 1, 1, 0]);
 
   if (reduced) {
     // Static stack: show all four chapters one after another.
@@ -60,8 +64,8 @@ export function ChapterMorph() {
       ref={ref}
       style={{
         position: 'relative',
-        // Four full viewports of scroll runway so each chapter gets real dwell time.
-        height: '400vh',
+        // 2.6 viewports of scroll runway — enough dwell per chapter, no dead black scroll.
+        height: '260vh',
         background: LT.bg,
       }}
       aria-label="Product walkthrough"
@@ -123,6 +127,45 @@ export function ChapterMorph() {
             <AdsPanel />
           </motion.div>
         </div>
+
+        {/* Scroll hint — pulses gold while in chapters 0–2, fades out past chapter 2. */}
+        <motion.div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            right: 'max(20px, 4vw)',
+            bottom: 24,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            opacity: hintOpacity,
+            pointerEvents: 'none',
+          }}
+        >
+          <span style={{
+            fontFamily: F.mono,
+            fontSize: 11,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: '#6B7280',
+          }}>Keep scrolling</span>
+          <span
+            className="mj-chapter-hint-chevron"
+            style={{
+              fontSize: 14,
+              color: LT.gold,
+              lineHeight: 1,
+              display: 'inline-block',
+            }}
+          >&#x2193;</span>
+          <style>{`
+            @keyframes mjChapterHintPulse {
+              0%, 100% { transform: translateY(0); opacity: 0.55; }
+              50% { transform: translateY(3px); opacity: 1; }
+            }
+            .mj-chapter-hint-chevron { animation: mjChapterHintPulse 1400ms ease-in-out infinite; }
+          `}</style>
+        </motion.div>
       </div>
     </section>
   );
