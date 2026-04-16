@@ -12,6 +12,7 @@ import { LT, F, MAX } from '@/lib/landingTokens';
 import { LaunchBar, LAUNCH_BAR_HEIGHT } from '@/components/landing/v2/LaunchBar';
 import { Nav } from '@/components/landing/v2/Nav';
 import { Hero } from '@/components/landing/v2/Hero';
+import { MomentumTicker } from '@/components/landing/v2/MomentumTicker';
 import { StatsBar } from '@/components/landing/v2/StatsBar';
 import { FeatureTabs } from '@/components/landing/v2/FeatureTabs';
 import { ComparisonTable } from '@/components/landing/v2/ComparisonTable';
@@ -131,6 +132,9 @@ export default function Home() {
       <main id="main-content" style={{ paddingTop: barVisible ? LAUNCH_BAR_HEIGHT : 0 }}>
         {/* [1] Hero */}
         <Hero />
+
+        {/* [1.5] Momentum Ticker */}
+        <MomentumTicker />
 
         {/* [2] Stats Bar */}
         <StatsBar />

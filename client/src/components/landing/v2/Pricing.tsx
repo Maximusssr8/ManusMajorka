@@ -132,6 +132,72 @@ export function Pricing() {
         </div>
       </div>
 
+      {/* ROI Math Card */}
+      <div
+        style={{
+          maxWidth: 700,
+          margin: '0 auto 48px',
+          background: '#0d1117',
+          border: '1px solid #161b22',
+          borderRadius: 12,
+          padding: 32,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: F.display,
+            fontSize: 20,
+            fontWeight: 600,
+            color: '#ffffff',
+            marginBottom: 20,
+          }}
+        >
+          The maths:
+        </div>
+        <div style={{ display: 'grid', gap: 12 }}>
+          {[
+            ['Average winning product', '$3,000\u201315,000 AUD/month net profit'],
+            ['Majorka Scale (annual)', '$166/month'],
+            ['Time to find first winner', 'Average 2 weeks'],
+          ].map(([left, right]) => (
+            <div
+              key={left}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                flexWrap: 'wrap',
+                gap: 8,
+                fontFamily: F.body,
+                fontSize: 16,
+                color: '#8b949e',
+              }}
+            >
+              <span>{left}</span>
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span style={{ color: '#8b949e' }}>&rarr;</span>
+                <span>{right}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <p
+          style={{
+            fontFamily: F.body,
+            fontSize: 17,
+            fontWeight: 700,
+            color: '#ffffff',
+            marginTop: 24,
+            marginBottom: 0,
+            lineHeight: 1.5,
+          }}
+        >
+          One product pays for 12 months of Scale
+          <br />
+          in its first week of sales.
+        </p>
+      </div>
+
       <style>{PRICING_CSS}</style>
 
       {/* Cards */}
@@ -262,6 +328,19 @@ export function Pricing() {
         color: '#8b949e',
       }}>
         ✓ Cancel anytime &nbsp;&middot;&nbsp; ✓ 30-day guarantee
+      </div>
+
+      {/* Lock-in line */}
+      <div
+        style={{
+          textAlign: 'center',
+          marginTop: 16,
+          fontFamily: F.body,
+          fontSize: 14,
+          color: '#8b949e',
+        }}
+      >
+        &#128274; Lock in early access pricing &mdash; rates increase as we grow.
       </div>
     </section>
   );
