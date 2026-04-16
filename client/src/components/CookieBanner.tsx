@@ -24,11 +24,12 @@ export default function CookieBanner() {
     <div style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
       background: '#18181B', borderTop: '1px solid #3F3F46',
-      padding: '14px 24px', display: 'flex', alignItems: 'center',
+      padding: '14px 16px', display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      maxWidth: '100vw', boxSizing: 'border-box',
     }}>
-      <p style={{ margin: 0, fontSize: 13, color: '#D4D4D8', maxWidth: 680, lineHeight: 1.5 }}>
+      <p style={{ margin: 0, fontSize: 13, color: '#D4D4D8', maxWidth: '100%', lineHeight: 1.5, flex: '1 1 auto', minWidth: 0 }}>
         We use cookies to improve your experience and analyse usage. By continuing you agree to our{' '}
         <a href="/privacy" style={{ color: '#6ba3ff', textDecoration: 'underline' }}>Privacy Policy</a> and{' '}
         <a href="/cookies" style={{ color: '#6ba3ff', textDecoration: 'underline' }}>Cookie Policy</a>.

@@ -1768,4 +1768,255 @@ router.post('/run-trend-pipeline', requireAuth, requireAdmin, async (_req: Reque
   });
 });
 
+// ── Promo Codes ─────────────────────────────────────────────────────────────
+
+// GET /api/admin/promo-codes — list all promo codes
+router.get('/promo-codes', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('promo_codes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ codes: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// POST /api/admin/promo-codes — create promo code
+router.post('/promo-codes', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { code, discount_percent, max_uses, valid_until, plan_restriction } = req.body;
+    if (!code || !discount_percent) {
+      res.status(400).json({ error: 'code and discount_percent required' });
+      return;
+    }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('promo_codes')
+      .insert({
+        code: code.toUpperCase().trim(),
+        discount_percent: Number(discount_percent),
+        max_uses: max_uses ? Number(max_uses) : 100,
+        valid_until: valid_until || null,
+        plan_restriction: plan_restriction || null,
+        created_by: (req as any).user?.userId || null,
+        is_active: true,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ ok: true, promo: data });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// DELETE /api/admin/promo-codes/:id — deactivate promo code
+router.delete('/promo-codes/:id', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { error } = await supabase
+      .from('promo_codes')
+      .update({ is_active: false })
+      .eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// POST /api/admin/promo-codes/validate — validate a promo code (for checkout)
+router.post('/promo-codes/validate', async (req: Request, res: Response) => {
+  try {
+    const { code, plan } = req.body;
+    if (!code) { res.status(400).json({ error: 'code required' }); return; }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('promo_codes')
+      .select('*')
+      .eq('code', code.toUpperCase().trim())
+      .eq('is_active', true)
+      .single();
+    if (error || !data) { res.json({ valid: false, reason: 'Code not found' }); return; }
+    if (data.valid_until && new Date(data.valid_until) < new Date()) {
+      res.json({ valid: false, reason: 'Code expired' }); return;
+    }
+    if (data.max_uses && data.current_uses >= data.max_uses) {
+      res.json({ valid: false, reason: 'Code usage limit reached' }); return;
+    }
+    if (data.plan_restriction && plan && data.plan_restriction !== plan) {
+      res.json({ valid: false, reason: `Code only valid for ${data.plan_restriction} plan` }); return;
+    }
+    res.json({ valid: true, discount_percent: data.discount_percent, code: data.code });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── User Roles ──────────────────────────────────────────────────────────────
+
+// GET /api/admin/user-roles — list all user roles
+router.get('/user-roles', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase.from('user_roles').select('*');
+    if (error) throw error;
+    res.json({ roles: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// POST /api/admin/user-roles — set a user's role
+router.post('/user-roles', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { user_id, role } = req.body;
+    if (!user_id || !role) { res.status(400).json({ error: 'user_id and role required' }); return; }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('user_roles')
+      .upsert({ user_id, role, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ ok: true, role: data });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── Platform Analytics ──────────────────────────────────────────────────────
+
+// GET /api/admin/platform-analytics — aggregated analytics
+router.get('/platform-analytics', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000).toISOString();
+
+    // User stats
+    const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+    const allUsers = authData?.users || [];
+    const totalUsers = allUsers.length;
+    const activeThisWeek = allUsers.filter((u: any) => u.last_sign_in_at && u.last_sign_in_at >= weekAgo).length;
+    const signupsThisWeek = allUsers.filter((u: any) => u.created_at && u.created_at >= weekAgo).length;
+
+    // Subscription stats
+    const { data: subs } = await supabase.from('user_subscriptions').select('plan, status');
+    const activeSubs = (subs || []).filter((s: any) => s.status === 'active');
+    const trialSubs = (subs || []).filter((s: any) => s.status === 'trialing');
+    const paidUsers = activeSubs.length;
+    const trialUsers = trialSubs.length;
+    const builderCount = activeSubs.filter((s: any) => s.plan === 'builder').length;
+    const scaleCount = activeSubs.filter((s: any) => s.plan === 'scale').length;
+    const estimatedMRR = (builderCount * 99) + (scaleCount * 199);
+
+    // API cost today + this week
+    const { data: costToday } = await supabase
+      .from('api_cost_log')
+      .select('cost_usd, feature')
+      .gte('created_at', todayStart);
+    const totalCostToday = (costToday || []).reduce((sum: number, r: any) => sum + (r.cost_usd || 0), 0);
+    const apiCallsToday = (costToday || []).length;
+
+    const { data: costWeek } = await supabase
+      .from('api_cost_log')
+      .select('cost_usd, feature')
+      .gte('created_at', weekAgo);
+    const totalCostWeek = (costWeek || []).reduce((sum: number, r: any) => sum + (r.cost_usd || 0), 0);
+
+    // Feature usage breakdown (this week)
+    const featureUsage: Record<string, number> = {};
+    for (const row of (costWeek || [])) {
+      const f = (row as any).feature || 'unknown';
+      featureUsage[f] = (featureUsage[f] || 0) + 1;
+    }
+
+    // Pipeline health
+    const { data: lastPipeline } = await supabase
+      .from('pipeline_logs')
+      .select('*')
+      .order('started_at', { ascending: false })
+      .limit(1);
+
+    // Products count
+    const { count: productCount } = await supabase
+      .from('winning_products')
+      .select('*', { count: 'exact', head: true });
+
+    // Top users by API usage (this week)
+    const userApiCounts: Record<string, number> = {};
+    for (const row of (costWeek || [])) {
+      const uid = (row as any).user_id || 'unknown';
+      userApiCounts[uid] = (userApiCounts[uid] || 0) + 1;
+    }
+    const topUserIds = Object.entries(userApiCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+    const userEmailMap = new Map(allUsers.map((u: any) => [u.id, u.email]));
+    const topUsers = topUserIds.map(([uid, count]) => ({
+      email: userEmailMap.get(uid) || uid,
+      apiCalls: count,
+    }));
+
+    res.json({
+      users: { total: totalUsers, activeThisWeek, signupsThisWeek, paidUsers, trialUsers },
+      revenue: { estimatedMRR, builderCount, scaleCount },
+      api: { callsToday: apiCallsToday, costToday: Math.round(totalCostToday * 100) / 100, costWeek: Math.round(totalCostWeek * 100) / 100 },
+      featureUsage,
+      pipeline: lastPipeline?.[0] || null,
+      productCount: productCount || 0,
+      topUsers,
+    });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// ── Broadcast / Announcements ───────────────────────────────────────────────
+
+// GET /api/admin/site-config/:key — read a site config value
+router.get('/site-config/:key', async (req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('site_config')
+      .select('*')
+      .eq('key', req.params.key)
+      .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    res.json({ config: data || null });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+// POST /api/admin/site-config — upsert a site config value
+router.post('/site-config', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { key, value } = req.body;
+    if (!key) { res.status(400).json({ error: 'key required' }); return; }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('site_config')
+      .upsert({
+        key,
+        value: value || {},
+        updated_at: new Date().toISOString(),
+        updated_by: (req as any).user?.userId || null,
+      }, { onConflict: 'key' })
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ ok: true, config: data });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 export default router;

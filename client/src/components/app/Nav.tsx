@@ -88,7 +88,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
   return (
     <nav
       aria-label="Main navigation"
-      className="relative w-[220px] h-full border-r flex flex-col shrink-0 font-body overflow-hidden"
+      className="relative w-[220px] h-full border-r flex flex-col shrink-0 font-body overflow-visible"
       style={{
         background: '#04060f',
         borderColor: '#161b22',
@@ -252,8 +252,8 @@ export function Nav({ onNavigate }: NavProps = {}) {
 
         {/* User row */}
         <div
-          className="px-3 py-3 flex items-center gap-2.5 shrink-0"
-          style={{ borderTop: '1px solid #161b22' }}
+          className="px-3 py-3 pb-4 flex items-center gap-2.5 shrink-0"
+          style={{ borderTop: '1px solid #161b22', minHeight: 52 }}
         >
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"

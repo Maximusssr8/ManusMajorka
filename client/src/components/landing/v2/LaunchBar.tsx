@@ -44,11 +44,14 @@ export function LaunchBar() {
         fontFamily: F.body,
         fontSize: 14,
         fontWeight: 500,
-        padding: '0 44px',
+        padding: '0 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 16,
+        boxSizing: 'border-box' as const,
+        maxWidth: '100vw',
+        overflow: 'hidden',
       }}
     >
       <span style={{ lineHeight: 1.2 }}>
