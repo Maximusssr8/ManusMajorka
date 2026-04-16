@@ -336,7 +336,7 @@ export function Hero() {
             maxWidth: 540,
           }}
         >
-          Majorka scores 4,155+ products by real order velocity &mdash; so you know what&rsquo;s selling before you spend a dollar on ads.
+          Majorka analyses millions of AliExpress listings and surfaces the few worth selling &mdash; ranked by real order velocity across AU, US and UK.
         </p>
 
         {/* CTAs */}
@@ -359,7 +359,7 @@ export function Hero() {
               transition: 'transform 150ms ease, background 150ms ease, box-shadow 150ms ease',
             }}
           >
-            Start Free &mdash; 7 days
+            Get Started &rarr;
           </Link>
           <Link
             href="#demo"
@@ -548,7 +548,7 @@ export function Hero() {
               </div>
 
               {/* Center content */}
-              <div style={{ flex: 1, padding: 20, minWidth: 0 }}>
+              <div style={{ flex: 1, padding: 20, minWidth: 0, minHeight: 200 }}>
                 <div style={{ fontFamily: F.display, fontSize: 18, fontWeight: 700, color: LT.text, marginBottom: 4 }}>
                   Products
                 </div>

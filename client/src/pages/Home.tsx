@@ -121,7 +121,7 @@ export default function Home() {
     <div data-majorka-landing="" style={{ minHeight: '100vh', background: LT.bg }}>
       <SEO
         title="Majorka — Find winning dropshipping products before they peak | AU · US · UK"
-        description="AI product intelligence for AU, US and UK dropshippers. 4,155+ products scored for demand, margin, and market fit. 7-day free trial."
+        description="AI product intelligence for AU, US and UK dropshippers. Millions of products scored for demand, margin, and market fit. Early access now open."
       />
       <style>{GLOBAL_CSS}</style>
 

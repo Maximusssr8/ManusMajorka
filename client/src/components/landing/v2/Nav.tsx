@@ -122,7 +122,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
               transition: 'filter 150ms ease',
             }}
           >
-            Start Free
+            Get Started
           </Link>
 
           {/* Mobile CTA + Hamburger */}
@@ -144,7 +144,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
                 textDecoration: 'none',
               }}
             >
-              Start Free
+              Get Started
             </Link>
             <button
               type="button"

@@ -2,8 +2,8 @@
 import { LT, F } from '@/lib/landingTokens';
 
 const STATS: Array<{ value: string; label: string }> = [
-  { value: '4,155', label: 'Products' },
-  { value: '685', label: 'AliExpress Verified' },
+  { value: '50M+', label: 'Products Sourced' },
+  { value: 'Live', label: 'AliExpress Data' },
   { value: '6hr', label: 'Data Refresh' },
   { value: 'AU · US · UK', label: 'Markets' },
 ];

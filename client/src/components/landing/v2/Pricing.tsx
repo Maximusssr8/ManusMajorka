@@ -28,9 +28,9 @@ const TIERS = [
     priceMonthly: 99,
     priceAnnual: 79,
     highlight: false,
-    ctaLabel: 'Start Free Trial',
+    ctaLabel: 'Get Started',
     features: [
-      'Full product database (4,000+ tracked)',
+      'Full product database',
       'Live AU / US / UK data',
       '50 AI briefs / month',
       '20 ad generations / month',
@@ -44,7 +44,7 @@ const TIERS = [
     priceMonthly: 199,
     priceAnnual: 159,
     highlight: true,
-    ctaLabel: 'Start 7-day free trial →',
+    ctaLabel: 'Get Started →',
     features: [
       'Everything in Builder',
       'Unlimited AI briefs',
@@ -70,7 +70,7 @@ export function Pricing() {
             <EyebrowPill>Pricing</EyebrowPill>
           </div>
           <H2>One subscription. Everything you need.</H2>
-          <Sub style={{ marginTop: 12 }}>Start with 7 days free. No card required. Cancel anytime.</Sub>
+          <Sub style={{ marginTop: 12 }}>No card required. Cancel anytime. 30-day guarantee.</Sub>
 
           {/* Value anchoring */}
           <div

@@ -18,8 +18,8 @@ const QUESTIONS = [
     a: 'Our pipeline runs every 6 hours. Order velocity, prices, and stock levels are refreshed automatically. You can see the last-updated timestamp on every product card.',
   },
   {
-    q: 'Is there a free trial?',
-    a: 'Yes — 7 days free, no credit card required. You get full Builder-tier access during the trial. Cancel anytime before day 7 with one click and you are not charged.',
+    q: 'How do I get started?',
+    a: 'Sign up for early access — no credit card required. You get full Builder-tier access to explore the platform. Cancel anytime with one click.',
   },
   {
     q: 'Can I cancel anytime?',
