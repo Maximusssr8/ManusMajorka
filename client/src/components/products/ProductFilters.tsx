@@ -28,7 +28,7 @@ export interface ProductFilterState {
 }
 
 export const DEFAULT_FILTERS: ProductFilterState = {
-  market: 'AU',
+  market: 'all',  // Default to all — AU-specific data builds over time; 'AU' filter can empty the DB
   category: '',
   minScore: 0,
   minOrders: 0,

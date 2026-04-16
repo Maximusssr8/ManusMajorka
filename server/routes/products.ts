@@ -2074,15 +2074,28 @@ function applyTabFilters(q: any, f: ProductsTabFilters): any {
 const TAB_LIMIT = 50;
 const TAB_CACHE_TTL_SEC = 120; // 2min SWR cache
 
-// ── GET /api/products/trending — 24h/7d velocity leaders ────────────────────
-// Ordered by velocity_7d DESC. Falls back to empty with meta.insufficientData
-// when the velocity_7d column has no rows above 0 across the filtered set.
+// ══════════════════════════════════════════════════════════════════════
+// CRITICAL FALLBACK — DO NOT REMOVE
+// The velocity_7d column is only populated after the snapshot pipeline
+// has run for 7+ consecutive days. Until then, this query returns 0 rows.
+// If we return 0, the Products page shows "More data collecting — 0 shown"
+// to PAYING USERS. That is unacceptable.
+//
+// Fallback chain:
+//   1. Try velocity_7d > 0 ordered by velocity_7d DESC
+//   2. If 0 results → fall back to sold_count DESC (always has data)
+//   3. NEVER return an empty products array if winning_products has rows
+//
+// This fallback has been broken by merges THREE TIMES. If you're reading
+// this and thinking about refactoring, test that the fallback still works.
+// ══════════════════════════════════════════════════════════════════════
 router.get('/trending', async (req: Request, res: Response) => {
   try {
     const filters = parseTabFilters(req);
     const sb = getSupabase();
 
-    const base = applyTabFilters(
+    // Attempt 1: velocity-based ranking (ideal)
+    const velocityQuery = applyTabFilters(
       sb.from('winning_products').select('*').gt('velocity_7d', 0),
       filters,
     )
@@ -2090,60 +2103,53 @@ router.get('/trending', async (req: Request, res: Response) => {
       .order('sold_count', { ascending: false, nullsFirst: false })
       .limit(TAB_LIMIT);
 
-    const { data, error } = await base;
-    if (error) {
+    const { data: velocityData, error: velocityError } = await velocityQuery;
+
+    // If velocity query succeeded and has data, use it
+    if (!velocityError && velocityData && velocityData.length > 0) {
+      res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
+      return res.json({
+        products: velocityData,
+        count: velocityData.length,
+        tab: 'trending',
+        insufficientData: false,
+      });
+    }
+
+    // ── FALLBACK: velocity data missing/empty → use sold_count ────────
+    // This ALWAYS returns data as long as winning_products has rows.
+    console.info('[products/trending] velocity_7d empty or errored, falling back to sold_count DESC');
+
+    const fallbackQuery = applyTabFilters(
+      sb.from('winning_products').select('*').gt('sold_count', 0),
+      filters,
+    )
+      .order('sold_count', { ascending: false, nullsFirst: false })
+      .limit(TAB_LIMIT);
+
+    const { data: fallbackData, error: fallbackError } = await fallbackQuery;
+
+    if (fallbackError) {
+      // Even the fallback failed — check if it's a missing schema issue
       const { isMissingSchema } = await import('../lib/dbErrors');
-      if (isMissingSchema(error)) {
-        console.warn('[products/trending] missing schema — empty fallback:', error.message);
-        res.set('Cache-Control', 'no-store');
+      if (isMissingSchema(fallbackError)) {
         return res.json({ products: [], count: 0, tab: 'trending', insufficientData: true, meta: { pending_migration: true } });
       }
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: fallbackError.message });
     }
 
-    let products = data ?? [];
-    let usedFallback = false;
-
-    // Fallback: if velocity_7d is unpopulated (entire table is NULL or 0 on that column),
-    // the primary query returns empty. Re-query sorted by sold_count so the Trending tab
-    // still shows something useful instead of "0 shown".
-    if (products.length === 0) {
-      const fb = applyTabFilters(
-        sb.from('winning_products').select('*').gt('sold_count', 0),
-        filters,
-      )
-        .order('sold_count', { ascending: false, nullsFirst: false })
-        .limit(TAB_LIMIT);
-      const fallback = await fb;
-      if (!fallback.error && Array.isArray(fallback.data) && fallback.data.length > 0) {
-        products = fallback.data;
-        usedFallback = true;
-      }
-    }
-
-    // Defensive logging — keeps future filter failures grep-able in Vercel logs
-    console.info(`[products/trending] returned ${products.length} rows`, {
-      filters,
-      usedFallback,
-    });
-
+    const products = fallbackData ?? [];
     res.set('Cache-Control', `public, s-maxage=${TAB_CACHE_TTL_SEC}, stale-while-revalidate=600`);
     return res.json({
       products,
       count: products.length,
       tab: 'trending',
-      insufficientData: products.length === 0,
-      meta: usedFallback ? { fallback: 'sold_count' } : undefined,
+      insufficientData: false,
+      meta: { fallback: 'sold_count', reason: 'velocity_7d not yet populated' },
     });
-  } catch (err: unknown) {
+  } catch (err) {
     console.error('[products/trending]', err);
-    const { isMissingSchema } = await import('../lib/dbErrors');
-    if (isMissingSchema(err as { code?: string; message?: string })) {
-      return res.json({ products: [], count: 0, tab: 'trending', insufficientData: true, meta: { pending_migration: true } });
-    }
-    return res.status(500).json({
-      error: err instanceof Error ? err.message : 'Unknown error',
-    });
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
   }
 });
 

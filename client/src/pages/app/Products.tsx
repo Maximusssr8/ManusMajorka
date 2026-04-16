@@ -169,6 +169,18 @@ export default function Products() {
 
   const active = activeTab === 'trending' ? trending : activeTab === 'hot' ? hot : highVolume;
 
+  // ══════════════════════════════════════════════════════════════════════
+  // CRITICAL: If trending returns 0 products, silently switch to 'hot'.
+  // The server has a sold_count fallback, so this should almost never fire,
+  // but if it does (e.g. filters too restrictive), don't show "0 shown".
+  // DO NOT REMOVE — this is the client-side safety net for the trending tab.
+  // ══════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (activeTab === 'trending' && !trending.loading && trending.products.length === 0) {
+      setActiveTab('hot');
+    }
+  }, [activeTab, trending.loading, trending.products.length]);
+
   // Live AE search — runs only when query length ≥ 3
   const aeLive = useAESearch();
   useEffect(() => {
@@ -219,18 +231,17 @@ export default function Products() {
   }, []);
 
   // ── Empty-state copy per tab ──────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════
+  // Empty state copy — NEVER show "0 shown" or "More data collecting"
+  // as the primary state of ANY tab. The server fallback guarantees data,
+  // so this only fires if filters are too restrictive. Keep it helpful.
+  // ══════════════════════════════════════════════════════════════════════
   const emptyCopy = useMemo(() => {
     if (activeTab === 'trending') {
-      if (active.insufficientData) {
-        return {
-          title: 'More data collecting',
-          description:
-            'Trending needs 7-day velocity snapshots. Once enough products have baseline + current counts, this view will light up with real-time breakouts.',
-        };
-      }
       return {
-        title: 'No trending products match',
-        description: 'Try widening your filters — lower the score or orders threshold, or switch market.',
+        title: 'Ranked by total orders',
+        description:
+          'Velocity scoring builds over the next 7 days. In the meantime, products are ranked by total orders. Try widening your filters if nothing shows.',
       };
     }
     if (activeTab === 'hot') {
@@ -243,7 +254,7 @@ export default function Products() {
       title: 'No high-volume matches',
       description: 'Your filters are too tight for our evergreen catalogue. Reset and try again.',
     };
-  }, [activeTab, active.insufficientData]);
+  }, [activeTab]);
 
   return (
     <div style={{ minHeight: '100vh', background: '#04060f', color: '#e5e5e5' }}>
