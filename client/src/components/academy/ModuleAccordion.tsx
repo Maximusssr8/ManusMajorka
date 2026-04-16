@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, ChevronDown, Clock } from 'lucide-react';
+import { ArrowRight, BookOpen, ChevronDown, Clock } from 'lucide-react';
 import type { AcademyModule } from './curriculum';
-import { totalDurationInModule } from './curriculum';
+import { totalDurationInModule, moduleSlug } from './curriculum';
 import { Badge } from './Badge';
 import { LessonRow } from './LessonRow';
 
@@ -117,6 +117,13 @@ export function ModuleAccordion({
                   index={i}
                 />
               ))}
+              <a
+                href={`/academy/${moduleSlug(module)}`}
+                className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-[#4f8ef7]/15 bg-[#4f8ef7]/5 px-4 py-2.5 text-xs font-medium text-[#4f8ef7] transition-all hover:border-[#4f8ef7]/30 hover:bg-[#4f8ef7]/10"
+              >
+                View full module
+                <ArrowRight size={12} />
+              </a>
             </div>
           </motion.div>
         ) : null}

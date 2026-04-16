@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { ACADEMY_CURRICULUM, TOTAL_LESSONS, TOTAL_DURATION_MINUTES } from './curriculum';
+import { ACADEMY_CURRICULUM, TOTAL_LESSONS, TOTAL_DURATION_MINUTES, moduleSlug } from './curriculum';
 import type { AcademyModule, Difficulty } from './curriculum';
 import { ModuleAccordion } from './ModuleAccordion';
+import { ChevronRight } from 'lucide-react';
 
 interface CurriculumSectionProps {
   completedLessons: Set<string>;

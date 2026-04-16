@@ -63,6 +63,8 @@ const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const Academy = lazy(() => import('./pages/app/Academy'));
 const PublicAcademy = lazy(() => import('./pages/Academy'));
+const AcademyModulePage = lazy(() => import('./pages/AcademyModule'));
+const AcademyLessonPage = lazy(() => import('./pages/AcademyLesson'));
 const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
 const CompetitorSpy = lazyWithRetry(() => import('./pages/CompetitorSpy'));
 const AdsStudio = lazyWithRetry(() => import('./pages/AdsStudio'));
@@ -185,6 +187,8 @@ function Router() {
             <Route path="/guarantee" component={Guarantee} />
             <Route path="/docs" component={DocsPlaceholder} />
             <Route path="/changelog" component={DocsPlaceholder} />
+            <Route path="/academy/:moduleSlug/:lessonSlug" component={AcademyLessonPage} />
+            <Route path="/academy/:moduleSlug" component={AcademyModulePage} />
             <Route path="/academy" component={PublicAcademy} />
             <Route path="/store-builder" component={StoreBuilder} />
             <Route path="/login" component={SignIn} />
