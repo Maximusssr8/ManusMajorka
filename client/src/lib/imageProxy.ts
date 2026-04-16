@@ -9,7 +9,7 @@ export function proxyImage(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith('/api/') || url.startsWith('data:')) return url;
   if (url.includes('aliexpress-media.com') || url.includes('alicdn.com')) {
-    return `/api/proxy/image?url=${encodeURIComponent(url)}`;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   }
   return url;
 }

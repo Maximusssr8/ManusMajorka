@@ -224,3 +224,34 @@ export function totalLessonsInModule(module: AcademyModule): number {
 export function totalDurationInModule(module: AcademyModule): number {
   return module.lessons.reduce((sum, l) => sum + l.durationMinutes, 0);
 }
+
+/** Derive a URL-safe slug from a module id, e.g. "mod-1-what-works" → "module-1" */
+export function moduleSlug(mod: AcademyModule): string {
+  return `module-${mod.num.replace(/^0+/, '')}`;
+}
+
+/** Derive a URL-safe slug from a lesson, e.g. "m1-l3" → "lesson-3" */
+export function lessonSlug(lesson: AcademyLesson): string {
+  const parts = lesson.id.split('-');
+  const num = parts[1]?.replace('l', '') ?? '1';
+  return `lesson-${num}`;
+}
+
+/** Find a module by its URL slug ("module-1", "module-2", etc.) */
+export function findModuleBySlug(slug: string): AcademyModule | undefined {
+  const num = slug.replace('module-', '');
+  return ACADEMY_CURRICULUM.find((m) => m.num === num || m.num === num.padStart(2, '0'));
+}
+
+/** Find a lesson within a module by its URL slug ("lesson-3", etc.) */
+export function findLessonBySlug(mod: AcademyModule, slug: string): AcademyLesson | undefined {
+  const num = slug.replace('lesson-', '');
+  return mod.lessons.find((l) => l.id === `m${mod.num.replace(/^0+/, '')}-l${num}`);
+}
+
+/** Category suggestion per module (for fetching real product examples). */
+export const MODULE_PRODUCT_CATEGORIES: Record<string, string> = {
+  'mod-1-what-works': 'Pet',
+  'mod-2-product-research': 'Kitchen',
+  'mod-3-suppliers': 'Home',
+};
