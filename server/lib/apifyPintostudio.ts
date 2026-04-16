@@ -12,6 +12,9 @@
  * We use the REST API directly (the `apify-client` npm package is banned
  * elsewhere in this repo for the same reason — smaller cold-start, fewer
  * surprises in serverless).
+ *
+ * v2 — 2026-04-15: 50+ queries, batched parallelism, quality scoring,
+ * AU-specific + high-volume + seasonal buckets for 1000+ products per run.
  */
 
 import { getFxRates, FALLBACK_RATES } from './fx-rates';
@@ -31,8 +34,16 @@ const POLL_INTERVAL_MS = 3000;
 const QUALITY_MIN_TITLE_LEN = 5;
 const QUALITY_MIN_PRICE_AUD = 0.5;
 
-const DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR = 1000;
 const TARGET_SUCCESS_ROWS = 500;
+
+/** Max items per actor call — higher = more products per query. */
+const ITEMS_PER_QUERY = 50;
+/** How many actor calls to run in parallel per batch (avoid Apify rate limits). */
+const BATCH_SIZE = 10;
+/** Delay between batches in ms to be kind to Apify. */
+const INTER_BATCH_DELAY_MS = 1500;
+
+// ─── Query definitions ──────────────────────────────────────────────────────
 
 /** 20 bestseller category URLs — tuned for AU dropship demand. */
 const BESTSELLER_CATEGORIES: ReadonlyArray<{ id: string; name: string; url: string }> = [
@@ -58,15 +69,119 @@ const BESTSELLER_CATEGORIES: ReadonlyArray<{ id: string; name: string; url: stri
   { id: '200001075', name: 'Furniture', url: 'https://www.aliexpress.com/category/200001075/furniture.html?SortType=total_tranpro_desc' },
 ];
 
-/** Trending keyword seeds per market. */
-const TRENDING_KEYWORDS_PER_MARKET: ReadonlyArray<{ market: 'AU' | 'US' | 'UK'; keywords: string[] }> = [
-  { market: 'AU', keywords: ['viral gadget', 'tiktok made me buy', 'trending home', 'cooling', 'led'] },
-  { market: 'US', keywords: ['viral gadget', 'tiktok made me buy', 'aesthetic', 'skincare', 'gaming'] },
-  { market: 'UK', keywords: ['viral gadget', 'tiktok made me buy', 'kitchen', 'pet', 'fitness'] },
+/**
+ * Bucket 1 — Trending keywords (15 queries).
+ * Viral, social-driven, impulse-buy products.
+ */
+const TRENDING_KEYWORDS: ReadonlyArray<string> = [
+  'trending products 2026',
+  'viral products',
+  'hot selling items',
+  'most ordered products',
+  'best dropshipping products',
+  'tiktok viral products',
+  'amazon trending',
+  'shopify best sellers',
+  'winning products dropshipping',
+  'high demand products',
+  'fast selling items',
+  'impulse buy products',
+  'gadgets 2026',
+  'new arrival hot',
+  'flash deal trending',
 ];
 
-const HOT_PRODUCT_KEYWORDS = ['hot product', 'bestseller', 'new trending'];
-const NEW_ARRIVAL_KEYWORDS = ['new arrival', 'just launched', 'latest'];
+/**
+ * Bucket 2 — Category bestsellers (15 keyword queries).
+ * Top sellers within specific niches.
+ */
+const CATEGORY_BESTSELLER_KEYWORDS: ReadonlyArray<string> = [
+  'pet accessories bestseller',
+  'kitchen gadgets hot',
+  'home organization storage',
+  'beauty skincare trending',
+  'fitness equipment portable',
+  'phone accessories popular',
+  'car accessories 2026',
+  'baby products trending',
+  'outdoor camping gadgets',
+  'jewelry accessories women',
+  'men grooming tools',
+  'LED lights home decor',
+  'cleaning tools innovative',
+  'office desk organizer',
+  'fashion accessories trendy',
+];
+
+/**
+ * Bucket 3 — AU-specific (10 queries).
+ * Products relevant to the Australian market.
+ */
+const AU_SPECIFIC_KEYWORDS: ReadonlyArray<string> = [
+  'australia warehouse ship',
+  'AU delivery fast shipping',
+  'australian dropshipping products',
+  'ships from australia',
+  'pet products australia popular',
+  'kitchen AU bestseller',
+  'home decor australia style',
+  'summer products outdoor australia',
+  'BBQ accessories australia',
+  'beach products popular',
+];
+
+/**
+ * Bucket 4 — High-volume movers (10 queries).
+ * Proven mega-sellers with massive order counts.
+ */
+const HIGH_VOLUME_KEYWORDS: ReadonlyArray<string> = [
+  '10000 orders product',
+  '50000 orders aliexpress',
+  '100000 sold items',
+  'mega bestseller aliexpress',
+  'most popular aliexpress 2026',
+  'top rated 10000 orders',
+  'bulk order popular',
+  'wholesale trending items',
+  'high volume consumer products',
+  'mass market gadgets',
+];
+
+/**
+ * Bucket 5 — Hidden gems (high rating, moderate orders).
+ */
+const HIDDEN_GEM_KEYWORDS: ReadonlyArray<string> = [
+  'top rated products 4.8',
+  'highly rated new product',
+  'best reviewed gadget',
+  'five star product aliexpress',
+  'premium quality trending',
+];
+
+/**
+ * Bucket 6 — Seasonal AU (opposite seasons to US/UK).
+ * April in AU = autumn heading into winter.
+ */
+const SEASONAL_AU_KEYWORDS: ReadonlyArray<string> = [
+  'winter warm blanket',
+  'heated products electric',
+  'cozy home winter gadgets',
+  'warm clothing accessories',
+  'indoor exercise equipment',
+];
+
+// ─── Per-bucket minimum order thresholds ─────────────────────────────────────
+
+const MIN_ORDERS_TRENDING = 500;
+const MIN_ORDERS_BESTSELLER_KW = 500;
+const MIN_ORDERS_AU = 100;
+const MIN_ORDERS_HIGH_VOLUME = 5000;
+const MIN_ORDERS_HIDDEN_GEM = 1000;
+const MIN_ORDERS_SEASONAL = 300;
+const MIN_ORDERS_CATEGORY = 100;
+const MIN_ORDERS_NEW_ARRIVAL = 200;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function log(tag: string, msg: string): void {
   if (process.env.NODE_ENV !== 'production') {
@@ -309,6 +424,54 @@ function detectAuWarehouse(item: Record<string, unknown>): boolean {
   return false;
 }
 
+// ─── Quality scoring on ingest ───────────────────────────────────────────────
+
+/**
+ * Score a product 0–100 for dropshipping quality. Products scoring below
+ * 30 are rejected before upsert.
+ */
+function ingestQualityScore(item: PintostudioItem): number {
+  let score = 0;
+
+  // Order volume (0-30 points)
+  if (item.orders >= 100_000) score += 30;
+  else if (item.orders >= 50_000) score += 25;
+  else if (item.orders >= 10_000) score += 20;
+  else if (item.orders >= 5_000) score += 15;
+  else if (item.orders >= 1_000) score += 10;
+  else if (item.orders >= 500) score += 5;
+
+  // Rating (0-20 points)
+  if (item.rating != null) {
+    if (item.rating >= 4.8) score += 20;
+    else if (item.rating >= 4.5) score += 15;
+    else if (item.rating >= 4.0) score += 10;
+    else if (item.rating >= 3.5) score += 5;
+  }
+
+  // Price sweet spot for dropshipping (0-15 points)
+  if (item.priceAud >= 5 && item.priceAud <= 50) score += 15;
+  else if (item.priceAud > 50 && item.priceAud <= 100) score += 10;
+  else if (item.priceAud > 0) score += 5;
+
+  // Has image (0-10 points)
+  if (item.imageUrl) score += 10;
+
+  // Title quality (0-10 points)
+  if (item.title && item.title.length >= 10) score += 10;
+
+  // Category assigned (0-5 points)
+  if (item.category && item.category !== 'general') score += 5;
+
+  // Ships from AU (0-10 points bonus)
+  if (item.auWarehouseAvailable) score += 10;
+
+  return score; // max 100
+}
+
+/** Minimum ingest quality score to accept a product. */
+const MIN_INGEST_QUALITY_SCORE = 30;
+
 // ─── Pipeline orchestration ────────────────────────────────────────────────
 
 export interface PipelineResult {
@@ -328,9 +491,128 @@ interface Upserted {
   rejected: number;
 }
 
+/** A single job to run within the pipeline. */
+interface PipelineJob {
+  input: PintostudioInput;
+  bucket: string;
+  minOrders: number;
+}
+
 /**
- * Runs the full pipeline: trending × 3 markets + 20 bestseller categories
- * + hot_products + new_arrivals. Writes one pipeline_logs row.
+ * Build the full job list: ~80 queries across 7 buckets.
+ * Each job is an independent Apify actor call.
+ */
+function buildJobList(): PipelineJob[] {
+  const jobs: PipelineJob[] = [];
+
+  // Bucket 1 — Trending keywords (15 queries, AU market)
+  for (const kw of TRENDING_KEYWORDS) {
+    jobs.push({
+      input: { mode: 'trending', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'trending',
+      minOrders: MIN_ORDERS_TRENDING,
+    });
+  }
+
+  // Bucket 2 — Category bestseller keywords (15 queries)
+  for (const kw of CATEGORY_BESTSELLER_KEYWORDS) {
+    jobs.push({
+      input: { mode: 'hot_products', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'bestsellers',
+      minOrders: MIN_ORDERS_BESTSELLER_KW,
+    });
+  }
+
+  // Bucket 3 — AU-specific (10 queries)
+  for (const kw of AU_SPECIFIC_KEYWORDS) {
+    jobs.push({
+      input: { mode: 'trending', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'trending',
+      minOrders: MIN_ORDERS_AU,
+    });
+  }
+
+  // Bucket 4 — High-volume movers (10 queries)
+  for (const kw of HIGH_VOLUME_KEYWORDS) {
+    jobs.push({
+      input: { mode: 'hot_products', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'hot',
+      minOrders: MIN_ORDERS_HIGH_VOLUME,
+    });
+  }
+
+  // Bucket 5 — Hidden gems (5 queries)
+  for (const kw of HIDDEN_GEM_KEYWORDS) {
+    jobs.push({
+      input: { mode: 'trending', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'trending',
+      minOrders: MIN_ORDERS_HIDDEN_GEM,
+    });
+  }
+
+  // Bucket 6 — Seasonal AU (5 queries)
+  for (const kw of SEASONAL_AU_KEYWORDS) {
+    jobs.push({
+      input: { mode: 'hot_products', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'hot',
+      minOrders: MIN_ORDERS_SEASONAL,
+    });
+  }
+
+  // Bucket 7 — Category URL bestsellers (20 categories)
+  for (const cat of BESTSELLER_CATEGORIES) {
+    jobs.push({
+      input: { mode: 'bestsellers', categoryUrl: cat.url, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'bestsellers',
+      minOrders: MIN_ORDERS_CATEGORY,
+    });
+  }
+
+  // Bucket 8 — New arrivals (5 keywords, lower threshold)
+  const newArrivalKeywords = [
+    'new arrival 2026',
+    'just launched trending',
+    'latest products hot',
+    'new release gadget',
+    'recently added bestseller',
+  ];
+  for (const kw of newArrivalKeywords) {
+    jobs.push({
+      input: { mode: 'new_arrivals', keyword: kw, country: 'AU', limit: ITEMS_PER_QUERY },
+      bucket: 'new_arrivals',
+      minOrders: MIN_ORDERS_NEW_ARRIVAL,
+    });
+  }
+
+  return jobs;
+}
+
+/**
+ * Execute a batch of jobs in parallel using Promise.allSettled.
+ */
+async function executeBatch(
+  batch: PipelineJob[],
+): Promise<Array<{ job: PipelineJob; items: PintostudioItem[] }>> {
+  const results = await Promise.allSettled(
+    batch.map(async (job) => {
+      const items = await runPintostudio(job.input);
+      return { job, items };
+    }),
+  );
+
+  const out: Array<{ job: PipelineJob; items: PintostudioItem[] }> = [];
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      out.push(r.value);
+    }
+  }
+  return out;
+}
+
+/**
+ * Runs the full pipeline: ~80 queries across 7 buckets, batched 10 at a time
+ * with Promise.allSettled. Quality scoring + per-bucket order thresholds.
+ * Writes one pipeline_logs row.
  */
 export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   const run = await startRun();
@@ -341,54 +623,81 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   let updated = 0;
   let rejected = 0;
 
-  // Trending across 3 markets (×5 keywords each = 15 calls × 100 items)
-  for (const m of TRENDING_KEYWORDS_PER_MARKET) {
-    for (const kw of m.keywords) {
-      const items = await runPintostudio({ mode: 'trending', keyword: kw, country: m.market, limit: 100 });
-      if (items.length === 0) errors.push(`trending:${m.market}:${kw}:empty`);
-      const u = await upsertProducts(items, `trending:${m.market}`);
-      breakdown.trending += u.added + u.updated;
-      added += u.added; updated += u.updated; rejected += u.rejected;
+  const jobs = buildJobList();
+  log('pipeline', `built ${jobs.length} jobs across buckets`);
+
+  // Deduplicate products across all batches by source_product_id
+  const seenProductIds = new Set<string>();
+  const allQualifiedItems: Array<{ item: PintostudioItem; source: string }> = [];
+
+  // Split jobs into batches and execute
+  const batches: PipelineJob[][] = [];
+  for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+    batches.push(jobs.slice(i, i + BATCH_SIZE));
+  }
+
+  for (let batchIdx = 0; batchIdx < batches.length; batchIdx++) {
+    const batch = batches[batchIdx];
+    log('pipeline', `executing batch ${batchIdx + 1}/${batches.length} (${batch.length} jobs)`);
+
+    const results = await executeBatch(batch);
+
+    for (const { job, items } of results) {
+      if (items.length === 0) {
+        const label = job.input.keyword ?? job.input.categoryUrl ?? job.input.mode;
+        errors.push(`${job.bucket}:${label}:empty`);
+        continue;
+      }
+
+      // Apply per-bucket minimum orders threshold
+      const filtered = items.filter((item) => item.orders >= job.minOrders);
+
+      // Apply quality scoring
+      for (const item of filtered) {
+        const score = ingestQualityScore(item);
+        if (score < MIN_INGEST_QUALITY_SCORE) {
+          rejected++;
+          continue;
+        }
+        // Deduplicate across batches
+        if (seenProductIds.has(item.sourceProductId)) continue;
+        seenProductIds.add(item.sourceProductId);
+        allQualifiedItems.push({ item, source: `${job.bucket}:${job.input.keyword ?? job.input.mode}` });
+      }
+    }
+
+    // Delay between batches (except after the last)
+    if (batchIdx < batches.length - 1) {
+      await new Promise((r) => setTimeout(r, INTER_BATCH_DELAY_MS));
     }
   }
 
-  // Bestsellers — 20 categories × 100 items
-  for (const cat of BESTSELLER_CATEGORIES) {
-    const items = await runPintostudio({
-      mode: 'bestsellers',
-      categoryUrl: cat.url,
-      country: 'AU',
-      limit: 100,
-    });
-    if (items.length === 0) errors.push(`bestsellers:${cat.name}:empty`);
-    const u = await upsertProducts(items, `bestsellers:${cat.id}`);
-    breakdown.bestsellers += u.added + u.updated;
-    added += u.added; updated += u.updated; rejected += u.rejected;
-  }
+  log('pipeline', `collected ${allQualifiedItems.length} unique qualified products (rejected ${rejected} below quality threshold)`);
 
-  // Hot products — single deep call
-  for (const kw of HOT_PRODUCT_KEYWORDS) {
-    const items = await runPintostudio({ mode: 'hot_products', keyword: kw, country: 'AU', limit: 200 });
-    if (items.length === 0) errors.push(`hot_products:${kw}:empty`);
-    const u = await upsertProducts(items, 'hot_products');
-    breakdown.hot += u.added + u.updated;
-    added += u.added; updated += u.updated; rejected += u.rejected;
-  }
+  // Upsert all qualified products in chunks of 500
+  const UPSERT_CHUNK_SIZE = 500;
+  for (let i = 0; i < allQualifiedItems.length; i += UPSERT_CHUNK_SIZE) {
+    const chunk = allQualifiedItems.slice(i, i + UPSERT_CHUNK_SIZE);
+    const chunkItems = chunk.map((c) => c.item);
+    const primarySource = chunk[0]?.source ?? 'mixed';
+    const u = await upsertProducts(chunkItems, primarySource);
+    added += u.added;
+    updated += u.updated;
+    rejected += u.rejected;
 
-  // New arrivals — filter to orders >= 1000
-  for (const kw of NEW_ARRIVAL_KEYWORDS) {
-    const items = await runPintostudio({ mode: 'new_arrivals', keyword: kw, country: 'AU', limit: 300 });
-    const filtered = items.filter((i) => i.orders >= DEFAULT_NEW_ARRIVAL_ORDERS_FLOOR);
-    if (filtered.length === 0) errors.push(`new_arrivals:${kw}:empty`);
-    const u = await upsertProducts(filtered, 'new_arrivals');
-    breakdown.new_arrivals += u.added + u.updated;
-    added += u.added; updated += u.updated; rejected += u.rejected;
+    // Attribute to breakdown buckets
+    for (const c of chunk) {
+      const bucket = c.source.split(':')[0];
+      if (bucket in breakdown) {
+        breakdown[bucket]++;
+      }
+    }
   }
 
   const total = added + updated;
   let status: 'success' | 'partial' | 'error';
   if (total === 0) status = 'error';
-  else if (total >= TARGET_SUCCESS_ROWS && errors.length === 0) status = 'success';
+  else if (total >= TARGET_SUCCESS_ROWS && errors.length <= jobs.length / 2) status = 'success';
   else status = 'partial';
 
   const durationMs = Date.now() - t0;
@@ -398,7 +707,7 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
     products_rejected: rejected,
     source_breakdown: breakdown,
     status,
-    error_message: errors.length > 0 ? errors.slice(0, 10).join('; ') : null,
+    error_message: errors.length > 0 ? errors.slice(0, 20).join('; ') : null,
   });
 
   // Invalidate cached dashboard / stats / products responses now that the
@@ -408,6 +717,8 @@ export async function runApifyPintostudioPipeline(): Promise<PipelineResult> {
   } catch {
     /* cache invalidation is best-effort */
   }
+
+  log('pipeline', `done: added=${added} updated=${updated} rejected=${rejected} duration=${durationMs}ms status=${status}`);
 
   return {
     status,
@@ -475,35 +786,44 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
     };
   });
 
-  // Quality gate already enforced in mapItem (title>=5, image, price, orders>0).
-  // Anything missing fails on the NOT NULL columns and is counted as rejected.
+  // Quality gate already enforced in mapItem (title>=5, image, price, orders>0)
+  // plus ingestQualityScore >= 30.
 
   let added = 0;
   let updated = 0;
-  let rejected = 0;
+  const rejected = 0;
 
   // Check existing by source_product_id in one round-trip.
   const ids = rows.map((r) => r.source_product_id).filter(Boolean);
   const existingIds = new Set<string>();
   if (ids.length > 0) {
-    const { data } = await supabase
-      .from('winning_products')
-      .select('source_product_id')
-      .in('source_product_id', ids);
-    for (const row of data ?? []) {
-      const v = (row as { source_product_id?: string }).source_product_id;
-      if (v) existingIds.add(v);
+    // Supabase .in() has a limit; chunk if needed
+    const IN_CHUNK = 500;
+    for (let i = 0; i < ids.length; i += IN_CHUNK) {
+      const chunk = ids.slice(i, i + IN_CHUNK);
+      const { data } = await supabase
+        .from('winning_products')
+        .select('source_product_id')
+        .in('source_product_id', chunk);
+      for (const row of data ?? []) {
+        const v = (row as { source_product_id?: string }).source_product_id;
+        if (v) existingIds.add(v);
+      }
     }
   }
 
-  // Upsert in a single call — Supabase will INSERT or UPDATE per row.
-  const { error } = await supabase
-    .from('winning_products')
-    .upsert(rows, { onConflict: 'source_product_id', ignoreDuplicates: false });
+  // Upsert in chunks to stay within Supabase payload limits
+  const UPSERT_CHUNK = 200;
+  for (let i = 0; i < rows.length; i += UPSERT_CHUNK) {
+    const chunk = rows.slice(i, i + UPSERT_CHUNK);
+    const { error } = await supabase
+      .from('winning_products')
+      .upsert(chunk, { onConflict: 'source_product_id', ignoreDuplicates: false });
 
-  if (error) {
-    logErr('upsert', `${source}: ${error.message}`);
-    return { added: 0, updated: 0, rejected: rows.length };
+    if (error) {
+      logErr('upsert', `${source}: ${error.message}`);
+      return { added: 0, updated: 0, rejected: rows.length };
+    }
   }
 
   for (const r of rows) {
@@ -516,7 +836,7 @@ async function upsertProducts(items: PintostudioItem[], source: string): Promise
 
 /**
  * Velocity-weighted score. Mirrors the existing formula used across the repo
- * (orders volume + rating quality + price fit). Clamp to 50–98.
+ * (orders volume + rating quality + price fit). Clamp to 50-98.
  */
 function computeWinningScore(input: {
   orders: number;
