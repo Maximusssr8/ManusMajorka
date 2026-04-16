@@ -3,7 +3,7 @@
  *
  * A template-ready markdown renderer using Streamdown with:
  * - Shiki syntax highlighting for code blocks (via @streamdown/code)
- * - Mermaid diagram support (via @streamdown/mermaid)
+ * - Mermaid diagram support (built into streamdown, loaded lazily)
  * - Line numbers on code blocks (built-in to Streamdown 2.x)
  * - Fine-grained control over each element via components prop
  * - Memoized for optimal performance during streaming
@@ -16,7 +16,7 @@
  *
  * Installation:
  * ```bash
- * pnpm add streamdown @streamdown/code @streamdown/mermaid
+ * pnpm add streamdown @streamdown/code
  * ```
  *
  * Basic Usage:

@@ -1,4 +1,3 @@
-import { useIsMobile } from '@/hooks/useIsMobile';
 import JSZip from 'jszip';
 import {
   AlertTriangle,
@@ -27,7 +26,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import React, { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,28 +34,48 @@ import { markOnboardingStep } from '@/lib/onboarding';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 
-// Lazy-load heavy syntax highlighter to keep initial bundle small
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SyntaxHighlighter = lazy<React.ComponentType<any>>(() =>
-  import('react-syntax-highlighter').then((m) => ({ default: m.Prism }))
-);
-// vscDarkPlus style — loaded lazily via dynamic import where used
-let _vscDarkPlus: any = null;
-async function getVscDarkPlus() {
-  if (!_vscDarkPlus) {
-    const mod = await import('react-syntax-highlighter/dist/esm/styles/prism');
-    _vscDarkPlus = mod.vscDarkPlus;
-  }
-  return _vscDarkPlus;
+// ── Lightweight HTML syntax highlighter ──────────────────────────────────────
+// Replaces react-syntax-highlighter (1.6MB Prism bundle + 200 grammar files)
+// with a tiny regex-based HTML highlighter. Only HTML is ever displayed here.
+function highlightHtml(code: string): string {
+  return code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    // Comments: <!-- ... -->
+    .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span style="color:#6A9955">$1</span>')
+    // Doctype
+    .replace(/(&lt;!DOCTYPE[^&]*&gt;)/gi, '<span style="color:#569CD6">$1</span>')
+    // Tags: <tagname and </tagname and />  and >
+    .replace(/(&lt;\/?)([\w-]+)/g, '<span style="color:#808080">$1</span><span style="color:#569CD6">$2</span>')
+    .replace(/(\/?)(&gt;)/g, '<span style="color:#808080">$1$2</span>')
+    // Attribute values: "..." or '...'
+    .replace(/(=\s*)(&quot;|"|')(.*?)(\2)/g, '$1<span style="color:#CE9178">$2$3$4</span>')
+    // Attribute names (word before =)
+    .replace(/\s([\w-]+)(=)/g, ' <span style="color:#9CDCFE">$1</span>$2');
 }
-// Preload style eagerly but non-blocking
-getVscDarkPlus();
-// Synchronous fallback — populated after first async load
-function useVscDarkPlus() {
-  const isMobile = useIsMobile();
-  const [style, setStyle] = useState<any>(_vscDarkPlus);
-  useEffect(() => { getVscDarkPlus().then(setStyle); }, []);
-  return style;
+
+/** Minimal HTML source viewer styled like VS Code Dark+. Zero external deps. */
+function HtmlSourceViewer({ code, style: customStyle }: { code: string; style?: React.CSSProperties }) {
+  const highlighted = useMemo(() => highlightHtml(code), [code]);
+  return (
+    <pre
+      style={{
+        margin: 0,
+        background: 'transparent',
+        fontSize: 12,
+        lineHeight: 1.5,
+        padding: 16,
+        minHeight: '100%',
+        color: '#D4D4D4',
+        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        ...customStyle,
+      }}
+      dangerouslySetInnerHTML={{ __html: highlighted }}
+    />
+  );
 }
 import { SaveToProduct } from '@/components/SaveToProduct';
 import { getStoredMarket } from '@/contexts/MarketContext';
@@ -1197,8 +1216,6 @@ export default function WebsiteGenerator() {
   const { activeProduct: legacyProduct } = useActiveProduct();
   const activeProduct = contextProduct ?? legacyProduct;
   const { session } = useAuth();
-  const vscDarkPlus = useVscDarkPlus();
-
   // Product import
   const [importUrl, setImportUrl] = useState('');
   const [importing, setImporting] = useState(false);
@@ -3813,17 +3830,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
                       {(directHtml || rawResponse || generatedData) ? (
-                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: '#CBD5E1', fontFamily: 'monospace', background: '#05070F', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
-                          <SyntaxHighlighter
-                            language="html"
-                            style={vscDarkPlus ?? {}}
-                            customStyle={{ margin: 0, background: 'transparent', fontSize: 12, lineHeight: 1.5, padding: 16, minHeight: '100%' }}
-                            wrapLines
-                            wrapLongLines
-                          >
-                            {directHtml || rawResponse || previewHTML || ''}
-                          </SyntaxHighlighter>
-                        </Suspense>
+                        <HtmlSourceViewer code={directHtml || rawResponse || previewHTML || ''} />
                       ) : (
                         <div className="flex-1 flex items-center justify-center p-8"><div className="text-sm" style={{ color: '#9CA3AF' }}>Generate a store to view its HTML source.</div></div>
                       )}
