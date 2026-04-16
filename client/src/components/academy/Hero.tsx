@@ -17,7 +17,7 @@ interface HeroProps {
  */
 export function Hero({ onStart, onCurriculum, publicMode }: HeroProps) {
   return (
-    <section className="relative isolate overflow-hidden pt-24 pb-24 md:pt-32 md:pb-36">
+    <section className="mkr-academy-hero relative isolate overflow-hidden pt-24 pb-24 md:pt-32 md:pb-36">
       {/* Animated gold grid */}
       <div
         className="absolute inset-0 -z-10 opacity-40"
@@ -37,6 +37,10 @@ export function Hero({ onStart, onCurriculum, publicMode }: HeroProps) {
         }
         @media (prefers-reduced-motion: reduce) {
           .mkr-academy-anim { animation: none !important; }
+        }
+        @media (max-width: 640px) {
+          .mkr-academy-hero h1 { font-size: 32px !important; }
+          .mkr-academy-hero p { font-size: 16px !important; }
         }
       `}</style>
       {/* Radial gold glow */}

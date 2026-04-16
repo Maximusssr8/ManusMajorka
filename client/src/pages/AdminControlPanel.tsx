@@ -1,29 +1,44 @@
 /**
  * AdminControlPanel — /app/admin
- * Only accessible to maximusmajorka@gmail.com
+ * Comprehensive admin panel — only accessible to maximusmajorka@gmail.com
+ * Tabs: Users, Promo Codes, Roles, Analytics, System Health, Broadcast
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
 const ADMIN_EMAIL = 'maximusmajorka@gmail.com';
 
+// ── Dark design tokens ───────────────────────────────────────────────────────
 const C = {
-  bg: '#FAFAFA',
-  surface: 'white',
-  border: '#E5E7EB',
-  gold: '#4f8ef7',
-  goldBg: 'rgba(79,142,247,0.08)',
-  text: '#0A0A0A',
-  sub: '#6B7280',
-  muted: '#9CA3AF',
+  bg: '#04060f',
+  surface: '#0d1117',
+  surfaceHover: '#161b22',
+  border: '#161b22',
+  borderLight: '#21262d',
+  accent: '#6366f1',
+  accentBg: 'rgba(99,102,241,0.10)',
+  accentBorder: 'rgba(99,102,241,0.25)',
+  text: '#f0f4ff',
+  sub: '#8b949e',
+  muted: '#484f58',
   green: '#22c55e',
+  greenBg: 'rgba(34,197,94,0.10)',
   red: '#ef4444',
+  redBg: 'rgba(239,68,68,0.10)',
   amber: '#f59e0b',
+  amberBg: 'rgba(245,158,11,0.10)',
+  cyan: '#22d3ee',
 };
 
-type Tab = 'users' | 'trends' | 'subscriptions' | 'health';
+const FONT = {
+  heading: "'Syne', sans-serif",
+  body: "'DM Sans', sans-serif",
+  mono: "'JetBrains Mono', 'SF Mono', monospace",
+};
+
+type Tab = 'users' | 'promo' | 'roles' | 'analytics' | 'health' | 'broadcast';
 
 function apiCall(path: string, opts?: RequestInit) {
   return supabase.auth.getSession().then(({ data }) => {
@@ -41,99 +56,188 @@ function apiCall(path: string, opts?: RequestInit) {
   });
 }
 
-// ── Users Tab ─────────────────────────────────────────────────────────────────
+// ── Shared Components ────────────────────────────────────────────────────────
+
+function StatCard({ label, value, sub: subtitle, color }: { label: string; value: string | number; sub?: string; color?: string }) {
+  return (
+    <div style={{
+      background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '18px 20px',
+    }}>
+      <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: FONT.body }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, color: color || C.text, fontFamily: FONT.mono }}>{value}</div>
+      {subtitle && <div style={{ fontSize: 11, color: C.sub, marginTop: 4 }}>{subtitle}</div>}
+    </div>
+  );
+}
+
+function Badge({ text, color, bg }: { text: string; color: string; bg: string }) {
+  return (
+    <span style={{
+      padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+      background: bg, color, letterSpacing: '0.02em',
+    }}>{text}</span>
+  );
+}
+
+function Btn({ children, onClick, variant = 'default', disabled = false, style: extraStyle }: {
+  children: React.ReactNode; onClick?: () => void; variant?: 'default' | 'accent' | 'danger' | 'ghost';
+  disabled?: boolean; style?: React.CSSProperties;
+}) {
+  const styles: Record<string, React.CSSProperties> = {
+    default: { background: C.surface, border: `1px solid ${C.borderLight}`, color: C.text },
+    accent: { background: C.accentBg, border: `1px solid ${C.accentBorder}`, color: C.accent },
+    danger: { background: C.redBg, border: `1px solid rgba(239,68,68,0.25)`, color: C.red },
+    ghost: { background: 'transparent', border: `1px solid ${C.border}`, color: C.sub },
+  };
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
+      opacity: disabled ? 0.5 : 1, transition: 'all 0.15s', fontFamily: FONT.body,
+      ...styles[variant], ...extraStyle,
+    }}>
+      {children}
+    </button>
+  );
+}
+
+function SearchInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <input
+      value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+      style={{
+        padding: '8px 14px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8,
+        color: C.text, fontSize: 12, width: 240, fontFamily: FONT.body, outline: 'none',
+      }}
+    />
+  );
+}
+
+function TableHead({ columns }: { columns: string[] }) {
+  return (
+    <thead>
+      <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+        {columns.map(h => (
+          <th key={h} style={{
+            padding: '10px 14px', textAlign: 'left', color: C.muted, fontWeight: 600, fontSize: 10,
+            textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body,
+          }}>{h}</th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
+// ── Tab 1: Users Dashboard ───────────────────────────────────────────────────
 function UsersTab() {
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'last_sign_in' | 'created_at' | 'plan'>('last_sign_in');
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     apiCall('/users').then(d => {
       setUsers(d.users || []);
       setTotal(d.total || 0);
       setLoading(false);
     }).catch(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const updatePlan = async (userId: string, plan: string, status = 'active') => {
     setUpdatingId(userId);
-    await apiCall(`/users/${userId}/plan`, {
-      method: 'POST',
-      body: JSON.stringify({ plan, status }),
-    });
+    await apiCall(`/users/${userId}/plan`, { method: 'POST', body: JSON.stringify({ plan, status }) });
     load();
     setUpdatingId(null);
   };
 
-  const filtered = users.filter(u => !search || u.email?.toLowerCase().includes(search.toLowerCase()));
+  const filtered = users
+    .filter(u => !search || u.email?.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'plan') return (a.plan || '').localeCompare(b.plan || '');
+      const aVal = a[sortBy] || '';
+      const bVal = b[sortBy] || '';
+      return bVal.localeCompare(aVal);
+    });
+
+  const activeThisWeek = users.filter(u => {
+    if (!u.last_sign_in) return false;
+    return Date.now() - new Date(u.last_sign_in).getTime() < 7 * 24 * 3600 * 1000;
+  }).length;
+  const paidUsers = users.filter(u => ['builder', 'scale', 'pro'].includes(u.plan)).length;
+  const trialUsers = users.filter(u => u.status === 'trialing').length;
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: C.sub }}>
-          <span style={{ color: C.text, fontWeight: 700 }}>{total}</span> total users
-        </div>
-        <input
-          value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search by email..."
-          style={{ padding: '7px 12px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, fontSize: 12, width: 220 }}
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+        <StatCard label="Total Users" value={total} />
+        <StatCard label="Active This Week" value={activeThisWeek} color={C.green} />
+        <StatCard label="Paid Users" value={paidUsers} color={C.accent} />
+        <StatCard label="Trial Users" value={trialUsers} color={C.amber} />
       </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {(['last_sign_in', 'created_at', 'plan'] as const).map(s => (
+            <Btn key={s} variant={sortBy === s ? 'accent' : 'ghost'} onClick={() => setSortBy(s)}>
+              {s === 'last_sign_in' ? 'Last Active' : s === 'created_at' ? 'Sign-up' : 'Plan'}
+            </Btn>
+          ))}
+        </div>
+        <SearchInput value={search} onChange={setSearch} placeholder="Search by email..." />
+      </div>
+
       {loading ? (
-        <div style={{ color: C.muted, fontSize: 13, textAlign: 'center', padding: 40 }}>Loading...</div>
+        <div style={{ color: C.muted, fontSize: 13, textAlign: 'center', padding: 40 }}>Loading users...</div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                {['Email', 'Plan', 'Status', 'Created', 'Last Sign In', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left' as const, color: C.muted, fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
+            <TableHead columns={['Email', 'Plan', 'Status', 'Signed Up', 'Last Active', 'Actions']} />
             <tbody>
               {filtered.map(u => (
-                <tr key={u.id} style={{ borderBottom: `1px solid ${C.border}` }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
-                  <td style={{ padding: '10px 12px', color: C.text }}>{u.email}</td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                      background: ['pro','builder','scale'].includes(u.plan) ? C.goldBg : '#F9FAFB',
-                      color: ['pro','builder','scale'].includes(u.plan) ? C.gold : C.muted,
-                    }}>{u.plan || 'free'}</span>
+                <tr key={u.id} style={{ borderBottom: `1px solid ${C.border}`, transition: 'background 0.1s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.surfaceHover; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
+                  <td style={{ padding: '12px 14px', color: C.text, fontFamily: FONT.mono, fontSize: 11 }}>{u.email}</td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <Badge
+                      text={u.plan || 'free'}
+                      color={['builder', 'scale', 'pro'].includes(u.plan) ? C.accent : C.muted}
+                      bg={['builder', 'scale', 'pro'].includes(u.plan) ? C.accentBg : 'rgba(255,255,255,0.04)'}
+                    />
                   </td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <span style={{ color: u.status === 'active' ? C.green : C.muted, fontSize: 12 }}>{u.status || '—'}</span>
+                  <td style={{ padding: '12px 14px' }}>
+                    <span style={{ color: u.status === 'active' ? C.green : u.status === 'trialing' ? C.amber : C.muted, fontSize: 12, fontWeight: 600 }}>
+                      {u.status || 'inactive'}
+                    </span>
                   </td>
-                  <td style={{ padding: '10px 12px', color: C.muted }}>{u.created_at ? new Date(u.created_at).toLocaleDateString('en-AU') : '—'}</td>
-                  <td style={{ padding: '10px 12px', color: C.muted }}>{u.last_sign_in ? new Date(u.last_sign_in).toLocaleDateString('en-AU') : '—'}</td>
-                  <td style={{ padding: '10px 12px' }}>
+                  <td style={{ padding: '12px 14px', color: C.sub, fontSize: 11 }}>
+                    {u.created_at ? new Date(u.created_at).toLocaleDateString('en-AU') : '--'}
+                  </td>
+                  <td style={{ padding: '12px 14px', color: C.sub, fontSize: 11 }}>
+                    {u.last_sign_in ? new Date(u.last_sign_in).toLocaleDateString('en-AU') : '--'}
+                  </td>
+                  <td style={{ padding: '12px 14px' }}>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                       <select
                         defaultValue={u.plan || 'free'}
                         onChange={e => updatePlan(u.id, e.target.value)}
                         disabled={updatingId === u.id}
-                        style={{ padding: '4px 6px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 5, color: C.text, fontSize: 11, cursor: 'pointer' }}
+                        style={{
+                          padding: '5px 8px', background: C.surface, border: `1px solid ${C.border}`,
+                          borderRadius: 6, color: C.text, fontSize: 11, cursor: 'pointer', fontFamily: FONT.body,
+                        }}
                       >
-                        {['free','pro','builder','scale'].map(p => <option key={p} value={p} style={{ background: '#0d0d10' }}>{p}</option>)}
+                        {['free', 'builder', 'scale', 'pro'].map(p => (
+                          <option key={p} value={p} style={{ background: C.surface }}>{p}</option>
+                        ))}
                       </select>
-                      <button
-                        onClick={() => updatePlan(u.id, 'pro', 'active')}
-                        disabled={updatingId === u.id}
-                        style={{ padding: '4px 8px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 5, color: C.gold, fontSize: 11, cursor: 'pointer' }}
-                      >Grant Pro</button>
-                      <button
-                        onClick={() => updatePlan(u.id, u.plan || 'free', 'inactive')}
-                        disabled={updatingId === u.id}
-                        style={{ padding: '4px 8px', background: 'rgba(239,68,68,0.08)', border: `1px solid rgba(239,68,68,0.2)`, borderRadius: 5, color: C.red, fontSize: 11, cursor: 'pointer' }}
-                      >Revoke</button>
+                      <Btn variant="danger" disabled={updatingId === u.id} onClick={() => updatePlan(u.id, u.plan || 'free', 'inactive')}>
+                        Disable
+                      </Btn>
                     </div>
                   </td>
                 </tr>
@@ -146,395 +250,641 @@ function UsersTab() {
   );
 }
 
-// ── Trends Tab ────────────────────────────────────────────────────────────────
-function TrendsTab() {
-  const [products, setProducts] = useState<any[]>([]);
+// ── Tab 2: Promo Codes ───────────────────────────────────────────────────────
+function PromoTab() {
+  const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [form, setForm] = useState({ name: '', niche: '', estimated_retail_aud: '', estimated_margin_pct: '', trend_score: '', dropship_viability_score: '', trend_reason: '' });
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ code: '', discount_percent: '10', max_uses: '100', valid_until: '', plan_restriction: '' });
+  const [copied, setCopied] = useState<string | null>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
-    apiCall('/trend-signals').then(d => { setProducts(d.products || []); setLoading(false); }).catch(() => setLoading(false));
+    apiCall('/promo-codes').then(d => { setCodes(d.codes || []); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const generateCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'MJK-';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    setForm(f => ({ ...f, code }));
   };
 
-  useEffect(() => { load(); }, []);
-
-  const refresh = async () => {
-    setRefreshing(true);
-    await supabase.auth.getSession().then(({ data }) => {
-      const token = data.session?.access_token || '';
-      return fetch('/api/cron/refresh-trends', { headers: { Authorization: `Bearer ${token}` } });
+  const createCode = async () => {
+    await apiCall('/promo-codes', {
+      method: 'POST',
+      body: JSON.stringify({
+        code: form.code,
+        discount_percent: Number(form.discount_percent),
+        max_uses: Number(form.max_uses) || 100,
+        valid_until: form.valid_until || null,
+        plan_restriction: form.plan_restriction || null,
+      }),
     });
-    await new Promise(r => setTimeout(r, 3000));
-    load();
-    setRefreshing(false);
-  };
-
-  const clearAll = async () => {
-    if (!confirm('Delete ALL trend signals? This cannot be undone.')) return;
-    await apiCall('/trend-signals', { method: 'DELETE' });
+    setShowForm(false);
+    setForm({ code: '', discount_percent: '10', max_uses: '100', valid_until: '', plan_restriction: '' });
     load();
   };
 
-  const addProduct = async () => {
-    await apiCall('/trend-signals', { method: 'POST', body: JSON.stringify(form) });
-    setShowAddForm(false);
-    setForm({ name: '', niche: '', estimated_retail_aud: '', estimated_margin_pct: '', trend_score: '', dropship_viability_score: '', trend_reason: '' });
+  const deactivate = async (id: string) => {
+    await apiCall(`/promo-codes/${id}`, { method: 'DELETE' });
     load();
   };
 
-  const lastRefreshed = products[0]?.refreshed_at ? new Date(products[0].refreshed_at) : null;
-  const hoursAgo = lastRefreshed ? Math.round((Date.now() - lastRefreshed.getTime()) / 3600000) : null;
-  const nextIn = hoursAgo !== null ? Math.max(0, 6 - (hoursAgo % 6)) : null;
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(code);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const activeCodes = codes.filter(c => c.is_active);
+  const inactiveCodes = codes.filter(c => !c.is_active);
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: C.sub }}>
-          {lastRefreshed && <span>Last refreshed: <strong style={{ color: C.text }}>{hoursAgo}h ago</strong> · Next in: <strong style={{ color: C.text }}>{nextIn}h</strong></span>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ fontSize: 13, color: C.sub }}>
+          <span style={{ color: C.text, fontWeight: 700 }}>{activeCodes.length}</span> active codes
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowAddForm(!showAddForm)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Add Product</button>
-          <button onClick={refresh} disabled={refreshing} style={{ padding: '7px 14px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: C.text, fontSize: 12, cursor: 'pointer' }}>
-            {refreshing ? 'Refreshing...' : 'Refresh Now'}
-          </button>
-          <button onClick={clearAll} style={{ padding: '7px 14px', background: 'rgba(239,68,68,0.08)', border: `1px solid rgba(239,68,68,0.2)`, borderRadius: 7, color: C.red, fontSize: 12, cursor: 'pointer' }}>Clear All</button>
+        <Btn variant="accent" onClick={() => { setShowForm(!showForm); if (!showForm) generateCode(); }}>
+          + Create Promo Code
+        </Btn>
+      </div>
+
+      {showForm && (
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+            {([
+              ['code', 'Code'],
+              ['discount_percent', 'Discount %'],
+              ['max_uses', 'Max Uses'],
+              ['valid_until', 'Expires (optional)'],
+            ] as [string, string][]).map(([k, label]) => (
+              <div key={k}>
+                <div style={{ fontSize: 10, color: C.muted, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+                <input
+                  type={k === 'valid_until' ? 'date' : 'text'}
+                  value={(form as Record<string, string>)[k]}
+                  onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+                  style={{
+                    width: '100%', padding: '8px 12px', background: C.bg, border: `1px solid ${C.border}`,
+                    borderRadius: 8, color: C.text, fontSize: 12, fontFamily: k === 'code' ? FONT.mono : FONT.body,
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            ))}
+            <div>
+              <div style={{ fontSize: 10, color: C.muted, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Plan</div>
+              <select
+                value={form.plan_restriction}
+                onChange={e => setForm(f => ({ ...f, plan_restriction: e.target.value }))}
+                style={{
+                  width: '100%', padding: '8px 12px', background: C.bg, border: `1px solid ${C.border}`,
+                  borderRadius: 8, color: C.text, fontSize: 12, fontFamily: FONT.body,
+                }}
+              >
+                <option value="" style={{ background: C.bg }}>Any plan</option>
+                <option value="builder" style={{ background: C.bg }}>Builder only</option>
+                <option value="scale" style={{ background: C.bg }}>Scale only</option>
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Btn variant="accent" onClick={createCode}>Create</Btn>
+            <Btn variant="ghost" onClick={generateCode}>Regenerate Code</Btn>
+            <Btn variant="ghost" onClick={() => setShowForm(false)}>Cancel</Btn>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ color: C.muted, textAlign: 'center', padding: 40 }}>Loading...</div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <TableHead columns={['Code', 'Discount', 'Uses', 'Valid Until', 'Plan', 'Status', 'Actions']} />
+            <tbody>
+              {[...activeCodes, ...inactiveCodes].map(c => (
+                <tr key={c.id} style={{ borderBottom: `1px solid ${C.border}`, opacity: c.is_active ? 1 : 0.4 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.surfaceHover; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
+                  <td style={{ padding: '12px 14px', fontFamily: FONT.mono, color: C.text, fontWeight: 700, fontSize: 13 }}>{c.code}</td>
+                  <td style={{ padding: '12px 14px', color: C.green, fontFamily: FONT.mono, fontWeight: 700 }}>{c.discount_percent}%</td>
+                  <td style={{ padding: '12px 14px', color: C.sub, fontFamily: FONT.mono }}>{c.current_uses}/{c.max_uses}</td>
+                  <td style={{ padding: '12px 14px', color: C.sub, fontSize: 11 }}>
+                    {c.valid_until ? new Date(c.valid_until).toLocaleDateString('en-AU') : 'No expiry'}
+                  </td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <Badge text={c.plan_restriction || 'any'} color={C.sub} bg="rgba(255,255,255,0.04)" />
+                  </td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <Badge
+                      text={c.is_active ? 'Active' : 'Inactive'}
+                      color={c.is_active ? C.green : C.red}
+                      bg={c.is_active ? C.greenBg : C.redBg}
+                    />
+                  </td>
+                  <td style={{ padding: '12px 14px' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <Btn variant="ghost" onClick={() => copyCode(c.code)} style={{ fontSize: 11, padding: '4px 10px' }}>
+                        {copied === c.code ? 'Copied!' : 'Copy'}
+                      </Btn>
+                      {c.is_active && (
+                        <Btn variant="danger" onClick={() => deactivate(c.id)} style={{ fontSize: 11, padding: '4px 10px' }}>
+                          Deactivate
+                        </Btn>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tab 3: Role Management ───────────────────────────────────────────────────
+function RolesTab() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    Promise.all([apiCall('/users'), apiCall('/user-roles')]).then(([userData, roleData]) => {
+      setUsers(userData.users || []);
+      setRoles(roleData.roles || []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const roleMap = new Map(roles.map((r: any) => [r.user_id, r.role]));
+
+  const setRole = async (userId: string, role: string) => {
+    setUpdatingId(userId);
+    await apiCall('/user-roles', { method: 'POST', body: JSON.stringify({ user_id: userId, role }) });
+    load();
+    setUpdatingId(null);
+  };
+
+  const filtered = users.filter(u => !search || u.email?.toLowerCase().includes(search.toLowerCase()));
+
+  const adminCount = roles.filter(r => r.role === 'admin').length;
+  const betaCount = roles.filter(r => r.role === 'beta_tester').length;
+
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
+        <StatCard label="Admins" value={adminCount} color={C.red} />
+        <StatCard label="Beta Testers" value={betaCount} color={C.cyan} />
+        <StatCard label="Operators" value={users.length - adminCount - betaCount} color={C.sub} />
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <SearchInput value={search} onChange={setSearch} placeholder="Search by email..." />
+      </div>
+
+      {loading ? (
+        <div style={{ color: C.muted, textAlign: 'center', padding: 40 }}>Loading...</div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <TableHead columns={['Email', 'Current Role', 'Plan', 'Change Role']} />
+            <tbody>
+              {filtered.map(u => {
+                const currentRole = roleMap.get(u.id) || 'operator';
+                return (
+                  <tr key={u.id} style={{ borderBottom: `1px solid ${C.border}` }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.surfaceHover; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}>
+                    <td style={{ padding: '12px 14px', color: C.text, fontFamily: FONT.mono, fontSize: 11 }}>{u.email}</td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <Badge
+                        text={currentRole}
+                        color={currentRole === 'admin' ? C.red : currentRole === 'beta_tester' ? C.cyan : C.sub}
+                        bg={currentRole === 'admin' ? C.redBg : currentRole === 'beta_tester' ? 'rgba(34,211,238,0.10)' : 'rgba(255,255,255,0.04)'}
+                      />
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <Badge
+                        text={u.plan || 'free'}
+                        color={['builder', 'scale', 'pro'].includes(u.plan) ? C.accent : C.muted}
+                        bg={['builder', 'scale', 'pro'].includes(u.plan) ? C.accentBg : 'rgba(255,255,255,0.04)'}
+                      />
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <select
+                        value={currentRole}
+                        onChange={e => setRole(u.id, e.target.value)}
+                        disabled={updatingId === u.id}
+                        style={{
+                          padding: '6px 10px', background: C.surface, border: `1px solid ${C.border}`,
+                          borderRadius: 6, color: C.text, fontSize: 11, cursor: 'pointer', fontFamily: FONT.body,
+                        }}
+                      >
+                        {['operator', 'beta_tester', 'admin'].map(r => (
+                          <option key={r} value={r} style={{ background: C.surface }}>{r}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Tab 4: Platform Analytics ────────────────────────────────────────────────
+function AnalyticsTab() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiCall('/platform-analytics').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div style={{ color: C.muted, textAlign: 'center', padding: 40 }}>Loading analytics...</div>;
+  if (!data) return <div style={{ color: C.red, textAlign: 'center', padding: 40 }}>Failed to load analytics</div>;
+
+  const featureEntries = Object.entries(data.featureUsage || {}).sort((a, b) => (b[1] as number) - (a[1] as number));
+
+  return (
+    <div>
+      {/* Revenue Metrics */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body }}>Revenue</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <StatCard label="Estimated MRR" value={`A$${data.revenue?.estimatedMRR || 0}`} color={C.green} />
+          <StatCard label="Builder Plans" value={data.revenue?.builderCount || 0} sub="$99/mo each" />
+          <StatCard label="Scale Plans" value={data.revenue?.scaleCount || 0} sub="$199/mo each" />
         </div>
       </div>
 
-      {showAddForm && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
-            {([['name','Product Name'],['niche','Niche'],['estimated_retail_aud','Price AUD'],['estimated_margin_pct','Margin %'],['trend_score','Trend Score (0-100)'],['dropship_viability_score','Viability (0-10)']] as [string,string][]).map(([k, label]) => (
-              <div key={k}>
-                <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{label}</div>
-                <input value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                  style={{ width: '100%', padding: '6px 10px', background: '#0d0d10', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12, boxSizing: 'border-box' as const }} />
+      {/* User Growth */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body }}>User Growth</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+          <StatCard label="Total Users" value={data.users?.total || 0} />
+          <StatCard label="Active This Week" value={data.users?.activeThisWeek || 0} color={C.green} />
+          <StatCard label="Signups This Week" value={data.users?.signupsThisWeek || 0} color={C.cyan} />
+          <StatCard label="Paid Users" value={data.users?.paidUsers || 0} color={C.accent} />
+          <StatCard label="Trial Users" value={data.users?.trialUsers || 0} color={C.amber} />
+        </div>
+      </div>
+
+      {/* API Usage */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body }}>API Usage</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <StatCard label="API Calls Today" value={data.api?.callsToday || 0} />
+          <StatCard label="Cost Today" value={`$${data.api?.costToday || '0.00'}`} color={C.amber} />
+          <StatCard label="Cost This Week" value={`$${data.api?.costWeek || '0.00'}`} color={C.red} />
+          <StatCard label="Products in DB" value={data.productCount || 0} />
+        </div>
+      </div>
+
+      {/* Feature Usage + Pipeline */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+          <div style={{ fontSize: 11, color: C.muted, marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Feature Usage (This Week)</div>
+          {featureEntries.length === 0 ? (
+            <div style={{ color: C.muted, fontSize: 12 }}>No API calls recorded</div>
+          ) : (
+            featureEntries.map(([feature, count]) => (
+              <div key={feature} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ color: C.text, fontSize: 12 }}>{feature}</span>
+                <span style={{ color: C.accent, fontFamily: FONT.mono, fontSize: 12, fontWeight: 700 }}>{count as number}</span>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+          <div style={{ fontSize: 11, color: C.muted, marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pipeline Health</div>
+          {data.pipeline ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ color: C.sub, fontSize: 12 }}>Status</span>
+                <Badge
+                  text={data.pipeline.status || 'unknown'}
+                  color={data.pipeline.status === 'success' ? C.green : C.amber}
+                  bg={data.pipeline.status === 'success' ? C.greenBg : C.amberBg}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ color: C.sub, fontSize: 12 }}>Last Run</span>
+                <span style={{ color: C.text, fontSize: 12, fontFamily: FONT.mono }}>
+                  {data.pipeline.started_at ? new Date(data.pipeline.started_at).toLocaleString('en-AU') : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ color: C.sub, fontSize: 12 }}>Products Added</span>
+                <span style={{ color: C.green, fontSize: 12, fontFamily: FONT.mono, fontWeight: 700 }}>{data.pipeline.products_added || 0}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: C.sub, fontSize: 12 }}>Duration</span>
+                <span style={{ color: C.text, fontSize: 12, fontFamily: FONT.mono }}>
+                  {data.pipeline.duration_ms ? `${Math.round(data.pipeline.duration_ms / 1000)}s` : '--'}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ color: C.muted, fontSize: 12 }}>No pipeline data</div>
+          )}
+        </div>
+      </div>
+
+      {/* Top Users */}
+      {data.topUsers && data.topUsers.length > 0 && (
+        <div style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 11, color: C.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body }}>Top Users by API Usage</div>
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
+            {data.topUsers.map((u: any, i: number) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 4px', borderBottom: i < data.topUsers.length - 1 ? `1px solid ${C.border}` : 'none' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <span style={{ color: C.muted, fontFamily: FONT.mono, fontSize: 11, width: 20 }}>#{i + 1}</span>
+                  <span style={{ color: C.text, fontSize: 12, fontFamily: FONT.mono }}>{u.email}</span>
+                </div>
+                <span style={{ color: C.accent, fontFamily: FONT.mono, fontSize: 12, fontWeight: 700 }}>{u.apiCalls} calls</span>
               </div>
             ))}
           </div>
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>Why Trending</div>
-            <input value={form.trend_reason} onChange={e => setForm(f => ({ ...f, trend_reason: e.target.value }))}
-              style={{ width: '100%', padding: '6px 10px', background: '#0d0d10', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={addProduct} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#FAFAFA', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Add</button>
-            <button onClick={() => setShowAddForm(false)} style={{ padding: '7px 16px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: C.sub, fontSize: 12, cursor: 'pointer' }}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {loading ? <div style={{ color: C.muted, textAlign: 'center' as const, padding: 40 }}>Loading...</div> : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                {['Product','Niche','Score','Viability','Margin','Price','Refreshed'].map(h => (
-                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left' as const, color: C.muted, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
-                  <td style={{ padding: '10px 12px', color: C.text, fontWeight: 600 }}>{p.name}</td>
-                  <td style={{ padding: '10px 12px', color: C.sub }}>{p.niche}</td>
-                  <td style={{ padding: '10px 12px', color: p.trend_score >= 80 ? C.red : p.trend_score >= 60 ? C.amber : C.sub, fontWeight: 800 }}>{p.trend_score}</td>
-                  <td style={{ padding: '10px 12px', color: p.dropship_viability_score >= 8 ? C.green : C.sub }}>{p.dropship_viability_score}/10</td>
-                  <td style={{ padding: '10px 12px', color: '#10b981' }}>{p.estimated_margin_pct}%</td>
-                  <td style={{ padding: '10px 12px', color: C.text }}>${p.estimated_retail_aud}</td>
-                  <td style={{ padding: '10px 12px', color: C.muted }}>{p.refreshed_at ? new Date(p.refreshed_at).toLocaleDateString('en-AU') : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
     </div>
   );
 }
 
-// ── Subscriptions Tab ─────────────────────────────────────────────────────────
-function SubscriptionsTab() {
-  const [subs, setSubs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [addForm, setAddForm] = useState({ email: '', plan: 'pro', status: 'active' });
-
-  const load = () => {
-    setLoading(true);
-    apiCall('/subscriptions').then(d => { setSubs(d.subscriptions || []); setLoading(false); }).catch(() => setLoading(false));
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const addSub = async () => {
-    await apiCall('/subscriptions', { method: 'POST', body: JSON.stringify(addForm) });
-    setShowAdd(false);
-    load();
-  };
-
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button onClick={() => setShowAdd(!showAdd)} style={{ padding: '7px 14px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 7, color: C.gold, fontSize: 12, cursor: 'pointer' }}>+ Manual Subscription</button>
-      </div>
-
-      {showAdd && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16, marginBottom: 16, display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-          {([['email','Email'],['plan','Plan'],['status','Status']] as [string,string][]).map(([k, label]) => (
-            <div key={k} style={{ flex: k === 'email' ? 2 : 1 }}>
-              <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{label}</div>
-              {k === 'plan' ? (
-                <select value={addForm.plan} onChange={e => setAddForm(f => ({ ...f, plan: e.target.value }))}
-                  style={{ width: '100%', padding: '7px 10px', background: '#0d0d10', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }}>
-                  {['pro','builder','scale','free'].map(p => <option key={p} value={p} style={{ background: '#0d0d10' }}>{p}</option>)}
-                </select>
-              ) : (
-                <input value={(addForm as any)[k]} onChange={e => setAddForm(f => ({ ...f, [k]: e.target.value }))}
-                  style={{ width: '100%', padding: '7px 10px', background: '#0d0d10', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
-              )}
-            </div>
-          ))}
-          <button onClick={addSub} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#FAFAFA', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Add</button>
-        </div>
-      )}
-
-      {loading ? <div style={{ color: C.muted, textAlign: 'center' as const, padding: 40 }}>Loading...</div> : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                {['Email','Plan','Status','Period End','Stripe ID',''].map((h, i) => (
-                  <th key={i} style={{ padding: '8px 12px', textAlign: 'left' as const, color: C.muted, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {subs.map((s, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
-                  <td style={{ padding: '10px 12px', color: C.text }}>{s.email}</td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: C.goldBg, color: C.gold }}>{s.plan}</span>
-                  </td>
-                  <td style={{ padding: '10px 12px', color: s.status === 'active' ? C.green : C.muted }}>{s.status}</td>
-                  <td style={{ padding: '10px 12px', color: C.muted }}>{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString('en-AU') : '—'}</td>
-                  <td style={{ padding: '10px 12px', color: C.muted, fontFamily: 'monospace', fontSize: 11 }}>{s.stripe_customer_id || '—'}</td>
-                  <td style={{ padding: '10px 12px' }}>
-                    {s.stripe_customer_id && (
-                      <a href={`https://dashboard.stripe.com/customers/${s.stripe_customer_id}`} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 11, color: C.gold, textDecoration: 'none' }}>Stripe</a>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Health Tab ────────────────────────────────────────────────────────────────
+// ── Tab 5: System Health ─────────────────────────────────────────────────────
 function HealthTab() {
   const [health, setHealth] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [enriching, setEnriching] = useState(false);
-  const [scrapingReal, setScrapingReal] = useState(false);
-  const [refreshingAE, setRefreshingAE] = useState(false);
-  const [refreshingRapid, setRefreshingRapid] = useState(false);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
-    apiCall('/system-health').then(d => { setHealth(d); setLoading(false); }).catch(() => setLoading(false));
-  };
+    Promise.all([
+      apiCall('/system-health'),
+      apiCall('/platform-analytics'),
+    ]).then(([h, a]) => {
+      setHealth(h);
+      setAnalytics(a);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
-  if (loading) return <div style={{ color: C.muted, textAlign: 'center' as const, padding: 40 }}>Loading...</div>;
-  if (!health) return <div style={{ color: C.red, textAlign: 'center' as const, padding: 40 }}>Failed to load health data.</div>;
+  if (loading) return <div style={{ color: C.muted, textAlign: 'center', padding: 40 }}>Running health checks...</div>;
+
+  const stripeKey = health?.stripe?.mode || 'unknown';
 
   const checks = [
-    { label: 'Supabase', value: health.supabase ? 'Connected' : 'Disconnected', ok: health.supabase },
-    { label: 'Stripe Mode', value: health.stripe?.mode === 'live' ? 'Live Mode' : 'Test Mode', ok: health.stripe?.mode === 'live' },
-    { label: 'Last Cron Run', value: health.cron?.lastRun ? new Date(health.cron.lastRun).toLocaleString('en-AU') : 'Never', ok: !!health.cron?.lastRun },
+    { label: 'Supabase', status: health?.supabase ? 'Connected' : 'Disconnected', ok: health?.supabase },
+    { label: 'Stripe', status: stripeKey === 'live' ? 'Live Mode' : 'Test Mode', ok: stripeKey === 'live' },
+    { label: 'Pipeline', status: analytics?.pipeline?.status || 'Unknown', ok: analytics?.pipeline?.status === 'success' },
   ];
 
   const counts = [
-    { label: 'Total Users', value: health.counts?.users ?? '—' },
-    { label: 'Winning Products', value: health.counts?.products ?? '—' },
-    { label: 'Generated Stores', value: health.counts?.stores ?? '—' },
-    { label: 'Trend Signals', value: health.counts?.trendSignals ?? '—' },
+    { label: 'Winning Products', value: health?.counts?.products ?? '--' },
+    { label: 'Total Users', value: health?.counts?.users ?? '--' },
+    { label: 'Generated Stores', value: health?.counts?.stores ?? '--' },
+    { label: 'Trend Signals', value: health?.counts?.trendSignals ?? '--' },
   ];
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 24 }}>
+      {/* Status Indicators */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
         {checks.map(c => (
-          <div key={c.label} style={{ background: C.surface, border: `1px solid ${c.ok ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`, borderRadius: 10, padding: 16 }}>
-            <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{c.label}</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: c.ok ? C.green : C.red }}>{c.value}</div>
+          <div key={c.label} style={{
+            background: C.surface, border: `1px solid ${c.ok ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+            borderRadius: 12, padding: 20, display: 'flex', alignItems: 'center', gap: 14,
+          }}>
+            <div style={{
+              width: 10, height: 10, borderRadius: '50%',
+              background: c.ok ? C.green : C.red,
+              boxShadow: c.ok ? '0 0 8px rgba(34,197,94,0.4)' : '0 0 8px rgba(239,68,68,0.4)',
+            }} />
+            <div>
+              <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{c.label}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: c.ok ? C.green : C.red, fontFamily: FONT.body }}>{c.status}</div>
+            </div>
           </div>
         ))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 24 }}>
+
+      {/* Counts */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {counts.map(c => (
-          <div key={c.label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16 }}>
-            <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{c.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: "'Syne', sans-serif" }}>{c.value}</div>
-          </div>
+          <StatCard key={c.label} label={c.label} value={c.value} />
         ))}
       </div>
-      <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' as const }}>
-        <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(79,142,247,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-          Run All Checks
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              setEnriching(true);
-              const data = await apiCall('/enrich-products', { method: 'POST' });
-              alert(`${data.message || 'Done!'}\nEnriched: ${data.enriched ?? '?'} / Total: ${data.total ?? '?'}\n${data.error ? 'Error: ' + data.error : ''}`);
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            } finally {
-              setEnriching(false);
-            }
-          }}
-          disabled={enriching}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#4f8ef7', color: '#000', border: 'none', borderRadius: 6, cursor: enriching ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: enriching ? 0.7 : 1 }}
-        >
-          {enriching ? 'Enriching…' : '⚡ Enrich Products'}
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              const data = await apiCall('/run-supplier-migration', { method: 'POST' });
-              alert(JSON.stringify(data, null, 2));
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            }
-          }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#fff', border: '1px solid #444', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
-        >
-          🔧 Supplier Migration
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              const data = await apiCall('/run-user-tables-migration', { method: 'POST' });
-              alert(JSON.stringify(data, null, 2));
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            }
-          }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#4f8ef7', border: '1px solid rgba(79,142,247,0.3)', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
-        >
-          🗃️ User Tables
-        </button>
-        <button
-          onClick={async () => {
-            const n = prompt('How many products to scrape? (max 20, default 5)', '5');
-            if (n === null) return;
-            try {
-              const data = await apiCall('/scrape-aliexpress', { method: 'POST', body: JSON.stringify({ limit: parseInt(n) || 5 }) });
-              alert(`${data.message || 'Done!'}\n\n${data.results?.map((r: any) => `${r.success ? '✅' : '❌'} ${r.name.slice(0,35)} | $${r.priceUsd ?? '?'} | ${r.imageCount} imgs`).join('\n') || JSON.stringify(data)}`);
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            }
-          }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#7dd3fc', border: '1px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
-        >
-          🔍 Scrape AliExpress
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              setScrapingReal(true);
-              // apiCall already parses JSON — no .json() needed
-              const data = await apiCall('/scrape-real-data', { method: 'POST' });
-              if (data.sql) {
-                alert(`Run this SQL in Supabase first:\n\n${data.sql}`);
-              } else {
-                alert(`${data.message || 'Done!'}\nScraped: ${data.scraped ?? '?'} / ${data.total ?? '?'} products`);
-              }
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            } finally {
-              setScrapingReal(false);
-            }
-          }}
-          disabled={scrapingReal}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#2a9d8f', color: '#fff', border: 'none', borderRadius: 6, cursor: scrapingReal ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: scrapingReal ? 0.7 : 1 }}
-        >
-          {scrapingReal ? 'Scraping…' : '🔍 Scrape Real Data'}
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              setRefreshingAE(true);
-              const data = await apiCall('/refresh-from-aliexpress', { method: 'POST' });
-              if (data.error && data.authUrl) {
-                alert(`❌ Not authorized yet!\n\nVisit to authorize:\n${data.authUrl}`);
-              } else {
-                alert(`✅ Refreshed ${data.refreshed} products from AliExpress API across ${data.niches} niches!`);
-              }
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            } finally {
-              setRefreshingAE(false);
-            }
-          }}
-          disabled={refreshingAE}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, cursor: refreshingAE ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: refreshingAE ? 0.7 : 1 }}
-        >
-          {refreshingAE ? 'Refreshing…' : '🔴 Refresh from AliExpress'}
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              setRefreshingRapid(true);
-              const data = await apiCall('/refresh-db-rapidapi', { method: 'POST' });
-              const summary = (data.results || []).map((r: any) => `${r.niche}: ${r.count ?? 0} ${r.error ? '❌' : '✅'}`).join('\n');
-              alert(`✅ Refreshed ${data.total} products via RapidAPI!\n\n${summary}`);
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            } finally {
-              setRefreshingRapid(false);
-            }
-          }}
-          disabled={refreshingRapid}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#e67e22', color: '#fff', border: 'none', borderRadius: 6, cursor: refreshingRapid ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: refreshingRapid ? 0.7 : 1 }}
-        >
-          {refreshingRapid ? 'Refreshing…' : '⚡ Refresh DB (RapidAPI)'}
-        </button>
-        <button
-          onClick={async () => {
-            try {
-              const data = await apiCall('/aliexpress-status');
-              alert(`AliExpress Status:\n\nApp Key: ${data.appKey}\nApp Secret: ${data.appSecret}\n\n${data.authorized ? '✅ API Ready!' : '⚠️ Check credentials'}`);
-            } catch (e: any) {
-              alert('Error: ' + e.message);
-            }
-          }}
-          style={{ marginLeft: 8, padding: '9px 16px', background: '#161b22', color: '#f39c12', border: '1px solid #5a3a00', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
-        >
-          🛒 AliExpress Status
-        </button>
+
+      {/* Detailed System Info */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+          <div style={{ fontSize: 11, color: C.muted, marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pipeline Details</div>
+          {analytics?.pipeline ? (
+            <>
+              {[
+                ['Last Run', analytics.pipeline.started_at ? new Date(analytics.pipeline.started_at).toLocaleString('en-AU') : '--'],
+                ['Duration', analytics.pipeline.duration_ms ? `${Math.round(analytics.pipeline.duration_ms / 1000)}s` : '--'],
+                ['Products Added', analytics.pipeline.products_added || 0],
+                ['Products Updated', analytics.pipeline.products_updated || 0],
+                ['Products Rejected', analytics.pipeline.products_rejected || 0],
+                ['Type', analytics.pipeline.pipeline_type || '--'],
+              ].map(([label, value]) => (
+                <div key={String(label)} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ color: C.sub, fontSize: 12 }}>{label}</span>
+                  <span style={{ color: C.text, fontSize: 12, fontFamily: FONT.mono }}>{value}</span>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div style={{ color: C.muted, fontSize: 12 }}>No pipeline data available</div>
+          )}
+        </div>
+
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+          <div style={{ fontSize: 11, color: C.muted, marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Claude API Spend</div>
+          {[
+            ['Today', `$${analytics?.api?.costToday || '0.00'}`],
+            ['This Week', `$${analytics?.api?.costWeek || '0.00'}`],
+            ['API Calls Today', analytics?.api?.callsToday || 0],
+          ].map(([label, value]) => (
+            <div key={String(label)} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
+              <span style={{ color: C.sub, fontSize: 12 }}>{label}</span>
+              <span style={{ color: C.amber, fontSize: 12, fontFamily: FONT.mono, fontWeight: 700 }}>{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <Btn variant="accent" onClick={load}>Refresh All Checks</Btn>
       </div>
     </div>
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// ── Tab 6: Broadcast / Announcements ─────────────────────────────────────────
+function BroadcastTab() {
+  const [banner, setBanner] = useState({ message: '', enabled: false, type: 'info' });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    apiCall('/site-config/banner').then(d => {
+      if (d.config?.value) {
+        setBanner({
+          message: d.config.value.message || '',
+          enabled: d.config.value.enabled || false,
+          type: d.config.value.type || 'info',
+        });
+      }
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await apiCall('/site-config', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'banner', value: banner }),
+    });
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  if (loading) return <div style={{ color: C.muted, textAlign: 'center', padding: 40 }}>Loading...</div>;
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body }}>Site-wide Banner</div>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 24 }}>
+          {/* Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+            <button
+              onClick={() => setBanner(b => ({ ...b, enabled: !b.enabled }))}
+              style={{
+                width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                background: banner.enabled ? C.green : C.border,
+                position: 'relative', transition: 'background 0.2s',
+              }}
+            >
+              <div style={{
+                width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                position: 'absolute', top: 3,
+                left: banner.enabled ? 23 : 3,
+                transition: 'left 0.2s',
+              }} />
+            </button>
+            <span style={{ color: banner.enabled ? C.green : C.muted, fontSize: 13, fontWeight: 600 }}>
+              {banner.enabled ? 'Banner is LIVE' : 'Banner is hidden'}
+            </span>
+          </div>
+
+          {/* Banner Type */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 10, color: C.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Banner Type</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['info', 'warning', 'success', 'promo'].map(t => (
+                <Btn
+                  key={t}
+                  variant={banner.type === t ? 'accent' : 'ghost'}
+                  onClick={() => setBanner(b => ({ ...b, type: t }))}
+                  style={{ textTransform: 'capitalize' }}
+                >
+                  {t}
+                </Btn>
+              ))}
+            </div>
+          </div>
+
+          {/* Message */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: C.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Message</div>
+            <textarea
+              value={banner.message}
+              onChange={e => setBanner(b => ({ ...b, message: e.target.value }))}
+              placeholder="Enter your banner message..."
+              rows={3}
+              style={{
+                width: '100%', padding: '12px 16px', background: C.bg, border: `1px solid ${C.border}`,
+                borderRadius: 10, color: C.text, fontSize: 14, fontFamily: FONT.body, resize: 'vertical',
+                boxSizing: 'border-box', outline: 'none',
+              }}
+            />
+          </div>
+
+          {/* Preview */}
+          {banner.message && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 10, color: C.muted, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Preview</div>
+              <div style={{
+                padding: '12px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, fontFamily: FONT.body,
+                background: banner.type === 'warning' ? C.amberBg : banner.type === 'success' ? C.greenBg : banner.type === 'promo' ? C.accentBg : 'rgba(34,211,238,0.10)',
+                color: banner.type === 'warning' ? C.amber : banner.type === 'success' ? C.green : banner.type === 'promo' ? C.accent : C.cyan,
+                border: `1px solid ${banner.type === 'warning' ? 'rgba(245,158,11,0.25)' : banner.type === 'success' ? 'rgba(34,197,94,0.25)' : banner.type === 'promo' ? C.accentBorder : 'rgba(34,211,238,0.25)'}`,
+              }}>
+                {banner.message}
+              </div>
+            </div>
+          )}
+
+          {/* Save */}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Btn variant="accent" onClick={save} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Banner'}
+            </Btn>
+            {saved && <span style={{ color: C.green, fontSize: 12, fontWeight: 600 }}>Saved successfully</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Presets */}
+      <div>
+        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: FONT.body }}>Quick Presets</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {[
+            { label: 'Maintenance', message: 'We are performing scheduled maintenance. Some features may be temporarily unavailable.', type: 'warning' },
+            { label: 'New Feature', message: 'New: AI-powered ad briefs are now available! Try them in the Ads Studio.', type: 'success' },
+            { label: 'Promo', message: 'Limited time: Get 20% off Scale plan with code SCALE20', type: 'promo' },
+            { label: 'Welcome', message: 'Welcome to Majorka! Start by exploring trending products in the Products tab.', type: 'info' },
+          ].map(preset => (
+            <Btn
+              key={preset.label}
+              variant="ghost"
+              onClick={() => setBanner({ message: preset.message, enabled: false, type: preset.type })}
+            >
+              {preset.label}
+            </Btn>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ───────────────────────────────────────────────────────────
 export default function AdminControlPanel() {
   const [, setLocation] = useLocation();
   const { session, isAuthenticated } = useAuth();
@@ -547,46 +897,52 @@ export default function AdminControlPanel() {
     const isAdmin = email === ADMIN_EMAIL;
     setAuthorized(isAdmin);
     if (!isAdmin && email) {
-      setLocation('/app/dashboard');
+      setLocation('/app');
     }
   }, [isAuthenticated, session, setLocation]);
 
   if (authorized === null || !authorized) return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: C.muted }}>{authorized === null ? 'Checking access...' : 'Redirecting...'}</div>
+      <div style={{ color: C.muted, fontFamily: FONT.body }}>{authorized === null ? 'Checking access...' : 'Redirecting...'}</div>
     </div>
   );
 
   const TABS: { id: Tab; label: string }[] = [
     { id: 'users', label: 'Users' },
-    { id: 'trends', label: 'Trend Data' },
-    { id: 'subscriptions', label: 'Subscriptions' },
-    { id: 'health', label: 'System Health' },
+    { id: 'promo', label: 'Promo Codes' },
+    { id: 'roles', label: 'Roles' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'health', label: 'System' },
+    { id: 'broadcast', label: 'Broadcast' },
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: '32px 24px', fontFamily: "'DM Sans', sans-serif" }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: C.bg, padding: '32px 24px', fontFamily: FONT.body }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
-            <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4 }}>
+            <h1 style={{ fontFamily: FONT.heading, fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4, letterSpacing: '-0.01em' }}>
               Admin Control Panel
             </h1>
-            <div style={{ fontSize: 13, color: C.muted }}>Majorka internal tools · {session?.user?.email}</div>
+            <div style={{ fontSize: 12, color: C.muted }}>{session?.user?.email}</div>
           </div>
-          <button onClick={() => setLocation('/app')} style={{ padding: '8px 16px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 8, color: C.sub, fontSize: 12, cursor: 'pointer' }}>
-            Dashboard
-          </button>
+          <Btn variant="ghost" onClick={() => setLocation('/app')}>
+            Back to Dashboard
+          </Btn>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#05070F', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, width: 'fit-content' }}>
+        <div style={{
+          display: 'flex', gap: 2, marginBottom: 24, background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: 12, padding: 4, width: 'fit-content', flexWrap: 'wrap',
+        }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
-              padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: "'Syne', sans-serif",
-              background: tab === t.id ? C.gold : 'transparent',
-              color: tab === t.id ? '#FAFAFA' : C.sub,
+              padding: '9px 20px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, fontFamily: FONT.heading, letterSpacing: '0.01em',
+              background: tab === t.id ? C.accent : 'transparent',
+              color: tab === t.id ? '#fff' : C.sub,
               transition: 'all 0.15s',
             }}>
               {t.label}
@@ -595,11 +951,15 @@ export default function AdminControlPanel() {
         </div>
 
         {/* Tab content */}
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 24 }}>
+        <div style={{
+          background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 28,
+        }}>
           {tab === 'users' && <UsersTab />}
-          {tab === 'trends' && <TrendsTab />}
-          {tab === 'subscriptions' && <SubscriptionsTab />}
+          {tab === 'promo' && <PromoTab />}
+          {tab === 'roles' && <RolesTab />}
+          {tab === 'analytics' && <AnalyticsTab />}
           {tab === 'health' && <HealthTab />}
+          {tab === 'broadcast' && <BroadcastTab />}
         </div>
       </div>
     </div>
