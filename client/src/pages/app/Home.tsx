@@ -362,7 +362,7 @@ export default function AppHome() {
               {/* Hero number — full bleed with subtle glow */}
               <div
                 className="relative z-10 text-4xl md:text-5xl font-display font-bold text-white leading-none mb-2 min-h-[40px] flex items-center tabular-nums tracking-tight"
-                style={{ textShadow: `0 0 40px ${card.accent}40` }}
+                style={{ fontFamily: "'JetBrains Mono', 'SF Mono', ui-monospace, monospace", textShadow: `0 0 40px ${card.accent}40` }}
               >
                 {statsLoading || card.numeric == null ? (
                   <span
@@ -392,6 +392,49 @@ export default function AppHome() {
                 )}
               </div>
             </Link>
+          );
+        })}
+      </div>
+
+      {/* Quick Actions — fast-path row for power users */}
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 px-4 md:px-8 pb-6">
+        {[
+          { label: 'Find products', sub: 'Search the full catalogue', href: '/app/products', icon: Package },
+          { label: 'Generate ad copy', sub: 'AI-powered headlines & CTAs', href: '/app/ads-studio', icon: Flame },
+          { label: 'Check alerts', sub: 'Price drops & restocks', href: '/app/alerts', icon: Bookmark },
+        ].map((qa) => {
+          const QaIcon = qa.icon;
+          return (
+            <a
+              key={qa.label}
+              href={qa.href}
+              onClick={clearFiltersAndGo(qa.href)}
+              className="group flex items-center gap-3 rounded-xl p-4 no-underline transition-all duration-200 hover:scale-[1.01]"
+              style={{
+                background: 'rgba(79,142,247,0.04)',
+                border: '1px solid rgba(79,142,247,0.10)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(79,142,247,0.08)';
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(79,142,247,0.22)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(79,142,247,0.04)';
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(79,142,247,0.10)';
+              }}
+            >
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.20)' }}
+              >
+                <QaIcon size={16} strokeWidth={1.75} style={{ color: '#4f8ef7' }} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-text m-0">{qa.label}</p>
+                <p className="text-[11px] text-muted m-0" style={{ fontFamily: "'DM Sans', sans-serif" }}>{qa.sub}</p>
+              </div>
+              <ArrowRight size={14} strokeWidth={2} className="text-accent opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+            </a>
           );
         })}
       </div>
@@ -736,7 +779,7 @@ function TopProductsScrollWrap({ children }: { children: React.ReactNode }) {
         aria-hidden
         className="pointer-events-none absolute left-0 right-0 bottom-0 h-10 rounded-b-2xl"
         style={{
-          background: 'linear-gradient(to bottom, rgba(8,8,8,0) 0%, rgba(8,8,8,0.85) 100%)',
+          background: 'linear-gradient(to bottom, rgba(4,6,15,0) 0%, rgba(4,6,15,0.9) 100%)',
         }}
       />
       {/* "Scroll to see more" caption — fades out once user scrolls */}

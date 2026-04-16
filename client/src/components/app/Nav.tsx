@@ -94,7 +94,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
         borderColor: '#161b22',
       }}
     >
-      {/* Top ambient gold mesh */}
+      {/* Top ambient cobalt mesh */}
       <div
         className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
         style={{
@@ -102,7 +102,7 @@ export function Nav({ onNavigate }: NavProps = {}) {
             'radial-gradient(ellipse 80% 60% at 30% 0%, rgba(79,142,247,0.08) 0%, transparent 70%)',
         }}
       />
-      {/* Hairline gold inner glow */}
+      {/* Hairline cobalt inner glow */}
       <div className="absolute inset-y-0 right-0 w-px pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent, rgba(79,142,247,0.22), transparent)' }} />
 
       <div className="relative z-10 flex flex-col h-full">

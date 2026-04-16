@@ -107,7 +107,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Mobile header bar — sticky, 56px tall, 44px touch targets */}
           <div
             className="md:hidden sticky top-0 z-40 flex items-center justify-between px-3 h-14 shrink-0"
-            style={{ background: 'rgba(8,8,8,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #161b22' }}
+            style={{ background: 'rgba(4,6,15,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid #161b22' }}
           >
             <button
               onClick={() => setSidebarOpen(true)}
