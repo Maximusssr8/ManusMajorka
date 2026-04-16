@@ -91,7 +91,7 @@ export default function Market() {
           <h1 style={{
             fontFamily: display, fontSize: 30, fontWeight: 800,
             letterSpacing: '-0.025em', margin: '0 0 4px', lineHeight: 1.1,
-            background: 'linear-gradient(135deg, #f5f5f5 0%, #a78bfa 100%)',
+            background: 'linear-gradient(135deg, #f5f5f5 0%, #4f8ef7 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>Market Intelligence</h1>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
@@ -103,8 +103,8 @@ export default function Market() {
             <button key={m.code} style={{
               display: 'flex', alignItems: 'center', gap: 5,
               padding: '5px 11px', borderRadius: 7,
-              background: m.active ? 'rgba(124,106,255,0.12)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${m.active ? 'rgba(124,106,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+              background: m.active ? 'rgba(79,142,247,0.12)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${m.active ? 'rgba(79,142,247,0.3)' : 'rgba(255,255,255,0.06)'}`,
               color: m.active ? C.accentHover : 'rgba(255,255,255,0.4)',
               fontFamily: mono, fontSize: 11, fontWeight: m.active ? 600 : 400,
               cursor: 'pointer', flexShrink: 0,
@@ -165,14 +165,14 @@ export default function Market() {
                   width={130}
                 />
                 <Tooltip
-                  cursor={{ fill: 'rgba(124,106,255,0.06)' }}
+                  cursor={{ fill: 'rgba(79,142,247,0.06)' }}
                   content={({ active, payload }) => {
                     if (!active || !payload || !payload.length) return null;
                     const n = payload[0].payload as typeof top10[number];
                     return (
                       <div style={{
                         background: C.surface,
-                        border: '1px solid rgba(124,106,255,0.3)',
+                        border: '1px solid rgba(79,142,247,0.3)',
                         borderRadius: 8,
                         padding: '10px 14px',
                         fontFamily: sans,
