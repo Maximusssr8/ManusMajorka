@@ -113,6 +113,7 @@ export default function Storefront() {
       try {
         const stripe = await loadStripe(stripeKey);
         if (!stripe) return;
+        // @ts-expect-error — redirectToCheckout exists at runtime but was removed from @stripe/stripe-js types in v4+
         const { error } = await stripe.redirectToCheckout({
           lineItems: [{ price: priceId, quantity: 1 }],
           mode: 'payment',
