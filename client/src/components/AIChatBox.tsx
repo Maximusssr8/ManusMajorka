@@ -261,12 +261,12 @@ export function AIChatBox({
       onFinish?.(finalMessages);
     } catch (err: any) {
       if (err.name === 'AbortError') return;
-      setError(err.message || 'Something went wrong');
+      setError(err.message || "Couldn't reach the model — try again in a moment.");
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
           ...assistantMsg,
-          content: 'Something went wrong. Please try again.',
+          content: "I couldn't reach the model just now. Try again, or email support@majorka.io if this keeps happening.",
           isError: true,
         };
         return updated;

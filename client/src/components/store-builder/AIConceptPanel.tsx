@@ -123,13 +123,19 @@ export default function AIConceptPanel({ initialNiche = '', initialMarket = 'Aus
       });
       const data = (await r.json()) as { success?: boolean; error?: string };
       if (!data.success) {
-        toast.error(data.error ?? 'Save failed');
+        toast.error(data.error ?? "Couldn't build that store. Try refining your niche.", {
+          description: 'If this keeps happening, email support@majorka.io.',
+          duration: 4000,
+        });
       } else {
         toast.success('Concept saved to Marketplace');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Save failed';
-      toast.error(msg);
+      const msg = err instanceof Error ? err.message : "Couldn't build that store. Try refining your niche.";
+      toast.error(msg, {
+        description: 'If this keeps happening, email support@majorka.io.',
+        duration: 4000,
+      });
     } finally {
       setSaving(false);
     }

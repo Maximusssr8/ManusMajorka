@@ -4407,7 +4407,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
         >
           <div style={{ fontSize: 32, marginBottom: 16 }}>⚠️</div>
           <div style={{ fontSize: 18, marginBottom: 8, color: '#F8FAFC' }}>
-            Something went wrong loading products
+            Couldn't load products right now
           </div>
           <div style={{ fontSize: 13, color: '#94A3B8', marginBottom: 24 }}>
             Check your connection and try reloading.

@@ -93,7 +93,7 @@ export default function ShopifyConnect({
         ? 'Please connect your Shopify store first.'
         : e.message?.includes('Unauthorized')
           ? 'Session expired — please sign in again.'
-          : e.message || 'Something went wrong. Please try again.';
+          : e.message || "Couldn't push to Shopify — try again. If this keeps happening, email support@majorka.io.";
       setError(msg);
       toast.error(msg);
     } finally {

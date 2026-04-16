@@ -123,7 +123,7 @@ function humanizeError(error: string): string {
   for (const [key, msg] of Object.entries(map)) {
     if (error?.includes(key)) return msg;
   }
-  return error || 'Something went wrong — please try again';
+  return error || "Couldn't generate that site right now — retry, or email support@majorka.io if this keeps happening.";
 }
 
 function getProgressMessage(progress: number): string {
@@ -989,7 +989,10 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
       setWizardStep(3);
       setMode('done');
     } catch (err: any) {
-      toast.error(err?.message || 'Something went wrong. Please try again.');
+      toast.error(err?.message || "Couldn't publish your site — try again.", {
+        description: 'If this keeps happening, email support@majorka.io.',
+        duration: 4000,
+      });
     }
   };
 

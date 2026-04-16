@@ -73,7 +73,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
               color: C.text,
             }}
           >
-            Something went wrong
+            We hit a glitch on our end.
           </h1>
           <p
             style={{

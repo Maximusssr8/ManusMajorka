@@ -187,7 +187,7 @@ export default function AIToolChat({
         const updated = [...prev];
         updated[updated.length - 1] = {
           role: 'assistant',
-          content: 'Something went wrong. Please try again.',
+          content: "I couldn't reach the model just now. Try again, or email support@majorka.io if this keeps happening.",
           isError: true,
         };
         return updated;

@@ -543,7 +543,7 @@ export default function StoreHealthScore() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message ?? data.error ?? 'Something went wrong. Please try again.');
+        setError(data.message ?? data.error ?? "Couldn't audit that store — try again, or email support@majorka.io if this keeps happening.");
         setPhase('input');
         return;
       }

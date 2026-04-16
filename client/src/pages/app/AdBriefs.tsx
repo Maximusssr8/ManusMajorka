@@ -214,7 +214,7 @@ export default function AdBriefs() {
       setHistory(next);
       saveBriefs(next);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Generation failed');
+      setError(e instanceof Error ? e.message : "We couldn't generate that brief right now. Hit retry or try a different product. If this keeps happening, email support@majorka.io.");
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { MOTION, reducedMotion, cubicBezier } from '@/lib/motionTokens';
 
-export default function NotFound() {
+interface ServerErrorProps {
+  onRetry?: () => void;
+}
+
+export default function ServerError({ onRetry }: ServerErrorProps = {}) {
   const [, setLocation] = useLocation();
   const [mounted, setMounted] = useState(reducedMotion());
 
@@ -14,6 +18,16 @@ export default function NotFound() {
     const raf = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  const handleRetry = () => {
+    if (onRetry) {
+      onRetry();
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  };
 
   const mountStyle: React.CSSProperties = {
     opacity: mounted ? 1 : 0,
@@ -40,7 +54,7 @@ export default function NotFound() {
             marginBottom: 12,
           }}
         >
-          404
+          500
         </div>
 
         <h2
@@ -53,7 +67,7 @@ export default function NotFound() {
             letterSpacing: '-0.01em',
           }}
         >
-          That page moved or never existed.
+          We hit a glitch on our end.
         </h2>
         <p
           style={{
@@ -64,7 +78,7 @@ export default function NotFound() {
             marginBottom: 28,
           }}
         >
-          Here&apos;s somewhere useful:
+          This is on us, not you. We&apos;ve been notified. Try again in a moment or head home.
         </p>
 
         <div
@@ -72,7 +86,7 @@ export default function NotFound() {
           style={{ gap: 12 }}
         >
           <button
-            onClick={() => setLocation('/')}
+            onClick={handleRetry}
             style={{
               minHeight: 44,
               padding: '0 20px',
@@ -98,10 +112,10 @@ export default function NotFound() {
               e.currentTarget.style.filter = 'brightness(1)';
             }}
           >
-            Back to home
+            Try again
           </button>
           <button
-            onClick={() => setLocation('/app/products')}
+            onClick={() => setLocation('/')}
             style={{
               minHeight: 44,
               padding: '0 20px',
@@ -124,7 +138,7 @@ export default function NotFound() {
               e.currentTarget.style.borderColor = '#1a1a1a';
             }}
           >
-            Browse products
+            Back to home
           </button>
         </div>
 
@@ -136,7 +150,7 @@ export default function NotFound() {
             color: '#6B7280',
           }}
         >
-          Still lost?{' '}
+          Still stuck?{' '}
           <a
             href="mailto:support@majorka.io"
             style={{ color: '#9CA3AF', textDecoration: 'underline', textUnderlineOffset: 4 }}
