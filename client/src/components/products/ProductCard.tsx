@@ -13,6 +13,7 @@ import type { Product } from '@/hooks/useProducts';
 import { ProductImage } from '@/components/ProductImage';
 import { MarketFlags } from './MarketFlags';
 import { TrendBadge } from './TrendBadge';
+import { MOTION, reducedMotion, cubicBezier } from '@/lib/motionTokens';
 import { proxyImage } from '@/lib/imageProxy';
 
 interface ProductCardProps {
@@ -71,11 +72,13 @@ function ProductCardImpl({ product, onOpen }: ProductCardProps) {
         overflow: 'hidden',
         cursor: 'pointer',
         color: 'inherit',
-        transition: 'border 160ms ease, box-shadow 220ms cubic-bezier(0.16,1,0.3,1), transform 160ms ease',
+        transition: reducedMotion()
+          ? 'none'
+          : `border-color ${MOTION.duration.normal}ms ${cubicBezier(MOTION.ease.out)}, box-shadow ${MOTION.duration.normal}ms ${cubicBezier(MOTION.ease.out)}, transform ${MOTION.duration.normal}ms ${cubicBezier(MOTION.ease.out)}`,
         boxShadow: hover
           ? '0 0 0 1px rgba(212,175,55,0.12), 0 14px 40px -12px rgba(212,175,55,0.35)'
           : '0 1px 0 rgba(255,255,255,0.02) inset',
-        transform: hover ? 'translateY(-1px)' : 'none',
+        transform: hover && !reducedMotion() ? `translateY(${MOTION.lift.y}px)` : 'none',
         minHeight: 280,
       }}
     >
