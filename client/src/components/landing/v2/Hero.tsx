@@ -40,7 +40,7 @@ async function fetchDemoProduct(category: string): Promise<DemoProduct | null> {
       orders,
       score: p.score ?? 0,
       category: p.category ?? category,
-      estRevenue: p.estRevenue ?? Math.round((orders / 365) * price * 30),
+      estRevenue: p.estRevenue ?? Math.round(orders * price * 0.3),
     };
   } catch {
     return null;
@@ -110,6 +110,7 @@ const HERO_CSS = `
 @media (max-width: 768px) {
   .mj-hero-frame { transform: none !important; }
   .mj-scoring-bars { display: none !important; }
+  .mj-scoring-card { min-height: 300px !important; }
 }
 .mj-cta-primary-v2 {
   background-image: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.15) 50%, transparent 75%);
@@ -597,14 +598,15 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Card content area */}
-            <div style={{ padding: '24px 20px 28px' }}>
+            {/* Card content area — fixed height to prevent layout shift */}
+            <div className={`mj-card-crossfade ${transitioning ? 'mj-card-crossfade-out' : 'mj-card-crossfade-in'}`} style={{ padding: '24px 20px 28px' }}>
               {product ? (
                 <ScoringCard
                   product={product}
                   phase={phase}
                   scoreDisplay={scoreDisplay}
                   aiBriefText={aiBriefText}
+                  scoreGlow={scoreGlow}
                 />
               ) : (
                 /* Loading placeholder */
