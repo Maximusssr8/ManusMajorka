@@ -16,6 +16,7 @@ import { StatsBar } from '@/components/landing/v2/StatsBar';
 import { FeatureTabs } from '@/components/landing/v2/FeatureTabs';
 import { ComparisonTable } from '@/components/landing/v2/ComparisonTable';
 import { SocialProof } from '@/components/landing/v2/SocialProof';
+import { ApiStrip } from '@/components/landing/v2/ApiStrip';
 import { Pricing } from '@/components/landing/v2/Pricing';
 import { FAQ } from '@/components/landing/v2/FAQ';
 import { Footer } from '@/components/landing/v2/Footer';
@@ -133,6 +134,9 @@ export default function Home() {
 
         {/* [2] Stats Bar */}
         <StatsBar />
+
+        {/* [2.5] API Strip */}
+        <ApiStrip />
 
         {/* [3] Product Feature Tabs */}
         <FeatureTabs />
