@@ -1,8 +1,25 @@
-// Landing Nav v2 — transparent at top, cobalt-tinted + blur after scroll.
+// Landing Nav v2 — Linear/Resend style: transparent → blur on scroll.
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Menu, X } from 'lucide-react';
 import { LT, F, MAX } from '@/lib/landingTokens';
+
+const NAV_CSS = `
+.mj-nav-links { display: flex; }
+.mj-nav-cta-desk { display: inline-flex; }
+.mj-nav-mobile { display: none !important; }
+@media (max-width: 768px) {
+  .mj-nav-links { display: none !important; }
+  .mj-nav-cta-desk { display: none !important; }
+  .mj-nav-mobile { display: flex !important; }
+}
+`;
+
+const NAV_ITEMS = [
+  { label: 'Features', href: '#features' },
+  { label: 'Pricing', href: '#pricing' },
+  { label: 'Academy', href: '/academy' },
+];
 
 export function Nav({ topOffset = 0 }: { topOffset?: number }) {
   const [scrolled, setScrolled] = useState(false);
@@ -18,6 +35,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
 
   return (
     <>
+      <style>{NAV_CSS}</style>
       <nav
         style={{
           position: 'fixed',
@@ -28,7 +46,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
           background: scrolled ? 'rgba(4,6,15,0.95)' : 'transparent',
           backdropFilter: scrolled ? 'blur(12px)' : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderBottom: scrolled ? `1px solid ${LT.border}` : '1px solid transparent',
+          borderBottom: scrolled ? '1px solid #161b22' : '1px solid transparent',
           transition: 'background 200ms ease, border-color 200ms ease, backdrop-filter 200ms ease',
           height: 64,
         }}
@@ -44,46 +62,30 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
             justifyContent: 'space-between',
           }}
         >
-          {/* Logo */}
+          {/* Wordmark */}
           <Link
             href="/"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
               textDecoration: 'none',
               fontFamily: F.display,
               fontSize: 20,
-              fontWeight: 800,
-              color: LT.text,
+              fontWeight: 700,
+              color: '#ffffff',
               letterSpacing: '-0.02em',
             }}
           >
             Majorka
-            <span style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: LT.cobalt,
-              display: 'inline-block',
-              marginLeft: 2,
-            }} />
           </Link>
 
-          {/* Desktop links */}
+          {/* Center links (desktop) */}
           <div
             className="mj-nav-links"
             style={{
-              display: 'flex',
               alignItems: 'center',
               gap: 32,
             }}
           >
-            {[
-              { label: 'Features', href: '#features' },
-              { label: 'Pricing', href: '#pricing' },
-              { label: 'Academy', href: '/academy' },
-            ].map((l) => (
+            {NAV_ITEMS.map((l) => (
               <a
                 key={l.label}
                 href={l.href}
@@ -91,12 +93,12 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
                   fontFamily: F.body,
                   fontSize: 14,
                   fontWeight: 500,
-                  color: LT.textMute,
+                  color: '#8b949e',
                   textDecoration: 'none',
                   transition: 'color 150ms ease',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = LT.text; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = LT.textMute; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#8b949e'; }}
               >
                 {l.label}
               </a>
@@ -108,25 +110,23 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
             href="/sign-up"
             className="mj-nav-cta-desk"
             style={{
-              display: 'inline-flex',
               alignItems: 'center',
               padding: '10px 20px',
-              background: LT.cobalt,
-              color: LT.text,
+              background: '#4f8ef7',
+              color: '#ffffff',
               fontFamily: F.body,
               fontWeight: 600,
               fontSize: 14,
               borderRadius: 10,
               textDecoration: 'none',
-              letterSpacing: '0.02em',
               transition: 'filter 150ms ease',
             }}
           >
             Get Started
           </Link>
 
-          {/* Mobile CTA + Hamburger */}
-          <div className="mj-nav-mobile" style={{ display: 'none', alignItems: 'center', gap: 12 }}>
+          {/* Mobile: CTA + hamburger */}
+          <div className="mj-nav-mobile" style={{ alignItems: 'center', gap: 12 }}>
             <Link
               href="/sign-up"
               style={{
@@ -135,8 +135,8 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
                 justifyContent: 'center',
                 minHeight: 44,
                 padding: '0 16px',
-                background: LT.cobalt,
-                color: LT.text,
+                background: '#4f8ef7',
+                color: '#ffffff',
                 fontFamily: F.body,
                 fontWeight: 600,
                 fontSize: 14,
@@ -154,9 +154,9 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
                 minWidth: 44,
                 minHeight: 44,
                 background: 'transparent',
-                border: `1px solid ${LT.border}`,
+                border: '1px solid #161b22',
                 borderRadius: 10,
-                color: LT.text,
+                color: '#ffffff',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -169,7 +169,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
         </div>
       </nav>
 
-      {/* Mobile overlay menu */}
+      {/* Mobile overlay */}
       {menuOpen && (
         <div
           style={{
@@ -177,18 +177,14 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
             inset: 0,
             top: topOffset + 64,
             zIndex: 999,
-            background: LT.bg,
+            background: '#04060f',
             padding: 32,
             display: 'flex',
             flexDirection: 'column',
             gap: 24,
           }}
         >
-          {[
-            { label: 'Features', href: '#features' },
-            { label: 'Pricing', href: '#pricing' },
-            { label: 'Academy', href: '/academy' },
-          ].map((l) => (
+          {NAV_ITEMS.map((l) => (
             <a
               key={l.label}
               href={l.href}
@@ -197,7 +193,7 @@ export function Nav({ topOffset = 0 }: { topOffset?: number }) {
                 fontFamily: F.display,
                 fontSize: 24,
                 fontWeight: 600,
-                color: LT.text,
+                color: '#ffffff',
                 textDecoration: 'none',
                 padding: '12px 0',
               }}
