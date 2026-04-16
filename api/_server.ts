@@ -68,6 +68,9 @@ import onboardingRouter from "../server/routes/onboarding";
 import listsRouter from "../server/routes/lists";
 import dailyDigestRouter from "../server/cron/daily-digest";
 import { trackOnboarding } from "../server/middleware/trackOnboarding";
+import { apiKeyAuth } from "../server/middleware/apiKey";
+import v1Router from "../server/routes/v1";
+import apiKeysRouter from "../server/routes/apiKeys";
 import dashboardRouter from "../server/routes/dashboard";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
@@ -108,7 +111,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,X-Api-Key');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   if (req.method === 'OPTIONS') {
     res.status(204).end();
@@ -1185,6 +1188,11 @@ app.post("/api/alerts/test-notification", requireAuth, async (req: Request, res:
 });
 
 
+
+// ── V1 Public API — API key authenticated ────────────────────────────────────
+app.use('/v1', apiKeyAuth, v1Router);
+// ── API Key management — user-authenticated ──────────────────────────────────
+app.use('/api/settings/api-keys', apiKeysRouter);
 
 // ── Sentry error handler (must be after all routes) ─────────────────────────
 if (isSentryEnabled()) {

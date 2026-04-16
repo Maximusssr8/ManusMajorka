@@ -49,6 +49,7 @@ const MIGRATIONS: ReadonlyArray<{ name: string; file: string }> = [
   { name: "price-alerts", file: "price-alerts-migration.sql" },
   { name: "au-warehouse-column", file: "au-warehouse-column-migration.sql" },
   { name: "launch-gate", file: "launch-gate-migration.sql" },
+  { name: "api-keys", file: "api-keys-migration.sql" },
 ];
 
 function getConnectionString(): string {

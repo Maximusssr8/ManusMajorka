@@ -3,6 +3,7 @@ import {
   Bell,
   Check,
   ChevronRight,
+  Copy,
   CreditCard,
   Database,
   Download,
@@ -10,6 +11,7 @@ import {
   Key,
   Loader2,
   Mail,
+  Plus,
   Shield,
   Trash2,
   User,
@@ -62,7 +64,17 @@ const INTEGRATION_LABELS: Partial<Record<keyof HealthStatus, string>> = {
   database: 'Database',
 };
 
-type SettingsTab = 'profile' | 'notifications' | 'billing' | 'integrations' | 'data';
+type SettingsTab = 'profile' | 'notifications' | 'billing' | 'integrations' | 'api-keys' | 'data';
+
+interface ApiKeyRow {
+  id: string;
+  label: string;
+  plan: string;
+  rate_limit: number;
+  is_active: boolean;
+  last_used_at: string | null;
+  created_at: string;
+}
 
 export default function SettingsProfile() {
   useDocumentTitle('Settings');
@@ -105,6 +117,14 @@ export default function SettingsProfile() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // API Keys state
+  const [apiKeys, setApiKeys] = useState<ApiKeyRow[]>([]);
+  const [apiKeysLoading, setApiKeysLoading] = useState(false);
+  const [newKeyLabel, setNewKeyLabel] = useState('');
+  const [generatingKey, setGeneratingKey] = useState(false);
+  const [justCreatedKey, setJustCreatedKey] = useState<string | null>(null);
+  const [keyCopied, setKeyCopied] = useState(false);
 
   // Safety timeout: never show spinner forever
   useEffect(() => {
@@ -344,6 +364,76 @@ export default function SettingsProfile() {
     }
   };
 
+  // Fetch API keys when tab is active
+  useEffect(() => {
+    if (activeTab !== 'api-keys' || !isAuthenticated) return;
+    const fetchKeys = async () => {
+      setApiKeysLoading(true);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        if (!token) return;
+        const res = await fetch('/api/settings/api-keys', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.ok) setApiKeys(json.data || []);
+      } catch {
+        // silent
+      } finally {
+        setApiKeysLoading(false);
+      }
+    };
+    fetchKeys();
+  }, [activeTab, isAuthenticated]);
+
+  const handleGenerateKey = async () => {
+    setGeneratingKey(true);
+    setJustCreatedKey(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) { toast.error('Please sign in.'); return; }
+      const res = await fetch('/api/settings/api-keys', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: newKeyLabel || 'Default' }),
+      });
+      const json = await res.json();
+      if (json.ok && json.data?.key) {
+        setJustCreatedKey(json.data.key);
+        setApiKeys((prev) => [{ ...json.data, key: undefined } as unknown as ApiKeyRow, ...prev]);
+        setNewKeyLabel('');
+        toast.success('API key created! Copy it now - it won\'t be shown again.');
+      } else {
+        toast.error(json.message || 'Failed to create key.');
+      }
+    } catch {
+      toast.error('Failed to create API key.');
+    } finally {
+      setGeneratingKey(false);
+    }
+  };
+
+  const handleRevokeKey = async (id: string) => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) return;
+      const res = await fetch(`/api/settings/api-keys/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setApiKeys((prev) => prev.map((k) => k.id === id ? { ...k, is_active: false } : k));
+        toast.success('API key revoked.');
+      }
+    } catch {
+      toast.error('Failed to revoke key.');
+    }
+  };
+
   if ((loading && !loadingTimedOut) || (!user && !loadingTimedOut)) {
     return (
       <div className="flex h-screen items-center justify-center" style={{ background: '#0a0a0a' }}>
@@ -387,6 +477,7 @@ export default function SettingsProfile() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'billing', label: 'Billing', icon: CreditCard },
     { id: 'integrations', label: 'Integrations', icon: Shield },
+    { id: 'api-keys', label: 'API Keys', icon: Key },
     { id: 'data', label: 'Data & Privacy', icon: Database },
   ];
 
@@ -948,6 +1039,187 @@ export default function SettingsProfile() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── API Keys Tab ──────────────────────────────────────────── */}
+          {activeTab === 'api-keys' && (
+            <div className="space-y-4">
+              <div className={sectionCard} style={sectionCardStyle}>
+                <div
+                  className="text-xs font-semibold mb-2"
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
+                >
+                  API Keys
+                </div>
+                <p className="text-sm mb-4" style={{ color: '#94A3B8', lineHeight: 1.5 }}>
+                  Generate API keys to access the Majorka V1 API. Keys are shown once on creation — store them securely.
+                  <a href="/docs" style={{ color: '#6366f1', textDecoration: 'none', marginLeft: 4, fontWeight: 600 }}>View API docs</a>
+                </p>
+
+                {/* Generate new key */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                  <input
+                    type="text"
+                    placeholder="Key label (e.g. Production, Testing)"
+                    value={newKeyLabel}
+                    onChange={(e) => setNewKeyLabel(e.target.value)}
+                    className={inputClass}
+                    style={{ flex: 1, minWidth: 180 }}
+                  />
+                  <button
+                    onClick={handleGenerateKey}
+                    disabled={generatingKey}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all"
+                    style={{
+                      background: generatingKey ? 'rgba(99,102,241,0.3)' : '#6366f1',
+                      border: 'none',
+                      color: '#fff',
+                      cursor: generatingKey ? 'wait' : 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {generatingKey ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                    Generate Key
+                  </button>
+                </div>
+
+                {/* Just-created key banner */}
+                {justCreatedKey && (
+                  <div style={{
+                    background: 'rgba(16,185,129,0.08)',
+                    border: '1px solid rgba(16,185,129,0.25)',
+                    borderRadius: 10, padding: 14, marginBottom: 16,
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#10b981', marginBottom: 8 }}>
+                      Your new API key (copy it now — it won't be shown again):
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <code style={{
+                        flex: 1,
+                        background: 'rgba(0,0,0,0.3)',
+                        padding: '8px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        color: '#10b981',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        wordBreak: 'break-all',
+                      }}>
+                        {justCreatedKey}
+                      </code>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(justCreatedKey);
+                          setKeyCopied(true);
+                          setTimeout(() => setKeyCopied(false), 2000);
+                        }}
+                        style={{
+                          background: keyCopied ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
+                          border: `1px solid ${keyCopied ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                          borderRadius: 6, padding: '8px 12px',
+                          color: keyCopied ? '#10b981' : '#94A3B8',
+                          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        <Copy size={14} /> {keyCopied ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Keys list */}
+                {apiKeysLoading ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 16, color: '#64748b' }}>
+                    <Loader2 size={16} className="animate-spin" /> Loading keys...
+                  </div>
+                ) : apiKeys.length === 0 ? (
+                  <div style={{ padding: 16, color: '#475569', fontSize: 13, textAlign: 'center' }}>
+                    No API keys yet. Generate one above to get started.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {apiKeys.map((key) => (
+                      <div
+                        key={key.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 12,
+                          padding: '10px 14px',
+                          background: key.is_active ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.01)',
+                          border: `1px solid ${key.is_active ? 'rgba(255,255,255,0.06)' : 'rgba(239,68,68,0.15)'}`,
+                          borderRadius: 8,
+                          opacity: key.is_active ? 1 : 0.5,
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <Key size={14} style={{ color: key.is_active ? '#6366f1' : '#475569', flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 120 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>
+                            {key.label || 'Unnamed key'}
+                          </div>
+                          <div style={{ fontSize: 11, color: '#64748b' }}>
+                            {key.plan} plan - {key.rate_limit} req/min
+                            {key.last_used_at && ` - Last used ${new Date(key.last_used_at).toLocaleDateString('en-AU')}`}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 11, color: '#475569', whiteSpace: 'nowrap' }}>
+                          {new Date(key.created_at).toLocaleDateString('en-AU')}
+                        </div>
+                        {key.is_active ? (
+                          <button
+                            onClick={() => handleRevokeKey(key.id)}
+                            style={{
+                              background: 'rgba(239,68,68,0.06)',
+                              border: '1px solid rgba(239,68,68,0.2)',
+                              borderRadius: 6, padding: '4px 10px',
+                              color: '#ef4444', fontSize: 11, fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Revoke
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>Revoked</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* API quick reference */}
+              <div className={sectionCard} style={sectionCardStyle}>
+                <div
+                  className="text-xs font-semibold mb-3"
+                  style={{ color: '#9CA3AF', fontFamily: "'Syne', sans-serif" }}
+                >
+                  Quick Reference
+                </div>
+                <div style={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.8 }}>
+                  <div><strong style={{ color: '#e2e8f0' }}>Base URL:</strong> <code style={{ color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>https://www.majorka.io/v1</code></div>
+                  <div><strong style={{ color: '#e2e8f0' }}>Auth header:</strong> <code style={{ color: '#6366f1', background: 'rgba(99,102,241,0.08)', padding: '1px 6px', borderRadius: 4, fontSize: 11 }}>X-Api-Key: mk_your_key</code></div>
+                  <div style={{ marginTop: 8 }}>
+                    <strong style={{ color: '#e2e8f0' }}>Endpoints:</strong>{' '}
+                    <span style={{ color: '#10b981' }}>GET</span> /v1/products{' '}|{' '}
+                    <span style={{ color: '#10b981' }}>GET</span> /v1/products/trending{' '}|{' '}
+                    <span style={{ color: '#10b981' }}>GET</span> /v1/products/hot{' '}|{' '}
+                    <span style={{ color: '#818cf8' }}>POST</span> /v1/score{' '}|{' '}
+                    <span style={{ color: '#818cf8' }}>POST</span> /v1/brief{' '}|{' '}
+                    <span style={{ color: '#818cf8' }}>POST</span> /v1/ads/generate{' '}|{' '}
+                    <span style={{ color: '#10b981' }}>GET</span> /v1/stats
+                  </div>
+                </div>
+                <a
+                  href="/docs"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    marginTop: 12, fontSize: 12, fontWeight: 600,
+                    color: '#6366f1', textDecoration: 'none',
+                  }}
+                >
+                  Full documentation <ExternalLink size={12} />
+                </a>
               </div>
             </div>
           )}

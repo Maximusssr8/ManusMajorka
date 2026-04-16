@@ -41,6 +41,9 @@ import { getUsageSummary } from '../lib/usageLimits';
 import type { Plan } from '../../shared/plans';
 import { requireAuth } from '../middleware/requireAuth';
 import { claudeRateLimit } from '../middleware/claudeRateLimit';
+import { apiKeyAuth } from '../middleware/apiKey';
+import v1Router from '../routes/v1';
+import apiKeysRouter from '../routes/apiKeys';
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -89,7 +92,7 @@ async function startServer() {
       res.setHeader('Access-Control-Allow-Origin', origin);
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,X-Api-Key');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.method === 'OPTIONS') {
       res.status(204).end();
@@ -467,6 +470,11 @@ Be specific and creative. No generic filler.`;
       }
     }
   });
+
+  // ── V1 Public API — API key authenticated ──────────────────────────────────
+  app.use('/v1', apiKeyAuth, v1Router);
+  // ── API Key management — user-authenticated ────────────────────────────────
+  app.use('/api/settings/api-keys', apiKeysRouter);
 
   // tRPC API
   app.use(
