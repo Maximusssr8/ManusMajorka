@@ -15,7 +15,7 @@ const ALI_DOMAINS = ['alicdn.com', 'aliexpress-media.com'];
 function isValidUrl(url?: string | null): boolean {
   if (!url || typeof url !== 'string' || url.trim() === '') return false;
   if (BLOCKED.some(d => url.includes(d))) return false;
-  return url.startsWith('http');
+  return url.startsWith('http') || url.startsWith('/api/');
 }
 
 /** Route AliExpress CDN images through our proxy to fix AVIF/format 404s */
